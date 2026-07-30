@@ -77,3 +77,14 @@ credential in the versioned content must be removed or replaced by a fictitious
 example value. In a Git repository, `framework init` can install pre-commit and
 pre-push wrappers that enforce these checks automatically without overwriting
 existing hooks.
+
+## Release and CI
+
+Releases are built from the version in `pyproject.toml` and are installed by
+pinning a tag. CI must run `uv run pytest`, `framework check --format json` and
+`framework security scan --format json`; a blocked security result prevents the
+workflow from publishing or deploying artifacts.
+
+Commands are read-only unless they are `init`, `install` or explicitly enabled Git
+hook installation. Existing hooks and locally modified agent projections are never
+overwritten silently; resolve the reported conflict and rerun the command.

@@ -1,0 +1,36 @@
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+node_modules/
+coverage/
+
+# Secrets and local framework state
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets/
+.framework/index.db
+.framework/reports/
+.framework/security/allowlist.yml
+
+# Local agent state
+.claude/local/
+.agents/local/
