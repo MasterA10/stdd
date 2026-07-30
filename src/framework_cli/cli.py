@@ -7,7 +7,8 @@ from pathlib import Path
 from .commands.check import check
 from .commands.doctor import doctor
 from .commands.init import init_project
-from .commands.install import install
+from .agents.integrations import integration_keys
+from .commands.install import install, integration_list, integration_status_command
 from .commands.learn import run_learn
 from .commands.quiz import run as run_quiz_command
 from .commands.scan import scan_project
@@ -37,8 +38,9 @@ def _add_test_commands(sub: argparse._SubParsersAction) -> None:
     test_run.add_argument("path", nargs="?", default=".")
     _common(test_run)
     test_create = test_sub.add_parser("create")
-    test_create.add_argument("description")
-    test_create.add_argument("--path", dest="test_path")
+    test_create.add_argument("description", nargs="+",
+                             help="descrição completa da feature/test suite")
+    test_create.add_argument("--agent-command")
     _common(test_create)
     test_explain = test_sub.add_parser("explain")
     test_explain.add_argument("test_path", nargs="?")
@@ -46,14 +48,14 @@ def _add_test_commands(sub: argparse._SubParsersAction) -> None:
     test_explain.add_argument("--mode", choices=("header", "first-use", "virtual"))
     _common(test_explain)
     test_approve = test_sub.add_parser("approve")
-    test_approve.add_argument("test_path")
+    test_approve.add_argument("test_path", nargs="?")
     test_approve.add_argument("--behavior")
     _common(test_approve)
     _common(test)
 
 
 def _add_learn_commands(sub: argparse._SubParsersAction) -> None:
-    learn = sub.add_parser("learn", aliases=["lessons"])
+    learn = sub.add_parser("learn")
     learn_sub = learn.add_subparsers(dest="learn_command")
 
     def learn_common(command: argparse.ArgumentParser) -> None:
@@ -89,7 +91,6 @@ def _add_learn_commands(sub: argparse._SubParsersAction) -> None:
     _common(review_lesson)
     _add_handoff_commands(learn_sub)
     _add_hook_commands(learn_sub)
-    _add_learn_quiz_commands(learn_sub)
     learn.add_argument("path", nargs="?", default=".")
     _common(learn)
 
@@ -135,28 +136,6 @@ def _add_hook_commands(learn_sub: argparse._SubParsersAction) -> None:
     _common(event)
 
 
-def _add_learn_quiz_commands(learn_sub: argparse._SubParsersAction) -> None:
-    quiz = learn_sub.add_parser("quiz")
-    quiz_sub = quiz.add_subparsers(dest="learn_quiz_command", required=True)
-    generate = quiz_sub.add_parser("generate")
-    generate.add_argument("--agent", "--provider", dest="learn_provider", choices=("local", "codex", "claude", "cloud", "antigravity", "generic"), default="local")
-    generate.add_argument("--scope", dest="learn_scope", default="project")
-    generate.add_argument("path", nargs="?", default=".")
-    _common(generate)
-    run = quiz_sub.add_parser("run")
-    run.add_argument("--category", dest="learn_category")
-    run.add_argument("--count", dest="learn_count", type=int, default=10)
-    run.add_argument("--answer", dest="learn_answers", action="append")
-    run.add_argument("path", nargs="?", default=".")
-    _common(run)
-    synchronize = quiz_sub.add_parser("sync")
-    synchronize.add_argument("path", nargs="?", default=".")
-    _common(synchronize)
-    export = quiz_sub.add_parser("export")
-    export.add_argument("--format", dest="learn_quiz_format", choices=("json", "yaml", "markdown"), default="json")
-    export.add_argument("path", nargs="?", default=".")
-
-
 def _add_quiz_commands(sub: argparse._SubParsersAction) -> None:
     quiz = sub.add_parser("quiz")
     quiz_sub = quiz.add_subparsers(dest="quiz_command", required=True)
@@ -171,7 +150,7 @@ def _add_quiz_commands(sub: argparse._SubParsersAction) -> None:
     run.add_argument("--answer", dest="answers", action="append")
     run.add_argument("path", nargs="?", default=".")
     _common(run)
-    synchronize = quiz_sub.add_parser("sync")
+    synchronize = quiz_sub.add_parser("refresh")
     synchronize.add_argument("path", nargs="?", default=".")
     _common(synchronize)
     export = quiz_sub.add_parser("export")
@@ -180,9 +159,25 @@ def _add_quiz_commands(sub: argparse._SubParsersAction) -> None:
     _common(quiz)
 
 
+def _add_integration_commands(sub: argparse._SubParsersAction) -> None:
+    integration = sub.add_parser("integration")
+    integration_sub = integration.add_subparsers(dest="integration_command", required=True)
+    listed = integration_sub.add_parser("list")
+    listed.add_argument("path", nargs="?", default=".")
+    _common(listed)
+    status = integration_sub.add_parser("status")
+    status.add_argument("path", nargs="?", default=".")
+    _common(status)
+    installer = integration_sub.add_parser("install")
+    installer.add_argument("integration", choices=integration_keys(installable_only=True))
+    installer.add_argument("path", nargs="?", default=".")
+    _common(installer)
+
+
 def _add_workflow_commands(sub: argparse._SubParsersAction) -> None:
     tradeoff_parser = sub.add_parser("tradeoff")
-    tradeoff_parser.add_argument("description")
+    tradeoff_parser.add_argument("description",
+                                 help="descrição completa da decisão")
     tradeoff_parser.add_argument("--agent-command")
     tradeoff_parser.add_argument("path", nargs="?", default=".")
     _common(tradeoff_parser)
@@ -192,7 +187,8 @@ def _add_workflow_commands(sub: argparse._SubParsersAction) -> None:
     implement_parser.add_argument("path", nargs="?", default=".")
     _common(implement_parser)
     fix_parser = sub.add_parser("fix")
-    fix_parser.add_argument("description")
+    fix_parser.add_argument("description",
+                            help="descrição completa do bug")
     fix_parser.add_argument("--issue")
     fix_parser.add_argument("--agent-command")
     fix_parser.add_argument("path", nargs="?", default=".")
@@ -228,7 +224,7 @@ def build_parser() -> argparse.ArgumentParser:
     init.add_argument("path", nargs="?", default=".")
     init.add_argument("--here", action="store_true")
     init.add_argument("--from", dest="requirements")
-    init.add_argument("--integration", choices=("codex", "claude"))
+    init.add_argument("--integration", choices=integration_keys(installable_only=True))
     init.add_argument("--profile", choices=("experiment", "mvp", "product"), default="mvp")
     init.add_argument("--install-hooks", action="store_true")
     _common(init)
@@ -245,12 +241,9 @@ def build_parser() -> argparse.ArgumentParser:
     scan.add_argument("path", nargs="?", default=".")
     scan.add_argument("--staged", action="store_true")
     _common(scan)
-    install_parser = sub.add_parser("install")
-    install_parser.add_argument("--integration", choices=("codex", "claude"), required=True)
-    install_parser.add_argument("path", nargs="?", default=".")
-    _common(install_parser)
     _add_learn_commands(sub)
     _add_quiz_commands(sub)
+    _add_integration_commands(sub)
     _add_workflow_commands(sub)
     return parser
 
@@ -258,16 +251,19 @@ def build_parser() -> argparse.ArgumentParser:
 def _dispatch_test(args: argparse.Namespace, root: Path):
     command = getattr(args, "test_command", None)
     if command == "create":
-        return create_test(root, args.description, path=args.test_path)
+        return create_test(root, " ".join(args.description), agent_command=args.agent_command)
     if command == "explain":
         if args.all:
             return sync_explanations(root, mode=args.mode, include_unmarked=True)
         if args.test_path:
             from .testing.explanations import explain_test
             return explain_test(root, args.test_path, mode=args.mode)
-        return sync_explanations(root, mode=args.mode)
+        return sync_explanations(root, mode=args.mode, include_unmarked=True)
     if command == "approve":
         return approve(root, args.test_path, args.behavior)
+    if command == "run":
+        explicit = None if args.path == "." else [args.path]
+        return run_tests(root, explicit_paths=explicit)
     selected = [name for name in ("unit", "integration", "database", "security", "performance") if getattr(args, name, False)]
     if len(selected) > 1 or (selected and getattr(args, "all", False)):
         from .reporting.models import CommandResult
@@ -306,9 +302,12 @@ def _dispatch(args: argparse.Namespace, root: Path):
         "doctor": lambda: doctor(Path(".")),
         "check": lambda: check(root),
         "security": lambda: security_scan(root, staged_only=args.staged),
-        "install": lambda: install(root, args.integration),
+        "integration": lambda: ({
+            "list": integration_list,
+            "status": integration_status_command,
+            "install": lambda path: install(path, args.integration),
+        }[args.integration_command])(root),
         "learn": lambda: run_learn(root, args),
-        "lessons": lambda: run_learn(root, args),
         "quiz": lambda: run_quiz_command(root, args),
         "scripts": lambda: generate_scripts(root, agent_command=args.agent_command),
     }

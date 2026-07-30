@@ -53,6 +53,47 @@ def approve_test(root: Path, test: str, *, behavior: str | None = None) -> Comma
                                                                "hash": data["approvals"][rel]["hash"]})
 
 
+def discover_test_files(root: Path) -> list[Path]:
+    """Find project test files without including framework internals."""
+    root = root.resolve()
+    extensions = {".py", ".js", ".jsx", ".ts", ".tsx", ".java", ".go", ".rs", ".php"}
+    return sorted(path for path in root.rglob("*")
+                  if path.is_file() and path.suffix in extensions
+                  and not {".git", ".venv", "venv", ".framework", "node_modules"}.intersection(path.parts)
+                  and ("tests" in path.parts or path.name.startswith("test_")
+                       or path.name.startswith("test.") or ".test." in path.name))
+
+
+def approve_all_tests(root: Path, *, behavior: str | None = None) -> CommandResult:
+    """Approve every test file discovered in the project in one atomic write."""
+    root = root.resolve()
+    paths = discover_test_files(root)
+    if not paths:
+        return CommandResult("framework test approve", metadata={"approved": [], "count": 0},
+                             actions=["No test files were found"])
+    try:
+        profile = load_config(root).profile.lower()
+    except FileNotFoundError:
+        profile = "mvp"
+    data = _read(root)
+    data.setdefault("version", 1)
+    data.setdefault("approvals", {})
+    approved: list[str] = []
+    for path in paths:
+        relative = str(path.relative_to(root))
+        data["approvals"][relative] = {"path": relative, "hash": content_hash(path),
+                                        "profile": profile, "behavior": behavior or "",
+                                        "approved_at": datetime.now(timezone.utc).isoformat()}
+        approved.append(relative)
+    target = _path(root)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n")
+    return CommandResult("framework test approve", metadata={"approved": approved,
+                                                               "count": len(approved),
+                                                               "profile": profile},
+                         actions=[f"Approved {len(approved)} test file(s)"])
+
+
 def approval_findings(root: Path) -> list[Finding]:
     root = root.resolve(); data = _read(root); findings: list[Finding] = []
     try:

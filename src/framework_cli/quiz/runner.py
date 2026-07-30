@@ -11,7 +11,7 @@ from .repository import QuizRepository
 def run_quiz(root: Path, *, category: str | None = None, count: int = 10, answers: list[str] | None = None,
              session_id: str | None = None) -> CommandResult:
     from ..learn.store import LearnStore
-    store = LearnStore(root); result = CommandResult("framework learn quiz run", metadata={"enabled": store.enabled()})
+    store = LearnStore(root); result = CommandResult("framework quiz run", metadata={"enabled": store.enabled()})
     if not store.enabled(): result.status = "disabled"; return result
     questions = [q for q in QuizRepository(store).questions() if q.get("status") == "current" and (not category or q.get("category") == category)][:count]
     if not questions:

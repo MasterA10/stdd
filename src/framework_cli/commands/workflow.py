@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from ..agents.instructions import discover_instruction_chain
+from ..agents.integrations import resolve_integration
 from ..adapters.registry import detect_project
 from ..commands.check import check
 from ..commands.test import run_tests
@@ -20,11 +21,44 @@ from ..git.repository import GitRepository
 from ..history.records import record_bug, record_change, record_tradeoff
 from ..learn.redaction import redact_record
 from ..reporting.models import CommandResult
-from ..testing.approval import approve_test, approved_hashes, approved_paths
+from ..testing.approval import (approve_all_tests, approve_test, approved_hashes,
+                                approved_paths, discover_test_files)
 from ..testing.explanations import explain_test, sync_explanations
 
 
-LOCAL_AGENTS = ("codex", "claude", "cloud", "antigravity")
+LOCAL_AGENTS = ("codex", "claude", "agy", "cloud")
+
+AGENT_CONTRACTS = {
+    "test-create": (
+        "You are the specialized test-design agent. Treat context.description as a complete feature "
+        "request, not as a one-line example. Analyze the repository and the applicable instruction chain, "
+        "then create every useful test needed to express the feature: normal behavior, boundaries, invalid "
+        "input, failure paths, persistence/integration, security and concurrency when relevant. Infer the "
+        "stack and existing test conventions. Create tests only; do not implement production behavior. "
+        "Keep the new tests red for the expected missing behavior, avoid changing approved tests, and "
+        "report the feature test plan and all created paths."
+    ),
+    "implement": (
+        "You are the specialized implementation agent. Implement the requested behavior in the existing "
+        "architecture, using the supplied failing test or complete request. Preserve applicable Markdown "
+        "instructions, do not alter approved tests, and run the smallest relevant test set before reporting."
+    ),
+    "fix": (
+        "You are the specialized bug-fix agent. Reproduce the described bug with the supplied regression "
+        "contract, inspect the relevant Git history, implement the smallest coherent fix, and verify the "
+        "regression plus related tests. Do not alter approved tests or hide a failing assertion."
+    ),
+    "tradeoff": (
+        "You are the specialized architecture trade-off agent. Produce a structured comparison of the "
+        "alternatives in the complete request, including assumptions, constraints, risks, testing, "
+        "security, performance, coupling, operations and a recommendation. Do not modify source code."
+    ),
+    "generate-scripts": (
+        "You are the specialized project-scripts agent. Inspect the detected stack and generate only the "
+        "requested executable scripts under the declared output directory. Do not invent unsupported "
+        "language commands, include secrets or expose the request context."
+    ),
+}
 
 
 def _chain_or_block(root: Path, command: str) -> CommandResult | None:
@@ -43,33 +77,114 @@ def _slug(value: str) -> str:
     return result[:72]
 
 
-def create_test(root: Path, description: str, *, path: str | None = None) -> CommandResult:
-    blocked = _chain_or_block(root, "framework test create")
-    if blocked:
-        return blocked
-    root = root.resolve(); target = Path(path) if path else Path("tests") / f"test_{_slug(description)}.py"
-    target = (root / target).resolve()
-    if root not in target.parents:
-        return CommandResult("framework test create", status="error", exit_code=2,
-                             actions=["Test path must remain inside project root"])
-    if target.exists():
-        return CommandResult("framework test create", status="error", exit_code=2,
-                             actions=[f"Refusing to overwrite existing test: {target.relative_to(root)}"])
-    target.parent.mkdir(parents=True, exist_ok=True)
-    function = _slug(description) or "behavior"
-    content = (f'"""Generated behavior contract.\n\n{description}\n"""\n\n\n'
-               f"def test_{function}():\n"
-               f'    """TODO: replace this red test with the project-specific assertion."""\n'
-               f'    raise AssertionError("Behavior not implemented: {description}")\n')
-    target.write_text(content)
-    result = CommandResult("framework test create", metadata={"path": str(target.relative_to(root)),
-                                                                "description": description,
-                                                                "state": "red"})
-    result.actions.append("Review the generated test before implementing the behavior")
+def _test_snapshot(root: Path) -> dict[str, str]:
+    return {str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in discover_test_files(root)}
+
+
+def _feature_directory(root: Path, description: str) -> Path:
+    base = root / ".framework" / "quality" / "features"
+    slug = _slug(description) or "feature"
+    existing = []
+    for item in base.iterdir() if base.exists() else []:
+        match = re.match(r"^(\d{3})-", item.name)
+        if item.is_dir() and match:
+            existing.append(int(match.group(1)))
+    number = max(existing, default=0) + 1
+    return base / f"{number:03d}-{slug}"
+
+
+def _feature_manifest(feature_directory: Path, description: str, test_paths: list[str], *, status: str) -> Path:
+    feature_id = feature_directory.name
+    path = feature_directory / "feature.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "schema_version": 1,
+        "feature_id": feature_id,
+        "description": description,
+        "status": status,
+        "tests": sorted(test_paths),
+        "test_plan": str((feature_directory / "test-plan.md").relative_to(feature_directory.parent.parent.parent.parent)),
+    }
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n")
+    return path
+
+
+def _test_creation_context(root: Path, description: str, target_hint: str | None) -> tuple[dict[str, str], dict[str, Any]]:
+    before = _test_snapshot(root)
+    feature_directory = _feature_directory(root, description)
+    feature_directory.mkdir(parents=True, exist_ok=False)
+    context = {
+        "description": description,
+        "request_type": "complete_feature_description",
+        "target_hint": target_hint,
+        "feature_directory": str(feature_directory.relative_to(root)),
+        "test_plan_path": str((feature_directory / "test-plan.md").relative_to(root)),
+        "checklist_path": str((feature_directory / "checklist.md").relative_to(root)),
+        "deliverables": [
+            "Create a feature-level test plan at test_plan_path before writing tests",
+            "Create a checklist at checklist_path and validate the generated test set",
+            "Create all relevant tests, not only one happy-path test",
+            "Use the project's detected language, framework and test runner",
+            "Leave the new behavior tests red without implementing production code",
+            "Return the list of created and changed test paths",
+        ],
+        "test_categories": ["unit", "integration", "database", "security", "performance"],
+        "protected_tests": _protected_paths(root),
+    }
+    return before, context
+
+
+def _finish_test_creation(root: Path, description: str, before: dict[str, str],
+                          context: dict[str, Any], outcome: dict[str, Any]) -> CommandResult:
+    result = CommandResult("framework test create", status=outcome["status"],
+                           metadata={"description": description, **outcome})
+    if outcome["status"] == "prepared":
+        result.actions.append("No local specialized agent was found; request prepared for an authorized agent")
+        return result
+    if outcome["status"] == "failed":
+        result.status, result.exit_code = "error", 2
+        return result
+
+    after = _test_snapshot(root)
+    changed = sorted(relative for relative, digest in after.items()
+                     if before.get(relative) != digest)
+    if not changed:
+        result.status, result.exit_code = "error", 2
+        result.actions.append("The specialized agent completed without creating or changing a test")
+        return result
+    plan_path = root / context["test_plan_path"]
+    checklist_path = root / context["checklist_path"]
+    if not plan_path.is_file() or not checklist_path.is_file():
+        result.status, result.exit_code = "error", 2
+        result.actions.append("The specialized agent completed without creating the feature plan and checklist")
+        return result
+    manifest = _feature_manifest(root / context["feature_directory"], description, changed, status="red")
+    result.metadata.update({"tests": changed, "test_count": len(changed),
+                            "feature_manifest": str(manifest.relative_to(root)), "state": "red"})
+    result.actions.append(f"Specialized agent created {len(changed)} test file(s) for the feature")
+    result.actions.append("Review the complete test set before running framework implement")
     return result
 
 
-def approve(root: Path, test: str, behavior: str | None = None) -> CommandResult:
+def create_test(root: Path, description: str, *, path: str | None = None,
+                agent_command: str | None = None) -> CommandResult:
+    blocked = _chain_or_block(root, "framework test create")
+    if blocked:
+        return blocked
+    root = root.resolve()
+    description = description.strip()
+    if not description:
+        return CommandResult("framework test create", status="error", exit_code=2,
+                             actions=["A complete feature description is required"])
+    before, context = _test_creation_context(root, description, path)
+    outcome = _invoke_agent(root, "test-create", context, agent_command)
+    return _finish_test_creation(root, description, before, context, outcome)
+
+
+def approve(root: Path, test: str | None, behavior: str | None = None) -> CommandResult:
+    if test is None:
+        return approve_all_tests(root.resolve(), behavior=behavior)
     return approve_test(root.resolve(), test, behavior=behavior)
 
 
@@ -174,23 +289,30 @@ def _agent_request(root: Path, operation: str, context: dict[str, Any]) -> Path:
 
 
 def _native_command(root: Path, target: str) -> tuple[list[str], bool] | None:
-    executable = shutil.which(target)
+    spec = resolve_integration(target)
+    if not spec:
+        return None
+    executable = next((shutil.which(name) for name in spec.executable_names if shutil.which(name)), None)
+    executable = executable or spec.resolve_executable()
     if not executable:
         return None
-    if target == "codex":
+    if spec.key == "codex":
         return [executable, "exec", "-C", str(root), "-"], True
-    if target == "claude":
+    if spec.key == "claude":
         return [executable, "-p", "--permission-mode", "acceptEdits", "--add-dir", str(root)], True
-    return [executable], False
+    if spec.key == "agy":
+        return [executable, "--print"], False
+    return [executable], spec.cli_mode == "stdin"
 
 
 def _parse_agent_value(root: Path, value: str | list[str]) -> tuple[list[str], bool] | None:
     parsed = shlex.split(value) if isinstance(value, str) else list(value)
     if not parsed:
         return None
-    name = Path(parsed[0]).name
-    if name in {"codex", "claude"}:
-        return _native_command(root, name)
+    name = Path(parsed[0]).name.lower()
+    spec = resolve_integration(name)
+    if spec and len(parsed) == 1:
+        return _native_command(root, spec.key)
     return (parsed, False) if shutil.which(parsed[0]) else None
 
 
@@ -200,11 +322,21 @@ def _preferred_agents(root: Path, learn: dict[str, Any]) -> list[str]:
         preferred.extend(load_config(root).agent_integrations)
     except FileNotFoundError:
         pass
+    state = root / ".framework" / "agents" / "integration.json"
+    if state.exists():
+        try:
+            default = json.loads(state.read_text()).get("default_integration")
+        except (OSError, json.JSONDecodeError):
+            default = None
+        if default and default not in preferred:
+            preferred.append(default)
     return preferred + [item for item in LOCAL_AGENTS if item not in preferred]
 
 
 def _configured_agent(root: Path, target: str, configured: dict[str, Any]) -> tuple[list[str], bool] | None:
-    entry = configured.get(target, {})
+    spec = resolve_integration(target)
+    canonical = spec.key if spec else target
+    entry = configured.get(canonical, configured.get(target, {}))
     command = entry.get("command") if isinstance(entry, dict) else entry
     if command:
         parsed = _parse_agent_value(root, command)
@@ -237,16 +369,22 @@ def _invoke_agent(root: Path, operation: str, context: dict[str, Any], command: 
     if not resolved:
         return {"status": "prepared", "request_id": request_path.stem, "request_path": str(request_path.relative_to(root))}
     argv, stdin_prompt = resolved
-    prompt = ("You are the local project agent. Read and follow the redacted framework request below. "
+    contract = AGENT_CONTRACTS.get(operation, "You are the specialized local project agent.")
+    prompt = (f"{contract}\n\n"
+              "You are the local project agent. Read and follow the redacted framework request below. "
               "Respect every applicable Markdown instruction in instruction_chain. "
-              "Perform the requested operation in the current workspace and do not expose secrets.\n\n" +
+              "Perform the requested operation in the current workspace and do not expose secrets. "
+              f"If the installed integration provides a framework-{operation} skill, read it before acting.\n\n" +
               request_path.read_text())
     protected_hashes = approved_hashes(root)
     read_only_paths = context.get("read_only_paths", [])
     read_only_hashes = _hash_paths(root, read_only_paths)
     modes = _make_read_only(root, sorted(set([*context.get("protected_tests", []), *read_only_paths])))
     try:
-        completed = subprocess.run(argv if stdin_prompt else [*argv, str(request_path)], cwd=root, text=True,
+        native_argument = Path(argv[0]).name.lower() in {"agy", "antigravity"}
+        command_argv = argv if stdin_prompt else ([*argv, prompt] if native_argument
+                                                  else [*argv, str(request_path)])
+        completed = subprocess.run(command_argv, cwd=root, text=True,
                                    input=prompt if stdin_prompt else None, capture_output=True,
                                    check=False, timeout=900)
     except (OSError, subprocess.TimeoutExpired) as exc:
@@ -301,10 +439,6 @@ def implement(root: Path, test: str | None, *, agent_command: str | None = None)
     if outcome["status"] == "failed":
         result.status, result.exit_code = "error", 2
     elif outcome["status"] == "completed":
-        regression_after = _run_test(root, regression_test) if regression_test.endswith(".py") else None
-        result.metadata["regression_exit_code_after_agent"] = (regression_after.returncode
-                                                                if regression_after else None)
-        result.actions.append("Regression test executed after the local agent")
         _attach_gates(root, result)
     history = record_change(root, operation="implement", description=f"Implement behavior from {test or 'agent-discovered scope'}",
                             tests=[test] if test else [], status=outcome["status"],

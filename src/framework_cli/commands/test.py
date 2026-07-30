@@ -122,7 +122,37 @@ def _empty_scope_result(scope: str | None, changed: bool) -> CommandResult:
                          actions=[f"No {label} test files were found"])
 
 
-def run_tests(root: Path, *, scope: str | None = None, changed: bool = False, all_scopes: bool = False):
+def _select_test_paths(root: Path, scope: str | None, changed: bool,
+                       explicit_paths: list[str] | None) -> tuple[list[str], CommandResult | None]:
+    if explicit_paths:
+        invalid = [path for path in explicit_paths
+                   if not ((root / path).resolve().is_file()
+                           and root in (root / path).resolve().parents)]
+        if invalid:
+            return [], CommandResult(
+                "framework test", status="error", exit_code=2,
+                actions=[f"Test path does not exist inside project: {path}" for path in invalid],
+            )
+        return sorted(set(explicit_paths)), None
+    if changed:
+        return _changed_test_paths(root), None
+    return _scope_paths(root, scope) if scope else [], None
+
+
+def _add_run_actions(result: CommandResult, root: Path, scope: str | None,
+                     changed: bool, all_scopes: bool, paths: list[str], config: Any) -> None:
+    result.metadata.update({"scope": "all" if all_scopes else scope,
+                            "changed": changed, "paths": paths})
+    if all_scopes:
+        _append_security_child(root, result)
+    if changed and not paths:
+        result.actions.append("No changed or related test files were found")
+    if scope and not _scope_paths(root, scope) and not _configured_commands(config, scope):
+        result.actions.append(f"No dedicated {scope} test path was found; configured runners were used")
+
+
+def run_tests(root: Path, *, scope: str | None = None, changed: bool = False,
+              all_scopes: bool = False, explicit_paths: list[str] | None = None):
     root = root.resolve()
     config = _load_project_config(root)
     if scope == "security":
@@ -131,7 +161,9 @@ def run_tests(root: Path, *, scope: str | None = None, changed: bool = False, al
         scope = _select_scope(scope, all_scopes)
     except ValueError as exc:
         return CommandResult("framework test", status="error", exit_code=2, actions=[str(exc)])
-    paths = _changed_test_paths(root) if changed else (_scope_paths(root, scope) if scope else [])
+    paths, path_error = _select_test_paths(root, scope, changed, explicit_paths)
+    if path_error:
+        return path_error
     if (changed or scope) and not paths and not _configured_commands(config, scope):
         return _empty_scope_result(scope, changed)
     commands = _commands_for(root, config, scope)
@@ -139,11 +171,5 @@ def run_tests(root: Path, *, scope: str | None = None, changed: bool = False, al
     result = aggregate_children("framework test", children, {"root": str(root), "profile": config.profile if config else None,
                                                                "scope": "all" if all_scopes else scope, "changed": changed,
                                                                "paths": paths})
-    result.metadata.update({"scope": "all" if all_scopes else scope, "changed": changed, "paths": paths})
-    if all_scopes:
-        _append_security_child(root, result)
-    if changed and not paths:
-        result.actions.append("No changed or related test files were found")
-    if scope and not _scope_paths(root, scope) and not _configured_commands(config, scope):
-        result.actions.append(f"No dedicated {scope} test path was found; configured runners were used")
+    _add_run_actions(result, root, scope, changed, all_scopes, paths, config)
     return result

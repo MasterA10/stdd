@@ -39,3 +39,6 @@ comando. Não há provider HTTP/API no core. O agente principal recebe apenas a
 confirmação do job, não o contexto ou o conteúdo gerado. As perguntas devem ser curtas, associadas a
 símbolos ou regras estáveis e marcadas para revisão quando o código mudar. O
 resultado é educacional e não é critério automático de paralelização nem quality gate.
+
+Em aplicações que realizam inferência utilizando APIs de inteligência artificial (ex: chamando modelos como Gemini para processar perguntas e gerar respostas em chatbots), é obrigatório a presença de testes de inferência do tipo live. Esses testes devem usar credenciais reais para chamar os provedores externos e verificar se o fluxo completo e os contratos de resposta (ex: JSON retornado) continuam funcionais. Para aplicações puramente determinísticas e lógicas sem uso de IA para inferência, testes de inferência live não são exigidos.
+

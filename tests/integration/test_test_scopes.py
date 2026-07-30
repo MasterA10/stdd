@@ -21,6 +21,16 @@ def test_test_scope_runs_only_selected_directory(tmp_path):
     assert result.children[0]["command"][-1] == "tests/unit"
 
 
+def test_test_run_honors_an_explicit_test_path(tmp_path):
+    _tests(tmp_path)
+
+    result = run_tests(tmp_path, explicit_paths=["tests/integration/test_integration.py"])
+
+    assert result.exit_code == 0
+    assert result.metadata["paths"] == ["tests/integration/test_integration.py"]
+    assert result.children[0]["command"][-1] == "tests/integration/test_integration.py"
+
+
 def test_all_flag_is_available_and_includes_security_child():
     args = build_parser().parse_args(["test", "--all"])
 

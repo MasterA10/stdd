@@ -12,7 +12,7 @@ from ..learn.store import write_json, repository
 
 def sync_quiz(root: Path) -> CommandResult:
     from ..learn.store import LearnStore
-    store = LearnStore(root); result = CommandResult("framework learn quiz sync", metadata={"enabled": store.enabled()})
+    store = LearnStore(root); result = CommandResult("framework quiz refresh", metadata={"enabled": store.enabled()})
     if not store.enabled(): result.status = "disabled"; return result
     sources = {x["id"]: x["fingerprint"] for x in source_catalog(root)}; changed = []
     for question in QuizRepository(store).questions():

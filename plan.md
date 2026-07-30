@@ -181,8 +181,8 @@ Essas tarefas serão executadas por skills ou comandos instalados para o agente 
 
 ## 2.5 Aprendizado opcional e memória de sessões
 
-O framework oferecerá o comando `framework learn`, com `framework lessons` como
-alias, para aprender com o processo de desenvolvimento. O recurso será opt-in:
+O framework oferecerá o comando `framework learn` para aprender com o processo de
+desenvolvimento. O recurso será opt-in:
 quando desabilitado, nenhum hook será instalado e a ausência de registros não
 afetará o fluxo normal.
 
@@ -193,12 +193,11 @@ framework learn                 # resume a sessão atual ou a última sessão
 framework learn review          # revisa lições propostas
 framework learn readiness --worktrees
                                 # diagnostica riscos, sem autorizar paralelização
-framework learn quiz generate    # gera/atualiza o banco de perguntas
-framework learn quiz run         # executa uma avaliação da codebase
-framework learn quiz sync        # atualiza perguntas ligadas a símbolos alterados
-framework learn quiz export --format yaml
+framework quiz generate          # gera/atualiza o banco de perguntas
+framework quiz run               # executa uma avaliação da codebase
+framework quiz refresh            # atualiza perguntas ligadas a símbolos alterados
+framework quiz export --format yaml
                                 # exporta perguntas para revisão/versionamento
-framework lessons               # alias de framework learn
 ```
 
 O resumo deverá separar:
@@ -278,8 +277,8 @@ explicação de até 80 palavras.
 
 O SQLite local (`.framework/index.db`) será a fonte de relacionamento. As tabelas
 deverão associar perguntas e itens de conhecimento a `symbol_id`, módulo, regra,
-teste, contrato, decisão e fingerprint da fonte. O comando `framework learn quiz
-sync` deverá marcar como `needs_review` qualquer pergunta cujo símbolo ou regra tenha
+teste, contrato, decisão e fingerprint da fonte. O comando `framework quiz refresh`
+deverá marcar como `needs_review` qualquer pergunta cujo símbolo ou regra tenha
 mudado, preservando tentativas antigas e evitando que uma resposta obsoleta seja
 tratada como conhecimento atual. O conteúdo poderá ser exportado em YAML para
 revisão humana e versionamento.
@@ -362,6 +361,7 @@ A análise deverá identificar, quando possível:
 * testes unitários;
 * testes de integração;
 * testes de banco de dados;
+* testes de inferência (live / provedores de IA);
 * testes end-to-end;
 * scripts já disponíveis.
 
@@ -646,7 +646,7 @@ Isso evita manter manualmente diversas versões das mesmas instruções.
 ## Comando
 
 ```bash
-framework test create "descrição do comportamento"
+framework test create "descrição completa da feature e dos comportamentos esperados"
 ```
 
 Exemplo:
@@ -656,21 +656,27 @@ framework test create \
   "Um cupom não pode reduzir o total do pedido abaixo de zero"
 ```
 
-Esse comando ativará um agente.
+Esse comando funciona como uma especificação de testes. A descrição completa é
+redigida em uma request e entregue a um agente local especializado, sem chamada
+de API. O framework cria uma pasta sequencial em
+`.framework/quality/features/NNN-nome-da-feature/` para os artefatos da operação.
 
 O agente deverá:
 
 1. localizar as funções relacionadas;
 2. identificar o framework de testes;
 3. identificar fixtures e helpers existentes;
-4. criar o teste no padrão do projeto;
-5. não implementar a funcionalidade;
-6. não adicionar manualmente explicações das funções;
-7. executar o teste;
-8. confirmar que ele falha pelo motivo esperado;
-9. apresentar o teste para validação.
+4. criar um plano de testes e um checklist de qualidade;
+5. criar todos os testes relevantes no padrão do projeto, não apenas um teste;
+6. não implementar a funcionalidade;
+7. não adicionar manualmente explicações das funções;
+8. executar os testes criados;
+9. confirmar que falham pelo motivo esperado;
+10. apresentar o conjunto de testes para validação.
 
-O teste criado será um teste normal da linguagem.
+Os testes criados serão testes normais da linguagem, registrados em
+`feature.json` junto com o plano e o checklist. A quantidade de arquivos e
+cenários é decidida pelo agente conforme a complexidade da descrição.
 
 Exemplo:
 
@@ -689,6 +695,19 @@ test("não permite que o cupom torne o total negativo", () => {
 ```
 
 Nesse momento, o teste ainda não possuirá o cabeçalho explicativo.
+
+---
+
+## 6.1 Testes de inferência (live / APIs de IA)
+
+Para aplicações que realizam inferência utilizando APIs de inteligência artificial (por exemplo, um chatbot chamando o Gemini para processar perguntas e transformar em respostas), é obrigatório a presença de testes do tipo **live**.
+
+Esses testes devem:
+* utilizar credenciais reais configuradas no ambiente de forma segura;
+* chamar efetivamente os provedores externos de IA;
+* verificar se o fluxo completo e os contratos de resposta (ex: schema de JSON retornado) permanecem válidos e funcionais, prevenindo quebras por mudanças silenciosas na API do provedor.
+
+Para aplicações puramente lógicas e determinísticas (sem uso de IA para inferência), testes de inferência *live* não são exigidos.
 
 ---
 
@@ -1554,8 +1573,7 @@ Aplicar alterações? [S/n]
 | `framework check`        | Script           |                      Não |
 | `framework inspect`      | Script           |                      Não |
 | `framework learn`        | Script           | Apenas memória opcional  |
-| `framework lessons`      | Alias            | Apenas memória opcional  |
-| `framework learn quiz`   | Script           | Apenas avaliação opcional|
+| `framework quiz`          | Script           | Apenas avaliação opcional|
 
 Essa classificação deverá ser visível na ajuda do CLI.
 

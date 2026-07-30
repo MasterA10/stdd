@@ -5,6 +5,7 @@ from typing import Any
 
 from ..adapters.registry import detect_project
 from ..agents.projections import install_projections
+from ..agents.integrations import resolve_integration
 from ..config.project import create_profile
 from ..git.hooks import install_hooks
 from ..git.repository import GitRepository
@@ -107,7 +108,7 @@ def _prepare_options(result: CommandResult, root: Path, mode: str, detection: di
         _apply_answers(detection, answers)
         profile = answers["profile"]
         result.metadata["guided_answers"] = answers
-        integration = integration or input("Integração local [codex/claude] [codex]: ").strip().lower() or "codex"
+        integration = integration or input("Integração local [codex/claude/agy] [codex]: ").strip().lower() or "codex"
         if not _confirm():
             result.status = "cancelled"
             result.actions.append("Configuration was not saved")
@@ -118,18 +119,18 @@ def _prepare_options(result: CommandResult, root: Path, mode: str, detection: di
                                    "database": inferred.get("database", "none"),
                                    "test_runner": inferred.get("test_runner", "pytest")})
     if interactive and integration is None:
-        integration = input("Integração local [codex/claude] [codex]: ").strip().lower() or "codex"
+        integration = input("Integração local [codex/claude/agy] [codex]: ").strip().lower() or "codex"
     return profile, integration
 
 
 def _validate_integration(result: CommandResult, integration: str | None, interactive: bool) -> bool:
     if not interactive and integration is None:
         result.status, result.exit_code = "error", 2
-        result.actions.append("Choose an integration with --integration codex or --integration claude")
+        result.actions.append("Choose an integration with --integration codex, --integration claude or --integration agy")
         return False
-    if integration not in {None, "codex", "claude"}:
+    if integration is not None and not resolve_integration(integration):
         result.status, result.exit_code = "error", 2
-        result.actions.append("Integration must be codex or claude")
+        result.actions.append("Integration must be codex, claude or agy")
         return False
     return True
 
@@ -156,6 +157,8 @@ def init_project(root: Path, *, integration: str | None = None, interactive: boo
     profile, integration = options
     if not _validate_integration(result, integration, interactive):
         return result
+    if integration:
+        integration = resolve_integration(integration).key
     config = create_profile(root, detection, profile=profile, integration=integration, mode=mode)
     result.project.update(config.to_dict())
     result.actions.append("Created .framework/project.yml")

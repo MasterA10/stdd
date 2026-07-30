@@ -62,3 +62,12 @@ def test_sync_updates_full_source_symbol_index(tmp_path):
     row = db.connection.execute("select path, name from symbols where name='calculate_total'").fetchone()
     db.close()
     assert tuple(row) == ("app.py", "calculate_total")
+
+
+def test_sync_without_markers_can_explain_all_tests(tmp_path):
+    test = _fixture(tmp_path)
+
+    result = sync_explanations(tmp_path, include_unmarked=True)
+
+    assert result.exit_code == 0
+    assert str(test.relative_to(tmp_path)) in result.metadata["updated"]

@@ -31,7 +31,7 @@ def _command_questions(response: dict) -> list[KnowledgeQuestion]:
 def generate(root: Path, *, agent: str = "local", scope: str = "project", command_callback=None):
     store = LearnStore(root)
     from ..reporting.models import CommandResult
-    result = CommandResult("framework learn quiz generate", metadata={"enabled": store.enabled()})
+    result = CommandResult("framework quiz generate", metadata={"enabled": store.enabled()})
     chain = discover_instruction_chain(store.root)
     result.metadata["instruction_chain"] = [item.path for item in chain.files]
     if not chain.valid:
@@ -73,6 +73,6 @@ def run(root: Path, args: Any):
     command = getattr(args, "quiz_command", None)
     if command == "generate": return generate(root, agent=args.agent, scope=args.scope)
     if command == "run": return run_quiz(root, category=getattr(args, "category", None), count=args.count, answers=getattr(args, "answers", None))
-    if command == "sync": return sync_quiz(root)
+    if command == "refresh": return sync_quiz(root)
     if command == "export": return export_quiz(root, args.quiz_format)
     return generate(root)

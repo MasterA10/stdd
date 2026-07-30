@@ -10,7 +10,7 @@ from .repository import QuizRepository
 
 def export_quiz(root: Path, fmt: str = "json") -> CommandResult:
     from ..learn.store import LearnStore
-    store = LearnStore(root); result = CommandResult("framework learn quiz export", metadata={"enabled": store.enabled()})
+    store = LearnStore(root); result = CommandResult("framework quiz export", metadata={"enabled": store.enabled()})
     if not store.enabled(): result.status = "disabled"; return result
     questions = QuizRepository(store).questions()
     output = store.base / "quiz" / f"questions.{fmt}"
