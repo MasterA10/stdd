@@ -3,4 +3,6 @@
 
 Implement the requested behavior from the failing test or complete feature
 request. Follow the instruction chain, preserve approved tests, run the related
-tests and report the changed files and validation results.
+tests and report the changed files and validation results. For every new or
+changed function or class, add a concise docstring/JSDoc summary explaining its
+responsibility and report those summaries to the caller.

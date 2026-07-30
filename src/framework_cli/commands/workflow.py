@@ -19,6 +19,8 @@ from ..commands.test import run_tests
 from ..config.loader import load_config
 from ..git.repository import GitRepository
 from ..history.records import record_bug, record_change, record_tradeoff
+from ..index.symbols import (changed_symbol_documentation, source_symbol_snapshot,
+                              update_symbol_index)
 from ..learn.redaction import redact_record
 from ..reporting.models import CommandResult
 from ..testing.approval import (approve_all_tests, approve_test, approved_hashes,
@@ -41,13 +43,15 @@ AGENT_CONTRACTS = {
     "implement": (
         "You are the specialized implementation agent. Implement the requested behavior in the existing "
         "architecture, using the supplied failing test or complete request. Preserve applicable Markdown "
-        "instructions, do not alter approved tests, document new or changed functions, and run the smallest "
-        "relevant test set before reporting."
+        "instructions, do not alter approved tests, add a concise docstring or JSDoc summary to every new "
+        "or changed function/class, report what each one does, and run the smallest relevant test set "
+        "before reporting."
     ),
     "fix": (
         "You are the specialized bug-fix agent. Reproduce the described bug with the supplied regression "
         "contract, inspect the relevant Git history, implement the smallest coherent fix, and verify the "
-        "regression plus related tests. Do not alter approved tests or hide a failing assertion."
+        "regression plus related tests. Document every new or changed function with a concise docstring or "
+        "JSDoc summary and report what each function does. Do not alter approved tests or hide a failing assertion."
     ),
     "tradeoff": (
         "You are the specialized architecture trade-off agent. Produce a structured comparison of the "
@@ -431,6 +435,7 @@ def implement(root: Path, test: str | None, *, agent_command: str | None = None)
         return CommandResult("framework implement", status="blocked", exit_code=1,
                              actions=["Implementation requires a failing test before the agent is invoked"])
     protected = _protected_paths(root)
+    before_symbols = source_symbol_snapshot(root)
     outcome = _invoke_agent(root, "implement", {"test": test,
                                                   "test_exit_code": run.returncode if run else None,
                                                   "test_output_available": bool(run),
@@ -440,6 +445,7 @@ def implement(root: Path, test: str | None, *, agent_command: str | None = None)
     if outcome["status"] == "failed":
         result.status, result.exit_code = "error", 2
     elif outcome["status"] == "completed":
+        _document_function_postflight(root, before_symbols, result)
         _attach_gates(root, result)
     history = record_change(root, operation="implement", description=f"Implement behavior from {test or 'agent-discovered scope'}",
                             tests=[test] if test else [], status=outcome["status"],
@@ -461,6 +467,7 @@ def fix(root: Path, description: str, *, issue: str | None = None, agent_command
     git = GitRepository(root)
     evidence_paths = sorted(set([*related, *git.changed_files(), regression_test]))
     git_before = git.context(evidence_paths)
+    before_symbols = source_symbol_snapshot(root)
     outcome = _invoke_agent(root, "fix", {"description": description, "issue": issue,
                                            "regression_test": regression_test,
                                            "regression_red": regression_run is None or regression_run.returncode != 0,
@@ -472,6 +479,7 @@ def fix(root: Path, description: str, *, issue: str | None = None, agent_command
     if outcome["status"] == "failed":
         result.status, result.exit_code = "error", 2
     elif outcome["status"] == "completed":
+        _document_function_postflight(root, before_symbols, result)
         _attach_gates(root, result)
     git_after = git.context(evidence_paths)
     result.metadata["git_before"] = git_before
@@ -547,6 +555,22 @@ def _attach_gates(root: Path, result: CommandResult) -> None:
     result.children = gates.children
     if gates.exit_code:
         result.status, result.exit_code = "blocked", 1
+
+
+def _document_function_postflight(root: Path,
+                                  before: dict[tuple[str, str, str], dict],
+                                  result: CommandResult) -> None:
+    """Persist changed symbols and block agent work that lacks concise summaries."""
+    update_symbol_index(root)
+    documentation = changed_symbol_documentation(root, before)
+    result.metadata["function_documentation"] = documentation
+    documented = documentation["documented"]
+    missing = documentation["missing"]
+    if documented:
+        result.actions.append(f"Documented {len(documented)} new or changed function/class symbol(s)")
+    if missing:
+        result.status, result.exit_code = "blocked", 1
+        result.actions.append("New or changed functions/classes require a concise docstring or JSDoc summary")
 
 
 def generate_scripts(root: Path, *, agent_command: str | None = None) -> CommandResult:

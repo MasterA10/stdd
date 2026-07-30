@@ -1,6 +1,7 @@
 import json
 
 from framework_cli.commands.workflow import create_test, implement, tradeoff
+from framework_cli.index.db import IndexDB
 from framework_cli.testing.explanations import explain_test
 
 
@@ -66,6 +67,49 @@ def test_implement_completed_agent_does_not_reference_missing_regression(tmp_pat
 
     assert result.status == "completed"
     assert result.metadata["history_path"]
+
+
+def test_implement_blocks_new_function_without_concise_summary(tmp_path, monkeypatch):
+    def fake_agent(root, operation, context, command):
+        assert operation == "implement"
+        (root / "app.py").write_text("def calculate_total(items):\n    return sum(items)\n")
+        return {"status": "completed", "request_id": "request-implementation"}
+
+    monkeypatch.setattr("framework_cli.commands.workflow._invoke_agent", fake_agent)
+    monkeypatch.setattr("framework_cli.commands.workflow._attach_gates", lambda *args: None)
+
+    result = implement(tmp_path, None)
+
+    assert result.status == "blocked"
+    assert result.exit_code == 1
+    assert result.metadata["function_documentation"]["missing"][0]["name"] == "calculate_total"
+    db = IndexDB(tmp_path / ".framework" / "index.db")
+    try:
+        row = db.connection.execute(
+            "SELECT data FROM symbols WHERE name=?", ("calculate_total",)
+        ).fetchone()
+    finally:
+        db.close()
+    assert row is not None
+    assert json.loads(row["data"])["description"] == "Descrição não encontrada no código-fonte."
+
+
+def test_implement_persists_concise_function_summary(tmp_path, monkeypatch):
+    def fake_agent(root, operation, context, command):
+        (root / "app.py").write_text(
+            'def calculate_total(items):\n    """Soma os itens do pedido."""\n    return sum(items)\n'
+        )
+        return {"status": "completed", "request_id": "request-documented"}
+
+    monkeypatch.setattr("framework_cli.commands.workflow._invoke_agent", fake_agent)
+    monkeypatch.setattr("framework_cli.commands.workflow._attach_gates", lambda *args: None)
+
+    result = implement(tmp_path, None)
+
+    assert result.status == "completed"
+    assert result.metadata["function_documentation"]["missing"] == []
+    assert result.metadata["function_documentation"]["documented"][0]["summary"] == \
+        "Soma os itens do pedido."
 
 
 def test_agentic_command_is_blocked_by_instruction_conflict(tmp_path):

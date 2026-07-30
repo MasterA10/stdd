@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import hashlib
 import sys
 from pathlib import Path
 
@@ -55,7 +56,10 @@ class PythonAdapter(BaseAdapter):
                                                  "Descrição não encontrada no código-fonte."),
                                 "description_status": "documented" if doc else "missing",
                                 "logical_lines": end - node.lineno + 1,
-                                "complexity": complexity})
+                                "complexity": complexity,
+                                "body_fingerprint": hashlib.sha256(
+                                    ast.dump(node, include_attributes=False).encode("utf-8")
+                                ).hexdigest()})
                 visit(node.body, qualified)
 
         visit(tree.body)

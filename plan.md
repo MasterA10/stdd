@@ -1206,6 +1206,26 @@ O agente não poderá alterar um teste aprovado apenas para fazer a implementaç
 
 Quando o teste estiver incorreto ou impossível de satisfazer, o comando deverá interromper a implementação e apresentar o conflito.
 
+## 12.2 Catálogo e explicação obrigatória de funções
+
+O processo de implementação terá um pós-fluxo determinístico, independente do
+agente local utilizado:
+
+1. antes da execução, `framework implement` e `framework fix` capturam um snapshot
+   dos símbolos de código-fonte;
+2. depois da execução, `framework scan` atualiza o catálogo SQLite de funções,
+   métodos e classes, incluindo assinatura, localização, métricas, fingerprint e
+   resumo curto;
+3. o framework compara os fingerprints e identifica símbolos novos ou alterados;
+4. cada símbolo novo ou alterado deverá possuir uma docstring ou JSDoc concisa;
+5. o resultado registra os resumos encontrados em `function_documentation` e
+   bloqueia a operação quando houver símbolo sem resumo.
+
+O agente deverá informar resumidamente o que cada função criada ou alterada faz,
+mas a fonte verificável é a documentação no próprio código e o registro em
+`.framework/index.db`. O mecanismo não depende do texto livre retornado pelo
+agente e funciona com Codex, Claude, Antigravity ou outro executável local.
+
 ---
 
 ## 12.1 Resultado da implementação

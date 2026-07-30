@@ -3,4 +3,6 @@
 
 Reproduce the bug with the supplied regression contract, inspect relevant Git
 history, implement a coherent fix and run the regression plus related tests.
-Never change an approved test to hide a failure.
+Document every new or changed function with a concise docstring or JSDoc summary
+and report briefly what each function does. Never change an approved test to hide
+a failure.

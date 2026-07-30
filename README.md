@@ -179,6 +179,14 @@ através do agente local.
 `fix` cria um teste de regressão, coleta contexto de `git log` e `git blame`,
 registra o comportamento em `.framework/history` e executa os gates.
 
+Após `implement` ou `fix`, o framework compara os símbolos antes e depois da
+execução do agente. Toda função ou classe nova/alterada precisa ter uma
+docstring ou JSDoc de uma frase curta explicando sua responsabilidade. O resumo,
+assinatura, métricas e fingerprint do corpo são persistidos em
+`.framework/index.db` na tabela `symbols`; símbolos sem resumo bloqueiam o
+resultado até serem documentados. `framework inspect <símbolo>` mostra esse
+registro e `framework scan`/`framework sync` o reconstrói.
+
 ### Memória de sessões
 
 ```bash

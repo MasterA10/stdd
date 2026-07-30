@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Iterable
 
@@ -33,7 +34,7 @@ def _source_symbols(root: Path) -> list[Symbol]:
                 seen.add(key)
                 metadata = {
                     key: data.get(key)
-                    for key in ("logical_lines", "complexity", "description_status")
+                    for key in ("logical_lines", "complexity", "description_status", "body_fingerprint")
                     if data.get(key) is not None
                 }
                 result.append(Symbol(
@@ -74,7 +75,8 @@ def _record_payload(root: Path, symbol: Symbol, *, source: str = "source-index")
     qualified = symbol.qualified_name or symbol.name
     identifier = fingerprint(relative, qualified, symbol.kind)
     content_fingerprint = fingerprint(relative, qualified, symbol.signature,
-                                      symbol.description, str(symbol.end_line or symbol.line or ""))
+                                      symbol.description, str(symbol.end_line or symbol.line or ""),
+                                      json.dumps(symbol.metadata, sort_keys=True))
     return {
         "id": identifier, "path": relative, "name": symbol.name, "kind": symbol.kind,
         "line": symbol.line, "end_line": symbol.end_line or symbol.line,
@@ -82,6 +84,33 @@ def _record_payload(root: Path, symbol: Symbol, *, source: str = "source-index")
         "qualified_name": qualified, "metadata": symbol.metadata,
         "fingerprint": content_fingerprint, "source": source,
     }
+
+
+def source_symbol_snapshot(root: Path) -> dict[tuple[str, str, str], dict]:
+    """Return source symbols keyed for agent pre/post-flight comparison."""
+    root = root.resolve()
+    return {
+        (record["path"], record["qualified_name"], record["kind"]): record
+        for record in (_record_payload(root, item) for item in _source_symbols(root))
+        if "tests" not in Path(record["path"]).parts
+    }
+
+
+def changed_symbol_documentation(root: Path, before: dict[tuple[str, str, str], dict]) -> dict[str, list[dict]]:
+    """Find newly created/changed functions and whether they have summaries."""
+    current = source_symbol_snapshot(root)
+    documented: list[dict] = []
+    missing: list[dict] = []
+    for key, record in current.items():
+        previous = before.get(key)
+        if previous and previous["fingerprint"] == record["fingerprint"]:
+            continue
+        item = {"path": record["path"], "name": record["name"],
+                "qualified_name": record["qualified_name"], "kind": record["kind"],
+                "line": record["line"], "summary": record["description"]}
+        status = record.get("metadata", {}).get("description_status", "missing")
+        (documented if status == "documented" else missing).append(item)
+    return {"documented": documented, "missing": missing}
 
 
 def update_symbol_index(root: Path, symbols: Iterable[Symbol] | None = None) -> list[str]:
