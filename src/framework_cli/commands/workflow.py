@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import re
 import shlex
 import shutil
@@ -16,9 +17,10 @@ from ..commands.check import check
 from ..commands.test import run_tests
 from ..config.loader import load_config
 from ..git.repository import GitRepository
+from ..history.records import record_bug, record_change, record_tradeoff
 from ..learn.redaction import redact_record
 from ..reporting.models import CommandResult
-from ..testing.approval import approve_test
+from ..testing.approval import approve_test, approved_hashes, approved_paths
 from ..testing.explanations import explain_test, sync_explanations
 
 
@@ -79,6 +81,83 @@ def _run_test(root: Path, test: str | None) -> subprocess.CompletedProcess[str] 
         return None
     return subprocess.run([sys.executable, "-m", "pytest", str(path)], cwd=root, text=True,
                           capture_output=True, check=False, timeout=300)
+
+
+def _regression_test(root: Path, description: str) -> str:
+    clean, _ = redact_record({"description": description})
+    safe_description = clean["description"]
+    slug = _slug(safe_description) or "behavior"
+    suffix = ".py"
+    for candidate in sorted(root.rglob("*")):
+        if candidate.is_file() and "tests" in candidate.parts and candidate.suffix in {".py", ".js", ".ts"}:
+            suffix = candidate.suffix
+            break
+    directory = root / "tests" / "regressions"
+    target = directory / f"test_bug_{slug}{suffix}"
+    if target.exists():
+        return str(target.relative_to(root))
+    directory.mkdir(parents=True, exist_ok=True)
+    if suffix == ".py":
+        content = (f'"""Regression contract.\n\n{safe_description}\n"""\n\n\n'
+                   f"def test_bug_{slug}():\n"
+                   f'    raise AssertionError("Regression not implemented: {safe_description}")\n')
+    else:
+        content = (f"// Regression contract: {safe_description}\n"
+                   f"test(\"{safe_description}\", () => {{\n"
+                   f"  throw new Error(\"Regression not implemented\");\n"
+                   f"}});\n")
+    target.write_text(content)
+    return str(target.relative_to(root))
+
+
+def _protected_paths(root: Path) -> list[str]:
+    return [str(path.relative_to(root)) for path in approved_paths(root)]
+
+
+def _source_paths(root: Path) -> list[str]:
+    suffixes = {".py", ".js", ".jsx", ".ts", ".tsx", ".java", ".go", ".rs", ".php"}
+    return [str(path.relative_to(root)) for path in sorted(root.rglob("*"))
+            if path.is_file() and path.suffix in suffixes and
+            not {".git", ".venv", "venv", ".framework"}.intersection(path.parts)]
+
+
+def _hash_paths(root: Path, paths: list[str]) -> dict[str, str]:
+    return {relative: hashlib.sha256((root / relative).read_bytes()).hexdigest()
+            for relative in paths if (root / relative).is_file()}
+
+
+def _related_paths(root: Path, description: str) -> list[str]:
+    """Find likely source/test files to include in the bug's Git evidence."""
+    terms = {term for term in re.findall(r"[A-Za-z_][A-Za-z0-9_]{3,}", description.lower())}
+    paths: list[str] = []
+    for path in sorted(root.rglob("*")):
+        if not path.is_file() or {".git", ".venv", "venv", ".framework"}.intersection(path.parts):
+            continue
+        if path.suffix not in {".py", ".js", ".jsx", ".ts", ".tsx", ".java", ".go", ".rs", ".php"}:
+            continue
+        try:
+            content = path.read_text(errors="replace").lower()
+        except OSError:
+            continue
+        if terms.intersection(re.findall(r"[A-Za-z_][A-Za-z0-9_]{3,}", content)):
+            paths.append(str(path.relative_to(root)))
+    return paths[:20]
+
+
+def _make_read_only(root: Path, paths: list[str]) -> dict[Path, int]:
+    modes: dict[Path, int] = {}
+    for relative in paths:
+        path = (root / relative).resolve()
+        if root in path.parents and path.is_file():
+            modes[path] = path.stat().st_mode & 0o777
+            path.chmod(modes[path] & ~0o222)
+    return modes
+
+
+def _restore_modes(modes: dict[Path, int]) -> None:
+    for path, mode in modes.items():
+        if path.exists():
+            path.chmod(mode)
 
 
 def _agent_request(root: Path, operation: str, context: dict[str, Any]) -> Path:
@@ -162,15 +241,40 @@ def _invoke_agent(root: Path, operation: str, context: dict[str, Any], command: 
               "Respect every applicable Markdown instruction in instruction_chain. "
               "Perform the requested operation in the current workspace and do not expose secrets.\n\n" +
               request_path.read_text())
+    protected_hashes = approved_hashes(root)
+    read_only_paths = context.get("read_only_paths", [])
+    read_only_hashes = _hash_paths(root, read_only_paths)
+    modes = _make_read_only(root, sorted(set([*context.get("protected_tests", []), *read_only_paths])))
     try:
         completed = subprocess.run(argv if stdin_prompt else [*argv, str(request_path)], cwd=root, text=True,
                                    input=prompt if stdin_prompt else None, capture_output=True,
                                    check=False, timeout=900)
     except (OSError, subprocess.TimeoutExpired) as exc:
         return {"status": "failed", "request_id": request_path.stem, "error": type(exc).__name__}
-    return {"status": "completed" if completed.returncode == 0 else "failed",
+    finally:
+        _restore_modes(modes)
+    response = {"status": "completed" if completed.returncode == 0 else "failed",
             "request_id": request_path.stem, "exit_code": completed.returncode,
             "agent": Path(argv[0]).name}
+    safe, _ = redact_record({"status": response["status"], "stdout": completed.stdout,
+                             "stderr": completed.stderr})
+    response_path = root / ".framework" / "agents" / "results" / f"{request_path.stem}.json"
+    response_path.parent.mkdir(parents=True, exist_ok=True)
+    response_path.write_text(json.dumps(safe, ensure_ascii=False, indent=2, sort_keys=True) + "\n")
+    response["response_path"] = str(response_path.relative_to(root))
+    current_hashes = _hash_paths(root, sorted(set([*protected_hashes, *read_only_hashes])))
+    violations = [relative for relative, expected in protected_hashes.items()
+                  if current_hashes.get(relative) != expected]
+    read_only_violations = [relative for relative, expected in read_only_hashes.items()
+                            if current_hashes.get(relative) != expected]
+    read_only_violations.extend(sorted(set(_source_paths(root)) - set(read_only_hashes)))
+    if violations:
+        response["status"] = "failed"
+        response["protected_test_violations"] = violations
+    if read_only_violations:
+        response["status"] = "failed"
+        response["read_only_violations"] = read_only_violations
+    return response
 
 
 def implement(root: Path, test: str | None, *, agent_command: str | None = None) -> CommandResult:
@@ -178,6 +282,8 @@ def implement(root: Path, test: str | None, *, agent_command: str | None = None)
     if blocked:
         return blocked
     root = root.resolve()
+    git = GitRepository(root)
+    git_before = git.context([test] if test else None)
     run = _run_test(root, test) if test else None
     if test and run is None:
         return CommandResult("framework implement", status="error", exit_code=2,
@@ -185,15 +291,27 @@ def implement(root: Path, test: str | None, *, agent_command: str | None = None)
     if test and run and run.returncode == 0:
         return CommandResult("framework implement", status="blocked", exit_code=1,
                              actions=["Implementation requires a failing test before the agent is invoked"])
+    protected = _protected_paths(root)
     outcome = _invoke_agent(root, "implement", {"test": test,
                                                   "test_exit_code": run.returncode if run else None,
-                                                  "test_output_available": bool(run)}, agent_command)
-    result = CommandResult("framework implement", metadata=outcome)
+                                                  "test_output_available": bool(run),
+                                                  "protected_tests": protected}, agent_command)
+    result = CommandResult("framework implement", status=outcome["status"], metadata=outcome)
     result.actions.append("The local agent received the request; framework check validates its changes")
     if outcome["status"] == "failed":
         result.status, result.exit_code = "error", 2
     elif outcome["status"] == "completed":
+        regression_after = _run_test(root, regression_test) if regression_test.endswith(".py") else None
+        result.metadata["regression_exit_code_after_agent"] = (regression_after.returncode
+                                                                if regression_after else None)
+        result.actions.append("Regression test executed after the local agent")
         _attach_gates(root, result)
+    history = record_change(root, operation="implement", description=f"Implement behavior from {test or 'agent-discovered scope'}",
+                            tests=[test] if test else [], status=outcome["status"],
+                            behavior_before="Failing or unspecified behavior before implementation",
+                            behavior_after="Agent outcome recorded; verify the related tests and gates",
+                            git_context={"before": git_before, "after": git.context([test] if test else None)})
+    result.metadata["history_path"] = str(history.relative_to(root))
     return result
 
 
@@ -201,14 +319,36 @@ def fix(root: Path, description: str, *, issue: str | None = None, agent_command
     blocked = _chain_or_block(root, "framework fix")
     if blocked:
         return blocked
+    root = root.resolve()
+    related = _related_paths(root, description)
+    regression_test = _regression_test(root, description)
+    regression_run = _run_test(root, regression_test) if regression_test.endswith(".py") else None
+    git = GitRepository(root)
+    evidence_paths = sorted(set([*related, *git.changed_files(), regression_test]))
+    git_before = git.context(evidence_paths)
     outcome = _invoke_agent(root, "fix", {"description": description, "issue": issue,
-                                           "git_branch": GitRepository(root).branch}, agent_command)
-    result = CommandResult("framework fix", metadata=outcome)
-    result.actions.append("Review the local agent diff after framework check")
+                                           "regression_test": regression_test,
+                                           "regression_red": regression_run is None or regression_run.returncode != 0,
+                                           "git_branch": git.branch, "git_before": git_before,
+                                           "protected_tests": _protected_paths(root)}, agent_command)
+    result = CommandResult("framework fix", status=outcome["status"], metadata=outcome)
+    result.metadata["regression_test"] = regression_test
+    result.actions.append("Regression test created before the local agent was invoked")
     if outcome["status"] == "failed":
         result.status, result.exit_code = "error", 2
     elif outcome["status"] == "completed":
         _attach_gates(root, result)
+    git_after = git.context(evidence_paths)
+    result.metadata["git_before"] = git_before
+    result.metadata["git_after"] = git_after
+    history = record_bug(root, description=description, regression_test=regression_test,
+                         symbols=[],
+                         evidence={"issue": issue, "regression_exit_code": regression_run.returncode if regression_run else None,
+                                   "related_files": related,
+                                   "behavior_before": "Bug reproduced by the generated regression contract",
+                                   "behavior_after": "Agent outcome recorded; verify the regression test result"},
+                         status=outcome["status"], git_context={"before": git_before, "after": git_after})
+    result.metadata["history_path"] = str(history.relative_to(root))
     return result
 
 
@@ -216,14 +356,54 @@ def tradeoff(root: Path, description: str, *, agent_command: str | None = None) 
     blocked = _chain_or_block(root, "framework tradeoff")
     if blocked:
         return blocked
+    git = GitRepository(root.resolve())
     context = {"description": description, "dimensions": ["complexity", "testing", "coupling",
-                "performance", "security", "operations", "maintenance"]}
+                "performance", "security", "operations", "maintenance"],
+               "git_context": git.context(), "read_only_paths": _source_paths(root)}
     outcome = _invoke_agent(root, "tradeoff", context, agent_command)
-    result = CommandResult("framework tradeoff", metadata={"description": description, **outcome})
+    analysis = _tradeoff_analysis(root, outcome)
+    history = record_tradeoff(root, description=description, analysis=analysis,
+                              agent=outcome.get("agent"), status=outcome["status"],
+                              git_context=git.context())
+    result = CommandResult("framework tradeoff", status=outcome["status"], metadata={"description": description, **outcome,
+                                                            "analysis": analysis,
+                                                            "history_path": str(history.relative_to(root))})
     result.actions.append("Trade-off analysis is advisory and does not modify source code")
+    result.actions.append(f"Trade-off record: {history.relative_to(root)}")
+    if analysis.get("summary"):
+        result.actions.append(f"Summary: {analysis['summary'][:300]}")
     if outcome["status"] == "failed":
         result.status, result.exit_code = "error", 2
     return result
+
+
+def _tradeoff_analysis(root: Path, outcome: dict[str, Any]) -> dict[str, Any]:
+    response_path = outcome.get("response_path")
+    if not response_path:
+        return {"status": outcome["status"], "summary": "Analysis pending local agent execution", "sections": {}}
+    try:
+        response = json.loads((root / response_path).read_text())
+    except (OSError, json.JSONDecodeError):
+        return {"status": "failed", "summary": "Agent response could not be read", "sections": {}}
+    text = str(response.get("stdout", "")).strip()
+    if not text:
+        return {"status": outcome["status"], "summary": "Agent returned no analysis", "sections": {}}
+    sections: dict[str, list[str]] = {}
+    current = "summary"
+    sections[current] = []
+    for line in text.splitlines():
+        value = line.strip()
+        heading = re.match(r"^#{1,6}\s+(.+?)\s*:?(?:\s*)$", value)
+        if heading and len(heading.group(1)) < 80:
+            current = re.sub(r"[^a-z0-9]+", "_", heading.group(1).lower()).strip("_")
+            sections.setdefault(current, [])
+        elif value.endswith(":") and len(value) < 80:
+            current = re.sub(r"[^a-z0-9]+", "_", value[:-1].lower()).strip("_")
+            sections.setdefault(current, [])
+        elif value:
+            sections.setdefault(current, []).append(value[:500])
+    return {"status": outcome["status"], "summary": " ".join(sections.get("summary", []))[:500],
+            "sections": sections}
 
 
 def _attach_gates(root: Path, result: CommandResult) -> None:

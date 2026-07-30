@@ -73,3 +73,18 @@ def approval_findings(root: Path) -> list[Finding]:
                                     "approved-test-modified", "An approved test changed after approval",
                                     "Review the behavior and run framework test approve again", {"expected": record.get("hash"), "actual": current}, rel))
     return findings
+
+
+def approved_paths(root: Path) -> list[Path]:
+    """Return approved test files that an agent must treat as read-only."""
+    root = root.resolve()
+    data = _read(root)
+    return [root / rel for rel in data.get("approvals", {}) if (root / rel).is_file()]
+
+
+def approved_hashes(root: Path) -> dict[str, str]:
+    """Snapshot approved test hashes for agent preflight and postflight checks."""
+    root = root.resolve()
+    data = _read(root)
+    return {rel: content_hash(root / rel) for rel in data.get("approvals", {})
+            if (root / rel).is_file()}

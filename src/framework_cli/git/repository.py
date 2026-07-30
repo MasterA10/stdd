@@ -47,5 +47,39 @@ class GitRepository:
         if not self.available: return ""
         return self._run(["log", "--all", "-p", "--format="]).stdout
 
+    def log_for_paths(self, paths: list[str] | None = None, *, limit: int = 20) -> list[dict[str, str]]:
+        if not self.available: return []
+        args = ["log", "--all", f"-{limit}", "--date=iso-strict", "--format=%H%x09%an%x09%ad%x09%s"]
+        if paths: args.extend(["--", *paths])
+        rows = []
+        for line in self._run(args).stdout.splitlines():
+            commit, author, date, subject = (line.split("\t", 3) + [""] * 4)[:4]
+            rows.append({"commit": commit, "author": author, "date": date, "subject": subject})
+        return rows
+
+    def blame(self, path: str) -> list[dict[str, str]]:
+        if not self.available: return []
+        completed = self._run(["blame", "--line-porcelain", "--", path])
+        rows: list[dict[str, str]] = []
+        current: dict[str, str] = {}
+        for line in completed.stdout.splitlines():
+            if line and not line.startswith("\t") and len(line.split()) >= 3 and len(line.split()[0]) >= 8:
+                if current: rows.append(current)
+                parts = line.split()
+                current = {"commit": parts[0], "line": parts[2]}
+            elif line.startswith("author "):
+                current["author"] = line[7:]
+            elif line.startswith("summary "):
+                current["summary"] = line[8:]
+        if current: rows.append(current)
+        return rows
+
+    def context(self, paths: list[str] | None = None) -> dict:
+        selected = paths or self.changed_files()
+        return {"available": self.available, "branch": self.branch,
+                "changed_files": selected, "log": self.log_for_paths(selected),
+                "blame": {path: self.blame(path)[:20] for path in selected if (self.root / path).exists()},
+                "diff": self.diff()[:20000] if self.available else ""}
+
     def snapshot(self) -> dict:
         return {"available": self.available, "branch": self.branch, "staged_files": self.staged_files()}

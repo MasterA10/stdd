@@ -57,3 +57,9 @@ class Repository:
     def attempt(self, data: dict[str, Any]) -> None:
         self.db.execute("INSERT OR REPLACE INTO quiz_attempts VALUES (?,?,?,?,?)", (
             data["attempt_id"], data["session_id"], data["question_revision"], json.dumps(data, sort_keys=True)))
+
+    def symbol(self, data: dict[str, Any]) -> None:
+        self.db.execute("INSERT OR REPLACE INTO symbols VALUES (?,?,?,?,?,?,?,?,?)", (
+            data["id"], data["path"], data["name"], data["kind"], data.get("line"),
+            data.get("end_line"), data.get("signature", ""), data["fingerprint"],
+            json.dumps(data, sort_keys=True)))

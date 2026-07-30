@@ -229,6 +229,7 @@ def build_parser() -> argparse.ArgumentParser:
     init.add_argument("--here", action="store_true")
     init.add_argument("--from", dest="requirements")
     init.add_argument("--integration", choices=("codex", "claude"))
+    init.add_argument("--profile", choices=("experiment", "mvp", "product"), default="mvp")
     init.add_argument("--install-hooks", action="store_true")
     _common(init)
     for name in ("scan", "check"):
@@ -290,15 +291,9 @@ def _dispatch_workflow(args: argparse.Namespace, root: Path):
 
 
 def _dispatch_init(args: argparse.Namespace, root: Path):
-    integration = args.integration
-    if not args.non_interactive and integration is None:
-        try:
-            answer = input("Agent integration [codex/claude]: ").strip().lower()
-        except EOFError:
-            answer = ""
-        integration = answer if answer in {"codex", "claude"} else None
-    return init_project(root, integration=integration, interactive=args.non_interactive and integration is None,
-                        install_git_hooks=args.install_hooks)
+    return init_project(root, integration=args.integration, interactive=not args.non_interactive,
+                        install_git_hooks=args.install_hooks, requirements=args.requirements,
+                        profile=args.profile)
 
 
 def _dispatch(args: argparse.Namespace, root: Path):

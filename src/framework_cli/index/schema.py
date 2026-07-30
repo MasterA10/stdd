@@ -13,4 +13,5 @@ CREATE TABLE IF NOT EXISTS handoffs (id TEXT PRIMARY KEY, source_session_id TEXT
 CREATE TABLE IF NOT EXISTS quiz_questions (id TEXT NOT NULL, revision INTEGER NOT NULL, status TEXT NOT NULL, fingerprint TEXT NOT NULL, data TEXT NOT NULL, PRIMARY KEY (id, revision));
 CREATE TABLE IF NOT EXISTS quiz_jobs (id TEXT PRIMARY KEY, session_id TEXT NOT NULL, command TEXT NOT NULL, status TEXT NOT NULL, data TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS quiz_attempts (id TEXT PRIMARY KEY, session_id TEXT NOT NULL, question_revision TEXT NOT NULL, data TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS symbols (id TEXT PRIMARY KEY, path TEXT NOT NULL, name TEXT NOT NULL, kind TEXT NOT NULL, line INTEGER, end_line INTEGER, signature TEXT NOT NULL, fingerprint TEXT NOT NULL, data TEXT NOT NULL);
 """

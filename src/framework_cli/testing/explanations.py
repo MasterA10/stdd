@@ -261,8 +261,11 @@ def explain_test(root: Path, test: str, *, mode: str | None = None) -> CommandRe
     changed = updated != original and selected != "virtual"
     if changed:
         path.write_text(updated, encoding="utf-8")
+    from ..index.symbols import update_symbol_index
+    indexed = update_symbol_index(root, symbols)
     result = CommandResult("framework test explain", metadata={"path": str(path.relative_to(root)),
-        "mode": selected, "symbols": [item.to_dict() for item in symbols], "changed": changed})
+        "mode": selected, "symbols": [item.to_dict() for item in symbols], "changed": changed,
+        "indexed_symbols": indexed})
     result.actions.append("Generated explanations are managed by framework sync")
     return result
 
@@ -287,10 +290,13 @@ def sync_explanations(root: Path, *, tests: list[str] | None = None, mode: str |
     paths = [_safe_relative(root, item) for item in tests] if tests else _candidates(root, include_unmarked=include_unmarked)
     updated: list[str] = []
     errors: list[str] = []
+    indexed_symbols: list[str] = []
     selected = _mode(root, mode)
     for path in paths:
         try:
             symbols = _explanations(root, path)
+            from ..index.symbols import update_symbol_index
+            indexed_symbols.extend(update_symbol_index(root, symbols))
             original = path.read_text(encoding="utf-8", errors="replace")
             value = _insert(original, path, _block(path, symbols), selected, symbols)
             if selected != "virtual" and value != original:
@@ -298,8 +304,11 @@ def sync_explanations(root: Path, *, tests: list[str] | None = None, mode: str |
                 updated.append(str(path.relative_to(root)))
         except (OSError, ValueError) as exc:
             errors.append(f"{path.relative_to(root)}: {exc}")
+    from ..index.symbols import update_symbol_index
+    indexed_symbols.extend(update_symbol_index(root))
     result = CommandResult("framework sync", metadata={"mode": selected, "updated": updated,
-                                                         "scanned": len(paths)})
+                                                         "scanned": len(paths),
+                                                         "indexed_symbols": sorted(set(indexed_symbols))})
     for error in errors:
         result.actions.append(error)
     if errors:

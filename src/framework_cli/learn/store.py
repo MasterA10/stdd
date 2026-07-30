@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -25,6 +25,7 @@ class LearnStore:
             (self.base / name).mkdir(parents=True, exist_ok=True)
         self.git = GitRepository(self.root)
         self._repo: Repository | None = None
+        setattr(self, "retention_report", enforce_retention(self))
 
     def enabled(self) -> bool:
         try:
@@ -95,8 +96,8 @@ class LearnStore:
         return self.append_event(marker)
 
     def close(self) -> None:
-        if self._repo and self._repo.db: self._repo.db.close()
-
+        if self._repo and self._repo.db:
+            self._repo.db.close()
 
 def repository(store: LearnStore) -> Repository:
     if store._repo is None:
@@ -119,6 +120,69 @@ def read_jsonl(path: Path) -> list[dict[str, Any]]:
         try: rows.append(json.loads(line))
         except json.JSONDecodeError: continue
     return rows
+
+
+def _retention_days(root: Path) -> int | None:
+    try:
+        value = load_config(root).learn.get("retention_days", 365)
+        return max(0, int(value))
+    except (FileNotFoundError, ValueError, TypeError):
+        return None
+
+
+def _record_date(record: dict[str, Any]) -> date | None:
+    value = record.get("local_date") or record.get("created_at") or record.get("observed_at")
+    if not value:
+        return None
+    try:
+        return date.fromisoformat(str(value)[:10])
+    except ValueError:
+        return None
+
+
+def _purge_jsonl(path: Path, cutoff: date) -> int:
+    rows = read_jsonl(path)
+    kept = [row for row in rows if (_record_date(row) is None or _record_date(row) >= cutoff)]
+    removed = len(rows) - len(kept)
+    if removed:
+        temporary = path.with_suffix(path.suffix + ".retention.tmp")
+        temporary.write_text("".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in kept))
+        temporary.replace(path)
+    return removed
+
+
+def _purge_json_files(directory: Path, cutoff: date) -> int:
+    removed = 0
+    if not directory.exists():
+        return 0
+    for path in directory.rglob("*.json"):
+        try:
+            modified = datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).date()
+        except OSError:
+            continue
+        if modified < cutoff:
+            path.unlink()
+            removed += 1
+    return removed
+
+
+def enforce_retention(store: LearnStore) -> dict[str, Any]:
+    days = _retention_days(store.root)
+    if days is None or not store.enabled():
+        return {"enabled": False, "removed": 0}
+    cutoff = date.today() - timedelta(days=days)
+    removed = _purge_jsonl(store.base / "events" / "events.jsonl", cutoff)
+    removed += _purge_jsonl(store.base / "sessions.jsonl", cutoff)
+    for name in ("lessons", "handoffs", "quiz"):
+        removed += _purge_json_files(store.base / name, cutoff)
+    report = {"enabled": True, "retention_days": days, "cutoff": cutoff.isoformat(), "removed": removed,
+              "applied_at": datetime.now(timezone.utc).isoformat()}
+    if removed:
+        path = store.base / "retention.jsonl"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(report, sort_keys=True) + "\n")
+    return report
 
 
 def write_json(store: LearnStore, path: Path, data: dict[str, Any]) -> Path:

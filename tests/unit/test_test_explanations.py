@@ -48,3 +48,17 @@ def test_virtual_mode_does_not_modify_test(tmp_path):
     assert result.metadata["mode"] == "virtual"
     assert result.metadata["changed"] is False
     assert test.read_text() == original
+
+
+def test_sync_updates_full_source_symbol_index(tmp_path):
+    _fixture(tmp_path)
+
+    result = sync_explanations(tmp_path)
+
+    assert result.metadata["indexed_symbols"]
+    from framework_cli.index.db import IndexDB
+
+    db = IndexDB(tmp_path / ".framework" / "index.db")
+    row = db.connection.execute("select path, name from symbols where name='calculate_total'").fetchone()
+    db.close()
+    assert tuple(row) == ("app.py", "calculate_total")

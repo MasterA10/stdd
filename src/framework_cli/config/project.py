@@ -8,8 +8,8 @@ from .loader import save_config
 
 
 def create_profile(root: Path, detections: dict[str, Any], *, profile: str = "mvp",
-                   integration: str | None = None) -> ProjectConfig:
-    mode = "greenfield" if not any(root.iterdir()) else "brownfield"
+                   integration: str | None = None, mode: str | None = None) -> ProjectConfig:
+    mode = mode or ("greenfield" if not any(root.iterdir()) else "brownfield")
     config = ProjectConfig.default(root, mode=mode)
     config.profile = profile
     config.applications = detections.get("applications", {})

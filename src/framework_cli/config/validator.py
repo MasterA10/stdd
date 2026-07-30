@@ -24,6 +24,9 @@ def validate_config(config: ProjectConfig | dict[str, Any], root: Path | None = 
         raise ValueError("learn must be a mapping")
     if not isinstance(config.learn.get("enabled", False), bool):
         raise ValueError("learn.enabled must be boolean")
+    retention_days = config.learn.get("retention_days", 365)
+    if not isinstance(retention_days, int) or isinstance(retention_days, bool) or retention_days < 0:
+        raise ValueError("learn.retention_days must be a non-negative integer")
     for name, app in config.applications.items():
         if not isinstance(app, dict) or "path" not in app:
             raise ValueError(f"application {name!r} needs a path")
