@@ -26,6 +26,15 @@ class GitRepository:
         if not self.available: return []
         return [x for x in self._run(["diff", "--cached", "--name-only", "--diff-filter=ACMR"]).stdout.splitlines() if x]
 
+    def changed_files(self) -> list[str]:
+        if not self.available: return []
+        names = self._run(["diff", "--name-only", "--diff-filter=ACMR"]).stdout.splitlines()
+        names += self.staged_files()
+        for line in self._run(["status", "--porcelain=v1"]).stdout.splitlines():
+            if len(line) >= 4:
+                names.append(line[3:].split(" -> ")[-1])
+        return sorted(set(x for x in names if x))
+
     def diff(self, staged: bool = False) -> str:
         if not self.available: return ""
         return self._run(["diff", "--cached"] if staged else ["diff"]).stdout

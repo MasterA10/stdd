@@ -121,6 +121,16 @@ framework test explain --all
 framework test approve tests/orders/test_coupon.py --behavior "total nunca fica negativo"
 framework sync
 framework check
+
+framework test --unit
+framework test --integration
+framework test --database
+framework test --security
+framework test --performance
+framework test --changed
+framework test --all
+
+framework lessons
 ```
 
 Python tests resolve imports, aliases, signatures, retornos, docstrings e símbolos
@@ -144,10 +154,23 @@ framework update
 ```
 
 `tradeoff`, `implement` e `fix` escrevem apenas um request redigido quando nenhum
-comando local é configurado. Se um comando for autorizado, ele recebe o caminho do
-request sem shell interpolation. A cadeia aplicável de `AGENTS.md`, `CLAUDE.md`,
+comando local estiver disponível. Sem `--agent-command`, o framework procura a
+configuração do projeto e executáveis locais nesta ordem: Codex, Claude, Cloud e
+Antigravity. Codex e Claude são chamados pelos próprios CLIs não interativos, sem
+API HTTP. Se nenhum estiver instalado, o request fica preparado para execução
+posterior. Se um comando for autorizado, ele recebe o contexto redigido sem shell interpolation. A cadeia aplicável de `AGENTS.md`, `CLAUDE.md`,
 `CLOUD.md` e `GEMINI.md` é anexada com conteúdo redigido e qualquer conflito bloqueia
 a operação. O resultado principal não expõe stdout, stderr ou contexto bruto.
+
+Scripts de teste específicos da stack também são gerados pelo agente local, não pelo
+núcleo do framework:
+
+```bash
+framework scripts generate
+```
+
+O agente analisa `.framework/project.yml` e a codebase e pode criar, por exemplo,
+`.framework/scripts/test-all.sh` e `test-changed.sh` para a stack detectada.
 
 ## Safety and failure behavior
 

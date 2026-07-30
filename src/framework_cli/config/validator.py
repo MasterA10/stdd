@@ -9,7 +9,7 @@ from .model import ProjectConfig
 def validate_config(config: ProjectConfig | dict[str, Any], root: Path | None = None) -> list[str]:
     warnings: list[str] = []
     if isinstance(config, dict):
-        known = {"version", "profile", "mode", "root_path", "platforms", "applications", "agent", "security", "quality", "scripts", "learn"}
+        known = {"version", "profile", "mode", "root_path", "platforms", "applications", "agent", "security", "quality", "documentation", "scripts", "learn"}
         warnings.extend(f"unknown configuration key: {x}" for x in config.keys() - known)
         config = ProjectConfig.from_dict(root or Path.cwd(), config)
     if config.version != 1:

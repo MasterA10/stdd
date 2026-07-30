@@ -14,7 +14,7 @@ from .commands.scan import scan_project
 from .commands.security import security_scan
 from .commands.test import run_tests
 from .commands.workflow import (approve, create_test, fix, implement, inspect, review,
-                                sync_explanations, tradeoff, update)
+                                generate_scripts, sync_explanations, tradeoff, update)
 from .reporting.render import render
 from .version import RELEASE_SOURCE, __version__
 
@@ -28,6 +28,10 @@ def _common(parser: argparse.ArgumentParser) -> None:
 
 def _add_test_commands(sub: argparse._SubParsersAction) -> None:
     test = sub.add_parser("test")
+    for scope in ("unit", "integration", "database", "security", "performance"):
+        test.add_argument(f"--{scope}", action="store_true", help=f"run only {scope} tests")
+    test.add_argument("--changed", action="store_true", help="run tests related to changed files")
+    test.add_argument("--all", action="store_true", help="run the complete suite and security gate")
     test_sub = test.add_subparsers(dest="test_command")
     test_run = test_sub.add_parser("run")
     test_run.add_argument("path", nargs="?", default=".")
@@ -49,7 +53,7 @@ def _add_test_commands(sub: argparse._SubParsersAction) -> None:
 
 
 def _add_learn_commands(sub: argparse._SubParsersAction) -> None:
-    learn = sub.add_parser("learn")
+    learn = sub.add_parser("learn", aliases=["lessons"])
     learn_sub = learn.add_subparsers(dest="learn_command")
 
     def learn_common(command: argparse.ArgumentParser) -> None:
@@ -207,6 +211,12 @@ def _add_workflow_commands(sub: argparse._SubParsersAction) -> None:
     update_parser = sub.add_parser("update")
     update_parser.add_argument("path", nargs="?", default=".")
     _common(update_parser)
+    scripts = sub.add_parser("scripts")
+    scripts_sub = scripts.add_subparsers(dest="scripts_command", required=True)
+    generate = scripts_sub.add_parser("generate")
+    generate.add_argument("--agent-command")
+    generate.add_argument("path", nargs="?", default=".")
+    _common(generate)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -257,7 +267,13 @@ def _dispatch_test(args: argparse.Namespace, root: Path):
         return sync_explanations(root, mode=args.mode)
     if command == "approve":
         return approve(root, args.test_path, args.behavior)
-    return run_tests(root)
+    selected = [name for name in ("unit", "integration", "database", "security", "performance") if getattr(args, name, False)]
+    if len(selected) > 1 or (selected and getattr(args, "all", False)):
+        from .reporting.models import CommandResult
+        return CommandResult("framework test", status="error", exit_code=2,
+                             actions=["Choose one test scope or --all"])
+    return run_tests(root, scope=selected[0] if selected else None,
+                     changed=getattr(args, "changed", False), all_scopes=getattr(args, "all", False))
 
 
 def _dispatch_workflow(args: argparse.Namespace, root: Path):
@@ -273,33 +289,36 @@ def _dispatch_workflow(args: argparse.Namespace, root: Path):
     return handlers[args.command]()
 
 
+def _dispatch_init(args: argparse.Namespace, root: Path):
+    integration = args.integration
+    if not args.non_interactive and integration is None:
+        try:
+            answer = input("Agent integration [codex/claude]: ").strip().lower()
+        except EOFError:
+            answer = ""
+        integration = answer if answer in {"codex", "claude"} else None
+    return init_project(root, integration=integration, interactive=args.non_interactive and integration is None,
+                        install_git_hooks=args.install_hooks)
+
+
 def _dispatch(args: argparse.Namespace, root: Path):
     if args.command == "init":
-        integration = args.integration
-        if not args.non_interactive and integration is None:
-            try:
-                answer = input("Agent integration [codex/claude]: ").strip().lower()
-            except EOFError:
-                answer = ""
-            integration = answer if answer in {"codex", "claude"} else None
-        return init_project(root, integration=integration, interactive=args.non_interactive and integration is None,
-                            install_git_hooks=args.install_hooks)
-    if args.command == "scan":
-        return scan_project(root)
-    if args.command == "doctor":
-        return doctor(Path("."))
+        return _dispatch_init(args, root)
     if args.command == "test":
         return _dispatch_test(args, root)
-    if args.command == "check":
-        return check(root)
-    if args.command == "security":
-        return security_scan(root, staged_only=args.staged)
-    if args.command == "install":
-        return install(root, args.integration)
-    if args.command == "learn":
-        return run_learn(root, args)
-    if args.command == "quiz":
-        return run_quiz_command(root, args)
+    direct = {
+        "scan": lambda: scan_project(root),
+        "doctor": lambda: doctor(Path(".")),
+        "check": lambda: check(root),
+        "security": lambda: security_scan(root, staged_only=args.staged),
+        "install": lambda: install(root, args.integration),
+        "learn": lambda: run_learn(root, args),
+        "lessons": lambda: run_learn(root, args),
+        "quiz": lambda: run_quiz_command(root, args),
+        "scripts": lambda: generate_scripts(root, agent_command=args.agent_command),
+    }
+    if args.command in direct:
+        return direct[args.command]()
     if args.command in {"tradeoff", "implement", "fix", "review", "sync", "inspect", "update"}:
         return _dispatch_workflow(args, root)
     raise ValueError(f"unsupported command: {args.command}")

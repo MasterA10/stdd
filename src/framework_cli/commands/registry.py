@@ -18,4 +18,5 @@ COMMAND_METADATA = {
     "sync": {"nature": "deterministic generated-block synchronization", "permissions": "writes managed explanation blocks", "preconditions": "supported test files"},
     "inspect": {"nature": "read-only symbol inspection", "permissions": "project read", "preconditions": "none"},
     "update": {"nature": "deterministic framework artifact update", "permissions": "writes managed explanation blocks", "preconditions": "valid project"},
+    "scripts generate": {"nature": "local-agent-generated stack scripts", "permissions": "authorized local agent may write .framework/scripts", "preconditions": "valid instruction chain"},
 }

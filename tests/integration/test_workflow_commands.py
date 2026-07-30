@@ -2,7 +2,8 @@ from framework_cli.commands.workflow import create_test, implement, tradeoff
 from framework_cli.testing.explanations import explain_test
 
 
-def test_create_and_agent_request_respect_instruction_chain(tmp_path):
+def test_create_and_agent_request_respect_instruction_chain(tmp_path, monkeypatch):
+    monkeypatch.setattr("framework_cli.commands.workflow.shutil.which", lambda _name: None)
     created = create_test(tmp_path, "total must not be negative", path="tests/test_total.py")
     assert created.exit_code == 0
     assert (tmp_path / "tests/test_total.py").exists()
