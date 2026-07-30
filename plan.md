@@ -276,6 +276,9 @@ explicações deverão ser unidades pequenas de estudo: uma pergunta por objetiv
 explicação de até 80 palavras.
 
 O SQLite local (`.framework/index.db`) será a fonte de relacionamento. As tabelas
+`symbols` e `symbol_relations` deverão ser reconstruídas por `framework scan` e
+`framework sync`, registrando funções, métodos, classes, documentação disponível,
+métricas de complexidade, testes e relações de uso.
 deverão associar perguntas e itens de conhecimento a `symbol_id`, módulo, regra,
 teste, contrato, decisão e fingerprint da fonte. O comando `framework quiz refresh`
 deverá marcar como `needs_review` qualquer pergunta cujo símbolo ou regra tenha

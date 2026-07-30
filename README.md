@@ -75,6 +75,10 @@ framework init --from requirements.md --integration agy
 `scan` detecta mudanças na codebase. `check` executa qualidade, segurança e testes
 configurados. `doctor` diagnostica o ambiente.
 
+`scan` também reconstrói o catálogo central em `.framework/index.db`, incluindo
+funções, métodos, classes, documentação disponível, métricas e relações entre
+testes e símbolos. `framework inspect <símbolo>` consulta esse catálogo.
+
 ### Testes e contratos
 
 Executar testes:
@@ -148,6 +152,10 @@ O estado e os hashes ficam em:
 .framework/agents/manifest.json
 .framework/agents/integration.json
 ```
+
+O índice SQLite é a fonte de relacionamento; YAML fica reservado para configuração
+e exportações legíveis. `framework sync` atualiza explicações, símbolos e relações
+após alterações no código.
 
 ### Decisão e implementação agentic
 

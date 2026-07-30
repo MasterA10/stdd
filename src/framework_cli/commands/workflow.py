@@ -594,16 +594,22 @@ def review(root: Path, *, show_diff: bool = False) -> CommandResult:
 
 
 def inspect(root: Path, symbol: str) -> CommandResult:
-    root = root.resolve(); matches: list[dict[str, Any]] = []
-    name = symbol.rsplit(".", 1)[-1]
-    for path in sorted(root.rglob("*.py")):
-        if {".git", ".venv", "venv", ".framework"}.intersection(path.parts):
-            continue
-        text = path.read_text(errors="replace")
-        for line_no, line in enumerate(text.splitlines(), 1):
-            if re.search(rf"\b(def|class)\s+{re.escape(name)}\b", line):
-                matches.append({"path": str(path.relative_to(root)), "line": line_no, "declaration": line.strip()})
-    return CommandResult("framework inspect", metadata={"symbol": symbol, "matches": matches})
+    root = root.resolve()
+    matches: list[dict[str, Any]] = []
+    db_path = root / ".framework" / "index.db"
+    if db_path.exists():
+        from ..index.db import IndexDB
+        db = IndexDB(db_path)
+        try:
+            rows = db.connection.execute(
+                "SELECT data FROM symbols WHERE name=? OR json_extract(data, '$.qualified_name')=?",
+                (symbol.rsplit(".", 1)[-1], symbol),
+            ).fetchall()
+            matches.extend(json.loads(row[0]) for row in rows)
+        finally:
+            db.close()
+    return CommandResult("framework inspect", metadata={"symbol": symbol, "matches": matches,
+                                                          "source": "index.db" if db_path.exists() else "none"})
 
 
 def update(root: Path) -> CommandResult:
