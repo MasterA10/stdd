@@ -5,6 +5,16 @@
 Learning is optional. Enable it in the project profile, then use explicit commands
 or host hooks:
 
+```yaml
+# .framework/project.yml
+learn:
+  enabled: true
+  retention_days: 365
+  provider: local
+  redaction:
+    enabled: true
+```
+
 ```bash
 framework learn start
 framework learn checkpoint
@@ -55,6 +65,17 @@ framework learn quiz run --count 10
 framework learn quiz sync
 framework learn quiz export --format yaml
 ```
+
+Run the deterministic verification suite before reviewing a commit:
+
+```bash
+uv run pytest
+uv run framework check --format json
+uv run framework security scan --format json
+```
+
+The equivalent nested form is `framework learn quiz ...`; `framework quiz ...` is
+also accepted for scripts that prefer a top-level command.
 
 An external provider may infer questions from redacted session context. The
 principal agent receives only `created|partial|failed` and an opaque job ID. The

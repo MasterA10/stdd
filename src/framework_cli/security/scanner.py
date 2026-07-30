@@ -16,8 +16,16 @@ class SecurityScanner:
         self.git = GitRepository(self.root)
 
     def _files(self) -> list[Path]:
-        ignored = {".git", ".venv", "node_modules", "__pycache__", ".framework"}
-        return [p for p in self.root.rglob("*") if p.is_file() and not any(x in ignored for x in p.parts)]
+        ignored = {".git", ".venv", "node_modules", "__pycache__", ".pytest_cache"}
+        paths = []
+        for path in self.root.rglob("*"):
+            if not path.is_file() or any(x in ignored for x in path.parts): continue
+            if ".framework" in path.parts:
+                framework_index = path.parts.index(".framework")
+                if len(path.parts) > framework_index + 1 and path.parts[framework_index + 1] in {"reports", "security"}: continue
+            if path.name in {"index.db", "index.db-shm", "index.db-wal"}: continue
+            paths.append(path)
+        return paths
 
     def _add_policy_findings(self, result: CommandResult, patterns: list[str]) -> None:
         if not (self.root / ".gitignore").exists():

@@ -25,6 +25,7 @@ class ProjectConfig:
     security: dict[str, Any] = field(default_factory=dict)
     quality: dict[str, Any] = field(default_factory=dict)
     scripts: dict[str, Any] = field(default_factory=lambda: {"preferred": "auto"})
+    learn: dict[str, Any] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
@@ -39,6 +40,7 @@ class ProjectConfig:
             "security": self.security,
             "quality": self.quality,
             "scripts": self.scripts,
+            "learn": self.learn,
         }
 
     @classmethod
@@ -52,11 +54,14 @@ class ProjectConfig:
                     **(raw.get("security", {}) or {})}
         quality = {"baseline": ".framework/quality/baseline.json", "rules": DEFAULT_RULES.copy(),
                    **(raw.get("quality", {}) or {})}
+        learn = {"enabled": False, "retention_days": 365, "provider": "local",
+                 "redaction": {"enabled": True}, **(raw.get("learn", {}) or {})}
         return cls(root_path=str(root.resolve()), version=int(raw.get("version", 1)),
                    profile=str(raw.get("profile", "mvp")), mode=str(raw.get("mode", "brownfield")),
                    platforms=list(raw.get("platforms", ["macos", "linux"])),
                    applications=dict(raw.get("applications", {}) or {}), agent_integrations=ids,
-                   security=security, quality=quality, scripts=dict(raw.get("scripts", {"preferred": "auto"}) or {}))
+                   security=security, quality=quality, scripts=dict(raw.get("scripts", {"preferred": "auto"}) or {}),
+                   learn=learn)
 
     @classmethod
     def default(cls, root: Path, mode: str = "brownfield") -> "ProjectConfig":

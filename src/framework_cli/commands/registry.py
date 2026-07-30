@@ -6,4 +6,6 @@ COMMAND_METADATA = {
     "check": {"nature": "read-only quality gate", "permissions": "project read", "preconditions": "none"},
     "security scan": {"nature": "read-only safety gate", "permissions": "project/Git read", "preconditions": "Git for complete scope"},
     "install": {"nature": "writes projections", "permissions": "declared agent paths", "preconditions": "selected integration"},
+    "learn": {"nature": "writes optional redacted session memory", "permissions": "project .framework directory", "preconditions": "valid project or disabled mode"},
+    "learn quiz": {"nature": "generates or runs optional knowledge assessment", "permissions": "project .framework directory and explicitly authorized provider", "preconditions": "valid project or disabled mode"},
 }

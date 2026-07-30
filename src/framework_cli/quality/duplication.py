@@ -10,7 +10,8 @@ from ..reporting.models import Finding
 def normalized_lines(path: Path) -> list[str]:
     try: lines = path.read_text(errors="replace").splitlines()
     except OSError: return []
-    return [re.sub(r"\s+", " ", x.strip()) for x in lines if x.strip() and not x.strip().startswith(("#", "//"))]
+    return [re.sub(r"\s+", " ", x.strip()) for x in lines
+            if x.strip() and not x.strip().startswith(("#", "//", "from ", "import "))]
 
 
 def find_duplicates(root: Path, threshold: int = 6) -> list[Finding]:

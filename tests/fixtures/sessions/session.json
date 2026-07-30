@@ -1,0 +1,6 @@
+{
+  "session_id": "session-fixture",
+  "status": "checkpointed",
+  "local_date": "2026-07-30",
+  "coverage": {"hooks": "partial"}
+}

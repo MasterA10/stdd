@@ -16,4 +16,5 @@ jobs:
       - run: uv run pytest
       - run: uv run framework check --format json
       - run: uv run framework security scan --format json
+      - run: uv run framework learn quiz sync --format json || test $? -eq 0
       - run: uv build
