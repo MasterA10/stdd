@@ -109,6 +109,46 @@ Questions are short, have 3–5 options, one correct answer, a brief explanation
 source fingerprints. Source changes mark questions `needs_review` without deleting
 past attempts.
 
+## Create, explain and protect tests
+
+The test workflow is deterministic until an explicitly authorized local agent
+command is requested:
+
+```bash
+framework test create "um cupom não pode reduzir o total abaixo de zero" --path tests/orders/test_coupon.py
+framework test explain tests/orders/test_coupon.py
+framework test explain --all
+framework test approve tests/orders/test_coupon.py --behavior "total nunca fica negativo"
+framework sync
+framework check
+```
+
+Python tests resolve imports, aliases, signatures, retornos, docstrings e símbolos
+externos. JavaScript/TypeScript recebem análise equivalente por declarações e
+imports disponíveis. Os modos `header`, `first-use` e `virtual` controlam a
+projeção do bloco gerado; `virtual` somente informa o resultado no envelope.
+
+Approvals store a SHA-256 do teste em `.framework/quality/test-approvals.json`.
+Alterações posteriores são bloqueadas em perfis `mvp` e `product`, e geram aviso
+em `experiment`, até uma nova revisão explícita.
+
+## Commands with local agent boundary
+
+```bash
+framework tradeoff "eventos assíncronos ou chamada síncrona"
+framework implement tests/orders/test_coupon.py --agent-command "codex"
+framework fix "o mesmo cupom é aplicado duas vezes" --agent-command "claude"
+framework review --diff
+framework inspect orders.apply-coupon
+framework update
+```
+
+`tradeoff`, `implement` e `fix` escrevem apenas um request redigido quando nenhum
+comando local é configurado. Se um comando for autorizado, ele recebe o caminho do
+request sem shell interpolation. A cadeia aplicável de `AGENTS.md`, `CLAUDE.md`,
+`CLOUD.md` e `GEMINI.md` é anexada com conteúdo redigido e qualquer conflito bloqueia
+a operação. O resultado principal não expõe stdout, stderr ou contexto bruto.
+
 ## Safety and failure behavior
 
 - `.env`, credentials, prompts and sensitive values are redacted before persistence.

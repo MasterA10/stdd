@@ -24,6 +24,7 @@ class ProjectConfig:
     agent_integrations: list[str] = field(default_factory=list)
     security: dict[str, Any] = field(default_factory=dict)
     quality: dict[str, Any] = field(default_factory=dict)
+    documentation: dict[str, Any] = field(default_factory=lambda: {"test_explanations": "header"})
     scripts: dict[str, Any] = field(default_factory=lambda: {"preferred": "auto"})
     learn: dict[str, Any] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
@@ -39,6 +40,7 @@ class ProjectConfig:
             "agent": {"integrations": [{"id": x, "enabled": True} for x in self.agent_integrations]},
             "security": self.security,
             "quality": self.quality,
+            "documentation": self.documentation,
             "scripts": self.scripts,
             "learn": self.learn,
         }
@@ -54,6 +56,7 @@ class ProjectConfig:
                     **(raw.get("security", {}) or {})}
         quality = {"baseline": ".framework/quality/baseline.json", "rules": DEFAULT_RULES.copy(),
                    **(raw.get("quality", {}) or {})}
+        documentation = {"test_explanations": "header", **(raw.get("documentation", {}) or {})}
         learn = {"enabled": False, "retention_days": 365, "agent_command": "local", "agents": {},
                  "redaction": {"enabled": True}, **(raw.get("learn", {}) or {})}
         return cls(root_path=str(root.resolve()), version=int(raw.get("version", 1)),
@@ -61,7 +64,7 @@ class ProjectConfig:
                    platforms=list(raw.get("platforms", ["macos", "linux"])),
                    applications=dict(raw.get("applications", {}) or {}), agent_integrations=ids,
                    security=security, quality=quality, scripts=dict(raw.get("scripts", {"preferred": "auto"}) or {}),
-                   learn=learn)
+                   documentation=documentation, learn=learn)
 
     @classmethod
     def default(cls, root: Path, mode: str = "brownfield") -> "ProjectConfig":

@@ -9,6 +9,7 @@ from .complexity import find_complexity
 from .duplication import find_duplicates
 from .god_class import find_god_classes
 from .rules import configured_rules
+from ..testing.approval import approval_findings
 
 
 class QualityEngine:
@@ -29,5 +30,7 @@ class QualityEngine:
         for finding in findings:
             if finding.fingerprint in baseline:
                 finding.status, finding.severity = "baseline", "warning"
+            result.add(finding)
+        for finding in approval_findings(self.root):
             result.add(finding)
         return result
