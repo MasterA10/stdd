@@ -23,15 +23,42 @@ class PythonAdapter(BaseAdapter):
         return out
 
     def symbols(self, path: Path) -> list[dict]:
-        try: tree = ast.parse(path.read_text(encoding="utf-8"))
-        except (OSError, SyntaxError, UnicodeDecodeError): return []
-        symbols = []
-        for node in ast.walk(tree):
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+        except (OSError, SyntaxError, UnicodeDecodeError):
+            return []
+
+        symbols: list[dict] = []
+
+        def visit(nodes: list[ast.stmt], parent: str = "") -> None:
+            for node in nodes:
+                if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                    continue
+                qualified = f"{parent}.{node.name}" if parent else node.name
                 end = getattr(node, "end_lineno", node.lineno)
-                symbols.append({"kind": "class" if isinstance(node, ast.ClassDef) else "function", "name": node.name,
-                                "line": node.lineno, "end_line": end, "logical_lines": end - node.lineno + 1,
-                                "complexity": sum(isinstance(x, (ast.If, ast.For, ast.While, ast.Try, ast.BoolOp, ast.Match)) for x in ast.walk(node))})
+                is_class = isinstance(node, ast.ClassDef)
+                if is_class:
+                    signature = f"class {qualified}"
+                else:
+                    prefix = "async " if isinstance(node, ast.AsyncFunctionDef) else ""
+                    returns = ast.unparse(node.returns) if node.returns else "unknown"
+                    signature = f"{prefix}{qualified}({ast.unparse(node.args)}) -> {returns}"
+                complexity = sum(isinstance(item, (ast.If, ast.For, ast.While, ast.Try,
+                                                    ast.BoolOp, ast.Match, ast.IfExp))
+                                 for item in ast.walk(node))
+                doc = ast.get_docstring(node)
+                symbols.append({"kind": "class" if is_class else "function",
+                                "name": node.name, "qualified_name": qualified,
+                                "line": node.lineno, "end_line": end,
+                                "signature": signature,
+                                "description": (doc.splitlines()[0] if doc else
+                                                 "Descrição não encontrada no código-fonte."),
+                                "description_status": "documented" if doc else "missing",
+                                "logical_lines": end - node.lineno + 1,
+                                "complexity": complexity})
+                visit(node.body, qualified)
+
+        visit(tree.body)
         return symbols
 
     def test_commands(self, root: Path) -> list[list[str]]:

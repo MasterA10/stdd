@@ -71,3 +71,31 @@ def test_sync_without_markers_can_explain_all_tests(tmp_path):
 
     assert result.exit_code == 0
     assert str(test.relative_to(tmp_path)) in result.metadata["updated"]
+
+
+def test_sync_registers_all_functions_and_test_relationships(tmp_path):
+    test = _fixture(tmp_path)
+    (tmp_path / "app.py").write_text(
+        "def calculate_total(value: int) -> int:\n"
+        "    \"\"\"Returns the bounded total.\"\"\"\n"
+        "    return max(value, 0)\n\n"
+        "def unused_helper(value: int) -> int:\n"
+        "    \"\"\"An independently indexed helper.\"\"\"\n"
+        "    return value + 1\n"
+    )
+
+    sync_explanations(tmp_path, include_unmarked=True)
+
+    from framework_cli.index.db import IndexDB
+    db = IndexDB(tmp_path / ".framework" / "index.db")
+    symbols = db.connection.execute(
+        "select name, kind, data from symbols where path='app.py' order by name"
+    ).fetchall()
+    relation = db.connection.execute(
+        "select relation, data from symbol_relations"
+    ).fetchone()
+    db.close()
+    assert [row[0] for row in symbols] == ["calculate_total", "unused_helper"]
+    assert "documented" in symbols[0][2]
+    assert relation[0] == "test-uses-symbol"
+    assert "test_total.py" in relation[1]

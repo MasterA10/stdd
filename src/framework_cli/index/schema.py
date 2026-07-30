@@ -1,4 +1,4 @@
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS projects (id TEXT PRIMARY KEY, root_path TEXT NOT NULL, profile TEXT NOT NULL);
@@ -14,4 +14,5 @@ CREATE TABLE IF NOT EXISTS quiz_questions (id TEXT NOT NULL, revision INTEGER NO
 CREATE TABLE IF NOT EXISTS quiz_jobs (id TEXT PRIMARY KEY, session_id TEXT NOT NULL, command TEXT NOT NULL, status TEXT NOT NULL, data TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS quiz_attempts (id TEXT PRIMARY KEY, session_id TEXT NOT NULL, question_revision TEXT NOT NULL, data TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS symbols (id TEXT PRIMARY KEY, path TEXT NOT NULL, name TEXT NOT NULL, kind TEXT NOT NULL, line INTEGER, end_line INTEGER, signature TEXT NOT NULL, fingerprint TEXT NOT NULL, data TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS symbol_relations (source_id TEXT NOT NULL, target_id TEXT NOT NULL, relation TEXT NOT NULL, fingerprint TEXT NOT NULL, data TEXT NOT NULL, PRIMARY KEY (source_id, target_id, relation));
 """

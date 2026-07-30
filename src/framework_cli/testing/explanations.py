@@ -4,7 +4,7 @@ import ast
 import builtins
 import hashlib
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -28,11 +28,14 @@ class Symbol:
     source: str
     kind: str
     line: int | None = None
+    end_line: int | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {"name": self.name, "qualified_name": self.qualified_name,
                 "signature": self.signature, "description": self.description,
-                "source": self.source, "kind": self.kind, "line": self.line}
+                "source": self.source, "kind": self.kind, "line": self.line,
+                "end_line": self.end_line, "metadata": self.metadata}
 
 
 def _safe_relative(root: Path, value: str) -> Path:

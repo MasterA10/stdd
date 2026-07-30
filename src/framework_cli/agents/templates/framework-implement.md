@@ -3,4 +3,5 @@
 
 Implement the requested behavior from the failing test or complete feature
 request. Follow the instruction chain, preserve approved tests, run the related
-tests and report the changed files and validation results.
+tests, document new or changed functions and report the changed files and
+validation results.

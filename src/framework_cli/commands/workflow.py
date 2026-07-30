@@ -41,7 +41,8 @@ AGENT_CONTRACTS = {
     "implement": (
         "You are the specialized implementation agent. Implement the requested behavior in the existing "
         "architecture, using the supplied failing test or complete request. Preserve applicable Markdown "
-        "instructions, do not alter approved tests, and run the smallest relevant test set before reporting."
+        "instructions, do not alter approved tests, document new or changed functions, and run the smallest "
+        "relevant test set before reporting."
     ),
     "fix": (
         "You are the specialized bug-fix agent. Reproduce the described bug with the supplied regression "
