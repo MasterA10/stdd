@@ -251,9 +251,11 @@ silenciosamente pelo recurso.
 
 ### Avaliação de conhecimento da codebase
 
-O módulo de perguntas será um script determinístico e opcional, sem depender de um
-agente de IA para gerar ou aplicar a prova. `quiz generate` construirá o banco e
-`quiz run` aplicará a avaliação. O módulo poderá construir perguntas a partir
+O módulo de perguntas será opcional. `quiz run`, `quiz sync`, a validação, a
+redaction e a aplicação da prova serão determinísticos e não dependerão de um
+agente de IA. `quiz generate` poderá delegar inferência para um agente externo,
+recebendo apenas contexto redigido; deverá existir fallback determinístico ou local
+para manter o quiz utilizável sem esse agente. O módulo poderá construir perguntas a partir
 do AST, grafo de dependências, documentação, specs, testes, contratos, decisões,
 trade-offs, regras de negócio e histórico de alterações.
 

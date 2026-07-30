@@ -1,15 +1,15 @@
 <!--
 Sync Impact Report
-- Version change: 1.2.0 -> 1.3.0
+- Version change: 1.3.0 -> 1.4.0
 - Modified principles: VI. Evidence-Based Learning Loop clarified as a learning-only
   signal, not a parallelization criterion
-- Added sections: Knowledge Assessment
+- Added sections: Knowledge Assessment; optional agent-assisted question generation
 - Removed sections: none
 - Artifacts requiring updates: ✅ plan.md; ✅ .specify/templates/plan-template.md;
   ✅ .specify/templates/spec-template.md; ✅ .specify/templates/tasks-template.md;
   ✅ AGENTS.md; ⚠ .specify/templates/commands/ (directory absent)
-- Follow-up TODOs: implement the scanner, learning/session hooks and quiz script in
-  the core CLI and their stack adapters
+- Follow-up TODOs: implement the scanner, learning/session hooks, quiz script and
+  optional external question-generation adapters in the core CLI and stack adapters
 -->
 
 # Framework CLI-First Constitution
@@ -209,12 +209,18 @@ desabilitado, nenhum hook de aprendizado deve ser instalado ou executado.
 ## Knowledge Assessment
 
 Quando habilitado ou solicitado explicitamente, o core MUST fornecer os scripts
-determinísticos `framework learn quiz generate`, `framework learn quiz run` e
-`framework learn quiz sync` para avaliar o conhecimento da codebase sem depender de
-um agente de IA. O quiz MUST gerar e aplicar perguntas de múltipla
-escolha sobre arquitetura, modularização, boas práticas, decisões, trade-offs,
-regras de negócio, testes, segurança e operação, usando o índice AST, specs,
-contratos, testes explicados, decisões e histórico como fontes.
+`framework learn quiz generate`, `framework learn quiz run` e
+`framework learn quiz sync`. O quiz MUST aplicar perguntas de múltipla escolha
+sobre arquitetura, modularização, boas práticas, decisões, trade-offs, regras de
+negócio, testes, segurança e operação, usando o índice AST, specs, contratos,
+testes explicados, decisões e histórico como fontes.
+
+`quiz run`, `quiz sync`, a validação, o armazenamento, a redaction e a aplicação da
+prova MUST funcionar sem depender de um agente de IA. A geração de perguntas pode,
+opcionalmente, delegar inferência a um agente ou modelo externo usando somente
+contexto redigido e autorizado da sessão. O gerador externo deve ser substituível
+por uma implementação determinística ou fallback local, e sua indisponibilidade
+não pode impedir o uso do quiz.
 
 Cada pergunta MUST possuir um objetivo de conhecimento, enunciado curto, de três a
 cinco alternativas, exatamente uma resposta correta, explicação curta, dificuldade,
@@ -232,9 +238,11 @@ tratada como conhecimento atual, sem apagar o histórico das tentativas.
 
 O SQLite local (`.framework/index.db`) será a fonte de relacionamento entre
 perguntas, conhecimento e símbolos; YAML poderá ser exportado para revisão humana e
-versionamento. A geração deve ser reproduzível por script e perguntas rejeitadas ou
-alteradas devem permanecer auditáveis. Perguntas propostas não podem alterar código,
-testes, instruções ou regras do projeto sem revisão explícita.
+versionamento. A validação e o registro do resultado devem ser reproduzíveis por
+script; perguntas geradas por inferência externa devem guardar origem, versão,
+escopo, evidências e estado de validação. Perguntas rejeitadas ou alteradas devem
+permanecer auditáveis. Perguntas propostas não podem alterar código, testes,
+instruções ou regras do projeto sem revisão explícita.
 
 ## Development Workflow and Quality Gates
 
@@ -272,4 +280,4 @@ locais, justificadas, temporárias e visíveis no relatório; não podem virar u
 permanente de contornar a constituição. A adoção progressiva de código legado não
 dispensa os gates para arquivos novos ou modificados.
 
-**Version**: 1.3.0 | **Ratified**: 2026-07-30 | **Last Amended**: 2026-07-30
+**Version**: 1.4.0 | **Ratified**: 2026-07-30 | **Last Amended**: 2026-07-30

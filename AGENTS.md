@@ -1,6 +1,8 @@
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan
+shell commands, and other important information, read the current plan:
+`specs/002-session-learning-memory/plan.md` and the root architecture plan
+`plan.md`.
 <!-- SPECKIT END -->
 
 ## Instruções obrigatórias do projeto
@@ -30,6 +32,9 @@ redigindo dados sensíveis e submetendo lições a revisão antes de promovê-la
 instruções permanentes.
 
 Quando habilitado, `framework learn quiz` é um script opcional de avaliação da
-codebase. As perguntas devem ser curtas, associadas a símbolos ou regras estáveis e
-marcadas para revisão quando o código mudar. O resultado é educacional e não é
-critério automático de paralelização nem quality gate.
+codebase. A geração pode delegar inferência a um agente externo com contexto
+previamente redigido, mas execução, sincronização, validação e aplicação da prova
+devem funcionar sem agente. O agente principal recebe apenas a confirmação do job,
+não o contexto ou o conteúdo gerado. As perguntas devem ser curtas, associadas a
+símbolos ou regras estáveis e marcadas para revisão quando o código mudar. O
+resultado é educacional e não é critério automático de paralelização nem quality gate.
