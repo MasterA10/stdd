@@ -73,14 +73,14 @@ can be reviewed before transfer and remains reproducible without a live API.
 ## Decision 5: Hybrid quiz generation
 
 **Decision**: `quiz run`, `quiz sync`, schema validation, provenance checks and
-storage are deterministic and do not require AI. `quiz generate` may call an
-external provider with an explicitly scoped, redacted session context. The provider
-returns a generation acknowledgment/opaque job identifier to the principal agent;
-question content is stored for the quiz command and is not returned in that
+storage are deterministic and do not require AI. `quiz generate` may invoke a
+configured local command with an explicitly scoped, redacted request package. The
+command returns a generation acknowledgment/opaque job identifier to the principal
+agent; question content is stored for the quiz command and is not returned in that
 orchestration response. A local deterministic fallback can create template-based
-questions when no provider is available.
+questions when no command is available.
 
-**Rationale**: Inference benefits from an external model's contextual reasoning,
+**Rationale**: Inference benefits from a configured local agent's contextual reasoning,
 while execution and safety must remain predictable and testable. The ack-only
 boundary limits context propagation to the principal agent.
 

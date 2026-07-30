@@ -32,9 +32,10 @@ redigindo dados sensíveis e submetendo lições a revisão antes de promovê-la
 instruções permanentes.
 
 Quando habilitado, `framework learn quiz` é um script opcional de avaliação da
-codebase. A geração pode delegar inferência a um agente externo com contexto
-previamente redigido, mas execução, sincronização, validação e aplicação da prova
-devem funcionar sem agente. O agente principal recebe apenas a confirmação do job,
-não o contexto ou o conteúdo gerado. As perguntas devem ser curtas, associadas a
+codebase. A geração pode delegar inferência a um executável local autorizado, como
+Codex, Claude, Cloud ou Antigravity, com contexto previamente redigido, mas
+execução, sincronização, validação e aplicação da prova devem funcionar sem esse
+comando. Não há provider HTTP/API no core. O agente principal recebe apenas a
+confirmação do job, não o contexto ou o conteúdo gerado. As perguntas devem ser curtas, associadas a
 símbolos ou regras estáveis e marcadas para revisão quando o código mudar. O
 resultado é educacional e não é critério automático de paralelização nem quality gate.

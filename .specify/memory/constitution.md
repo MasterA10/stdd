@@ -1,15 +1,15 @@
 <!--
 Sync Impact Report
-- Version change: 1.3.0 -> 1.4.0
+- Version change: 1.4.0 -> 1.5.0
 - Modified principles: VI. Evidence-Based Learning Loop clarified as a learning-only
   signal, not a parallelization criterion
-- Added sections: Knowledge Assessment; optional agent-assisted question generation
+- Added sections: Knowledge Assessment; optional command-assisted question generation
 - Removed sections: none
 - Artifacts requiring updates: ✅ plan.md; ✅ .specify/templates/plan-template.md;
   ✅ .specify/templates/spec-template.md; ✅ .specify/templates/tasks-template.md;
   ✅ AGENTS.md; ⚠ .specify/templates/commands/ (directory absent)
 - Follow-up TODOs: implement the scanner, learning/session hooks, quiz script and
-  optional external question-generation adapters in the core CLI and stack adapters
+  optional local command question-generation adapters in the core CLI and stack adapters
 -->
 
 # Framework CLI-First Constitution
@@ -217,10 +217,11 @@ testes explicados, decisões e histórico como fontes.
 
 `quiz run`, `quiz sync`, a validação, o armazenamento, a redaction e a aplicação da
 prova MUST funcionar sem depender de um agente de IA. A geração de perguntas pode,
-opcionalmente, delegar inferência a um agente ou modelo externo usando somente
-contexto redigido e autorizado da sessão. O gerador externo deve ser substituível
-por uma implementação determinística ou fallback local, e sua indisponibilidade
-não pode impedir o uso do quiz.
+opcionalmente, delegar inferência a um executável local autorizado, como Codex,
+Claude, Cloud ou Antigravity, usando somente contexto redigido e autorizado da
+sessão. Não há provider HTTP/API no core. O comando local deve ser substituível por
+uma implementação determinística ou fallback local, e sua indisponibilidade não
+pode impedir o uso do quiz.
 
 Cada pergunta MUST possuir um objetivo de conhecimento, enunciado curto, de três a
 cinco alternativas, exatamente uma resposta correta, explicação curta, dificuldade,
@@ -239,8 +240,8 @@ tratada como conhecimento atual, sem apagar o histórico das tentativas.
 O SQLite local (`.framework/index.db`) será a fonte de relacionamento entre
 perguntas, conhecimento e símbolos; YAML poderá ser exportado para revisão humana e
 versionamento. A validação e o registro do resultado devem ser reproduzíveis por
-script; perguntas geradas por inferência externa devem guardar origem, versão,
-escopo, evidências e estado de validação. Perguntas rejeitadas ou alteradas devem
+script; perguntas geradas por comando local devem guardar origem, versão, escopo,
+evidências e estado de validação. Perguntas rejeitadas ou alteradas devem
 permanecer auditáveis. Perguntas propostas não podem alterar código, testes,
 instruções ou regras do projeto sem revisão explícita.
 
@@ -280,4 +281,4 @@ locais, justificadas, temporárias e visíveis no relatório; não podem virar u
 permanente de contornar a constituição. A adoção progressiva de código legado não
 dispensa os gates para arquivos novos ou modificados.
 
-**Version**: 1.4.0 | **Ratified**: 2026-07-30 | **Last Amended**: 2026-07-30
+**Version**: 1.5.0 | **Ratified**: 2026-07-30 | **Last Amended**: 2026-07-30

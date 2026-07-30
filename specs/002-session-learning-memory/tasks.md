@@ -26,7 +26,7 @@ The shared foundation is blocking for all stories.
 conventions for optional learning without changing application code.
 
 - [X] T001 Create `.framework/learn/events/`, `.framework/learn/lessons/`, `.framework/learn/handoffs/` and `.framework/learn/quiz/` path configuration in `src/framework_cli/config/model.py` and `src/framework_cli/config/loader.py`.
-- [X] T002 [P] Add learn/quiz feature flags, retention, provider and redaction settings to `.framework/project.yml` examples in `specs/002-session-learning-memory/quickstart.md`.
+- [X] T002 [P] Add learn/quiz feature flags, retention, command-target and redaction settings to `.framework/project.yml` examples in `specs/002-session-learning-memory/quickstart.md`.
 - [X] T003 [P] Create session, handoff and quiz fixtures under `tests/fixtures/sessions/`, `tests/fixtures/handoffs/` and `tests/fixtures/quiz/`.
 - [X] T004 [P] Add package markers and fixture loaders in `tests/unit/`, `tests/integration/` and `tests/contract/` for the new learn/quiz modules.
 - [X] T005 [P] Add `learn` and `quiz` command entry points to `src/framework_cli/commands/registry.py` and `src/framework_cli/cli.py` help metadata without enabling behavior yet.
@@ -41,9 +41,9 @@ user story.
 
 - [X] T007 [P] Add event schema and lifecycle contract tests in `tests/contract/test_learn_events.py` for append-only records and session states.
 - [X] T008 [P] Add redaction and tombstone tests in `tests/unit/test_learn_redaction.py` for `.env`, credentials, prompts, PII and non-reversible fingerprints.
-- [X] T009 [P] Add SQLite relationship tests in `tests/unit/test_learn_index.py` for sessions, events, lessons, handoffs, questions, providers and attempts.
+- [X] T009 [P] Add SQLite relationship tests in `tests/unit/test_learn_index.py` for sessions, events, lessons, handoffs, questions, commands and attempts.
 - [X] T010 [P] Add handoff envelope/checksum tests in `tests/contract/test_handoff_contract.py` for structured/Markdown parity and invalid imports.
-- [X] T011 [P] Add external-generation acknowledgment tests in `tests/contract/test_external_generation_contract.py` proving the principal agent receives only status and opaque job ID.
+- [X] T011 [P] Add command-generation acknowledgment tests in `tests/contract/test_external_generation_contract.py` proving the principal agent receives only status and opaque job ID.
 - [X] T012 [P] Add common result/disabled-mode tests in `tests/contract/test_learn_result_envelope.py` for text, JSON, disabled and partial coverage states.
 
 ### Foundation implementation
@@ -53,7 +53,7 @@ user story.
 - [X] T015 Implement shared redaction pipeline using `src/framework_cli/security/scanner.py`, `src/framework_cli/security/redaction.py` and `src/framework_cli/security/fingerprint.py`.
 - [X] T016 Implement SQLite migrations and repositories for learn/quiz entities in `src/framework_cli/index/schema.py`, `src/framework_cli/index/db.py` and `src/framework_cli/index/repository.py`.
 - [X] T017 Implement session identity, event append and partial host coverage in `src/framework_cli/learn/lifecycle.py`.
-- [X] T018 Implement applicable instruction-chain loading and conflict blocking for learn/handoff/provider operations in `src/framework_cli/agents/instructions.py`.
+- [X] T018 Implement applicable instruction-chain loading and conflict blocking for learn/handoff/command operations in `src/framework_cli/agents/instructions.py`.
 - [X] T019 Implement shared learn/quiz command metadata, disabled behavior and safe result rendering in `src/framework_cli/commands/registry.py` and `src/framework_cli/reporting/render.py`.
 - [X] T020 Add foundation integration coverage in `tests/integration/test_learn_foundation.py` for redaction, append-only writes, SQLite relations, instructions and disabled mode.
 
@@ -128,20 +128,20 @@ session, with explicit scope, integrity, redaction and lineage.
 ## Phase 5: User Story 3 - Evaluate Knowledge of the Codebase (Priority: P2)
 
 **Goal**: Generate, validate, store, synchronize and run short multiple-choice
-questions linked to stable sources; allow external inference without exposing the
-context or question content to the principal agent.
+questions linked to stable sources; allow optional inference through an authorized
+local command without exposing context or question content to the principal agent.
 
-**Independent Test**: Generate local and external-provider fixture questions, verify
-the acknowledgment-only boundary, run a quiz without a provider, change a source,
+**Independent Test**: Generate local and local-command fixture questions, verify
+the acknowledgment-only boundary, run a quiz without an agent command, change a source,
 sync `needs_review`, and inspect attempts and exports.
 
 ### Tests for User Story 3
 
 - [X] T050 [P] [US3] Add question schema tests in `tests/contract/test_quiz_contract.py` for 3–5 options, one correct answer, short explanations, provenance and source fingerprints.
 - [X] T051 [P] [US3] Add deterministic fallback generation tests in `tests/integration/test_quiz_fallback.py` for AST/spec/test/decision source extraction without an agent.
-- [X] T052 [P] [US3] Add external provider request tests in `tests/integration/test_quiz_external_provider.py` proving scoped redacted context and no provider credentials in payloads.
+- [X] T052 [P] [US3] Add local-command request tests in `tests/integration/test_quiz_external_provider.py` proving scoped redacted context and no credentials in command payloads.
 - [X] T053 [P] [US3] Add acknowledgment-only tests in `tests/integration/test_quiz_ack_boundary.py` proving the principal agent receives only status and opaque job ID.
-- [X] T054 [P] [US3] Add provider failure/partial tests in `tests/integration/test_quiz_provider_failure.py` for unavailable, timeout, malformed and partial responses.
+- [X] T054 [P] [US3] Add command failure/partial tests in `tests/integration/test_quiz_provider_failure.py` for unavailable, timeout, malformed and partial responses.
 - [X] T055 [P] [US3] Add quiz run tests in `tests/integration/test_quiz_run.py` for hidden answers, scoring, confidence, categories and provider-free execution.
 - [X] T056 [P] [US3] Add source invalidation tests in `tests/integration/test_quiz_sync.py` for changed, removed and unchanged symbols/rules with preserved attempts.
 - [X] T057 [P] [US3] Add quiz export tests in `tests/integration/test_quiz_export.py` for JSON, YAML, Markdown, redaction and versioned provenance.
@@ -151,16 +151,16 @@ sync `needs_review`, and inspect attempts and exports.
 - [X] T058 [US3] Implement question, source, provenance, attempt and generation-job models in `src/framework_cli/quiz/models.py`.
 - [X] T059 [US3] Implement question validation and source fingerprint checks in `src/framework_cli/quiz/validation.py`.
 - [X] T060 [US3] Implement deterministic local candidate generation in `src/framework_cli/quiz/generator.py` from AST symbols, specs, contracts, tests and decisions.
-- [X] T061 [US3] Implement external provider protocol, scoped request and acknowledgment-only response in `src/framework_cli/quiz/providers.py`.
-- [X] T062 [US3] Implement provider registry, permission declaration and external/local selection in `src/framework_cli/quiz/provider_registry.py`.
-- [X] T063 [US3] Implement provider output validation, provenance storage and job status transitions in `src/framework_cli/quiz/generation_jobs.py`.
+- [X] T061 [US3] Implement local command protocol, scoped request and acknowledgment-only response in `src/framework_cli/quiz/command_generation.py`.
+- [X] T062 [US3] Implement command registry, permission declaration and local-command/fallback selection in `src/framework_cli/quiz/provider_registry.py`.
+- [X] T063 [US3] Implement command output validation, provenance storage and job status transitions in `src/framework_cli/quiz/generation_jobs.py`.
 - [X] T064 [US3] Implement SQLite/file repositories for questions, sources, jobs and attempts in `src/framework_cli/quiz/repository.py`.
-- [X] T065 [US3] Implement provider-free quiz runner with hidden answers, scoring and category reporting in `src/framework_cli/quiz/runner.py`.
+- [X] T065 [US3] Implement agent-command-free quiz runner with hidden answers, scoring and category reporting in `src/framework_cli/quiz/runner.py`.
 - [X] T066 [US3] Implement source fingerprint synchronization and `needs_review` transitions in `src/framework_cli/quiz/sync.py`.
 - [X] T067 [US3] Implement quiz export rendering and safe structured/text reports in `src/framework_cli/quiz/export.py` and `src/framework_cli/reporting/render.py`.
 - [X] T068 [US3] Implement `framework learn quiz generate|run|sync|export` in `src/framework_cli/commands/quiz.py` with disabled/non-blocking behavior.
-- [X] T069 [US3] Add agent projection instructions for external quiz delegation and acknowledgment-only boundaries in `src/framework_cli/agents/templates/quiz-generation.md`.
-- [X] T070 [US3] Document local fallback, external generation, agent boundary and quiz synchronization in `specs/002-session-learning-memory/quickstart.md`.
+- [X] T069 [US3] Add agent projection instructions for local quiz command delegation and acknowledgment-only boundaries in `src/framework_cli/agents/templates/quiz-generation.md`.
+- [X] T070 [US3] Document local fallback, command generation, agent boundary and quiz synchronization in `specs/002-session-learning-memory/quickstart.md`.
 
 **Checkpoint**: The quiz is executable without AI, while external inference can
 create stored questions through a redacted, acknowledgment-only provider boundary.
@@ -176,6 +176,34 @@ create stored questions through a redacted, acknowledgment-only provider boundar
 - [X] T077 Run `framework check --format json`, resolve new duplication/complexity findings and confirm generated learn/quiz files are in scope.
 - [X] T078 Run `framework security scan --format json` against workspace, generated records, staged diff and reachable history; confirm no sensitive value appears.
 - [X] T079 Review the final diff, task completion, instruction-chain evidence and constitution alignment in `AGENTS.md`, `plan.md` and `specs/002-session-learning-memory/`.
+
+## Phase 7: Host Hooks and Command-Line Handoff Hardening
+
+- [X] T080 Implement generated lifecycle hook scripts for Codex, Claude, Cloud,
+  Antigravity and generic hosts in `src/framework_cli/learn/host_hooks.py`.
+- [X] T081 Implement automatic session boundary handling for start, compact,
+  resume, close and new-session events in `src/framework_cli/learn/lifecycle.py`.
+- [X] T082 Attach deterministic rework signals to hook-captured event payloads in
+  `src/framework_cli/learn/rework.py` and `src/framework_cli/learn/lifecycle.py`.
+- [X] T083 Implement parity projection and Markdown checksum validation in
+  `src/framework_cli/learn/handoff_render.py`.
+- [X] T084 Implement complete handoff scope filtering for categories, statuses and
+  approved/proposed lessons in `src/framework_cli/learn/handoff_scope.py`.
+- [X] T085 Implement idempotent handoff import, manifest validation, branch conflict
+  handling and dedicated import boundary in `src/framework_cli/learn/handoff_import.py`.
+- [X] T086 Implement command-line handoff dispatch without shell interpolation for
+  Codex, Claude, Cloud, Antigravity and generic targets in `src/framework_cli/learn/cli_adapters.py`.
+- [X] T087 Implement command-line quiz generation using redacted request packages
+  and acknowledgment-only results in `src/framework_cli/quiz/command_generation.py`.
+- [X] T088 Add lifecycle, parity, duplicate-import and command-dispatch tests in
+  `tests/integration/test_learn_platforms.py` and `tests/integration/test_handoff_import.py`.
+- [X] T089 Add the planned performance, security and quiz synchronization suites in
+  `tests/integration/test_learn_performance.py`, `tests/integration/test_learn_security.py`
+  and `tests/integration/test_quiz_sync.py`.
+- [X] T090 Update contracts, constitution, quickstart and agent instructions to
+  document local command delegation instead of provider/API integration.
+- [X] T091 Run the complete test, static-analysis and security gates after hook and
+  handoff hardening.
 
 ## Dependencies & Execution Order
 
@@ -213,7 +241,7 @@ create stored questions through a redacted, acknowledgment-only provider boundar
 ```text
 After T058-T059:
   Worker A: T060 deterministic candidate generator + fallback tests
-  Worker B: T061-T063 external provider protocol, validation and job state tests
+  Worker B: T061-T063 local command protocol, validation and job state tests
   Worker C: T064 repository and provenance tests
   Worker D: T065-T066 quiz runner and source-sync tests
 

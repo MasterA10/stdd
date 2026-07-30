@@ -11,6 +11,6 @@ CREATE TABLE IF NOT EXISTS learn_events (id TEXT PRIMARY KEY, session_id TEXT NO
 CREATE TABLE IF NOT EXISTS learn_lessons (id TEXT NOT NULL, revision INTEGER NOT NULL, status TEXT NOT NULL, data TEXT NOT NULL, fingerprint TEXT NOT NULL DEFAULT '', PRIMARY KEY (id, revision));
 CREATE TABLE IF NOT EXISTS handoffs (id TEXT PRIMARY KEY, source_session_id TEXT NOT NULL, target TEXT NOT NULL, checksum TEXT NOT NULL, status TEXT NOT NULL, data TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS quiz_questions (id TEXT NOT NULL, revision INTEGER NOT NULL, status TEXT NOT NULL, fingerprint TEXT NOT NULL, data TEXT NOT NULL, PRIMARY KEY (id, revision));
-CREATE TABLE IF NOT EXISTS quiz_jobs (id TEXT PRIMARY KEY, session_id TEXT NOT NULL, provider TEXT NOT NULL, status TEXT NOT NULL, data TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS quiz_jobs (id TEXT PRIMARY KEY, session_id TEXT NOT NULL, command TEXT NOT NULL, status TEXT NOT NULL, data TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS quiz_attempts (id TEXT PRIMARY KEY, session_id TEXT NOT NULL, question_revision TEXT NOT NULL, data TEXT NOT NULL);
 """

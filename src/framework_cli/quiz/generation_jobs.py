@@ -11,8 +11,8 @@ from .models import KnowledgeQuestion
 from .validation import validate_question
 
 
-def create_job(store, session_id: str, provider: str, scope: dict[str, Any]) -> dict[str, Any]:
-    job = {"job_id": opaque("job"), "session_id": session_id, "provider": provider, "status": "created",
+def create_job(store, session_id: str, command: str, scope: dict[str, Any]) -> dict[str, Any]:
+    job = {"job_id": opaque("job"), "session_id": session_id, "command": command, "status": "created",
            "scope": scope, "question_ids": [], "created_at": now_iso(), "error": None}
     clean, _ = redact_record(job); write_json(store, store.base / "quiz" / "jobs" / f"{job['job_id']}.json", clean); repository(store).job(clean)
     return clean

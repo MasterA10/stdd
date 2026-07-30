@@ -118,7 +118,7 @@ categorias, explicações, fontes e itens que precisam de revisão.
    o resultado pode propor uma lição curta, mas não a promove automaticamente para
    uma regra permanente.
 5. **Given** uma sessão com contexto redigido, **When** a geração é delegada a um
-   agente ou modelo externo, **Then** esse gerador cria e armazena as perguntas, e o
+   comando local de Codex, Claude, Cloud, Antigravity ou destino compatível, **Then** esse comando cria e armazena as perguntas, e o
    agente principal recebe somente a confirmação de criação, sem o contexto de
    geração ou o conteúdo das perguntas no retorno.
 
@@ -143,7 +143,7 @@ categorias, explicações, fontes e itens que precisam de revisão.
   rotação e a limpeza do histórico é orientada sem alteração automática do Git.
 - Uma pergunta perde sua fonte ou aponta para um símbolo alterado: ela fica
   pendente de revisão e não entra como resposta válida até ser atualizada.
-- O agente externo está indisponível ou falha parcialmente: o quiz registra a
+- O comando local está indisponível ou falha parcialmente: o quiz registra a
   tentativa, informa falha ou cobertura parcial e o agente principal recebe apenas
   esse status, sem receber contexto sensível ou perguntas incompletas no retorno.
 
@@ -207,9 +207,10 @@ categorias, explicações, fontes e itens que precisam de revisão.
 - **FR-015**: O sistema MUST gerar perguntas curtas de múltipla escolha sobre
   arquitetura, modularização, práticas, decisões, trade-offs, regras de negócio,
   testes e relações entre módulos.
-- **FR-015a**: A geração de perguntas MUST poder ser delegada a um agente ou modelo
-  externo, incluindo agentes nomeados ou destinos compatíveis futuros, usando como
-  entrada somente o contexto da sessão previamente redigido e autorizado.
+- **FR-015a**: A geração de perguntas MUST poder ser delegada a um comando local
+  autorizado, incluindo Codex, Claude, Cloud, Antigravity ou destinos compatíveis
+  futuros, usando como entrada somente um pacote de contexto previamente redigido e
+  autorizado. O core MUST NOT require a provider HTTP/API.
 - **FR-015b**: O agente principal que iniciar uma geração externa MUST receber
   somente uma confirmação mínima de criação ou falha e um identificador opaco do
   job; não deve receber nesse retorno o contexto enviado, o prompt de geração ou o
@@ -258,7 +259,7 @@ categorias, explicações, fontes e itens que precisam de revisão.
 - **QG-006**: Perguntas e respostas MUST ser curtas, revisáveis e invalidadas por
   mudança de fonte; resultados educacionais não são quality gates nem critério
   automático de paralelização.
-- **QG-006a**: Contexto enviado a um gerador externo MUST passar por redaction e
+- **QG-006a**: Contexto enviado a um comando gerador MUST passar por redaction e
   escopo explícito; a resposta de orquestração ao agente principal MUST conter
   somente status e identificador opaco, nunca contexto, prompt ou perguntas.
 - **QG-007**: Mudanças comportamentais MUST ter testes reproduzíveis, e os gates
@@ -326,7 +327,7 @@ categorias, explicações, fontes e itens que precisam de revisão.
 - O `learn` pode atualizar o working tree durante uma sessão, mas não cria commits
   automaticamente; o fluxo de revisão e commit permanece sob controle da pessoa.
 - O formato interoperável do handoff é legível por pessoas e máquinas e não exige
-  que o agente externo instale o framework completo.
+  que o agente de destino instale o framework completo.
 - O pacote de handoff é o meio principal de transferência; clipboard, stdout e
   integrações nativas podem ser conveniências futuras, mas não substituem o pacote.
 - Importar contexto sempre inicia uma nova sessão vinculada; somente eventos de

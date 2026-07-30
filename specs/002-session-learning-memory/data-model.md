@@ -9,7 +9,7 @@
 | `status` | enum | `active`, `checkpointed`, `compacted`, `resumed`, `closed`, `incomplete` |
 | `local_date` | date | User-facing local calendar date |
 | `started_at` / `ended_at` | timestamp/null | Normalized timestamps |
-| `agent` / `host` | string | Provider/host identity, never raw prompt |
+| `agent` / `host` | string | Command/host identity, never raw prompt |
 | `branch` / `worktree` | string | Git context when available |
 | `commit_base` | string/null | Base commit or degraded marker |
 | `coverage` | object | Event capabilities and partial fallback evidence |
@@ -77,7 +77,7 @@ instruction-chain conflicts must be checked before persistence.
 | `difficulty` | enum | `easy`, `medium`, `hard` |
 | `sources` | list | Stable symbol/rule/test/decision IDs and fingerprints |
 | `status` | enum | `current`, `needs_review`, `rejected`, `archived` |
-| `provenance` | object | deterministic/external provider, job ID, version and scope |
+| `provenance` | object | deterministic/local command, job ID, version and scope |
 
 ## QuestionGenerationJob
 
@@ -85,7 +85,7 @@ instruction-chain conflicts must be checked before persistence.
 |---|---|---|
 | `job_id` | string | Opaque ID returned to principal agent |
 | `session_id` | string | Redacted source context |
-| `provider` | string | External adapter or local fallback |
+| `command` | string | Local executable target or deterministic fallback |
 | `status` | enum | `created`, `running`, `completed`, `partial`, `failed` |
 | `scope` | object | Authorized context only |
 | `question_ids` | list | Stored questions, not returned in principal-agent acknowledgment |

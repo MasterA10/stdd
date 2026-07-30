@@ -38,5 +38,5 @@ def generate_local(root: Path, *, scope: str = "project", limit: int = 20) -> li
             prompt=f"What kind of codebase source is {source['name']}?", options=options,
             correct_option="A shared boundary", explanation="The local fallback uses a safe conceptual answer and remains reviewable.",
             difficulty="easy", sources=[{k: source[k] for k in ("kind", "id", "fingerprint")}],
-            provenance={"provider": "local", "version": "1", "scope": scope}, fingerprint=source["fingerprint"]))
+            provenance={"command": "local", "version": "1", "scope": scope}, fingerprint=source["fingerprint"]))
     return questions

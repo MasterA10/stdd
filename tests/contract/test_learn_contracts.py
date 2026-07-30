@@ -25,21 +25,21 @@ def test_handoff_has_structured_and_markdown_views_and_links_new_session(tmp_pat
     assert imported.metadata["session"]["parent_session_id"] == first.metadata["session_id"]
 
 
-def test_external_quiz_returns_ack_only(tmp_path):
+def test_command_quiz_returns_ack_only(tmp_path):
     enabled(tmp_path); start(tmp_path)
-    result = generate(tmp_path, provider="external")
+    result = generate(tmp_path, agent="codex")
     assert set(result.metadata) == {"status", "job_id"}
     assert result.metadata["job_id"].startswith("job-")
 
 
-def test_external_questions_are_stored_behind_ack_boundary(tmp_path):
+def test_command_questions_are_stored_behind_ack_boundary(tmp_path):
     enabled(tmp_path); start(tmp_path)
     def provider(request):
         return {"status": "completed", "job_id": request["job_id"], "questions": [{
             "question_id": "question-external", "category": "trade-off", "prompt": "Which choice is explicit?",
             "options": ["A", "B", "C"], "correct_option": "A", "explanation": "It preserves the boundary.",
             "sources": [{"kind": "decision", "id": "plan.md", "fingerprint": "sha256:fixture"}],
-            "provenance": {"provider": "external", "job_id": request["job_id"], "version": "1", "scope": {}}}]}
-    result = __import__("framework_cli.commands.quiz", fromlist=["generate"]).generate(tmp_path, provider="external", external_callback=provider)
+            "provenance": {"command": "codex", "job_id": request["job_id"], "version": "1", "scope": {}}}]}
+    result = __import__("framework_cli.commands.quiz", fromlist=["generate"]).generate(tmp_path, agent="codex", command_callback=provider)
     assert set(result.metadata) == {"status", "job_id"}
     assert (tmp_path / ".framework" / "learn" / "quiz" / "questions" / "question-external-v1.json").exists()

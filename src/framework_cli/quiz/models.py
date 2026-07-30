@@ -16,7 +16,7 @@ class KnowledgeQuestion:
     difficulty: str = "medium"
     sources: list[dict[str, Any]] = field(default_factory=list)
     status: str = "current"
-    provenance: dict[str, Any] = field(default_factory=lambda: {"provider": "local", "version": "1", "scope": {}})
+    provenance: dict[str, Any] = field(default_factory=lambda: {"command": "local", "version": "1", "scope": {}})
     fingerprint: str = ""
 
     def to_dict(self, *, hide_answer: bool = False) -> dict[str, Any]:

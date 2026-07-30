@@ -39,6 +39,8 @@ class LearnStore:
 
     def append_event(self, event: LearningEvent | dict[str, Any]) -> dict[str, Any]:
         record = event.to_dict() if isinstance(event, LearningEvent) else event
+        record.setdefault("observed_at", now_iso())
+        record.setdefault("local_date", date.today().isoformat())
         record.setdefault("fingerprint", fingerprint(str(record.get("session_id", "")), str(record.get("event_id", "")), str(record.get("type", "")), str(record.get("observed_at", ""))))
         clean = append_jsonl(self.base / "events" / "events.jsonl", record)
         repository(self).learn_event(clean)

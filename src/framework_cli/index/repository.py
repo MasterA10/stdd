@@ -39,13 +39,20 @@ class Repository:
             data["handoff_id"], data["source_session_id"], data["target"], data["source_checksum"],
             data.get("status", "created"), json.dumps(data, sort_keys=True)))
 
+    def handoff_record(self, handoff_id: str) -> dict[str, Any] | None:
+        row = self.db.connection.execute("SELECT data, status FROM handoffs WHERE id=?", (handoff_id,)).fetchone()
+        if not row: return None
+        data = json.loads(row[0]); data["status"] = row[1]; return data
+
     def question(self, data: dict[str, Any]) -> None:
         self.db.execute("INSERT OR REPLACE INTO quiz_questions VALUES (?,?,?,?,?)", (
             data["question_id"], data["revision"], data["status"], data.get("fingerprint", ""), json.dumps(data, sort_keys=True)))
 
     def job(self, data: dict[str, Any]) -> None:
-        self.db.execute("INSERT OR REPLACE INTO quiz_jobs VALUES (?,?,?,?,?)", (
-            data["job_id"], data["session_id"], data["provider"], data["status"], json.dumps(data, sort_keys=True)))
+        columns = {row[1] for row in self.db.connection.execute("PRAGMA table_info(quiz_jobs)")}
+        command_column = "command" if "command" in columns else "provider"
+        self.db.execute(f"INSERT OR REPLACE INTO quiz_jobs (id,session_id,{command_column},status,data) VALUES (?,?,?,?,?)", (
+            data["job_id"], data["session_id"], data["command"], data["status"], json.dumps(data, sort_keys=True)))
 
     def attempt(self, data: dict[str, Any]) -> None:
         self.db.execute("INSERT OR REPLACE INTO quiz_attempts VALUES (?,?,?,?,?)", (

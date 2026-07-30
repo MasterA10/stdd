@@ -1,4 +1,4 @@
-"""Provider-independent knowledge assessment primitives."""
+"""Command-independent knowledge assessment primitives."""
 
 from .models import KnowledgeQuestion, QuizAttempt
 from .validation import validate_question

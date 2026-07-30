@@ -54,7 +54,7 @@ class ProjectConfig:
                     **(raw.get("security", {}) or {})}
         quality = {"baseline": ".framework/quality/baseline.json", "rules": DEFAULT_RULES.copy(),
                    **(raw.get("quality", {}) or {})}
-        learn = {"enabled": False, "retention_days": 365, "provider": "local",
+        learn = {"enabled": False, "retention_days": 365, "agent_command": "local", "agents": {},
                  "redaction": {"enabled": True}, **(raw.get("learn", {}) or {})}
         return cls(root_path=str(root.resolve()), version=int(raw.get("version", 1)),
                    profile=str(raw.get("profile", "mvp")), mode=str(raw.get("mode", "brownfield")),

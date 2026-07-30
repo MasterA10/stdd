@@ -10,7 +10,16 @@ or host hooks:
 learn:
   enabled: true
   retention_days: 365
-  provider: local
+  agent_command: local
+  agents:
+    codex:
+      command: "codex"
+    claude:
+      command: "claude"
+    cloud:
+      command: "cloud"
+    antigravity:
+      command: "antigravity"
   redaction:
     enabled: true
 ```
@@ -37,6 +46,18 @@ Events are associated with local date, normalized timestamp, session, branch,
 worktree, agent, tasks, files/symbols and evidence. If a host lacks hooks, the
 summary reports partial coverage and uses explicit checkpoints, commits and gates.
 
+Install lifecycle hook scripts for supported command-line hosts:
+
+```bash
+framework learn hooks install --host codex --host claude --host cloud --host antigravity
+framework learn hooks event --host codex --event compact --session-id SESSION_ID
+framework learn hooks event --host codex --event new-session
+```
+
+The generated scripts live under `.framework/hooks/<host>/` and can be registered
+in the host's lifecycle configuration. They record compaction, resume, close and
+new-session boundaries, and attach automatic rework signals to event payloads.
+
 ## Review lessons
 
 ```bash
@@ -49,18 +70,19 @@ quality policy or other permanent project rules is always explicit.
 ## Export and import a handoff
 
 ```bash
-framework learn handoff export --target generic --format package
+framework learn handoff export --target generic
 framework learn handoff import .framework/learn/handoffs/<handoff-id>/handoff.json
+framework learn handoff send --target claude .framework/learn/handoffs/<handoff-id>/handoff.json
 ```
 
 The package contains `handoff.json` as the import source and `handoff.md` as the
-review view. It is scoped, checksummed and redacted. Importing it creates a new
+review view. It is scoped, checksummed, parity-validated and redacted. Importing it creates a new
 session linked to the source; compact/resume events retain the original session ID.
 
 ## Generate and run the knowledge quiz
 
 ```bash
-framework learn quiz generate --provider external --scope session
+framework learn quiz generate --agent codex --scope session
 framework learn quiz run --count 10
 framework learn quiz sync
 framework learn quiz export --format yaml
@@ -77,10 +99,11 @@ uv run framework security scan --format json
 The equivalent nested form is `framework learn quiz ...`; `framework quiz ...` is
 also accepted for scripts that prefer a top-level command.
 
-An external provider may infer questions from redacted session context. The
-principal agent receives only `created|partial|failed` and an opaque job ID. The
-questions remain in the local quiz store for `quiz run`. The quiz can be run and
-synchronized without any provider; a local fallback may create candidate questions.
+A local command such as Codex, Claude, Cloud or Antigravity may infer questions from
+the redacted request package. The principal agent receives only
+`created|partial|failed` and an opaque job ID. The questions remain in the local quiz
+store for `quiz run`. The quiz can be run and synchronized without any command; a
+local fallback may create candidate questions.
 
 Questions are short, have 3–5 options, one correct answer, a brief explanation and
 source fingerprints. Source changes mark questions `needs_review` without deleting
