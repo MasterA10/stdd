@@ -95,6 +95,28 @@
 - **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
 - **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
 
+### Quality, Governance & Operational Constraints *(mandatory for code changes)*
+
+- **QG-001**: Implementation MUST comply with all applicable Markdown instruction
+  files and record the loaded instruction chain.
+- **QG-002**: Behavior changes MUST define a reproducible test and the applicable
+  approval/protection policy.
+- **QG-003**: Code changes MUST pass static analysis for duplication, long
+  functions/methods and God-class indicators using the project profile thresholds.
+- **QG-004**: Any baseline, exception or threshold override MUST include a reason,
+  scope and review condition.
+- **QG-005**: Agentic commands MUST declare permissions and list files they may
+  modify; deterministic work MUST remain script/tool driven.
+- **QG-006**: Security scanning MUST verify effective `.gitignore` coverage,
+  tracked sensitive files, hardcoded secrets, staged/remotable diffs and applicable
+  Git history without exposing secret values.
+- **QG-007**: If enabled, the learning feature MUST redact sensitive data, preserve
+  session evidence and require review before promoting lessons to project rules;
+  learning MUST remain optional and non-blocking.
+- **QG-008**: If enabled, the knowledge quiz MUST use short multiple-choice
+  questions associated with stable functions, modules, rules, tests or decisions;
+  changed sources MUST invalidate or mark linked questions for review.
+
 ### Key Entities *(include if feature involves data)*
 
 - **[Entity 1]**: [What it represents, key attributes without implementation]

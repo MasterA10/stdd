@@ -17,6 +17,8 @@ O usuário deverá conseguir realizar todo o fluxo de desenvolvimento por meio d
 * corrigir bugs;
 * revisar alterações com suporte a git diff;
 * integrar com Git local e GitHub remoto;
+* detectar segredos e variáveis sensíveis antes de commits e pushes;
+* registrar aprendizado, decisões e retrabalho quando o recurso estiver habilitado;
 * aplicar quality gates.
 
 O CLI não será apenas um instalador ou executor de scripts. Ele será o **orquestrador do processo de desenvolvimento**.
@@ -51,6 +53,9 @@ Responsável por:
 * controlar o estado do fluxo;
 * consolidar resultados;
 * gerar relatórios.
+
+O registro de aprendizado será opcional e não poderá bloquear comandos de
+desenvolvimento, testes, commits, pushes, CI ou quality gates.
 
 ## 2.2 Adaptadores da stack
 
@@ -106,6 +111,45 @@ Os scripts executarão operações previsíveis, como:
 * validar arquivos modificados;
 * atualizar o índice local.
 
+### Detecção de segredos e variáveis sensíveis
+
+O núcleo também deverá fornecer um scanner determinístico para impedir que
+credenciais sejam enviadas ao GitHub ou a qualquer repositório remoto.
+
+Comando:
+
+```bash
+framework security scan
+```
+
+O scanner deverá:
+
+* verificar a existência de `.gitignore` e se ele ignora efetivamente `.env`,
+  `.env.*` e arquivos equivalentes de credenciais;
+* permitir e validar exceções seguras como `.env.example`, `.env.sample` e
+  `.env.template`;
+* detectar arquivos sensíveis já rastreados com `git ls-files`;
+* analisar o workspace, o diff staged e o diff que será enviado ao remoto;
+* analisar, por padrão, objetos alcançáveis no histórico local do Git;
+* identificar chaves privadas, tokens conhecidos, JWTs, credenciais cloud,
+  atribuições suspeitas (`API_KEY`, `SECRET`, `PASSWORD`, `TOKEN`, `ACCESS_KEY`) e
+  strings de alta entropia;
+* usar regras específicas dos adaptadores sem exigir um agente de IA;
+* redigir valores e exibir somente caminho, linha, tipo e fingerprint não reversível;
+* retornar código de saída diferente de zero quando encontrar um segredo novo;
+* aceitar allowlists por fingerprint, com justificativa e expiração, nunca por valor
+  literal.
+
+Referências a `process.env`, `os.getenv`, secret managers e mecanismos equivalentes
+serão consideradas o caminho normal. O scanner deverá tratar valores em
+`.env.example` como fictícios e bloquear valores reais. Encontrar um segredo no
+histórico deverá gerar instruções de revogação e rotação; apagar o valor em um novo
+commit não será considerado correção suficiente.
+
+`framework check` deverá executar esse scanner junto com duplicação, complexidade,
+classes Deus, funções extensas, tipos e testes. O mesmo comando deverá poder ser
+executado em um hook `pre-commit`, `pre-push` e no CI.
+
 Esses scripts poderão ser:
 
 * Bash;
@@ -134,6 +178,113 @@ Exemplos:
 * explicar inconsistências.
 
 Essas tarefas serão executadas por skills ou comandos instalados para o agente escolhido.
+
+## 2.5 Aprendizado opcional e memória de sessões
+
+O framework oferecerá o comando `framework learn`, com `framework lessons` como
+alias, para aprender com o processo de desenvolvimento. O recurso será opt-in:
+quando desabilitado, nenhum hook será instalado e a ausência de registros não
+afetará o fluxo normal.
+
+Comandos previstos:
+
+```bash
+framework learn                 # resume a sessão atual ou a última sessão
+framework learn review          # revisa lições propostas
+framework learn readiness --worktrees
+                                # diagnostica riscos, sem autorizar paralelização
+framework learn quiz generate    # gera/atualiza o banco de perguntas
+framework learn quiz run         # executa uma avaliação da codebase
+framework learn quiz sync        # atualiza perguntas ligadas a símbolos alterados
+framework learn quiz export --format yaml
+                                # exporta perguntas para revisão/versionamento
+framework lessons               # alias de framework learn
+```
+
+O resumo deverá separar:
+
+* o que funcionou;
+* o que falhou;
+* decisões e trade-offs;
+* retrabalho detectado como sinal de aprendizado;
+* causa provável, explicitamente marcada como inferência;
+* evidências em commits, diffs, testes, gates e tarefas;
+* lições propostas;
+* próximos experimentos.
+
+O detector de retrabalho deverá identificar, como indícios, alterações repetidas no
+mesmo arquivo ou símbolo, revert/reaplicação, tarefas reabertas, tentativas após
+falhas de testes/gates e mudanças que desfazem decisões anteriores. O resultado
+deverá informar confiança e evidências, sem atribuir culpa ou afirmar causalidade
+sem suporte. Esses sinais servirão para evitar repetir erros; não serão usados
+isoladamente para decidir se o desenvolvimento pode ser paralelizado.
+
+### Eventos e hooks de sessão
+
+Quando habilitado, o framework deverá capturar os eventos:
+
+```text
+session.start
+session.checkpoint
+session.compacted
+session.resumed
+session.close
+```
+
+Integrações com Codex, Claude/Cloud Code e outros agentes utilizarão um contrato
+comum de eventos, com adaptadores específicos para cada host. O evento de
+compactação deverá salvar um checkpoint antes de a sessão ser resumida; o evento de
+retomada deverá reconectar a sessão ao mesmo identificador. Se o host não oferecer
+hooks, o CLI usará checkpoints em comandos, commits e encerramentos detectáveis e
+marcará a cobertura como parcial.
+
+Cada evento deverá conter `session_id`, `event_id`, timestamp, agente, branch,
+worktree, commit-base, tarefas, arquivos/símbolos afetados, comandos, gates e
+referências de evidência. Prompts brutos, segredos e dados sensíveis deverão ser
+redigidos antes da persistência. Os eventos serão append-only e os resumos ficarão
+separados dos fatos.
+
+`framework learn review` será necessário antes de transformar uma lição em regra
+permanente, instrução de agente ou alteração de processo. Nenhum `AGENTS.md`,
+`CLAUDE.md`, código ou configuração de qualidade poderá ser alterado
+silenciosamente pelo recurso.
+
+### Avaliação de conhecimento da codebase
+
+O módulo de perguntas será um script determinístico e opcional, sem depender de um
+agente de IA para gerar ou aplicar a prova. `quiz generate` construirá o banco e
+`quiz run` aplicará a avaliação. O módulo poderá construir perguntas a partir
+do AST, grafo de dependências, documentação, specs, testes, contratos, decisões,
+trade-offs, regras de negócio e histórico de alterações.
+
+Categorias mínimas:
+
+* arquitetura e limites entre módulos;
+* modularização, coesão e acoplamento;
+* boas práticas e convenções da stack;
+* escolhas técnicas e trade-offs;
+* regras de negócio e invariantes;
+* testes, contratos e quality gates;
+* segurança, configuração e operação.
+
+Cada pergunta deverá conter uma única resposta correta, de três a cinco alternativas,
+uma explicação curta, dificuldade, categoria, versão e evidências. As perguntas e
+explicações deverão ser unidades pequenas de estudo: uma pergunta por objetivo e
+explicação de até 80 palavras.
+
+O SQLite local (`.framework/index.db`) será a fonte de relacionamento. As tabelas
+deverão associar perguntas e itens de conhecimento a `symbol_id`, módulo, regra,
+teste, contrato, decisão e fingerprint da fonte. O comando `framework learn quiz
+sync` deverá marcar como `needs_review` qualquer pergunta cujo símbolo ou regra tenha
+mudado, preservando tentativas antigas e evitando que uma resposta obsoleta seja
+tratada como conhecimento atual. O conteúdo poderá ser exportado em YAML para
+revisão humana e versionamento.
+
+O resultado da prova deverá registrar perguntas apresentadas, respostas, acertos,
+tentativas, confiança e data. O resultado é educacional e informativo; não bloqueia
+implementação, CI ou paralelização. A paralelização futura dependerá de arquitetura,
+plano, fronteiras de responsabilidade, contratos e método validados; o quiz apenas
+mede e revela lacunas de conhecimento.
 
 ---
 
@@ -320,6 +471,9 @@ O comando poderá criar:
 ├── adapters/
 ├── scripts/
 ├── agents/
+├── security/
+├── quality/
+├── learning/
 ├── cache/
 ├── history/
 ├── generated/
@@ -341,6 +495,17 @@ Contém os scripts gerados para execução e análise.
 ### `agents/`
 
 Contém os comandos, prompts ou skills instalados para o agente escolhido.
+
+### `security/`
+
+Contém a política de scanning e a allowlist por fingerprint, sem armazenar valores
+secretos.
+
+### `learning/`
+
+Contém eventos de sessão, lições propostas/revisadas e evidências de retrabalho,
+sem prompts brutos ou segredos. A persistência só é criada quando o recurso estiver
+habilitado ou for solicitado explicitamente.
 
 ### `history/`
 
@@ -403,6 +568,28 @@ documentation:
   include_builtin_functions: true
   include_external_functions: true
   include_project_functions: true
+
+security:
+  secret_scan: true
+  scan_history: true
+  scan_remote_diff: true
+  env_files:
+    - .env
+    - .env.*
+  safe_examples:
+    - .env.example
+    - .env.sample
+    - .env.template
+  allowlist: .framework/security/allowlist.yml
+
+learning:
+  enabled: false
+  capture_events: false
+  quiz_enabled: false
+  quiz_source: index.db
+  quiz_export: .framework/learning/questions.yml
+  redact_sensitive_data: true
+  retention_days: 365
 
 scripts:
   preferred: auto
@@ -1261,6 +1448,9 @@ Poderá verificar:
 * dependências adicionadas;
 * scripts quebrados;
 * falhas de segurança;
+* regras ausentes ou inefetivas de `.gitignore` para arquivos de ambiente;
+* arquivos sensíveis rastreados pelo Git;
+* segredos hardcoded no workspace, staged diff, diff remoto ou histórico;
 * alterações de contrato;
 * inconsistências no índice.
 
@@ -1347,6 +1537,7 @@ Aplicar alterações? [S/n]
 | `framework init`         | Híbrido          |     Somente configuração |
 | `framework scan`         | Script           |     Somente configuração |
 | `framework doctor`       | Script           |                      Não |
+| `framework security scan`| Script           |                      Não |
 | `framework test create`  | Agente           |              Cria testes |
 | `framework test explain` | Script           |      Apenas bloco gerado |
 | `framework test`         | Script           |                      Não |
@@ -1358,6 +1549,9 @@ Aplicar alterações? [S/n]
 | `framework sync`         | Script           | Apenas metadados gerados |
 | `framework check`        | Script           |                      Não |
 | `framework inspect`      | Script           |                      Não |
+| `framework learn`        | Script           | Apenas memória opcional  |
+| `framework lessons`      | Alias            | Apenas memória opcional  |
+| `framework learn quiz`   | Script           | Apenas avaliação opcional|
 
 Essa classificação deverá ser visível na ajuda do CLI.
 
@@ -1504,6 +1698,22 @@ O CLI deverá mostrar quais arquivos serão ou foram modificados.
 ## Tipos nunca devem ser inventados
 
 Tipos desconhecidos deverão ser marcados como não resolvidos.
+
+## Segredos nunca devem ser versionados
+
+O scanner de segurança deve ser executado antes de commit, push e CI. Arquivos
+`.env` e credenciais devem permanecer fora do Git; exemplos só podem conter valores
+fictícios. Achados devem ser redigidos, rastreáveis por fingerprint e tratados com
+revogação/rotação quando já tiverem alcançado o histórico.
+
+## Aprendizado é opcional e revisável
+
+`framework learn` pode registrar sessões, decisões, dificuldades, acertos e
+retrabalho para evitar a repetição dos mesmos erros. O retrabalho é sinal de
+aprendizado, não critério de paralelização. O recurso e o quiz de conhecimento não
+são pré-condições para desenvolver, testar, commitar, fazer push ou executar CI.
+Lições inferidas e perguntas alteradas devem ser revisadas antes de virar regra de
+projeto ou instrução de agente.
 
 ## Testes aprovados são protegidos
 

@@ -31,7 +31,24 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- [ ] Applicable Markdown instruction files (for example `AGENTS.md`, `CLAUDE.md`,
+      `GEMINI.md` or `CLOUD.md`) were loaded and their paths are recorded.
+- [ ] The design uses deterministic scripts, native tooling or AST analysis before
+      agentic work wherever the operation is predictable.
+- [ ] Test-first flow, approved-test protection and agent permissions are defined for
+      every code-changing command.
+- [ ] Static-analysis rules cover duplication, long functions/methods and God-class
+      indicators, with thresholds, baseline and exception policy documented.
+- [ ] Secret scanning verifies effective `.gitignore` rules, tracked `.env` files,
+      hardcoded credentials, staged/remotable diffs and reachable Git history.
+- [ ] If learning is enabled, session events, retention, redaction and lesson review
+      are defined; learning remains optional and cannot block delivery.
+- [ ] If knowledge assessment is enabled, questions are short, versioned and linked
+      to stable symbols/rules/tests with an invalidation policy for changed code.
+- [ ] `framework check` can report file, line, metric, threshold, severity and rule,
+      and can run locally and in CI.
+- [ ] Any violation is recorded in Complexity Tracking with a simpler alternative and
+      migration or retirement condition.
 
 ## Project Structure
 
