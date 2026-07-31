@@ -1,12 +1,12 @@
 import json
 from typing import List, Optional
 from pathlib import Path
-import shutil
 
 import typer
 
-from .core import init_project, project_root, record_run_entry, run_tests
+from .core import ensure_gitignore, init_project, project_root, record_run_entry, run_tests
 from .draw import create_draw, read_draw_index, serve_draw
+from .setup import SUPPORTED_INTEGRATIONS, available_integrations, configure_project, ensure_stack_gitignore
 
 app = typer.Typer(help="STDD: CLI de suporte ao desenvolvimento orientado por testes.")
 draw_app = typer.Typer(help="Cria e visualiza desenhos JSON do projeto.")
@@ -14,14 +14,51 @@ app.add_typer(draw_app, name="draw")
 
 
 @app.command()
-def init() -> None:
+def init(
+    project: Path = typer.Argument(Path("."), help="Diretório do projeto a inicializar; por padrão, o diretório atual."),
+    integration: List[str] = typer.Option(None, "--integration", help="Agente a integrar: codex, claude ou gemini; pode repetir."),
+    all_integrations: bool = typer.Option(False, "--all-integrations", help="Instala as skills para Codex, Claude e Gemini."),
+) -> None:
     """Inicializa a estrutura do STDD e instala as skills dos agentes.
-    Cria a pasta .stdd/ e copia as skills Markdown para .agents/skills.
+    Cria o diretório-alvo quando necessário, depois cria .stdd/ e .agents/skills.
     """
-    created = init_project(project_root())
-    typer.echo(f"Projeto inicializado. {len(created)} itens criados.")
-    if not shutil.which("codex"):
-        typer.echo("Aviso: codex não encontrado no PATH.", err=True)
+    target = project.expanduser().resolve()
+    if target.exists() and not target.is_dir():
+        typer.echo(f"Erro: o destino não é um diretório: {target}", err=True)
+        raise typer.Exit(1)
+    target.mkdir(parents=True, exist_ok=True)
+    requested = tuple(integration or ("codex",))
+    if all_integrations:
+        requested = SUPPORTED_INTEGRATIONS
+    invalid = sorted(set(requested) - set(SUPPORTED_INTEGRATIONS))
+    if invalid:
+        typer.echo(f"Erro: integrações desconhecidas: {', '.join(invalid)}", err=True)
+        raise typer.Exit(1)
+    created = init_project(target, integrations=requested)
+    typer.echo(f"Projeto inicializado em {target}. {len(created)} itens criados.")
+    unavailable = [name for name, found in available_integrations().items() if name in requested and not found]
+    if unavailable:
+        typer.echo(f"Aviso: agente(s) não encontrado(s) no PATH: {', '.join(unavailable)}.", err=True)
+
+
+@app.command()
+def setup(
+    project: Path = typer.Argument(Path("."), help="Diretório do projeto a configurar; por padrão, o diretório atual."),
+) -> None:
+    """Detecta a stack e gera runners e regras de ambiente específicos do projeto.
+    Não instala dependências nem executa testes, permitindo revisão antes de ações externas.
+    """
+    target = project.expanduser().resolve()
+    if target.exists() and not target.is_dir():
+        typer.echo(f"Erro: o destino não é um diretório: {target}", err=True)
+        raise typer.Exit(1)
+    target.mkdir(parents=True, exist_ok=True)
+    if not (target / ".stdd" / "config.json").exists():
+        init_project(target)
+    ensure_gitignore(target)
+    stack = configure_project(target)
+    ensure_stack_gitignore(target, stack["languages"])
+    typer.echo(json.dumps({"stack": stack, "integrations": available_integrations()}, ensure_ascii=False, indent=2))
 
 
 @app.command("test")

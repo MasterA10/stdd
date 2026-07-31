@@ -31,15 +31,40 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
         assert installed.read_text(encoding="utf-8") == source.read_text(encoding="utf-8")
 
 
-def test_init_configures_pytest_as_cli_test_runner(tmp_path: Path):
-    """Configura o runner de testes padrão pytest no arquivo .stdd/config.json.
-    Chama init_project e verifica a estrutura dos comandos na seção test_commands.
+def test_init_defers_language_specific_test_runner_to_setup(tmp_path: Path):
+    """Mantém o init agnóstico e não escolhe um runner de linguagem antecipadamente.
+    Chama init_project e verifica que a configuração inicial aguarda o setup da stack.
     """
     init_project(tmp_path)
     config = json.loads((tmp_path / ".stdd/config.json").read_text())
-    assert config["test_commands"][0]["name"] == "all"
-    assert config["test_commands"][0]["command"][-2:] == ["-m", "pytest"]
+    assert config["test_commands"] == []
     assert config["testing"]["profile"] == "mvp"
+
+
+def test_init_accepts_project_directory_argument(tmp_path: Path, monkeypatch):
+    """Inicializa um projeto novo no diretório informado pelo usuário.
+    Executa init com caminho relativo a outro diretório e confirma os artefatos no alvo.
+    """
+    monkeypatch.chdir(tmp_path)
+    result = runner.invoke(app, ["init", "my-project"])
+
+    assert result.exit_code == 0
+    assert (tmp_path / "my-project/.stdd/config.json").exists()
+    assert (tmp_path / "my-project/.agents/skills/feature/SKILL.md").exists()
+    assert not (tmp_path / ".stdd").exists()
+
+
+def test_init_rejects_file_as_project_directory(tmp_path: Path):
+    """Rejeita um arquivo como destino de inicialização do projeto.
+    Cria um arquivo e confirma que init falha sem escrever ao lado dele.
+    """
+    target = tmp_path / "not-a-directory"
+    target.write_text("existing")
+
+    result = runner.invoke(app, ["init", str(target)])
+
+    assert result.exit_code == 1
+    assert "diretório" in result.output.lower()
 
 
 def test_init_keeps_framework_artifacts_in_stdd_and_agent_skills_in_agents(tmp_path: Path):
@@ -48,7 +73,7 @@ def test_init_keeps_framework_artifacts_in_stdd_and_agent_skills_in_agents(tmp_p
     """
     init_project(tmp_path)
 
-    assert {path.name for path in tmp_path.iterdir()} == {".stdd", ".agents"}
+    assert {path.name for path in tmp_path.iterdir()} == {".stdd", ".agents", ".gitignore"}
     assert (tmp_path / ".agents/skills/feature/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/implement/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/setup/SKILL.md").exists()
@@ -58,6 +83,30 @@ def test_init_keeps_framework_artifacts_in_stdd_and_agent_skills_in_agents(tmp_p
     assert (tmp_path / ".stdd/draws/index.json").exists()
     assert (tmp_path / ".stdd/runs.html").exists()
     assert (tmp_path / ".stdd/runs/index.json").exists()
+    gitignore = (tmp_path / ".gitignore").read_text()
+    assert ".env" in gitignore
+    assert "*.pyc" in gitignore
+    assert "__pycache__/" in gitignore
+    assert ".cache/" in gitignore
+    assert "*.cache" in gitignore
+    assert ".coverage" in gitignore
+
+
+def test_init_preserves_existing_gitignore_and_does_not_duplicate_rules(tmp_path: Path):
+    """Completa o gitignore existente sem apagar regras ou duplicar padrões STDD.
+    Inicializa duas vezes um projeto com regra própria e conta uma ocorrência de cada padrão gerenciado.
+    """
+    gitignore = tmp_path / ".gitignore"
+    gitignore.write_text("# regra do projeto\n*.log\n")
+
+    init_project(tmp_path)
+    init_project(tmp_path)
+
+    content = gitignore.read_text()
+    assert "# regra do projeto" in content
+    assert "*.log" in content
+    assert content.count(".env\n") == 1
+    assert content.count("*.pyc\n") == 1
 
 
 def test_agents_are_loaded_from_markdown_templates():
@@ -74,6 +123,10 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "acima de 100" in templates["static-analysis"].read_text()
     assert "Classe Deus" in templates["static-analysis"].read_text()
     assert "Etapa 1" in templates["static-analysis"].read_text()
+    assert "hardcoded_secret" in templates["static-analysis"].read_text()
+    assert "[REDACTED]" in templates["static-analysis"].read_text()
+    assert ".env" in templates["static-analysis"].read_text()
+    assert "*.pyc" in templates["static-analysis"].read_text()
     assert "stdd draw create" in templates["draw-feature"].read_text()
 
 

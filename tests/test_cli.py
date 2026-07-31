@@ -7,6 +7,7 @@ from typer.testing import CliRunner
 from stdd.cli import app
 from stdd.contract import check_contract
 from stdd.core import is_rework_diff, run_tests
+from stdd.setup import detect_stack
 
 
 runner = CliRunner()
@@ -22,6 +23,33 @@ def test_test_command_returns_execution_report(tmp_path: Path, monkeypatch):
     process, report = run_tests(tmp_path)
     assert process.returncode != 0  # no tests exist in the empty project
     assert report["status"] == "blocked"
+
+
+def test_init_can_install_skills_for_all_supported_agents(tmp_path: Path):
+    """Instala as skills nos diretórios dos agentes solicitados pelo usuário.
+    Executa init com todas as integrações e confirma que os artefatos continuam separados por agente.
+    """
+    result = runner.invoke(app, ["init", str(tmp_path), "--all-integrations"])
+
+    assert result.exit_code == 0
+    for directory in (".agents", ".claude", ".gemini"):
+        assert (tmp_path / directory / "skills" / "setup" / "SKILL.md").exists()
+
+
+def test_setup_detects_stack_without_assuming_python(tmp_path: Path):
+    """Detecta uma aplicação TypeScript e gera runner compatível com sua stack.
+    Cria package.json e confirma que o diagnóstico não escolhe pytest ou outro comando Python.
+    """
+    (tmp_path / "package.json").write_text('{"scripts":{"test":"vitest run"},"devDependencies":{"vitest":"latest"}}')
+
+    result = runner.invoke(app, ["setup", str(tmp_path)])
+
+    assert result.exit_code == 0
+    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    assert config["stack"]["languages"] == ["typescript"]
+    assert config["test_commands"][0]["command"] == ["npm", "test"]
+    assert "pytest" not in json.dumps(config)
+    assert "dist/" in (tmp_path / ".gitignore").read_text()
 
 
 def test_test_runs_all_configured_suites(tmp_path: Path):

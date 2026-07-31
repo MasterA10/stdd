@@ -60,5 +60,18 @@
     ".ts",
     ".tsx"
   ],
-  "version": 1
+  "version": 1,
+  "stack": {
+    "languages": [
+      "python"
+    ],
+    "frameworks": [],
+    "test_runners": [
+      "pytest"
+    ],
+    "evidence": [
+      "pyproject.toml"
+    ],
+    "status": "detected"
+  }
 }

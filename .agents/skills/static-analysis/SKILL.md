@@ -175,3 +175,13 @@ Classifique símbolos criados, removidos, alterados, movidos, assinaturas altera
 - Não inclua tokens, chaves ou credenciais no relatório, stdout ou stderr.
 
 O relatório factual deve permanecer separado de qualquer explicação ou sugestão produzida por IA.
+
+## Segredos hardcoded e arquivos ignorados
+
+O `stdd test` sempre executa um scanner determinístico interno para procurar credenciais gravadas como literais no código ou em arquivos de configuração. O scanner deve reconhecer atribuições a `PASSWORD`, `PASSWD`, `SECRET`, `API_KEY`, `ACCESS_TOKEN`, `AUTH_TOKEN`, `CLIENT_SECRET` e `PRIVATE_KEY`, inclusive com prefixos como `DATABASE_PASSWORD`, além de tokens conhecidos e cabeçalhos de chaves privadas.
+
+Leituras por ambiente (`os.getenv`, `process.env`, `${TOKEN}`), placeholders (`test`, `example`, `dummy`) e arquivos `.env` não são tratados como segredo hardcoded pelo scanner interno. O valor encontrado nunca pode aparecer no relatório: use `"[REDACTED]"`, informe arquivo, linha, tipo do achado e `severity: "blocking"`. Um achado `kind: "hardcoded_secret"` bloqueia o `stdd test`, mesmo quando não há adaptador externo configurado.
+
+Durante `stdd init`, o framework mantém um `.gitignore` na raiz do projeto e adiciona regras idempotentes para `.env`, `.env.*`, `*.pyc`, `__pycache__/`, ambientes virtuais e `node_modules/`, preservando regras preexistentes. A exceção `!.env.example` permite versionar apenas o modelo sem credenciais. Não crie nem registre arquivos `.env` como evidência.
+
+Além do valor literal hardcoded, compare os valores dos arquivos `.env`, `.env.local` e variantes locais com o conteúdo do código. Se um valor de ambiente aparecer no código, gere `hardcoded_env_value` com severidade `blocking`, identificando somente a chave, arquivo e linha e redigindo o valor. Se uma variável não tiver referência detectável, gere `unreferenced_env_variable` como `warning`; isso não bloqueia sozinho porque variáveis podem ser consumidas por infraestrutura, scripts ou serviços externos.

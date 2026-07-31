@@ -241,8 +241,134 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "6bacb4f39ff94b029c21ecb363843150",
+      "timestamp": "2026-07-31T15:46:22.550772+00:00",
+      "description": "Especifica inicialização por diretório do projeto",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 26,
+        "lines_deleted": 0,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "ec8203afaa564a89bb3ae07ec4af5c2b",
+      "timestamp": "2026-07-31T15:47:18.221114+00:00",
+      "description": "Adiciona instalação remota e init por caminho de projeto",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 12,
+        "lines_deleted": 5,
+        "files_changed": 2
+      }
+    },
+    {
+      "run_id": "5cc0c363d33e46d286cb75dce98f2492",
+      "timestamp": "2026-07-31T15:47:27.850637+00:00",
+      "description": "Valida instalação remota e init por diretório",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "79da6858575b4b46ab24c069b2c016f4",
+      "timestamp": "2026-07-31T15:51:22.136271+00:00",
+      "description": "Especifica scanner de segredos e gitignore automático",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 72,
+        "lines_deleted": 1,
+        "files_changed": 2
+      }
+    },
+    {
+      "run_id": "59776f6a942e45c4ace511fee1bbb238",
+      "timestamp": "2026-07-31T15:55:28.145319+00:00",
+      "description": "Implementa scanner determinístico de segredos e gitignore automático",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 128,
+        "lines_deleted": 4,
+        "files_changed": 4
+      }
+    },
+    {
+      "run_id": "2c058d19b44c4f5c884b5ac2a4fda276",
+      "timestamp": "2026-07-31T15:57:27.396658+00:00",
+      "description": "Adiciona testes de sincronização Env e integrações de agentes",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 65,
+        "lines_deleted": 0,
+        "files_changed": 2
+      }
+    },
+    {
+      "run_id": "0dc15a2999e343d798592d830a909b54",
+      "timestamp": "2026-07-31T16:01:18.757665+00:00",
+      "description": "Implementa sincronização Env-código, setup agnóstico e integrações Codex Claude Gemini",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 315,
+        "lines_deleted": 25,
+        "files_changed": 6
+      }
+    },
+    {
+      "run_id": "7a5d21922dad4576bfa95e428b7058b0",
+      "timestamp": "2026-07-31T16:02:26.147845+00:00",
+      "description": "Adiciona cobertura de caches ao gitignore",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 9,
+        "lines_deleted": 0,
+        "files_changed": 2
+      }
+    },
+    {
+      "run_id": "9db636e3efaf4d6981f9daf1f7ba9368",
+      "timestamp": "2026-07-31T16:02:36.971769+00:00",
+      "description": "Implementa regras de cache no gitignore",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 17,
-  "last_run_id": "da3b1bf836c04ae2b082060f7dfb2ace"
+  "run_count": 26,
+  "last_run_id": "9db636e3efaf4d6981f9daf1f7ba9368"
 }

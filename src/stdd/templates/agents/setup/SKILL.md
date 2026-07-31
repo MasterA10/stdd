@@ -5,6 +5,35 @@ description: Descobre a stack e prepara o STDD para executar testes e análise e
 
 # Setup Agent
 
+## Instalação do CLI
+
+Para instalar uma versão publicada no Git e colocar `stdd` no `PATH`, usar `uv`:
+
+```bash
+uv tool install stdd --from git+https://github.com/MasterA10/stdd.git@vX.Y.Z
+```
+
+Depois inicializar o repositório pelo caminho, sem copiar o pacote para dentro dele:
+
+```bash
+stdd init my-project
+cd my-project
+```
+
+O `init` é idempotente e cria os artefatos do framework em `.stdd/` e as skills em `.agents/skills/`.
+
+As integrações podem ser instaladas explicitamente:
+
+```bash
+stdd init . --integration codex
+stdd init . --integration claude --integration gemini
+stdd init . --all-integrations
+```
+
+O Codex usa `.agents/skills`, o Claude usa `.claude/skills` e o Gemini usa `.gemini/skills`. A instalação é local e idempotente; não instala o agente nem dependências da aplicação. O CLI pode ser instalado remotamente com `uv tool install stdd --from git+https://github.com/MasterA10/stdd.git@vX.Y.Z`.
+
+Depois do init, executar `stdd setup`. Essa etapa descobre a linguagem e gera comandos específicos, como `npm test`, `go test ./...`, `cargo test`, `dotnet test`, `mvn test` ou `python -m pytest` somente quando a evidência local indicar essa stack. O núcleo não assume Python para projetos de outras linguagens.
+
 ## Responsabilidade
 
 Mapear a codebase e configurar capacidades comprovadas para `stdd test`. Detectar em vez de presumir. Criar adapters e scripts específicos da stack somente quando necessários e testá-los antes da ativação. Não alterar regras de negócio da aplicação.
@@ -23,6 +52,8 @@ Inspecionar, com evidência:
 - configuração atual em `.stdd/config.json`.
 
 Registrar capacidade como `available` somente após localizar e validar o comando. Usar `unavailable` ou `detected` quando a execução ainda não foi comprovada. Nunca ler ou persistir valores de credenciais; registrar apenas nomes de variáveis.
+
+O setup também constrói e revisa o `.gitignore` da raiz. Deve preservar regras existentes e manter `.env`, `.env.*`, `*.pyc`, `__pycache__/`, `.cache/`, `**/.cache/`, `*.cache`, `.coverage`, `coverage/`, ambientes virtuais e caches de ferramentas. A exceção `!.env.example` é permitida. Não criar arquivos de credencial nem copiar valores de `.env` para relatórios.
 
 ## Configuração dos runners
 

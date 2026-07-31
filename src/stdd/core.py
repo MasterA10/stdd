@@ -20,6 +20,23 @@ DEFAULT_CODE_EXTENSIONS = {
     ".h", ".hpp", ".cs", ".rs", ".rb", ".php", ".swift", ".kt", ".scala",
     ".sh", ".bash",
 }
+GITIGNORE_RULES = (
+    "# STDD managed rules",
+    ".env",
+    ".env.*",
+    "!.env.example",
+    "*.pyc",
+    "__pycache__/",
+    ".venv/",
+    "venv/",
+    "node_modules/",
+    ".cache/",
+    "**/.cache/",
+    "*.cache",
+    ".coverage",
+    "coverage/",
+    "htmlcov/",
+)
 
 
 def get_tracked_extensions(root: Path) -> set[str]:
@@ -56,7 +73,14 @@ def stdd_dir(root: Path) -> Path:
     return root / ".stdd"
 
 
-def init_project(root: Path) -> list[Path]:
+AGENT_SKILL_DIRECTORIES = {
+    "codex": ".agents/skills",
+    "claude": ".claude/skills",
+    "gemini": ".gemini/skills",
+}
+
+
+def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list[Path]:
     """Inicializa a estrutura do projeto e instala as skills dos agentes.
     Cria as pastas internas de execuções/features e copia os templates Markdown para .agents/skills.
     """
@@ -64,7 +88,7 @@ def init_project(root: Path) -> list[Path]:
     for directory in (
         stdd_dir(root) / "runs",
         stdd_dir(root) / "features",
-        root / ".agents" / "skills",
+        *(root / AGENT_SKILL_DIRECTORIES[integration] for integration in integrations),
     ):
         if not directory.exists():
             directory.mkdir(parents=True)
@@ -75,9 +99,7 @@ def init_project(root: Path) -> list[Path]:
         config.write_text(
             json.dumps(
                 {
-                    "test_commands": [
-                        {"name": "all", "command": [sys.executable, "-m", "pytest"]}
-                    ],
+                    "test_commands": [],
                     "testing": {"profile": "mvp"},
                     "contract": {
                         "enabled": True,
@@ -111,15 +133,37 @@ def init_project(root: Path) -> list[Path]:
 
     created.extend(ensure_draw_workspace(root))
     created.extend(ensure_runs_workspace(root))
+    created.extend(ensure_gitignore(root))
 
-    for source in agent_templates():
-        name = source.parent.name
-        target = root / ".agents" / "skills" / name / "SKILL.md"
-        if not target.exists():
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
-            created.append(target)
+    for integration in integrations:
+        for source in agent_templates():
+            name = source.parent.name
+            target = root / AGENT_SKILL_DIRECTORIES[integration] / name / "SKILL.md"
+            if not target.exists():
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+                created.append(target)
     return created
+
+
+def ensure_gitignore(root: Path) -> list[Path]:
+    """Adiciona regras seguras e idempotentes ao gitignore do projeto.
+    Preserva regras existentes e evita versionar ambientes, caches Python e arquivos de ambiente.
+    """
+    path = root / ".gitignore"
+    existing = path.read_text(encoding="utf-8") if path.exists() else ""
+    lines = existing.splitlines()
+    missing = [rule for rule in GITIGNORE_RULES if rule not in lines]
+    if not missing:
+        return []
+    updated = existing
+    if updated and not updated.endswith("\n"):
+        updated += "\n"
+    if updated and not updated.endswith("\n\n"):
+        updated += "\n"
+    updated += "\n".join(missing) + "\n"
+    path.write_text(updated, encoding="utf-8")
+    return [path]
 
 
 def agent_templates() -> list[Path]:
@@ -223,7 +267,7 @@ def run_tests(
     configured = config.get("test_commands")
     if not configured and config.get("test_command"):
         configured = [{"name": "all", "command": config["test_command"]}]
-    suites = configured or [{"name": "all", "command": [sys.executable, "-m", "pytest"]}]
+    suites = configured or []
     active_profile = profile or config.get("testing", {}).get("profile", "mvp")
     excluded = exclude_suites or set()
 
@@ -258,6 +302,19 @@ def run_tests(
         output.append(f"[{suite_report['name']}]\n{suite_process.stdout}")
         errors.append(f"[{suite_report['name']}]\n{suite_process.stderr}")
         exit_code = exit_code or suite_process.returncode
+    if not suites:
+        output.append("[all]\nnot_executed: setup_required")
+        suite_reports.append(
+            {
+                "name": "all",
+                "command": [],
+                "status": "not_executed",
+                "reason": "setup_required",
+                "exit_code": None,
+                "duration_seconds": 0,
+            }
+        )
+        exit_code = 1
     summary = {
         "total": len(suite_reports),
         "passed": sum(1 for suite in suite_reports if suite["status"] == "passed"),
