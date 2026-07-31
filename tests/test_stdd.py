@@ -25,6 +25,8 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert (tmp_path / ".agents/skills/setup/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/static-analysis/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-feature/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/draw-improve/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/draw-improve/agents/openai.yaml").exists()
     assert "testes" in (tmp_path / ".agents/skills/feature/SKILL.md").read_text().lower()
     for source in agent_templates():
         installed = tmp_path / ".agents" / "skills" / source.parent.name / "SKILL.md"
@@ -114,7 +116,7 @@ def test_agents_are_loaded_from_markdown_templates():
     Chama agent_templates e valida a presença dos títulos dos agentes feature, implement e setup.
     """
     templates = {template.parent.name: template for template in agent_templates()}
-    assert set(templates) == {"draw-feature", "feature", "implement", "setup", "static-analysis"}
+    assert set(templates) == {"draw-feature", "draw-improve", "feature", "implement", "setup", "static-analysis"}
     assert "# Feature Agent" in templates["feature"].read_text()
     assert "# Implement Agent" in templates["implement"].read_text()
     assert "# Setup Agent" in templates["setup"].read_text()
@@ -128,6 +130,48 @@ def test_agents_are_loaded_from_markdown_templates():
     assert ".env" in templates["static-analysis"].read_text()
     assert "*.pyc" in templates["static-analysis"].read_text()
     assert "stdd draw create" in templates["draw-feature"].read_text()
+
+
+def test_draw_improve_skill_is_incremental_and_hands_off_through_feature():
+    """Limita cada melhoria do desenho e impede salto direto para produção.
+    Confirma revisão humana, término sem alteração e sequência feature antes de implement.
+    """
+    content = Path("src/stdd/templates/agents/draw-improve/SKILL.md").read_text(encoding="utf-8").lower()
+
+    for required in (
+        ".stdd/draws/<draw-id>.json",
+        "no máximo 3 novos nós",
+        "já está bom",
+        "um ciclo",
+        "revisão",
+        "$feature",
+        "$implement",
+        "estado vermelho",
+    ):
+        assert required in content
+    assert "não pular" in content
+    assert "100" not in content
+
+
+def test_draw_feature_matches_always_interactive_viewer():
+    """Mantém a skill base alinhada ao Draw sem modo separado de edição.
+    Rejeita instruções antigas sobre ativar edição ou usar inspetor.
+    """
+    content = Path("src/stdd/templates/agents/draw-feature/SKILL.md").read_text(encoding="utf-8").lower()
+
+    assert "ative `editar desenho`" not in content
+    assert "inspetor" not in content
+    assert "salvar alterações" in content
+
+
+def test_draw_skills_document_optional_questions_and_answer_history():
+    """Documenta perguntas opcionais como decisões persistentes do desenho.
+    Confirma suporte a escolha, sim ou não, resposta aberta e histórico respondido.
+    """
+    for name in ("draw-feature", "draw-improve"):
+        content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
+        for required in ("questions", "choice", "boolean", "open", "answer", "histórico", "sem resposta"):
+            assert required in content, f"{name} não define {required}"
 
 
 def test_agent_skills_are_self_contained_and_do_not_reference_internal_plan():
@@ -174,7 +218,7 @@ def test_readme_documents_codex_skill_invocation():
     """
     readme = Path("README.md").read_text(encoding="utf-8")
 
-    for command in ("$setup", "$feature", "$draw-feature", "$static-analysis", "$implement"):
+    for command in ("$setup", "$feature", "$draw-feature", "$draw-improve", "$static-analysis", "$implement"):
         assert command in readme
     assert ".agents/skills/<skill>/SKILL.md" in readme
 

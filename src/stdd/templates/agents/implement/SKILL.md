@@ -18,6 +18,8 @@ Fazer a menor alteração coerente que satisfaça os testes aprovados e preserve
 5. Consultar fatos da análise estática quando disponível: símbolos, dependências, complexidade e testes relacionados.
 6. Tratar capacidade ausente como `unavailable`; não inventar cobertura.
 
+Se um desenho referenciado possuir `questions`, ler as respostas persistidas como decisões do usuário. Perguntas sem resposta permanecem ambíguas e devem ser resolvidas antes de escolher um comportamento de produção que dependa delas.
+
 ## Implementação
 
 1. Validar entradas antes de ações com efeito.

@@ -19,7 +19,7 @@ stdd = "stdd.cli:app"
 where = ["src"]
 
 [tool.setuptools.package-data]
-stdd = ["templates/agents/*/SKILL.md", "templates/draw/*.html", "templates/runs/*.html"]
+stdd = ["templates/agents/*/SKILL.md", "templates/agents/*/agents/*.yaml", "templates/draw/*.html", "templates/runs/*.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

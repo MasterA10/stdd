@@ -62,6 +62,20 @@
     .node .node-label { fill:var(--ink); font-size:14px; font-weight:850; pointer-events:none; }
     .node .node-copy { fill:var(--muted); font-size:10px; pointer-events:none; }
     .node .node-kind { fill:#8b94a7; font-size:8px; font-weight:850; letter-spacing:.09em; text-transform:uppercase; pointer-events:none; }
+    .question-badge { cursor:pointer; pointer-events:all; }
+    .question-badge circle { fill:#e45786; stroke:#fff; stroke-width:2; filter:drop-shadow(0 3px 5px rgba(228,87,134,.3)); }
+    .question-badge text { fill:#fff; font-size:10px; font-weight:900; pointer-events:none; text-anchor:middle; }
+    .question-badge.answered circle { fill:#31a681; }
+    .question-panel { display:grid; gap:8px; max-height:470px; overflow:auto; padding:12px; border:1px solid rgba(218,223,234,.95); border-radius:13px; color:var(--ink); background:rgba(255,255,255,.98); box-shadow:0 14px 30px rgba(24,32,51,.2); font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; pointer-events:all; }
+    .question-panel-head { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:11px; font-weight:850; }
+    .question-panel-close { padding:2px 7px; border:1px solid var(--line); border-radius:6px; color:#59647a; background:#fff; cursor:pointer; }
+    .question-card { display:grid; gap:5px; padding-top:8px; border-top:1px solid #edf0f5; }
+    .question-card:first-of-type { padding-top:0; border-top:0; }
+    .question-card label { color:#657087; font-size:9px; font-weight:850; letter-spacing:.05em; text-transform:uppercase; }
+    .question-card p { margin:0; color:var(--ink); font-size:11px; line-height:1.35; }
+    .question-card select,.question-card textarea { width:100%; padding:7px; border:1px solid var(--line); border-radius:7px; outline:none; color:var(--ink); background:#fff; font-size:10px; }
+    .question-card textarea { min-height:46px; resize:vertical; }
+    .question-card select:focus,.question-card textarea:focus { border-color:#a799e8; box-shadow:0 0 0 2px rgba(101,88,207,.1); }
     .edge { fill:none; stroke:#99a4b8; stroke-width:2.2; marker-end:url(#arrow); transition:.15s; }
     .edge.conditional { stroke:#8d7bd4; stroke-dasharray:7 5; }
     .edge.success { stroke:#31a681; }
@@ -70,7 +84,11 @@
     .edge.then { stroke:#507ee7; }
     .edge.selected { stroke:var(--accent); stroke-width:3.5; marker-end:url(#arrow-active); }
     .edge-hitbox { fill:none; stroke:transparent; stroke-width:16; cursor:pointer; pointer-events:stroke; }
-    .edge-label { fill:#657087; font-size:10px; font-weight:750; paint-order:stroke; stroke:#f5f6fa; stroke-width:5px; stroke-linejoin:round; pointer-events:none; }
+    .edge-label-bg { fill:rgba(255,255,255,.96); stroke:#dfe4ee; stroke-width:1; filter:drop-shadow(0 2px 4px rgba(24,32,51,.12)); pointer-events:none; }
+    .edge-label { fill:#4f5870; font-size:10px; font-weight:800; pointer-events:none; }
+    .edge-remove { cursor:pointer; }
+    .edge-remove circle { fill:#fff; stroke:#e45786; stroke-width:2; filter:drop-shadow(0 4px 7px rgba(228,87,134,.22)); }
+    .edge-remove text { fill:#bd3767; font-size:12px; font-weight:900; pointer-events:none; }
     .port { stroke-width:2.5; opacity:0; transition:.15s; }
     .port-in { fill:#fff; stroke:#7084b7; pointer-events:none; }
     .port-out { fill:#6558cf; stroke:#fff; cursor:crosshair; pointer-events:none; filter:drop-shadow(0 3px 5px rgba(75,61,173,.35)); }
@@ -79,9 +97,6 @@
     .editing .node:hover .port-out { r:9; }
     .node.drop-target rect.node-body { stroke:#31a681; stroke-width:3.5; filter:drop-shadow(0 0 12px rgba(49,166,129,.35)); }
     .connection-preview { fill:none; stroke:#6558cf; stroke-width:3; stroke-dasharray:8 5; marker-end:url(#arrow-active); pointer-events:none; }
-    .inspector { position:absolute; right:15px; bottom:15px; z-index:5; width:310px; max-height:55%; overflow:auto; padding:17px; border:1px solid rgba(218,223,234,.9); border-radius:16px; background:var(--panel); box-shadow:var(--shadow); backdrop-filter:blur(16px); }
-    .inspector-head { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
-    .inspector-badge { padding:4px 7px; border-radius:999px; color:#6558cf; background:#efedff; font-size:9px; font-weight:850; letter-spacing:.06em; text-transform:uppercase; }
     .section { margin-top:14px; padding-top:12px; border-top:1px solid #edf0f5; }
     .pill { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:5px 0; padding:7px 8px; border-radius:9px; color:#59647a; background:#f0f2f7; font-size:10px; }
     .pill button { flex:none; padding:2px 6px; border:0; border-radius:6px; color:#aa345b; background:#fff; }
@@ -90,10 +105,21 @@
     .field input,.field textarea,.field select { width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:9px; outline:none; color:var(--ink); background:#fff; font-size:12px; }
     .field textarea { min-height:65px; resize:vertical; }
     .field input:focus,.field textarea:focus,.field select:focus { border-color:#a799e8; box-shadow:0 0 0 3px rgba(101,88,207,.09); }
-    .inspector-action { width:100%; margin-top:10px; padding:9px; border:1px solid var(--line); border-radius:9px; color:#4f5870; background:#fff; font-size:11px; font-weight:750; }
     .canvas-hint { position:absolute; left:17px; bottom:15px; z-index:4; padding:8px 11px; border:1px solid rgba(218,223,234,.8); border-radius:999px; color:#747d90; background:rgba(255,255,255,.83); box-shadow:0 8px 22px rgba(32,39,59,.08); font-size:10px; backdrop-filter:blur(10px); pointer-events:none; }
+    .shortcut-dialog { width:min(520px,calc(100vw - 32px)); padding:0; border:0; border-radius:18px; color:var(--ink); background:#fff; box-shadow:0 25px 80px rgba(24,32,51,.28); }
+    .shortcut-dialog::backdrop { background:rgba(24,32,51,.32); backdrop-filter:blur(3px); }
+    .shortcut-content { padding:22px; }
+    .shortcut-list { display:grid; grid-template-columns:auto 1fr; gap:8px 16px; margin:16px 0 0; font-size:12px; }
+    .shortcut-list kbd { min-width:64px; padding:4px 7px; border:1px solid #d8ddea; border-bottom-width:2px; border-radius:6px; color:#4d5870; background:#f6f7fb; font-size:11px; font-weight:800; text-align:center; }
+    .shortcut-close { float:right; padding:7px 10px; border:1px solid var(--line); border-radius:8px; color:#59647a; background:#fff; }
+    .inline-node-editor { display:grid; gap:6px; padding:9px; border:1px solid rgba(218,223,234,.95); border-radius:11px; background:rgba(255,255,255,.97); box-shadow:0 10px 24px rgba(24,32,51,.18); pointer-events:all; }
+    .inline-node-editor input,.inline-node-editor textarea,.inline-node-editor select { width:100%; padding:6px 7px; border:1px solid #dfe4ee; border-radius:6px; outline:none; color:#182033; background:#fff; font-size:10px; }
+    .inline-node-editor textarea { min-height:38px; resize:none; }
+    .inline-node-editor input:focus,.inline-node-editor textarea:focus,.inline-node-editor select:focus { border-color:#a799e8; box-shadow:0 0 0 2px rgba(101,88,207,.1); }
+    .inline-node-editor .color-row { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+    .inline-node-editor input[type=color] { height:25px; padding:2px; }
     .dirty-dot { display:inline-block; width:7px; height:7px; margin-right:6px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 3px rgba(228,87,134,.13); }
-    @media (max-width:1120px) { .app { grid-template-columns:240px minmax(0,1fr); } .toolbar button span { display:none; } .inspector { width:270px; } }
+    @media (max-width:1120px) { .app { grid-template-columns:240px minmax(0,1fr); } .toolbar button span { display:none; } }
   </style>
 </head>
 <body>
@@ -111,7 +137,6 @@
         <div class="tool-group"><button id="back" disabled title="Voltar ao desenho pai">← <span>Voltar</span></button></div>
         <div id="title" class="title">Nenhum desenho selecionado</div>
         <div class="tool-group">
-          <button id="edit" disabled title="Alternar edição">✦ <span>Editar desenho</span></button>
           <button id="add" disabled title="Adicionar bloco">＋ <span>Adicionar bloco</span></button>
           <button id="connect" disabled title="Conectar blocos">↗ <span>Conectar blocos</span></button>
           <button id="delete" class="danger" disabled title="Excluir seleção">⌫ <span>Excluir seleção</span></button>
@@ -119,6 +144,7 @@
         </div>
         <div class="tool-group">
           <button id="zoom-out" title="Diminuir zoom">−</button><button id="zoom-in" title="Aumentar zoom">＋</button><button id="reset" title="Enquadrar desenho">⌂</button>
+          <button id="shortcuts" title="Mostrar atalhos">? <span>Atalhos</span></button>
         </div>
       </div>
       <svg id="stage" class="stage" role="img" aria-label="Editor visual do desenho" viewBox="0 0 1400 900">
@@ -126,15 +152,33 @@
           <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="context-stroke"></path></marker>
           <marker id="arrow-active" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#e45786"></path></marker>
         </defs>
-        <g id="viewport"><g id="edges"></g><g id="connection-preview"></g><g id="labels"></g><g id="nodes"></g></g>
+        <g id="viewport"><g id="edges"></g><g id="connection-preview"></g><g id="nodes"></g><g id="labels"></g></g>
       </svg>
-      <aside id="inspector" class="inspector"><div class="muted">Selecione um desenho e depois um bloco ou uma seta.</div></aside>
-      <div id="canvas-hint" class="canvas-hint">Arraste o fundo para mover a tela · na edição, arraste a saída roxa até outro bloco</div>
+      <div id="canvas-hint" class="canvas-hint">Arraste o fundo para mover a tela · arraste a saída roxa até outro bloco · alterações só persistem ao salvar</div>
     </section>
   </main>
+  <dialog id="shortcut-dialog" class="shortcut-dialog">
+    <div class="shortcut-content">
+      <button id="shortcut-close" class="shortcut-close" type="button">Fechar</button>
+      <p class="eyebrow">STDD · Draw</p>
+      <h2>Atalhos e gestos</h2>
+      <div class="shortcut-list">
+        <kbd>Duplo clique</kbd><span>Editar o bloco ou o rótulo da seta diretamente.</span>
+        <kbd>Arrastar bloco</kbd><span>Reposicionar visualmente o bloco na tela.</span>
+        <kbd>Arrastar saída</kbd><span>Criar uma seta diretamente até outro bloco.</span>
+        <kbd>Botão direito</kbd><span>Abrir ações rápidas do bloco ou da seta.</span>
+        <kbd>Ctrl/Cmd+D</kbd><span>Duplicar o elemento selecionado.</span>
+        <kbd>Delete</kbd><span>Excluir o bloco ou a seta selecionada.</span>
+        <kbd>Ctrl/Cmd+S</kbd><span>Salvar alterações lógicas.</span>
+        <kbd>Esc</kbd><span>Cancelar conexão ou fechar esta janela.</span>
+        <kbd>+ / − / 0</kbd><span>Zoom, zoom out e enquadrar o desenho.</span>
+      </div>
+    </div>
+  </dialog>
   <script>
     (() => {
       const SVG_NS = 'http://www.w3.org/2000/svg';
+      const HTML_NS = 'http://www.w3.org/1999/xhtml';
       const EDGE_CONDITIONS = {1:'então', 2:'ou', 3:'se'};
       const DEFAULT_CONDITION = 1;
       const $ = id => document.getElementById(id);
@@ -144,7 +188,7 @@
       const edgesLayer = $('edges');
       const previewLayer = $('connection-preview');
       const labelsLayer = $('labels');
-      const state = { index: [], current: null, selectedNode: null, selectedEdge: -1, query: '', zoom: 1, panX: 0, panY: 0, pointerAction: null, navigation: [], editing: false, connecting: false, connectFrom: null, dirty: false, positions: new Map() };
+      const state = { index: [], current: null, selectedNode: null, selectedEdge: -1, questionNode: null, query: '', zoom: 1, panX: 0, panY: 0, pointerAction: null, navigation: [], connecting: false, connectFrom: null, dirty: false, positions: new Map(), presentation: { nodes: {} }, directoryHandle: null };
       let fieldSequence = 0;
 
       /** Converte qualquer valor em texto seguro para textContent. */
@@ -197,19 +241,14 @@
       /** Calcula camadas topológicas para manter dependências da esquerda para a direita. */
       function buildRanks(data) {
         const ids = data.nodes.map(node => node.id);
-        const indegree = Object.fromEntries(ids.map(id => [id, 0]));
         const outgoing = Object.fromEntries(ids.map(id => [id, []]));
-        data.edges.forEach(edge => { if (edge.from in outgoing && edge.to in indegree) { outgoing[edge.from].push(edge.to); indegree[edge.to] += 1; } });
+        data.edges.forEach(edge => { if (edge.from in outgoing && ids.includes(edge.to)) outgoing[edge.from].push(edge.to); });
+        const visiting = new Set(); const visited = new Set(); const order = [];
+        function visit(id) { if (visited.has(id)) return; if (visiting.has(id)) return; visiting.add(id); outgoing[id].forEach(visit); visiting.delete(id); visited.add(id); order.push(id); }
+        ids.forEach(visit); order.reverse();
+        const orderIndex = Object.fromEntries(order.map((id, index) => [id, index]));
         const ranks = Object.fromEntries(ids.map(id => [id, 0]));
-        const queue = ids.filter(id => indegree[id] === 0);
-        const visited = new Set();
-        while (queue.length) {
-          const id = queue.shift();
-          visited.add(id);
-          outgoing[id].forEach(target => { ranks[target] = Math.max(ranks[target], ranks[id] + 1); indegree[target] -= 1; if (indegree[target] === 0) queue.push(target); });
-        }
-        let cycleRank = Math.max(0, ...Object.values(ranks));
-        ids.filter(id => !visited.has(id)).forEach(id => { cycleRank += 1; ranks[id] = cycleRank; });
+        order.forEach(id => outgoing[id].forEach(target => { if (orderIndex[id] < orderIndex[target]) ranks[target] = Math.max(ranks[target], ranks[id] + 1); }));
         return ranks;
       }
 
@@ -235,7 +274,7 @@
         const layers = orderRank(data, ranks);
         const positions = {};
         layers.forEach((nodes, rank) => { let nextY = 105; nodes.forEach(node => { const metrics = measureNode(node); positions[String(node.id)] = { x: 95 + rank * 340, y: nextY }; nextY += metrics.height + 66; }); });
-        return data.nodes.map(node => { const metrics = measureNode(node); const calculated = state.positions.get(String(node.id)) || positions[String(node.id)]; return ({ ...node, x: calculated.x, y: calculated.y, ...metrics, rank: ranks[node.id] }); });
+        return data.nodes.map(node => { const metrics = measureNode(node); const calculated = state.positions.get(String(node.id)) || state.presentation.positions?.[String(node.id)] || positions[String(node.id)]; return ({ ...node, x: calculated.x, y: calculated.y, ...metrics, rank: ranks[node.id] }); });
       }
 
       /** Escolhe portas laterais de acordo com a direção lógica da conexão. */
@@ -251,21 +290,34 @@
         const sameRank = to.rank === from.rank;
         const minY = Math.min(...nodes.map(node => node.y));
         const maxY = Math.max(...nodes.map(node => node.y + node.height));
-        let d; let labelX; let labelY;
+        let d; let labelX; let labelY; let labelMaxWidth = 180;
         if (adjacent) {
           const laneX = (sx + tx) / 2 + ((index % 5) - 2) * 7;
-          d = `M${sx} ${sy}H${laneX}V${ty}H${tx}`; labelX = laneX + 6; labelY = (sy + ty) / 2 - 7;
+          d = `M${sx} ${sy}H${laneX}V${ty}H${tx}`;
+          if (Math.abs(sy - ty) < 20) { labelX = (sx + tx) / 2; labelY = Math.min(from.y, to.y) - 12; labelMaxWidth = Math.max(76, Math.abs(tx - sx) - 22); }
+          else { labelX = laneX + 6; labelY = (sy + ty) / 2 - 7; labelMaxWidth = 118; }
         } else if (forward) {
           const laneY = minY - 52 - (index % 8) * 20;
-          d = `M${sx} ${sy}V${laneY}H${tx}V${ty}`; labelX = (sx + tx) / 2; labelY = laneY - 7;
+          d = `M${sx} ${sy}V${laneY}H${tx}V${ty}`; labelX = (sx + tx) / 2; labelY = laneY - 7; labelMaxWidth = Math.max(90, Math.min(190, Math.abs(tx - sx) - 18));
         } else if (sameRank) {
           const laneX = Math.max(from.x + from.width, to.x + to.width) + 58 + (index % 6) * 18;
-          d = `M${sx} ${sy}H${laneX}V${ty}H${tx}`; labelX = laneX + 6; labelY = (sy + ty) / 2 - 7;
+          d = `M${sx} ${sy}H${laneX}V${ty}H${tx}`; labelX = laneX + 6; labelY = (sy + ty) / 2 - 7; labelMaxWidth = 120;
         } else {
           const laneY = maxY + 58 + (index % 8) * 20;
-          d = `M${sx} ${sy}V${laneY}H${tx}V${ty}`; labelX = (sx + tx) / 2; labelY = laneY - 7;
+          d = `M${sx} ${sy}V${laneY}H${tx}V${ty}`; labelX = (sx + tx) / 2; labelY = laneY - 7; labelMaxWidth = Math.max(90, Math.min(190, Math.abs(tx - sx) - 18));
         }
-        return { d, labelX, labelY };
+        return { d, labelX, labelY, labelMaxWidth };
+      }
+
+      /** Posiciona um rótulo em cápsula, quebrando palavras antes de ocupar o corredor da seta. */
+      function edgeLabelGroup(value, x, y, nodes, occupied, maxWidth = 180) {
+        const safeWidth = Math.max(76, Math.min(220, maxWidth)); const maxCharacters = Math.max(8, Math.min(22, Math.floor((safeWidth - 18) / 6))); const lines = wrapText(value, maxCharacters).slice(0, 3); const longest = Math.max(...lines.map(line => line.length), 1); const width = Math.min(safeWidth, Math.max(58, longest * 5.5 + 18)); const height = 10 + lines.length * 12; let top = y - height + 3;
+        const overlaps = candidate => nodes.some(node => candidate.left < node.x + node.width && candidate.right > node.x && candidate.top < node.y + node.height && candidate.bottom > node.y) || occupied.some(item => candidate.left < item.right && candidate.right > item.left && candidate.top < item.bottom && candidate.bottom > item.top);
+        let box = { left:x - width / 2, right:x + width / 2, top, bottom:top + height }; let attempts = 0;
+        while (overlaps(box) && attempts < 10) { top -= height + 7; box = { left:x - width / 2, right:x + width / 2, top, bottom:top + height }; attempts += 1; }
+        if (box.top < 26) { top = y + 9; box = { left:x - width / 2, right:x + width / 2, top, bottom:top + height }; }
+        occupied.push(box);
+        const group = document.createElementNS(SVG_NS, 'g'); const background = document.createElementNS(SVG_NS, 'rect'); background.setAttribute('class', 'edge-label-bg'); background.setAttribute('x', box.left); background.setAttribute('y', box.top); background.setAttribute('width', width); background.setAttribute('height', height); background.setAttribute('rx', 7); const text = svgTextLines(lines, x, box.top + 12, 'edge-label', 12); text.setAttribute('text-anchor', 'middle'); group.append(background, text); return { group, x, y:box.top + 12, lines, width, height };
       }
 
       /** Define uma cor curta por tipo de bloco. */
@@ -274,6 +326,66 @@
         if (node.kind === 'database') return '#31a681';
         if (node.draw_ref !== undefined && node.draw_ref !== null && node.draw_ref !== '') return '#e45786';
         return '#507ee7';
+      }
+
+      /** Retorna uma chave estável para preferências visuais locais do desenho. */
+      function presentationKey() { return state.current ? `stdd-draw-presentation:${state.current.id}` : ''; }
+      /** Carrega apenas preferências de aparência, sem misturá-las ao JSON lógico. */
+      function loadPresentation() {
+        state.presentation = { nodes: {}, positions: {} };
+        try { const saved = localStorage.getItem(presentationKey()); if (saved) { const parsed = JSON.parse(saved); if (parsed && typeof parsed === 'object') state.presentation = { nodes: parsed.nodes || {}, positions: parsed.positions || {} }; } } catch (_) { state.presentation = { nodes: {}, positions: {} }; }
+      }
+      /** Persiste cores locais do viewer sem alterar o contrato do desenho. */
+      function persistPresentation() { if (presentationKey()) localStorage.setItem(presentationKey(), JSON.stringify(state.presentation)); }
+      /** Calcula preto ou branco legível sobre uma cor de fundo. */
+      function contrastColor(hex) { const value = String(hex || '').replace('#', ''); if (value.length !== 6) return '#182033'; const rgb = [0, 2, 4].map(index => parseInt(value.slice(index, index + 2), 16)); return (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000 > 150 ? '#182033' : '#ffffff'; }
+      /** Retorna a aparência final de um bloco, combinando semântica e preferência local. */
+      function nodeVisual(node) { const saved = state.presentation.nodes[String(node.id)] || {}; const background = saved.background || nodeColor(node); return { background, text: saved.text || contrastColor(background) }; }
+      /** Atualiza a aparência de um bloco e mantém o valor fora do JSON lógico. */
+      function setNodeVisual(node, property, value) { const key = String(node.id); const saved = state.presentation.nodes[key] || {}; saved[property] = value; if (property === 'background' && !saved.textCustom) saved.text = contrastColor(value); if (property === 'text') saved.textCustom = true; state.presentation.nodes[key] = saved; markDirty(); renderCanvas(); setStatus('Aparência alterada; pressione Salvar alterações para persistir.'); }
+
+      /** Retorna as perguntas opcionais declaradas no bloco. */
+      function nodeQuestions(node) { return Array.isArray(node.questions) ? node.questions : []; }
+      /** Informa se a pergunta possui resposta, preservando false e zero como valores válidos. */
+      function questionAnswered(question) { return question.answer !== null && question.answer !== undefined && !(typeof question.answer === 'string' && !question.answer.trim()); }
+      /** Conta somente perguntas ainda sem resposta para o indicador do bloco. */
+      function unansweredQuestionCount(node) { return nodeQuestions(node).filter(question => !questionAnswered(question)).length; }
+      /** Atualiza o número do indicador sem fechar o histórico aberto. */
+      function refreshQuestionBadge(node) { const badge = document.querySelector(`.question-badge[data-node-id="${node.id}"]`); if (!badge) return; const count = unansweredQuestionCount(node); setText(badge.querySelector('text'), count); badge.classList.toggle('answered', count === 0); badge.setAttribute('aria-label', count ? `${count} pergunta(s) sem resposta` : 'Todas as perguntas respondidas; abrir histórico'); badge.querySelector('title').textContent = count ? `${count} pergunta(s) precisam de resposta` : 'Perguntas respondidas; abrir histórico'; }
+      /** Cria o indicador numérico que abre as perguntas do próprio bloco. */
+      function questionBadge(node) {
+        const questions = nodeQuestions(node); if (!questions.length) return null;
+        const badge = document.createElementNS(SVG_NS, 'g'); const count = unansweredQuestionCount(node); badge.setAttribute('class', `question-badge${count === 0 ? ' answered' : ''}`); badge.dataset.nodeId = String(node.id); badge.setAttribute('transform', `translate(${node.x + node.width - 14} ${node.y + 13})`); badge.setAttribute('role', 'button'); badge.setAttribute('tabindex', '0'); badge.setAttribute('aria-label', count ? `${count} pergunta(s) sem resposta` : 'Todas as perguntas respondidas; abrir histórico'); const circle = document.createElementNS(SVG_NS, 'circle'); circle.setAttribute('r', '11'); const text = svgText(String(count), 0, 4, 'question-count'); const title = document.createElementNS(SVG_NS, 'title'); title.textContent = count ? `${count} pergunta(s) precisam de resposta` : 'Perguntas respondidas; abrir histórico'; badge.append(circle, text, title);
+        const open = event => { event.preventDefault(); event.stopPropagation(); state.selectedNode = node.id; state.selectedEdge = -1; state.questionNode = state.questionNode === node.id ? null : node.id; updateControls(); renderCanvas(); };
+        badge.addEventListener('pointerdown', event => event.stopPropagation()); badge.addEventListener('click', open); badge.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') open(event); }); return badge;
+      }
+      /** Atualiza a resposta de uma pergunta e conserva o histórico no documento lógico. */
+      function setQuestionAnswer(node, question, input) { if (question.type === 'boolean') question.answer = input.value === '' ? null : input.value === 'true'; else if (question.type === 'choice') question.answer = input.value === '' ? null : Number(input.value); else question.answer = input.value; const card = document.querySelector(`.question-card[data-node-id="${node.id}"][data-question-id="${question.id}"]`); const caption = card?.querySelector('label'); if (caption) setText(caption, `Pergunta ${question.id} · ${questionAnswered(question) ? 'respondida' : 'sem resposta'}`); markDirty(); refreshQuestionBadge(node); setStatus(questionAnswered(question) ? 'Resposta registrada no desenho; pressione Salvar alterações.' : 'Pergunta marcada como sem resposta.'); }
+      /** Monta o painel contextual de perguntas sem criar um inspetor global. */
+      function questionPanel(node) {
+        const questions = nodeQuestions(node); const foreign = document.createElementNS(SVG_NS, 'foreignObject'); const width = 304; const height = Math.min(500, 78 + questions.length * 112); foreign.setAttribute('class', 'question-panel-host'); foreign.setAttribute('x', Math.min(node.x + node.width + 14, 1070)); foreign.setAttribute('y', Math.max(12, node.y - 8)); foreign.setAttribute('width', width); foreign.setAttribute('height', height);
+        const panel = document.createElementNS(HTML_NS, 'div'); panel.setAttribute('class', 'question-panel'); const header = document.createElementNS(HTML_NS, 'div'); header.setAttribute('class', 'question-panel-head'); const heading = document.createElementNS(HTML_NS, 'span'); setText(heading, `Perguntas · ${node.label}`); const close = document.createElementNS(HTML_NS, 'button'); close.type = 'button'; close.setAttribute('class', 'question-panel-close'); setText(close, 'Fechar'); close.addEventListener('click', event => { event.stopPropagation(); state.questionNode = null; renderCanvas(); }); header.append(heading, close); panel.append(header);
+        questions.forEach(question => { const card = document.createElementNS(HTML_NS, 'div'); card.setAttribute('class', 'question-card'); card.dataset.nodeId = String(node.id); card.dataset.questionId = String(question.id); const caption = document.createElementNS(HTML_NS, 'label'); setText(caption, `Pergunta ${question.id} · ${questionAnswered(question) ? 'respondida' : 'sem resposta'}`); const prompt = document.createElementNS(HTML_NS, 'p'); setText(prompt, question.prompt); let input;
+          if (question.type === 'open') { input = document.createElementNS(HTML_NS, 'textarea'); input.value = question.answer || ''; input.placeholder = 'Escreva uma resposta...'; }
+          else { input = document.createElementNS(HTML_NS, 'select'); const empty = document.createElementNS(HTML_NS, 'option'); empty.value = ''; setText(empty, 'Ainda sem resposta'); input.append(empty); const options = question.type === 'boolean' ? [{ id: 'true', label: 'Sim' }, { id: 'false', label: 'Não' }] : (Array.isArray(question.options) ? question.options : []); options.forEach(option => { const item = document.createElementNS(HTML_NS, 'option'); item.value = String(option.id); setText(item, option.label); input.append(item); }); if (question.answer !== null && question.answer !== undefined) input.value = String(question.answer); }
+          input.addEventListener('pointerdown', event => event.stopPropagation()); input.addEventListener('click', event => event.stopPropagation()); input.addEventListener('input', () => setQuestionAnswer(node, question, input)); input.addEventListener('change', () => setQuestionAnswer(node, question, input)); card.append(caption, prompt, input); panel.append(card); });
+        const stop = event => event.stopPropagation(); panel.addEventListener('pointerdown', stop); panel.addEventListener('click', stop); foreign.append(panel); return foreign;
+      }
+
+      /** Cria o editor embutido no próprio bloco selecionado. */
+      function inlineNodeEditor(node, visual) {
+        const foreign = document.createElementNS(SVG_NS, 'foreignObject'); foreign.setAttribute('class', 'inline-node-editor-host'); foreign.setAttribute('x', node.x); foreign.setAttribute('y', node.y + node.height + 9); foreign.setAttribute('width', node.width); foreign.setAttribute('height', 166);
+        const panel = document.createElementNS(HTML_NS, 'div'); panel.setAttribute('class', 'inline-node-editor');
+        const input = document.createElementNS(HTML_NS, 'input'); input.type = 'text'; input.value = node.label || ''; input.title = 'Nome do bloco'; input.placeholder = 'Nome do bloco';
+        const description = document.createElementNS(HTML_NS, 'textarea'); description.value = node.description || ''; description.title = 'Descrição do bloco'; description.placeholder = 'Descrição do bloco';
+        const kind = document.createElementNS(HTML_NS, 'select'); ['process','decision','database','service','actor','event'].forEach(value => { const option = document.createElementNS(HTML_NS, 'option'); option.value = value; option.textContent = value; kind.append(option); }); kind.value = node.kind || 'process';
+        const colors = document.createElementNS(HTML_NS, 'div'); colors.className = 'color-row'; const background = document.createElementNS(HTML_NS, 'input'); background.type = 'color'; background.value = visual.background; background.title = 'Cor do fundo'; const textColor = document.createElementNS(HTML_NS, 'input'); textColor.type = 'color'; textColor.value = visual.text; textColor.title = 'Cor do texto'; colors.append(background, textColor);
+        const stop = event => event.stopPropagation(); [panel, input, description, kind, background, textColor].forEach(element => { element.addEventListener('pointerdown', stop); element.addEventListener('click', stop); });
+        input.addEventListener('input', () => { node.label = input.value; markDirty(); }); input.addEventListener('change', () => { renderCanvas(); renderInspector(); });
+        description.addEventListener('input', () => { node.description = description.value; markDirty(); }); description.addEventListener('change', () => { renderCanvas(); renderInspector(); });
+        kind.addEventListener('change', () => { node.kind = kind.value; markDirty(); renderCanvas(); renderInspector(); });
+        background.addEventListener('input', () => setNodeVisual(node, 'background', background.value)); textColor.addEventListener('input', () => setNodeVisual(node, 'text', textColor.value));
+        panel.append(input, description, kind, colors); foreign.append(panel); return foreign;
       }
 
       /** Deriva a cor semântica de uma conexão por condição e resultado. */
@@ -285,6 +397,7 @@
         if (!state.current) return;
         const nodes = layout(state.current);
         const byId = Object.fromEntries(nodes.map(node => [node.id, node]));
+        const occupiedLabels = [];
         state.current.edges.forEach((edge, index) => {
           const from = byId[edge.from]; const to = byId[edge.to];
           if (!from || !to) return;
@@ -297,9 +410,15 @@
           path.setAttribute('d', route.d);
           hitbox.setAttribute('class', 'edge-hitbox'); hitbox.setAttribute('d', route.d);
           hitbox.addEventListener('pointerdown', event => { event.stopPropagation(); selectEdge(index); });
+          hitbox.addEventListener('dblclick', event => { event.stopPropagation(); editEdgeDirect(index); });
+          hitbox.addEventListener('contextmenu', event => { event.preventDefault(); event.stopPropagation(); selectEdge(index); cycleEdgeCondition(index); });
           group.append(path, hitbox); edgesLayer.append(group);
           const label = [edge.label, EDGE_CONDITIONS[edge.condition] ? `[${EDGE_CONDITIONS[edge.condition]}]` : ''].filter(Boolean).join(' ');
-          if (label) labelsLayer.append(svgText(label, route.labelX, route.labelY, 'edge-label'));
+          const labelPlacement = label ? edgeLabelGroup(label, route.labelX, route.labelY, nodes, occupiedLabels, route.labelMaxWidth) : null;
+          if (labelPlacement) labelsLayer.append(labelPlacement.group);
+          if (state.selectedEdge === index) {
+            const remove = document.createElementNS(SVG_NS, 'g'); const removeX = labelPlacement ? labelPlacement.x - 12 : route.labelX - 12; const removeY = labelPlacement ? labelPlacement.y - 5 : route.labelY - 5; remove.setAttribute('class', 'edge-remove'); remove.setAttribute('transform', `translate(${removeX} ${removeY})`); const circle = document.createElementNS(SVG_NS, 'circle'); circle.setAttribute('r', '10'); const close = svgText('×', -4, 4, 'edge-remove-text'); remove.append(circle, close); remove.addEventListener('pointerdown', event => { event.stopPropagation(); deleteEdge(index); }); remove.addEventListener('click', event => event.stopPropagation()); group.append(remove);
+          }
         });
         nodes.forEach(node => {
           const group = document.createElementNS(SVG_NS, 'g');
@@ -313,9 +432,16 @@
           const rightPort = document.createElementNS(SVG_NS, 'circle'); rightPort.setAttribute('class', 'port port-out'); rightPort.setAttribute('cx', node.x + node.width); rightPort.setAttribute('cy', node.y + node.height / 2); rightPort.setAttribute('r', 7); rightPort.dataset.nodeId = String(node.id);
           const portTitle = document.createElementNS(SVG_NS, 'title'); portTitle.textContent = 'Arraste para conectar'; rightPort.append(portTitle);
           rightPort.addEventListener('pointerdown', event => beginConnectionDrag(event, node));
-          group.append(rect, accent, svgText(node.kind || 'bloco', node.x + 17, node.y + 20, 'node-kind'), svgTextLines(node.labelLines, node.x + 17, node.y + 43, 'node-label', 17), svgTextLines(node.descriptionLines, node.x + 17, node.y + 43 + node.labelLines.length * 17 + 7, 'node-copy', 14), leftPort, rightPort);
+          const visual = nodeVisual(node); rect.style.fill = visual.background;
+          const kindText = svgText(node.kind || 'bloco', node.x + 17, node.y + 20, 'node-kind'); const labelText = svgTextLines(node.labelLines, node.x + 17, node.y + 43, 'node-label', 17); const copyText = svgTextLines(node.descriptionLines, node.x + 17, node.y + 43 + node.labelLines.length * 17 + 7, 'node-copy', 14);
+          kindText.style.fill = visual.text; labelText.style.fill = visual.text; copyText.style.fill = visual.text;
+          group.append(rect, accent, kindText, labelText, copyText, leftPort, rightPort);
+          const badge = questionBadge(node); if (badge) group.append(badge);
+          if (state.selectedNode === node.id) group.append(inlineNodeEditor(node, visual));
+          if (state.questionNode === node.id) group.append(questionPanel(node));
           group.addEventListener('pointerdown', event => beginNodeAction(event, node));
-          group.addEventListener('dblclick', event => { if (node.draw_ref !== undefined && node.draw_ref !== null && node.draw_ref !== '' && !state.editing) { event.stopPropagation(); openSubdraw(node.draw_ref); } });
+          group.addEventListener('dblclick', event => { event.stopPropagation(); if (node.draw_ref !== undefined && node.draw_ref !== null && node.draw_ref !== '') openSubdraw(node.draw_ref); else editNodeDirect(node); });
+          group.addEventListener('contextmenu', event => { event.preventDefault(); event.stopPropagation(); selectNode(node.id); });
           nodesLayer.append(group);
         });
         applyViewport();
@@ -323,10 +449,9 @@
 
       /** Inicializa um desenho carregado e mantém o JSON apenas como armazenamento interno. */
       function renderGraph(data) {
-        state.current = data; state.selectedNode = null; state.selectedEdge = -1; state.connectFrom = null; state.connecting = false; state.editing = false; state.dirty = false; state.positions = new Map();
+        state.current = data; state.selectedNode = null; state.selectedEdge = -1; state.questionNode = null; state.connectFrom = null; state.connecting = false; state.dirty = false; state.positions = new Map(); loadPresentation();
         updateTitle();
         $('back').disabled = state.navigation.length === 0;
-        $('edit').disabled = false;
         updateControls(); renderIndex(); renderCanvas(); renderInspector();
         requestAnimationFrame(fit);
       }
@@ -338,11 +463,14 @@
           if (state.connectFrom !== id) createConnection(state.connectFrom, id);
           state.connectFrom = null; state.connecting = false; updateControls(); renderCanvas(); renderInspector(); return;
         }
-        state.selectedNode = id; state.selectedEdge = -1; updateControls(); renderCanvas(); renderInspector();
+        state.selectedNode = id; state.selectedEdge = -1; state.questionNode = null; updateControls(); renderCanvas(); renderInspector();
       }
 
       /** Seleciona uma conexão para edição ou exclusão visual. */
       function selectEdge(index) { state.selectedEdge = index; state.selectedNode = null; updateControls(); renderCanvas(); renderInspector(); }
+
+      /** Alterna diretamente a condição da seta entre então, ou e se. */
+      function cycleEdgeCondition(index) { if (!state.current?.edges[index]) return; const edge = state.current.edges[index]; edge.condition = edge.condition === 3 ? 1 : Number(edge.condition || 1) + 1; state.selectedEdge = index; state.selectedNode = null; markDirty(); renderCanvas(); renderInspector(); setStatus(`Condição da seta: ${EDGE_CONDITIONS[edge.condition]}.`); }
 
       /** Cria uma relação ou seleciona a existente quando os dois blocos já estão ligados. */
       function createConnection(from, to) {
@@ -352,6 +480,12 @@
         state.current.edges.push({ id: uniqueEdgeId(), from, to, kind: 'conditional', condition: DEFAULT_CONDITION, label: '' });
         state.selectedEdge = state.current.edges.length - 1; state.selectedNode = null; markDirty(); return true;
       }
+
+      /** Remove uma conexão pelo controle desenhado sobre a própria seta. */
+      function deleteEdge(index) { if (!state.current || !state.current.edges[index]) return; if (!window.confirm('Excluir esta conexão?')) return; state.current.edges.splice(index, 1); state.selectedEdge = -1; markDirty(); renderCanvas(); renderInspector(); setStatus('Conexão removida diretamente pela seta.'); }
+
+      /** Encontra o bloco lógico imediatamente à frente da origem para conexão por clique único. */
+      function frontTargetFor(sourceId) { const nodes = layout(state.current); const source = nodes.find(node => node.id === sourceId); if (!source) return null; const candidates = nodes.filter(node => node.id !== sourceId && node.x > source.x + source.width * .55).sort((a, b) => (a.x - source.x) - (b.x - source.x) || Math.abs((a.y + a.height / 2) - (source.y + source.height / 2)) - Math.abs((b.y + b.height / 2) - (source.y + source.height / 2))); return candidates.find(node => !state.current.edges.some(edge => edge.from === sourceId && edge.to === node.id)) || candidates[0] || null; }
 
       /** Retorna o próximo ID numérico disponível de uma coleção lógica. */
       function nextNumericId(items) { const ids = items.map(item => item.id).filter(id => Number.isInteger(id) && id >= 0); return ids.length ? Math.max(...ids) + 1 : 1; }
@@ -371,28 +505,30 @@
         let input;
         if (options.choices) { input = document.createElement('select'); options.choices.forEach((choice, index) => { const item = document.createElement('option'); item.value = String(index); setText(item, choice); input.append(item); }); const values = options.values || options.choices; const selected = values.findIndex(choice => String(choice) === String(value)); input.value = String(Math.max(0, selected)); }
         else if (options.multiline) { input = document.createElement('textarea'); input.value = value || ''; }
-        else { input = document.createElement('input'); input.value = value || ''; }
+        else { input = document.createElement('input'); input.type = options.type || 'text'; input.value = value || (options.type === 'color' ? '#ffffff' : ''); }
         input.id = inputId;
-        input.disabled = !state.editing;
-        input.addEventListener(options.choices ? 'change' : 'input', () => { onInput(options.choices ? (options.values || options.choices)[Number(input.value)] : input.value); markDirty(); renderCanvas(); });
+        input.disabled = false;
+        input.addEventListener(options.choices || options.type === 'color' ? 'change' : 'input', () => { onInput(options.choices ? (options.values || options.choices)[Number(input.value)] : input.value); if (options.visual) return; markDirty(); renderCanvas(); });
         wrapper.append(caption, input); return wrapper;
       }
 
+      /** Abre edição rápida do conteúdo de um bloco sem obrigar o usuário a usar o inspector. */
+      function editNodeDirect(node) { const label = window.prompt('Nome do bloco', node.label || ''); if (label === null) return; const description = window.prompt('Descrição curta do bloco', node.description || ''); node.label = label.trim() || node.label || 'Novo bloco'; if (description !== null) node.description = description.trim(); state.selectedNode = node.id; state.selectedEdge = -1; markDirty(); renderCanvas(); }
+
+      /** Edita o rótulo de uma seta no próprio fluxo; o botão direito alterna sua condição. */
+      function editEdgeDirect(index) { if (!state.current?.edges[index]) return; const edge = state.current.edges[index]; const label = window.prompt('Rótulo da seta', edge.label || ''); if (label === null) return; edge.label = label.trim(); state.selectedEdge = index; state.selectedNode = null; markDirty(); renderCanvas(); setStatus('Rótulo da conexão atualizado diretamente no fluxo.'); }
+
       /** Exibe propriedades do bloco ou conexão selecionada em controles visuais. */
-      function renderInspector() {
+      function renderInspector() { return;
+      /*
         const panel = $('inspector'); panel.replaceChildren();
         if (!state.current) { const copy = document.createElement('div'); copy.className = 'muted'; setText(copy, 'Selecione um desenho para começar.'); panel.append(copy); return; }
         if (state.selectedNode !== null) {
           const node = state.current.nodes.find(item => item.id === state.selectedNode);
           if (!node) return;
-          const head = document.createElement('div'); head.className = 'inspector-head'; const heading = document.createElement('h2'); setText(heading, node.label); const badge = document.createElement('span'); badge.className = 'inspector-badge'; setText(badge, 'Bloco'); head.append(heading, badge); panel.append(head);
-          panel.append(field('Nome', node.label, value => { node.label = value || node.id; }));
-          panel.append(field('Descrição', node.description, value => { node.description = value; }, { multiline: true }));
-          panel.append(field('Tipo', node.kind || 'process', value => { node.kind = value; }, { choices: ['process','decision','database','service','actor','event'] }));
-          panel.append(field('Subdesenho', node.draw_ref, value => { if (value.trim()) node.draw_ref = value.trim(); else delete node.draw_ref; }));
+          const head = document.createElement('div'); head.className = 'inspector-head'; const heading = document.createElement('h2'); setText(heading, node.label); const badge = document.createElement('span'); badge.className = 'inspector-badge'; setText(badge, 'No bloco'); head.append(heading, badge); panel.append(head);
+          const copy = document.createElement('p'); copy.className = 'muted'; setText(copy, 'Nome, descrição, tipo e cores são editados diretamente dentro do bloco selecionado.'); panel.append(copy);
           if (node.draw_ref !== undefined && node.draw_ref !== null && node.draw_ref !== '') { const open = document.createElement('button'); open.className = 'inspector-action'; setText(open, `Abrir subdesenho: ${node.draw_ref} →`); open.addEventListener('click', () => openSubdraw(node.draw_ref)); panel.append(open); }
-          const related = state.current.edges.map((edge, index) => ({ edge, index })).filter(item => item.edge.from === node.id || item.edge.to === node.id);
-          if (related.length) { const section = document.createElement('div'); section.className = 'section'; const title = document.createElement('h3'); setText(title, 'Conexões'); section.append(title); related.forEach(({ edge, index }) => { const row = document.createElement('div'); row.className = 'pill'; const copy = document.createElement('span'); setText(copy, `${edge.from} → ${edge.to}${edge.label ? ` · ${edge.label}` : ''}`); const remove = document.createElement('button'); setText(remove, 'Remover'); remove.disabled = !state.editing; remove.addEventListener('click', () => { state.selectedEdge = index; deleteSelection(); }); row.append(copy, remove); section.append(row); }); panel.append(section); }
           return;
         }
         if (state.selectedEdge >= 0) {
@@ -406,13 +542,24 @@
           panel.append(field('Condição', edge.condition || DEFAULT_CONDITION, value => { edge.condition = Number(value); }, { choices: Object.values(EDGE_CONDITIONS), values: Object.keys(EDGE_CONDITIONS).map(Number) }));
           return;
         }
-        const head = document.createElement('div'); head.className = 'inspector-head'; const heading = document.createElement('h2'); setText(heading, state.current.title); const badge = document.createElement('span'); badge.className = 'inspector-badge'; setText(badge, state.editing ? 'Editando' : 'Visualização'); head.append(heading, badge); panel.append(head);
-        const copy = document.createElement('p'); copy.className = 'muted'; setText(copy, state.editing ? 'Arraste blocos, conecte etapas ou selecione um elemento para alterar suas propriedades.' : (state.current.subtitle || 'Selecione um bloco ou uma seta para ver detalhes.')); panel.append(copy);
-        if (state.editing) {
+        const head = document.createElement('div'); head.className = 'inspector-head'; const heading = document.createElement('h2'); setText(heading, state.current.title); const badge = document.createElement('span'); badge.className = 'inspector-badge'; setText(badge, 'Canvas'); head.append(heading, badge); panel.append(head);
+        const copy = document.createElement('p'); copy.className = 'muted'; setText(copy, 'Arraste blocos, conecte etapas ou selecione um elemento para alterar suas propriedades.'); panel.append(copy);
+        if (true) {
           panel.append(field('Título', state.current.title, value => { state.current.title = value || 'Novo desenho'; updateTitle(); }));
           panel.append(field('Subtítulo', state.current.subtitle, value => { state.current.subtitle = value; updateTitle(); }, { multiline: true }));
           panel.append(field('Tipo do desenho', state.current.kind || 'feature', value => { state.current.kind = value; }, { choices: ['feature','flow','architecture','tradeoff','subflow'] }));
         }
+      */ }
+
+      /** Edita título e subtítulo pelo próprio cabeçalho do desenho. */
+      function editDrawMetadata() {
+        if (!state.current) return;
+        const title = window.prompt('Nome do desenho', state.current.title || 'Novo desenho');
+        if (title === null) return;
+        const subtitle = window.prompt('Descrição curta do desenho', state.current.subtitle || '');
+        state.current.title = title.trim() || state.current.title || 'Novo desenho';
+        if (subtitle !== null) state.current.subtitle = subtitle.trim();
+        markDirty(); updateTitle(); setStatus('Metadados atualizados pelo cabeçalho do desenho.');
       }
 
       /** Atualiza título e trilha sem depender de dados de apresentação no JSON. */
@@ -424,54 +571,85 @@
       /** Sincroniza disponibilidade e estado dos comandos do editor. */
       function updateControls() {
         const loaded = Boolean(state.current);
-        $('edit').disabled = !loaded; $('add').disabled = !loaded || !state.editing; $('connect').disabled = !loaded || !state.editing; $('delete').disabled = !loaded || !state.editing || (state.selectedNode === null && state.selectedEdge < 0); $('save').disabled = !loaded || !state.dirty;
-        $('edit').classList.toggle('active', state.editing); $('connect').classList.toggle('active', state.connecting); svg.classList.toggle('editing', state.editing); svg.classList.toggle('connecting', state.connecting);
-        setText($('edit'), state.editing ? '● Sair da edição' : '✦ Editar desenho');
+        $('add').disabled = !loaded; $('connect').disabled = !loaded; $('delete').disabled = !loaded || (state.selectedNode === null && state.selectedEdge < 0); $('save').disabled = !loaded || !state.dirty;
+        $('connect').classList.toggle('active', state.connecting); svg.classList.add('editing'); svg.classList.toggle('connecting', state.connecting);
         setText($('connect'), state.connecting ? (state.connectFrom !== null ? 'Escolha o destino' : 'Escolha a origem') : '↗ Conectar blocos');
       }
-
-      /** Alterna entre exploração e edição visual do desenho. */
-      function toggleEditing() { if (!state.current) return; state.editing = !state.editing; state.connecting = false; state.connectFrom = null; updateControls(); renderCanvas(); renderInspector(); setStatus(state.editing ? 'Modo de edição visual ativo.' : 'Modo de visualização ativo.'); }
 
       /** Inicia um desenho vazio e o coloca diretamente em edição visual. */
       function newDraw() {
         if (state.dirty && !window.confirm('Descartar alterações não salvas?')) return;
+        const title = window.prompt('Nome do desenho', 'Novo desenho'); if (title === null || !title.trim()) { setStatus('Criação cancelada: informe um nome para o desenho.'); return; }
         state.navigation = [];
-        renderGraph({ version:1, id:uniqueDrawId('novo-desenho'), title:'Novo desenho', subtitle:'', kind:'feature', groups:[], nodes:[], edges:[], flows:[], tradeoffs:[], notes:[] });
-        state.editing = true; state.dirty = true; updateControls(); renderInspector(); setStatus('Desenho vazio criado. Defina o título e adicione o primeiro bloco.');
+        renderGraph({ version:1, id:uniqueDrawId(title), title:title.trim(), subtitle:'', kind:'feature', groups:[], nodes:[], edges:[], flows:[], tradeoffs:[], notes:[] });
+        state.dirty = true; updateControls(); renderInspector(); setStatus('Desenho vazio criado. Adicione o primeiro bloco.');
       }
 
       /** Adiciona um bloco no centro visível do canvas. */
       function addNode() {
-        if (!state.current || !state.editing) return;
+        if (!state.current) return;
         const id = uniqueNodeId();
         state.current.nodes.push({ id, label: 'Novo bloco', kind: 'process', description: '' });
         state.selectedNode = id; state.selectedEdge = -1; markDirty(); renderCanvas(); renderInspector();
       }
 
+      /** Adiciona um bloco no ponto indicado pelo duplo clique no canvas. */
+      function addNodeAt(point) { if (!state.current) return; const id = uniqueNodeId(); const position = { x: Math.round(point.x - 110), y: Math.round(point.y - 45) }; state.current.nodes.push({ id, label: 'Novo bloco', kind: 'process', description: '' }); state.positions.set(String(id), position); state.presentation.positions[String(id)] = position; state.selectedNode = id; state.selectedEdge = -1; markDirty(); renderCanvas(); renderInspector(); }
+
+      /** Duplica o bloco ou a seta selecionada usando somente IDs lógicos novos. */
+      function duplicateSelection() {
+        if (!state.current) return;
+        if (state.selectedNode !== null) {
+          const source = state.current.nodes.find(node => node.id === state.selectedNode); if (!source) return;
+          const id = uniqueNodeId(); const copy = { ...source, id, label: `${source.label || 'Bloco'} (cópia)`, questions: Array.isArray(source.questions) ? source.questions.map(question => ({ ...question, options: Array.isArray(question.options) ? question.options.map(option => ({ ...option })) : question.options })) : source.questions }; state.current.nodes.push(copy);
+          const sourceVisual = state.presentation.nodes[String(source.id)]; if (sourceVisual) state.presentation.nodes[String(id)] = { ...sourceVisual }; const sourcePosition = state.positions.get(String(source.id)) || state.presentation.positions[String(source.id)] || { x: 95, y: 105 }; state.positions.set(String(id), { x: sourcePosition.x + 34, y: sourcePosition.y + 34 }); state.presentation.positions[String(id)] = { x: sourcePosition.x + 34, y: sourcePosition.y + 34 }; state.selectedNode = id; markDirty(); renderCanvas(); renderInspector(); return;
+        }
+        if (state.selectedEdge >= 0) { const source = state.current.edges[state.selectedEdge]; if (!source) return; const edge = { ...source, id: uniqueEdgeId(), label: source.label ? `${source.label} (cópia)` : '' }; state.current.edges.push(edge); state.selectedEdge = state.current.edges.length - 1; markDirty(); renderCanvas(); renderInspector(); }
+      }
+
       /** Ativa a criação de seta por seleção da origem e do destino. */
-      function toggleConnect() { if (!state.current || !state.editing) return; state.connecting = !state.connecting; state.connectFrom = null; updateControls(); renderCanvas(); setStatus(state.connecting ? 'Selecione o bloco de origem.' : 'Criação de conexão cancelada.'); }
+      function toggleConnect() { if (!state.current) return; state.connecting = !state.connecting; state.connectFrom = null; updateControls(); renderCanvas(); setStatus(state.connecting ? 'Selecione o bloco de origem.' : 'Criação de conexão cancelada.'); }
 
       /** Exclui visualmente o bloco ou conexão selecionado e mantém referências válidas. */
       function deleteSelection() {
-        if (!state.current || !state.editing) return;
+        if (!state.current) return;
+        if (!window.confirm(state.selectedEdge >= 0 ? 'Excluir esta conexão?' : 'Excluir este bloco e suas conexões?')) return;
         if (state.selectedEdge >= 0) { state.current.edges.splice(state.selectedEdge, 1); state.selectedEdge = -1; }
         else if (state.selectedNode !== null) {
           if (state.current.nodes.length === 1) { setStatus('O desenho precisa manter pelo menos um bloco.'); return; }
-          const id = state.selectedNode; state.current.nodes = state.current.nodes.filter(node => node.id !== id); state.current.edges = state.current.edges.filter(edge => edge.from !== id && edge.to !== id); (state.current.flows || []).forEach(flow => { flow.steps = (flow.steps || []).filter(step => step.node !== id); }); state.positions.delete(String(id)); state.selectedNode = null;
+          const id = state.selectedNode; state.current.nodes = state.current.nodes.filter(node => node.id !== id); state.current.edges = state.current.edges.filter(edge => edge.from !== id && edge.to !== id); (state.current.flows || []).forEach(flow => { flow.steps = (flow.steps || []).filter(step => step.node !== id); }); state.positions.delete(String(id)); delete state.presentation.positions[String(id)]; state.questionNode = null; state.selectedNode = null;
         } else return;
         markDirty(); renderCanvas(); renderInspector();
       }
 
-      /** Salva o estado visual pelo endpoint local que valida o contrato canônico. */
+      /** Monta os metadados do índice sem incluir apresentação ou valores calculados. */
+      function currentDrawMetadata() { return { id: state.current.id, file: `${state.current.id}.json`, title: state.current.title, subtitle: state.current.subtitle || '', kind: state.current.kind || 'feature', updated_at: new Date().toISOString(), node_count: state.current.nodes.length, edge_count: state.current.edges.length, subdraw_count: state.current.nodes.filter(node => node.draw_ref !== undefined && node.draw_ref !== null).length }; }
+      /** Escreve um arquivo pelo diretório escolhido no navegador. */
+      async function writeDirectoryFile(directory, name, content) { const handle = await directory.getFileHandle(name, { create: true }); const writable = await handle.createWritable(); await writable.write(content); await writable.close(); }
+      /** Salva desenho e índice pelo File System Access API quando o servidor é somente leitura. */
+      async function saveDrawToDirectory() {
+        if (!window.showDirectoryPicker) throw new Error('este navegador não permite escrita direta no diretório');
+        if (!state.directoryHandle) state.directoryHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+        const stdd = await state.directoryHandle.getDirectoryHandle('.stdd'); const draws = await stdd.getDirectoryHandle('draws');
+        await writeDirectoryFile(draws, `${state.current.id}.json`, JSON.stringify({ version: state.current.version || 1, ...state.current }, null, 2) + '\n');
+        const metadata = currentDrawMetadata(); const entries = [...state.index.filter(item => String(item.id) !== String(metadata.id)), metadata].sort((a, b) => String(a.title).localeCompare(String(b.title)));
+        await writeDirectoryFile(draws, 'index.json', JSON.stringify({ version: 1, draws: entries }, null, 2) + '\n'); state.index = entries; return true;
+      }
+      /** Baixa o JSON como último recurso quando o navegador não pode escrever arquivos. */
+      function downloadDrawJson() { const blob = new Blob([JSON.stringify({ version: state.current.version || 1, ...state.current }, null, 2) + '\n'], { type: 'application/json' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `${state.current.id}.json`; link.click(); URL.revokeObjectURL(link.href); }
+      /** Salva o estado lógico e usa fallback compatível com Live Server. */
       async function saveDraw() {
         if (!state.current || !state.dirty) return;
         setStatus('Salvando alterações...');
         try {
-          const response = await fetch(`__stdd/api/draws/${encodeURIComponent(state.current.id)}.json`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(state.current) });
+          const endpoint = new URL(`/__stdd/api/draws/${encodeURIComponent(state.current.id)}.json`, window.location.origin);
+          const response = await fetch(endpoint, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(state.current) });
           const result = await response.json(); if (!response.ok) throw new Error(result.error || 'falha ao salvar');
-          state.dirty = false; state.index = (await getJson('draws/index.json')).draws || []; updateControls(); renderIndex(); setStatus('Desenho salvo com sucesso.');
-        } catch (error) { setStatus(`Não foi possível salvar: ${error.message}`); }
+          state.dirty = false; persistPresentation(); state.index = (await getJson('draws/index.json')).draws || []; updateControls(); renderIndex(); setStatus('Desenho salvo com sucesso.');
+        } catch (error) {
+          try { await saveDrawToDirectory(); state.dirty = false; persistPresentation(); updateControls(); renderIndex(); setStatus('Desenho e índice salvos no diretório escolhido.'); }
+          catch (fallbackError) { downloadDrawJson(); persistPresentation(); setStatus(`Servidor somente leitura: JSON baixado. Para salvar direto, escolha a pasta do projeto. (${fallbackError.message})`); }
+        }
       }
 
       /** Carrega somente o desenho escolhido e nunca antecipa seus subdesenhos. */
@@ -497,8 +675,8 @@
       function fit() {
         if (!state.current || !nodesLayer.children.length) return;
         const box = viewport.getBBox(); const margin = 130; const scaleX = (1400 - margin * 2) / Math.max(box.width, 1); const scaleY = (900 - margin * 2) / Math.max(box.height, 1);
-        state.zoom = Math.min(1, Math.max(.62, Math.min(scaleX, scaleY)));
-        state.panX = box.width * state.zoom > 1160 ? 105 - box.x * state.zoom : (1400 - box.width * state.zoom) / 2 - box.x * state.zoom;
+        state.zoom = Math.min(1, Math.max(.42, Math.min(scaleX, scaleY)));
+        state.panX = (1400 - box.width * state.zoom) / 2 - box.x * state.zoom;
         state.panY = (900 - box.height * state.zoom) / 2 - box.y * state.zoom; applyViewport();
       }
 
@@ -519,9 +697,9 @@
 
       /** Inicia uma conexão direta a partir da porta de saída. */
       function beginConnectionDrag(event, node) {
-        if (!state.editing || event.button !== 0) return;
+        if (event.button !== 0) return;
         event.preventDefault(); event.stopPropagation();
-        state.pointerAction = { type:'connection', pointerId:event.pointerId, sourceId:node.id, startX:node.x + node.width, startY:node.y + node.height / 2 };
+        state.pointerAction = { type:'connection', pointerId:event.pointerId, sourceId:node.id, startX:node.x + node.width, startY:node.y + node.height / 2, startClientX:event.clientX, startClientY:event.clientY, moved:false };
         const path = document.createElementNS(SVG_NS, 'path'); path.setAttribute('class', 'connection-preview'); previewLayer.replaceChildren(path);
         svg.setPointerCapture(event.pointerId); setStatus(`Arraste a saída de ${node.label} até o bloco de destino.`);
       }
@@ -536,7 +714,7 @@
 
       /** Conclui o arraste no bloco-alvo ou cancela sem criar relação. */
       function finishConnectionDrag(event, action) {
-        const target = connectionTargetAt(event, action.sourceId); document.querySelectorAll('.node.drop-target').forEach(node => node.classList.remove('drop-target')); previewLayer.replaceChildren();
+        const target = action.moved ? connectionTargetAt(event, action.sourceId) : frontTargetFor(action.sourceId); document.querySelectorAll('.node.drop-target').forEach(node => node.classList.remove('drop-target')); previewLayer.replaceChildren();
         if (!target) { setStatus('Conexão cancelada: solte a seta sobre outro bloco.'); return; }
         const created = createConnection(action.sourceId, target.id); renderCanvas(); renderInspector(); updateControls(); if (created) setStatus(`Conexão criada: ${action.sourceId} → ${target.id}.`);
       }
@@ -549,7 +727,7 @@
         event.stopPropagation();
         if (state.connecting) { selectNode(node.id); return; }
         selectNode(node.id);
-        if (!state.editing || event.button !== 0) return;
+        if (event.button !== 0) return;
         state.pointerAction = { type:'node', pointerId:event.pointerId, nodeId:node.id, clientX:event.clientX, clientY:event.clientY, x:node.x, y:node.y };
         svg.setPointerCapture(event.pointerId);
       }
@@ -559,8 +737,8 @@
         const action = state.pointerAction; if (!action || action.pointerId !== event.pointerId) return;
         const delta = pointerDelta(event, action);
         if (action.type === 'canvas') { state.panX = action.panX + delta.x; state.panY = action.panY + delta.y; applyViewport(); }
-        else if (action.type === 'connection') updateConnectionPreview(event, action);
-        else { const node = state.current.nodes.find(item => item.id === action.nodeId); if (!node) return; state.positions.set(String(node.id), { x: Math.round(action.x + delta.x / state.zoom), y: Math.round(action.y + delta.y / state.zoom) }); renderCanvas(); }
+        else if (action.type === 'connection') { if (Math.abs(event.clientX - action.startClientX) + Math.abs(event.clientY - action.startClientY) > 6) action.moved = true; updateConnectionPreview(event, action); }
+        else { const node = state.current.nodes.find(item => item.id === action.nodeId); if (!node) return; const position = { x: Math.round(action.x + delta.x / state.zoom), y: Math.round(action.y + delta.y / state.zoom) }; state.positions.set(String(node.id), position); state.presentation.positions[String(node.id)] = position; if (!action.dirty) { action.dirty = true; markDirty(); } renderCanvas(); }
       }
 
       /** Finaliza pan ou arraste de bloco sem perder a seleção. */
@@ -569,11 +747,13 @@
       /** Inicializa índice, eventos e desenho solicitado pela URL. */
       async function boot() {
         $('search').addEventListener('input', event => { state.query = event.target.value.toLowerCase(); renderIndex(); });
+        $('title').addEventListener('dblclick', editDrawMetadata);
         $('new-draw').addEventListener('click', newDraw);
-        $('zoom-in').addEventListener('click', () => zoom(1.2)); $('zoom-out').addEventListener('click', () => zoom(.84)); $('reset').addEventListener('click', fit); $('back').addEventListener('click', goBack); $('edit').addEventListener('click', toggleEditing); $('add').addEventListener('click', addNode); $('connect').addEventListener('click', toggleConnect); $('delete').addEventListener('click', deleteSelection); $('save').addEventListener('click', saveDraw);
-        svg.addEventListener('pointerdown', beginPan); svg.addEventListener('pointermove', moveCanvas); svg.addEventListener('pointerup', endPointerAction); svg.addEventListener('pointercancel', endPointerAction);
+        $('zoom-in').addEventListener('click', () => zoom(1.2)); $('zoom-out').addEventListener('click', () => zoom(.84)); $('reset').addEventListener('click', fit); $('back').addEventListener('click', goBack); $('add').addEventListener('click', addNode); $('connect').addEventListener('click', toggleConnect); $('delete').addEventListener('click', deleteSelection); $('save').addEventListener('click', saveDraw);
+        svg.addEventListener('pointerdown', beginPan); svg.addEventListener('pointermove', moveCanvas); svg.addEventListener('pointerup', endPointerAction); svg.addEventListener('pointercancel', endPointerAction); svg.addEventListener('dblclick', event => { if (event.target === svg) addNodeAt(pointerToGraph(event)); });
         svg.addEventListener('wheel', event => { event.preventDefault(); const rect = svg.getBoundingClientRect(); zoom(event.deltaY < 0 ? 1.1 : .9, { x:(event.clientX - rect.left) * 1400 / rect.width, y:(event.clientY - rect.top) * 900 / rect.height }); }, { passive:false });
-        window.addEventListener('keydown', event => { if ((event.key === 'Delete' || event.key === 'Backspace') && state.editing && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) deleteSelection(); if (event.key === 'Escape' && state.connecting) toggleConnect(); if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') { event.preventDefault(); saveDraw(); } });
+        $('shortcuts').addEventListener('click', () => $('shortcut-dialog').showModal()); $('shortcut-close').addEventListener('click', () => $('shortcut-dialog').close());
+        window.addEventListener('keydown', event => { const typing = ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName); if ((event.key === 'Delete' || event.key === 'Backspace') && !typing) { event.preventDefault(); deleteSelection(); } if (event.key === 'Escape') { if (state.connecting) toggleConnect(); if ($('shortcut-dialog').open) $('shortcut-dialog').close(); } if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') { event.preventDefault(); saveDraw(); } if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'd' && !typing) { event.preventDefault(); duplicateSelection(); } if (!typing && event.key === '+') zoom(1.2); if (!typing && event.key === '-') zoom(.84); if (!typing && event.key === '0') fit(); if (!typing && event.key.toLowerCase() === 'n') addNode(); if (!typing && event.key.toLowerCase() === 'c') toggleConnect(); });
         try { const index = await getJson('draws/index.json'); state.index = index.draws || []; renderIndex(); const requested = new URLSearchParams(window.location.search).get('draw'); const matched = state.index.find(item => String(item.id) === requested); if (matched) await loadDraw(matched.id); else if (state.index.length) setStatus('Escolha um desenho para carregar o grafo.'); else setStatus('Nenhum desenho criado ainda.'); }
         catch (error) { setStatus(`Não foi possível carregar o índice: ${error.message}`); }
       }

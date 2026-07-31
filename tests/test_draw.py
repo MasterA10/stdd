@@ -62,6 +62,47 @@ def test_create_draw_writes_only_json_and_light_index(tmp_path: Path):
     assert saved["edges"][0]["condition"] == 3
 
 
+def test_create_draw_preserves_optional_questions_and_answers(tmp_path: Path):
+    """Persiste perguntas abertas, booleanas e de múltipla escolha no nó.
+    Grava respostas diferentes e confirma que o histórico lógico permanece no JSON.
+    """
+    payload = draw_payload()
+    payload["nodes"][0]["questions"] = [
+        {"id": 1, "type": "choice", "prompt": "Qual canal?", "options": [{"id": 1, "label": "Web"}, {"id": 2, "label": "App"}], "answer": 2},
+        {"id": 2, "type": "boolean", "prompt": "Precisa autenticar?", "answer": False},
+        {"id": 3, "type": "open", "prompt": "Qual risco?", "answer": "Fraude"},
+    ]
+
+    path = create_draw(tmp_path, payload)
+    saved = json.loads(path.read_text(encoding="utf-8"))
+
+    assert saved["nodes"][0]["questions"][0]["answer"] == 2
+    assert saved["nodes"][0]["questions"][1]["answer"] is False
+    assert saved["nodes"][0]["questions"][2]["answer"] == "Fraude"
+
+
+def test_create_draw_rejects_invalid_question_contract(tmp_path: Path):
+    """Bloqueia tipos, opções, respostas e IDs inválidos de perguntas.
+    Tenta quatro contratos incorretos e garante que nenhum desenho inválido seja gravado.
+    """
+    invalid_questions = [
+        {"id": 1, "type": "unknown", "prompt": "Pergunta"},
+        {"id": 1, "type": "choice", "prompt": "Pergunta", "options": [{"id": 1, "label": "Só uma"}]},
+        {"id": 1, "type": "boolean", "prompt": "Pergunta", "answer": "sim"},
+        {"id": 1, "type": "open", "prompt": "Pergunta", "answer": 42},
+    ]
+
+    for index, question in enumerate(invalid_questions):
+        payload = draw_payload(f"pergunta-invalida-{index}")
+        payload["nodes"][0]["questions"] = [question]
+        try:
+            create_draw(tmp_path, payload)
+        except ValueError as error:
+            assert "question" in str(error) or "pergunta" in str(error)
+        else:
+            raise AssertionError("pergunta inválida deveria ser rejeitada")
+
+
 def test_create_draw_replaces_current_json_without_history(tmp_path: Path):
     """Substitui o desenho atual pelo mesmo ID sem criar histórico adicional.
     Grava duas versões e verifica que somente o JSON atual permanece na pasta de dados.
@@ -247,6 +288,11 @@ def test_draw_html_fetches_index_and_only_selected_json():
     assert "fetch(url)" in template
     assert "Promise.all" not in template
     assert "draw_ref" in template
+    assert "question-badge" in template
+    assert "questionPanel" in template
+    assert "unansweredQuestionCount" in template
+    assert "question.answer" in template
+    assert "Perguntas" in template
     assert "Abrir subdesenho" in template
     assert "Voltar" in template
 
@@ -262,7 +308,9 @@ def test_draw_html_provides_visual_editor_pan_and_readable_long_flow_layout():
     assert "beginPan" in template
     assert "moveCanvas" in template
     assert "endPointerAction" in template
-    assert "Editar desenho" in template
+    assert 'id="edit"' not in template
+    assert "toggleEditing" not in template
+    assert "state.editing" not in template
     assert "Adicionar bloco" in template
     assert "Conectar blocos" in template
     assert "Excluir seleção" in template
@@ -270,8 +318,25 @@ def test_draw_html_provides_visual_editor_pan_and_readable_long_flow_layout():
     assert "Editar JSON" not in template
     assert "editor-json" not in template
     assert "buildRanks" in template
+    assert "order.reverse()" in template
     assert "orderRank" in template
     assert "routeEdge" in template
+    assert "Math.abs(sy - ty) < 20" in template
+    assert "edgeLabelGroup" in template
+    assert "wrapText(value, maxCharacters)" in template
+    assert "labelMaxWidth" in template
+    assert "Excluir esta conexão?" in template
+    assert "Excluir este bloco e suas conexões?" in template
+    assert "state.presentation.positions" in template
+    assert "action.dirty" in template
+    assert "Movimentos e cores" in Path("README.md").read_text(encoding="utf-8")
+    assert 'id="inspector"' not in template
+    assert "editDrawMetadata" in template
+    assert "editEdgeDirect" in template
+    assert "edge-label-bg" in template
+    assert "occupiedLabels" in template
+    assert "Math.max(.42" in template
+    assert "(1400 - box.width * state.zoom) / 2" in template
     assert "wrapText" in template
     assert "measureNode" in template
     assert "connectionPorts" in template
@@ -284,12 +349,35 @@ def test_draw_html_provides_visual_editor_pan_and_readable_long_flow_layout():
     assert "Novo desenho" in template
     assert "function newDraw" in template
     assert "function slugify" in template
-    assert "uniqueDrawId('novo-desenho')" in template
+    assert "uniqueDrawId(title)" in template
     assert "EDGE_CONDITIONS = {1:'então', 2:'ou', 3:'se'}" in template
     assert "EDGE_CONDITIONS[edge.condition]" in template
     assert "condition: DEFAULT_CONDITION" in template
     assert "choices: Object.values(EDGE_CONDITIONS)" in template
     assert "values: Object.keys(EDGE_CONDITIONS).map(Number)" in template
+    assert "duplicateSelection" in template
+    assert "ctrlKey" in template
+    assert "metaKey" in template
+    assert "type = 'color'" in template
+    assert "localStorage" in template
+    assert "editNodeDirect" in template
+    assert "cycleEdgeCondition" in template
+    assert "shortcut-dialog" in template
+    assert "frontTargetFor" in template
+    assert "moved:false" in template
+    assert "deleteEdge" in template
+    assert "edge-remove" in template
+    assert "Conexão removida diretamente pela seta" in template
+    assert "inlineNodeEditor" in template
+    assert "inline-node-editor" in template
+    assert "Nome do bloco" in template
+    assert "Descrição do bloco" in template
+    assert "Cor do fundo" in template
+    assert "Cor do texto" in template
+    assert "Nome do desenho" in template
+    assert "showDirectoryPicker" in template
+    assert "saveDrawToDirectory" in template
+    assert "new URL(`/__stdd/api/draws/" in template
 
 
 def test_draw_html_connects_blocks_by_dragging_visible_ports():
@@ -308,6 +396,24 @@ def test_draw_html_connects_blocks_by_dragging_visible_ports():
     assert "createConnection" in template
     assert "elementFromPoint" in template
     assert "Arraste a saída" in template
+
+
+def test_draw_readme_documents_local_server_and_visual_shortcuts():
+    """Documenta o servidor local necessário para fetch e persistência do Draw.
+    Confirma que o README explica salvar JSON, atalhos de edição e a URL do viewer.
+    """
+    readme = Path("README.md").read_text(encoding="utf-8")
+
+    assert "stdd draw serve --port 8765" in readme
+    assert "127.0.0.1:8765/.stdd/draw.html" in readme
+    assert "Ctrl/Cmd+D" in readme
+    assert "arrastar" in readme.lower()
+    assert "dentro dele" in readme
+    assert "próximo bloco lógico" in readme
+    assert "botão `×`" in readme
+    assert "Live Server" in readme
+    assert "showDirectoryPicker" in readme
+    assert "nome do desenho" in readme.lower()
 
 
 def test_draw_server_serves_viewer_index_and_selected_json(tmp_path: Path):

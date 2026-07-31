@@ -138,11 +138,17 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list
     for integration in integrations:
         for source in agent_templates():
             name = source.parent.name
-            target = root / AGENT_SKILL_DIRECTORIES[integration] / name / "SKILL.md"
-            if not target.exists():
-                target.parent.mkdir(parents=True, exist_ok=True)
-                target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
-                created.append(target)
+            sources = [source]
+            openai_metadata = source.parent / "agents" / "openai.yaml"
+            if integration == "codex" and openai_metadata.exists():
+                sources.append(openai_metadata)
+            for skill_source in sources:
+                relative = skill_source.relative_to(source.parent)
+                target = root / AGENT_SKILL_DIRECTORIES[integration] / name / relative
+                if not target.exists():
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_text(skill_source.read_text(encoding="utf-8"), encoding="utf-8")
+                    created.append(target)
     return created
 
 

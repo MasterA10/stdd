@@ -575,10 +575,147 @@
       "run_id": "2a5f973523834cd1a2c4175a5796c37e",
       "timestamp": "2026-07-31T16:10:49.406847+00:00",
       "files": []
+    },
+    {
+      "run_id": "b7b20442835642cfaa7a048389c6835c",
+      "timestamp": "2026-07-31T16:22:47.158254+00:00",
+      "files": [
+        {
+          "path": "tests/test_draw.py",
+          "lines_added": 20,
+          "lines_deleted": 0,
+          "diff": "--- a/tests/test_draw.py\n+++ b/tests/test_draw.py\n@@ -290,6 +290,14 @@\n     assert \"condition: DEFAULT_CONDITION\" in template\n     assert \"choices: Object.values(EDGE_CONDITIONS)\" in template\n     assert \"values: Object.keys(EDGE_CONDITIONS).map(Number)\" in template\n+    assert \"duplicateSelection\" in template\n+    assert \"ctrlKey\" in template\n+    assert \"metaKey\" in template\n+    assert \"type: 'color'\" in template\n+    assert \"localStorage\" in template\n+    assert \"editNodeDirect\" in template\n+    assert \"cycleEdgeCondition\" in template\n+    assert \"shortcut-dialog\" in template\n \n \n def test_draw_html_connects_blocks_by_dragging_visible_ports():\n@@ -308,6 +316,18 @@\n     assert \"createConnection\" in template\n     assert \"elementFromPoint\" in template\n     assert \"Arraste a saída\" in template\n+\n+\n+def test_draw_readme_documents_local_server_and_visual_shortcuts():\n+    \"\"\"Documenta o servidor local necessário para fetch e persistência do Draw.\n+    Confirma que o README explica salvar JSON, atalhos de edição e a URL do viewer.\n+    \"\"\"\n+    readme = Path(\"README.md\").read_text(encoding=\"utf-8\")\n+\n+    assert \"stdd draw serve --port 8765\" in readme\n+    assert \"127.0.0.1:8765/.stdd/draw.html\" in readme\n+    assert \"Ctrl/Cmd+D\" in readme\n+    assert \"arraste\" in readme.lower()\n \n \n def test_draw_server_serves_viewer_index_and_selected_json(tmp_path: Path):"
+        }
+      ]
+    },
+    {
+      "run_id": "8307d0e825ce44d3a6b481e095b35eba",
+      "timestamp": "2026-07-31T16:24:31.116516+00:00",
+      "files": [
+        {
+          "path": "tests/test_draw.py",
+          "lines_added": 1,
+          "lines_deleted": 1,
+          "diff": "--- a/tests/test_draw.py\n+++ b/tests/test_draw.py\n@@ -327,7 +327,7 @@\n     assert \"stdd draw serve --port 8765\" in readme\n     assert \"127.0.0.1:8765/.stdd/draw.html\" in readme\n     assert \"Ctrl/Cmd+D\" in readme\n-    assert \"arraste\" in readme.lower()\n+    assert \"arrastar\" in readme.lower()\n \n \n def test_draw_server_serves_viewer_index_and_selected_json(tmp_path: Path):"
+        }
+      ]
+    },
+    {
+      "run_id": "1dd7d6c4c2d4471b8266b16e9f61d8c4",
+      "timestamp": "2026-07-31T16:30:33.846313+00:00",
+      "files": [
+        {
+          "path": "tests/test_draw.py",
+          "lines_added": 14,
+          "lines_deleted": 0,
+          "diff": "--- a/tests/test_draw.py\n+++ b/tests/test_draw.py\n@@ -298,6 +298,17 @@\n     assert \"editNodeDirect\" in template\n     assert \"cycleEdgeCondition\" in template\n     assert \"shortcut-dialog\" in template\n+    assert \"frontTargetFor\" in template\n+    assert \"moved:false\" in template\n+    assert \"deleteEdge\" in template\n+    assert \"edge-remove\" in template\n+    assert \"Conexão removida diretamente pela seta\" in template\n+    assert \"inlineNodeEditor\" in template\n+    assert \"inline-node-editor\" in template\n+    assert \"Nome do bloco\" in template\n+    assert \"Descrição do bloco\" in template\n+    assert \"Cor do fundo\" in template\n+    assert \"Cor do texto\" in template\n \n \n def test_draw_html_connects_blocks_by_dragging_visible_ports():\n@@ -328,6 +339,9 @@\n     assert \"127.0.0.1:8765/.stdd/draw.html\" in readme\n     assert \"Ctrl/Cmd+D\" in readme\n     assert \"arrastar\" in readme.lower()\n+    assert \"dentro do próprio bloco\" in readme\n+    assert \"próximo bloco lógico\" in readme\n+    assert \"controle de remoção\" in readme\n \n \n def test_draw_server_serves_viewer_index_and_selected_json(tmp_path: Path):"
+        }
+      ]
+    },
+    {
+      "run_id": "46bc5ce5f4784fda8d94edb363c14111",
+      "timestamp": "2026-07-31T16:31:05.819680+00:00",
+      "files": [
+        {
+          "path": "tests/test_draw.py",
+          "lines_added": 3,
+          "lines_deleted": 3,
+          "diff": "--- a/tests/test_draw.py\n+++ b/tests/test_draw.py\n@@ -293,7 +293,7 @@\n     assert \"duplicateSelection\" in template\n     assert \"ctrlKey\" in template\n     assert \"metaKey\" in template\n-    assert \"type: 'color'\" in template\n+    assert \"type = 'color'\" in template\n     assert \"localStorage\" in template\n     assert \"editNodeDirect\" in template\n     assert \"cycleEdgeCondition\" in template\n@@ -339,9 +339,9 @@\n     assert \"127.0.0.1:8765/.stdd/draw.html\" in readme\n     assert \"Ctrl/Cmd+D\" in readme\n     assert \"arrastar\" in readme.lower()\n-    assert \"dentro do próprio bloco\" in readme\n+    assert \"dentro dele\" in readme\n     assert \"próximo bloco lógico\" in readme\n-    assert \"controle de remoção\" in readme\n+    assert \"botão `×`\" in readme\n \n \n def test_draw_server_serves_viewer_index_and_selected_json(tmp_path: Path):"
+        }
+      ]
+    },
+    {
+      "run_id": "68ab52b2986e42cb9c8cb2f461ce7d3b",
+      "timestamp": "2026-07-31T16:34:06.849624+00:00",
+      "files": [
+        {
+          "path": "tests/test_draw.py",
+          "lines_added": 7,
+          "lines_deleted": 0,
+          "diff": "--- a/tests/test_draw.py\n+++ b/tests/test_draw.py\n@@ -309,6 +309,10 @@\n     assert \"Descrição do bloco\" in template\n     assert \"Cor do fundo\" in template\n     assert \"Cor do texto\" in template\n+    assert \"Nome do desenho\" in template\n+    assert \"showDirectoryPicker\" in template\n+    assert \"saveDrawToDirectory\" in template\n+    assert \"new URL(`/__stdd/api/draws/\" in template\n \n \n def test_draw_html_connects_blocks_by_dragging_visible_ports():\n@@ -342,6 +346,9 @@\n     assert \"dentro dele\" in readme\n     assert \"próximo bloco lógico\" in readme\n     assert \"botão `×`\" in readme\n+    assert \"Live Server\" in readme\n+    assert \"showDirectoryPicker\" in readme\n+    assert \"Nome do desenho\" in readme\n \n \n def test_draw_server_serves_viewer_index_and_selected_json(tmp_path: Path):"
+        }
+      ]
+    },
+    {
+      "run_id": "16313181a8a94c6ba5acc4c9240072d1",
+      "timestamp": "2026-07-31T16:36:54.481335+00:00",
+      "files": [
+        {
+          "path": "tests/test_draw.py",
+          "lines_added": 6,
+          "lines_deleted": 2,
+          "diff": "--- a/tests/test_draw.py\n+++ b/tests/test_draw.py\n@@ -270,8 +270,12 @@\n     assert \"Editar JSON\" not in template\n     assert \"editor-json\" not in template\n     assert \"buildRanks\" in template\n+    assert \"order.reverse()\" in template\n     assert \"orderRank\" in template\n     assert \"routeEdge\" in template\n+    assert \"Math.abs(sy - ty) < 20\" in template\n+    assert \"Math.max(.42\" in template\n+    assert \"(1400 - box.width * state.zoom) / 2\" in template\n     assert \"wrapText\" in template\n     assert \"measureNode\" in template\n     assert \"connectionPorts\" in template\n@@ -284,7 +288,7 @@\n     assert \"Novo desenho\" in template\n     assert \"function newDraw\" in template\n     assert \"function slugify\" in template\n-    assert \"uniqueDrawId('novo-desenho')\" in template\n+    assert \"uniqueDrawId(title)\" in template\n     assert \"EDGE_CONDITIONS = {1:'então', 2:'ou', 3:'se'}\" in template\n     assert \"EDGE_CONDITIONS[edge.condition]\" in template\n     assert \"condition: DEFAULT_CONDITION\" in template\n@@ -348,7 +352,7 @@\n     assert \"botão `×`\" in readme\n     assert \"Live Server\" in readme\n     assert \"showDirectoryPicker\" in readme\n-    assert \"Nome do desenho\" in readme\n+    assert \"nome do desenho\" in readme.lower()\n \n \n def test_draw_server_serves_viewer_index_and_selected_json(tmp_path: Path):"
+        }
+      ]
+    },
+    {
+      "run_id": "e1e04bfb2189443688935c31bab329a5",
+      "timestamp": "2026-07-31T16:42:28.810171+00:00",
+      "files": [
+        {
+          "path": "tests/test_draw.py",
+          "lines_added": 6,
+          "lines_deleted": 0,
+          "diff": "--- a/tests/test_draw.py\n+++ b/tests/test_draw.py\n@@ -274,6 +274,12 @@\n     assert \"orderRank\" in template\n     assert \"routeEdge\" in template\n     assert \"Math.abs(sy - ty) < 20\" in template\n+    assert \"edgeLabelGroup\" in template\n+    assert 'id=\"inspector\"' not in template\n+    assert \"editDrawMetadata\" in template\n+    assert \"editEdgeDirect\" in template\n+    assert \"edge-label-bg\" in template\n+    assert \"occupiedLabels\" in template\n     assert \"Math.max(.42\" in template\n     assert \"(1400 - box.width * state.zoom) / 2\" in template\n     assert \"wrapText\" in template"
+        }
+      ]
+    },
+    {
+      "run_id": "8b02fd71956d423696b145efbb1b1fce",
+      "timestamp": "2026-07-31T16:51:54.825927+00:00",
+      "files": [
+        {
+          "path": "tests/test_draw.py",
+          "lines_added": 7,
+          "lines_deleted": 1,
+          "diff": "--- a/tests/test_draw.py\n+++ b/tests/test_draw.py\n@@ -262,7 +262,9 @@\n     assert \"beginPan\" in template\n     assert \"moveCanvas\" in template\n     assert \"endPointerAction\" in template\n-    assert \"Editar desenho\" in template\n+    assert 'id=\"edit\"' not in template\n+    assert \"toggleEditing\" not in template\n+    assert \"state.editing\" not in template\n     assert \"Adicionar bloco\" in template\n     assert \"Conectar blocos\" in template\n     assert \"Excluir seleção\" in template\n@@ -275,6 +277,10 @@\n     assert \"routeEdge\" in template\n     assert \"Math.abs(sy - ty) < 20\" in template\n     assert \"edgeLabelGroup\" in template\n+    assert \"wrapText(value, maxCharacters)\" in template\n+    assert \"labelMaxWidth\" in template\n+    assert \"Excluir esta conexão?\" in template\n+    assert \"Excluir este bloco e suas conexões?\" in template\n     assert 'id=\"inspector\"' not in template\n     assert \"editDrawMetadata\" in template\n     assert \"editEdgeDirect\" in template"
+        }
+      ]
+    },
+    {
+      "run_id": "0462259ca748438fb19c1470264c4793",
+      "timestamp": "2026-07-31T16:54:35.487882+00:00",
+      "files": [
+        {
+          "path": "tests/test_draw.py",
+          "lines_added": 3,
+          "lines_deleted": 0,
+          "diff": "--- a/tests/test_draw.py\n+++ b/tests/test_draw.py\n@@ -281,6 +281,9 @@\n     assert \"labelMaxWidth\" in template\n     assert \"Excluir esta conexão?\" in template\n     assert \"Excluir este bloco e suas conexões?\" in template\n+    assert \"state.presentation.positions\" in template\n+    assert \"action.dirty\" in template\n+    assert \"Movimentos e cores\" in Path(\"README.md\").read_text(encoding=\"utf-8\")\n     assert 'id=\"inspector\"' not in template\n     assert \"editDrawMetadata\" in template\n     assert \"editEdgeDirect\" in template"
+        }
+      ]
+    },
+    {
+      "run_id": "a6a7b06e97a4404ba16f988f6509148c",
+      "timestamp": "2026-07-31T17:01:54.715850+00:00",
+      "files": [
+        {
+          "path": "src/stdd/core.py",
+          "lines_added": 11,
+          "lines_deleted": 5,
+          "diff": "--- a/src/stdd/core.py\n+++ b/src/stdd/core.py\n@@ -138,11 +138,17 @@\n     for integration in integrations:\n         for source in agent_templates():\n             name = source.parent.name\n-            target = root / AGENT_SKILL_DIRECTORIES[integration] / name / \"SKILL.md\"\n-            if not target.exists():\n-                target.parent.mkdir(parents=True, exist_ok=True)\n-                target.write_text(source.read_text(encoding=\"utf-8\"), encoding=\"utf-8\")\n-                created.append(target)\n+            sources = [source]\n+            openai_metadata = source.parent / \"agents\" / \"openai.yaml\"\n+            if integration == \"codex\" and openai_metadata.exists():\n+                sources.append(openai_metadata)\n+            for skill_source in sources:\n+                relative = skill_source.relative_to(source.parent)\n+                target = root / AGENT_SKILL_DIRECTORIES[integration] / name / relative\n+                if not target.exists():\n+                    target.parent.mkdir(parents=True, exist_ok=True)\n+                    target.write_text(skill_source.read_text(encoding=\"utf-8\"), encoding=\"utf-8\")\n+                    created.append(target)\n     return created\n \n "
+        },
+        {
+          "path": "tests/test_cli.py",
+          "lines_added": 2,
+          "lines_deleted": 0,
+          "diff": "--- a/tests/test_cli.py\n+++ b/tests/test_cli.py\n@@ -34,6 +34,8 @@\n     assert result.exit_code == 0\n     for directory in (\".agents\", \".claude\", \".gemini\"):\n         assert (tmp_path / directory / \"skills\" / \"setup\" / \"SKILL.md\").exists()\n+        assert (tmp_path / directory / \"skills\" / \"draw-improve\" / \"SKILL.md\").exists()\n+    assert (tmp_path / \".agents/skills/draw-improve/agents/openai.yaml\").exists()\n \n \n def test_init_interactive_selects_multiple_agent_integrations(tmp_path: Path):"
+        },
+        {
+          "path": "tests/test_stdd.py",
+          "lines_added": 36,
+          "lines_deleted": 2,
+          "diff": "--- a/tests/test_stdd.py\n+++ b/tests/test_stdd.py\n@@ -25,6 +25,8 @@\n     assert (tmp_path / \".agents/skills/setup/SKILL.md\").exists()\n     assert (tmp_path / \".agents/skills/static-analysis/SKILL.md\").exists()\n     assert (tmp_path / \".agents/skills/draw-feature/SKILL.md\").exists()\n+    assert (tmp_path / \".agents/skills/draw-improve/SKILL.md\").exists()\n+    assert (tmp_path / \".agents/skills/draw-improve/agents/openai.yaml\").exists()\n     assert \"testes\" in (tmp_path / \".agents/skills/feature/SKILL.md\").read_text().lower()\n     for source in agent_templates():\n         installed = tmp_path / \".agents\" / \"skills\" / source.parent.name / \"SKILL.md\"\n@@ -114,7 +116,7 @@\n     Chama agent_templates e valida a presença dos títulos dos agentes feature, implement e setup.\n     \"\"\"\n     templates = {template.parent.name: template for template in agent_templates()}\n-    assert set(templates) == {\"draw-feature\", \"feature\", \"implement\", \"setup\", \"static-analysis\"}\n+    assert set(templates) == {\"draw-feature\", \"draw-improve\", \"feature\", \"implement\", \"setup\", \"static-analysis\"}\n     assert \"# Feature Agent\" in templates[\"feature\"].read_text()\n     assert \"# Implement Agent\" in templates[\"implement\"].read_text()\n     assert \"# Setup Agent\" in templates[\"setup\"].read_text()\n@@ -130,6 +132,38 @@\n     assert \"stdd draw create\" in templates[\"draw-feature\"].read_text()\n \n \n+def test_draw_improve_skill_is_incremental_and_hands_off_through_feature():\n+    \"\"\"Limita cada melhoria do desenho e impede salto direto para produção.\n+    Confirma revisão humana, término sem alteração e sequência feature antes de implement.\n+    \"\"\"\n+    content = Path(\"src/stdd/templates/agents/draw-improve/SKILL.md\").read_text(encoding=\"utf-8\").lower()\n+\n+    for required in (\n+        \".stdd/draws/<draw-id>.json\",\n+        \"no máximo 3 novos nós\",\n+        \"já está bom\",\n+        \"um ciclo\",\n+        \"revisão\",\n+        \"$feature\",\n+        \"$implement\",\n+        \"estado vermelho\",\n+    ):\n+        assert required in content\n+    assert \"não pular\" in content\n+    assert \"100\" not in content\n+\n+\n+def test_draw_feature_matches_always_interactive_viewer():\n+    \"\"\"Mantém a skill base alinhada ao Draw sem modo separado de edição.\n+    Rejeita instruções antigas sobre ativar edição ou usar inspetor.\n+    \"\"\"\n+    content = Path(\"src/stdd/templates/agents/draw-feature/SKILL.md\").read_text(encoding=\"utf-8\").lower()\n+\n+    assert \"ative `editar desenho`\" not in content\n+    assert \"inspetor\" not in content\n+    assert \"salvar alterações\" in content\n+\n+\n def test_agent_skills_are_self_contained_and_do_not_reference_internal_plan():\n     \"\"\"Exige frontmatter canônico e remove dependência do backlog interno das skills.\n     Percorre todos os templates e valida metadados mínimos e autonomia das instruções.\n@@ -174,7 +208,7 @@\n     \"\"\"\n     readme = Path(\"README.md\").read_text(encoding=\"utf-8\")\n \n-    for command in (\"$setup\", \"$feature\", \"$draw-feature\", \"$static-analysis\", \"$implement\"):\n+    for command in (\"$setup\", \"$feature\", \"$draw-feature\", \"$draw-improve\", \"$static-analysis\", \"$implement\"):\n         assert command in readme\n     assert \".agents/skills/<skill>/SKILL.md\" in readme\n "
+        }
+      ]
+    },
+    {
+      "run_id": "74ed0992731f4597ab3f2a1696deee7c",
+      "timestamp": "2026-07-31T17:01:57.640884+00:00",
+      "files": []
     }
   ],
-  "run_count": 30,
-  "last_run_id": "2a5f973523834cd1a2c4175a5796c37e",
+  "run_count": 41,
+  "last_run_id": "74ed0992731f4597ab3f2a1696deee7c",
   "workspace_snapshot": {
     "src/stdd/__init__.py": [
       "\"\"\"STDD: desenvolvimento orientado por testes.\"\"\"",
@@ -1002,11 +1139,17 @@
       "    for integration in integrations:",
       "        for source in agent_templates():",
       "            name = source.parent.name",
-      "            target = root / AGENT_SKILL_DIRECTORIES[integration] / name / \"SKILL.md\"",
-      "            if not target.exists():",
-      "                target.parent.mkdir(parents=True, exist_ok=True)",
-      "                target.write_text(source.read_text(encoding=\"utf-8\"), encoding=\"utf-8\")",
-      "                created.append(target)",
+      "            sources = [source]",
+      "            openai_metadata = source.parent / \"agents\" / \"openai.yaml\"",
+      "            if integration == \"codex\" and openai_metadata.exists():",
+      "                sources.append(openai_metadata)",
+      "            for skill_source in sources:",
+      "                relative = skill_source.relative_to(source.parent)",
+      "                target = root / AGENT_SKILL_DIRECTORIES[integration] / name / relative",
+      "                if not target.exists():",
+      "                    target.parent.mkdir(parents=True, exist_ok=True)",
+      "                    target.write_text(skill_source.read_text(encoding=\"utf-8\"), encoding=\"utf-8\")",
+      "                    created.append(target)",
       "    return created",
       "",
       "",
@@ -2447,6 +2590,8 @@
       "    assert result.exit_code == 0",
       "    for directory in (\".agents\", \".claude\", \".gemini\"):",
       "        assert (tmp_path / directory / \"skills\" / \"setup\" / \"SKILL.md\").exists()",
+      "        assert (tmp_path / directory / \"skills\" / \"draw-improve\" / \"SKILL.md\").exists()",
+      "    assert (tmp_path / \".agents/skills/draw-improve/agents/openai.yaml\").exists()",
       "",
       "",
       "def test_init_interactive_selects_multiple_agent_integrations(tmp_path: Path):",
@@ -3230,7 +3375,9 @@
       "    assert \"beginPan\" in template",
       "    assert \"moveCanvas\" in template",
       "    assert \"endPointerAction\" in template",
-      "    assert \"Editar desenho\" in template",
+      "    assert 'id=\"edit\"' not in template",
+      "    assert \"toggleEditing\" not in template",
+      "    assert \"state.editing\" not in template",
       "    assert \"Adicionar bloco\" in template",
       "    assert \"Conectar blocos\" in template",
       "    assert \"Excluir seleção\" in template",
@@ -3238,8 +3385,25 @@
       "    assert \"Editar JSON\" not in template",
       "    assert \"editor-json\" not in template",
       "    assert \"buildRanks\" in template",
+      "    assert \"order.reverse()\" in template",
       "    assert \"orderRank\" in template",
       "    assert \"routeEdge\" in template",
+      "    assert \"Math.abs(sy - ty) < 20\" in template",
+      "    assert \"edgeLabelGroup\" in template",
+      "    assert \"wrapText(value, maxCharacters)\" in template",
+      "    assert \"labelMaxWidth\" in template",
+      "    assert \"Excluir esta conexão?\" in template",
+      "    assert \"Excluir este bloco e suas conexões?\" in template",
+      "    assert \"state.presentation.positions\" in template",
+      "    assert \"action.dirty\" in template",
+      "    assert \"Movimentos e cores\" in Path(\"README.md\").read_text(encoding=\"utf-8\")",
+      "    assert 'id=\"inspector\"' not in template",
+      "    assert \"editDrawMetadata\" in template",
+      "    assert \"editEdgeDirect\" in template",
+      "    assert \"edge-label-bg\" in template",
+      "    assert \"occupiedLabels\" in template",
+      "    assert \"Math.max(.42\" in template",
+      "    assert \"(1400 - box.width * state.zoom) / 2\" in template",
       "    assert \"wrapText\" in template",
       "    assert \"measureNode\" in template",
       "    assert \"connectionPorts\" in template",
@@ -3252,12 +3416,35 @@
       "    assert \"Novo desenho\" in template",
       "    assert \"function newDraw\" in template",
       "    assert \"function slugify\" in template",
-      "    assert \"uniqueDrawId('novo-desenho')\" in template",
+      "    assert \"uniqueDrawId(title)\" in template",
       "    assert \"EDGE_CONDITIONS = {1:'então', 2:'ou', 3:'se'}\" in template",
       "    assert \"EDGE_CONDITIONS[edge.condition]\" in template",
       "    assert \"condition: DEFAULT_CONDITION\" in template",
       "    assert \"choices: Object.values(EDGE_CONDITIONS)\" in template",
       "    assert \"values: Object.keys(EDGE_CONDITIONS).map(Number)\" in template",
+      "    assert \"duplicateSelection\" in template",
+      "    assert \"ctrlKey\" in template",
+      "    assert \"metaKey\" in template",
+      "    assert \"type = 'color'\" in template",
+      "    assert \"localStorage\" in template",
+      "    assert \"editNodeDirect\" in template",
+      "    assert \"cycleEdgeCondition\" in template",
+      "    assert \"shortcut-dialog\" in template",
+      "    assert \"frontTargetFor\" in template",
+      "    assert \"moved:false\" in template",
+      "    assert \"deleteEdge\" in template",
+      "    assert \"edge-remove\" in template",
+      "    assert \"Conexão removida diretamente pela seta\" in template",
+      "    assert \"inlineNodeEditor\" in template",
+      "    assert \"inline-node-editor\" in template",
+      "    assert \"Nome do bloco\" in template",
+      "    assert \"Descrição do bloco\" in template",
+      "    assert \"Cor do fundo\" in template",
+      "    assert \"Cor do texto\" in template",
+      "    assert \"Nome do desenho\" in template",
+      "    assert \"showDirectoryPicker\" in template",
+      "    assert \"saveDrawToDirectory\" in template",
+      "    assert \"new URL(`/__stdd/api/draws/\" in template",
       "",
       "",
       "def test_draw_html_connects_blocks_by_dragging_visible_ports():",
@@ -3276,6 +3463,24 @@
       "    assert \"createConnection\" in template",
       "    assert \"elementFromPoint\" in template",
       "    assert \"Arraste a saída\" in template",
+      "",
+      "",
+      "def test_draw_readme_documents_local_server_and_visual_shortcuts():",
+      "    \"\"\"Documenta o servidor local necessário para fetch e persistência do Draw.",
+      "    Confirma que o README explica salvar JSON, atalhos de edição e a URL do viewer.",
+      "    \"\"\"",
+      "    readme = Path(\"README.md\").read_text(encoding=\"utf-8\")",
+      "",
+      "    assert \"stdd draw serve --port 8765\" in readme",
+      "    assert \"127.0.0.1:8765/.stdd/draw.html\" in readme",
+      "    assert \"Ctrl/Cmd+D\" in readme",
+      "    assert \"arrastar\" in readme.lower()",
+      "    assert \"dentro dele\" in readme",
+      "    assert \"próximo bloco lógico\" in readme",
+      "    assert \"botão `×`\" in readme",
+      "    assert \"Live Server\" in readme",
+      "    assert \"showDirectoryPicker\" in readme",
+      "    assert \"nome do desenho\" in readme.lower()",
       "",
       "",
       "def test_draw_server_serves_viewer_index_and_selected_json(tmp_path: Path):",
@@ -3451,6 +3656,8 @@
       "    assert (tmp_path / \".agents/skills/setup/SKILL.md\").exists()",
       "    assert (tmp_path / \".agents/skills/static-analysis/SKILL.md\").exists()",
       "    assert (tmp_path / \".agents/skills/draw-feature/SKILL.md\").exists()",
+      "    assert (tmp_path / \".agents/skills/draw-improve/SKILL.md\").exists()",
+      "    assert (tmp_path / \".agents/skills/draw-improve/agents/openai.yaml\").exists()",
       "    assert \"testes\" in (tmp_path / \".agents/skills/feature/SKILL.md\").read_text().lower()",
       "    for source in agent_templates():",
       "        installed = tmp_path / \".agents\" / \"skills\" / source.parent.name / \"SKILL.md\"",
@@ -3540,7 +3747,7 @@
       "    Chama agent_templates e valida a presença dos títulos dos agentes feature, implement e setup.",
       "    \"\"\"",
       "    templates = {template.parent.name: template for template in agent_templates()}",
-      "    assert set(templates) == {\"draw-feature\", \"feature\", \"implement\", \"setup\", \"static-analysis\"}",
+      "    assert set(templates) == {\"draw-feature\", \"draw-improve\", \"feature\", \"implement\", \"setup\", \"static-analysis\"}",
       "    assert \"# Feature Agent\" in templates[\"feature\"].read_text()",
       "    assert \"# Implement Agent\" in templates[\"implement\"].read_text()",
       "    assert \"# Setup Agent\" in templates[\"setup\"].read_text()",
@@ -3554,6 +3761,38 @@
       "    assert \".env\" in templates[\"static-analysis\"].read_text()",
       "    assert \"*.pyc\" in templates[\"static-analysis\"].read_text()",
       "    assert \"stdd draw create\" in templates[\"draw-feature\"].read_text()",
+      "",
+      "",
+      "def test_draw_improve_skill_is_incremental_and_hands_off_through_feature():",
+      "    \"\"\"Limita cada melhoria do desenho e impede salto direto para produção.",
+      "    Confirma revisão humana, término sem alteração e sequência feature antes de implement.",
+      "    \"\"\"",
+      "    content = Path(\"src/stdd/templates/agents/draw-improve/SKILL.md\").read_text(encoding=\"utf-8\").lower()",
+      "",
+      "    for required in (",
+      "        \".stdd/draws/<draw-id>.json\",",
+      "        \"no máximo 3 novos nós\",",
+      "        \"já está bom\",",
+      "        \"um ciclo\",",
+      "        \"revisão\",",
+      "        \"$feature\",",
+      "        \"$implement\",",
+      "        \"estado vermelho\",",
+      "    ):",
+      "        assert required in content",
+      "    assert \"não pular\" in content",
+      "    assert \"100\" not in content",
+      "",
+      "",
+      "def test_draw_feature_matches_always_interactive_viewer():",
+      "    \"\"\"Mantém a skill base alinhada ao Draw sem modo separado de edição.",
+      "    Rejeita instruções antigas sobre ativar edição ou usar inspetor.",
+      "    \"\"\"",
+      "    content = Path(\"src/stdd/templates/agents/draw-feature/SKILL.md\").read_text(encoding=\"utf-8\").lower()",
+      "",
+      "    assert \"ative `editar desenho`\" not in content",
+      "    assert \"inspetor\" not in content",
+      "    assert \"salvar alterações\" in content",
       "",
       "",
       "def test_agent_skills_are_self_contained_and_do_not_reference_internal_plan():",
@@ -3600,7 +3839,7 @@
       "    \"\"\"",
       "    readme = Path(\"README.md\").read_text(encoding=\"utf-8\")",
       "",
-      "    for command in (\"$setup\", \"$feature\", \"$draw-feature\", \"$static-analysis\", \"$implement\"):",
+      "    for command in (\"$setup\", \"$feature\", \"$draw-feature\", \"$draw-improve\", \"$static-analysis\", \"$implement\"):",
       "        assert command in readme",
       "    assert \".agents/skills/<skill>/SKILL.md\" in readme",
       "",

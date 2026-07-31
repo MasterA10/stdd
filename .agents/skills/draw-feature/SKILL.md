@@ -26,8 +26,8 @@ stdd draw serve
 
 6. Selecione o desenho gerado no índice e confira conexões, fluxo e trade-offs.
 
-7. Para editar manualmente, ative `Editar desenho`. Conecte blocos arrastando a porta roxa de saída até o bloco de destino; o botão `Conectar blocos` mantém o fluxo alternativo por dois cliques. O usuário também pode adicionar, mover ou remover blocos e alterar propriedades pelo inspetor, sem editar JSON diretamente.
-8. Para começar do zero, use `Novo desenho`, defina título e tipo no inspetor e adicione o primeiro bloco. Um canvas sem nós é um desenho válido.
+7. Para editar manualmente, interaja diretamente com o canvas: selecione e mova blocos, altere os controles embutidos ou arraste a porta roxa de saída até o destino. O botão `Conectar blocos` mantém o fluxo alternativo por dois cliques. Toda exclusão pede confirmação.
+8. Para começar do zero, use `Novo desenho`, informe o título e adicione o primeiro bloco. Um canvas sem nós é válido. As mudanças ficam pendentes até o usuário pressionar `Salvar alterações`.
 9. Para iniciar uma feature a partir de um desenho, informe ao Feature Agent o ID do JSON; ele deve ler `.stdd/draws/<draw-id>.json` diretamente e interpretar a lógica do desenho.
 
 Não escreva HTML, CSS ou JavaScript para um desenho individual. O layout e os componentes pertencem ao `.stdd/draw.html`.
@@ -60,6 +60,18 @@ Para decompor sistemas complexos, use `draw_ref` em um nó:
 ```
 
 O valor deve ser o ID de outro JSON em `.stdd/draws/`. O viewer carregará esse subdesenho somente quando o usuário abrir o nó e permitirá voltar ao desenho pai. Não duplique os nós detalhados no desenho abstrato.
+
+### Perguntas de esclarecimento
+
+Um nó pode declarar `questions` opcionalmente para registrar decisões que ainda precisam de resposta. O viewer mostra no bloco a quantidade de perguntas sem resposta; o indicador continua visível quando chegar a zero para preservar o histórico.
+
+Cada pergunta possui ID numérico, `prompt`, `type` e `answer` opcional. Use:
+
+- `choice` para múltipla escolha, com pelo menos duas opções `{ "id": 1, "label": "..." }` e `answer` igual ao ID escolhido;
+- `boolean` para sim ou não, com `answer` booleano ou `null`;
+- `open` para resposta aberta, com `answer` textual ou `null`.
+
+Perguntas respondidas permanecem no JSON como histórico. Não invente respostas: uma pergunta sem resposta é uma decisão aberta para o usuário ou para a próxima rodada do agente.
 
 ## Escala e clareza
 

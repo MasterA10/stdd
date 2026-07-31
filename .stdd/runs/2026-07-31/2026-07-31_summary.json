@@ -423,8 +423,162 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "b7b20442835642cfaa7a048389c6835c",
+      "timestamp": "2026-07-31T16:22:47.158254+00:00",
+      "description": "Valida interação visual, atalhos e servidor do Draw",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 20,
+        "lines_deleted": 0,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "8307d0e825ce44d3a6b481e095b35eba",
+      "timestamp": "2026-07-31T16:24:31.116516+00:00",
+      "description": "Melhora experiência visual do Draw com atalhos, cores e edição direta",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 1,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "1dd7d6c4c2d4471b8266b16e9f61d8c4",
+      "timestamp": "2026-07-31T16:30:33.846313+00:00",
+      "description": "Valida conexão automática e remoção direta de setas",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 14,
+        "lines_deleted": 0,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "46bc5ce5f4784fda8d94edb363c14111",
+      "timestamp": "2026-07-31T16:31:05.819680+00:00",
+      "description": "Torna blocos autossuficientes e adiciona conexão automática e remoção direta",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 3,
+        "lines_deleted": 3,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "68ab52b2986e42cb9c8cb2f461ce7d3b",
+      "timestamp": "2026-07-31T16:34:06.849624+00:00",
+      "description": "Valida nomeação e salvamento do Draw com Live Server",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 7,
+        "lines_deleted": 0,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "16313181a8a94c6ba5acc4c9240072d1",
+      "timestamp": "2026-07-31T16:36:54.481335+00:00",
+      "description": "Corrige salvamento no Live Server e otimiza rotas do Draw",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 6,
+        "lines_deleted": 2,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "e1e04bfb2189443688935c31bab329a5",
+      "timestamp": "2026-07-31T16:42:28.810171+00:00",
+      "description": "Remove painel externo e torna elementos do Draw autocontidos",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 6,
+        "lines_deleted": 0,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "8b02fd71956d423696b145efbb1b1fce",
+      "timestamp": "2026-07-31T16:51:54.825927+00:00",
+      "description": "Torna o Draw sempre interativo e melhora quebra e encaixe dos rótulos",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 7,
+        "lines_deleted": 1,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "0462259ca748438fb19c1470264c4793",
+      "timestamp": "2026-07-31T16:54:35.487882+00:00",
+      "description": "Marca arraste e aparência como alterações pendentes até o salvamento",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 3,
+        "lines_deleted": 0,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "a6a7b06e97a4404ba16f988f6509148c",
+      "timestamp": "2026-07-31T17:01:54.715850+00:00",
+      "description": "Especifica contrato incremental e instalação da skill Draw Improve",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 49,
+        "lines_deleted": 7,
+        "files_changed": 3
+      }
+    },
+    {
+      "run_id": "74ed0992731f4597ab3f2a1696deee7c",
+      "timestamp": "2026-07-31T17:01:57.640884+00:00",
+      "description": "Implementa e distribui a skill Draw Improve",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 30,
-  "last_run_id": "2a5f973523834cd1a2c4175a5796c37e"
+  "run_count": 41,
+  "last_run_id": "74ed0992731f4597ab3f2a1696deee7c"
 }

@@ -18,6 +18,7 @@ from urllib.parse import unquote, urlparse
 DRAW_VERSION = 1
 DRAW_TEMPLATE_VERSION = "4"
 EDGE_CONDITIONS = {1: "então", 2: "ou", 3: "se"}
+QUESTION_TYPES = {"choice", "boolean", "open"}
 DRAW_ID_PATTERN = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$")
 DRAW_TEMPLATE = Path(__file__).parent / "templates" / "draw" / "draw.html"
 PRESENTATION_KEYS = {"color", "colors", "position", "style", "styles", "layout", "viewport", "theme", "x", "y", "width", "height"}
@@ -96,6 +97,57 @@ def validate_draw_payload(payload: Any) -> list[str]:
         draw_ref = node.get("draw_ref")
         if draw_ref is not None and not _is_draw_id(draw_ref):
             violations.append(f"nodes[{index}].draw_ref deve ser o ID descritivo de outro desenho")
+        questions = node.get("questions", [])
+        if not isinstance(questions, list):
+            violations.append(f"nodes[{index}].questions deve ser uma lista")
+            questions = []
+        question_ids: set[int] = set()
+        for question_index, question in enumerate(questions):
+            prefix = f"nodes[{index}].questions[{question_index}]"
+            if not isinstance(question, dict) or not _is_numeric_id(question.get("id")):
+                violations.append(f"{prefix} precisa de id numérico")
+                continue
+            question_id = question["id"]
+            if question_id in question_ids:
+                violations.append(f"pergunta duplicada no nó {node['id']}: {question_id}")
+            question_ids.add(question_id)
+            question_type = question.get("type")
+            if question_type not in QUESTION_TYPES:
+                violations.append(f"{prefix}.type deve ser choice, boolean ou open")
+            if not isinstance(question.get("prompt"), str) or not question["prompt"].strip():
+                violations.append(f"{prefix}.prompt é obrigatório")
+            if "required" in question and not isinstance(question["required"], bool):
+                violations.append(f"{prefix}.required deve ser booleano")
+            answer = question.get("answer")
+            if question_type == "choice":
+                options = question.get("options")
+                if not isinstance(options, list) or len(options) < 2:
+                    violations.append(f"{prefix}.options deve conter pelo menos duas opções")
+                    options = []
+                option_ids: set[int] = set()
+                for option_index, option in enumerate(options):
+                    option_prefix = f"{prefix}.options[{option_index}]"
+                    if not isinstance(option, dict) or not _is_numeric_id(option.get("id")):
+                        violations.append(f"{option_prefix} precisa de id numérico")
+                        continue
+                    option_id = option["id"]
+                    if option_id in option_ids:
+                        violations.append(f"opção duplicada em {prefix}: {option_id}")
+                    option_ids.add(option_id)
+                    if not isinstance(option.get("label"), str) or not option["label"].strip():
+                        violations.append(f"{option_prefix}.label é obrigatório")
+                if answer is not None and (not _is_numeric_id(answer) or answer not in option_ids):
+                    violations.append(f"{prefix}.answer deve apontar para uma opção existente")
+            elif question_type == "boolean":
+                if "options" in question:
+                    violations.append(f"{prefix} boolean não deve declarar options")
+                if answer is not None and not isinstance(answer, bool):
+                    violations.append(f"{prefix}.answer deve ser booleano ou nulo")
+            elif question_type == "open":
+                if "options" in question:
+                    violations.append(f"{prefix} open não deve declarar options")
+                if answer is not None and not isinstance(answer, str):
+                    violations.append(f"{prefix}.answer deve ser texto ou nulo")
 
     groups = payload.get("groups", [])
     if not isinstance(groups, list):

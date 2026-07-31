@@ -20,6 +20,8 @@ Ler somente o contexto necessário:
 - `.stdd/draws/<draw-id>.json` quando a solicitação partir de um desenho;
 - `draw_ref` apenas quando o subfluxo fizer parte do escopo.
 
+Quando um nó possuir `questions`, ler todas as perguntas. Tratar `answer` preenchido como decisão explícita do usuário e perguntas sem resposta como requisito ainda aberto; não inventar respostas nem apagar perguntas respondidas do histórico.
+
 Não converter Draw em documentação duplicada. O JSON e os testes permanecem fontes diretas.
 
 ## Preflight
