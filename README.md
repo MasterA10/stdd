@@ -57,7 +57,13 @@ As skills são instaladas em:
 - Claude: `.claude/skills/`
 - Gemini: `.gemini/skills/`
 
-O framework permanece em uma única pasta `.stdd/`, e o setup escreve o `.gitignore` na raiz do projeto.
+Além das skills, o init instala no topo do projeto as instruções operacionais do STDD no arquivo lido pelo agente selecionado:
+
+- Codex: `AGENTS.md`
+- Claude: `CLAUDE.md` (ou um `CLAUDE.md` existente em `.claude/`)
+- Gemini: `GEMINI.md`
+
+O bloco é marcado, idempotente e preserva o conteúdo existente. Ele orienta o agente a registrar o trabalho com `stdd log`, executar `stdd test` e guardar evidências em `.stdd/`. O STDD só manipula arquivos de instrução dentro do projeto; não altera prompts ou configurações globais do usuário. O framework permanece em uma única pasta `.stdd/`, e o setup escreve o `.gitignore` na raiz do projeto.
 
 ## Usar as skills no Codex
 
@@ -133,7 +139,7 @@ stdd test --approve-actions
 
 ## Abrir e editar o Draw
 
-O `draw.html` precisa ser servido por HTTP local. Abrir o arquivo diretamente com `file://` impede o `fetch` dos JSONs e o `PUT` usado para salvar alterações; nesse modo o Draw não baixa arquivo nem tenta salvar, apenas orienta iniciar o servidor local.
+O Draw Server é o processo responsável por ler e salvar os desenhos. Ele pode ser usado de duas formas: pela URL HTTP do próprio servidor ou abrindo diretamente o arquivo `draw.html` com `file://`. No segundo caso, o Draw usa o servidor local para carregar os JSONs e fazer o `PUT`, desde que o servidor esteja iniciado.
 
 No diretório raiz do projeto, execute:
 
@@ -141,19 +147,23 @@ No diretório raiz do projeto, execute:
 stdd draw serve --port 8765
 ```
 
-Depois abra no navegador:
+Depois abra no navegador pela URL do servidor:
 
 ```text
 http://127.0.0.1:8765/.stdd/draw.html
 ```
 
+Também é possível abrir diretamente o arquivo:
+
+```text
+file:///caminho/absoluto/do-projeto/.stdd/draw.html
+```
+
+Nesse modo, mantenha `stdd draw serve --port 8765` em execução. O Live Server não é necessário e pode ser evitado para não recarregar a página enquanto uma edição estiver em andamento.
+
 Ao clicar em `＋ Novo desenho`, o Draw pede o nome do desenho antes de criá-lo. O viewer carrega apenas o desenho selecionado, lê seu JSON em `.stdd/draws/` e salva alterações lógicas pelo endpoint local `/__stdd/api/draws/<id>.json`. Cores e posições são preferências da experiência visual; elas ficam no armazenamento local do navegador e não alteram o contrato JSON.
 
-O Live Server é suficiente para o `fetch` de leitura, mas é um servidor estático e não aceita o `PUT` necessário para gravar arquivos. Ao salvar usando Live Server, o Draw tenta abrir a pasta do projeto com a File System Access API (`showDirectoryPicker`): escolha a raiz do repositório e ele grava diretamente `.stdd/draws/<id>.json` e atualiza `.stdd/draws/index.json`, sem baixar um arquivo. Se o navegador não oferecer essa API, o Draw mantém as alterações como não salvas e informa que é necessário usar o servidor local do STDD:
-
-```bash
-stdd draw serve --port 8765
-```
+O Live Server continua opcional para desenvolvimento, mas não é recomendado durante uma edição porque pode recarregar a página automaticamente. Para uma sessão estável, use o Draw Server e abra o arquivo com `file://` ou abra a URL HTTP dele.
 
 Atalhos e gestos principais:
 

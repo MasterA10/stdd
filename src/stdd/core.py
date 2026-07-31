@@ -1,5 +1,6 @@
 import difflib
 import json
+import re
 import subprocess
 import sys
 import time
@@ -79,6 +80,50 @@ AGENT_SKILL_DIRECTORIES = {
     "gemini": ".gemini/skills",
 }
 
+AGENT_INSTRUCTION_FILES = {
+    "codex": ("AGENTS.md",),
+    "claude": ("CLAUDE.md", ".claude/CLAUDE.md"),
+    "gemini": ("GEMINI.md",),
+}
+STDD_AGENT_BLOCK_START = "<!-- STDD:BEGIN AGENT INSTRUCTIONS -->"
+STDD_AGENT_BLOCK_END = "<!-- STDD:END AGENT INSTRUCTIONS -->"
+STDD_AGENT_BLOCK = f"""{STDD_AGENT_BLOCK_START}
+## STDD — Harness Control Layer
+
+Este projeto usa o STDD para especificação, implementação, testes e evidências.
+
+- Registre cada trabalho concluído com `stdd log \"descrição curta\" --type implementacao|teste|bug|refactor`.
+- Execute `stdd test` antes de declarar uma tarefa concluída e trate falhas como bloqueios.
+- Preserve o contrato existente, os testes aprovados e os arquivos protegidos.
+- Use `.stdd/` para configuração, desenhos, execuções e evidências; não registre segredos nos logs.
+- Ao relatar o resultado, informe status, arquivos alterados, testes executados, evidências e limitações.
+{STDD_AGENT_BLOCK_END}"""
+_STDD_AGENT_BLOCK_PATTERN = re.compile(
+    rf"{re.escape(STDD_AGENT_BLOCK_START)}.*?{re.escape(STDD_AGENT_BLOCK_END)}\n?",
+    re.DOTALL,
+)
+
+
+def ensure_agent_instructions(root: Path, integrations: tuple[str, ...]) -> list[Path]:
+    """Instala instruções locais do STDD nos arquivos reconhecidos por cada agente.
+    Cria ou atualiza AGENTS.md, CLAUDE.md e GEMINI.md sem tocar em arquivos globais e sem duplicar o bloco.
+    """
+    changed: list[Path] = []
+    for integration in integrations:
+        candidates = AGENT_INSTRUCTION_FILES[integration]
+        instruction_path = next(
+            (root / candidate for candidate in candidates if (root / candidate).is_file()),
+            root / candidates[0],
+        )
+        existing = instruction_path.read_text(encoding="utf-8") if instruction_path.exists() else ""
+        without_stdd = _STDD_AGENT_BLOCK_PATTERN.sub("", existing).lstrip("\n")
+        updated = STDD_AGENT_BLOCK + ("\n\n" + without_stdd if without_stdd else "\n")
+        if updated != existing:
+            instruction_path.parent.mkdir(parents=True, exist_ok=True)
+            instruction_path.write_text(updated, encoding="utf-8")
+            changed.append(instruction_path)
+    return changed
+
 
 def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list[Path]:
     """Inicializa a estrutura do projeto e instala as skills dos agentes.
@@ -149,6 +194,7 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list
                     target.parent.mkdir(parents=True, exist_ok=True)
                     target.write_text(skill_source.read_text(encoding="utf-8"), encoding="utf-8")
                     created.append(target)
+    created.extend(ensure_agent_instructions(root, integrations))
     return created
 
 

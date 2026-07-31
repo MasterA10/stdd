@@ -1,0 +1,178 @@
+{
+  "version": 1,
+  "id": "demo-perguntas-respostas",
+  "title": "Demonstração: perguntas, respostas e loop",
+  "subtitle": "Fluxo para validar perguntas respondidas, pendências e retorno ao início",
+  "kind": "feature",
+  "groups": [
+    {
+      "id": 1,
+      "label": "Experiência"
+    },
+    {
+      "id": 2,
+      "label": "Checkout"
+    }
+  ],
+  "nodes": [
+    {
+      "id": 1,
+      "label": "Escolher plano",
+      "group": 1,
+      "description": "Cliente seleciona a opção de assinatura.",
+      "questions": [
+        {
+          "id": 1,
+          "type": "choice",
+          "prompt": "Qual plano foi escolhido?",
+          "options": [
+            {
+              "id": 1,
+              "label": "Básico"
+            },
+            {
+              "id": 2,
+              "label": "Pro"
+            },
+            {
+              "id": 3,
+              "label": "Empresarial"
+            }
+          ],
+          "answer": 2
+        },
+        {
+          "id": 2,
+          "type": "boolean",
+          "prompt": "Precisa de aprovação manual?",
+          "answer": false
+        },
+        {
+          "id": 3,
+          "type": "open",
+          "prompt": "Qual observação falta confirmar?",
+          "answer": null
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "label": "Validar pagamento",
+      "group": 2,
+      "description": "Confere dados e disponibilidade do meio de pagamento.",
+      "questions": [
+        {
+          "id": 1,
+          "type": "open",
+          "prompt": "Qual observação deve acompanhar a validação?",
+          "answer": "Usar tokenização e registrar a chave idempotente."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "label": "Aprovar assinatura",
+      "group": 2,
+      "description": "Ativa a assinatura e registra a confirmação."
+    },
+    {
+      "id": 4,
+      "label": "Revisar dados",
+      "group": 1,
+      "description": "Corrige dados antes de tentar novamente.",
+      "questions": [
+        {
+          "id": 1,
+          "type": "boolean",
+          "prompt": "Os dados foram corrigidos?",
+          "answer": null
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": 1,
+      "from": 1,
+      "to": 2,
+      "kind": "flow",
+      "condition": 1,
+      "label": "inicia validação",
+      "description": "O cliente confirmou a escolha."
+    },
+    {
+      "id": 2,
+      "from": 2,
+      "to": 3,
+      "kind": "conditional",
+      "condition": 3,
+      "label": "pagamento aprovado",
+      "description": "Ativa somente com autorização confirmada."
+    },
+    {
+      "id": 3,
+      "from": 2,
+      "to": 4,
+      "kind": "conditional",
+      "condition": 2,
+      "label": "pagamento rejeitado",
+      "description": "Permite corrigir os dados e repetir a tentativa."
+    },
+    {
+      "id": 4,
+      "from": 4,
+      "to": 1,
+      "kind": "loop",
+      "condition": 1,
+      "label": "volta ao início",
+      "description": "Depois da correção, o fluxo retorna para validar a escolha novamente."
+    }
+  ],
+  "flows": [
+    {
+      "id": 1,
+      "label": "Assinatura aprovada",
+      "title": "Caminho principal",
+      "summary": "Escolha, validação e ativação da assinatura.",
+      "steps": [
+        {
+          "node": 1,
+          "text": "escolhe o plano Pro"
+        },
+        {
+          "node": 2,
+          "text": "valida o pagamento"
+        },
+        {
+          "node": 3,
+          "text": "ativa a assinatura"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "label": "Correção e retorno",
+      "title": "Loop de recuperação",
+      "summary": "Dados são corrigidos e o fluxo volta para o início.",
+      "steps": [
+        {
+          "node": 2,
+          "text": "detecta rejeição"
+        },
+        {
+          "node": 4,
+          "text": "corrige os dados"
+        },
+        {
+          "node": 1,
+          "text": "volta para nova validação"
+        }
+      ]
+    }
+  ],
+  "tradeoffs": [],
+  "notes": [
+    "As respostas ficam registradas no desenho para revisão.",
+    "O loop demonstra um retorno da parte final para o início."
+  ]
+}

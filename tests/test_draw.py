@@ -285,7 +285,7 @@ def test_draw_html_fetches_index_and_only_selected_json():
 
     assert "getJson('draws/index.json')" in template
     assert "getJson(`draws/${encodeURIComponent(id)}.json`)" in template
-    assert "fetch(url, { cache: 'no-store' })" in template
+    assert "fetch(requestUrl, { cache: 'no-store' })" in template
     assert "Promise.all" not in template
     assert "draw_ref" in template
     assert "question-badge" in template
@@ -295,6 +295,95 @@ def test_draw_html_fetches_index_and_only_selected_json():
     assert "Perguntas" in template
     assert "Abrir subdesenho" in template
     assert "Voltar" in template
+
+
+def test_draw_html_uses_react_flow_at_the_renderer_boundary():
+    """Confirma que o frontend usa React Flow sem alterar o contrato lógico.
+    Verifica a biblioteca, os adaptadores de entrada e saída e a ausência do renderer SVG próprio.
+    """
+    template = Path("src/stdd/templates/draw/draw.html").read_text(encoding="utf-8")
+
+    assert '"@xyflow/react"' in template
+    assert "react%2Fjsx-runtime" in template
+    assert "ReactFlowProvider" in template
+    assert "ReactFlow" in template
+    assert "#root" in template
+    assert "height: 100%;" in template
+    assert "function toReactFlowNode" in template
+    assert "function toReactFlowEdge" in template
+    assert "function fromReactFlowNode" in template
+    assert "function fromReactFlowEdge" in template
+    assert "nodes: mappedNodes" in template
+    assert "edges: mappedEdges" in template
+    assert "<svg" not in template
+    assert "const responseText = await response.text()" in template
+    assert "resposta inválida do servidor" in template
+    assert "function apiOrigin()" in template
+    assert "window.location.port === '5500'" in template
+    assert "window.location.protocol === 'file:'" in template
+    assert "new URL(`/.stdd/${url}`, apiOrigin())" in template
+    assert "const loadIndex = async (announce = true)" in template
+    assert "loadIndex(false)" in template
+
+
+def test_draw_html_supports_direct_editing_reorganization_and_condition_visuals():
+    """Confirma as interações diretas do editor e a leitura visual das condições.
+    Verifica reorganização automática, edição inline e estilos distintos para então, ou e se.
+    """
+    template = Path("src/stdd/templates/draw/draw.html").read_text(encoding="utf-8")
+
+    assert "✦ Reorganizar" in template
+    assert "const reorganize = ()" in template
+    assert "useReactFlow" in template
+    assert "inline-node-input" in template
+    assert "inline-node-textarea" in template
+    assert "beginInlineEdit('label'" in template
+    assert "beginInlineEdit('description'" in template
+    assert "Nenhum subdesenho" not in template
+    assert "function questionCounts(node)" in template
+    assert "question-count answered" in template
+    assert "question-count unanswered" in template
+    assert "top: 50%;" in template
+    assert "left: 50%;" in template
+    assert "transform: translate(-50%, -50%);" in template
+    assert "strokeDasharray: visual.dash" in template
+    assert "label: 'então'" in template
+    assert "label: 'ou'" in template
+    assert "label: 'se'" in template
+    assert "const LoopEdge" in template
+    assert "const laneY = Math.max(sourceY, targetY) + 120" in template
+    assert "source-bottom" in template
+    assert "target-left" in template
+    assert "source-right" in template
+
+
+def test_draw_html_puts_condition_before_edge_message_and_reserves_label_space():
+    """Confirma a ordem dos rótulos e o espaçamento baseado no texto da relação.
+    Exige o mesmo formato para então, ou e se e uma largura calculada antes do layout.
+    """
+    template = Path("src/stdd/templates/draw/draw.html").read_text(encoding="utf-8")
+
+    assert "function edgeLabelText(edge)" in template
+    assert "function edgeLabelWidth(edge)" in template
+    assert "const gaps = {};" in template
+    assert "const requiredGap = 320 + labelWidth + 48" in template
+    assert "nextX += gaps[r] || 368" in template
+    assert "react-flow__edge-textwrapper" in template
+
+
+def test_demo_draw_contains_answered_questions_and_all_conditions():
+    """Mantém um desenho reproduzível para revisar perguntas e respostas no viewer.
+    Verifica respostas persistidas e as três condições do contrato lógico.
+    """
+    payload = json.loads(Path(".stdd/draws/demo-perguntas-respostas.json").read_text(encoding="utf-8"))
+
+    answers = [question.get("answer") for node in payload["nodes"] for question in node.get("questions", [])]
+    assert 2 in answers
+    assert False in answers
+    assert any(isinstance(answer, str) and "Usar tokenização" in answer for answer in answers)
+    assert {edge["condition"] for edge in payload["edges"]} == {1, 2, 3}
+    assert any(edge["from"] == 4 and edge["to"] == 1 for edge in payload["edges"])
+    assert any(answer is None for answer in answers)
 
 
 def test_draw_html_provides_visual_editor_pan_and_readable_long_flow_layout():
@@ -420,8 +509,9 @@ def test_draw_readme_documents_local_server_and_visual_shortcuts():
     assert "próximo bloco lógico" in readme
     assert "botão `×`" in readme
     assert "Live Server" in readme
-    assert "showDirectoryPicker" in readme
     assert "nome do desenho" in readme.lower()
+    assert "file:///caminho/absoluto/do-projeto/.stdd/draw.html" in readme
+    assert "O Live Server não é necessário" in readme
 
 
 def test_draw_server_serves_viewer_index_and_selected_json(tmp_path: Path):

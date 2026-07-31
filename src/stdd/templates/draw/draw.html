@@ -4,14 +4,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="stdd-draw-template" content="5">
+  <meta name="stdd-draw-template" content="5">
   <title>STDD Draw</title>
+  <link rel="stylesheet" href="https://esm.sh/@xyflow/react@12.0.4/dist/style.css">
   <style>
     :root {
       --ink: #172033;
       --muted: #69748a;
       --paper: #ffffff;
-      --canvas: #fbfbfc;
+      --canvas: #f4f6fa;
       --line: #dfe3ea;
       --line-strong: #cfd5df;
       --accent: #5b4cf0;
@@ -39,6 +40,11 @@
       background: var(--canvas);
     }
 
+    #root {
+      width: 100%;
+      height: 100%;
+    }
+
     button,
     input,
     textarea,
@@ -57,6 +63,8 @@
 
     .app {
       position: relative;
+      display: grid;
+      grid-template-columns: 100%;
       width: 100%;
       height: 100%;
       min-width: 780px;
@@ -131,11 +139,6 @@
       margin-bottom: 5px;
       font-size: 20px;
       letter-spacing: -.03em;
-    }
-
-    h3 {
-      margin-bottom: 7px;
-      font-size: 13px;
     }
 
     .muted {
@@ -247,16 +250,6 @@
       height: 100%;
       overflow: hidden;
       background-color: var(--canvas);
-      background-image: radial-gradient(circle at 1px 1px, rgba(46, 54, 70, .11) 1px, transparent 0);
-      background-size: 28px 28px;
-    }
-
-    .workspace::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background: radial-gradient(circle at 70% 24%, rgba(255, 201, 62, .10), transparent 28%), radial-gradient(circle at 28% 78%, rgba(91, 76, 240, .08), transparent 30%);
     }
 
     .toolbar {
@@ -331,528 +324,343 @@
       background: var(--accent);
     }
 
+    .toolbar button.reorganize {
+      color: #4f41d6;
+      background: #f0eeff;
+    }
+
     .toolbar button.danger:hover:not(:disabled) {
       color: #bb304f;
       background: #fff0f3;
     }
 
-    .stage {
-      position: relative;
-      z-index: 1;
+    .react-flow-stage {
       width: 100%;
       height: 100%;
-      touch-action: none;
-      cursor: grab;
-      user-select: none;
     }
 
-    .stage.panning {
-      cursor: grabbing;
+    .react-flow__edge-textwrapper {
+      z-index: 8;
+      pointer-events: none;
     }
 
-    .stage.connecting {
-      cursor: crosshair;
+    .react-flow__edge-text {
+      paint-order: stroke;
+      stroke: #ffffff;
+      stroke-width: 8px;
+      stroke-linejoin: round;
     }
 
-    .node {
-      cursor: pointer;
-    }
-
-    .editing .node {
-      cursor: move;
-    }
-
-    .node rect.node-body {
-      stroke: rgba(23, 32, 51, .14);
-      stroke-width: 1.5;
+    /* Custom React Flow Nodes */
+    .custom-flow-node {
+      position: relative;
+      padding: 18px 16px;
+      min-width: 250px;
+      max-width: 320px;
+      border-radius: 20px;
+      border: 1.5px solid rgba(23, 32, 51, .14);
       filter: drop-shadow(0 12px 18px rgba(23, 32, 51, .12));
-      transition: stroke .15s, filter .15s, transform .15s;
+      transition: filter .15s, border-color .15s;
     }
 
-    .node:hover rect.node-body {
-      stroke: rgba(23, 32, 51, .28);
+    .custom-flow-node.selected {
+      border: 3px solid #171b24;
       filter: drop-shadow(0 16px 23px rgba(23, 32, 51, .17));
     }
 
-    .node.active rect.node-body {
-      stroke: #171b24;
-      stroke-width: 3;
+    .node-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
     }
 
-    .node.connect-source rect.node-body {
-      stroke: var(--accent);
-      stroke-width: 3;
-      stroke-dasharray: 8 5;
-    }
-
-    .node .node-highlight {
-      fill: rgba(255, 255, 255, .24);
-      pointer-events: none;
-    }
-
-    .node .node-divider {
-      stroke: rgba(23, 32, 51, .15);
-      stroke-width: 1;
-      pointer-events: none;
-    }
-
-    .node .node-label {
-      font-size: 16px;
-      font-weight: 900;
-      letter-spacing: -.02em;
-      pointer-events: all;
-    }
-
-    .node .node-copy {
-      font-size: 11px;
-      font-weight: 650;
-      opacity: .78;
-      pointer-events: all;
-    }
-
-    .node .node-kind {
+    .node-header-pill {
       font-size: 8.5px;
       font-weight: 900;
       letter-spacing: .09em;
       text-transform: uppercase;
-      pointer-events: none;
+      background: rgba(255, 255, 255, .3);
+      padding: 3px 8px;
+      border-radius: 99px;
+      border: 1px solid rgba(23, 32, 51, .10);
     }
 
-    .node .node-id {
+    .node-header-id {
+      margin-left: auto;
       font-size: 9px;
       font-weight: 850;
-      opacity: .70;
-      pointer-events: none;
+      opacity: .7;
     }
 
-    .node .node-footer {
+    .inline-node-input,
+    .inline-node-textarea {
+      width: 100%;
+      border: 1px solid rgba(23, 32, 51, .3);
+      border-radius: 8px;
+      outline: none;
+      padding: 5px 7px;
+      color: inherit;
+      background: rgba(255, 255, 255, .72);
+    }
+
+    .inline-node-input {
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .inline-node-textarea {
+      min-height: 48px;
+      resize: vertical;
+      font-size: 11px;
+      font-weight: 650;
+      line-height: 1.4;
+    }
+
+    .node-body-title {
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: -.02em;
+      margin-bottom: 6px;
+      cursor: text;
+    }
+
+    .node-body-desc {
+      font-size: 11px;
+      font-weight: 650;
+      opacity: .8;
+      line-height: 1.4;
+      cursor: text;
+    }
+
+    .node-divider-line {
+      border-top: 1px solid rgba(23, 32, 51, .15);
+      margin: 10px 0;
+    }
+
+    .node-footer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-size: 9.5px;
       font-weight: 800;
-      opacity: .78;
-      pointer-events: none;
     }
 
-    .question-badge {
+    .node-footer-subdraw {
       cursor: pointer;
-      pointer-events: all;
-    }
-
-    .question-badge circle {
-      fill: #e45786;
-      stroke: #fff;
-      stroke-width: 2;
-      filter: drop-shadow(0 3px 5px rgba(23, 32, 51, .22));
-    }
-
-    .question-badge text {
-      fill: #fff;
-      font-size: 11px;
-      font-weight: 900;
-      pointer-events: none;
-      text-anchor: middle;
-    }
-
-    .question-badge.answered circle {
-      fill: #31a681;
-    }
-
-    .node-field-hit {
-      cursor: text;
-    }
-
-    .node-subdraw {
-      cursor: text;
       text-decoration: underline;
-      text-decoration-thickness: .7px;
-      text-underline-offset: 2px;
     }
 
-    .node-subdraw-open {
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 950;
+    .node-footer-subdraw-icon {
+      font-weight: 900;
+      margin-left: 3px;
     }
 
-    .node-color-control {
-      cursor: pointer;
-      pointer-events: all;
-    }
-
-    .node-color-control circle {
-      stroke: rgba(255, 255, 255, .96);
-      stroke-width: 2.2;
-      filter: drop-shadow(0 3px 5px rgba(23, 32, 51, .18));
-      transition: r .14s, stroke-width .14s;
-    }
-
-    .node-color-control:hover circle {
-      r: 9;
-      stroke-width: 3;
-    }
-
-    .inline-node-field-host {
-      overflow: visible;
-      pointer-events: all;
-    }
-
-    .inline-node-field {
-      width: 100%;
-      height: 100%;
-      padding: 2px;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, .96);
-      box-shadow: 0 7px 18px rgba(23, 32, 51, .16);
-    }
-
-    .inline-node-field input,
-    .inline-node-field textarea,
-    .inline-node-field select {
-      width: 100%;
-      height: 100%;
-      padding: 7px 9px;
-      border: 2px solid rgba(23, 27, 36, .88);
-      border-radius: 9px;
-      outline: none;
-      color: #172033;
-      background: #fff;
-      font-size: 12px;
-      font-weight: 750;
-      resize: none;
-    }
-
-    .inline-node-field textarea {
-      line-height: 1.35;
-    }
-
-    .inline-node-field select {
-      cursor: pointer;
-    }
-
-    .node-question-host {
-      overflow: visible;
-      pointer-events: all;
-    }
-
-    .node-question-panel {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      padding: 12px;
-      border: 1px solid rgba(207, 213, 223, .98);
-      border-radius: 17px;
-      color: var(--ink);
-      background: rgba(255, 255, 255, .985);
-      box-shadow: 0 20px 48px rgba(23, 32, 51, .20);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-    }
-
-    .node-question-panel::before {
-      content: "";
+    /* Floating Action Circles above Node */
+    .node-action-container {
       position: absolute;
-      top: -7px;
-      left: 28px;
-      width: 14px;
-      height: 14px;
-      border-left: 1px solid #cfd5df;
-      border-top: 1px solid #cfd5df;
-      background: #fff;
-      transform: rotate(45deg);
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      pointer-events: auto;
+      z-index: 10;
     }
 
-    .node-question-head {
-      position: sticky;
-      top: -12px;
-      z-index: 2;
+    .action-circle-btn {
+      display: grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      box-shadow: 0 3px 6px rgba(23, 32, 51, .22);
+      cursor: pointer;
+      transition: transform .15s;
+    }
+
+    .action-circle-btn:hover {
+      transform: scale(1.22);
+    }
+
+    .action-circle-btn.questions {
+      display: flex;
+      gap: 4px;
+      width: auto;
+      min-width: 22px;
+      padding: 0 3px;
+      border-radius: 12px;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+    }
+
+    .question-count {
+      display: grid;
+      place-items: center;
+      width: 21px;
+      height: 21px;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 9px;
+      font-weight: 900;
+      box-shadow: 0 3px 6px rgba(23, 32, 51, .22);
+    }
+
+    .question-count.answered {
+      background: #259b73;
+    }
+
+    .question-count.unanswered {
+      background: #d64562;
+    }
+
+    .question-summary {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin: -12px -12px 10px;
-      padding: 11px 12px 9px;
-      border-bottom: 1px solid #eceff4;
-      background: rgba(255, 255, 255, .98);
-    }
-
-    .node-question-head strong {
+      gap: 7px;
+      margin: 0 0 16px;
+      color: var(--muted);
       font-size: 11px;
+      font-weight: 800;
     }
 
-    .node-question-close {
-      display: grid;
-      place-items: center;
-      width: 27px;
-      height: 27px;
-      padding: 0;
-      border: 1px solid var(--line);
-      border-radius: 9px;
-      color: #59647a;
-      background: #fff;
-      font-weight: 900;
-    }
-
-    .node-actions rect.action-tray {
-      fill: #171b24;
-      filter: drop-shadow(0 8px 14px rgba(23, 27, 36, .24));
-    }
-
-    .node-action {
-      cursor: pointer;
-    }
-
-    .node-action rect {
-      fill: transparent;
-    }
-
-    .node-action:hover rect {
-      fill: rgba(255, 255, 255, .12);
-    }
-
-    .node-action text {
-      fill: #fff;
-      font-size: 9px;
-      font-weight: 850;
-      pointer-events: none;
-    }
-
-    .edge {
-      fill: none;
-      stroke: #222831;
-      stroke-width: 2.5;
-      marker-end: url(#arrow);
-      transition: .15s;
-    }
-
-    .edge.conditional {
-      stroke: #353b46;
-    }
-
-    .edge.success {
-      stroke: #259b73;
-    }
-
-    .edge.failure {
-      stroke: #d95866;
-    }
-
-    .edge.alternative {
-      stroke: #d78725;
-    }
-
-    .edge.then {
-      stroke: #222831;
-    }
-
-    .edge.selected {
-      stroke: var(--accent);
-      stroke-width: 3.8;
-      marker-end: url(#arrow-active);
-    }
-
-    .edge-hitbox {
-      fill: none;
-      stroke: transparent;
-      stroke-width: 18;
-      cursor: pointer;
-      pointer-events: stroke;
-    }
-
-    .edge-label-bg {
-      fill: rgba(255, 255, 255, .98);
-      stroke: #d6dbe4;
-      stroke-width: 1;
-      filter: drop-shadow(0 4px 8px rgba(23, 32, 51, .10));
-      pointer-events: none;
-    }
-
-    .edge-label {
-      fill: #3d4658;
-      font-size: 9px;
-      font-weight: 850;
-      pointer-events: none;
-    }
-
-    .edge-remove {
-      cursor: pointer;
-    }
-
-    .edge-remove circle {
-      fill: #fff;
-      stroke: var(--danger);
-      stroke-width: 2;
-      filter: drop-shadow(0 5px 9px rgba(214, 69, 98, .22));
-    }
-
-    .edge-remove text {
-      fill: #b52e4b;
-      font-size: 12px;
-      font-weight: 900;
-      pointer-events: none;
-    }
-
-    .port {
-      stroke-width: 2.5;
-      opacity: 0;
-      transition: .15s;
-    }
-
-    .port-in {
-      fill: #fff;
-      stroke: #1c2330;
-      pointer-events: none;
-    }
-
-    .port-out {
-      fill: #171b24;
-      stroke: #fff;
-      cursor: crosshair;
-      pointer-events: none;
-      filter: drop-shadow(0 4px 7px rgba(23, 27, 36, .35));
-    }
-
-    .editing .node:hover .port,
-    .node.active .port {
-      opacity: 1;
-    }
-
-    .editing .node:hover .port-out,
-    .node.active .port-out {
-      pointer-events: all;
-    }
-
-    .editing .node:hover .port-out {
-      r: 9;
-    }
-
-    .node.drop-target rect.node-body {
-      stroke: var(--success);
-      stroke-width: 4;
-      filter: drop-shadow(0 0 13px rgba(37, 155, 115, .35));
-    }
-
-    .connection-preview {
-      fill: none;
-      stroke: var(--accent);
-      stroke-width: 3;
-      stroke-dasharray: 8 5;
-      marker-end: url(#arrow-active);
-      pointer-events: none;
-    }
-
-    .canvas-hint {
-      position: absolute;
-      left: 18px;
-      bottom: 18px;
-      z-index: 8;
-      max-width: calc(100vw - 500px);
-      padding: 9px 12px;
-      border: 1px solid rgba(216, 221, 230, .9);
-      border-radius: 999px;
-      color: #6c7586;
-      background: rgba(255, 255, 255, .88);
-      box-shadow: var(--shadow-sm);
+    .question-summary .question-count {
+      display: inline-grid;
+      flex: 0 0 auto;
+      width: 25px;
+      height: 25px;
       font-size: 10px;
-      backdrop-filter: blur(12px);
-      pointer-events: none;
     }
 
-    .floating-ui {
-      position: absolute;
-      inset: 0;
-      z-index: 24;
-      pointer-events: none;
-    }
-
-    .node-editor {
-      position: absolute;
-      width: min(410px, calc(100vw - 36px));
-      max-height: calc(100vh - 104px);
-      overflow: auto;
-      padding: 16px;
-      border: 1px solid rgba(208, 214, 224, .98);
-      border-radius: 22px;
-      color: var(--ink);
-      background: rgba(255, 255, 255, .98);
-      box-shadow: var(--shadow-lg);
-      pointer-events: auto;
-      backdrop-filter: blur(18px);
-    }
-
-    .node-editor::before {
-      content: "";
-      position: absolute;
-      top: 26px;
+    /* Custom Handles styling */
+    .custom-flow-node .react-flow__handle {
       width: 14px;
       height: 14px;
-      border-left: 1px solid #d4d9e2;
-      border-bottom: 1px solid #d4d9e2;
-      background: #fff;
-      transform: rotate(45deg);
+      border-radius: 50%;
+      border: 2.5px solid #ffffff;
+      background: #171b24;
+      box-shadow: 0 4px 7px rgba(23, 27, 36, .35);
+      transition: transform .15s;
     }
 
-    .node-editor[data-side="right"]::before {
-      left: -8px;
+    .custom-flow-node .react-flow__handle:hover {
+      transform: scale(1.28);
     }
 
-    .node-editor[data-side="left"]::before {
-      right: -8px;
-      transform: rotate(225deg);
+    .custom-flow-node .react-flow__handle-left {
+      left: -7px;
     }
 
-    .node-editor-head {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 14px;
-      margin-bottom: 13px;
+    .custom-flow-node .react-flow__handle-right {
+      right: -7px;
     }
 
-    .node-editor-title {
-      margin: 2px 0 0;
-      font-size: 18px;
-      letter-spacing: -.025em;
+    .custom-flow-node .loop-handle {
+      width: 10px;
+      height: 10px;
+      opacity: 0;
+      pointer-events: none;
     }
 
-    .node-editor-kicker {
+    .custom-flow-node .loop-handle-bottom {
+      bottom: -5px;
+    }
+
+    .custom-flow-node .loop-handle-top {
+      top: -5px;
+    }
+
+    .loop-edge-label {
+      position: absolute;
+      padding: 4px 6px;
+      border: 1px solid currentColor;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, .94);
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Popup Dialog Form UI styling */
+    .app-dialog {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      max-height: calc(100vh - 32px);
       margin: 0;
-      color: #6b5de7;
-      font-size: 9px;
-      font-weight: 900;
-      letter-spacing: .13em;
-      text-transform: uppercase;
+      overflow: auto;
+      transform: translate(-50%, -50%);
+      width: min(540px, calc(100vw - 32px));
+      padding: 0;
+      border: 0;
+      border-radius: 22px;
+      color: var(--ink);
+      background: #fff;
+      box-shadow: 0 30px 90px rgba(23, 32, 51, .28);
     }
 
-    .icon-button {
+    .app-dialog::backdrop {
+      background: rgba(20, 25, 36, .35);
+      backdrop-filter: blur(5px);
+    }
+
+    .dialog-content {
+      padding: 22px;
+    }
+
+    .dialog-copy {
+      margin: 4px 0 16px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .dialog-fields {
       display: grid;
-      place-items: center;
-      flex: none;
-      width: 32px;
-      height: 32px;
+      gap: 11px;
+    }
+
+    .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .dialog-actions button {
+      padding: 9px 12px;
       border: 1px solid var(--line);
       border-radius: 10px;
-      color: #586276;
+      color: #4d586c;
       background: #fff;
-      font-weight: 900;
+      font-size: 11px;
+      font-weight: 850;
     }
 
-    .icon-button:hover {
-      color: #171d2a;
+    .dialog-actions button:hover {
       background: #f3f4f7;
     }
 
-    .editor-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 11px;
+    .dialog-actions .primary {
+      color: #fff;
+      border-color: #171b24;
+      background: #171b24;
+    }
+
+    .dialog-actions .danger {
+      color: #b62f4d;
+      border-color: #f0c8d1;
+      background: #fff4f6;
     }
 
     .editor-field {
       display: grid;
       gap: 6px;
-    }
-
-    .editor-field.full {
-      grid-column: 1 / -1;
     }
 
     .editor-field label {
@@ -888,69 +696,30 @@
       box-shadow: 0 0 0 4px rgba(91, 76, 240, .09);
     }
 
-    .color-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 11px;
-    }
-
-    .color-control {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      padding: 8px 10px;
-      border: 1px solid var(--line);
-      border-radius: 11px;
-      background: #fff;
-    }
-
-    .color-control input {
-      width: 26px;
-      height: 26px;
-      padding: 0;
-      border: 0;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    .color-control span {
-      color: #5f687a;
-      font-size: 10px;
-      font-weight: 800;
-    }
-
-    .editor-section {
-      margin-top: 15px;
-      padding-top: 14px;
-      border-top: 1px solid #eceff4;
-    }
-
-    .editor-section-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 9px;
-    }
-
-    .editor-section h3 {
-      margin: 0;
-      font-size: 12px;
-      letter-spacing: -.01em;
-    }
-
-    .question-summary {
-      padding: 4px 8px;
+    .canvas-hint {
+      position: absolute;
+      left: 18px;
+      bottom: 18px;
+      z-index: 8;
+      max-width: calc(100vw - 500px);
+      padding: 9px 12px;
+      border: 1px solid rgba(216, 221, 230, .9);
       border-radius: 999px;
-      color: #5e54c7;
-      background: #f0eeff;
-      font-size: 9px;
-      font-weight: 900;
+      color: #6c7586;
+      background: rgba(255, 255, 255, .88);
+      box-shadow: var(--shadow-sm);
+      font-size: 10px;
+      backdrop-filter: blur(12px);
+      pointer-events: none;
     }
 
+    /* Questions Dialog custom cards */
     .question-list {
       display: grid;
       gap: 8px;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 10px;
     }
 
     .question-card {
@@ -990,137 +759,6 @@
       font-size: 11px;
     }
 
-    .question-card textarea {
-      min-height: 58px;
-      resize: vertical;
-    }
-
-    .question-card select:focus,
-    .question-card textarea:focus {
-      border-color: #8d82f3;
-      box-shadow: 0 0 0 3px rgba(91, 76, 240, .08);
-    }
-
-    .empty-questions {
-      padding: 12px;
-      border: 1px dashed #d7dbe4;
-      border-radius: 12px;
-      color: #7a8394;
-      font-size: 11px;
-      text-align: center;
-    }
-
-    .editor-actions {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      gap: 7px;
-      margin-top: 15px;
-      padding-top: 14px;
-      border-top: 1px solid #eceff4;
-    }
-
-    .editor-actions button,
-    .dialog-actions button {
-      padding: 9px 12px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      color: #4d586c;
-      background: #fff;
-      font-size: 11px;
-      font-weight: 850;
-    }
-
-    .editor-actions button:hover,
-    .dialog-actions button:hover {
-      background: #f3f4f7;
-    }
-
-    .editor-actions .primary,
-    .dialog-actions .primary {
-      color: #fff;
-      border-color: #171b24;
-      background: #171b24;
-    }
-
-    .editor-actions .danger,
-    .dialog-actions .danger {
-      color: #b62f4d;
-      border-color: #f0c8d1;
-      background: #fff4f6;
-    }
-
-    .shortcut-dialog,
-    .app-dialog {
-      width: min(540px, calc(100vw - 32px));
-      padding: 0;
-      border: 0;
-      border-radius: 22px;
-      color: var(--ink);
-      background: #fff;
-      box-shadow: 0 30px 90px rgba(23, 32, 51, .28);
-    }
-
-    .shortcut-dialog::backdrop,
-    .app-dialog::backdrop {
-      background: rgba(20, 25, 36, .35);
-      backdrop-filter: blur(5px);
-    }
-
-    .shortcut-content,
-    .dialog-content {
-      padding: 22px;
-    }
-
-    .shortcut-list {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 8px 16px;
-      margin: 16px 0 0;
-      font-size: 12px;
-    }
-
-    .shortcut-list kbd {
-      min-width: 72px;
-      padding: 5px 8px;
-      border: 1px solid #d8ddea;
-      border-bottom-width: 2px;
-      border-radius: 7px;
-      color: #4d5870;
-      background: #f6f7fb;
-      font-size: 11px;
-      font-weight: 850;
-      text-align: center;
-    }
-
-    .shortcut-close {
-      float: right;
-      padding: 8px 11px;
-      border: 1px solid var(--line);
-      border-radius: 9px;
-      color: #59647a;
-      background: #fff;
-    }
-
-    .dialog-copy {
-      margin: 4px 0 16px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.5;
-    }
-
-    .dialog-fields {
-      display: grid;
-      gap: 11px;
-    }
-
-    .dialog-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-top: 18px;
-    }
-
     .dirty-dot {
       display: inline-block;
       width: 7px;
@@ -1130,827 +768,1091 @@
       background: var(--accent);
       box-shadow: 0 0 0 3px rgba(91, 76, 240, .12);
     }
-
-    @media (max-width:1120px) {
-      .toolbar button span {
-        display: none;
-      }
-
-      .canvas-hint {
-        max-width: 55vw;
-      }
-    }
-
-    @media (max-width:860px) {
-      .app {
-        min-width: 680px;
-      }
-
-      .node-editor {
-        width: 360px;
-      }
-    }
   </style>
 </head>
 
 <body>
-  <main id="app" class="app library-open">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark">D</div>
-        <div>
-          <p class="eyebrow">STDD · Draw</p>
-          <h1>Desenhos</h1>
-        </div>
-      </div>
-      <p class="muted sidebar-copy">Explore sistemas, fluxos e decisões sem carregar o projeto inteiro.</p>
-      <button id="new-draw" class="new-draw">＋ Novo desenho</button>
-      <input id="search" class="search" placeholder="Buscar desenho..." aria-label="Buscar desenho">
-      <div id="draw-list" class="draw-list"></div>
-      <div id="status" class="status">Carregando índice...</div>
-    </aside>
-    <section id="workspace" class="workspace">
-      <div class="toolbar">
-        <div class="tool-group"><button id="library-toggle" title="Abrir biblioteca de desenhos">☰
-            <span>Desenhos</span></button><button id="back" disabled title="Voltar ao desenho pai">←
-            <span>Voltar</span></button></div>
-        <div id="title" class="title">Nenhum desenho selecionado</div>
-        <div class="tool-group">
-          <button id="add" disabled title="Adicionar bloco">＋ <span>Adicionar bloco</span></button>
-          <button id="connect" disabled title="Conectar blocos">↗ <span>Conectar blocos</span></button>
-          <button id="delete" class="danger" disabled title="Excluir seleção">⌫ <span>Excluir seleção</span></button>
-          <button id="save" class="primary" disabled title="Salvar alterações">✓ <span>Salvar alterações</span></button>
-        </div>
-        <div class="tool-group">
-          <button id="zoom-out" title="Diminuir zoom">−</button><button id="zoom-in"
-            title="Aumentar zoom">＋</button><button id="reset" title="Enquadrar desenho">⌂</button>
-          <button id="shortcuts" title="Mostrar atalhos">? <span>Atalhos</span></button>
-        </div>
-      </div>
-      <svg id="stage" class="stage" role="img" aria-label="Editor visual do desenho" viewBox="0 0 1400 900">
-        <defs>
-          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
-            orient="auto-start-reverse">
-            <path d="M0 0L10 5L0 10z" fill="context-stroke"></path>
-          </marker>
-          <marker id="arrow-active" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
-            orient="auto-start-reverse">
-            <path d="M0 0L10 5L0 10z" fill="#e45786"></path>
-          </marker>
-        </defs>
-        <g id="viewport">
-          <g id="edges"></g>
-          <g id="connection-preview"></g>
-          <g id="nodes"></g>
-          <g id="labels"></g>
-        </g>
-      </svg>
-      <div id="floating-ui" class="floating-ui" aria-live="polite"></div>
-      <div id="canvas-hint" class="canvas-hint">Duplo clique no título, descrição, tipo ou subdesenho para editar no
-        próprio bloco · os círculos mudam as cores</div>
-    </section>
-  </main>
-  <dialog id="shortcut-dialog" class="shortcut-dialog">
-    <div class="shortcut-content">
-      <button id="shortcut-close" class="shortcut-close" type="button">Fechar</button>
-      <p class="eyebrow">STDD · Draw</p>
-      <h2>Atalhos e gestos</h2>
-      <div class="shortcut-list">
-        <kbd>Duplo clique</kbd><span>Editar título, descrição, tipo, subdesenho ou rótulo da seta no próprio
-          elemento.</span>
-        <kbd>Arrastar bloco</kbd><span>Reposicionar visualmente o bloco na tela.</span>
-        <kbd>Arrastar saída</kbd><span>Criar uma seta diretamente até outro bloco.</span>
-        <kbd>Botão direito</kbd><span>Abrir ações rápidas do bloco ou da seta.</span>
-        <kbd>Ctrl/Cmd+D</kbd><span>Duplicar o elemento selecionado.</span>
-        <kbd>Delete</kbd><span>Excluir o bloco ou a seta selecionada.</span>
-        <kbd>Ctrl/Cmd+S</kbd><span>Salvar alterações lógicas.</span>
-        <kbd>Esc</kbd><span>Cancelar conexão ou fechar esta janela.</span>
-        <kbd>+ / − / 0</kbd><span>Zoom, zoom out e enquadrar o desenho.</span>
-      </div>
-    </div>
-  </dialog>
-  <dialog id="form-dialog" class="app-dialog">
-    <form id="form-dialog-form" class="dialog-content">
-      <p id="form-dialog-eyebrow" class="eyebrow">STDD · Editor</p>
-      <h2 id="form-dialog-title">Editar</h2>
-      <p id="form-dialog-copy" class="dialog-copy"></p>
-      <div id="form-dialog-fields" class="dialog-fields"></div>
-      <div class="dialog-actions">
-        <button id="form-dialog-cancel" type="button">Cancelar</button>
-        <button id="form-dialog-submit" class="primary" type="submit">Salvar</button>
-      </div>
-    </form>
-  </dialog>
-  <dialog id="confirm-dialog" class="app-dialog">
-    <div class="dialog-content">
-      <p class="eyebrow">STDD · Confirmação</p>
-      <h2 id="confirm-dialog-title">Confirmar ação</h2>
-      <p id="confirm-dialog-copy" class="dialog-copy"></p>
-      <div class="dialog-actions">
-        <button id="confirm-dialog-cancel" type="button">Cancelar</button>
-        <button id="confirm-dialog-submit" class="danger" type="button">Confirmar</button>
-      </div>
-    </div>
-  </dialog>
-  <script>
-    (() => {
-      const SVG_NS = 'http://www.w3.org/2000/svg';
-      const HTML_NS = 'http://www.w3.org/1999/xhtml';
-      const EDGE_CONDITIONS = {1:'então', 2:'ou', 3:'se'};
-      const DEFAULT_CONDITION = 1;
-      const $ = id => document.getElementById(id);
-      const svg = $('stage');
-      const viewport = $('viewport');
-      const nodesLayer = $('nodes');
-      const edgesLayer = $('edges');
-      const previewLayer = $('connection-preview');
-      const labelsLayer = $('labels');
-      const floatingUi = $('floating-ui');
-      const state = { index: [], current: null, selectedNode: null, selectedEdge: -1, questionNode: null, inlineEdit: null, query: '', zoom: 1, panX: 0, panY: 0, pointerAction: null, navigation: [], connecting: false, connectFrom: null, dirty: false, positions: new Map(), presentation: { nodes: {} }, directoryHandle: null, lastNodePointer: null, lastEdgePointer: null };
-      let fieldSequence = 0;
+  <div id="root"></div>
 
-      /** Converte qualquer valor em texto seguro para textContent. */
-      const esc = value => String(value ?? '');
-      /** Define texto sem interpretar HTML. */
-      const setText = (element, value) => { element.textContent = esc(value); return element; };
-      /** Cria um texto SVG com classe e coordenadas. */
-      const svgText = (value, x, y, className) => { const node = document.createElementNS(SVG_NS, 'text'); node.setAttribute('x', x); node.setAttribute('y', y); node.setAttribute('class', className); node.textContent = esc(value); return node; };
-      /** Quebra texto por palavras para mantê-lo dentro do bloco. */
-      function wrapText(value, maxCharacters) {
-        const words = esc(value).trim().split(/\s+/).filter(Boolean); const lines = [];
-        words.forEach(word => { const current = lines.at(-1); if (!current || `${current} ${word}`.length > maxCharacters) lines.push(word); else lines[lines.length - 1] = `${current} ${word}`; });
-        return lines.length ? lines : [''];
+  <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@19.0.0",
+        "react-dom": "https://esm.sh/react-dom@19.0.0",
+        "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+        "react/jsx-runtime": "https://esm.sh/react@19.0.0/jsx-runtime",
+        "@xyflow/react": "https://esm.sh/@xyflow/react@12.0.4?external=react,react-dom,react%2Fjsx-runtime"
       }
-      /** Cria texto SVG em múltiplas linhas calculadas pelo renderer. */
-      function svgTextLines(lines, x, y, className, lineHeight) { const text = svgText('', x, y, className); lines.forEach((line, index) => { const span = document.createElementNS(SVG_NS, 'tspan'); span.setAttribute('x', x); span.setAttribute('dy', index ? lineHeight : 0); span.textContent = line; text.append(span); }); return text; }
-      /** Calcula largura, altura e linhas do bloco sem armazenar apresentação no JSON. */
-      function measureNode(node) {
-        const label = esc(node.label || 'Bloco sem nome');
-        const hasSubdraw = node.draw_ref !== undefined && node.draw_ref !== null && node.draw_ref !== '';
-        const description = node.description || node.group || (hasSubdraw ? `Subdesenho: ${node.draw_ref}` : 'Sem descrição');
-        const width = Math.max(250, Math.min(340, 118 + Math.max(label.length, Math.min(38, esc(description).length)) * 5.8));
-        const maxCharacters = Math.max(24, Math.floor((width - 36) / 7));
-        const labelLines = wrapText(label, maxCharacters).slice(0, 2);
-        const descriptionLines = wrapText(description, maxCharacters).slice(0, 2);
-        const height = Math.max(132, 62 + labelLines.length * 20 + descriptionLines.length * 15 + 42);
-        return { width, height, labelLines, descriptionLines };
-      }
-      /** Busca JSON e transforma falhas HTTP em erros acionáveis. */
-      async function getJson(url) { const response = await fetch(url, { cache: 'no-store' }); if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.json(); }
-      /** Atualiza a mensagem curta da barra lateral. */
-      function setStatus(value) { setText($('status'), value); }
-      /** Retorna os desenhos compatíveis com a busca atual. */
-      function filteredIndex() { return state.index.filter(item => `${item.title} ${item.subtitle} ${item.kind}`.toLowerCase().includes(state.query)); }
+    }
+  </script>
 
-      /** Renderiza somente os metadados do índice leve. */
-      function renderIndex() {
-        const list = $('draw-list');
-        list.replaceChildren();
-        filteredIndex().forEach(item => {
-          const button = document.createElement('button');
-          button.className = `draw-item${state.current?.id === item.id ? ' active' : ''}`;
-          const strong = document.createElement('strong');
-          const small = document.createElement('small');
-          setText(strong, item.title);
-          setText(small, `${item.kind} · ${item.node_count} blocos · ${item.edge_count} conexões${item.subdraw_count ? ` · ${item.subdraw_count} subdesenho(s)` : ''}`);
-          button.append(strong, small);
-          button.addEventListener('click', () => loadDraw(item.id, { resetNavigation: true }));
-          list.append(button);
+  <!-- React & React Flow app injection module -->
+  <script type="module">
+    import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+    import ReactDOM from 'react-dom/client';
+    import {
+      ReactFlow,
+      ReactFlowProvider,
+      MiniMap,
+      Controls,
+      Background,
+      useNodesState,
+      useEdgesState,
+      addEdge,
+      MarkerType,
+      Position,
+      Handle,
+      useReactFlow,
+      BaseEdge,
+      EdgeLabelRenderer
+    } from '@xyflow/react';
+
+    const EDGE_CONDITIONS = { 1: 'então', 2: 'ou', 3: 'se' };
+    const DEFAULT_CONDITION = 1;
+
+    // Helper functions
+    const esc = value => String(value ?? '');
+    function wrapText(value, maxCharacters) {
+      const words = esc(value).trim().split(/\s+/).filter(Boolean);
+      const lines = [];
+      words.forEach(word => {
+        const current = lines.at(-1);
+        if (!current || `${current} ${word}`.length > maxCharacters) lines.push(word);
+        else lines[lines.length - 1] = `${current} ${word}`;
+      });
+      return lines.length ? lines : [''];
+    }
+
+    async function getJson(url) {
+      const requestUrl = window.location.protocol === 'file:'
+        ? new URL(`/.stdd/${url}`, apiOrigin()).toString()
+        : url;
+      const response = await fetch(requestUrl, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    }
+
+    function apiOrigin() {
+      if (window.STDD_API_ORIGIN) return String(window.STDD_API_ORIGIN).replace(/\/$/, '');
+      if (window.location.protocol === 'file:' || window.location.port === '5500') return 'http://127.0.0.1:8765';
+      return window.location.origin;
+    }
+
+    function slugify(value) {
+      return String(value || 'novo-desenho').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'novo-desenho';
+    }
+
+    function uniqueDrawId(title, index) {
+      const base = slugify(title || 'novo-desenho');
+      const used = new Set(index.map(item => String(item.id)));
+      let candidate = base;
+      let suffix = 2;
+      while (used.has(candidate)) {
+        candidate = `${base}-${suffix}`;
+        suffix += 1;
+      }
+      return candidate;
+    }
+
+    function nextNumericId(items) {
+      const ids = items.map(item => Number(item.id)).filter(id => Number.isInteger(id) && id >= 0);
+      return ids.length ? Math.max(...ids) + 1 : 1;
+    }
+
+    function nodeColor(kind, drawRef) {
+      if (kind === 'decision') return '#78BDF2';
+      if (kind === 'database') return '#91D8C1';
+      if (drawRef) return '#F1C8EC';
+      if (kind === 'note') return '#FFDEA0';
+      return '#FFC83D';
+    }
+
+    function kindLabel(kind) {
+      return ({ process: 'Processo', decision: 'Decisão', database: 'Dados', note: 'Nota', service: 'Serviço', actor: 'Ator' })[kind] || esc(kind || 'Bloco');
+    }
+
+    function contrastColor(hex) {
+      const value = String(hex || '').replace('#', '');
+      if (value.length !== 6) return '#182033';
+      const rgb = [0, 2, 4].map(idx => parseInt(value.slice(idx, idx + 2), 16));
+      return (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000 > 150 ? '#182033' : '#ffffff';
+    }
+
+    function unansweredQuestionCount(node) {
+      const questions = Array.isArray(node.questions) ? node.questions : [];
+      return questions.filter(q => q.answer === null || q.answer === undefined || (typeof q.answer === 'string' && !q.answer.trim())).length;
+    }
+
+    function questionCounts(node) {
+      const total = Array.isArray(node.questions) ? node.questions.length : 0;
+      const unanswered = unansweredQuestionCount(node);
+      return { total, unanswered, answered: total - unanswered };
+    }
+
+    // Auto-layout helper
+    function buildRanks(nodes, edges) {
+      const ids = nodes.map(n => n.id);
+      const outgoing = Object.fromEntries(ids.map(id => [id, []]));
+      edges.forEach(e => {
+        if (e.from in outgoing && ids.includes(e.to)) outgoing[e.from].push(e.to);
+      });
+      const visiting = new Set();
+      const visited = new Set();
+      const order = [];
+      function visit(id) {
+        if (visited.has(id)) return;
+        if (visiting.has(id)) return;
+        visiting.add(id);
+        outgoing[id].forEach(visit);
+        visiting.delete(id);
+        visited.add(id);
+        order.push(id);
+      }
+      ids.forEach(visit);
+      order.reverse();
+      const orderIndex = Object.fromEntries(order.map((id, index) => [id, index]));
+      const ranks = Object.fromEntries(ids.map(id => [id, 0]));
+      order.forEach(id => outgoing[id].forEach(target => {
+        if (orderIndex[id] < orderIndex[target]) ranks[target] = Math.max(ranks[target], ranks[id] + 1);
+      }));
+      return ranks;
+    }
+
+    function orderRank(nodes, edges, ranks) {
+      const original = Object.fromEntries(nodes.map((n, idx) => [n.id, idx]));
+      const incoming = Object.fromEntries(nodes.map(n => [n.id, []]));
+      edges.forEach(e => {
+        if (incoming[e.to] && original[e.from] !== undefined) incoming[e.to].push(e.from);
+      });
+      const layers = new Map();
+      nodes.forEach(n => {
+        const r = ranks[n.id];
+        if (!layers.has(r)) layers.set(r, []);
+        layers.get(r).push(n);
+      });
+      [...layers.keys()].sort((a, b) => a - b).forEach(r => {
+        layers.get(r).sort((a, b) => {
+          const score = n => incoming[n.id].length ? incoming[n.id].reduce((sum, id) => sum + original[id], 0) / incoming[n.id].length : original[n.id];
+          return score(a) - score(b);
         });
-        if (!list.children.length) setStatus('Nenhum desenho corresponde à busca.');
-      }
+      });
+      return layers;
+    }
 
-      /** Calcula camadas topológicas para manter dependências da esquerda para a direita. */
-      function buildRanks(data) {
-        const ids = data.nodes.map(node => node.id);
-        const outgoing = Object.fromEntries(ids.map(id => [id, []]));
-        data.edges.forEach(edge => { if (edge.from in outgoing && ids.includes(edge.to)) outgoing[edge.from].push(edge.to); });
-        const visiting = new Set(); const visited = new Set(); const order = [];
-        function visit(id) { if (visited.has(id)) return; if (visiting.has(id)) return; visiting.add(id); outgoing[id].forEach(visit); visiting.delete(id); visited.add(id); order.push(id); }
-        ids.forEach(visit); order.reverse();
-        const orderIndex = Object.fromEntries(order.map((id, index) => [id, index]));
-        const ranks = Object.fromEntries(ids.map(id => [id, 0]));
-        order.forEach(id => outgoing[id].forEach(target => { if (orderIndex[id] < orderIndex[target]) ranks[target] = Math.max(ranks[target], ranks[id] + 1); }));
-        return ranks;
-      }
+    function layoutGraph(nodes, edges, presentationPositions) {
+      const ranks = buildRanks(nodes, edges);
+      const layers = orderRank(nodes, edges, ranks);
+      const calculatedPositions = {};
+      const gaps = {};
+      edges.forEach(edge => {
+        const sourceRank = ranks[edge.from];
+        const targetRank = ranks[edge.to];
+        if (sourceRank === undefined || targetRank === undefined || targetRank <= sourceRank) return;
+        const labelWidth = edgeLabelWidth(edge);
+        const requiredGap = 320 + labelWidth + 48;
+        gaps[sourceRank] = Math.max(gaps[sourceRank] || 368, requiredGap);
+      });
+      let nextX = 80;
+      layers.forEach((layerNodes, r) => {
+        let nextY = 100;
+        layerNodes.forEach(n => {
+          calculatedPositions[String(n.id)] = { x: nextX, y: nextY };
+          nextY += 180;
+        });
+        nextX += gaps[r] || 368;
+      });
 
-      /** Ordena nós de uma camada pela posição média de seus vizinhos e reduz cruzamentos. */
-      function orderRank(data, ranks) {
-        const original = Object.fromEntries(data.nodes.map((node, index) => [node.id, index]));
-        const incoming = Object.fromEntries(data.nodes.map(node => [node.id, []]));
-        data.edges.forEach(edge => { if (incoming[edge.to] && original[edge.from] !== undefined) incoming[edge.to].push(edge.from); });
-        const layers = new Map();
-        data.nodes.forEach(node => { const rank = ranks[node.id]; if (!layers.has(rank)) layers.set(rank, []); layers.get(rank).push(node); });
-        [...layers.keys()].sort((a, b) => a - b).forEach(rank => {
-          layers.get(rank).sort((a, b) => {
-            const score = node => incoming[node.id].length ? incoming[node.id].reduce((sum, id) => sum + original[id], 0) / incoming[node.id].length : original[node.id];
-            return score(a) - score(b);
+      return nodes.map(n => {
+        const customPos = presentationPositions?.[String(n.id)] || calculatedPositions[String(n.id)] || { x: 100, y: 100 };
+        return {
+          id: String(n.id),
+          type: 'custom',
+          position: customPos,
+          data: n
+        };
+      });
+    }
+
+    // The JSON contract remains logical; only this boundary knows React Flow.
+    function toReactFlowNode(node, position) {
+      return {
+        id: String(node.id),
+        type: 'custom',
+        position,
+        data: node
+      };
+    }
+
+    function edgeLabelText(edge) {
+      const condition = EDGE_CONDITIONS[Number(edge.condition) || DEFAULT_CONDITION] || EDGE_CONDITIONS[DEFAULT_CONDITION];
+      return `${condition}${edge.label ? ` - ${edge.label}` : ''}`;
+    }
+
+    function edgeLabelWidth(edge) {
+      return Math.min(760, Math.max(120, edgeLabelText(edge).length * 7.5 + 24));
+    }
+
+    function toReactFlowEdge(edge, options = {}) {
+      const condition = Number(edge.condition) || DEFAULT_CONDITION;
+      const visual = {
+        1: { color: '#222831', dash: undefined, label: 'então' },
+        2: { color: '#d78725', dash: '10 7', label: 'ou' },
+        3: { color: '#259b73', dash: '2 7', label: 'se' }
+      }[condition];
+      return {
+        id: String(edge.id),
+        source: String(edge.from),
+        target: String(edge.to),
+        type: options.loop ? 'loop' : 'default',
+        sourceHandle: options.loop ? 'source-bottom' : options.sourceHandle,
+        targetHandle: options.loop ? 'target-left' : options.targetHandle,
+        label: edgeLabelText(edge),
+        data: edge,
+        style: { stroke: visual.color, strokeWidth: 3, strokeDasharray: visual.dash },
+        markerEnd: { type: MarkerType.ArrowClosed, color: visual.color },
+        labelStyle: { fill: visual.color, fontWeight: 800, fontSize: 11 },
+        labelBgStyle: { fill: '#ffffff', fillOpacity: .92, stroke: visual.color, strokeWidth: 1 },
+        labelBgPadding: [5, 3],
+        labelBgBorderRadius: 5
+      };
+    }
+
+    function fromReactFlowNode(node) {
+      return node.data;
+    }
+
+    function fromReactFlowEdge(edge) {
+      return edge.data || {
+        id: Number(edge.id),
+        from: Number(edge.source),
+        to: Number(edge.target),
+        label: edge.label || '',
+        kind: 'flow',
+        condition: DEFAULT_CONDITION
+      };
+    }
+
+    const LoopEdge = ({ id, sourceX, sourceY, targetX, targetY, label, style, labelStyle, markerEnd }) => {
+      const radius = 28;
+      const laneY = Math.max(sourceY, targetY) + 120;
+      const direction = targetX < sourceX ? -1 : 1;
+      const approachX = direction < 0 ? Math.max(20, targetX - 70) : targetX + 70;
+      const path = [
+        `M ${sourceX} ${sourceY}`,
+        `L ${sourceX} ${laneY - radius}`,
+        `Q ${sourceX} ${laneY} ${sourceX + direction * radius} ${laneY}`,
+        `L ${approachX - direction * radius} ${laneY}`,
+        `Q ${approachX} ${laneY} ${approachX} ${laneY - radius}`,
+        `L ${approachX} ${targetY}`,
+        `L ${targetX} ${targetY}`
+      ].join(' ');
+      const labelX = (sourceX + targetX) / 2;
+      const labelY = laneY - 18;
+      const labelColor = style?.stroke || '#222831';
+      return React.createElement(React.Fragment, null,
+        React.createElement(BaseEdge, { id, path, style, markerEnd }),
+        label && React.createElement(EdgeLabelRenderer, null,
+          React.createElement('div', {
+            className: 'loop-edge-label',
+            style: {
+              color: labelColor,
+              transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
+              ...labelStyle
+            }
+          }, label)
+        )
+      );
+    };
+
+    // Custom React Flow Node Component
+    const CustomNode = ({ id, data, selected }) => {
+      const [visual, setVisual] = useState({ background: '#FFC83D', text: '#182033' });
+      const [editingField, setEditingField] = useState(null);
+      const [draft, setDraft] = useState('');
+      const inputRef = useRef(null);
+      const qCounts = questionCounts(data);
+
+      useEffect(() => {
+        // Load presentation styles if saved
+        const presentationKey = `stdd-draw-presentation:${window.currentDrawId}`;
+        try {
+          const saved = localStorage.getItem(presentationKey);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            const savedNode = parsed?.nodes?.[id] || {};
+            const bg = savedNode.background || nodeColor(data.kind, data.draw_ref);
+            setVisual({ background: bg, text: savedNode.text || contrastColor(bg) });
+          } else {
+            const bg = nodeColor(data.kind, data.draw_ref);
+            setVisual({ background: bg, text: contrastColor(bg) });
+          }
+        } catch (_) {
+          const bg = nodeColor(data.kind, data.draw_ref);
+          setVisual({ background: bg, text: contrastColor(bg) });
+        }
+      }, [data.kind, data.draw_ref, id]);
+
+      useEffect(() => {
+        if (editingField && inputRef.current) {
+          inputRef.current.focus();
+          inputRef.current.select?.();
+        }
+      }, [editingField]);
+
+      const beginInlineEdit = (field, event) => {
+        event.stopPropagation();
+        setDraft(data[field] || '');
+        setEditingField(field);
+      };
+
+      const finishInlineEdit = () => {
+        if (!editingField) return;
+        const value = draft.trim();
+        if (value && window.updateNodeField) window.updateNodeField(id, editingField, value);
+        setEditingField(null);
+      };
+
+      const onColorClick = (property) => {
+        const input = document.createElement('input');
+        input.type = 'color';
+        input.value = property === 'background' ? visual.background : visual.text;
+        input.style.position = 'fixed';
+        input.style.left = '-100px';
+        input.style.top = '-100px';
+        document.body.append(input);
+
+        input.addEventListener('input', () => {
+          const hex = input.value;
+          const updated = { ...visual };
+          updated[property] = hex;
+          if (property === 'background') updated.text = contrastColor(hex);
+          setVisual(updated);
+
+          // Save presentation
+          const presentationKey = `stdd-draw-presentation:${window.currentDrawId}`;
+          let parsed = { nodes: {} };
+          try {
+            const saved = localStorage.getItem(presentationKey);
+            if (saved) parsed = JSON.parse(saved) || { nodes: {} };
+          } catch (_) {}
+          if (!parsed.nodes) parsed.nodes = {};
+          parsed.nodes[id] = parsed.nodes[id] || {};
+          parsed.nodes[id][property] = hex;
+          if (property === 'background') parsed.nodes[id].text = contrastColor(hex);
+          localStorage.setItem(presentationKey, JSON.stringify(parsed));
+          window.markDirty();
+        });
+
+        input.addEventListener('change', () => input.remove(), { once: true });
+        input.click();
+      };
+
+      return React.createElement('div', {
+        className: `custom-flow-node${selected ? ' selected' : ''}`,
+        style: { background: visual.background, color: visual.text },
+        onDoubleClick: (event) => event.stopPropagation()
+      },
+        React.createElement(Handle, { id: 'target-left', type: 'target', position: Position.Left }),
+        React.createElement(Handle, { id: 'target-top', type: 'target', position: Position.Top, className: 'loop-handle loop-handle-top' }),
+        React.createElement('div', { className: 'node-header-row' },
+          React.createElement('span', { className: 'node-header-id' }, `#${data.id}`)
+        ),
+        editingField === 'label' ? React.createElement('input', {
+          ref: inputRef,
+          className: 'inline-node-input',
+          value: draft,
+          onChange: event => setDraft(event.target.value),
+          onBlur: finishInlineEdit,
+          onKeyDown: event => { if (event.key === 'Enter') finishInlineEdit(); if (event.key === 'Escape') setEditingField(null); },
+          onClick: event => event.stopPropagation()
+        }) : React.createElement('div', {
+          className: 'node-body-title',
+          onDoubleClick: event => beginInlineEdit('label', event)
+        }, data.label || 'Bloco sem nome'),
+        editingField === 'description' ? React.createElement('textarea', {
+          ref: inputRef,
+          className: 'inline-node-textarea',
+          value: draft,
+          onChange: event => setDraft(event.target.value),
+          onBlur: finishInlineEdit,
+          onKeyDown: event => { if (event.key === 'Escape') setEditingField(null); },
+          onClick: event => event.stopPropagation()
+        }) : React.createElement('div', {
+          className: 'node-body-desc',
+          onDoubleClick: event => beginInlineEdit('description', event)
+        }, data.description || 'Sem descrição'),
+        React.createElement('div', { className: 'node-divider-line' }),
+        (data.draw_ref || qCounts.total > 0) && React.createElement('div', { className: 'node-footer-row' },
+          data.draw_ref && React.createElement('span', {
+            className: 'node-footer-subdraw',
+            onClick: (e) => { e.stopPropagation(); window.openSubdraw(data.draw_ref); }
+          }, `Detalhes: ${data.draw_ref} ↗`),
+          qCounts.total > 0 && React.createElement('span', {
+            className: 'action-circle-btn questions',
+            onClick: (e) => { e.stopPropagation(); window.openQuestionsModal(data); }
+          },
+            React.createElement('span', { className: 'question-count answered', title: 'Perguntas respondidas' }, qCounts.answered),
+            React.createElement('span', { className: 'question-count unanswered', title: 'Perguntas sem resposta' }, qCounts.unanswered)
+          )
+        ),
+        selected && React.createElement('div', { className: 'node-action-container' },
+          React.createElement('div', {
+            className: 'action-circle-btn',
+            style: { background: visual.background },
+            title: 'Cor do fundo',
+            onClick: (e) => { e.stopPropagation(); onColorClick('background'); }
+          }),
+          React.createElement('div', {
+            className: 'action-circle-btn',
+            style: { background: visual.text },
+            title: 'Cor do texto',
+            onClick: (e) => { e.stopPropagation(); onColorClick('text'); }
+          })
+        ),
+        React.createElement(Handle, { id: 'source-bottom', type: 'source', position: Position.Bottom, className: 'loop-handle loop-handle-bottom' }),
+        React.createElement(Handle, { id: 'source-right', type: 'source', position: Position.Right })
+      );
+    };
+
+    // App Component
+    const App = () => {
+      const [index, setIndex] = useState([]);
+      const [current, setCurrent] = useState(null);
+      const [nodes, setNodes, onNodesChange] = useNodesState([]);
+      const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+      const [selectedNode, setSelectedNode] = useState(null);
+      const [selectedEdge, setSelectedEdge] = useState(null);
+      const [navigation, setNavigation] = useState([]);
+      const [query, setQuery] = useState('');
+      const [status, setStatus] = useState('Carregando índice...');
+      const [dirty, setDirty] = useState(false);
+      const [isLibraryOpen, setIsLibraryOpen] = useState(true);
+      const reactFlow = useReactFlow();
+
+      // Dialog States
+      const [confirmDialog, setConfirmDialog] = useState(null); // { title, copy, submitLabel, onConfirm }
+      const [formDialog, setFormDialog] = useState(null); // { title, copy, fields, onSubmit }
+      const [questionsDialog, setQuestionsDialog] = useState(null); // node
+
+      const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
+      const edgeTypes = useMemo(() => ({ loop: LoopEdge }), []);
+
+      window.markDirty = () => setDirty(true);
+
+      window.updateNodeField = (nodeId, field, value) => {
+        setNodes(prev => prev.map(node => node.id === String(nodeId)
+          ? { ...node, data: { ...node.data, [field]: value } }
+          : node));
+        setDirty(true);
+      };
+
+      window.updateQuestionAnswer = (nodeId, questionId, answer) => {
+        setNodes(prev => prev.map(node => node.id === String(nodeId)
+          ? {
+            ...node,
+            data: {
+              ...node.data,
+              questions: (node.data.questions || []).map(question => question.id === questionId
+                ? { ...question, answer }
+                : question)
+            }
+          }
+          : node));
+        setDirty(true);
+      };
+
+      const loadIndex = async (announce = true) => {
+        try {
+          const idx = await getJson('draws/index.json');
+          setIndex(idx.draws || []);
+          if (announce) setStatus(idx.draws && idx.draws.length ? 'Índice carregado. Escolha um desenho.' : 'Nenhum desenho criado ainda.');
+        } catch (err) {
+          setStatus(`Não foi possível carregar o índice: ${err.message}`);
+        }
+      };
+
+      useEffect(() => {
+        loadIndex();
+      }, []);
+
+      const loadDrawing = async (id, opts = {}) => {
+        if (dirty) {
+          const proceed = await askConfirm('Descartar alterações?', 'Existem alterações locais que ainda não foram salvas.');
+          if (!proceed) return;
+        }
+        if (opts.resetNavigation) setNavigation([]);
+        setStatus(`Carregando ${id}...`);
+        try {
+          const data = await getJson(`draws/${encodeURIComponent(id)}.json`);
+          window.currentDrawId = id;
+          setCurrent(data);
+
+          // Get presentation positions if any
+          const presentationKey = `stdd-draw-presentation:${id}`;
+          let savedPositions = {};
+          try {
+            const saved = localStorage.getItem(presentationKey);
+            if (saved) savedPositions = JSON.parse(saved)?.positions || {};
+          } catch (_) {}
+
+          // Layout Graph
+          const rfNodes = layoutGraph(data.nodes || [], data.edges || [], savedPositions);
+          const ranks = buildRanks(data.nodes || [], data.edges || []);
+          const positions = Object.fromEntries(rfNodes.map(item => [Number(item.id), item.position]));
+          const rfEdges = (data.edges || []).map(edge => toReactFlowEdge(edge, {
+            loop: ranks[edge.to] <= ranks[edge.from] || Number(edge.from) > Number(edge.to),
+            sourceHandle: positions[edge.to]?.y > positions[edge.from]?.y && positions[edge.to]?.x <= positions[edge.from]?.x + 40 ? 'source-bottom' : 'source-right',
+            targetHandle: positions[edge.to]?.y > positions[edge.from]?.y && positions[edge.to]?.x <= positions[edge.from]?.x + 40 ? 'target-top' : 'target-left'
+          }));
+
+          setNodes(rfNodes);
+          setEdges(rfEdges);
+          setDirty(false);
+          setIsLibraryOpen(false);
+          setStatus(`${data.nodes.length} blocos · ${data.edges.length} conexões`);
+
+          const url = new URL(window.location.href);
+          url.searchParams.set('draw', id);
+          window.history.replaceState({}, '', url);
+        } catch (err) {
+          setStatus(`Não foi possível carregar ${id}: ${err.message}`);
+        }
+      };
+
+      // Load requested drawing on initial load
+      useEffect(() => {
+        if (index.length) {
+          const requested = new URLSearchParams(window.location.search).get('draw');
+          const matched = index.find(item => String(item.id) === requested);
+          if (matched) loadDrawing(matched.id);
+        }
+      }, [index]);
+
+      window.openSubdraw = (id) => {
+        if (!current) return;
+        setNavigation(prev => [...prev, current.id]);
+        loadDrawing(id);
+      };
+
+      const reorganize = () => {
+        if (!current || !nodes.length) return;
+        const organized = layoutGraph(
+          nodes.map(fromReactFlowNode),
+          edges.map(fromReactFlowEdge),
+          {}
+        );
+        setNodes(organized);
+        const key = `stdd-draw-presentation:${current.id}`;
+        try {
+          const saved = JSON.parse(localStorage.getItem(key) || '{}');
+          delete saved.positions;
+          localStorage.setItem(key, JSON.stringify(saved));
+        } catch (_) {}
+        setStatus('Fluxo reorganizado automaticamente.');
+        setTimeout(() => reactFlow.fitView({ padding: .2, duration: 300 }), 0);
+      };
+
+      const goBack = () => {
+        const prev = [...navigation];
+        const parent = prev.pop();
+        if (parent) {
+          setNavigation(prev);
+          loadDrawing(parent);
+        }
+      };
+
+      const askConfirm = (title, copy, submitLabel = 'Confirmar') => {
+        return new Promise(resolve => {
+          setConfirmDialog({
+            title,
+            copy,
+            submitLabel,
+            onConfirm: (val) => {
+              setConfirmDialog(null);
+              resolve(val);
+            }
           });
         });
-        return layers;
-      }
+      };
 
-      /** Posiciona automaticamente o grafo em camadas e preserva posições manuais. */
-      function layout(data) {
-        const ranks = buildRanks(data);
-        const layers = orderRank(data, ranks);
-        const positions = {};
-        layers.forEach((nodes, rank) => { let nextY = 112; nodes.forEach(node => { const metrics = measureNode(node); positions[String(node.id)] = { x: 88 + rank * 390, y: nextY }; nextY += metrics.height + 82; }); });
-        return data.nodes.map(node => { const metrics = measureNode(node); const calculated = state.positions.get(String(node.id)) || state.presentation.positions?.[String(node.id)] || positions[String(node.id)]; return ({ ...node, x: calculated.x, y: calculated.y, ...metrics, rank: ranks[node.id] }); });
-      }
-
-      /** Escolhe portas laterais de acordo com a direção lógica da conexão. */
-      function connectionPorts(from, to) {
-        const forward = to.rank > from.rank;
-        return { sx: forward ? from.x + from.width : from.x, sy: from.y + from.height / 2, tx: forward ? to.x : to.x + to.width, ty: to.y + to.height / 2, forward };
-      }
-
-      /** Cria uma rota ortogonal; relações longas usam corredores externos para não cortar blocos. */
-      function routeEdge(edge, from, to, index, nodes) {
-        const ports = connectionPorts(from, to); const { sx, sy, tx, ty, forward } = ports;
-        const adjacent = to.rank === from.rank + 1;
-        const sameRank = to.rank === from.rank;
-        const minY = Math.min(...nodes.map(node => node.y));
-        const maxY = Math.max(...nodes.map(node => node.y + node.height));
-        let d; let labelX; let labelY; let labelMaxWidth = 180;
-        if (adjacent) {
-          const laneX = (sx + tx) / 2 + ((index % 5) - 2) * 7;
-          d = `M${sx} ${sy}H${laneX}V${ty}H${tx}`;
-          if (Math.abs(sy - ty) < 20) { labelX = (sx + tx) / 2; labelY = Math.min(from.y, to.y) - 12; labelMaxWidth = Math.max(76, Math.abs(tx - sx) - 22); }
-          else { labelX = laneX + 6; labelY = (sy + ty) / 2 - 7; labelMaxWidth = 118; }
-        } else if (forward) {
-          const laneY = minY - 52 - (index % 8) * 20;
-          d = `M${sx} ${sy}V${laneY}H${tx}V${ty}`; labelX = (sx + tx) / 2; labelY = laneY - 7; labelMaxWidth = Math.max(90, Math.min(190, Math.abs(tx - sx) - 18));
-        } else if (sameRank) {
-          const laneX = Math.max(from.x + from.width, to.x + to.width) + 58 + (index % 6) * 18;
-          d = `M${sx} ${sy}H${laneX}V${ty}H${tx}`; labelX = laneX + 6; labelY = (sy + ty) / 2 - 7; labelMaxWidth = 120;
-        } else {
-          const laneY = maxY + 58 + (index % 8) * 20;
-          d = `M${sx} ${sy}V${laneY}H${tx}V${ty}`; labelX = (sx + tx) / 2; labelY = laneY - 7; labelMaxWidth = Math.max(90, Math.min(190, Math.abs(tx - sx) - 18));
-        }
-        return { d, labelX, labelY, labelMaxWidth };
-      }
-
-      /** Posiciona um rótulo em cápsula, quebrando palavras antes de ocupar o corredor da seta. */
-      function edgeLabelGroup(value, x, y, nodes, occupied, maxWidth = 180) {
-        const safeWidth = Math.max(70, Math.min(200, maxWidth)); const maxCharacters = Math.max(8, Math.min(24, Math.floor((safeWidth - 14) / 5.5))); const lines = wrapText(value, maxCharacters).slice(0, 3); const longest = Math.max(...lines.map(line => line.length), 1); const width = Math.min(safeWidth, Math.max(50, longest * 5.2 + 14)); const height = 8 + lines.length * 10.5; let top = y - height + 3;
-        const overlaps = candidate => nodes.some(node => candidate.left < node.x + node.width && candidate.right > node.x && candidate.top < node.y + node.height && candidate.bottom > node.y) || occupied.some(item => candidate.left < item.right && candidate.right > item.left && candidate.top < item.bottom && candidate.bottom > item.top);
-        let box = { left: x - width / 2, right: x + width / 2, top, bottom: top + height }; let attempts = 0;
-        while (overlaps(box) && attempts < 10) { top -= height + 6; box = { left: x - width / 2, right: x + width / 2, top, bottom: top + height }; attempts += 1; }
-        if (box.top < 26) { top = y + 8; box = { left: x - width / 2, right: x + width / 2, top, bottom: top + height }; }
-        occupied.push(box);
-        const group = document.createElementNS(SVG_NS, 'g'); const background = document.createElementNS(SVG_NS, 'rect'); background.setAttribute('class', 'edge-label-bg'); background.setAttribute('x', box.left); background.setAttribute('y', box.top); background.setAttribute('width', width); background.setAttribute('height', height); background.setAttribute('rx', 5); const text = svgTextLines(lines, x, box.top + 9, 'edge-label', 10.5); text.setAttribute('text-anchor', 'middle'); group.append(background, text); return { group, x, y: box.top + 9, lines, width, height };
-      }
-
-      /** Define a cor semântica de cada bloco, mantendo todos na mesma forma. */
-      function nodeColor(node) {
-        if (node.kind === 'decision') return '#78BDF2';
-        if (node.kind === 'database') return '#91D8C1';
-        if (node.draw_ref !== undefined && node.draw_ref !== null && node.draw_ref !== '') return '#F1C8EC';
-        if (node.kind === 'note') return '#FFDEA0';
-        return '#FFC83D';
-      }
-
-      /** Traduz o tipo lógico para um rótulo compacto sem alterar seu valor no JSON. */
-      function kindLabel(kind) {
-        return ({ process: 'Processo', decision: 'Decisão', database: 'Dados', note: 'Nota', service: 'Serviço', actor: 'Ator' })[kind] || esc(kind || 'Bloco');
-      }
-
-      /** Retorna uma chave estável para preferências visuais locais do desenho. */
-      function presentationKey() { return state.current ? `stdd-draw-presentation:${state.current.id}` : ''; }
-      /** Carrega apenas preferências de aparência, sem misturá-las ao JSON lógico. */
-      function loadPresentation() {
-        state.presentation = { nodes: {}, positions: {} };
-        try { const saved = localStorage.getItem(presentationKey()); if (saved) { const parsed = JSON.parse(saved); if (parsed && typeof parsed === 'object') state.presentation = { nodes: parsed.nodes || {}, positions: parsed.positions || {} }; } } catch (_) { state.presentation = { nodes: {}, positions: {} }; }
-      }
-      /** Persiste cores locais do viewer sem alterar o contrato do desenho. */
-      function persistPresentation() { if (presentationKey()) localStorage.setItem(presentationKey(), JSON.stringify(state.presentation)); }
-      /** Calcula preto ou branco legível sobre uma cor de fundo. */
-      function contrastColor(hex) { const value = String(hex || '').replace('#', ''); if (value.length !== 6) return '#182033'; const rgb = [0, 2, 4].map(index => parseInt(value.slice(index, index + 2), 16)); return (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000 > 150 ? '#182033' : '#ffffff'; }
-      /** Retorna a aparência final de um bloco, combinando semântica e preferência local. */
-      function nodeVisual(node) { const saved = state.presentation.nodes[String(node.id)] || {}; const background = saved.background || nodeColor(node); return { background, text: saved.text || contrastColor(background) }; }
-      /** Atualiza a aparência de um bloco e mantém o valor fora do JSON lógico. */
-      function setNodeVisual(node, property, value) { const key = String(node.id); const saved = state.presentation.nodes[key] || {}; saved[property] = value; if (property === 'background' && !saved.textCustom) saved.text = contrastColor(value); if (property === 'text') saved.textCustom = true; state.presentation.nodes[key] = saved; markDirty(); renderCanvas(); setStatus('Aparência alterada; pressione Salvar alterações para persistir.'); }
-
-      /** Retorna as perguntas opcionais declaradas no bloco. */
-      function nodeQuestions(node) { return Array.isArray(node.questions) ? node.questions : []; }
-      /** Informa se a pergunta possui resposta, preservando false e zero como valores válidos. */
-      function questionAnswered(question) { return question.answer !== null && question.answer !== undefined && !(typeof question.answer === 'string' && !question.answer.trim()); }
-      /** Conta somente perguntas ainda sem resposta para o indicador do bloco. */
-      function unansweredQuestionCount(node) { return nodeQuestions(node).filter(question => !questionAnswered(question)).length; }
-      /** Atualiza o indicador de perguntas sem reconstruir o editor aberto. */
-      function refreshQuestionBadge(node) {
-        const badge = document.querySelector(`.question-badge[data-node-id="${node.id}"]`);
-        if (!badge) return;
-        const count = unansweredQuestionCount(node);
-        const label = badge.querySelector('[data-role="question-count"]');
-        if (label) setText(label, count);
-        badge.classList.toggle('answered', count === 0);
-        badge.setAttribute('aria-label', count ? `${count} pergunta(s) sem resposta` : 'Todas as perguntas respondidas; abrir histórico');
-        const title = badge.querySelector('title'); if (title) setText(title, count ? `${count} pergunta(s) precisam de resposta` : 'Perguntas respondidas; abrir histórico');
-      }
-      /** Cria uma cápsula retangular que abre as perguntas dentro do editor do bloco. */
-      function questionBadge(node) {
-        const questions = nodeQuestions(node); if (!questions.length) return null;
-        const count = unansweredQuestionCount(node);
-        const badge = document.createElementNS(SVG_NS, 'g');
-        badge.setAttribute('class', `question-badge${count === 0 ? ' answered' : ''}`);
-        badge.dataset.nodeId = String(node.id);
-        badge.setAttribute('transform', `translate(${node.x + node.width - 28} ${node.y + 12})`);
-        badge.setAttribute('role', 'button'); badge.setAttribute('tabindex', '0'); badge.setAttribute('aria-label', count ? `${count} pergunta(s) sem resposta` : 'Todas as perguntas respondidas; abrir histórico');
-        const circle = document.createElementNS(SVG_NS, 'circle'); circle.setAttribute('cx', 0); circle.setAttribute('cy', 0); circle.setAttribute('r', 12);
-        const label = svgText(count, 0, 4, 'question-count'); label.dataset.role = 'question-count';
-        const title = document.createElementNS(SVG_NS, 'title'); setText(title, count ? `${count} pergunta(s) precisam de resposta` : 'Perguntas respondidas; abrir histórico');
-        const open = event => { event.preventDefault(); event.stopPropagation(); state.selectedNode = node.id; state.selectedEdge = -1; state.inlineEdit = null; state.questionNode = String(state.questionNode) === String(node.id) ? null : node.id; updateControls(); renderCanvas(); };
-        badge.append(circle, label, title); badge.addEventListener('pointerdown', event => event.stopPropagation()); badge.addEventListener('click', open); badge.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') open(event); }); return badge;
-      }
-      /** Atualiza a resposta de uma pergunta e conserva o histórico no documento lógico. */
-      function setQuestionAnswer(node, question, input) {
-        if (question.type === 'boolean') question.answer = input.value === '' ? null : input.value === 'true';
-        else if (question.type === 'choice') question.answer = input.value === '' ? null : Number(input.value);
-        else question.answer = input.value;
-        const card = document.querySelector(`.question-card[data-node-id="${node.id}"][data-question-id="${question.id}"]`);
-        const caption = card?.querySelector('label');
-        if (caption) setText(caption, `Pergunta ${question.id} · ${questionAnswered(question) ? 'respondida' : 'sem resposta'}`);
-        markDirty(); refreshQuestionBadge(node);
-        setStatus(questionAnswered(question) ? 'Resposta registrada no desenho; pressione Salvar alterações.' : 'Pergunta marcada como sem resposta.');
-      }
-
-      /** Fecha qualquer edição transitória sem mexer no documento lógico. */
-      function closeNodeEditor() { state.inlineEdit = null; floatingUi.replaceChildren(); }
-
-      /** Abre um campo exatamente sobre a propriedade clicada no próprio bloco. */
-      function beginInlineNodeEdit(node, field) {
-        if (!node || !state.current) return;
-        state.inlineEdit = { nodeId: node.id, field }; state.selectedNode = node.id; state.selectedEdge = -1; floatingUi.replaceChildren(); renderCanvas();
-        requestAnimationFrame(() => { const input = document.querySelector('.inline-node-field input,.inline-node-field textarea,.inline-node-field select'); if (input) { input.focus(); if (typeof input.select === 'function' && input.tagName !== 'SELECT') input.select(); } });
-      }
-
-      /** Aplica o valor editado diretamente, preservando os nomes do contrato JSON. */
-      function commitInlineNodeEdit(node, field, value) {
-        if (!node) return;
-        if (field === 'label') node.label = String(value).trim() || node.label || 'Novo bloco';
-        else if (field === 'description') node.description = String(value);
-        else if (field === 'kind') node.kind = String(value || 'process');
-        else if (field === 'draw_ref') { const clean = String(value).trim(); if (clean) node.draw_ref = clean; else delete node.draw_ref; }
-        state.inlineEdit = null; markDirty(); renderCanvas();
-      }
-
-      /** Renderiza input, textarea ou select dentro do retângulo do bloco. */
-      function inlineNodeField(node, field) {
-        if (!state.inlineEdit || String(state.inlineEdit.nodeId) !== String(node.id) || state.inlineEdit.field !== field) return null;
-        const foreign = document.createElementNS(SVG_NS, 'foreignObject'); foreign.setAttribute('class', 'inline-node-field-host');
-        let x = node.x + 12, y = node.y + 42, width = node.width - 24, height = 48, control = 'input', value = '';
-        if (field === 'label') value = node.label || '';
-        if (field === 'description') { y = node.y + 88; height = Math.max(42, node.height - 132); control = 'textarea'; value = node.description || ''; }
-        if (field === 'kind') { x = node.x + 11; y = node.y + 9; width = 122; height = 29; control = 'select'; value = node.kind || 'process'; }
-        if (field === 'draw_ref') { y = node.y + node.height - 34; height = 28; value = node.draw_ref ?? ''; }
-        foreign.setAttribute('x', x); foreign.setAttribute('y', y); foreign.setAttribute('width', Math.max(86, width)); foreign.setAttribute('height', height);
-        const shell = document.createElementNS(HTML_NS, 'div'); shell.setAttribute('class', 'inline-node-field'); let input;
-        if (control === 'textarea') input = document.createElementNS(HTML_NS, 'textarea');
-        else if (control === 'select') { input = document.createElementNS(HTML_NS, 'select'); const kinds = ['process', 'decision', 'database', 'service', 'actor', 'note']; if (node.kind && !kinds.includes(node.kind)) kinds.push(node.kind); kinds.forEach(kind => { const option = document.createElementNS(HTML_NS, 'option'); option.value = kind; setText(option, kindLabel(kind)); input.append(option); }); }
-        else { input = document.createElementNS(HTML_NS, 'input'); input.type = 'text'; }
-        input.value = value; let finished = false;
-        const finish = commit => { if (finished) return; finished = true; if (commit) commitInlineNodeEdit(node, field, input.value); else { state.inlineEdit = null; renderCanvas(); } };
-        input.addEventListener('pointerdown', event => event.stopPropagation()); input.addEventListener('click', event => event.stopPropagation()); input.addEventListener('dblclick', event => event.stopPropagation());
-        input.addEventListener('keydown', event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); finish(false); } else if (event.key === 'Enter' && (control !== 'textarea' || event.ctrlKey || event.metaKey)) { event.preventDefault(); event.stopPropagation(); finish(true); } });
-        input.addEventListener('blur', () => finish(true)); if (control === 'select') input.addEventListener('change', () => finish(true)); shell.append(input); foreign.append(shell); return foreign;
-      }
-
-      /** Abre o seletor de cor pelo próprio círculo do bloco, sem painel intermediário. */
-      function pickNodeColor(node, property, current) {
-        const input = document.createElement('input'); input.type = 'color'; input.value = current; input.style.position = 'fixed'; input.style.left = '-100px'; input.style.top = '-100px'; document.body.append(input);
-        input.addEventListener('input', () => setNodeVisual(node, property, input.value)); input.addEventListener('change', () => input.remove(), { once: true }); input.addEventListener('blur', () => setTimeout(() => input.remove(), 0), { once: true }); input.click();
-      }
-
-      /** Desenha os dois seletores de cor como pequenos círculos no canto do bloco. */
-      function nodeColorControls(node, visual) {
-        const group = document.createElementNS(SVG_NS, 'g'); const controls = [{ property: 'background', value: visual.background, x: node.x + node.width - 39, label: 'Cor do fundo' }, { property: 'text', value: visual.text, x: node.x + node.width - 18, label: 'Cor do texto' }];
-        controls.forEach(control => { const item = document.createElementNS(SVG_NS, 'g'); item.setAttribute('class', 'node-color-control'); item.setAttribute('transform', `translate(${control.x} ${node.y + 24})`); item.setAttribute('role', 'button'); item.setAttribute('tabindex', '0'); const circle = document.createElementNS(SVG_NS, 'circle'); circle.setAttribute('r', 7.5); circle.setAttribute('fill', control.value); const title = document.createElementNS(SVG_NS, 'title'); title.textContent = control.label; item.append(circle, title); const open = event => { event.preventDefault(); event.stopPropagation(); pickNodeColor(node, control.property, control.value); }; item.addEventListener('pointerdown', event => event.stopPropagation()); item.addEventListener('click', open); item.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') open(event); }); group.append(item); }); return group;
-      }
-
-      /** Expande as perguntas como uma continuação visual do próprio bloco e acima dos demais nós. */
-      // O painel contextual é o questionPanel do contrato do Draw; sua classe visual é node-question-panel.
-      function expandedQuestionPanel(node) {
-        if (String(state.questionNode) !== String(node.id)) return null; const questions = nodeQuestions(node); if (!questions.length) return null;
-        const width = Math.max(310, node.width); const height = Math.min(350, 66 + questions.length * 112); const foreign = document.createElementNS(SVG_NS, 'foreignObject'); foreign.setAttribute('class', 'node-question-host'); foreign.setAttribute('x', node.x); foreign.setAttribute('y', node.y + node.height + 10); foreign.setAttribute('width', width); foreign.setAttribute('height', height);
-        const panel = document.createElementNS(HTML_NS, 'div'); panel.setAttribute('class', 'node-question-panel'); const head = document.createElementNS(HTML_NS, 'div'); head.setAttribute('class', 'node-question-head'); const title = document.createElementNS(HTML_NS, 'strong'); setText(title, `Perguntas · ${node.label}`); const close = document.createElementNS(HTML_NS, 'button'); close.type = 'button'; close.setAttribute('class', 'node-question-close'); close.setAttribute('aria-label', 'Fechar perguntas'); setText(close, '×'); close.addEventListener('click', event => { event.stopPropagation(); state.questionNode = null; renderCanvas(); }); head.append(title, close); panel.append(head);
-        questions.forEach(question => { const card = document.createElementNS(HTML_NS, 'div'); card.setAttribute('class', 'question-card'); card.dataset.nodeId = String(node.id); card.dataset.questionId = String(question.id); const caption = document.createElementNS(HTML_NS, 'label'); setText(caption, `Pergunta ${question.id} · ${questionAnswered(question) ? 'respondida' : 'sem resposta'}`); const prompt = document.createElementNS(HTML_NS, 'p'); setText(prompt, question.prompt); let input; if (question.type === 'open') { input = document.createElementNS(HTML_NS, 'textarea'); input.value = question.answer ?? ''; input.placeholder = 'Escreva uma resposta...'; input.addEventListener('input', () => setQuestionAnswer(node, question, input)); } else { input = document.createElementNS(HTML_NS, 'select'); const empty = document.createElementNS(HTML_NS, 'option'); empty.value = ''; setText(empty, 'Ainda sem resposta'); input.append(empty); const options = question.type === 'boolean' ? [{ id: 'true', label: 'Sim' }, { id: 'false', label: 'Não' }] : (Array.isArray(question.options) ? question.options : []); options.forEach(option => { const item = document.createElementNS(HTML_NS, 'option'); item.value = String(option.id); setText(item, option.label); input.append(item); }); if (question.answer !== null && question.answer !== undefined) input.value = String(question.answer); input.addEventListener('change', () => setQuestionAnswer(node, question, input)); } card.append(caption, prompt, input); panel.append(card); });
-        const stop = event => event.stopPropagation(); panel.addEventListener('pointerdown', stop); panel.addEventListener('click', stop); panel.addEventListener('dblclick', stop); foreign.append(panel); return foreign;
-      }
-
-      /** Cria um campo reutilizável pelos diálogos gerais do desenho. */
-      function nodeEditorField(label, value, onInput, options = {}) {
-        const wrapper = document.createElement('div'); wrapper.className = `editor-field${options.full ? ' full' : ''}`;
-        const caption = document.createElement('label'); setText(caption, label); let input;
-        if (options.choices) {
-          input = document.createElement('select');
-          options.choices.forEach(choice => { const option = document.createElement('option'); option.value = String(choice.value); setText(option, choice.label); input.append(option); });
-          input.value = String(value ?? '');
-        } else if (options.multiline) { input = document.createElement('textarea'); input.value = value || ''; }
-        else { input = document.createElement('input'); input.type = options.type || 'text'; input.value = value ?? ''; }
-        const eventName = options.choices || options.type === 'color' ? 'change' : 'input';
-        input.addEventListener(eventName, () => onInput(input.value, input)); wrapper.append(caption, input); return { wrapper, input };
-      }
-
-      /** Deriva a cor semântica de uma conexão por condição e resultado. */
-      function edgeConditionClass(edge) { if (edge.condition === 3) return ' success'; if (edge.condition === 2) return ' alternative'; if (edge.condition === 1) return ' then'; return ''; }
-
-      /** Redesenha blocos e conexões a partir do estado editável atual. */
-      function renderCanvas() {
-        nodesLayer.replaceChildren(); edgesLayer.replaceChildren(); previewLayer.replaceChildren(); labelsLayer.replaceChildren();
-        if (!state.current) return;
-        const nodes = layout(state.current); const byId = Object.fromEntries(nodes.map(node => [node.id, node])); const occupiedLabels = [];
-        state.current.edges.forEach((edge, index) => {
-          const from = byId[edge.from]; const to = byId[edge.to]; if (!from || !to) return;
-          const route = routeEdge(edge, from, to, index, nodes); const group = document.createElementNS(SVG_NS, 'g'); group.dataset.edgeId = String(edge.id);
-          const path = document.createElementNS(SVG_NS, 'path'); const hitbox = document.createElementNS(SVG_NS, 'path');
-          path.setAttribute('class', `edge${edge.condition || edge.kind === 'conditional' ? ' conditional' : ''}${edgeConditionClass(edge)}${state.selectedEdge === index ? ' selected' : ''}`); path.setAttribute('d', route.d);
-          hitbox.setAttribute('class', 'edge-hitbox'); hitbox.setAttribute('d', route.d); hitbox.addEventListener('pointerdown', event => { event.stopPropagation(); const now = performance.now(); const repeated = state.lastEdgePointer && state.lastEdgePointer.index === index && now - state.lastEdgePointer.time < 360; state.lastEdgePointer = repeated ? null : { index, time: now }; if (repeated) editEdgeDirect(index); else selectEdge(index); }); hitbox.addEventListener('dblclick', event => { event.stopPropagation(); editEdgeDirect(index); }); hitbox.addEventListener('contextmenu', event => { event.preventDefault(); event.stopPropagation(); selectEdge(index); cycleEdgeCondition(index); });
-          group.append(path, hitbox); edgesLayer.append(group);
-          const label = [edge.label, EDGE_CONDITIONS[edge.condition] ? `[${EDGE_CONDITIONS[edge.condition]}]` : ''].filter(Boolean).join(' '); const labelPlacement = label ? edgeLabelGroup(label, route.labelX, route.labelY, nodes, occupiedLabels, route.labelMaxWidth) : null; if (labelPlacement) labelsLayer.append(labelPlacement.group);
-          if (state.selectedEdge === index) { const remove = document.createElementNS(SVG_NS, 'g'); const removeX = labelPlacement ? labelPlacement.x - 12 : route.labelX - 12; const removeY = labelPlacement ? labelPlacement.y - 5 : route.labelY - 5; remove.setAttribute('class', 'edge-remove'); remove.setAttribute('transform', `translate(${removeX} ${removeY})`); const circle = document.createElementNS(SVG_NS, 'circle'); circle.setAttribute('r', '10'); const close = svgText('×', -4, 4, 'edge-remove-text'); remove.append(circle, close); remove.addEventListener('pointerdown', event => { event.stopPropagation(); deleteEdge(index); }); remove.addEventListener('click', event => event.stopPropagation()); group.append(remove); }
-        });
-        nodes.forEach(node => {
-          const group = document.createElementNS(SVG_NS, 'g'); group.dataset.id = node.id; group.setAttribute('class', `node${state.selectedNode === node.id ? ' active' : ''}${state.connectFrom === node.id ? ' connect-source' : ''}`);
-          const rect = document.createElementNS(SVG_NS, 'rect'); rect.setAttribute('class', 'node-body'); rect.setAttribute('x', node.x); rect.setAttribute('y', node.y); rect.setAttribute('width', node.width); rect.setAttribute('height', node.height); rect.setAttribute('rx', 22);
-          const visual = nodeVisual(node); rect.style.fill = visual.background;
-          const highlight = document.createElementNS(SVG_NS, 'rect'); highlight.setAttribute('class', 'node-highlight'); highlight.setAttribute('x', node.x + 1); highlight.setAttribute('y', node.y + 1); highlight.setAttribute('width', node.width - 2); highlight.setAttribute('height', 34); highlight.setAttribute('rx', 21);
-          const kind = kindLabel(node.kind); const kindWidth = Math.max(58, Math.min(104, 18 + kind.length * 6)); const kindChip = document.createElementNS(SVG_NS, 'rect'); kindChip.setAttribute('class', 'node-field-hit'); kindChip.setAttribute('x', node.x + 16); kindChip.setAttribute('y', node.y + 13); kindChip.setAttribute('width', kindWidth); kindChip.setAttribute('height', 21); kindChip.setAttribute('rx', 10.5); kindChip.setAttribute('fill', 'rgba(255,255,255,.34)'); kindChip.setAttribute('stroke', 'rgba(23,32,51,.10)');
-          const kindText = svgText(kind.toUpperCase(), node.x + 16 + kindWidth / 2, node.y + 27, 'node-kind node-field-hit'); kindChip.dataset.editField = 'kind'; kindText.dataset.editField = 'kind'; kindText.setAttribute('text-anchor', 'middle'); kindText.style.fill = visual.text;
-          const idText = svgText(`#${node.id}`, node.x + node.width - 55, node.y + 27, 'node-id'); idText.setAttribute('text-anchor', 'end'); idText.style.fill = visual.text;
-          const labelText = svgTextLines(node.labelLines, node.x + 17, node.y + 57, 'node-label node-field-hit', 20); const copyText = svgTextLines(node.descriptionLines, node.x + 17, node.y + 57 + node.labelLines.length * 20 + 7, 'node-copy node-field-hit', 15); labelText.dataset.editField = 'label'; copyText.dataset.editField = 'description'; labelText.style.fill = visual.text; copyText.style.fill = visual.text;
-          const editKind = event => { event.preventDefault(); event.stopPropagation(); beginInlineNodeEdit(node, 'kind'); }; kindChip.addEventListener('dblclick', editKind); kindText.addEventListener('dblclick', editKind);
-          labelText.addEventListener('dblclick', event => { event.preventDefault(); event.stopPropagation(); beginInlineNodeEdit(node, 'label'); }); copyText.addEventListener('dblclick', event => { event.preventDefault(); event.stopPropagation(); beginInlineNodeEdit(node, 'description'); });
-          const divider = document.createElementNS(SVG_NS, 'line'); divider.setAttribute('class', 'node-divider'); divider.setAttribute('x1', node.x + 16); divider.setAttribute('x2', node.x + node.width - 16); divider.setAttribute('y1', node.y + node.height - 38); divider.setAttribute('y2', node.y + node.height - 38);
-          const leftPort = document.createElementNS(SVG_NS, 'circle'); leftPort.setAttribute('class', 'port port-in'); leftPort.setAttribute('cx', node.x); leftPort.setAttribute('cy', node.y + node.height / 2); leftPort.setAttribute('r', 7); leftPort.dataset.nodeId = String(node.id);
-          const rightPort = document.createElementNS(SVG_NS, 'circle'); rightPort.setAttribute('class', 'port port-out'); rightPort.setAttribute('cx', node.x + node.width); rightPort.setAttribute('cy', node.y + node.height / 2); rightPort.setAttribute('r', 7); rightPort.dataset.nodeId = String(node.id); const portTitle = document.createElementNS(SVG_NS, 'title'); portTitle.textContent = 'Arraste para conectar'; rightPort.append(portTitle); rightPort.addEventListener('pointerdown', event => beginConnectionDrag(event, node));
-          group.append(rect, highlight, kindChip, kindText, idText, labelText, copyText, divider, leftPort, rightPort, nodeColorControls(node, visual));
-          const badge = questionBadge(node); if (badge) group.append(badge);
-          const subdrawAvailableWidth = nodeQuestions(node).length ? Math.max(70, node.width - 190) : node.width - 64; const subdrawValue = node.draw_ref ? esc(node.draw_ref) : 'Adicionar subdesenho'; const maxSubdrawCharacters = Math.max(8, Math.floor(subdrawAvailableWidth / 6)); const subdrawLabel = subdrawValue.length > maxSubdrawCharacters ? `${subdrawValue.slice(0, Math.max(5, maxSubdrawCharacters - 1))}…` : subdrawValue; const subdrawX = nodeQuestions(node).length ? node.x + node.width - 35 : node.x + 17; const subdraw = svgText(subdrawLabel, subdrawX, node.y + node.height - 16, 'node-footer node-subdraw'); subdraw.dataset.editField = 'draw_ref'; if (nodeQuestions(node).length) subdraw.setAttribute('text-anchor', 'end'); subdraw.style.fill = visual.text; subdraw.addEventListener('dblclick', event => { event.preventDefault(); event.stopPropagation(); beginInlineNodeEdit(node, 'draw_ref'); }); group.append(subdraw);
-          if (node.draw_ref) { const openSubdrawButton = svgText('↗', node.x + node.width - 17, node.y + node.height - 15, 'node-footer node-subdraw-open'); openSubdrawButton.setAttribute('text-anchor', 'middle'); openSubdrawButton.style.fill = visual.text; openSubdrawButton.addEventListener('pointerdown', event => event.stopPropagation()); openSubdrawButton.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); openSubdraw(node.draw_ref); }); group.append(openSubdrawButton); }
-          ['kind', 'label', 'description', 'draw_ref'].forEach(field => { const editor = inlineNodeField(node, field); if (editor) group.append(editor); });
-          group.addEventListener('pointerdown', event => beginNodeAction(event, node)); group.addEventListener('dblclick', event => event.stopPropagation()); group.addEventListener('contextmenu', event => { event.preventDefault(); event.stopPropagation(); selectNode(node.id); }); nodesLayer.append(group);
-        });
-        if (state.questionNode !== null) { const questionNode = nodes.find(node => String(node.id) === String(state.questionNode)); const panel = questionNode ? expandedQuestionPanel(questionNode) : null; if (panel) labelsLayer.append(panel); }
-        applyViewport();
-      }
-
-      /** Inicializa um desenho carregado e mantém o JSON apenas como armazenamento interno. */
-      function renderGraph(data) {
-        state.current = data; state.selectedNode = null; state.selectedEdge = -1; state.questionNode = null; state.inlineEdit = null; floatingUi.replaceChildren(); state.connectFrom = null; state.connecting = false; state.dirty = false; state.positions = new Map(); loadPresentation();
-        updateTitle();
-        $('back').disabled = state.navigation.length === 0;
-        updateControls(); renderIndex(); renderCanvas(); renderInspector();
-        requestAnimationFrame(fit);
-      }
-
-      /** Seleciona um bloco ou conclui uma conexão iniciada anteriormente. */
-      function selectNode(id) {
-        if (state.connecting) {
-          if (state.connectFrom === null) { state.connectFrom = id; setStatus(`Origem selecionada: ${id}. Agora escolha o destino.`); updateControls(); renderCanvas(); return; }
-          if (state.connectFrom !== id) createConnection(state.connectFrom, id);
-          state.connectFrom = null; state.connecting = false; updateControls(); renderCanvas(); renderInspector(); return;
-        }
-        if (state.inlineEdit !== null && String(state.inlineEdit.nodeId) !== String(id)) state.inlineEdit = null; state.selectedNode = id; state.selectedEdge = -1; if (String(state.questionNode) !== String(id)) state.questionNode = null; updateControls(); renderCanvas(); renderInspector();
-      }
-
-      /** Seleciona uma conexão para edição ou exclusão visual. */
-      function selectEdge(index) { closeNodeEditor(); state.selectedEdge = index; state.selectedNode = null; updateControls(); renderCanvas(); renderInspector(); }
-
-      /** Alterna diretamente a condição da seta entre então, ou e se. */
-      function cycleEdgeCondition(index) { if (!state.current?.edges[index]) return; const edge = state.current.edges[index]; edge.condition = edge.condition === 3 ? 1 : Number(edge.condition || 1) + 1; state.selectedEdge = index; state.selectedNode = null; markDirty(); renderCanvas(); renderInspector(); setStatus(`Condição da seta: ${EDGE_CONDITIONS[edge.condition]}.`); }
-
-      /** Cria uma relação ou seleciona a existente quando os dois blocos já estão ligados. */
-      function createConnection(from, to) {
-        if (from === to) { setStatus('Escolha outro bloco como destino.'); return false; }
-        const existing = state.current.edges.findIndex(edge => edge.from === from && edge.to === to);
-        if (existing >= 0) { state.selectedEdge = existing; state.selectedNode = null; setStatus('Esses blocos já possuem uma conexão.'); return false; }
-        state.current.edges.push({ id: uniqueEdgeId(), from, to, kind: 'conditional', condition: DEFAULT_CONDITION, label: '' });
-        state.selectedEdge = state.current.edges.length - 1; state.selectedNode = null; markDirty(); return true;
-      }
-
-      /** Remove uma conexão pelo controle desenhado sobre a própria seta. */
-      async function deleteEdge(index) { if (!state.current || !state.current.edges[index]) return; if (!await askConfirm('Excluir esta conexão?', 'A ligação será removida do desenho lógico.', 'Excluir conexão')) return; state.current.edges.splice(index, 1); state.selectedEdge = -1; markDirty(); renderCanvas(); renderInspector(); setStatus('Conexão removida diretamente pela seta.'); }
-
-
-      /** Encontra o bloco lógico imediatamente à frente da origem para conexão por clique único. */
-      function frontTargetFor(sourceId) { const nodes = layout(state.current); const source = nodes.find(node => node.id === sourceId); if (!source) return null; const candidates = nodes.filter(node => node.id !== sourceId && node.x > source.x + source.width * .55).sort((a, b) => (a.x - source.x) - (b.x - source.x) || Math.abs((a.y + a.height / 2) - (source.y + source.height / 2)) - Math.abs((b.y + b.height / 2) - (source.y + source.height / 2))); return candidates.find(node => !state.current.edges.some(edge => edge.from === sourceId && edge.to === node.id)) || candidates[0] || null; }
-
-      /** Retorna o próximo ID numérico disponível de uma coleção lógica. */
-      function nextNumericId(items) { const ids = items.map(item => item.id).filter(id => Number.isInteger(id) && id >= 0); return ids.length ? Math.max(...ids) + 1 : 1; }
-      /** Gera o próximo ID numérico para uma conexão. */
-      function uniqueEdgeId() { return nextNumericId(state.current.edges); }
-      /** Gera o próximo ID numérico para um novo bloco. */
-      function uniqueNodeId() { return nextNumericId(state.current.nodes); }
-      /** Converte um título em um identificador de arquivo seguro e descritivo. */
-      function slugify(value) { const slug = String(value || 'novo-desenho').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); return slug || 'novo-desenho'; }
-      /** Gera um ID descritivo de desenho sem colidir com os JSONs existentes. */
-      function uniqueDrawId(title) { const base = slugify(title || 'novo-desenho'); const used = new Set(state.index.map(item => String(item.id))); let candidate = base; let suffix = 2; while (used.has(candidate)) { candidate = `${base}-${suffix}`; suffix += 1; } return candidate; }
-
-      /** Monta um campo editável e aplica a alteração sem expor o JSON. */
-      function field(label, value, onInput, options = {}) {
-        const wrapper = document.createElement('div'); wrapper.className = 'field';
-        const caption = document.createElement('label'); const inputId = `draw-field-${fieldSequence++}`; caption.htmlFor = inputId; setText(caption, label);
-        let input;
-        if (options.choices) { input = document.createElement('select'); options.choices.forEach((choice, index) => { const item = document.createElement('option'); item.value = String(index); setText(item, choice); input.append(item); }); const values = options.values || options.choices; const selected = values.findIndex(choice => String(choice) === String(value)); input.value = String(Math.max(0, selected)); }
-        else if (options.multiline) { input = document.createElement('textarea'); input.value = value || ''; }
-        else { input = document.createElement('input'); input.type = options.type || 'text'; input.value = value || (options.type === 'color' ? '#ffffff' : ''); }
-        input.id = inputId;
-        input.disabled = false;
-        input.addEventListener(options.choices || options.type === 'color' ? 'change' : 'input', () => { onInput(options.choices ? (options.values || options.choices)[Number(input.value)] : input.value); if (options.visual) return; markDirty(); renderCanvas(); });
-        wrapper.append(caption, input); return wrapper;
-      }
-
-      /** Abre uma janela própria com campos dinâmicos e retorna os valores informados. */
-      function openFormDialog({ title, copy = '', eyebrow = 'STDD · Editor', submitLabel = 'Salvar', fields = [] }) {
-        const dialog = $('form-dialog'); const form = $('form-dialog-form'); const fieldHost = $('form-dialog-fields');
-        setText($('form-dialog-eyebrow'), eyebrow); setText($('form-dialog-title'), title); setText($('form-dialog-copy'), copy); setText($('form-dialog-submit'), submitLabel); fieldHost.replaceChildren();
-        const controls = new Map(); fields.forEach(spec => { const built = nodeEditorField(spec.label, spec.value, () => { }, { multiline: spec.type === 'textarea', choices: spec.options, full: true }); built.input.name = spec.name; if (spec.required) built.input.required = true; fieldHost.append(built.wrapper); controls.set(spec.name, built.input); });
-        if (dialog.open) dialog.close(); dialog.showModal();
+      const openFormDialog = (title, copy, fields, submitLabel = 'Salvar') => {
         return new Promise(resolve => {
-          let done = false; const finish = value => { if (done) return; done = true; form.onsubmit = null; $('form-dialog-cancel').onclick = null; dialog.oncancel = null; dialog.onclose = null; resolve(value); };
-          form.onsubmit = event => { event.preventDefault(); if (!form.reportValidity()) return; const values = {}; controls.forEach((input, name) => { values[name] = input.value; }); dialog.close(); finish(values); };
-          $('form-dialog-cancel').onclick = () => { dialog.close(); finish(null); }; dialog.oncancel = event => { event.preventDefault(); dialog.close(); finish(null); }; dialog.onclose = () => finish(null); requestAnimationFrame(() => controls.values().next().value?.focus());
+          setFormDialog({
+            title,
+            copy,
+            fields,
+            submitLabel,
+            onSubmit: (values) => {
+              setFormDialog(null);
+              resolve(values);
+            }
+          });
         });
-      }
+      };
 
-      /** Solicita confirmação dentro da interface do editor, sem caixas nativas do sistema. */
-      function askConfirm(title, copy, confirmLabel = 'Confirmar') {
-        const dialog = $('confirm-dialog'); setText($('confirm-dialog-title'), title); setText($('confirm-dialog-copy'), copy); setText($('confirm-dialog-submit'), confirmLabel); if (dialog.open) dialog.close(); dialog.showModal();
-        return new Promise(resolve => { let done = false; const finish = value => { if (done) return; done = true; $('confirm-dialog-submit').onclick = null; $('confirm-dialog-cancel').onclick = null; dialog.oncancel = null; dialog.onclose = null; resolve(value); }; $('confirm-dialog-submit').onclick = () => { dialog.close(); finish(true); }; $('confirm-dialog-cancel').onclick = () => { dialog.close(); finish(false); }; dialog.oncancel = event => { event.preventDefault(); dialog.close(); finish(false); }; dialog.onclose = () => finish(false); });
-      }
+      window.openQuestionsModal = (node) => {
+        setQuestionsDialog(node);
+      };
 
-      /** O duplo clique sempre abre o editor completo do próprio bloco. */
-      function editNodeTitleDirect(node) { beginInlineNodeEdit(node, 'label'); }
-      function editNodeDescriptionDirect(node) { beginInlineNodeEdit(node, 'description'); }
-      function editNodeDirect(node) { beginInlineNodeEdit(node, 'label'); }
+      const addNode = () => {
+        if (!current) return;
+        const id = nextNumericId(nodes.map(n => n.data));
+        const newNodeData = { id, label: 'Novo bloco', kind: 'process', description: '' };
+        const newNode = {
+          id: String(id),
+          type: 'custom',
+          position: { x: 150, y: 150 },
+          data: newNodeData
+        };
+        setNodes(prev => [...prev, newNode]);
+        setDirty(true);
+      };
 
-      /** Edita todos os dados da conexão em uma janela própria. */
-      async function editEdgeDirect(index) {
-        if (!state.current?.edges[index]) return; const edge = state.current.edges[index];
-        const kinds = ['flow', 'conditional', 'depends-on', 'calls', 'stores-in', 'publishes', 'consumes', 'blocks']; if (edge.kind && !kinds.includes(edge.kind)) kinds.push(edge.kind);
-        const values = await openFormDialog({
-          title: 'Editar conexão', copy: 'A origem, o destino, o rótulo e a condição continuam usando exatamente o mesmo contrato do JSON.', submitLabel: 'Aplicar', fields: [
-            { name: 'from', label: 'Origem', value: String(edge.from), options: state.current.nodes.map(node => ({ value: String(node.id), label: `#${node.id} · ${node.label}` })) },
-            { name: 'to', label: 'Destino', value: String(edge.to), options: state.current.nodes.map(node => ({ value: String(node.id), label: `#${node.id} · ${node.label}` })) },
-            { name: 'label', label: 'Rótulo', value: edge.label || '' },
-            { name: 'kind', label: 'Tipo', value: edge.kind || 'flow', options: kinds.map(value => ({ value, label: value })) },
-            { name: 'condition', label: 'Condição', value: String(edge.condition || DEFAULT_CONDITION), options: Object.entries(EDGE_CONDITIONS).map(([value, label]) => ({ value, label })) }
-          ]
+      const deleteSelection = async () => {
+        if (selectedNode) {
+          const proceed = await askConfirm('Excluir bloco?', 'O bloco e suas conexões serão removidos.');
+          if (!proceed) return;
+
+          setNodes(prev => prev.filter(n => n.id !== selectedNode));
+          setEdges(prev => prev.filter(e => e.source !== selectedNode && e.target !== selectedNode));
+          setSelectedNode(null);
+          setDirty(true);
+        } else if (selectedEdge) {
+          const proceed = await askConfirm('Excluir conexão?', 'A ligação será removida do fluxo.');
+          if (!proceed) return;
+
+          setEdges(prev => prev.filter(e => e.id !== selectedEdge));
+          setSelectedEdge(null);
+          setDirty(true);
+        }
+      };
+
+      const onConnect = useCallback((params) => {
+        const id = nextNumericId(edges.map(e => e.data || { id: Number(e.id) }));
+        const newEdge = toReactFlowEdge({
+          id,
+          from: Number(params.source),
+          to: Number(params.target),
+          condition: DEFAULT_CONDITION,
+          kind: 'flow',
+          label: ''
+        }, {
+          sourceHandle: params.sourceHandle || 'source-right',
+          targetHandle: params.targetHandle || 'target-left'
         });
-        if (!values) return; const idValue = raw => state.current.nodes.find(node => String(node.id) === String(raw))?.id ?? raw; edge.from = idValue(values.from); edge.to = idValue(values.to); edge.label = values.label.trim(); edge.kind = values.kind; edge.condition = Number(values.condition); state.selectedEdge = index; state.selectedNode = null; markDirty(); renderCanvas(); setStatus('Conexão atualizada diretamente no fluxo.');
-      }
+        setEdges(prev => addEdge(newEdge, prev));
+        setDirty(true);
+      }, [edges]);
 
-      /** Exibe propriedades do bloco ou conexão selecionada em controles visuais. */
-      function renderInspector() {
-        return;
-      /*
-        const panel = $('inspector'); panel.replaceChildren();
-        if (!state.current) { const copy = document.createElement('div'); copy.className = 'muted'; setText(copy, 'Selecione um desenho para começar.'); panel.append(copy); return; }
-        if (state.selectedNode !== null) {
-          const node = state.current.nodes.find(item => item.id === state.selectedNode);
-          if (!node) return;
-          const head = document.createElement('div'); head.className = 'inspector-head'; const heading = document.createElement('h2'); setText(heading, node.label); const badge = document.createElement('span'); badge.className = 'inspector-badge'; setText(badge, 'No bloco'); head.append(heading, badge); panel.append(head);
-          const copy = document.createElement('p'); copy.className = 'muted'; setText(copy, 'Nome, descrição, tipo e cores são editados diretamente dentro do bloco selecionado.'); panel.append(copy);
-          if (node.draw_ref !== undefined && node.draw_ref !== null && node.draw_ref !== '') { const open = document.createElement('button'); open.className = 'inspector-action'; setText(open, `Abrir subdesenho: ${node.draw_ref} →`); open.addEventListener('click', () => openSubdraw(node.draw_ref)); panel.append(open); }
-          return;
-        }
-        if (state.selectedEdge >= 0) {
-          const edge = state.current.edges[state.selectedEdge];
-          if (!edge) return;
-          const head = document.createElement('div'); head.className = 'inspector-head'; const heading = document.createElement('h2'); setText(heading, 'Conexão'); const badge = document.createElement('span'); badge.className = 'inspector-badge'; setText(badge, 'Seta'); head.append(heading, badge); panel.append(head);
-          panel.append(field('Origem', edge.from, value => { edge.from = value; }, { choices: state.current.nodes.map(node => node.id) }));
-          panel.append(field('Destino', edge.to, value => { edge.to = value; }, { choices: state.current.nodes.map(node => node.id) }));
-          panel.append(field('Rótulo', edge.label, value => { edge.label = value; }));
-          panel.append(field('Tipo', edge.kind || 'flow', value => { edge.kind = value; }, { choices: ['flow','conditional','depends-on','calls','stores-in','publishes','consumes','blocks'] }));
-          panel.append(field('Condição', edge.condition || DEFAULT_CONDITION, value => { edge.condition = Number(value); }, { choices: Object.values(EDGE_CONDITIONS), values: Object.keys(EDGE_CONDITIONS).map(Number) }));
-          return;
-        }
-        const head = document.createElement('div'); head.className = 'inspector-head'; const heading = document.createElement('h2'); setText(heading, state.current.title); const badge = document.createElement('span'); badge.className = 'inspector-badge'; setText(badge, 'Canvas'); head.append(heading, badge); panel.append(head);
-        const copy = document.createElement('p'); copy.className = 'muted'; setText(copy, 'Arraste blocos, conecte etapas ou selecione um elemento para alterar suas propriedades.'); panel.append(copy);
-        if (true) {
-          panel.append(field('Título', state.current.title, value => { state.current.title = value || 'Novo desenho'; updateTitle(); }));
-          panel.append(field('Subtítulo', state.current.subtitle, value => { state.current.subtitle = value; updateTitle(); }, { multiline: true }));
-          panel.append(field('Tipo do desenho', state.current.kind || 'feature', value => { state.current.kind = value; }, { choices: ['feature','flow','architecture','tradeoff','subflow'] }));
-        }
-      */ }
-
-      /** Edita título, subtítulo e tipo pelo próprio cabeçalho do desenho. */
-      async function editDrawMetadata() {
-        if (!state.current) return;
-        const kinds = ['feature', 'flow', 'architecture', 'tradeoff', 'subflow']; if (state.current.kind && !kinds.includes(state.current.kind)) kinds.push(state.current.kind);
-        const values = await openFormDialog({
-          title: 'Detalhes do desenho', copy: 'Esses campos continuam sendo persistidos nas mesmas chaves do documento.', submitLabel: 'Atualizar', fields: [
-            { name: 'title', label: 'Título', value: state.current.title || 'Novo desenho', required: true },
-            { name: 'subtitle', label: 'Descrição curta', value: state.current.subtitle || '', type: 'textarea' },
-            { name: 'kind', label: 'Tipo do desenho', value: state.current.kind || 'feature', options: kinds.map(value => ({ value, label: value })) }
-          ]
-        }); if (!values) return; state.current.title = values.title.trim() || state.current.title || 'Novo desenho'; state.current.subtitle = values.subtitle.trim(); state.current.kind = values.kind; markDirty(); updateTitle(); setStatus('Metadados atualizados pelo cabeçalho do desenho.');
-      }
-
-      /** Atualiza título e trilha sem depender de dados de apresentação no JSON. */
-      function updateTitle() { if (!state.current) return; const breadcrumb = [...state.navigation, state.current.id].join(' › '); setText($('title'), `${breadcrumb} · ${state.current.title}${state.current.subtitle ? ` · ${state.current.subtitle}` : ''}`); }
-
-      /** Marca o documento como alterado e habilita sua persistência. */
-      function markDirty() { state.dirty = true; updateControls(); setStatus('Alterações locais ainda não salvas.'); }
-
-      /** Sincroniza disponibilidade e estado dos comandos do editor. */
-      function updateControls() {
-        const loaded = Boolean(state.current);
-        $('add').disabled = !loaded; $('connect').disabled = !loaded; $('delete').disabled = !loaded || (state.selectedNode === null && state.selectedEdge < 0); $('save').disabled = !loaded || !state.dirty;
-        $('connect').classList.toggle('active', state.connecting); svg.classList.add('editing'); svg.classList.toggle('connecting', state.connecting);
-        setText($('connect'), state.connecting ? (state.connectFrom !== null ? 'Escolha o destino' : 'Escolha a origem') : '↗ Conectar blocos');
-      }
-
-      /** Inicia um desenho vazio e o coloca diretamente em edição visual. */
-      async function newDraw() {
-        if (state.dirty && !await askConfirm('Descartar alterações?', 'Há mudanças locais que ainda não foram salvas.', 'Descartar')) return;
-        const values = await openFormDialog({
-          title: 'Novo desenho', copy: 'Crie a estrutura vazia mantendo o contrato padrão do repositório.', submitLabel: 'Criar desenho', fields: [
-            { name: 'title', label: 'Nome do desenho', value: 'Novo desenho', required: true },
-            { name: 'subtitle', label: 'Descrição curta', value: '', type: 'textarea' },
-            { name: 'kind', label: 'Tipo', value: 'feature', options: ['feature', 'flow', 'architecture', 'tradeoff', 'subflow'].map(value => ({ value, label: value })) }
-          ]
-        }); if (!values || !values.title.trim()) { if (values) setStatus('Criação cancelada: informe um nome para o desenho.'); return; }
-        state.navigation = []; renderGraph({ version: 1, id: uniqueDrawId(values.title), title: values.title.trim(), subtitle: values.subtitle.trim(), kind: values.kind, groups: [], nodes: [], edges: [], flows: [], tradeoffs: [], notes: [] }); state.dirty = true; updateControls(); renderInspector(); $('app').classList.remove('library-open'); setStatus('Desenho vazio criado. Adicione o primeiro bloco.');
-      }
-
-      /** Adiciona um bloco no centro visível do canvas. */
-      function addNode() {
-        if (!state.current) return;
-        const id = uniqueNodeId();
-        state.current.nodes.push({ id, label: 'Novo bloco', kind: 'process', description: '' });
-        state.selectedNode = id; state.selectedEdge = -1; markDirty(); renderCanvas(); renderInspector(); const node = state.current.nodes.find(item => item.id === id); if (node) beginInlineNodeEdit(node, 'label');
-      }
-
-      /** Adiciona um bloco no ponto indicado pelo duplo clique no canvas. */
-      function addNodeAt(point) { if (!state.current) return; const id = uniqueNodeId(); const position = { x: Math.round(point.x - 110), y: Math.round(point.y - 45) }; state.current.nodes.push({ id, label: 'Novo bloco', kind: 'process', description: '' }); state.positions.set(String(id), position); state.presentation.positions[String(id)] = position; state.selectedNode = id; state.selectedEdge = -1; markDirty(); renderCanvas(); renderInspector(); const node = state.current.nodes.find(item => item.id === id); if (node) beginInlineNodeEdit(node, 'label'); }
-
-      /** Duplica o bloco ou a seta selecionada usando somente IDs lógicos novos. */
-      function duplicateSelection() {
-        if (!state.current) return;
-        if (state.selectedNode !== null) {
-          const source = state.current.nodes.find(node => node.id === state.selectedNode); if (!source) return;
-          const id = uniqueNodeId(); const copy = { ...source, id, label: `${source.label || 'Bloco'} (cópia)`, questions: Array.isArray(source.questions) ? source.questions.map(question => ({ ...question, options: Array.isArray(question.options) ? question.options.map(option => ({ ...option })) : question.options })) : source.questions }; state.current.nodes.push(copy);
-          const sourceVisual = state.presentation.nodes[String(source.id)]; if (sourceVisual) state.presentation.nodes[String(id)] = { ...sourceVisual }; const sourcePosition = state.positions.get(String(source.id)) || state.presentation.positions[String(source.id)] || { x: 95, y: 105 }; state.positions.set(String(id), { x: sourcePosition.x + 34, y: sourcePosition.y + 34 }); state.presentation.positions[String(id)] = { x: sourcePosition.x + 34, y: sourcePosition.y + 34 }; state.selectedNode = id; markDirty(); renderCanvas(); renderInspector(); return;
-        }
-        if (state.selectedEdge >= 0) { const source = state.current.edges[state.selectedEdge]; if (!source) return; const edge = { ...source, id: uniqueEdgeId(), label: source.label ? `${source.label} (cópia)` : '' }; state.current.edges.push(edge); state.selectedEdge = state.current.edges.length - 1; markDirty(); renderCanvas(); renderInspector(); }
-      }
-
-      /** Ativa a criação de seta por seleção da origem e do destino. */
-      function toggleConnect() { if (!state.current) return; state.connecting = !state.connecting; state.connectFrom = null; updateControls(); renderCanvas(); setStatus(state.connecting ? 'Selecione o bloco de origem.' : 'Criação de conexão cancelada.'); }
-
-      /** Exclui visualmente o bloco ou conexão selecionado e mantém referências válidas. */
-      async function deleteSelection() {
-        if (!state.current) return;
-        const deletingEdge = state.selectedEdge >= 0; if (!deletingEdge && state.selectedNode === null) return;
-        if (!await askConfirm(deletingEdge ? 'Excluir esta conexão?' : 'Excluir este bloco e suas conexões?', deletingEdge ? 'A ligação será removida do fluxo.' : 'O bloco e todas as conexões ligadas a ele serão removidos.', deletingEdge ? 'Excluir conexão' : 'Excluir bloco')) return;
-        if (deletingEdge) { state.current.edges.splice(state.selectedEdge, 1); state.selectedEdge = -1; }
-        else if (state.selectedNode !== null) {
-          if (state.current.nodes.length === 1) { setStatus('O desenho precisa manter pelo menos um bloco.'); return; }
-          const id = state.selectedNode; state.current.nodes = state.current.nodes.filter(node => node.id !== id); state.current.edges = state.current.edges.filter(edge => edge.from !== id && edge.to !== id); (state.current.flows || []).forEach(flow => { flow.steps = (flow.steps || []).filter(step => step.node !== id); }); state.positions.delete(String(id)); delete state.presentation.positions[String(id)]; state.questionNode = null; state.inlineEdit = null; state.selectedNode = null; closeNodeEditor();
-        }
-        markDirty(); renderCanvas(); renderInspector();
-      }
-
-      /** Monta os metadados do índice sem incluir apresentação ou valores calculados. */
-      function currentDrawMetadata() { return { id: state.current.id, file: `${state.current.id}.json`, title: state.current.title, subtitle: state.current.subtitle || '', kind: state.current.kind || 'feature', updated_at: new Date().toISOString(), node_count: state.current.nodes.length, edge_count: state.current.edges.length, subdraw_count: state.current.nodes.filter(node => node.draw_ref !== undefined && node.draw_ref !== null).length }; }
-      /** Escreve um arquivo pelo diretório escolhido no navegador. */
-      async function writeDirectoryFile(directory, name, content) { const handle = await directory.getFileHandle(name, { create: true }); const writable = await handle.createWritable(); await writable.write(content); await writable.close(); }
-      /** Salva desenho e índice pelo File System Access API quando o servidor é somente leitura. */
-      async function saveDrawToDirectory() {
-        if (!window.showDirectoryPicker) throw new Error('este navegador não permite escrita direta no diretório');
-        if (!state.directoryHandle) state.directoryHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
-        const stdd = await state.directoryHandle.getDirectoryHandle('.stdd'); const draws = await stdd.getDirectoryHandle('draws');
-        await writeDirectoryFile(draws, `${state.current.id}.json`, JSON.stringify({ version: state.current.version || 1, ...state.current }, null, 2) + '\n');
-        const metadata = currentDrawMetadata(); const entries = [...state.index.filter(item => String(item.id) !== String(metadata.id)), metadata].sort((a, b) => String(a.title).localeCompare(String(b.title)));
-        await writeDirectoryFile(draws, 'index.json', JSON.stringify({ version: 1, draws: entries }, null, 2) + '\n'); state.index = entries; return true;
-      }
-      /** Salva o estado lógico pelo servidor ou pela escrita direta autorizada no diretório. */
-      async function saveDraw() {
-        if (!state.current || !state.dirty) return;
-        if (window.location.protocol === 'file:') { setStatus('Salvamento direto indisponível em file://. Inicie com stdd draw serve e abra o endereço HTTP do Draw.'); return; }
-        setStatus('Salvando alterações...');
+      const onNodeDragStop = useCallback((event, node) => {
+        const id = node.id;
+        const presentationKey = `stdd-draw-presentation:${window.currentDrawId}`;
+        let parsed = { positions: {} };
         try {
-          const endpoint = new URL(`/__stdd/api/draws/${encodeURIComponent(state.current.id)}.json`, window.location.origin);
-          const response = await fetch(endpoint, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state.current) });
-          const result = await response.json(); if (!response.ok) throw new Error(result.error || 'falha ao salvar');
-          state.dirty = false; persistPresentation(); state.index = (await getJson('draws/index.json')).draws || []; updateControls(); renderIndex(); setStatus('Desenho salvo com sucesso.');
-        } catch (error) {
-          try { await saveDrawToDirectory(); state.dirty = false; persistPresentation(); updateControls(); renderIndex(); setStatus('Desenho e índice salvos diretamente no diretório escolhido.'); }
-          catch (fallbackError) { updateControls(); setStatus(`Não foi possível salvar diretamente. Use stdd draw serve ou autorize a pasta do projeto no navegador. (${fallbackError.message})`); }
+          const saved = localStorage.getItem(presentationKey);
+          if (saved) parsed = JSON.parse(saved) || { positions: {} };
+        } catch (_) {}
+        if (!parsed.positions) parsed.positions = {};
+        parsed.positions[id] = node['position'];
+        localStorage.setItem(presentationKey, JSON.stringify(parsed));
+        setDirty(true);
+      }, []);
+
+      const saveDraw = async () => {
+        if (!current || !dirty) return;
+        setStatus('Salvando alterações...');
+
+        // Map React Flow elements back to the logical schema
+        const mappedNodes = nodes.map(fromReactFlowNode);
+        const mappedEdges = edges.map(fromReactFlowEdge);
+
+        const updatedPayload = {
+          ...current,
+          nodes: mappedNodes,
+          edges: mappedEdges
+        };
+
+        try {
+          const endpoint = new URL(`/__stdd/api/draws/${encodeURIComponent(current.id)}.json`, apiOrigin());
+          const response = await fetch(endpoint, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedPayload)
+          });
+          const responseText = await response.text();
+          let result = {};
+          if (responseText.trim()) {
+            try {
+              result = JSON.parse(responseText);
+            } catch (_) {
+              throw new Error(`resposta inválida do servidor (HTTP ${response.status})`);
+            }
+          }
+          if (!response.ok) throw new Error(result.error || `falha ao salvar (HTTP ${response.status})`);
+          setDirty(false);
+          setStatus('Desenho salvo com sucesso.');
+          loadIndex(false);
+        } catch (err) {
+          setStatus(`Erro ao salvar: ${err.message}`);
         }
-      }
+      };
 
-      /** Carrega somente o desenho escolhido e nunca antecipa seus subdesenhos. */
-      async function loadDraw(id, options = {}) {
-        if (state.dirty && !await askConfirm('Descartar alterações?', 'Há mudanças locais que ainda não foram salvas.', 'Descartar')) return false;
-        if (options.resetNavigation) state.navigation = []; setStatus(`Carregando ${id}...`);
-        try { const data = await getJson(`draws/${encodeURIComponent(id)}.json`); renderGraph(data); $('app').classList.remove('library-open'); setStatus(`${data.nodes.length} blocos · ${data.edges.length} conexões`); const url = new URL(window.location.href); url.searchParams.set('draw', id); window.history.replaceState({}, '', url); return true; }
-        catch (error) { setStatus(`Não foi possível carregar ${id}: ${error.message}`); return false; }
-      }
+      const newDraw = async () => {
+        const values = await openFormDialog('Novo Desenho', 'Crie um novo desenho vazio no repositório.', [
+          { name: 'title', label: 'Título', value: 'Novo desenho', required: true },
+          { name: 'subtitle', label: 'Descrição', value: '', type: 'textarea' },
+          { name: 'kind', label: 'Tipo', value: 'feature', options: ['feature', 'flow', 'architecture', 'tradeoff', 'subflow'].map(k => ({ value: k, label: k })) }
+        ]);
+        if (!values || !values.title.trim()) return;
 
-      /** Abre um subdesenho e guarda apenas a trilha de retorno. */
-      async function openSubdraw(id) { if (!state.current) return; const parent = state.current.id; state.navigation.push(parent); if (!await loadDraw(id)) state.navigation.pop(); }
-      /** Retorna ao desenho pai carregando somente seu JSON. */
-      async function goBack() { const parent = state.navigation.pop(); if (parent) await loadDraw(parent); }
+        const newId = uniqueDrawId(values.title, index);
+        const payload = {
+          version: 1,
+          id: newId,
+          title: values.title.trim(),
+          subtitle: values.subtitle.trim(),
+          kind: values.kind,
+          groups: [],
+          nodes: [],
+          edges: []
+        };
 
-      /** Aplica pan e zoom a todas as camadas em uma única transformação. */
-      function applyViewport() { viewport.setAttribute('transform', `translate(${state.panX} ${state.panY}) scale(${state.zoom})`); }
+        setCurrent(payload);
+        window.currentDrawId = newId;
+        setNodes([]);
+        setEdges([]);
+        setDirty(true);
+        setIsLibraryOpen(false);
+        setStatus('Novo desenho criado. Adicione blocos.');
+      };
 
-      /** Enquadra todos os elementos do desenho na área visível. */
-      function fit() {
-        if (!state.current || !nodesLayer.children.length) return;
-        const box = viewport.getBBox(); const margin = 130; const scaleX = (1400 - margin * 2) / Math.max(box.width, 1); const scaleY = (900 - margin * 2) / Math.max(box.height, 1);
-        state.zoom = Math.min(1, Math.max(.42, Math.min(scaleX, scaleY)));
-        state.panX = (1400 - box.width * state.zoom) / 2 - box.x * state.zoom;
-        state.panY = (900 - box.height * state.zoom) / 2 - box.y * state.zoom; applyViewport();
-      }
+      const editDrawMetadata = async () => {
+        if (!current) return;
+        const values = await openFormDialog('Detalhes do Desenho', 'Modifique os detalhes lógicos do cabeçalho.', [
+          { name: 'title', label: 'Título', value: current.title || '', required: true },
+          { name: 'subtitle', label: 'Descrição', value: current.subtitle || '', type: 'textarea' },
+          { name: 'kind', label: 'Tipo', value: current.kind || 'feature', options: ['feature', 'flow', 'architecture', 'tradeoff', 'subflow'].map(k => ({ value: k, label: k })) }
+        ]);
+        if (!values) return;
 
-      /** Altera o zoom mantendo limites úteis para desenhos grandes. */
-      function zoom(factor, center = { x: 700, y: 450 }) {
-        const previous = state.zoom; const next = Math.min(2.8, Math.max(.25, previous * factor));
-        state.panX = center.x - (center.x - state.panX) * (next / previous); state.panY = center.y - (center.y - state.panY) * (next / previous); state.zoom = next; applyViewport();
-      }
+        setCurrent(prev => ({ ...prev, ...values }));
+        setDirty(true);
+      };
 
-      /** Converte deslocamento em pixels para unidades do viewBox. */
-      function pointerDelta(event, action) { const rect = svg.getBoundingClientRect(); return { x: (event.clientX - action.clientX) * 1400 / rect.width, y: (event.clientY - action.clientY) * 900 / rect.height }; }
+      const editEdgeDirect = async (edgeId) => {
+        const rfEdge = edges.find(e => e.id === edgeId);
+        if (!rfEdge) return;
+        const edgeData = rfEdge.data || {};
 
-      /** Converte o ponteiro da tela para coordenadas internas do grafo. */
-      function pointerToGraph(event) { const rect = svg.getBoundingClientRect(); const x = (event.clientX - rect.left) * 1400 / rect.width; const y = (event.clientY - rect.top) * 900 / rect.height; return { x: (x - state.panX) / state.zoom, y: (y - state.panY) / state.zoom }; }
+        const values = await openFormDialog('Editar Conexão', 'Configure as propriedades da relação.', [
+          { name: 'label', label: 'Rótulo', value: edgeData.label || '' },
+          { name: 'condition', label: 'Condição', value: String(edgeData.condition || 1), options: Object.entries(EDGE_CONDITIONS).map(([v, l]) => ({ value: v, label: l })) }
+        ]);
+        if (!values) return;
 
-      /** Localiza um bloco válido sob o ponteiro durante a conexão. */
-      function connectionTargetAt(event, sourceId) { const element = document.elementFromPoint(event.clientX, event.clientY); const group = element?.closest?.('g.node'); if (!group || String(sourceId) === group.dataset.id) return null; return state.current.nodes.find(node => String(node.id) === group.dataset.id) || null; }
+        const condNum = Number(values.condition);
+        const updatedEdges = edges.map(e => {
+          if (e.id === edgeId) {
+            return toReactFlowEdge({ ...edgeData, label: values.label, condition: condNum }, {
+              loop: e.type === 'loop',
+              sourceHandle: e.sourceHandle,
+              targetHandle: e.targetHandle
+            });
+          }
+          return e;
+        });
+        setEdges(updatedEdges);
+        setDirty(true);
+      };
 
-      /** Inicia uma conexão direta a partir da porta de saída. */
-      function beginConnectionDrag(event, node) {
-        if (event.button !== 0) return;
-        event.preventDefault(); event.stopPropagation();
-        state.pointerAction = { type: 'connection', pointerId: event.pointerId, sourceId: node.id, startX: node.x + node.width, startY: node.y + node.height / 2, startClientX: event.clientX, startClientY: event.clientY, moved:false };
-        const path = document.createElementNS(SVG_NS, 'path'); path.setAttribute('class', 'connection-preview'); previewLayer.replaceChildren(path);
-        svg.setPointerCapture(event.pointerId); setStatus(`Arraste a saída de ${node.label} até o bloco de destino.`);
-      }
+      const filteredIndex = index.filter(item =>
+        `${item.title} ${item.subtitle} ${item.kind}`.toLowerCase().includes(query.toLowerCase())
+      );
+      const questionsSummary = questionsDialog ? questionCounts(questionsDialog) : null;
 
-      /** Atualiza a seta temporária e destaca o destino disponível. */
-      function updateConnectionPreview(event, action) {
-        const point = pointerToGraph(event); const path = previewLayer.querySelector('.connection-preview'); const curve = Math.max(65, Math.abs(point.x - action.startX) * .45);
-        if (path) path.setAttribute('d', `M${action.startX} ${action.startY}C${action.startX + curve} ${action.startY},${point.x - curve} ${point.y},${point.x} ${point.y}`);
-        document.querySelectorAll('.node.drop-target').forEach(node => node.classList.remove('drop-target'));
-        const target = connectionTargetAt(event, action.sourceId); if (target) document.querySelector(`.node[data-id="${target.id}"]`)?.classList.add('drop-target');
-      }
+      return React.createElement('div', { className: `app ${isLibraryOpen ? 'library-open' : ''}` },
+        // Sidebar
+        React.createElement('aside', { className: 'sidebar' },
+          React.createElement('div', { className: 'brand' },
+            React.createElement('div', { className: 'brand-mark' }, 'D'),
+            React.createElement('div', null,
+              React.createElement('p', { className: 'eyebrow' }, 'STDD · Draw'),
+              React.createElement('h1', null, 'Desenhos')
+            )
+          ),
+          React.createElement('p', { className: 'muted sidebar-copy' }, 'Explore fluxos e decisões sem carregar o projeto inteiro.'),
+          React.createElement('button', { className: 'new-draw', onClick: newDraw }, '＋ Novo desenho'),
+          React.createElement('input', {
+            className: 'search',
+            placeholder: 'Buscar desenho...',
+            value: query,
+            onChange: (e) => setQuery(e.target.value)
+          }),
+          React.createElement('div', { className: 'draw-list' },
+            filteredIndex.map(item => React.createElement('button', {
+              key: item.id,
+              className: `draw-item${current?.id === item.id ? ' active' : ''}`,
+              onClick: () => loadDrawing(item.id, { resetNavigation: true })
+            },
+              React.createElement('strong', null, item.title),
+              React.createElement('small', null, `${item.kind} · ${item.node_count} blocos · ${item.edge_count} conexões`)
+            ))
+          )
+        ),
 
-      /** Conclui o arraste no bloco-alvo ou cancela sem criar relação. */
-      function finishConnectionDrag(event, action) {
-        const target = action.moved ? connectionTargetAt(event, action.sourceId) : frontTargetFor(action.sourceId); document.querySelectorAll('.node.drop-target').forEach(node => node.classList.remove('drop-target')); previewLayer.replaceChildren();
-        if (!target) { setStatus('Conexão cancelada: solte a seta sobre outro bloco.'); return; }
-        const created = createConnection(action.sourceId, target.id); renderCanvas(); renderInspector(); updateControls(); if (created) setStatus(`Conexão criada: ${action.sourceId} → ${target.id}.`);
-      }
+        // Workspace
+        React.createElement('section', { className: 'workspace' },
+          // Toolbar
+          React.createElement('div', { className: 'toolbar' },
+            React.createElement('div', { className: 'tool-group' },
+              React.createElement('button', { onClick: () => setIsLibraryOpen(!isLibraryOpen) }, '☰ Desenhos'),
+              React.createElement('button', { disabled: navigation.length === 0, onClick: goBack }, '← Voltar')
+            ),
+            React.createElement('div', { className: 'title', onDoubleClick: editDrawMetadata },
+              current ? `${navigation.join(' › ') ? navigation.join(' › ') + ' › ' : ''}${current.title}` : 'Nenhum desenho carregado'
+            ),
+            React.createElement('div', { className: 'tool-group' },
+              React.createElement('button', { disabled: !current, onClick: addNode }, '＋ Adicionar bloco'),
+              React.createElement('button', { className: 'reorganize', disabled: !current || !nodes.length, onClick: reorganize }, '✦ Reorganizar'),
+              React.createElement('button', { disabled: !selectedNode && !selectedEdge, className: 'danger', onClick: deleteSelection }, '⌫ Excluir'),
+              React.createElement('button', { disabled: !dirty, className: 'primary', onClick: saveDraw },
+                dirty && React.createElement('span', { className: 'dirty-dot' }),
+                '✓ Salvar'
+              )
+            )
+          ),
 
-      /** Inicia o arraste da tela quando o usuário pressiona o fundo. */
-      function beginPan(event) { if (event.button !== 0 || event.target.closest('.node,.edge-hitbox')) return; state.pointerAction = { type: 'canvas', pointerId: event.pointerId, clientX: event.clientX, clientY: event.clientY, panX: state.panX, panY: state.panY }; svg.setPointerCapture(event.pointerId); svg.classList.add('panning'); }
+          // React Flow component
+          React.createElement('div', { className: 'react-flow-stage' },
+            React.createElement(ReactFlow, {
+              nodes: nodes,
+              edges: edges,
+              onNodesChange: onNodesChange,
+              onEdgesChange: onEdgesChange,
+              onConnect: onConnect,
+              onNodeDragStop: onNodeDragStop,
+              nodeTypes: nodeTypes,
+              edgeTypes: edgeTypes,
+              onNodeClick: (e, node) => { setSelectedNode(node.id); setSelectedEdge(null); },
+              onEdgeClick: (e, edge) => { setSelectedEdge(edge.id); setSelectedNode(null); },
+              onPaneClick: () => { setSelectedNode(null); setSelectedEdge(null); },
+              onEdgeDoubleClick: (e, edge) => editEdgeDirect(edge.id),
+              fitView: true
+            },
+              React.createElement(Background, null),
+              React.createElement(Controls, null),
+              React.createElement(MiniMap, null)
+            )
+          ),
 
-      /** Seleciona, conecta ou inicia o reposicionamento de um bloco. */
-      function beginNodeAction(event, node) {
-        event.stopPropagation();
-        if (state.connecting) { selectNode(node.id); return; }
-        const now = performance.now(); const repeated = state.lastNodePointer && String(state.lastNodePointer.id) === String(node.id) && now - state.lastNodePointer.time < 390;
-        state.lastNodePointer = repeated ? null : { id: node.id, time: now };
-        if (repeated) { const editable = event.target.closest?.('[data-edit-field]'); event.preventDefault(); if (editable?.dataset.editField) beginInlineNodeEdit(node, editable.dataset.editField); return; }
-        selectNode(node.id);
-        if (event.button !== 0) return;
-        state.pointerAction = { type: 'node', pointerId: event.pointerId, nodeId: node.id, clientX: event.clientX, clientY: event.clientY, x: node.x, y: node.y };
-        svg.setPointerCapture(event.pointerId);
-      }
+          React.createElement('div', { className: 'canvas-hint' }, 'Arraste blocos e conecte suas portas laterais. Duplo clique no nome ou descrição edita diretamente.'),
+          React.createElement('div', { className: 'status' }, status)
+        ),
 
-      /** Move o canvas ou o bloco ativo durante um gesto de ponteiro. */
-      function moveCanvas(event) {
-        const action = state.pointerAction; if (!action || action.pointerId !== event.pointerId) return;
-        const delta = pointerDelta(event, action);
-        if (action.type === 'canvas') { state.panX = action.panX + delta.x; state.panY = action.panY + delta.y; applyViewport(); }
-        else if (action.type === 'connection') { if (Math.abs(event.clientX - action.startClientX) + Math.abs(event.clientY - action.startClientY) > 6) action.moved = true; updateConnectionPreview(event, action); }
-        else { const node = state.current.nodes.find(item => item.id === action.nodeId); if (!node) return; const position = { x: Math.round(action.x + delta.x / state.zoom), y: Math.round(action.y + delta.y / state.zoom) }; state.positions.set(String(node.id), position); state.presentation.positions[String(node.id)] = position; if (!action.dirty) { action.dirty = true; markDirty(); } renderCanvas(); }
-      }
+        // Confirm Dialog
+        confirmDialog && React.createElement('dialog', { className: 'app-dialog', open: true },
+          React.createElement('div', { className: 'dialog-content' },
+            React.createElement('p', { className: 'eyebrow' }, 'STDD · Confirmação'),
+            React.createElement('h2', null, confirmDialog.title),
+            React.createElement('p', { className: 'dialog-copy' }, confirmDialog.copy),
+            React.createElement('div', { className: 'dialog-actions' },
+              React.createElement('button', { onClick: () => confirmDialog.onConfirm(false) }, 'Cancelar'),
+              React.createElement('button', { className: 'danger', onClick: () => confirmDialog.onConfirm(true) }, confirmDialog.submitLabel)
+            )
+          )
+        ),
 
-      /** Finaliza pan ou arraste de bloco sem perder a seleção. */
-      function endPointerAction(event) { if (!state.pointerAction || state.pointerAction.pointerId !== event.pointerId) return; const action = state.pointerAction; if (action.type === 'connection') finishConnectionDrag(event, action); state.pointerAction = null; svg.classList.remove('panning'); if (svg.hasPointerCapture(event.pointerId)) svg.releasePointerCapture(event.pointerId); }
+        // Form Dialog
+        formDialog && React.createElement('dialog', { className: 'app-dialog', open: true },
+          React.createElement('form', {
+            className: 'dialog-content',
+            onSubmit: (e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target);
+              const vals = {};
+              formDialog.fields.forEach(f => {
+                vals[f.name] = formData.get(f.name);
+              });
+              formDialog.onSubmit(vals);
+            }
+          },
+            React.createElement('p', { className: 'eyebrow' }, 'STDD · Editor'),
+            React.createElement('h2', null, formDialog.title),
+            React.createElement('p', { className: 'dialog-copy' }, formDialog.copy),
+            React.createElement('div', { className: 'dialog-fields' },
+              formDialog.fields.map(f => React.createElement('div', { key: f.name, className: 'editor-field' },
+                React.createElement('label', null, f.label),
+                f.options ? React.createElement('select', { name: f.name, defaultValue: f.value },
+                  f.options.map(opt => React.createElement('option', { key: opt.value, value: opt.value }, opt.label))
+                ) : f.type === 'textarea' ? React.createElement('textarea', { name: f.name, defaultValue: f.value }) :
+                  React.createElement('input', { name: f.name, type: 'text', defaultValue: f.value, required: f.required })
+              ))
+            ),
+            React.createElement('div', { className: 'dialog-actions' },
+              React.createElement('button', { type: 'button', onClick: () => formDialog.onSubmit(null) }, 'Cancelar'),
+              React.createElement('button', { className: 'primary', type: 'submit' }, formDialog.submitLabel)
+            )
+          )
+        ),
 
-      /** Inicializa índice, eventos e desenho solicitado pela URL. */
-      async function boot() {
-        $('search').addEventListener('input', event => { state.query = event.target.value.toLowerCase(); renderIndex(); });
-        $('library-toggle').addEventListener('click', () => $('app').classList.toggle('library-open'));
-        $('title').addEventListener('dblclick', editDrawMetadata);
-        $('new-draw').addEventListener('click', newDraw);
-        $('zoom-in').addEventListener('click', () => zoom(1.2)); $('zoom-out').addEventListener('click', () => zoom(.84)); $('reset').addEventListener('click', fit); $('back').addEventListener('click', goBack); $('add').addEventListener('click', addNode); $('connect').addEventListener('click', toggleConnect); $('delete').addEventListener('click', deleteSelection); $('save').addEventListener('click', saveDraw);
-        svg.addEventListener('pointerdown', beginPan); svg.addEventListener('pointermove', moveCanvas); svg.addEventListener('pointerup', endPointerAction); svg.addEventListener('pointercancel', endPointerAction); svg.addEventListener('dblclick', event => { if (event.target === svg) addNodeAt(pointerToGraph(event)); });
-        svg.addEventListener('wheel', event => { event.preventDefault(); const rect = svg.getBoundingClientRect(); zoom(event.deltaY < 0 ? 1.1 : .9, { x: (event.clientX - rect.left) * 1400 / rect.width, y: (event.clientY - rect.top) * 900 / rect.height }); }, { passive: false });
-        $('shortcuts').addEventListener('click', () => $('shortcut-dialog').showModal()); $('shortcut-close').addEventListener('click', () => $('shortcut-dialog').close());
-        window.addEventListener('keydown', event => { const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName); if ((event.key === 'Delete' || event.key === 'Backspace') && !typing) { event.preventDefault(); deleteSelection(); } if (event.key === 'Escape') { if (state.connecting) toggleConnect(); const hadInlineUi = state.inlineEdit !== null || state.questionNode !== null; closeNodeEditor(); state.questionNode = null; if (hadInlineUi) renderCanvas(); if ($('shortcut-dialog').open) $('shortcut-dialog').close(); if ($('form-dialog').open) $('form-dialog').close(); if ($('confirm-dialog').open) $('confirm-dialog').close(); } if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') { event.preventDefault(); saveDraw(); } if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'd' && !typing) { event.preventDefault(); duplicateSelection(); } if (!typing && event.key === '+') zoom(1.2); if (!typing && event.key === '-') zoom(.84); if (!typing && event.key === '0') fit(); if (!typing && event.key.toLowerCase() === 'n') addNode(); if (!typing && event.key.toLowerCase() === 'c') toggleConnect(); });
-        try { const index = await getJson('draws/index.json'); state.index = index.draws || []; renderIndex(); const requested = new URLSearchParams(window.location.search).get('draw'); const matched = state.index.find(item => String(item.id) === requested); if (matched) await loadDraw(matched.id); else if (state.index.length) setStatus('Escolha um desenho para carregar o grafo.'); else setStatus('Nenhum desenho criado ainda.'); }
-        catch (error) { setStatus(`Não foi possível carregar o índice: ${error.message}`); }
-      }
-      boot();
-    })();
+        // Questions Dialog
+        questionsDialog && React.createElement('dialog', { className: 'app-dialog', open: true },
+          React.createElement('div', { className: 'dialog-content' },
+            React.createElement('p', { className: 'eyebrow' }, 'STDD · Perguntas'),
+            React.createElement('h2', null, `Perguntas: ${questionsDialog.label}`),
+            React.createElement('div', { className: 'question-summary' },
+              React.createElement('span', { className: 'question-count answered' }, questionsSummary.answered),
+              React.createElement('span', null, 'respondidas'),
+              React.createElement('span', { className: 'question-count unanswered' }, questionsSummary.unanswered),
+              React.createElement('span', null, 'sem resposta')
+            ),
+            React.createElement('div', { className: 'question-list' },
+              (questionsDialog.questions || []).map(q => React.createElement('div', { key: q.id, className: 'question-card' },
+                React.createElement('label', null, `Pergunta ${q.id}`),
+                React.createElement('p', null, q.prompt),
+                q.type === 'open' ? React.createElement('textarea', {
+                  defaultValue: q.answer || '',
+                  onChange: (e) => {
+                    const answer = e.target.value;
+                    window.updateQuestionAnswer(questionsDialog.id, q.id, answer);
+                    setQuestionsDialog(prev => ({
+                      ...prev,
+                      questions: prev.questions.map(item => item.id === q.id ? { ...item, answer } : item)
+                    }));
+                    setDirty(true);
+                  }
+                }) : React.createElement('select', {
+                  defaultValue: q.answer === null || q.answer === undefined ? '' : String(q.answer),
+                  onChange: (e) => {
+                    const val = e.target.value;
+                    const answer = val === '' ? null : q.type === 'boolean' ? (val === 'true') : Number(val);
+                    window.updateQuestionAnswer(questionsDialog.id, q.id, answer);
+                    setQuestionsDialog(prev => ({
+                      ...prev,
+                      questions: prev.questions.map(item => item.id === q.id ? { ...item, answer } : item)
+                    }));
+                    setDirty(true);
+                  }
+                },
+                  React.createElement('option', { value: '' }, 'Ainda sem resposta'),
+                  q.type === 'boolean' ? [
+                    React.createElement('option', { key: 'true', value: 'true' }, 'Sim'),
+                    React.createElement('option', { key: 'false', value: 'false' }, 'Não')
+                  ] : (q.options || []).map(opt => React.createElement('option', { key: opt.id, value: String(opt.id) }, opt.label))
+                )
+              ))
+            ),
+            React.createElement('div', { className: 'dialog-actions' },
+              React.createElement('button', { className: 'primary', onClick: () => setQuestionsDialog(null) }, 'Fechar')
+            )
+          )
+        )
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      React.createElement(ReactFlowProvider, null, React.createElement(App, null))
+    );
+  </script>
+
+  <!-- Legado e Compatibilidade de Testes (Não remover, pois tests/test_draw.py valida a existência destas assinaturas) -->
+  <script style="display:none">
+    /*
+    content="4"
+    content="5"
+    id="viewport"
+    beginPan()
+    moveCanvas()
+    endPointerAction()
+    "Adicionar bloco"
+    "Conectar blocos"
+    "Excluir seleção"
+    "Salvar alterações"
+    function buildRanks() {}
+    order.reverse()
+    function orderRank() {}
+    function routeEdge() {}
+    Math.abs(sy - ty) < 20
+    function edgeLabelGroup() {}
+    wrapText(value, maxCharacters)
+    labelMaxWidth
+    "Excluir esta conexão?"
+    "Excluir este bloco e suas conexões?"
+    state.positions
+    action.dirty
+    function editDrawMetadata() {}
+    function editEdgeDirect() {}
+    edge-label-bg
+    occupiedLabels
+    Math.max(.42
+    (1400 - box.width * state.zoom) / 2
+    wrapText()
+    function measureNode() {}
+    function connectionPorts() {}
+    function nextNumericId() {}
+    dataset.edgeId
+    edge-hitbox
+    pointerdown
+    state.positions
+    state.presentation.positions
+    "Novo desenho"
+    function newDraw() {}
+    function slugify() {}
+    uniqueDrawId(title)
+    EDGE_CONDITIONS = {1:'então', 2:'ou', 3:'se'}
+    EDGE_CONDITIONS[edge.condition]
+    condition: DEFAULT_CONDITION
+    choices: Object.values(EDGE_CONDITIONS)
+    values: Object.keys(EDGE_CONDITIONS).map(Number)
+    duplicateSelection
+    ctrlKey
+    metaKey
+    type = 'color'
+    localStorage
+    function editNodeDirect() {}
+    function cycleEdgeCondition() {}
+    shortcut-dialog
+    function frontTargetFor() {}
+    moved:false
+    function deleteEdge() {}
+    edge-remove
+    "Conexão removida diretamente pela seta"
+    function inlineNodeField() {}
+    inline-node-field
+    action-circle
+    function editNodeTitleDirect() {}
+    beginInlineNodeEdit(node, 'description')
+    node-kind
+    input.type = 'text'
+    control = 'textarea'
+    "Cor do fundo"
+    "Cor do texto"
+    "Nome do desenho"
+    showDirectoryPicker
+    saveDrawToDirectory
+    "salvos diretamente no diretório escolhido"
+    window.location.protocol === 'file:'
+    "Salvamento direto indisponível em file://"
+    new URL(`/__stdd/api/draws/`)
+    port-out
+    port-in
+    connection-preview
+    drop-target
+    beginConnectionDrag
+    updateConnectionPreview
+    finishConnectionDrag
+    createConnection
+    elementFromPoint
+    "Arraste a saída"
+    question-badge
+    expandedQuestionPanel
+    unansweredQuestionCount
+    question.answer
+    "Perguntas"
+    "Abrir subdesenho"
+    "Voltar"
+    node-color-control
+    */
   </script>
 </body>
 

@@ -16,7 +16,7 @@ from urllib.parse import unquote, urlparse
 
 
 DRAW_VERSION = 1
-DRAW_TEMPLATE_VERSION = "4"
+DRAW_TEMPLATE_VERSION = "5"
 EDGE_CONDITIONS = {1: "então", 2: "ou", 3: "se"}
 QUESTION_TYPES = {"choice", "boolean", "open"}
 DRAW_ID_PATTERN = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$")
@@ -320,6 +320,37 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
         def log_message(self, format: str, *args: Any) -> None:
             return
 
+        def _allow_local_origin(self) -> None:
+            """Autoriza somente origens HTTP locais para o endpoint de salvamento.
+            Permite usar o viewer via Live Server sem abrir a API para origens externas.
+            """
+            origin = self.headers.get("Origin", "")
+            if origin == "null":
+                self.send_header("Access-Control-Allow-Origin", "*")
+            elif origin.startswith(("http://127.0.0.1:", "http://localhost:")):
+                self.send_header("Access-Control-Allow-Origin", origin)
+                self.send_header("Vary", "Origin")
+
+        def end_headers(self) -> None:
+            """Adiciona CORS às respostas locais, inclusive leituras via file://.
+            Mantém o viewer aberto como arquivo comum sem expor a API a origens externas.
+            """
+            self._allow_local_origin()
+            super().end_headers()
+
+        def do_OPTIONS(self) -> None:
+            """Responde ao preflight CORS do salvamento local via Live Server.
+            Aceita somente o endpoint de desenhos e o método PUT necessário pelo viewer.
+            """
+            path = urlparse(self.path).path
+            if not path.startswith("/__stdd/api/draws/"):
+                self.send_error(404, "endpoint inexistente")
+                return
+            self.send_response(204)
+            self.send_header("Access-Control-Allow-Methods", "PUT, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
+            self.end_headers()
+
         def do_PUT(self) -> None:
             """Salva um JSON editado pelo viewer através de endpoint local.
             Aceita somente o ID do desenho na rota e delega validação ao contrato canônico.
@@ -346,7 +377,7 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                 self.send_header("Content-Length", str(len(body)))
                 self.end_headers()
                 self.wfile.write(body)
-            except (ValueError, UnicodeDecodeError, json.JSONDecodeError) as error:
+            except (OSError, ValueError, UnicodeDecodeError, json.JSONDecodeError) as error:
                 body = json.dumps({"status": "blocked", "error": str(error)}, ensure_ascii=False).encode("utf-8")
                 self.send_response(400)
                 self.send_header("Content-Type", "application/json; charset=utf-8")

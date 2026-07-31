@@ -27,6 +27,8 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert (tmp_path / ".agents/skills/draw-feature/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-improve/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-improve/agents/openai.yaml").exists()
+    assert (tmp_path / "AGENTS.md").exists()
+    assert "stdd test" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert "testes" in (tmp_path / ".agents/skills/feature/SKILL.md").read_text().lower()
     for source in agent_templates():
         installed = tmp_path / ".agents" / "skills" / source.parent.name / "SKILL.md"
@@ -75,7 +77,7 @@ def test_init_keeps_framework_artifacts_in_stdd_and_agent_skills_in_agents(tmp_p
     """
     init_project(tmp_path)
 
-    assert {path.name for path in tmp_path.iterdir()} == {".stdd", ".agents", ".gitignore"}
+    assert {path.name for path in tmp_path.iterdir()} == {".stdd", ".agents", ".gitignore", "AGENTS.md"}
     assert (tmp_path / ".agents/skills/feature/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/implement/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/setup/SKILL.md").exists()
@@ -92,6 +94,40 @@ def test_init_keeps_framework_artifacts_in_stdd_and_agent_skills_in_agents(tmp_p
     assert ".cache/" in gitignore
     assert "*.cache" in gitignore
     assert ".coverage" in gitignore
+
+
+def test_init_injects_idempotent_instructions_for_all_agents(tmp_path: Path):
+    """Atualiza os três arquivos locais de instruções sem duplicar o contrato STDD.
+    Inicializa todas as integrações duas vezes e preserva o conteúdo previamente escrito pelo projeto.
+    """
+    (tmp_path / "AGENTS.md").write_text("# Regras do projeto\n\nNão remova este texto.\n", encoding="utf-8")
+
+    init_project(tmp_path, integrations=("codex", "claude", "gemini"))
+    first = {
+        name: (tmp_path / name).read_text(encoding="utf-8")
+        for name in ("AGENTS.md", "CLAUDE.md", "GEMINI.md")
+    }
+    init_project(tmp_path, integrations=("codex", "claude", "gemini"))
+
+    for name, content in first.items():
+        assert (tmp_path / name).read_text(encoding="utf-8") == content
+        assert content.count("STDD:BEGIN AGENT INSTRUCTIONS") == 1
+        assert "stdd log" in content
+    assert "Não remova este texto." in first["AGENTS.md"]
+
+
+def test_init_uses_existing_claude_project_memory_file(tmp_path: Path):
+    """Prefere a memória de projeto do Claude já existente quando ela está em .claude.
+    Evita criar um segundo CLAUDE.md na raiz e preserva o conteúdo encontrado.
+    """
+    project_memory = tmp_path / ".claude/CLAUDE.md"
+    project_memory.parent.mkdir()
+    project_memory.write_text("# Claude do projeto\n", encoding="utf-8")
+
+    init_project(tmp_path, integrations=("claude",))
+
+    assert "STDD:BEGIN AGENT INSTRUCTIONS" in project_memory.read_text(encoding="utf-8")
+    assert not (tmp_path / "CLAUDE.md").exists()
 
 
 def test_init_preserves_existing_gitignore_and_does_not_duplicate_rules(tmp_path: Path):
@@ -210,6 +246,9 @@ def test_readme_documents_remote_install_and_interactive_integrations():
     assert ".agents/skills/" in readme
     assert ".claude/skills/" in readme
     assert ".gemini/skills/" in readme
+    assert "AGENTS.md" in readme
+    assert "CLAUDE.md" in readme
+    assert "GEMINI.md" in readme
 
 
 def test_readme_documents_codex_skill_invocation():

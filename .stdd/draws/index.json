@@ -13,6 +13,17 @@
       "subdraw_count": 1
     },
     {
+      "id": "demo-perguntas-respostas",
+      "file": "demo-perguntas-respostas.json",
+      "title": "Demonstração: perguntas, respostas e loop",
+      "subtitle": "Fluxo para validar perguntas respondidas, pendências e retorno ao início",
+      "kind": "feature",
+      "updated_at": "2026-07-31T19:57:28.812372+00:00",
+      "node_count": 4,
+      "edge_count": 4,
+      "subdraw_count": 0
+    },
+    {
       "id": "payment-details",
       "file": "payment-details.json",
       "title": "Detalhes da autorização de pagamento",
