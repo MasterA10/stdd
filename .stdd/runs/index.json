@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "days": [
+    {
+      "date": "2026-07-31",
+      "summary": "2026-07-31/2026-07-31_summary.json",
+      "snapshot": "2026-07-31/2026-07-31_snapshot.json",
+      "run_count": 17,
+      "last_run_id": "da3b1bf836c04ae2b082060f7dfb2ace"
+    }
+  ]
+}

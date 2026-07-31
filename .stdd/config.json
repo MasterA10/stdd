@@ -1,0 +1,64 @@
+{
+  "test_commands": [
+    {
+      "name": "all",
+      "command": [
+        "/Users/alexalves/Movies/stdd/.venv/bin/python3.14",
+        "-m",
+        "pytest"
+      ]
+    }
+  ],
+  "contract": {
+    "enabled": true,
+    "code_language": "python",
+    "description_language": "pt-BR",
+    "short_description_max_chars": 160
+  },
+  "static_analysis": {
+    "enabled": true,
+    "adapter_command": null,
+    "contract_version": "1",
+    "quality": {
+      "functions": {
+        "max_lines": {
+          "warning": 40,
+          "blocking": 100
+        },
+        "max_complexity": {
+          "warning": 10,
+          "blocking": 25
+        }
+      },
+      "tests": {
+        "max_lines": {
+          "warning": 80,
+          "blocking": 160
+        }
+      }
+    }
+  },
+  "tracked_extensions": [
+    ".bash",
+    ".c",
+    ".cpp",
+    ".cs",
+    ".go",
+    ".h",
+    ".hpp",
+    ".java",
+    ".js",
+    ".jsx",
+    ".kt",
+    ".php",
+    ".py",
+    ".rb",
+    ".rs",
+    ".scala",
+    ".sh",
+    ".swift",
+    ".ts",
+    ".tsx"
+  ],
+  "version": 1
+}

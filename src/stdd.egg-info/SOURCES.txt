@@ -1,0 +1,17 @@
+pyproject.toml
+src/stdd/__init__.py
+src/stdd/cli.py
+src/stdd/contract.py
+src/stdd/core.py
+src/stdd/models.py
+src/stdd.egg-info/PKG-INFO
+src/stdd.egg-info/SOURCES.txt
+src/stdd.egg-info/dependency_links.txt
+src/stdd.egg-info/entry_points.txt
+src/stdd.egg-info/requires.txt
+src/stdd.egg-info/top_level.txt
+src/stdd/templates/agents/feature/SKILL.md
+src/stdd/templates/agents/implement/SKILL.md
+src/stdd/templates/agents/setup/SKILL.md
+tests/test_cli.py
+tests/test_stdd.py

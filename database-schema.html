@@ -1,0 +1,1891 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Marketplace Local · Schema Explorer</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #6d7890;
+      --soft: #eef1f7;
+      --line: #dfe5ef;
+      --paper: #fbfcff;
+      --panel: rgba(255, 255, 255, .86);
+      --navy: #111b33;
+      --orange: #f26b3e;
+      --orange-dark: #d84e27;
+      --cyan: #27b6c7;
+      --purple: #8e73ee;
+      --green: #39ad78;
+      --blue: #5688e8;
+      --pink: #e96591;
+      --shadow: 0 22px 60px rgba(23, 32, 51, .14);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+    body {
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% -4%, rgba(242, 107, 62, .24), transparent 34rem),
+        linear-gradient(145deg, #f8f7f3 0%, #f4f6fb 50%, #edf0f6 100%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible { outline: 3px solid rgba(242, 107, 62, .35); outline-offset: 2px; }
+
+    .app {
+      width: 100%;
+      height: 100dvh;
+      min-width: 960px;
+      overflow-x: auto;
+    }
+
+    .eyebrow {
+      margin: 0 0 9px;
+      color: var(--orange-dark);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    .reading-guide {
+      min-width: 0;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
+      border-right: 1px solid rgba(223, 229, 239, .9);
+      background: rgba(255, 255, 255, .78);
+    }
+    .guide-inner { padding: 20px 16px 28px; }
+    .schema-identity { padding-bottom: 18px; border-bottom: 1px solid #e5e9f1; }
+    .schema-title { margin: 0; color: var(--navy); font-size: 21px; letter-spacing: -.04em; line-height: 1.08; }
+    .schema-subtitle { margin: 7px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .snapshot { display: flex; align-items: center; gap: 8px; margin-top: 11px; color: #7b3e2c; font-size: 10px; font-weight: 800; }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #31ae77; box-shadow: 0 0 0 4px rgba(49, 174, 119, .12); }
+    .compact-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-top: 13px; }
+    .compact-stat { padding: 9px; border: 1px solid #e5e9f1; border-radius: 10px; background: rgba(248,250,253,.92); }
+    .compact-stat-label { color: var(--muted); font-size: 8px; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
+    .compact-stat-value { margin-top: 4px; color: var(--navy); font-size: 13px; font-weight: 900; overflow-wrap: anywhere; }
+    .guide-content { padding-top: 18px; }
+    .guide-heading { margin: 0; color: var(--navy); font-size: 19px; letter-spacing: -.025em; }
+    .guide-copy { margin: 7px 0 13px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .flow-buttons { display: grid; grid-template-columns: 1fr; gap: 7px; }
+    .flow-button {
+      min-height: 34px;
+      padding: 0 11px;
+      border: 1px solid #e1e6ef;
+      border-radius: 10px;
+      color: #59647a;
+      background: rgba(248,250,253,.94);
+      font-size: 11px;
+      font-weight: 800;
+      text-align: left;
+    }
+    .flow-button:hover { border-color: rgba(233,101,145,.55); color: #b63d6b; }
+    .flow-button.is-active { border-color: rgba(233,101,145,.65); color: #fff; background: linear-gradient(135deg, #ea719b, #cf4778); box-shadow: 0 7px 17px rgba(207,71,120,.18); }
+    .flow-explanation {
+      margin-top: 16px;
+      padding: 14px;
+      border: 1px solid #e7eaf1;
+      border-radius: 15px;
+      background: rgba(248,250,253,.9);
+    }
+    .flow-title { margin: 0; color: var(--navy); font-size: 15px; }
+    .flow-summary { margin: 6px 0 10px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .flow-steps { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 2px 0 5px; }
+    .flow-step {
+      width: 100%;
+      position: relative;
+      padding: 9px 10px;
+      border: 1px solid #e3e7ef;
+      border-radius: 10px;
+      color: var(--ink);
+      background: #fff;
+      text-align: left;
+    }
+    .flow-step:not(:last-child)::after { content: "↓"; position: absolute; bottom: -12px; left: 50%; z-index: 2; color: #c56a8b; font-weight: 900; transform: translateX(-50%); }
+    .flow-step-table { display: block; color: #b83f6d; font-family: "SFMono-Regular", Consolas, monospace; font-size: 9px; font-weight: 900; overflow-wrap: anywhere; }
+    .flow-step-copy { display: block; margin-top: 4px; color: #687389; font-size: 9px; line-height: 1.35; }
+
+    .workspace {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: rgba(251, 252, 255, .75);
+      backdrop-filter: blur(18px);
+    }
+
+    .main-layout { display: grid; grid-template-columns: clamp(230px, 18vw, 280px) minmax(400px, 1fr) clamp(310px, 23vw, 360px); width: 100%; height: 100%; overflow: hidden; }
+    .canvas-area { display: flex; min-width: 0; min-height: 0; flex-direction: column; background: linear-gradient(180deg, rgba(248, 250, 253, .77), rgba(242, 245, 251, .86)); }
+    .stage {
+      flex: 1 1 auto;
+      position: relative;
+      min-height: 0;
+      overflow: hidden;
+      background-image: radial-gradient(rgba(117, 132, 160, .25) .8px, transparent .8px);
+      background-size: 18px 18px;
+      user-select: none;
+    }
+    .stage svg { display: block; width: 100%; height: 100%; touch-action: none; }
+    .stage.is-panning { cursor: grabbing; }
+    .stage:not(.is-panning) { cursor: grab; }
+
+    .inspector {
+      min-width: 0;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
+      border-left: 1px solid rgba(223, 229, 239, .9);
+      background: rgba(255, 255, 255, .82);
+    }
+    .inspector-tools { padding: 18px 18px 20px; border-bottom: 1px solid #e5e9f1; background: rgba(252,253,255,.92); }
+    .tools-heading { margin: 0 0 11px; color: var(--navy); font-size: 15px; letter-spacing: -.025em; }
+    .search-wrap { display: block; position: relative; }
+    .search-wrap input { width: 100%; min-height: 38px; padding: 0 12px 0 35px; border: 1px solid var(--line); border-radius: 10px; color: var(--ink); background: #fff; font-size: 11px; }
+    .search-icon { position: absolute; top: 8px; left: 12px; color: var(--muted); font-size: 16px; }
+    .filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
+    .filter-button, .tool-button { min-height: 34px; padding: 0 9px; border: 1px solid var(--line); border-radius: 9px; color: #556077; background: rgba(255,255,255,.9); font-size: 10px; font-weight: 800; }
+    .filter-button:hover, .tool-button:hover { border-color: rgba(242,107,62,.45); color: var(--orange-dark); }
+    .filter-button.is-active, .tool-button.is-active { border-color: rgba(242,107,62,.5); color: #fff; background: linear-gradient(135deg, #f37b4f, #df522d); }
+    .tool-button:disabled { cursor: not-allowed; opacity: .42; }
+    .tool-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: 12px; }
+    .zoom-tools { display: grid; grid-template-columns: 34px 1fr 34px; gap: 6px; margin-top: 6px; }
+    .zoom-readout { display: grid; place-items: center; color: var(--muted); border: 1px solid var(--line); border-radius: 9px; background: #fff; font-size: 10px; font-weight: 900; }
+    .canvas-status { display: grid; gap: 3px; margin-top: 13px; padding-top: 12px; border-top: 1px solid #e5e9f1; }
+    .canvas-title { color: var(--ink); font-size: 10px; font-weight: 800; line-height: 1.4; }
+    .canvas-hint { color: var(--muted); font-size: 9px; }
+    .legend { display: grid; gap: 5px; margin-top: 12px; color: var(--muted); font-size: 9px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-line { width: 23px; height: 0; border-top: 2px solid #9ba6b9; }
+    .legend-line.dashed { border-top-style: dashed; }
+    .legend-key { display: inline-grid; place-items: center; width: 19px; height: 14px; border-radius: 4px; color: #fff; font-size: 8px; font-weight: 900; }
+    .legend-key.pk { background: #1f8061; }
+    .legend-key.fk { background: #a66a19; }
+    .legend-lock { color: #35a876; font-size: 12px; }
+    .domain-legend { display: grid; gap: 6px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e9f1; }
+    .domain-legend-item { display: grid; grid-template-columns: 9px minmax(0, 1fr); gap: 7px; align-items: start; }
+    .domain-legend-swatch { width: 9px; height: 9px; margin-top: 3px; border-radius: 3px; background: var(--domain-color); box-shadow: 0 0 0 3px color-mix(in srgb, var(--domain-color) 14%, transparent); }
+    .domain-legend-copy { color: #6d7890; font-size: 9px; line-height: 1.35; }
+    .domain-legend-copy strong { display: block; color: #3d485d; font-size: 9px; }
+    .inspector-inner { padding: 20px 18px 28px; }
+    .inspector-kicker { margin: 0 0 8px; color: var(--orange-dark); font-size: 10px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+    .inspector h2 { margin: 0; color: var(--navy); font-size: 23px; letter-spacing: -.04em; }
+    .inspector-copy { margin: 8px 0 18px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .inspector-section { margin-top: 20px; }
+    .section-label { margin-bottom: 8px; color: var(--muted); font-size: 10px; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
+    .field-list, .relation-list, .analysis-list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+    .field-row, .relation-row, .analysis-item { padding: 9px 10px; border: 1px solid #e8ecf3; border-radius: 10px; background: rgba(249, 250, 253, .9); }
+    .field-row { display: grid; grid-template-columns: 1fr auto; gap: 5px 8px; }
+    .field-name { min-width: 0; overflow-wrap: anywhere; color: var(--ink); font-family: "SFMono-Regular", Consolas, monospace; font-size: 11px; font-weight: 800; }
+    .field-type { color: var(--muted); font-family: "SFMono-Regular", Consolas, monospace; font-size: 10px; text-align: right; }
+    .field-meta { grid-column: 1 / -1; color: var(--muted); font-size: 10px; line-height: 1.4; }
+    .key { display: inline-block; margin-right: 4px; padding: 2px 4px; border-radius: 4px; color: #fff; font-size: 8px; font-weight: 900; letter-spacing: .06em; vertical-align: 1px; }
+    .key.pk { background: #1f8061; }
+    .key.fk { background: #a66a19; }
+    .key.ext { background: #6f62bb; }
+    .relation-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; color: var(--ink); font-size: 11px; line-height: 1.4; }
+    .relation-row small { display: block; color: var(--muted); font-family: "SFMono-Regular", Consolas, monospace; font-size: 9px; }
+    .delete-rule { flex: 0 0 auto; color: var(--muted); font-size: 9px; white-space: nowrap; }
+    .analysis-item { color: #556077; font-size: 11px; line-height: 1.5; }
+    .analysis-item strong { color: var(--ink); }
+    .explanation-card { padding: 11px 12px; border: 1px solid #e6eaf2; border-radius: 11px; background: rgba(249,250,253,.92); }
+    .explanation-card + .explanation-card { margin-top: 7px; }
+    .explanation-card-label { margin-bottom: 4px; color: #ba4a73; font-size: 9px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    .explanation-card p { margin: 0; color: #59647a; font-size: 11px; line-height: 1.5; }
+    .question-list { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
+    .question-item { padding-left: 15px; color: #59647a; font-size: 11px; line-height: 1.45; position: relative; }
+    .question-item::before { content: "?"; position: absolute; left: 0; color: var(--orange-dark); font-weight: 900; }
+    .relation-row { flex-direction: column; }
+    .relation-summary { display: flex; align-items: flex-start; justify-content: space-between; width: 100%; gap: 8px; }
+    .relation-why { color: #59647a; font-size: 10px; line-height: 1.45; }
+    .relation-delete { padding-top: 6px; border-top: 1px dashed #dfe4ec; color: #7b8598; font-size: 9px; line-height: 1.4; }
+    .open-table {
+      padding: 0;
+      border: 0;
+      color: #ac3f68;
+      background: transparent;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: inherit;
+      font-weight: 900;
+      text-align: left;
+    }
+    .open-table:hover { text-decoration: underline; }
+
+    .domain-band { fill: rgba(255,255,255,.42); stroke: rgba(205, 213, 227, .7); stroke-width: 1.5; stroke-dasharray: 5 8; }
+    .band-label { fill: #758096; font-size: 22px; font-weight: 800; letter-spacing: -.03em; }
+    .band-caption { fill: #a1aabd; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .relation { fill: none; stroke: #aeb8c9; stroke-width: 2.2; opacity: .78; transition: opacity .2s ease, stroke .2s ease, stroke-width .2s ease; }
+    .relation.is-active { stroke: var(--orange); stroke-width: 3.7; opacity: 1; stroke-dasharray: 8 7; animation: flow 1.4s linear infinite; }
+    .relation.is-operational { stroke: var(--purple); stroke-width: 2.7; stroke-dasharray: 5 7; }
+    .relation.is-active.is-operational { stroke: var(--orange); stroke-width: 3.7; }
+    .relation.is-dimmed { opacity: .08; }
+    .relation.is-flow { stroke: var(--pink); stroke-width: 3.3; opacity: 1; }
+    .edge-label { fill: #737f94; font-size: 9px; font-weight: 700; opacity: 0; pointer-events: none; transition: opacity .2s ease; }
+    .edge-label.is-visible { opacity: .74; }
+    .edge-label.is-active-label { fill: #bf542f; opacity: 1; font-weight: 900; }
+    .edge-label.is-column-key { fill: #58657b; font-size: 10px; font-weight: 900; paint-order: stroke; stroke: rgba(251,252,255,.96); stroke-width: 4px; stroke-linejoin: round; }
+    .edge-ports { color: #8f9bb0; opacity: .34; pointer-events: none; transition: color .2s ease, opacity .2s ease; }
+    .edge-ports.is-active { color: var(--orange); opacity: 1; }
+    .edge-ports.is-flow { color: var(--pink); opacity: 1; }
+    .edge-ports.is-dimmed { opacity: .08; }
+    .edge-port-source { fill: #fff; stroke: currentColor; stroke-width: 3; }
+    .edge-port-target { fill: currentColor; stroke: #fff; stroke-width: 2; }
+    .node-fo { overflow: visible; }
+    .table-node {
+      overflow: hidden;
+      border: 1px solid rgba(207, 216, 229, .95);
+      border-radius: 13px;
+      background: rgba(255, 255, 255, .96);
+      box-shadow: 0 10px 22px rgba(24, 40, 65, .1);
+      color: var(--ink);
+      transform-origin: center;
+      transition: opacity .22s ease, filter .22s ease, box-shadow .22s ease, border-color .22s ease;
+    }
+    .table-node:hover { border-color: rgba(242, 107, 62, .58); box-shadow: 0 15px 30px rgba(24, 40, 65, .17); }
+    .table-node.is-selected { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(242,107,62,.16), 0 16px 32px rgba(24,40,65,.18); }
+    .table-node.is-flow { border-color: rgba(233,101,145,.9); box-shadow: 0 0 0 3px rgba(233,101,145,.14), 0 13px 28px rgba(24,40,65,.15); }
+    .table-node.is-dimmed { opacity: .16; filter: saturate(.4); }
+    .table-node.is-hidden { display: none; }
+    .node-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 11px; color: #fff; background: var(--node-accent, #65728b); }
+    .node-head-left { min-width: 0; }
+    .node-domain { display: block; margin-bottom: 3px; color: rgba(255,255,255,.72); font-size: 8px; font-weight: 900; letter-spacing: .11em; text-transform: uppercase; }
+    .node-name { display: block; overflow-wrap: anywhere; color: #fff; font-family: "SFMono-Regular", Consolas, monospace; font-size: 13px; font-weight: 800; line-height: 1.1; }
+    .node-lock { color: rgba(255,255,255,.86); font-size: 13px; }
+    .node-purpose {
+      height: 44px;
+      overflow: hidden;
+      padding: 7px 10px;
+      border-bottom: 1px solid #e8edf4;
+      color: #616d82;
+      background: color-mix(in srgb, var(--node-accent) 7%, white);
+      font-size: 9px;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    .node-purpose-label { display: block; margin-bottom: 2px; color: var(--node-accent); font-size: 7px; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
+    .node-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 23px; padding: 4px 10px; border-bottom: 1px solid #edf0f5; background: rgba(255,255,255,.98); }
+    .node-row:last-child { border-bottom: 0; }
+    .node-field { min-width: 0; overflow: hidden; color: #3a455a; font-family: "SFMono-Regular", Consolas, monospace; font-size: 9px; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
+    .node-type { max-width: 120px; overflow: hidden; color: #8993a5; font-family: "SFMono-Regular", Consolas, monospace; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+    .node-type.is-reference { color: #a66a19; font-weight: 850; }
+    .node-key { display: inline-block; margin-right: 4px; padding: 1px 3px; border-radius: 3px; color: #fff; font-size: 7px; font-weight: 900; vertical-align: 1px; }
+    .node-key.pk { background: #2a9a73; }
+    .node-key.fk { background: #b47a25; }
+    .node-more { padding: 6px 10px; color: #8a94a7; background: #fafbfe; font-size: 9px; font-weight: 700; }
+    .no-match { fill: #8d99ad; font-size: 26px; font-weight: 800; }
+    .no-match-caption { fill: #a5afbf; font-size: 13px; }
+
+    @keyframes flow { to { stroke-dashoffset: -30; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .001ms !important; transition-duration: .001ms !important; } }
+    @media (max-width: 1100px) {
+      .main-layout { grid-template-columns: 230px minmax(400px, 1fr) 310px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" id="schema-explorer">
+    <section class="workspace" aria-label="Explorador visual do banco de dados">
+      <div class="main-layout">
+        <aside class="reading-guide" aria-labelledby="guide-title">
+          <div class="guide-inner">
+            <section class="schema-identity" aria-label="Resumo do schema">
+              <p class="eyebrow">Supabase / public</p>
+              <h1 class="schema-title">Marketplace Local · Schema Explorer</h1>
+              <p class="schema-subtitle">Mapa interativo do modelo consolidado pelas migrations 0001 → 0033. Chaves UUID usam <code>gen_random_uuid()</code>, disponível no PostgreSQL local e no Supabase hospedado.</p>
+              <div class="snapshot"><span class="live-dot" aria-hidden="true"></span> Snapshot local · SQL versionado</div>
+              <div class="compact-summary">
+                <div class="compact-stat"><div class="compact-stat-label">Tabelas públicas</div><div class="compact-stat-value" id="table-count">67</div></div>
+                <div class="compact-stat"><div class="compact-stat-label">Relações FK</div><div class="compact-stat-value" id="relation-count">—</div></div>
+                <div class="compact-stat"><div class="compact-stat-label">RLS</div><div class="compact-stat-value">100%</div></div>
+                <div class="compact-stat"><div class="compact-stat-label">Migrations</div><div class="compact-stat-value">0001–0033</div></div>
+              </div>
+            </section>
+            <section class="guide-content">
+              <p class="eyebrow">Leitura guiada</p>
+              <h2 class="guide-heading" id="guide-title">Entenda pelo fluxo do produto</h2>
+              <p class="guide-copy">Escolha um caminho para destacar as tabelas que colaboram naquele resultado. Clique em uma etapa para abrir sua explicação detalhada.</p>
+              <div class="flow-buttons" id="flow-buttons" aria-label="Fluxos explicados"></div>
+              <div class="flow-explanation" id="flow-explanation" aria-live="polite"></div>
+            </section>
+          </div>
+        </aside>
+
+        <section class="canvas-area" aria-label="Diagrama do schema">
+          <div class="stage" id="stage">
+            <svg id="diagram" role="img" aria-label="Diagrama relacional do banco de dados Marketplace Local" viewBox="0 0 4300 4200" preserveAspectRatio="xMidYMid meet">
+              <title>Diagrama relacional do Marketplace Local</title>
+              <desc>Linhas contínuas mostram chaves estrangeiras; linhas roxas tracejadas mostram fluxos operacionais disparados por trigger, RPC ou worker. As tabelas são agrupadas por domínio e possuem RLS habilitado.</desc>
+              <defs>
+                <marker id="arrow-fk" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#aeb8c9"></path></marker>
+                <marker id="arrow-active" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#f26b3e"></path></marker>
+                <marker id="arrow-trigger" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8e73ee"></path></marker>
+              </defs>
+              <g id="viewport">
+                <g id="bands"></g>
+                <g id="edges"></g>
+                <g id="edge-labels"></g>
+                <g id="nodes"></g>
+                <g id="empty-state" display="none"><text class="no-match" x="1250" y="1320" text-anchor="middle">Nenhuma tabela encontrada</text><text class="no-match-caption" x="1250" y="1352" text-anchor="middle">Tente outro nome de tabela, coluna ou domínio.</text></g>
+              </g>
+            </svg>
+          </div>
+        </section>
+
+        <aside class="inspector" id="inspector" aria-live="polite">
+          <section class="inspector-tools" aria-labelledby="tools-title">
+            <p class="eyebrow">Controles do mapa</p>
+            <h2 class="tools-heading" id="tools-title">Explore sem tirar espaço do fluxo</h2>
+            <label class="search-wrap" aria-label="Buscar tabelas e colunas">
+              <span class="search-icon" aria-hidden="true">⌕</span>
+              <input id="search" type="search" placeholder="Buscar tabela, coluna ou tipo..." autocomplete="off">
+            </label>
+            <div class="filters" id="filters" aria-label="Filtrar por domínio"></div>
+            <div class="tool-grid">
+              <button class="tool-button" id="detail-toggle" type="button" aria-pressed="false">Expandir colunas</button>
+              <button class="tool-button" id="focus-selected" type="button" disabled>Focar seleção</button>
+              <button class="tool-button" id="fk-label-toggle" type="button" aria-pressed="false">Rótulos FK</button>
+              <button class="tool-button" id="fit" type="button">Mostrar tudo</button>
+              <button class="tool-button" id="reset" type="button">Resetar mapa</button>
+            </div>
+            <div class="zoom-tools">
+              <button class="tool-button" id="zoom-out" type="button" aria-label="Diminuir zoom">−</button>
+              <span class="zoom-readout" id="zoom-readout">118%</span>
+              <button class="tool-button" id="zoom-in" type="button" aria-label="Aumentar zoom">+</button>
+            </div>
+            <div class="canvas-status">
+              <div class="canvas-title" id="canvas-title">Visão geral · roda = zoom · arraste = mover · clique = focar</div>
+              <div class="canvas-hint" id="visible-count">70 entidades visíveis</div>
+            </div>
+            <div class="legend" aria-label="Legenda">
+              <span class="legend-item"><span class="legend-key pk">PK</span> chave primária</span>
+              <span class="legend-item"><span class="legend-key fk">FK</span> chave estrangeira</span>
+              <span class="legend-item"><span class="legend-line"></span> seta termina na coluna referenciada</span>
+              <span class="legend-item"><span class="legend-line dashed" style="border-color:var(--purple)"></span> fluxo operacional por trigger, RPC ou worker</span>
+              <span class="legend-item"><span class="legend-lock">●</span> RLS habilitado</span>
+            </div>
+            <div class="domain-legend" id="domain-legend" aria-label="Significado das cores"></div>
+          </section>
+          <div class="inspector-inner" id="inspector-content"></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const svg = document.getElementById('diagram');
+      const viewport = document.getElementById('viewport');
+      const bandsLayer = document.getElementById('bands');
+      const edgesLayer = document.getElementById('edges');
+      const labelsLayer = document.getElementById('edge-labels');
+      const nodesLayer = document.getElementById('nodes');
+      const emptyState = document.getElementById('empty-state');
+      const stage = document.getElementById('stage');
+      const inspector = document.getElementById('inspector-content');
+      const searchInput = document.getElementById('search');
+      const visibleCount = document.getElementById('visible-count');
+      const canvasTitle = document.getElementById('canvas-title');
+      const zoomReadout = document.getElementById('zoom-readout');
+      const detailToggle = document.getElementById('detail-toggle');
+      const flowButtons = document.getElementById('flow-buttons');
+      const flowExplanation = document.getElementById('flow-explanation');
+      const SVG_NS = 'http://www.w3.org/2000/svg';
+      const NODE_WIDTH = 300;
+      const ROW_HEIGHT = 23;
+      const NODE_PURPOSE_HEIGHT = 44;
+
+      const domainMeta = {
+        identity: { label: 'Identidade & geografia', short: 'identidade', color: '#5688e8', caption: 'usuários, cidades e bairros' },
+        business: { label: 'Empresas', short: 'negócio', color: '#39ad78', caption: 'vitrines, login proprietário e contas oficiais' },
+        publication: { label: 'Publicação & catálogo', short: 'publicação', color: '#8e73ee', caption: 'tipos, templates, categorias e atributos' },
+        listings: { label: 'Ofertas', short: 'ofertas', color: '#f26b3e', caption: 'anúncios, detalhes e mídia' },
+        components: { label: 'Componentes', short: 'componentes', color: '#27b6c7', caption: 'composição hierárquica de publicações' },
+        engagement: { label: 'Engajamento', short: 'engajamento', color: '#e96591', caption: 'favoritos, notificações e eventos' },
+        trust: { label: 'Confiança & moderação', short: 'confiança', color: '#d58a2d', caption: 'denúncias, bloqueios, decisões e risco' },
+        compliance: { label: 'Compliance', short: 'compliance', color: '#6476d8', caption: 'verificação, consentimento, suporte e exclusão' },
+        operations: { label: 'Operação interna', short: 'operação', color: '#65727f', caption: 'rate limits, auditoria, execuções e Storage' }
+      };
+      const domainPurposes = {
+        identity: 'Responde quem é o usuário e onde a experiência local acontece.',
+        business: 'Representa a presença permanente de um estabelecimento: proprietário, identidade comercial, categoria empresarial, verificação, contato, imagens, atributos e horários. Não representa uma oferta específica; produtos, serviços e classificados continuam em listings.',
+        publication: 'É o motor de configuração do sistema. Define primeiro o tipo de publicação, depois templates e versões imutáveis, categorias, campos tipados e opções. Ele diz quais dados podem ser preenchidos, mas não guarda o anúncio ou a empresa preenchida.',
+        listings: 'Guarda cada oferta concreta publicada no marketplace: dono, empresa opcional, categoria, status, cidade, validade, preço tipado, atributos e imagens. Diferente de businesses, uma oferta possui ciclo de vida e pode expirar, pausar ou ser arquivada.',
+        components: 'Modela partes internas de uma oferta composta, como itens de um pacote, opções, etapas ou elementos de um cardápio. Componentes pertencem a um listing e não substituem categorias, atributos do anúncio raiz ou produtos independentes.',
+        engagement: 'Registra intenção, relacionamento, comunicação, entrega e aprendizado do produto.',
+        trust: 'Permite denunciar, bloquear, investigar, restringir e registrar decisões de segurança.',
+        compliance: 'Mantém verificação e direitos do titular com histórico rastreável.',
+        operations: 'Protege operações sensíveis, limita abuso e conecta metadados aos buckets privados.'
+      };
+
+      const domainExplanations = {
+        business: {
+          responsibility: 'Guardar tudo que continua verdadeiro sobre o estabelecimento mesmo quando ele não possui anúncios ativos: nome, identidade visual, proprietário, categoria empresarial, contato verificado, funcionamento e atributos da vitrine.',
+          boundary: 'Não guarda cada produto ou serviço anunciado. A empresa é a raiz institucional persistente; as ofertas que aparecem na descoberta ficam em listings e apenas apontam para ela.',
+          relationship: 'Usa o motor de Publicação & catálogo para saber quais campos a vitrine aceita e se conecta a Ofertas quando um anúncio pertence ao estabelecimento.'
+        },
+        publication: {
+          responsibility: 'Definir contratos reutilizáveis de preenchimento e validação. publication_types determina a espécie; templates agrupa a evolução; template_versions congela uma versão; categories organiza descoberta; attribute_definitions e options descrevem campos.',
+          boundary: 'Não contém dados preenchidos por usuários. Ele configura o formato permitido; businesses, listings e components armazenam as instâncias reais que seguem esse formato.',
+          relationship: 'Uma mesma infraestrutura atende produto, serviço, evento, empresa e classificado sem criar novas colunas ou formulários fixos para cada categoria.'
+        },
+        listings: {
+          responsibility: 'Representar a unidade descobrível e temporária do marketplace. listings concentra propriedade, publicação, cidade, categoria, lifecycle e texto; tabelas details guardam preço e regras universais de cada tipo; imagens e atributos completam a oferta.',
+          boundary: 'Não substitui a vitrine da empresa nem o catálogo de configuração. Uma empresa pode sobreviver sem anúncios e vários listings podem apontar para a mesma empresa.',
+          relationship: 'Recebe regras de Publicação & catálogo, pode pertencer a Empresas e pode ser decomposto em Componentes quando a oferta exige estrutura interna.'
+        },
+        components: {
+          responsibility: 'Permitir que um anúncio tenha uma estrutura interna ordenada e hierárquica. component_templates autoriza formatos; publication_components cria os blocos reais; valores e imagens descrevem cada bloco.',
+          boundary: 'Um componente não aparece como oferta independente e não possui lifecycle próprio. Se algo precisa ser encontrado, favoritado ou contatado separadamente, deve ser outro listing.',
+          relationship: 'Sempre depende de um listing e reutiliza definições tipadas do catálogo, preservando limites de quantidade, profundidade, preço e imagem.'
+        }
+      };
+
+      const tableComparisons = {
+        cities: ['neighborhoods', 'cities define a praça inteira; neighborhoods apenas subdivide uma cidade já existente.'],
+        neighborhoods: ['cities', 'neighborhoods refina a localização; cities controla o mercado local e a expansão geográfica.'],
+        profiles: ['auth.users', 'auth.users autentica credenciais e sessões; profiles guarda dados e regras do usuário dentro do marketplace.'],
+        'auth.users': ['profiles', 'auth.users pertence ao Supabase Auth; profiles é a identidade de domínio usada por cidade, conta e publicação.'],
+        phone_verification_claims: ['phone_verification_attempts', 'claims representa posse ativa e exclusiva; attempts preserva tentativas bem-sucedidas ou falhas sem conceder posse.'],
+        phone_verification_attempts: ['phone_verification_claims', 'attempts é histórico de operação; claims é o estado atual que autoriza considerar um telefone verificado.'],
+        businesses: ['listings', 'businesses é uma vitrine permanente; listings são ofertas temporárias que podem ou não pertencer a uma empresa.'],
+        business_categories: ['categories', 'business_categories classifica a vitrine; categories classifica o conteúdo publicado e seus filtros.'],
+        official_accounts: ['businesses', 'businesses representa a organização; official_accounts concede ao login a autorização especial de comunicado universal.'],
+        business_hours: ['business_schedule_exceptions', 'business_hours define a rotina semanal; exceptions sobrescreve datas específicas como feriados e férias.'],
+        business_schedule_exceptions: ['business_hours', 'exceptions vale para datas concretas; business_hours descreve a semana recorrente.'],
+        business_attribute_values: ['listing_attribute_values', 'business_attribute_values descreve a vitrine persistente; listing_attribute_values descreve uma oferta específica.'],
+        business_images: ['listing_images', 'business_images guarda identidade visual da vitrine; listing_images apresenta uma oferta e possui limite próprio.'],
+        publication_types: ['categories', 'publication_types define a espécie e o comportamento antes da categoria; categories organiza a taxonomia de descoberta.'],
+        templates: ['template_versions', 'templates é a identidade evolutiva; template_versions congela o contrato usado por conteúdo publicado.'],
+        template_versions: ['templates', 'template_versions é imutável quando ativa; templates apenas agrupa todas as versões do mesmo modelo.'],
+        categories: ['business_categories', 'categories organiza ofertas e formulários; business_categories organiza vitrines empresariais.'],
+        attribute_definitions: ['listing_attribute_values', 'definitions diz qual campo existe e qual é seu tipo; values guarda a resposta concreta de uma entidade.'],
+        attribute_options: ['attribute_definitions', 'attribute_options contém escolhas permitidas; attribute_definitions estabelece o campo e suas regras.'],
+        category_attribute_overrides: ['attribute_definitions', 'overrides ajusta uma definição em uma categoria sem duplicá-la; definitions mantém o contrato-base.'],
+        listings: ['businesses', 'listings representa uma oferta com lifecycle e expiração; businesses representa a presença comercial permanente.'],
+        listing_attribute_values: ['attribute_definitions', 'listing_attribute_values guarda respostas tipadas; attribute_definitions descreve o formulário e a validação.'],
+        product_details: ['service_details', 'product_details exige preço e condição de mercadoria; service_details aceita orçamento e modalidades de cobrança.'],
+        service_details: ['product_details', 'service_details modela cobrança e atendimento; product_details modela mercadoria e condição física.'],
+        event_details: ['service_details', 'event_details possui início e fim obrigatórios; service_details descreve disponibilidade recorrente, não uma ocorrência datada.'],
+        classified_details: ['product_details', 'classified_details preserva a semântica de negociação do classificado; product_details descreve um produto estruturado.'],
+        service_areas: ['service_hours', 'service_areas responde onde o serviço atende; service_hours responde quando ele está disponível.'],
+        service_hours: ['business_hours', 'service_hours pertence a uma oferta de serviço; business_hours pertence à vitrine como um todo.'],
+        listing_images: ['business_images', 'listing_images apresenta o anúncio e sua capa; business_images apresenta logo, capa e galeria institucional.'],
+        listing_price_history: ['product_details', 'os detalhes guardam o preço atual; listing_price_history preserva cada mudança para auditoria e alertas.'],
+        featured_placements: ['listings', 'featured_placements agenda prioridade temporária; listings guarda o conteúdo sem misturar ranking ou monetização.'],
+        component_templates: ['publication_components', 'component_templates define blocos permitidos; publication_components instancia esses blocos em um anúncio.'],
+        publication_components: ['component_templates', 'publication_components é o bloco concreto; component_templates é a regra reutilizável que o autoriza.'],
+        component_attribute_values: ['listing_attribute_values', 'component_attribute_values pertence a um bloco interno; listing_attribute_values pertence ao anúncio raiz.'],
+        component_images: ['listing_images', 'component_images ilustra um bloco específico; listing_images apresenta a oferta como um todo.'],
+        media_cleanup_queue: ['operation_runs', 'media_cleanup_queue contém arquivos a remover; operation_runs registra cada lote do worker que tenta removê-los.'],
+        favorites: ['follows', 'favorites salva uma oferta específica; follows mantém um vínculo duradouro com uma empresa.'],
+        follows: ['favorites', 'follows acompanha a vitrine; favorites demonstra intenção sobre um anúncio concreto.'],
+        device_tokens: ['notification_deliveries', 'device_tokens representa destinos técnicos ativos; deliveries registra cada tentativa enviada para esses destinos.'],
+        notification_preferences: ['device_tokens', 'preferences expressa escolhas da conta; device_tokens informa capacidade e permissão técnica de cada aparelho.'],
+        notification_category_preferences: ['notification_business_preferences', 'a primeira controla temas por categoria; a segunda controla comunicações de uma empresa específica.'],
+        notification_business_preferences: ['follows', 'follows mantém o relacionamento; esta tabela regula a comunicação sem obrigar o usuário a deixar de seguir.'],
+        notification_consent_events: ['notification_preferences', 'preferences guarda o estado atual; consent_events preserva a linha do tempo das mudanças.'],
+        notification_jobs: ['notification_deliveries', 'notification_jobs representa o fato a transformar em mensagem; deliveries representa a tentativa técnica por dispositivo.'],
+        notifications: ['notification_recipients', 'notifications guarda o conteúdo único; recipients materializa quem recebe e o estado individual de leitura.'],
+        notification_recipients: ['notification_deliveries', 'recipients é a entrada da inbox; deliveries são tentativas de push que podem falhar sem apagar a inbox.'],
+        notification_deliveries: ['notifications', 'deliveries controla envio por aparelho; notifications preserva a mensagem independentemente do canal de entrega.'],
+        analytics_events: ['analytics_entity_visitors', 'analytics_events guarda todas as ações; entity_visitors deduplica pessoas para não inflar audiência.'],
+        analytics_entity_visitors: ['analytics_daily_visitors', 'entity_visitors deduplica por toda a vida; daily_visitors deduplica novamente dentro de cada dia.'],
+        analytics_daily_visitors: ['analytics_entity_visitors', 'daily_visitors permite métricas por período; entity_visitors responde o alcance vitalício.'],
+        search_requests: ['search_demand_daily', 'search_requests guarda a execução individual por 90 dias; search_demand_daily mantém somente o agregado sem identidade.'],
+        search_demand_daily: ['search_requests', 'search_demand_daily serve à tendência histórica; search_requests serve à depuração e atribuição de uma busca concreta.'],
+        reports: ['moderation_actions', 'reports registra o problema relatado; moderation_actions registra a decisão administrativa tomada sobre ele.'],
+        report_evidence: ['verification_evidence', 'report_evidence comprova uma denúncia; verification_evidence comprova identidade ou legitimidade de perfil/empresa.'],
+        moderation_actions: ['account_restrictions', 'moderation_actions é a decisão imutável; account_restrictions materializa um efeito que pode durar e depois ser levantado.'],
+        user_blocks: ['account_restrictions', 'user_blocks é escolha privada entre usuários; restrictions é imposição administrativa sobre uma conta.'],
+        account_restrictions: ['moderation_actions', 'restrictions representa o efeito vigente; moderation_actions preserva a decisão que o originou.'],
+        account_risk_signals: ['reports', 'risk_signals nasce de heurísticas explicáveis; reports nasce de uma denúncia humana. Nenhum dos dois pune sozinho.'],
+        verification_requests: ['verification_evidence', 'verification_requests controla o workflow e a decisão; evidence guarda apenas as provas anexadas.'],
+        verification_evidence: ['report_evidence', 'verification_evidence sustenta confiança de conta; report_evidence sustenta um caso de moderação.'],
+        legal_documents: ['user_consents', 'legal_documents versiona o texto; user_consents prova qual versão cada pessoa aceitou.'],
+        user_consents: ['legal_documents', 'user_consents é o aceite individual; legal_documents é o conteúdo jurídico versionado.'],
+        account_deletion_requests: ['support_requests', 'deletion_requests possui workflow regulatório de exclusão; support_requests trata demandas operacionais gerais.'],
+        support_requests: ['reports', 'support_requests pede atendimento; reports denuncia conteúdo ou comportamento e pode gerar moderação.'],
+        audit_log: ['operation_runs', 'audit_log explica quem mudou dados sensíveis; operation_runs explica como uma rotina técnica foi executada.'],
+        rate_limit_rules: ['rate_limit_counters', 'rules define máximo e janela; counters registra o consumo de cada sujeito dentro dessa janela.'],
+        rate_limit_counters: ['rate_limit_rules', 'counters é estado transitório de consumo; rules é configuração administrativa estável.'],
+        'storage.buckets': ['storage.objects', 'buckets define contêiner, tamanho e MIME; objects representa cada arquivo armazenado.'],
+        'storage.objects': ['listing_images', 'storage.objects guarda os bytes e metadados técnicos; listing_images cria o vínculo de domínio com uma oferta.'],
+        operation_runs: ['audit_log', 'operation_runs acompanha cron e workers por lote; audit_log acompanha decisões e alterações administrativas por objeto.']
+      };
+
+      const t = (id, domain, x, y, description, columns, migration, options = {}) => ({ id, domain, x, y, description, columns, migration, ...options });
+      const col = (name, type, role = '', ref = '', note = '') => ({ name, type, role, ref, note });
+
+      const tables = [
+        t('cities', 'identity', 60, 210, 'Cidades disponíveis no escopo geográfico do marketplace.', [col('id','uuid','pk'), col('name','text'), col('state_code','char(2)'), col('slug','text'), col('created_at','timestamptz')], '0001'),
+        t('neighborhoods', 'identity', 60, 580, 'Bairros pertencentes a uma cidade.', [col('id','uuid','pk'), col('city_id','uuid','fk','cities.id','composite com neighborhood_id'), col('name','text'), col('slug','text'), col('created_at','timestamptz')], '0001'),
+        t('profiles', 'identity', 60, 1000, 'Perfil privado do usuário; contato só é revelado por RPC quando verificado, reivindicado e habilitado.', [col('id','uuid','pk fk','auth.users.id','Supabase Auth'), col('display_name','text'), col('account_type','account_type','', '', 'controlado pelo servidor'), col('avatar_path','text'), col('instagram_handle','text'), col('city_id','uuid','fk','cities.id'), col('neighborhood_id','uuid','fk','neighborhoods.id + city_id','FK composta'), col('phone_e164','text','', '', 'privado; saída por RPC'), col('whatsapp_e164','text','', '', 'E.164; privado'), col('phone_contact_enabled','boolean','', '', 'opt-in do telefone'), col('whatsapp_contact_enabled','boolean','', '', 'opt-in do WhatsApp'), col('phone_verified_at','timestamptz','', '', 'espelho do claim ativo'), col('verification_status','verification_status','', '', 'controlado pelo servidor'), col('bio','text'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0001 → 0017'),
+        t('phone_verification_claims', 'identity', 60, 1680, 'Posse verificada de um telefone; um número ativo pertence a uma única conta, mas pode servir ao perfil e ao negócio do mesmo dono.', [col('id','uuid','pk'), col('profile_id','uuid','fk','profiles.id'), col('phone_e164','text','unique','', 'UNIQUE parcial enquanto ativo'), col('provider_reference','text'), col('verified_at','timestamptz'), col('revoked_at','timestamptz'), col('revoked_by_profile_id','uuid','fk','profiles.id'), col('revocation_reason','text'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0017'),
+        t('phone_verification_attempts', 'identity', 60, 2080, 'Histórico administrativo de verificações, falhas e duplicidades sem revelar ao cliente quem já possui o telefone.', [col('id','uuid','pk'), col('profile_id','uuid','fk','profiles.id'), col('phone_e164','text'), col('result','phone_verification_result'), col('provider_reference','text'), col('risk_signal_id','uuid','fk','account_risk_signals.id'), col('attempted_at','timestamptz'), col('metadata','jsonb')], '0017'),
+        t('auth.users', 'identity', 60, 2460, 'Tabela externa do Supabase Auth; não pertence ao schema public.', [col('id','uuid','pk','auth.users.id','fonte externa de identidade')], 'Supabase Auth', { external: true }),
+
+        t('business_categories', 'business', 430, 150, 'Taxonomia canônica para vitrines empresariais.', [col('id','uuid','pk'), col('business_type','business_type'), col('name','text'), col('slug','text'), col('publication_type_id','uuid','fk','publication_types.id'), col('template_version_id','uuid','fk','template_versions.id'), col('created_at','timestamptz')], '0004'),
+        t('businesses', 'business', 430, 510, 'Vitrine persistente; campos internos ficam na tabela e a leitura pública usa public_business_directory.', [col('id','uuid','pk'), col('owner_profile_id','uuid','fk','profiles.id','UNIQUE e imutável'), col('business_category_id','uuid','fk','business_categories.id','categoria empresarial canônica'), col('category_id','uuid','fk','categories.id','alinhamento com motor de categorias'), col('publication_type_id','uuid','fk','publication_types.id'), col('template_version_id','uuid','fk','template_versions.id'), col('name','text'), col('business_type','business_type'), col('description','text'), col('phone_e164','text','', '', 'privado; saída por RPC'), col('whatsapp_e164','text','', '', 'E.164; privado'), col('phone_contact_enabled','boolean'), col('whatsapp_contact_enabled','boolean'), col('city_id','uuid','fk','cities.id'), col('neighborhood_id','uuid','fk','neighborhoods.id + city_id','FK composta'), col('address','text'), col('location','geography(point,4326)'), col('exact_location_publication_enabled','boolean','', '', 'opt-in; false por padrão'), col('verification_status','verification_status','', '', 'controlado pelo servidor'), col('operational_status','business_operational_status','', '', 'alterado por RPC'), col('temporarily_closed','boolean'), col('temporarily_closed_reason','text'), col('closed_until','timestamptz'), col('revision','bigint'), col('search_text','text','', '', 'normalizado + GIN trigram'), col('search_document','tsvector','', '', 'GIN FTS português sem acento'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0001 → 0031'),
+        t('official_accounts', 'business', 430, 1050, 'Autorização governamental específica para um órgão oficial publicar comunicados para todos os usuários. Não é o selo geral de conta oficial, que pode existir para pessoas e empresas verificadas.', [col('id','uuid','pk'), col('profile_id','uuid','fk','profiles.id','UNIQUE: login governamental'), col('business_id','uuid','fk','businesses.id + owner_profile_id','UNIQUE: vitrine institucional'), col('organization_type','official_organization_type'), col('display_name','text'), col('is_verified','boolean'), col('can_publish_notifications','boolean'), col('is_active','boolean'), col('verified_by_profile_id','uuid','fk','profiles.id'), col('verified_at','timestamptz'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0011 → 0042'),
+        t('business_hours', 'business', 430, 1430, 'Períodos semanais de funcionamento da empresa.', [col('id','uuid','pk'), col('business_id','uuid','fk','businesses.id'), col('weekday','smallint'), col('opens_at','time'), col('closes_at','time'), col('is_closed','boolean'), col('period_number','smallint'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0001 → 0006'),
+        t('business_schedule_exceptions', 'business', 430, 1800, 'Feriados, férias e horários especiais que sobrescrevem a agenda semanal.', [col('id','uuid','pk'), col('business_id','uuid','fk','businesses.id'), col('starts_on','date'), col('ends_on','date'), col('exception_type','business_schedule_exception_type'), col('opens_at','time'), col('closes_at','time'), col('description','text'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0006'),
+        t('business_attribute_values', 'business', 430, 2220, 'Valores tipados de atributos da vitrine empresarial.', [col('business_id','uuid','pk fk','businesses.id'), col('attribute_definition_id','uuid','pk fk','attribute_definitions.id'), col('text_value','text'), col('number_value','numeric'), col('boolean_value','boolean'), col('date_value','date'), col('time_value','time'), col('timestamp_value','timestamptz'), col('option_id','uuid','fk','attribute_options.id'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0002 → 0003'),
+        t('business_images', 'business', 430, 2730, 'Logo, capa e até três imagens de galeria da vitrine, com ordem e metadados de Storage.', [col('id','uuid','pk'), col('business_id','uuid','fk','businesses.id'), col('image_type','business_image_type','', '', 'logo, cover ou gallery'), col('storage_path','text'), col('position','smallint','', '', 'logo/capa 0; galeria 0..2'), col('width','integer'), col('height','integer'), col('file_size_bytes','bigint','', '', 'até 10 MiB'), col('alt_text','text'), col('created_at','timestamptz')], '0016'),
+
+        t('publication_types', 'publication', 800, 90, 'Tipo de publicação que vem antes da categoria e define o contexto da entidade. O tipo empresa permanece no catálogo para vitrines, mas fica desabilitado no fluxo de anúncios.', [col('id','uuid','pk'), col('slug','text'), col('name','text'), col('description','text'), col('entity_kind','text'), col('sort_order','smallint'), col('is_enabled','boolean','', '', 'empresa=false no anúncio'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0002 → 0041'),
+        t('templates', 'publication', 800, 420, 'Modelo base versionável para uma publicação.', [col('id','uuid','pk'), col('name','text'), col('slug','text'), col('listing_type','listing_type','', '', 'legado e nullable'), col('publication_type_id','uuid','fk','publication_types.id'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0001 → 0002'),
+        t('template_versions', 'publication', 800, 735, 'Versão imutável quando ativa, com capacidades e modo de componentes.', [col('id','uuid','pk'), col('template_id','uuid','fk','templates.id'), col('version','integer'), col('status','template_version_status'), col('component_mode','component_mode'), col('minimum_components','smallint'), col('maximum_components','smallint'), col('allows_price','boolean'), col('allows_location','boolean'), col('allows_expiration','boolean'), col('created_at','timestamptz'), col('published_at','timestamptz')], '0001 → 0003'),
+        t('categories', 'publication', 800, 1080, 'Categorias hierárquicas, com subcategorias iniciais para todos os tipos de publicação; anúncios precisam apontar para uma categoria folha, enquanto selecionar um pai inclui seus descendentes na busca.', [col('id','uuid','pk'), col('parent_id','uuid','fk','categories.id','autorreferência'), col('listing_type','listing_type','', '', 'legado e nullable'), col('publication_type_id','uuid','fk','publication_types.id'), col('template_version_id','uuid','fk','template_versions.id'), col('name','text'), col('slug','text'), col('created_at','timestamptz')], '0001 → 0037'),
+        t('attribute_definitions', 'publication', 800, 1510, 'Definições de campos dinâmicos; cada uma nasce no template, categoria ou componente.', [col('id','uuid','pk'), col('template_version_id','uuid','fk','template_versions.id','exatamente uma fonte'), col('category_id','uuid','fk','categories.id','exatamente uma fonte'), col('component_template_id','uuid','fk','component_templates.id','exatamente uma fonte'), col('field_key','text'), col('label','text'), col('field_type','attribute_field_type'), col('unit','text'), col('is_required','boolean'), col('is_filterable','boolean'), col('is_searchable','boolean'), col('is_visible','boolean'), col('sort_order','smallint'), col('is_enabled','boolean'), col('placeholder','text'), col('default_value_jsonb','jsonb'), col('validation_rules_jsonb','jsonb'), col('display_rules_jsonb','jsonb'), col('created_at','timestamptz')], '0001 → 0005'),
+        t('attribute_options', 'publication', 800, 2000, 'Opções normalizadas para atributos do tipo option.', [col('id','uuid','pk'), col('attribute_definition_id','uuid','fk','attribute_definitions.id'), col('option_key','text'), col('label','text'), col('sort_order','smallint')], '0001'),
+        t('category_attribute_overrides', 'publication', 800, 2290, 'Overrides por categoria para label, obrigatoriedade, filtro e ordem.', [col('category_id','uuid','pk fk','categories.id'), col('attribute_definition_id','uuid','pk fk','attribute_definitions.id'), col('is_enabled','boolean'), col('label_override','text'), col('is_required_override','boolean'), col('is_filterable_override','boolean'), col('sort_order_override','smallint')], '0001'),
+
+        t('listings', 'listings', 1190, 250, 'Núcleo pesquisável de cada oferta; anúncios novos e alterações de categoria são rejeitados quando apontam para uma categoria pai. A descoberta continua aceitando filtros amplos.', [col('id','uuid','pk'), col('owner_profile_id','uuid','fk','profiles.id','imutável'), col('business_id','uuid','fk','businesses.id'), col('publication_type_id','uuid','fk','publication_types.id'), col('category_id','uuid','fk','categories.id','categoria folha obrigatória'), col('template_version_id','uuid','fk','template_versions.id'), col('listing_type','listing_type','', '', 'legado e nullable'), col('title','text'), col('description','text'), col('city_id','uuid','fk','cities.id'), col('neighborhood_id','uuid','fk','neighborhoods.id + city_id','FK composta'), col('address','text','', '', 'somente dono/admin'), col('location','geography(point,4326)','', '', 'somente dono/admin'), col('status','listing_status','', '', 'alterado por RPC/moderação'), col('published_at','timestamptz'), col('expires_at','timestamptz'), col('first_published_at','timestamptz'), col('archived_at','timestamptz'), col('revision','bigint'), col('search_text','text','', '', 'normalizado + GIN trigram'), col('search_document','tsvector','', '', 'GIN FTS português sem acento'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0001 → 0037'),
+        t('listing_attribute_values', 'listings', 1190, 880, 'Valores tipados dos campos específicos de um anúncio.', [col('listing_id','uuid','pk fk','listings.id'), col('attribute_definition_id','uuid','pk fk','attribute_definitions.id'), col('text_value','text'), col('number_value','numeric'), col('boolean_value','boolean'), col('date_value','date'), col('time_value','time'), col('timestamp_value','timestamptz'), col('option_id','uuid','fk','attribute_options.id'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0001 → 0003'),
+        t('product_details', 'listings', 1190, 1280, 'Detalhes tipados para ofertas de produto.', [col('listing_id','uuid','pk fk','listings.id'), col('price_cents','bigint'), col('currency','char(3)'), col('condition','product_condition')], '0001'),
+        t('service_details', 'listings', 1190, 1490, 'Detalhes tipados para ofertas de serviço.', [col('listing_id','uuid','pk fk','listings.id'), col('price_type','price_type'), col('price_cents','bigint'), col('currency','char(3)')], '0001'),
+        t('event_details', 'listings', 1190, 1695, 'Detalhes tipados para eventos.', [col('listing_id','uuid','pk fk','listings.id'), col('starts_at','timestamptz'), col('ends_at','timestamptz'), col('price_type','price_type'), col('price_cents','bigint'), col('currency','char(3)')], '0001'),
+        t('classified_details', 'listings', 1190, 1955, 'Detalhes para o tipo de publicação classificado.', [col('listing_id','uuid','pk fk','listings.id'), col('price_type','price_type'), col('price_cents','bigint'), col('currency','char(3)')], '0007'),
+        t('listing_images', 'listings', 1190, 2170, 'Até três imagens ordenadas por anúncio; constraints aceitam somente as posições 0, 1 e 2.', [col('id','uuid','pk'), col('listing_id','uuid','fk','listings.id'), col('storage_path','text'), col('position','smallint','', '', 'CHECK 0..2; UNIQUE por listing'), col('width','integer','', '', '1..4096 quando informado'), col('height','integer','', '', '1..4096 quando informado'), col('file_size_bytes','bigint','', '', 'até 10 MiB'), col('created_at','timestamptz')], '0001 → 0015'),
+        t('featured_placements', 'listings', 1540, 2020, 'Agenda destaques de anúncio ou empresa sem misturar prioridade editorial/comercial ao conteúdo.', [col('id','uuid','pk'), col('placement_type','featured_placement_type'), col('source','featured_placement_source'), col('listing_id','uuid','fk','listings.id','exatamente um alvo'), col('business_id','uuid','fk','businesses.id','exatamente um alvo'), col('city_id','uuid','fk','cities.id','escopo opcional'), col('category_id','uuid','fk','categories.id','somente anúncio'), col('business_category_id','uuid','fk','business_categories.id','somente empresa'), col('priority','smallint'), col('starts_at','timestamptz'), col('ends_at','timestamptz'), col('is_active','boolean'), col('reason','text'), col('created_by_profile_id','uuid','fk','profiles.id'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0015'),
+        t('service_areas', 'listings', 1540, 1370, 'Cidades e bairros atendidos por um serviço.', [col('id','uuid','pk'), col('listing_id','uuid','fk','service_details.listing_id'), col('city_id','uuid','fk','cities.id'), col('neighborhood_id','uuid','fk','neighborhoods.id + city_id','FK composta')], '0001'),
+        t('service_hours', 'listings', 1540, 1660, 'Horários de atendimento de um serviço.', [col('listing_id','uuid','pk fk','service_details.listing_id'), col('weekday','smallint','pk'), col('starts_at','time','pk'), col('ends_at','time')], '0001'),
+        t('listing_price_history', 'listings', 1540, 2460, 'Histórico tipado de mudanças reais de preço; valores inicial e final nulos não geram transição artificial.', [col('id','uuid','pk'), col('listing_id','uuid','fk','listings.id'), col('old_price_cents','bigint'), col('new_price_cents','bigint'), col('currency','char(3)'), col('changed_by_profile_id','uuid','fk','profiles.id'), col('source_table','text'), col('changed_at','timestamptz')], '0018 → 0026'),
+
+        t('component_templates', 'components', 1890, 110, 'Capacidades permitidas para componentes de uma versão de template.', [col('id','uuid','pk'), col('template_version_id','uuid','fk','template_versions.id'), col('name','text'), col('slug','text'), col('component_type','publication_component_type'), col('allows_image','boolean'), col('allows_price','boolean'), col('allows_quantity','boolean'), col('allows_children','boolean'), col('maximum_depth','smallint'), col('sort_order','smallint'), col('is_enabled','boolean'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0005'),
+        t('publication_components', 'components', 1890, 500, 'Instâncias hierárquicas dentro de um listing, com suporte a pai e filhos.', [col('id','uuid','pk'), col('listing_id','uuid','fk','listings.id'), col('component_template_id','uuid','fk','component_templates.id'), col('parent_component_id','uuid','fk','publication_components.id + listing_id','FK composta / self'), col('component_type','publication_component_type'), col('title','text'), col('description','text'), col('price_cents','bigint'), col('currency','char(3)'), col('quantity','numeric(12,3)'), col('sort_order','smallint'), col('is_active','boolean'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0005'),
+        t('component_attribute_values', 'components', 1890, 1020, 'Valores tipados dos atributos de um componente.', [col('component_id','uuid','pk fk','publication_components.id'), col('attribute_definition_id','uuid','pk fk','attribute_definitions.id'), col('text_value','text'), col('number_value','numeric'), col('boolean_value','boolean'), col('date_value','date'), col('time_value','time'), col('timestamp_value','timestamptz'), col('option_id','uuid','fk','attribute_options.id'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0005'),
+        t('component_images', 'components', 1890, 1370, 'Uma imagem opcional por componente, com metadados de storage.', [col('id','uuid','pk'), col('component_id','uuid','fk','publication_components.id','unique'), col('storage_path','text'), col('alt_text','text'), col('width','integer'), col('height','integer'), col('file_size_bytes','bigint'), col('created_at','timestamptz')], '0005'),
+        t('media_cleanup_queue', 'components', 1890, 1700, 'Fila operacional com lease, retry exponencial e proteção contra apagar um caminho que voltou a ser referenciado.', [col('id','uuid','pk'), col('storage_path','text','', '', 'cópia de OLD.storage_path'), col('source_table','text','', '', 'listing_images, component_images ou business_images'), col('source_id','uuid','', '', 'origem histórica, não é FK'), col('status','media_cleanup_status'), col('attempt_count','smallint'), col('next_attempt_at','timestamptz'), col('processing_at','timestamptz'), col('lease_expires_at','timestamptz'), col('worker_key','text'), col('error_code','text'), col('enqueued_at','timestamptz'), col('processed_at','timestamptz'), col('last_error','text'), col('updated_at','timestamptz')], '0005 → 0019', { operational: true }),
+
+        t('favorites', 'engagement', 2250, 180, 'Intenção explícita do usuário por um anúncio.', [col('user_id','uuid','pk fk','auth.users.id'), col('listing_id','uuid','pk fk','listings.id'), col('created_at','timestamptz')], '0001'),
+        t('follows', 'engagement', 2250, 460, 'Relacionamento explícito do usuário com uma empresa.', [col('user_id','uuid','pk fk','auth.users.id'), col('business_id','uuid','pk fk','businesses.id'), col('created_at','timestamptz')], '0001'),
+        t('device_tokens', 'engagement', 2250, 750, 'Instalações e tokens Expo por usuário, com permissão e ciclo de validade.', [col('id','uuid','pk'), col('user_id','uuid','fk','auth.users.id'), col('installation_id','text'), col('expo_push_token','text','unique'), col('platform','device_platform'), col('permission_status','push_permission_status'), col('is_active','boolean'), col('last_seen_at','timestamptz'), col('disabled_at','timestamptz'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0010'),
+        t('notification_preferences', 'engagement', 2250, 1160, 'Consentimento, quiet hours, frequência e limite dos fluxos não oficiais; mudanças de frequência alimentam analytics.', [col('user_id','uuid','pk fk','auth.users.id'), col('push_enabled','boolean'), col('transactional','boolean','', '', 'sempre true'), col('interest','boolean'), col('recommendation','boolean'), col('campaign','boolean','', '', 'legado; campanhas fora do escopo'), col('community','boolean'), col('quiet_hours_enabled','boolean'), col('quiet_hours_start','time'), col('quiet_hours_end','time'), col('timezone','text'), col('interest_frequency','notification_frequency'), col('recommendation_frequency','notification_frequency'), col('community_frequency','notification_frequency'), col('max_non_transactional_per_day','smallint'), col('push_consent_updated_at','timestamptz'), col('updated_at','timestamptz')], '0001 → 0021'),
+        t('notification_category_preferences', 'engagement', 2250, 1730, 'Preferência explícita de recomendação por categoria. A frequência é definida uma única vez em notification_preferences.recommendation_frequency e a coluna frequency permanece apenas como compatibilidade interna do enfileiramento legado.', [col('user_id','uuid','pk fk','auth.users.id'), col('category_id','uuid','pk fk','categories.id'), col('recommendation_enabled','boolean'), col('frequency','notification_frequency','legado; espelha a frequência global'), col('muted_until','timestamptz'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0010 → 0021 → 0043 → 0044 → 0045'),
+        t('notification_business_preferences', 'engagement', 2250, 2080, 'Controles de novas ofertas, preço, frequência e mute por empresa, com telemetria de alteração.', [col('user_id','uuid','pk fk','auth.users.id'), col('business_id','uuid','pk fk','businesses.id'), col('new_listing_enabled','boolean'), col('price_change_enabled','boolean'), col('frequency','notification_frequency'), col('muted_until','timestamptz'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0010 → 0021'),
+        t('notification_consent_events', 'engagement', 2250, 2450, 'Histórico imutável de opt-in e opt-out de push para auditoria e métricas de fadiga.', [col('id','uuid','pk'), col('user_id','uuid','fk','auth.users.id'), col('previous_push_enabled','boolean'), col('push_enabled','boolean'), col('source','text'), col('occurred_at','timestamptz')], '0018'),
+        t('notification_jobs', 'engagement', 2250, 2780, 'Outbox interna deduplicada: recebe fatos do produto e depois materializa mensagem, destinatários e entregas.', [col('id','uuid','pk'), col('job_kind','notification_job_kind'), col('target_user_id','uuid','fk','auth.users.id'), col('listing_id','uuid','fk','listings.id'), col('business_id','uuid','fk','businesses.id'), col('category_id','uuid','fk','categories.id'), col('city_id','uuid','fk','cities.id'), col('source_price_history_id','uuid','fk','listing_price_history.id'), col('dedupe_key','text','unique'), col('payload','jsonb'), col('scheduled_at','timestamptz'), col('status','notification_job_status'), col('attempt_count','smallint'), col('next_attempt_at','timestamptz'), col('worker_key','text'), col('lease_expires_at','timestamptz'), col('last_error','text'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0018', { operational: true }),
+
+        t('notifications', 'engagement', 2610, 180, 'Mensagem persistida com autoria, audiência universal controlada pelo servidor, rota fixa para a inbox e uma única imagem imutável com cache prolongado.', [col('id','uuid','pk'), col('notification_type','notification_type'), col('title','text'), col('message','text'), col('official_account_id','uuid','fk','official_accounts.id'), col('created_by_profile_id','uuid','fk','profiles.id'), col('audience_scope','notification_audience_scope','', '', 'comunicado oficial sempre all_users'), col('listing_id','uuid','fk','listings.id'), col('business_id','uuid','fk','businesses.id'), col('category_id','uuid','fk','categories.id'), col('city_id','uuid','fk','cities.id'), col('source_event_id','uuid','fk','analytics_events.id'), col('deep_link','text','', '', 'fixado em /notifications para órgão oficial'), col('image_path','text','', '', 'uma imagem oficial; Storage + cache de 7 dias'), col('image_width','integer'), col('image_height','integer'), col('image_file_size_bytes','bigint'), col('payload','jsonb'), col('dedupe_key','text'), col('expires_at','timestamptz'), col('published_at','timestamptz'), col('created_at','timestamptz')], '0001 → 0036'),
+        t('notification_recipients', 'engagement', 2610, 700, 'Entrada da caixa do usuário, separada da entrega push por dispositivo.', [col('notification_id','uuid','pk fk','notifications.id'), col('user_id','uuid','pk fk','auth.users.id'), col('read_at','timestamptz'), col('scheduled_at','timestamptz'), col('recommendation_reason','text'), col('suppressed_at','timestamptz'), col('suppression_reason','text'), col('created_at','timestamptz')], '0001 → 0010'),
+        t('notification_deliveries', 'engagement', 2610, 1070, 'Fila push executável por dispositivo, com lease, retry exponencial, recibos, abertura e falha.', [col('id','uuid','pk'), col('notification_id','uuid','fk','notification_recipients.notification_id'), col('user_id','uuid','fk','notification_recipients.user_id'), col('device_token_id','uuid','fk','device_tokens.id'), col('status','notification_delivery_status'), col('attempt_count','smallint'), col('scheduled_at','timestamptz'), col('next_attempt_at','timestamptz'), col('processing_at','timestamptz'), col('lease_expires_at','timestamptz'), col('worker_key','text'), col('sent_at','timestamptz'), col('delivered_at','timestamptz'), col('opened_at','timestamptz'), col('failed_at','timestamptz'), col('provider_ticket_id','text'), col('provider_receipt_id','text'), col('error_code','text'), col('error_message','text'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0010 → 0016'),
+        t('analytics_events', 'engagement', 2610, 1740, 'Log bruto de ações: abertura, login, visitas, busca, contato atribuído, push, silenciamento e confiança.', [col('id','uuid','pk'), col('actor_profile_id','uuid','fk','profiles.id'), col('event_type','analytics_event_type','', '', 'inclui mute, frequência e contato atribuído'), col('target_profile_id','uuid','fk','profiles.id'), col('listing_id','uuid','fk','listings.id'), col('business_id','uuid','fk','businesses.id'), col('category_id','uuid','fk','categories.id'), col('city_id','uuid','fk','cities.id'), col('notification_id','uuid','fk','notifications.id'), col('notification_delivery_id','uuid','fk','notification_deliveries.id'), col('visitor_kind','analytics_visitor_kind'), col('visitor_key','uuid'), col('session_id','uuid'), col('installation_id','uuid'), col('contact_channel','contact_channel'), col('idempotency_key','text'), col('occurred_at','timestamptz'), col('received_at','timestamptz'), col('metadata','jsonb'), col('created_at','timestamptz')], '0001 → 0021'),
+        t('analytics_entity_visitors', 'engagement', 2610, 2240, 'Uma linha vitalícia por visitante e perfil, empresa ou anúncio; fonte do total de pessoas únicas.', [col('id','uuid','pk'), col('target_kind','analytics_target_kind'), col('target_profile_id','uuid','fk','profiles.id'), col('target_business_id','uuid','fk','businesses.id'), col('target_listing_id','uuid','fk','listings.id'), col('visitor_kind','analytics_visitor_kind'), col('visitor_key','uuid'), col('actor_profile_id','uuid','fk','profiles.id'), col('first_viewed_at','timestamptz'), col('last_viewed_at','timestamptz'), col('view_count','bigint'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0013'),
+        t('analytics_daily_visitors', 'engagement', 2610, 2670, 'Deduplicação diária para relatórios por dia, semana ou mês sem contar cliques repetidos como pessoas.', [col('id','uuid','pk'), col('visit_date','date'), col('target_kind','analytics_target_kind'), col('target_profile_id','uuid','fk','profiles.id'), col('target_business_id','uuid','fk','businesses.id'), col('target_listing_id','uuid','fk','listings.id'), col('visitor_kind','analytics_visitor_kind'), col('visitor_key','uuid'), col('actor_profile_id','uuid','fk','profiles.id'), col('first_viewed_at','timestamptz'), col('last_viewed_at','timestamptz'), col('view_count','integer'), col('created_at','timestamptz')], '0013'),
+        t('search_requests', 'engagement', 2610, 3050, 'Registro individual e idempotente de cada busca, com termo sanitizado, filtros, paginação e resultado; expira após 90 dias.', [col('id','uuid','pk'), col('actor_profile_id','uuid','fk','profiles.id'), col('visitor_kind','analytics_visitor_kind'), col('visitor_key','uuid'), col('session_id','uuid'), col('installation_id','uuid'), col('city_id','uuid','fk','cities.id'), col('query_text','text','', '', 'sanitizado e limitado a 200'), col('normalized_query','text'), col('query_fingerprint','char(64)'), col('category_id','uuid','fk','categories.id'), col('business_category_id','uuid','fk','business_categories.id'), col('publication_type_id','uuid','fk','publication_types.id'), col('min_price_cents','bigint'), col('max_price_cents','bigint'), col('featured_only','boolean'), col('result_offset','integer'), col('result_limit','integer'), col('returned_count','integer'), col('total_count','bigint'), col('idempotency_key','text'), col('occurred_at','timestamptz'), col('created_at','timestamptz'), col('metadata','jsonb')], '0020'),
+        t('search_demand_daily', 'engagement', 2610, 3480, 'Demanda diária sem identidade individual, preservada por 400 dias para medir termos, filtros e buscas sem resultado.', [col('id','uuid','pk'), col('demand_date','date'), col('city_id','uuid','fk','cities.id'), col('query_text','text','', '', 'sanitizado'), col('normalized_query','text'), col('query_fingerprint','char(64)'), col('category_id','uuid','fk','categories.id'), col('business_category_id','uuid','fk','business_categories.id'), col('publication_type_id','uuid','fk','publication_types.id'), col('featured_only','boolean'), col('search_count','bigint'), col('zero_result_count','bigint'), col('result_count_sum','bigint'), col('first_searched_at','timestamptz'), col('last_searched_at','timestamptz'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0020'),
+
+        t('reports', 'trust', 3000, 150, 'Denúncia feita por um usuário contra exatamente um anúncio, empresa ou perfil.', [col('id','uuid','pk'), col('reporter_profile_id','uuid','fk','profiles.id'), col('listing_id','uuid','fk','listings.id'), col('business_id','uuid','fk','businesses.id'), col('reported_profile_id','uuid','fk','profiles.id'), col('city_id','uuid','fk','cities.id'), col('reason','report_reason'), col('description','text'), col('status','report_status'), col('priority','smallint'), col('assigned_to_profile_id','uuid','fk','profiles.id'), col('resolved_at','timestamptz'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0012'),
+        t('report_evidence', 'trust', 3000, 650, 'Metadados dos arquivos privados anexados a uma denúncia.', [col('id','uuid','pk'), col('report_id','uuid','fk','reports.id'), col('submitted_by_profile_id','uuid','fk','profiles.id'), col('storage_path','text','', '', 'bucket sensitive-evidence'), col('mime_type','text'), col('file_size_bytes','bigint'), col('description','text'), col('created_at','timestamptz')], '0012'),
+        t('moderation_actions', 'trust', 3000, 980, 'Decisão imutável criada pela mesma RPC que pausa/restaura conteúdo ou restringe a conta.', [col('id','uuid','pk'), col('report_id','uuid','fk','reports.id'), col('moderator_profile_id','uuid','fk','profiles.id'), col('action_type','moderation_action_type'), col('target_listing_id','uuid','fk','listings.id'), col('target_business_id','uuid','fk','businesses.id'), col('target_profile_id','uuid','fk','profiles.id'), col('reason','text'), col('expires_at','timestamptz'), col('metadata','jsonb','', '', 'inclui estado anterior'), col('created_at','timestamptz')], '0012 → 0015'),
+        t('user_blocks', 'trust', 3000, 1390, 'Relação privada em que um perfil bloqueia outro sem depender de denúncia.', [col('blocker_profile_id','uuid','pk fk','profiles.id'), col('blocked_profile_id','uuid','pk fk','profiles.id'), col('reason','text'), col('created_at','timestamptz')], '0012'),
+        t('account_restrictions', 'trust', 3000, 1650, 'Restrições temporárias ou permanentes para publicação, acesso ou broadcast oficial.', [col('id','uuid','pk'), col('profile_id','uuid','fk','profiles.id'), col('restriction_type','restriction_type'), col('reason','text'), col('starts_at','timestamptz'), col('ends_at','timestamptz'), col('lifted_at','timestamptz'), col('created_by_profile_id','uuid','fk','profiles.id'), col('lifted_by_profile_id','uuid','fk','profiles.id'), col('created_at','timestamptz')], '0012'),
+        t('account_risk_signals', 'trust', 3000, 2050, 'Sinais explicáveis de fraude ou uso profissional indevido, sujeitos a revisão humana.', [col('id','uuid','pk'), col('profile_id','uuid','fk','profiles.id'), col('business_id','uuid','fk','businesses.id'), col('listing_id','uuid','fk','listings.id'), col('signal_type','risk_signal_type'), col('status','risk_signal_status'), col('score','smallint'), col('evidence','jsonb'), col('detected_at','timestamptz'), col('reviewed_by_profile_id','uuid','fk','profiles.id'), col('reviewed_at','timestamptz'), col('expires_at','timestamptz'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0014'),
+
+        t('verification_requests', 'compliance', 3390, 150, 'Solicitação de verificação de perfil ou empresa; a revisão RPC atualiza o alvo, audita e agenda uma transacional atomicamente.', [col('id','uuid','pk'), col('requester_profile_id','uuid','fk','profiles.id'), col('profile_id','uuid','fk','profiles.id'), col('business_id','uuid','fk','businesses.id'), col('verification_level','verification_level'), col('status','review_status'), col('reviewer_profile_id','uuid','fk','profiles.id'), col('review_reason','text'), col('submitted_at','timestamptz'), col('reviewed_at','timestamptz'), col('expires_at','timestamptz'), col('updated_at','timestamptz')], '0012 → 0021'),
+        t('verification_evidence', 'compliance', 3390, 570, 'Arquivos privados apresentados em uma solicitação de verificação.', [col('id','uuid','pk'), col('verification_request_id','uuid','fk','verification_requests.id'), col('storage_path','text','', '', 'bucket sensitive-evidence'), col('evidence_type','text'), col('mime_type','text'), col('file_size_bytes','bigint'), col('created_at','timestamptz')], '0012'),
+        t('legal_documents', 'compliance', 3390, 900, 'Versões publicadas de termos, privacidade, comunidade e segurança.', [col('id','uuid','pk'), col('document_type','legal_document_type'), col('version','text'), col('title','text'), col('content_path','text'), col('content_hash','text'), col('is_required','boolean'), col('published_at','timestamptz'), col('retired_at','timestamptz'), col('created_at','timestamptz')], '0012'),
+        t('user_consents', 'compliance', 3390, 1260, 'Prova de aceite ou revogação de uma versão específica de documento legal.', [col('user_id','uuid','pk fk','auth.users.id'), col('legal_document_id','uuid','pk fk','legal_documents.id'), col('accepted_at','timestamptz'), col('revoked_at','timestamptz'), col('source','text'), col('ip_hash','text'), col('user_agent_hash','text')], '0012'),
+        t('account_deletion_requests', 'compliance', 3390, 1570, 'Workflow auditável de solicitação, espera, cancelamento e processamento de exclusão.', [col('id','uuid','pk'), col('user_id','uuid','fk','auth.users.id'), col('status','request_status'), col('reason','text'), col('requested_at','timestamptz'), col('scheduled_for','timestamptz'), col('processed_at','timestamptz'), col('processed_by_profile_id','uuid','fk','profiles.id'), col('rejection_reason','text'), col('updated_at','timestamptz')], '0012'),
+        t('support_requests', 'compliance', 3390, 1940, 'Canal persistente de suporte, privacidade e dúvidas operacionais.', [col('id','uuid','pk'), col('requester_profile_id','uuid','fk','profiles.id'), col('subject','text'), col('message','text'), col('status','support_status'), col('assigned_to_profile_id','uuid','fk','profiles.id'), col('resolved_at','timestamptz'), col('created_at','timestamptz'), col('updated_at','timestamptz')], '0012'),
+
+        t('audit_log', 'operations', 3780, 150, 'Registro append-only de alterações administrativas e sensíveis.', [col('id','uuid','pk'), col('actor_profile_id','uuid','fk','profiles.id'), col('action_type','text'), col('target_table','text'), col('target_id','uuid'), col('previous_values','jsonb'), col('new_values','jsonb'), col('reason','text'), col('request_id','uuid'), col('created_at','timestamptz')], '0012'),
+        t('rate_limit_rules', 'operations', 3780, 520, 'Configuração administrativa dos limites por ação e janela de tempo.', [col('action_key','text','pk'), col('max_attempts','integer'), col('window_seconds','integer'), col('is_enabled','boolean'), col('description','text'), col('updated_at','timestamptz')], '0014'),
+        t('rate_limit_counters', 'operations', 3780, 800, 'Contadores internos por ação, sujeito pseudônimo e janela.', [col('action_key','text','pk fk','rate_limit_rules.action_key'), col('subject_key','text','pk'), col('window_started_at','timestamptz','pk'), col('attempt_count','integer'), col('last_attempt_at','timestamptz')], '0014'),
+        t('storage.buckets', 'operations', 3780, 1110, 'Buckets privados gerenciados pelo Supabase Storage.', [col('id','text','pk'), col('name','text'), col('public','boolean'), col('file_size_limit','bigint'), col('allowed_mime_types','text[]')], 'Supabase Storage', { external: true }),
+        t('storage.objects', 'operations', 3780, 1380, 'Objetos protegidos por policies que combinam caminho, proprietário e visibilidade.', [col('id','uuid','pk'), col('bucket_id','text','fk','storage.buckets.id'), col('name','text'), col('owner_id','text'), col('metadata','jsonb'), col('created_at','timestamptz')], 'Supabase Storage', { external: true }),
+        t('operation_runs', 'operations', 3780, 1740, 'Uma linha por invocação ou lote de cron, worker ou execução manual, com heartbeat, duração, métricas e erro.', [col('id','uuid','pk'), col('operation_key','operation_key'), col('origin','operation_origin'), col('worker_key','text'), col('status','operation_status'), col('correlation_key','text'), col('parameters','jsonb'), col('metrics','jsonb'), col('error_code','text'), col('error_message','text'), col('started_at','timestamptz'), col('heartbeat_at','timestamptz'), col('finished_at','timestamptz'), col('duration_ms','bigint'), col('created_at','timestamptz')], '0022', { operational: true })
+      ];
+      tables.forEach(table => { table.baseY = table.y; });
+
+      const guide = (role, why, absence, questions = []) => ({ role, why, absence, questions });
+      const tableGuides = {
+        'cities': guide(
+          'Define em quais cidades o marketplace opera e fornece a raiz do recorte local.',
+          'Cidade é entidade própria porque perfis, empresas, anúncios, serviços e notificações precisam compartilhar o mesmo identificador geográfico.',
+          'A cidade viraria texto repetido, com grafias divergentes, filtros frágeis e expansão para novas cidades difícil de controlar.',
+          ['Quais cidades estão habilitadas?', 'Quantas ofertas e empresas existem em cada cidade?']
+        ),
+        'neighborhoods': guide(
+          'Normaliza os bairros dentro de uma cidade e permite descoberta local mais precisa.',
+          'O mesmo nome de bairro pode existir em cidades diferentes; a FK composta garante que bairro e cidade permaneçam compatíveis.',
+          'Localizações inválidas poderiam combinar um bairro de uma cidade com outra cidade.',
+          ['Quais bairros pertencem à cidade?', 'Em qual bairro há maior densidade de oferta?']
+        ),
+        'profiles': guide(
+          'Guarda a identidade e o contato privado; get_listing_contact_options só revela telefone ou WhatsApp que tenha opt-in e um claim ativo da mesma conta.',
+          'Autenticação, apresentação pública, posse do telefone e autorização de contato têm responsabilidades diferentes e contratos próprios.',
+          'O próprio usuário poderia marcar o telefone como verificado, reutilizar o número de outra conta ou uma consulta pública poderia vazar contato desabilitado.',
+          ['Quem publicou?', 'Quais dados podem ser públicos?', 'Este canal foi reivindicado, verificado e habilitado?']
+        ),
+        'phone_verification_claims': guide(
+          'Representa a posse ativa e verificável de um telefone por uma conta.',
+          'A restrição UNIQUE parcial bloqueia corridas e duplicidade entre contas, enquanto permite que perfil e negócio do mesmo proprietário reutilizem o número.',
+          'Duas contas poderiam operar com a mesma identidade telefônica e os contatos públicos não teriam uma fonte confiável de verificação.',
+          ['Qual conta possui este telefone?', 'O claim continua ativo?', 'O contato da vitrine pertence ao proprietário?']
+        ),
+        'phone_verification_attempts': guide(
+          'Preserva cada resultado do provedor, inclusive duplicidade, erro e revogação.',
+          'Tentativa e posse são conceitos diferentes: falhas precisam de auditoria sem criar um claim.',
+          'A operação perderia evidência de abuso e não conseguiria explicar por que uma verificação foi bloqueada.',
+          ['Qual foi o resultado da tentativa?', 'Ela gerou sinal de risco?', 'Qual referência do provedor a comprova?']
+        ),
+        'auth.users': guide(
+          'É a identidade autenticada mantida pelo Supabase Auth.',
+          'Credenciais, sessão e recuperação de acesso pertencem ao provedor de autenticação, não às tabelas de domínio.',
+          'O aplicativo teria de implementar segurança de senha, sessão e identidade por conta própria.',
+          ['Qual usuário autenticado corresponde ao perfil?', 'Quem é o sujeito usado pelas políticas RLS?']
+        ),
+        'business_categories': guide(
+          'Classifica vitrines empresariais e liga cada categoria de negócio ao motor correto de publicação e formulário.',
+          'Categoria empresarial não é apenas uma categoria de anúncio: ela configura a natureza persistente da vitrine.',
+          'Lojas e profissionais dependeriam de categorias improvisadas e formulários inconsistentes.',
+          ['Que tipo de vitrine é esta?', 'Qual template deve montar o perfil comercial?']
+        ),
+        'businesses': guide(
+          'Representa a vitrine permanente; public_business_directory expõe os campos seguros, localização exata consentida e os RPCs de contato liberam canais verificados.',
+          'A tabela operacional mantém telefone, localização e estado interno. A projeção pública usa as permissões do chamador e só revela endereço/coordenadas quando exact_location_publication_enabled está ativo.',
+          'Uma leitura pública direta poderia revelar contato ou localização sem consentimento; sem vitrine, a presença comercial desapareceria com o último anúncio.',
+          ['Quem é o proprietário único?', 'A empresa está ativa e pesquisável?', 'O proprietário publicou a localização exata?', 'Qual contato pode ser revelado?']
+        ),
+        'official_accounts': guide(
+          'Marca um perfil proprietário como login institucional verificado e autorizado a publicar comunicados oficiais.',
+          'A autorização sensível não deve ficar em account_type nem em campos que o próprio usuário possa editar; uma tabela 1:1 permite RLS, revogação e auditoria administrativa.',
+          'Qualquer conta poderia se declarar prefeitura ou seria necessário codificar permissões diretamente no aplicativo.',
+          ['Qual login representa este órgão?', 'A autorização está ativa e verificada?', 'Este órgão pode publicar para toda a base?', 'Como a Prefeitura testa um comunicado no ambiente local?']
+        ),
+        'business_hours': guide(
+          'Armazena a agenda semanal recorrente da empresa, inclusive múltiplos períodos no mesmo dia.',
+          'Horários são registros repetíveis e consultáveis; colunas fixas em businesses seriam numerosas e rígidas.',
+          'Consultas como “aberto agora” dependeriam de texto não estruturado.',
+          ['A empresa abre neste dia e horário?', 'Existe intervalo entre turnos?']
+        ),
+        'business_schedule_exceptions': guide(
+          'Sobrescreve a agenda semanal em feriados, férias, fechamentos e horários especiais.',
+          'Exceções possuem período e prioridade diferentes da rotina semanal.',
+          'O aplicativo mostraria horários incorretos justamente em datas excepcionais.',
+          ['A empresa abre neste feriado?', 'Ela está de férias ou com horário especial?']
+        ),
+        'business_attribute_values': guide(
+          'Guarda valores tipados dos campos configuráveis da vitrine empresarial.',
+          'Empresas compartilham o motor de templates sem transformar cada nova categoria em novas colunas.',
+          'Atributos variáveis iriam para JSONB não filtrável ou exigiriam alterações constantes no schema.',
+          ['Esta empresa aceita determinado recurso?', 'Qual valor ela informou para um campo do template?']
+        ),
+        'business_images': guide(
+          'Guarda logo, capa e galeria da vitrine, limitando a cinco arquivos: um logo, uma capa e três imagens ordenadas.',
+          'Metadados consultáveis ficam no banco, bytes no bucket privado e save_business_images substitui o conjunto atomicamente com revisão otimista.',
+          'A vitrine não teria identidade visual consistente, limites dependeriam do cliente e arquivos removidos poderiam ficar órfãos.',
+          ['Qual imagem é o logo ou a capa?', 'Qual é a ordem da galeria?', 'Qual arquivo deve entrar na fila de limpeza?']
+        ),
+        'publication_types': guide(
+          'É a raiz canônica do conteúdo publicável: produto, serviço, evento, empresa ou classificado. O tipo empresa permanece no catálogo para vitrines, mas fica desabilitado no fluxo de anúncios.',
+          'O tipo vem antes da categoria e define comportamento, entidade e regras gerais. A identidade da conta (pessoa, empresa ou órgão governamental) é separada do status oficial de verificação.',
+          'Categorias acabariam misturando regras incompatíveis e listing_type continuaria concentrando lógica legada.',
+          ['Que espécie de conteúdo está sendo criado?', 'Esse tipo produz listing ou business?', 'A conta é pessoa, empresa ou órgão governamental?', 'A conta oficial está verificada?']
+        ),
+        'templates': guide(
+          'Agrupa a definição evolutiva de um formulário ou estrutura de publicação.',
+          'O template dá identidade estável a várias versões sem alterar conteúdo já publicado.',
+          'Cada mudança de formulário quebraria anúncios existentes ou exigiria duplicação de categorias.',
+          ['Qual modelo lógico serve a este tipo de publicação?', 'Quais versões esse modelo já teve?']
+        ),
+        'template_versions': guide(
+          'Congela uma versão publicada do template e suas capacidades.',
+          'Conteúdo histórico precisa continuar validável mesmo depois que o formulário evolui.',
+          'Uma alteração futura de campos mudaria retroativamente a interpretação de anúncios antigos.',
+          ['Qual contrato de campos validou esta publicação?', 'A versão permite preço, localização, expiração ou componentes?']
+        ),
+        'categories': guide(
+          'Organiza a taxonomia hierárquica de descoberta e escolhe o template versionado aplicável.',
+          'Categoria é filtro e navegação; template é contrato. Separá-los permite que categorias diferentes reutilizem o mesmo formulário.',
+          'A navegação ficaria acoplada à estrutura técnica do formulário.',
+          ['Em qual categoria a oferta aparece?', 'Qual é a categoria pai?', 'Qual template deve ser aplicado?']
+        ),
+        'attribute_definitions': guide(
+          'Define cada campo dinâmico, seu tipo, validação, visibilidade e capacidade de filtro.',
+          'A definição separa a regra do campo dos valores informados por cada publicação.',
+          'Campos variáveis seriam textos sem contrato, impossíveis de validar e indexar com segurança.',
+          ['O campo é obrigatório?', 'Qual coluna tipada deve receber o valor?', 'Pode ser pesquisado ou filtrado?']
+        ),
+        'attribute_options': guide(
+          'Normaliza as opções permitidas de atributos do tipo option.',
+          'Opções precisam de identidade estável para filtro, tradução e mudança de rótulo.',
+          'Valores como “novo”, “Nova” e “NOVO” virariam opções diferentes.',
+          ['Quais escolhas são válidas para este atributo?', 'Qual chave estável corresponde ao rótulo exibido?']
+        ),
+        'category_attribute_overrides': guide(
+          'Ajusta um campo para uma categoria sem duplicar sua definição base.',
+          'Uma categoria pode mudar label, obrigatoriedade ou ordem mantendo o mesmo atributo compartilhado.',
+          'Seriam criadas definições quase idênticas, difíceis de manter sincronizadas.',
+          ['Este campo está habilitado nesta categoria?', 'A categoria exige ou renomeia o campo?']
+        ),
+        'listings': guide(
+          'É o agregado raiz pesquisável de cada oferta temporária publicada no marketplace.',
+          'Reúne dono imutável, classificação, geografia, ciclo de vida e texto indexado. Desde 0031–0032, search_text sem acentos usa GIN trigram com limiar 0,60 e search_document preserva full-text ponderado; o ranking prioriza título, depois descrição/categoria e limita o destaque a desempate quando há termo.',
+          'Cada vertical precisaria de uma tabela completa própria; sem projeção segura, uma consulta pública poderia revelar a localização exata do anunciante.',
+          ['Quem publicou?', 'Onde e em qual categoria aparece?', 'Quem pode ver a localização exata?']
+        ),
+        'listing_attribute_values': guide(
+          'Armazena os valores tipados dos campos configuráveis de um anúncio.',
+          'Mantém filtros e ordenação relacionais sem criar colunas específicas para cada categoria.',
+          'O banco dependeria de JSONB amplo ou de EAV textual, perdendo tipo e índice.',
+          ['Qual valor o anúncio informou?', 'O valor corresponde ao tipo e à opção permitida?']
+        ),
+        'product_details': guide(
+          'Contém os campos universais e fortemente tipados de ofertas de produto.',
+          'Preço e condição são centrais e merecem constraints e consultas diretas, não atributos genéricos.',
+          'Filtros de preço e condição dependeriam do motor dinâmico para dados que são universais.',
+          ['Qual o preço em centavos?', 'Qual a condição do produto?']
+        ),
+        'service_details': guide(
+          'Contém preço e modalidade de cobrança próprios de uma oferta de serviço.',
+          'Serviços aceitam orçamento e “a partir de”, sem forçar a semântica de produto.',
+          'Preço de serviço seria confundido com preço fixo de mercadoria.',
+          ['O serviço é gratuito, fixo, orçamento ou a partir de?', 'Qual valor pode ser exibido?']
+        ),
+        'event_details': guide(
+          'Guarda período e preço próprios de eventos locais.',
+          'Datas de início e fim são essenciais para agenda, expiração e ordenação cronológica.',
+          'Eventos seriam anúncios genéricos sem capacidade confiável de agenda.',
+          ['Quando começa e termina?', 'Quanto custa participar?']
+        ),
+        'classified_details': guide(
+          'Guarda a regra de preço do tipo classificado preservando o núcleo comum em listings.',
+          'Classificado tem semântica própria, mas ainda participa do feed unificado.',
+          'A evolução do tipo classificado contaminaria detalhes de produto ou campos genéricos.',
+          ['O classificado tem preço fixo, doação ou negociação?']
+        ),
+        'listing_images': guide(
+          'Registra até três mídias por anúncio e os metadados necessários para ordenação, tamanho e limpeza; o RPC de cards expõe a lista para a galeria fullscreen. O seed cobre anúncios com uma, duas e três fotos.',
+          'O Storage guarda bytes; posições 0 a 2 e o trigger transacional garantem o limite inicial mesmo com gravações concorrentes.',
+          'O limite dependeria apenas do aplicativo, arquivos poderiam ficar órfãos e a ordem de capa/galeria seria ambígua.',
+          ['Qual é a capa?', 'O anúncio já atingiu três imagens?', 'Qual é a dimensão e o custo do arquivo?']
+        ),
+        'featured_placements': guide(
+          'Agenda prioridade temporária para exatamente um anúncio ou uma empresa em home, categoria ou busca.',
+          'Destaque é uma decisão com origem, janela, escopo e autoria próprios; não deve virar um booleano permanente dentro do conteúdo.',
+          'Não seria possível expirar, auditar ou limitar uma prioridade sem editar o próprio anúncio ou misturar monetização ao ranking orgânico.',
+          ['Qual conteúdo está destacado agora?', 'Em qual cidade/categoria?', 'A origem é editorial ou paga e quem autorizou?']
+        ),
+        'service_areas': guide(
+          'Representa as várias cidades e bairros atendidos por um serviço.',
+          'Área atendida é muitos-para-muitos e pode ser diferente da sede do profissional.',
+          'O endereço da empresa seria confundido com o local onde ela presta o serviço.',
+          ['Este serviço atende meu bairro?', 'Quais regiões fazem parte da cobertura?']
+        ),
+        'service_hours': guide(
+          'Representa janelas semanais de disponibilidade de uma oferta de serviço.',
+          'O horário do serviço pode ser diferente do horário geral da empresa.',
+          'Disponibilidade teria de ser texto livre ou herdada incorretamente da vitrine.',
+          ['O serviço está disponível neste dia e horário?']
+        ),
+        'listing_price_history': guide(
+          'Registra cada valor monetário anterior e novo junto da tabela tipada que originou a mudança.',
+          'A queda de preço é um fato do domínio e precisa ser detectada transacionalmente para notificar favoritos uma única vez.',
+          'O cliente teria de comparar valores antigos, podendo perder mudanças, duplicar alertas ou tratar texto formatado como preço.',
+          ['O preço realmente baixou?', 'Qual mudança originou o alerta?', 'Qual era a moeda?']
+        ),
+        'component_templates': guide(
+          'Define quais blocos hierárquicos uma versão de template permite.',
+          'Componentes configuram cardápios, pacotes ou opções sem liberar estruturas arbitrárias.',
+          'Cada publicação inventaria sua própria composição e seria difícil impor limites de profundidade e quantidade.',
+          ['Que tipo de bloco pode ser criado?', 'Ele aceita preço, imagem, quantidade ou filhos?']
+        ),
+        'publication_components': guide(
+          'Instancia os blocos hierárquicos de uma publicação, como pacote, item incluído ou opção.',
+          'Um listing pode ter vários componentes e níveis; isso exige linhas próprias e relação pai-filho.',
+          'Estruturas compostas virariam JSONB opaco ou novas tabelas para cada vertical.',
+          ['Quais blocos compõem a oferta?', 'Qual é o pai, a ordem e o preço de cada componente?']
+        ),
+        'component_attribute_values': guide(
+          'Guarda valores tipados específicos de cada componente.',
+          'Componentes reutilizam o mesmo motor de atributos das publicações sem misturar seus valores.',
+          'Detalhes configuráveis do bloco seriam perdidos ou armazenados como texto não filtrável.',
+          ['Qual valor foi informado para este campo do componente?']
+        ),
+        'component_images': guide(
+          'Liga uma imagem otimizada a um componente específico.',
+          'A imagem do bloco não deve ser confundida com a imagem principal do listing. A migration 0023 faz save_listing_aggregate substituir essas imagens atomicamente e devolve o mesmo formato para raízes e filhos.',
+          'Não seria possível ilustrar individualmente opções, itens ou serviços incluídos.',
+          ['Qual imagem representa este componente?', 'Qual arquivo deve ser removido quando ele for excluído?']
+        ),
+        'media_cleanup_queue': guide(
+          'Recebe, por trigger AFTER DELETE, o caminho da imagem e oferece claim/complete com lease, retry exponencial e estados terminais.',
+          'Excluir banco e Storage não é uma única transação; antes de entregar o job, o worker marca como superseded qualquer caminho que voltou a ser usado.',
+          'Arquivos órfãos acumulariam custo, dois workers poderiam competir ou um arquivo reutilizado poderia ser apagado por engano.',
+          ['Qual worker possui o lease?', 'Quando tentar novamente?', 'O caminho voltou a ser referenciado?']
+        ),
+        'favorites': guide(
+          'Registra a intenção explícita de um usuário em relação a um anúncio.',
+          'A relação muitos-para-muitos serve simultaneamente à experiência de salvos e ao sinal forte de recomendação. A migration 0027 adiciona toggle atômico e leitura paginada dos cards da conta.',
+          'Favoritos teriam de ficar apenas no aparelho e não poderiam alimentar retenção entre dispositivos.',
+          ['Quais itens o usuário salvou?', 'Quantos favoritos um anúncio recebeu?']
+        ),
+        'follows': guide(
+          'Registra o relacionamento explícito entre usuário e empresa.',
+          'Seguir é diferente de favoritar uma oferta: permanece válido enquanto a vitrine existir. A migration 0027 expõe toggle atômico e contagens em lote para evitar N+1 no feed.',
+          'Não haveria base confiável para avisar sobre novas ofertas de uma empresa.',
+          ['Quais empresas o usuário segue?', 'Quantos seguidores a empresa possui?']
+        ),
+        'device_tokens': guide(
+          'Representa cada instalação capaz de receber push e o estado real da permissão no dispositivo.',
+          'Um usuário pode ter vários aparelhos e cada token possui ciclo de validade independente.',
+          'Um único token no perfil seria sobrescrito e tokens inválidos não poderiam ser desativados individualmente.',
+          ['Em quais dispositivos o usuário pode receber push?', 'O token está ativo e autorizado?']
+        ),
+        'notification_preferences': guide(
+          'Centraliza consentimentos, horários de silêncio, timezone, frequência e limite diário; alterações relevantes geram eventos de produto.',
+          'Preferências da conta são diferentes do estado técnico de cada dispositivo e precisam valer em todos eles. A migration 0027 materializa o registro padrão no primeiro acesso; comunicados oficiais não consultam esta tabela para escolher destinatários.',
+          'Cada emissor aplicaria regras diferentes, recomendações poderiam virar spam e a operação não saberia quando a pessoa reduziu a frequência.',
+          ['O usuário aceita recomendações?', 'Qual frequência e horário devem ser respeitados?', 'A frequência mudou?']
+        ),
+        'notification_category_preferences': guide(
+          'Explicita sobre quais categorias o usuário quer receber recomendações. A frequência é única e fica em notification_preferences.recommendation_frequency; a tela navega classe → subclasse e permite várias subclasses selecionadas.',
+          'Um booleano global de recomendação não responde “recomendações de quê?”.',
+          'O sistema só conseguiria recomendar tudo ou nada, aumentando irrelevância e spam.',
+          ['Esta categoria está autorizada?', 'Ela está temporariamente silenciada?']
+        ),
+        'notification_business_preferences': guide(
+          'Controla alertas de novas ofertas e preços por empresa seguida.',
+          'Seguir cria a relação; esta tabela permite regular ou silenciar a comunicação sem deixar de seguir.',
+          'O usuário teria de abandonar o relacionamento com a empresa apenas para parar notificações.',
+          ['Novas ofertas desta empresa estão habilitadas?', 'O usuário silenciou temporariamente a empresa?']
+        ),
+        'notification_consent_events': guide(
+          'Mantém a linha do tempo de ativação e desativação do push.',
+          'O valor atual responde “está ativo?”, mas métricas e auditoria precisam responder quando e quantas vezes o consentimento mudou.',
+          'Não seria possível medir opt-in, desativação ou fadiga de notificações ao longo do tempo.',
+          ['Quando o usuário ativou ou desativou push?', 'Qual era o valor anterior?']
+        ),
+        'notification_jobs': guide(
+          'É a outbox deduplicada que recebe publicação, moderação, queda de preço e recomendação antes de criar a mensagem.',
+          'O fato de produto e o envio são transações diferentes. O worker usa SKIP LOCKED, lease e retry; as preferências definem destinatários e 18h para digests.',
+          'Triggers teriam de enviar push diretamente, falhas bloqueariam a ação principal e dois workers poderiam criar alertas duplicados.',
+          ['Qual fato originou o alerta?', 'Quando o job pode rodar?', 'Ele já foi materializado em notifications?']
+        ),
+        'notifications': guide(
+          'Guarda a mensagem, sua autoria, audiência e contexto de navegação, recomendação, deduplicação e validade; ao tocar, o cliente abre o anúncio associado ou um modal de leitura para avisos sem anúncio.',
+          'Uma mensagem pode ser destinada a vários usuários; separar conteúdo de destinatários evita duplicação desnecessária.',
+          'Texto, contexto e deep link seriam repetidos para cada usuário e não haveria uma identidade única da mensagem.',
+          ['Que mensagem foi criada e por quem?', 'A audiência é individual, filtrada ou todos os usuários?', 'Já existe mensagem equivalente?']
+        ),
+        'notification_recipients': guide(
+          'Materializa a entrada da central de notificações para cada usuário e seu estado de leitura ou supressão.',
+          'Receber na caixa do app é diferente de tentar entregar push em um aparelho. A migration 0027 entrega a inbox paginada por RPC, já combinada com conteúdo, validade e contagem de não lidas.',
+          'Não seria possível controlar leitura por usuário nem manter inbox quando o push falhasse.',
+          ['Quem deve ver a mensagem?', 'Ela foi lida, agendada ou suprimida?', 'Por que foi recomendada?']
+        ),
+        'notification_deliveries': guide(
+          'Registra e executa cada tentativa push por destinatário e dispositivo, com lease de worker, próxima tentativa e recibo do provedor.',
+          'claim_notification_deliveries aplica opt-in, quiet hours e limite diário; falhas usam retry exponencial e expiram após cinco tentativas.',
+          'Dois workers poderiam enviar o mesmo push, falhas seriam perdidas e preferências existiriam sem serem aplicadas no despacho.',
+          ['Quem possui o lease agora?', 'Quando tentar novamente?', 'O limite diário e o horário permitem o envio?']
+        ),
+        'analytics_events': guide(
+          'Mantém o log bruto de abertura, login, visualização, busca, contato, push e confiança.',
+          'Ocorrências repetidas preservam frequência; get_recently_viewed_listings agrupa as visitas por anúncio e retorna apenas a ocorrência mais recente de cada item.',
+          'Não seria possível reconstruir o funil nem distinguir pessoas, sessões, instalações e contatos.',
+          ['O que aconteceu e quando?', 'Qual anúncio foi visto por último?', 'Qual canal gerou o contato?']
+        ),
+        'analytics_entity_visitors': guide(
+          'Deduplica vitaliciamente cada visitante por perfil, empresa ou anúncio.',
+          'Uma pessoa pode abrir três vezes e continuar representando uma única pessoa, enquanto view_count preserva a frequência.',
+          'Contar linhas do log bruto inflaria artificialmente a audiência.',
+          ['Quantas pessoas únicas já visitaram?', 'Quando cada visitante apareceu pela primeira e última vez?']
+        ),
+        'analytics_daily_visitors': guide(
+          'Deduplica o visitante por alvo e dia para métricas por período.',
+          'Permite contar pessoas distintas por semana ou mês sem perder o comportamento diário.',
+          'Só o total vitalício não responderia retenção e evolução temporal.',
+          ['Quantas pessoas únicas vieram neste período?', 'Quantas visitas totais essas pessoas produziram?']
+        ),
+        'search_requests': guide(
+          'Registra a busca realmente executada pela RPC, sua identidade pseudônima, filtros, página e quantidade de resultados.',
+          'O registro é criado na mesma chamada que retorna os itens; idempotência evita duplicar demanda e o sanitizador mascara dados sensíveis. Desde 0031, a mesma RPC rastreada herda full-text sem acentos, word similarity por trigramas e ranking determinístico.',
+          'Um evento solto poderia afirmar que houve busca mesmo quando a consulta falhou, não explicaria filtros nem permitiria medir zero resultado com confiança.',
+          ['Qual busca foi executada?', 'Quais filtros e página foram usados?', 'Quantos resultados voltaram?', 'A chamada foi repetida?']
+        ),
+        'search_demand_daily': guide(
+          'Consolida demanda por dia, cidade, termo sanitizado e filtros sem guardar identidade individual.',
+          'A busca individual expira em 90 dias, enquanto o agregado não identificável sustenta decisões de oferta por 400 dias.',
+          'Ou os termos individuais ficariam guardados indefinidamente, ou a operação perderia a memória de demanda e buscas sem resultado.',
+          ['O que a cidade procura?', 'Quais termos não encontram oferta?', 'A demanda está crescendo por categoria?']
+        ),
+        'reports': guide(
+          'Registra uma denúncia contra exatamente um anúncio, empresa ou perfil.',
+          'Motivo, prioridade, cidade e estado operacional precisam sobreviver à interface e orientar a fila de moderação.',
+          'Risco seria tratado por mensagens soltas sem rastreabilidade.',
+          ['Quem denunciou?', 'Qual é o alvo e o motivo?', 'Em que estado está a análise?']
+        ),
+        'report_evidence': guide(
+          'Relaciona arquivos privados a uma denúncia.',
+          'Evidências têm acesso mais restrito e ciclo diferente do texto da denúncia.',
+          'Arquivos sensíveis poderiam vazar ou ficar sem vínculo com a decisão.',
+          ['Qual arquivo comprova o relato?', 'Quem o enviou?']
+        ),
+        'moderation_actions': guide(
+          'Registra a decisão administrativa aplicada na mesma transação que altera o alvo ou cria a restrição.',
+          'A denúncia é uma alegação; a RPC de ação transforma a decisão em efeito real e preserva motivo, estado anterior e expiração.',
+          'Poderia existir uma decisão escrita sem que o anúncio fosse ocultado ou a conta realmente perdesse acesso.',
+          ['Qual decisão foi tomada?', 'Qual efeito foi aplicado?', 'Quem decidiu, por quê e qual era o estado anterior?']
+        ),
+        'user_blocks': guide(
+          'Permite que um usuário silencie outro sem iniciar uma investigação.',
+          'Bloqueio pessoal e moderação da plataforma são responsabilidades diferentes.',
+          'A pessoa teria de denunciar todo contato indesejado apenas para não vê-lo.',
+          ['Quem bloqueou quem?', 'Quando o bloqueio começou?']
+        ),
+        'account_restrictions': guide(
+          'Aplica limitações de publicação, acesso ou broadcast a um perfil.',
+          'Suspensão e restrição precisam de período, motivo e responsáveis por aplicar ou remover.',
+          'Regras de abuso ficariam apenas em flags sem histórico.',
+          ['Esta conta pode publicar agora?', 'Quem aplicou ou levantou a restrição?']
+        ),
+        'account_risk_signals': guide(
+          'Registra sinais explicáveis de fraude e atividade profissional indevida.',
+          'Sinais alimentam revisão humana sem transformar heurística em punição automática.',
+          'A operação não conseguiria correlacionar velocidade, repostagem e denúncias.',
+          ['Quais sinais estão abertos?', 'Qual a pontuação e evidência?', 'O sinal foi confirmado?']
+        ),
+        'verification_requests': guide(
+          'Mantém o pedido e a revisão de um nível de verificação; somente a RPC administrativa conclui a decisão.',
+          'A mesma transação atualiza perfil ou empresa, registra auditoria e cria um job transacional para o solicitante.',
+          'Uma atualização manual poderia deixar pedido aprovado, alvo não verificado ou usuário sem retorno.',
+          ['Qual nível foi pedido?', 'Quem revisou?', 'Qual status resultou?', 'A decisão foi notificada?']
+        ),
+        'verification_evidence': guide(
+          'Liga documentos privados à solicitação de verificação.',
+          'Metadados consultáveis ficam no banco; bytes permanecem no bucket sensível.',
+          'Documentos pessoais poderiam ser misturados à mídia pública.',
+          ['Que evidência foi enviada?', 'A qual solicitação pertence?']
+        ),
+        'legal_documents': guide(
+          'Versiona termos, privacidade e regras comunitárias publicados.',
+          'O aceite só é demonstrável quando aponta para uma versão imutável.',
+          'Alterar um texto apagaria a prova do que o usuário aceitou.',
+          ['Qual versão está vigente?', 'Este documento é obrigatório?']
+        ),
+        'user_consents': guide(
+          'Registra aceite ou revogação por usuário e versão legal.',
+          'Consentimento é evidência histórica, não um booleano global.',
+          'Não seria possível comprovar o texto e momento do aceite.',
+          ['Qual versão o usuário aceitou?', 'O consentimento foi revogado?']
+        ),
+        'account_deletion_requests': guide(
+          'Controla a solicitação e o processamento de exclusão de conta.',
+          'O período de espera permite cancelamento e uma operação auditável.',
+          'Pedidos poderiam ser esquecidos ou processados sem prova.',
+          ['Quando a exclusão foi solicitada?', 'Ela pode ser cancelada?', 'Quem processou?']
+        ),
+        'support_requests': guide(
+          'Mantém solicitações de suporte e privacidade em uma fila simples.',
+          'A operação precisa de estado, responsável e resolução sem construir um painel complexo.',
+          'Demandas ficariam dispersas em canais externos.',
+          ['Quem pediu ajuda?', 'Quem está atendendo?', 'Quando foi resolvido?']
+        ),
+        'audit_log': guide(
+          'Registra alterações administrativas com estado anterior e posterior.',
+          'É append-only e não aceita escrita direta de clientes.',
+          'Decisões sensíveis poderiam ser alteradas sem rastreabilidade.',
+          ['Quem alterou?', 'Qual objeto mudou?', 'Quais valores eram e ficaram?']
+        ),
+        'rate_limit_rules': guide(
+          'Configura o máximo de ações por janela.',
+          'Limites ficam centralizados e ajustáveis sem espalhar números pelo cliente.',
+          'Cada RPC aplicaria proteção diferente ou nenhuma proteção.',
+          ['Qual limite protege esta ação?', 'A regra está ativa?']
+        ),
+        'rate_limit_counters': guide(
+          'Conta tentativas por ação, sujeito pseudônimo e janela.',
+          'É interna e não expõe dados operacionais ao cliente.',
+          'O banco não conseguiria bloquear abuso concorrente de forma consistente.',
+          ['Quantas tentativas ocorreram nesta janela?', 'O limite foi excedido?']
+        ),
+        'operation_runs': guide(
+          'Registra uma linha para cada invocação ou lote de cron e worker, inclusive quando termina com erro ou execução parcial.',
+          'Fila e execução são responsabilidades diferentes: heartbeat detecta travamento, métricas explicam o volume tratado e correlation_key torna retries idempotentes.',
+          'Falhas silenciosas poderiam deixar anúncios vencidos, notificações paradas ou mídia órfã sem qualquer evidência no banco.',
+          ['Qual operação rodou por último?', 'Ela terminou ou perdeu o heartbeat?', 'Quanto processou e quanto demorou?', 'Qual erro deve ser investigado?']
+        ),
+        'storage.buckets': guide(
+          'Define os buckets privados marketplace-media e sensitive-evidence.',
+          'Mídia pública e evidência sensível exigem políticas e MIME types diferentes.',
+          'Arquivos de confiança poderiam compartilhar acesso com imagens públicas.',
+          ['O bucket é privado?', 'Qual limite e MIME são aceitos?']
+        ),
+        'storage.objects': guide(
+          'Representa os arquivos reais protegidos por policies de caminho e visibilidade.',
+          'O banco guarda metadados de domínio; Storage guarda bytes. Desde 0028–0030, upload, leitura e exclusão usam helpers privados security definer para não reabrir nem propagar colunas privadas do marketplace ou das relações de confiança.',
+          'Conhecer uma URL poderia bastar para acessar rascunhos ou evidências.',
+          ['Quem pode enviar?', 'O conteúdo relacionado está visível?', 'É uma evidência restrita?']
+        )
+      };
+
+      const flows = {
+        publication: {
+          label: 'Motor de publicação',
+          title: 'Como o banco decide quais campos e regras usar',
+          summary: 'O tipo define o contexto; o template evolui por versões; a categoria escolhe uma versão; os atributos descrevem os campos permitidos.',
+          steps: [
+            ['publication_types', 'define a espécie do conteúdo'],
+            ['templates', 'agrupa o modelo evolutivo'],
+            ['template_versions', 'congela um contrato publicado'],
+            ['categories', 'escolhe contrato e posição na taxonomia'],
+            ['attribute_definitions', 'define campos, tipos e validações'],
+            ['attribute_options', 'normaliza escolhas permitidas']
+          ]
+        },
+        listing: {
+          label: 'Publicar uma oferta',
+          title: 'Do usuário até uma oferta publicável',
+          summary: 'A oferta nasce com dono, cidade, categoria e versão do template; RPCs gravam o agregado, atualizam produto com revisão otimista, controlam o lifecycle e substituem atomicamente até três imagens.',
+          steps: [
+            ['profiles', 'identifica o responsável'],
+            ['categories', 'define descoberta e formulário'],
+            ['listings', 'cria o agregado e ciclo de vida'],
+            ['listing_attribute_values', 'guarda campos configuráveis'],
+            ['product_details', 'guarda detalhes universais do tipo'],
+            ['listing_images', 'ordena capa e galeria em até três posições']
+          ]
+        },
+        business: {
+          label: 'Vitrine de empresa',
+          title: 'Como a presença comercial permanece além dos anúncios',
+          summary: 'A empresa tem categoria, template, atributos, horários e exceções próprios; listings podem apontar para ela sem duplicar esses dados.',
+          steps: [
+            ['profiles', 'identifica o proprietário'],
+            ['business_categories', 'seleciona a natureza da vitrine'],
+            ['businesses', 'mantém a identidade comercial'],
+            ['business_images', 'organiza logo, capa e galeria'],
+            ['business_attribute_values', 'guarda campos configuráveis'],
+            ['business_hours', 'define rotina semanal'],
+            ['business_schedule_exceptions', 'corrige datas especiais']
+          ]
+        },
+        discovery: {
+          label: 'Descobrir e contatar',
+          title: 'Como uma oferta local vira intenção mensurável',
+          summary: 'A busca combina cidade, texto, categoria, preço e paginação na mesma RPC que registra demanda sanitizada. Detalhes são resolvidos por ID, favoritos/follows ficam na conta e o contato passa por verificação.',
+          steps: [
+            ['cities', 'delimita obrigatoriamente o mercado local'],
+            ['categories', 'organiza e filtra a descoberta'],
+            ['listings', 'fornece documento textual e oferta visível'],
+            ['businesses', 'participa como vitrine persistente'],
+            ['featured_placements', 'aplica prioridade temporária e auditável'],
+            ['search_requests', 'prova a consulta, filtros e resultado'],
+            ['search_demand_daily', 'preserva demanda sem identidade'],
+            ['favorites', 'registra intenção explícita'],
+            ['analytics_events', 'mede contato e sua atribuição']
+          ]
+        },
+        recommendation: {
+          label: 'Recomendar e notificar',
+          title: 'Do sinal de interesse até a entrega por dispositivo',
+          summary: 'Publicação, queda de preço e sinais recentes entram numa outbox deduplicada. Preferências escolhem destinatário e frequência; a inbox paginada vem do Supabase e o worker aplica silêncio, limite diário, lease e retry no push.',
+          steps: [
+            ['search_requests', 'captura termo recente sanitizado'],
+            ['analytics_events', 'captura interesse recente'],
+            ['listing_price_history', 'detecta queda real de preço'],
+            ['notification_category_preferences', 'autoriza o assunto'],
+            ['notification_preferences', 'aplica consentimento e frequência'],
+            ['notification_jobs', 'deduplica e agenda o fato do produto'],
+            ['notifications', 'cria mensagem e contexto'],
+            ['notification_recipients', 'materializa a inbox do usuário'],
+            ['device_tokens', 'resolve os aparelhos ativos'],
+            ['notification_deliveries', 'mede envio, entrega e abertura']
+          ]
+        },
+        official: {
+          label: 'Comunicado oficial',
+          title: 'Do login do órgão até todos os usuários',
+          summary: 'A conta oficial é 1:1 com o login e a vitrine institucional. A Central lê a vitrine pela projeção segura public_business_directory; a RPC valida a autorização e materializa automaticamente todos os perfis como destinatários, sem receber filtros do cliente. No seed local, prefeitura@demo.buscajabo.com.br usa a senha seed-only-password e acessa a Central oficial.',
+          steps: [
+            ['profiles', 'autentica o login exclusivo do órgão'],
+            ['businesses', 'representa a vitrine institucional'],
+            ['official_accounts', 'autoriza publicação oficial'],
+            ['notifications', 'fixa community e all_users'],
+            ['notification_recipients', 'cria inbox para todos os perfis'],
+            ['device_tokens', 'encontra instalações permitidas pelo sistema'],
+            ['notification_deliveries', 'agenda uma entrega por dispositivo']
+          ]
+        },
+        media: {
+          label: 'Mídia e limpeza',
+          title: 'Como imagens permanecem rastreáveis e removíveis',
+          summary: 'O Storage guarda os bytes; o banco guarda vínculo e metadados de anúncios, componentes e vitrines. As migrations 0028–0030 isolam upload, leitura e exclusão em helpers privilegiados mínimos; exclusões de domínio continuam enfileirando limpeza com retry.',
+          steps: [
+            ['listings', 'é a raiz da oferta'],
+            ['listing_images', 'registra imagem e tamanho'],
+            ['business_images', 'guarda logo, capa e galeria'],
+            ['storage.objects', 'protege os bytes por caminho e visibilidade'],
+            ['publication_components', 'cria blocos internos'],
+            ['component_images', 'liga imagem ao bloco'],
+            ['media_cleanup_queue', 'remove arquivos órfãos com retry']
+          ]
+        },
+        analytics: {
+          label: 'Visitantes únicos',
+          title: 'Como cliques repetidos viram métricas de pessoas',
+          summary: 'A RPC registra o evento bruto e deriva uma identidade pseudônima. Um agregado vitalício e outro diário contam cada conta ou instalação uma única vez, preservando também o volume total de visualizações.',
+          steps: [
+            ['profiles', 'identifica exatamente visitantes autenticados'],
+            ['analytics_events', 'preserva o histórico bruto e idempotente'],
+            ['analytics_entity_visitors', 'deduplica cada visitante por toda a vida'],
+            ['analytics_daily_visitors', 'deduplica por dia para períodos'],
+            ['businesses', 'recebe somente métricas agregadas do próprio perfil']
+          ]
+        },
+        moderation: {
+          label: 'Denúncia e moderação',
+          title: 'Da denúncia do usuário até uma decisão com efeito real',
+          summary: 'A denúncia aponta para exatamente um alvo; evidências ficam privadas; uma única RPC registra a decisão, altera o alvo, cria restrições quando necessário e resolve o caso atomicamente.',
+          steps: [
+            ['profiles', 'identifica denunciante e alvo'],
+            ['reports', 'abre e acompanha o caso'],
+            ['report_evidence', 'referencia arquivos privados'],
+            ['moderation_actions', 'registra a decisão tomada'],
+            ['account_restrictions', 'materializa o efeito sobre a conta'],
+            ['audit_log', 'preserva antes, depois e autoria']
+          ]
+        },
+        compliance: {
+          label: 'Verificação e direitos',
+          title: 'Como verificação, consentimento e exclusão permanecem comprováveis',
+          summary: 'Solicitações têm revisão e evidência próprias; consentimentos apontam para uma versão imutável do documento; exclusão e suporte possuem workflows rastreáveis.',
+          steps: [
+            ['verification_requests', 'abre a revisão de perfil ou empresa'],
+            ['verification_evidence', 'guarda referência à prova privada'],
+            ['audit_log', 'registra a decisão e o estado resultante'],
+            ['notification_jobs', 'avisa o solicitante na mesma transação'],
+            ['legal_documents', 'versiona o texto jurídico publicado'],
+            ['user_consents', 'prova qual versão foi aceita'],
+            ['account_deletion_requests', 'controla o direito de exclusão'],
+            ['support_requests', 'mantém o canal operacional']
+          ]
+        },
+        operations: {
+          label: 'Operar o MVP',
+          title: 'Como o banco oferece filas e indicadores sem exigir um painel complexo',
+          summary: 'Filas guardam o trabalho; operation_runs guarda cada invocação. Cron e workers registram heartbeat, duração, métricas e erro, permitindo detectar tarefas silenciosamente paradas.',
+          steps: [
+            ['operation_runs', 'acompanha cada invocação ou lote'],
+            ['notification_jobs', 'transforma fatos em inbox e entregas'],
+            ['notification_deliveries', 'expõe a fila com lease e retry'],
+            ['media_cleanup_queue', 'remove mídia órfã sem corrida'],
+            ['device_tokens', 'fornece o destino técnico ativo'],
+            ['reports', 'alimenta a fila administrativa de moderação'],
+            ['cities', 'organiza os indicadores por praça'],
+            ['analytics_events', 'preserva o funil bruto'],
+            ['audit_log', 'mantém rastreabilidade das decisões']
+          ]
+        },
+        protection: {
+          label: 'Proteção contra abuso',
+          title: 'Como o banco limita ações e mantém sinais explicáveis',
+          summary: 'Regras configuráveis alimentam contadores transacionais. A posse telefônica bloqueia duplicidade sob concorrência e registra tentativa/sinal de risco, mas a decisão administrativa continua humana e auditável.',
+          steps: [
+            ['phone_verification_claims', 'garante um dono por telefone ativo'],
+            ['phone_verification_attempts', 'audita duplicidade sem expor outra conta'],
+            ['rate_limit_rules', 'define limite e janela por ação'],
+            ['rate_limit_counters', 'conta tentativas concorrentemente'],
+            ['account_risk_signals', 'registra indícios explicáveis'],
+            ['moderation_actions', 'mantém a decisão humana separada'],
+            ['audit_log', 'audita mudanças sensíveis']
+          ]
+        }
+      };
+
+      const relations = [
+        ['neighborhoods','cities','city_id','CASCADE'], ['profiles','cities','city_id','SET NULL'], ['profiles','neighborhoods','neighborhood_id + city_id','NO ACTION'], ['profiles','auth.users','id','CASCADE'], ['phone_verification_claims','profiles','profile_id','CASCADE'], ['phone_verification_claims','profiles','revoked_by_profile_id','SET NULL'], ['phone_verification_attempts','profiles','profile_id','CASCADE'], ['phone_verification_attempts','account_risk_signals','risk_signal_id','SET NULL'],
+        ['business_categories','publication_types','publication_type_id','RESTRICT'], ['business_categories','template_versions','template_version_id','RESTRICT'], ['businesses','profiles','owner_profile_id','RESTRICT'], ['businesses','business_categories','business_category_id','SET NULL'], ['businesses','categories','category_id','RESTRICT'], ['businesses','publication_types','publication_type_id','RESTRICT'], ['businesses','template_versions','template_version_id','RESTRICT'], ['businesses','cities','city_id','SET NULL'], ['businesses','neighborhoods','neighborhood_id + city_id','NO ACTION'], ['official_accounts','profiles','profile_id','RESTRICT'], ['official_accounts','businesses','business_id + profile_id','RESTRICT'], ['official_accounts','profiles','verified_by_profile_id','SET NULL'], ['business_hours','businesses','business_id','CASCADE'], ['business_schedule_exceptions','businesses','business_id','CASCADE'], ['business_attribute_values','businesses','business_id','CASCADE'], ['business_attribute_values','attribute_definitions','attribute_definition_id','CASCADE'], ['business_attribute_values','attribute_options','option_id','RESTRICT'], ['business_images','businesses','business_id','CASCADE'],
+        ['templates','publication_types','publication_type_id','RESTRICT'], ['template_versions','templates','template_id','CASCADE'], ['categories','categories','parent_id','SET NULL'], ['categories','publication_types','publication_type_id','RESTRICT'], ['categories','template_versions','template_version_id','RESTRICT'], ['attribute_definitions','template_versions','template_version_id','CASCADE'], ['attribute_definitions','categories','category_id','CASCADE'], ['attribute_definitions','component_templates','component_template_id','CASCADE'], ['category_attribute_overrides','categories','category_id','CASCADE'], ['category_attribute_overrides','attribute_definitions','attribute_definition_id','CASCADE'], ['attribute_options','attribute_definitions','attribute_definition_id','CASCADE'],
+        ['listings','profiles','owner_profile_id','CASCADE'], ['listings','businesses','business_id','SET NULL'], ['listings','publication_types','publication_type_id','RESTRICT'], ['listings','categories','category_id','RESTRICT'], ['listings','template_versions','template_version_id','RESTRICT'], ['listings','cities','city_id','RESTRICT'], ['listings','neighborhoods','neighborhood_id + city_id','NO ACTION'], ['listing_attribute_values','listings','listing_id','CASCADE'], ['listing_attribute_values','attribute_definitions','attribute_definition_id','CASCADE'], ['listing_attribute_values','attribute_options','option_id','RESTRICT'], ['product_details','listings','listing_id','CASCADE'], ['service_details','listings','listing_id','CASCADE'], ['event_details','listings','listing_id','CASCADE'], ['classified_details','listings','listing_id','CASCADE'], ['service_areas','service_details','listing_id','CASCADE'], ['service_areas','cities','city_id','CASCADE'], ['service_areas','neighborhoods','neighborhood_id + city_id','CASCADE'], ['service_hours','service_details','listing_id','CASCADE'], ['listing_images','listings','listing_id','CASCADE'], ['listing_price_history','listings','listing_id','CASCADE'], ['listing_price_history','profiles','changed_by_profile_id','SET NULL'], ['featured_placements','listings','listing_id','CASCADE'], ['featured_placements','businesses','business_id','CASCADE'], ['featured_placements','cities','city_id','CASCADE'], ['featured_placements','categories','category_id','CASCADE'], ['featured_placements','business_categories','business_category_id','CASCADE'], ['featured_placements','profiles','created_by_profile_id','SET NULL'],
+        ['component_templates','template_versions','template_version_id','RESTRICT'], ['publication_components','listings','listing_id','CASCADE'], ['publication_components','component_templates','component_template_id','RESTRICT'], ['publication_components','publication_components','parent_component_id + listing_id','CASCADE'], ['component_attribute_values','publication_components','component_id','CASCADE'], ['component_attribute_values','attribute_definitions','attribute_definition_id','CASCADE'], ['component_attribute_values','attribute_options','option_id','RESTRICT'], ['component_images','publication_components','component_id','CASCADE'],
+        ['favorites','auth.users','user_id','CASCADE'], ['favorites','listings','listing_id','CASCADE'], ['follows','auth.users','user_id','CASCADE'], ['follows','businesses','business_id','CASCADE'], ['device_tokens','auth.users','user_id','CASCADE'], ['notification_preferences','auth.users','user_id','CASCADE'], ['notification_category_preferences','auth.users','user_id','CASCADE'], ['notification_category_preferences','categories','category_id','CASCADE'], ['notification_business_preferences','auth.users','user_id','CASCADE'], ['notification_business_preferences','businesses','business_id','CASCADE'], ['notification_consent_events','auth.users','user_id','CASCADE'], ['notification_jobs','auth.users','target_user_id','CASCADE'], ['notification_jobs','listings','listing_id','CASCADE'], ['notification_jobs','businesses','business_id','CASCADE'], ['notification_jobs','categories','category_id','CASCADE'], ['notification_jobs','cities','city_id','CASCADE'], ['notification_jobs','listing_price_history','source_price_history_id','CASCADE'], ['notifications','official_accounts','official_account_id','RESTRICT'], ['notifications','profiles','created_by_profile_id','SET NULL'], ['notifications','listings','listing_id','SET NULL'], ['notifications','businesses','business_id','SET NULL'], ['notifications','categories','category_id','SET NULL'], ['notifications','cities','city_id','SET NULL'], ['notifications','analytics_events','source_event_id','SET NULL'], ['notification_recipients','notifications','notification_id','CASCADE'], ['notification_recipients','auth.users','user_id','CASCADE'], ['notification_deliveries','notification_recipients','notification_id + user_id','CASCADE'], ['notification_deliveries','device_tokens','device_token_id','SET NULL'],
+        ['analytics_events','profiles','actor_profile_id','SET NULL'], ['analytics_events','profiles','target_profile_id','SET NULL'], ['analytics_events','listings','listing_id','SET NULL'], ['analytics_events','businesses','business_id','SET NULL'], ['analytics_events','categories','category_id','SET NULL'], ['analytics_events','cities','city_id','SET NULL'], ['analytics_events','notifications','notification_id','SET NULL'], ['analytics_events','notification_deliveries','notification_delivery_id','SET NULL'],
+        ['analytics_entity_visitors','profiles','target_profile_id','CASCADE'], ['analytics_entity_visitors','businesses','target_business_id','CASCADE'], ['analytics_entity_visitors','listings','target_listing_id','CASCADE'], ['analytics_entity_visitors','profiles','actor_profile_id','CASCADE'],
+        ['analytics_daily_visitors','profiles','target_profile_id','CASCADE'], ['analytics_daily_visitors','businesses','target_business_id','CASCADE'], ['analytics_daily_visitors','listings','target_listing_id','CASCADE'], ['analytics_daily_visitors','profiles','actor_profile_id','CASCADE'],
+        ['search_requests','profiles','actor_profile_id','SET NULL'], ['search_requests','cities','city_id','CASCADE'], ['search_requests','categories','category_id','SET NULL'], ['search_requests','business_categories','business_category_id','SET NULL'], ['search_requests','publication_types','publication_type_id','SET NULL'],
+        ['search_demand_daily','cities','city_id','CASCADE'], ['search_demand_daily','categories','category_id','SET NULL'], ['search_demand_daily','business_categories','business_category_id','SET NULL'], ['search_demand_daily','publication_types','publication_type_id','SET NULL'],
+        ['reports','profiles','reporter_profile_id','RESTRICT'], ['reports','listings','listing_id','SET NULL'], ['reports','businesses','business_id','SET NULL'], ['reports','profiles','reported_profile_id','SET NULL'], ['reports','cities','city_id','SET NULL'], ['reports','profiles','assigned_to_profile_id','SET NULL'],
+        ['report_evidence','reports','report_id','CASCADE'], ['report_evidence','profiles','submitted_by_profile_id','RESTRICT'],
+        ['moderation_actions','reports','report_id','SET NULL'], ['moderation_actions','profiles','moderator_profile_id','RESTRICT'], ['moderation_actions','listings','target_listing_id','SET NULL'], ['moderation_actions','businesses','target_business_id','SET NULL'], ['moderation_actions','profiles','target_profile_id','SET NULL'],
+        ['user_blocks','profiles','blocker_profile_id','CASCADE'], ['user_blocks','profiles','blocked_profile_id','CASCADE'],
+        ['account_restrictions','profiles','profile_id','CASCADE'], ['account_restrictions','profiles','created_by_profile_id','SET NULL'], ['account_restrictions','profiles','lifted_by_profile_id','SET NULL'],
+        ['account_risk_signals','profiles','profile_id','CASCADE'], ['account_risk_signals','businesses','business_id','CASCADE'], ['account_risk_signals','listings','listing_id','CASCADE'], ['account_risk_signals','profiles','reviewed_by_profile_id','SET NULL'],
+        ['verification_requests','profiles','requester_profile_id','RESTRICT'], ['verification_requests','profiles','profile_id','CASCADE'], ['verification_requests','businesses','business_id','CASCADE'], ['verification_requests','profiles','reviewer_profile_id','SET NULL'], ['verification_evidence','verification_requests','verification_request_id','CASCADE'],
+        ['user_consents','auth.users','user_id','CASCADE'], ['user_consents','legal_documents','legal_document_id','RESTRICT'],
+        ['account_deletion_requests','auth.users','user_id','CASCADE'], ['account_deletion_requests','profiles','processed_by_profile_id','SET NULL'],
+        ['support_requests','profiles','requester_profile_id','RESTRICT'], ['support_requests','profiles','assigned_to_profile_id','SET NULL'],
+        ['audit_log','profiles','actor_profile_id','SET NULL'], ['rate_limit_counters','rate_limit_rules','action_key','CASCADE'],
+        ['storage.objects','storage.buckets','bucket_id','CASCADE']
+      ].map(([from, to, field, onDelete], index) => ({ id: `rel-${index}`, from, to, field, onDelete }));
+
+      const operationalRelations = [
+        {
+          id: 'trigger-listing-images-cleanup',
+          from: 'listing_images',
+          to: 'media_cleanup_queue',
+          field: 'id',
+          targetField: 'source_id',
+          edgeLabel: 'AFTER DELETE → enfileira limpeza',
+          mapping: 'OLD.id → source_id · OLD.storage_path → storage_path · TG_TABLE_NAME → source_table'
+        },
+        {
+          id: 'trigger-component-images-cleanup',
+          from: 'component_images',
+          to: 'media_cleanup_queue',
+          field: 'id',
+          targetField: 'source_id',
+          edgeLabel: 'AFTER DELETE → enfileira limpeza',
+          mapping: 'OLD.id → source_id · OLD.storage_path → storage_path · TG_TABLE_NAME → source_table'
+        },
+        {
+          id: 'trigger-business-images-cleanup',
+          from: 'business_images',
+          to: 'media_cleanup_queue',
+          field: 'id',
+          targetField: 'source_id',
+          edgeLabel: 'AFTER DELETE → enfileira limpeza',
+          mapping: 'OLD.id → source_id · OLD.storage_path → storage_path · TG_TABLE_NAME → source_table'
+        },
+        {
+          id: 'trigger-price-history-job',
+          from: 'listing_price_history',
+          to: 'notification_jobs',
+          field: 'id',
+          targetField: 'source_price_history_id',
+          edgeLabel: 'queda de preço → job deduplicado',
+          mapping: 'history.id → source_price_history_id · listing/category/city → contexto'
+        },
+        {
+          id: 'trigger-listing-notification-job',
+          from: 'listings',
+          to: 'notification_jobs',
+          field: 'id',
+          targetField: 'listing_id',
+          edgeLabel: 'status/publicação → outbox',
+          mapping: 'listing.id → listing_id · owner_profile_id → target_user_id'
+        },
+        {
+          id: 'trigger-moderation-notification-job',
+          from: 'moderation_actions',
+          to: 'notification_jobs',
+          field: 'id',
+          targetField: 'payload',
+          edgeLabel: 'decisão → transacional',
+          mapping: 'alvo da moderação → target_user_id · action_type/reason → payload'
+        },
+        {
+          id: 'worker-job-notification',
+          from: 'notification_jobs',
+          to: 'notifications',
+          field: 'id',
+          targetField: 'dedupe_key',
+          edgeLabel: 'worker → mensagem e audiência',
+          mapping: 'dedupe_key/payload/contexto → notifications + recipients + deliveries'
+        },
+        {
+          id: 'rpc-search-demand',
+          from: 'search_requests',
+          to: 'search_demand_daily',
+          field: 'query_fingerprint',
+          targetField: 'query_fingerprint',
+          edgeLabel: 'RPC → agrega demanda diária',
+          mapping: 'termo sanitizado + cidade + filtros + total_count → contadores do dia'
+        },
+        {
+          id: 'rpc-search-analytics',
+          from: 'search_requests',
+          to: 'analytics_events',
+          field: 'id',
+          targetField: 'metadata',
+          edgeLabel: 'RPC → search_performed',
+          mapping: 'search_requests.id → metadata.searchRequestId · resultado/categoria → contexto'
+        },
+        {
+          id: 'trigger-preference-analytics',
+          from: 'notification_category_preferences',
+          to: 'analytics_events',
+          field: 'muted_until',
+          targetField: 'event_type',
+          edgeLabel: 'mudança → mute/frequência',
+          mapping: 'frequency/muted_until → notification_muted, notification_unmuted ou notification_frequency_changed'
+        },
+        {
+          id: 'rpc-verification-job',
+          from: 'verification_requests',
+          to: 'notification_jobs',
+          field: 'id',
+          targetField: 'payload',
+          edgeLabel: 'revisão → transacional',
+          mapping: 'request.id/decisão/motivo → payload · solicitante ou proprietário → target_user_id'
+        },
+        {
+          id: 'trigger-audit-account-job',
+          from: 'audit_log',
+          to: 'notification_jobs',
+          field: 'id',
+          targetField: 'payload',
+          edgeLabel: 'mudança da conta → transacional',
+          mapping: 'audit.id/ação/motivo → payload · perfil ou dono da empresa → target_user_id'
+        },
+        {
+          id: 'worker-operation-notifications',
+          from: 'operation_runs',
+          to: 'notification_jobs',
+          field: 'id',
+          targetField: 'worker_key',
+          edgeLabel: 'execução/lote → processa outbox',
+          mapping: 'operation_key + worker_key + heartbeat + métricas descrevem o lote processado'
+        },
+        {
+          id: 'worker-operation-media',
+          from: 'operation_runs',
+          to: 'media_cleanup_queue',
+          field: 'id',
+          targetField: 'worker_key',
+          edgeLabel: 'execução/lote → limpa mídia',
+          mapping: 'operation_key + worker_key + heartbeat + métricas descrevem o lote de arquivos'
+        }
+      ];
+
+      const tableById = Object.fromEntries(tables.map(table => [table.id, table]));
+      const state = { query: '', domain: 'all', flow: '', selected: '', detail: false, showLabels: false, zoom: 1.18, panX: 0, panY: 0, dragging: false, startX: 0, startY: 0, startPanX: 0, startPanY: 0 };
+      const WORLD_WIDTH = 4300;
+      let WORLD_HEIGHT = 4200;
+
+      const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[char]);
+      const heightOf = table => 46 + NODE_PURPOSE_HEIGHT + Math.min(state.detail ? table.columns.length : 6, table.columns.length) * ROW_HEIGHT + (state.detail || table.columns.length <= 6 ? 0 : 24);
+      const activeFlowTables = () => new Set((flows[state.flow]?.steps || []).map(([tableId]) => tableId));
+      const visibleTables = () => tables.filter(table => {
+        const matchesDomain = state.domain === 'all' || table.domain === state.domain;
+        const tableGuide = tableGuides[table.id];
+        const haystack = [table.id, table.description, table.migration, tableGuide?.role, tableGuide?.why, tableGuide?.absence, ...(tableGuide?.questions || []), ...table.columns.flatMap(field => [field.name, field.type, field.ref, field.note])].join(' ').toLowerCase();
+        return matchesDomain && (!state.query || haystack.includes(state.query));
+      });
+      const isVisible = id => visibleTables().some(table => table.id === id);
+
+      function applyTableLayout() {
+        tables.forEach(table => { table.y = table.baseY; });
+
+        if (state.detail) {
+          const columns = [...new Set(tables.map(table => table.x))];
+          columns.forEach(x => {
+            const columnTables = tables
+              .filter(table => table.x === x)
+              .sort((first, second) => first.baseY - second.baseY);
+            let nextY = columnTables[0]?.baseY || 0;
+            columnTables.forEach(table => {
+              table.y = Math.max(table.baseY, nextY);
+              nextY = table.y + heightOf(table) + 42;
+            });
+          });
+        }
+
+        WORLD_HEIGHT = Math.max(
+          4200,
+          ...tables.map(table => table.y + heightOf(table) + 120)
+        );
+        svg.setAttribute('viewBox', `0 0 ${WORLD_WIDTH} ${WORLD_HEIGHT}`);
+      }
+
+      function makeSvg(tag, attrs = {}) {
+        const element = document.createElementNS(SVG_NS, tag);
+        Object.entries(attrs).forEach(([key, value]) => element.setAttribute(key, value));
+        return element;
+      }
+
+      function selectTable(tableId) {
+        const table = tableById[tableId];
+        if (!table) return;
+        state.selected = tableId;
+        updateSelection();
+        renderInspector(table);
+        focusTable(table);
+      }
+
+      function bindOpenTableControls(container) {
+        container.querySelectorAll('[data-open-table]').forEach(button => button.addEventListener('click', () => selectTable(button.dataset.openTable)));
+      }
+
+      function renderGuide() {
+        flowButtons.innerHTML = Object.entries(flows).map(([key, flow]) => `<button type="button" class="flow-button${state.flow === key ? ' is-active' : ''}" data-flow="${key}" aria-pressed="${state.flow === key}">${escapeHtml(flow.label)}</button>`).join('');
+        flowButtons.querySelectorAll('[data-flow]').forEach(button => button.addEventListener('click', () => {
+          state.flow = state.flow === button.dataset.flow ? '' : button.dataset.flow;
+          state.domain = 'all';
+          state.selected = '';
+          render();
+          renderInspector();
+          homeView();
+        }));
+
+        const flow = flows[state.flow];
+        if (!flow) {
+          flowExplanation.innerHTML = `<h3 class="flow-title">Comece por uma pergunta</h3><p class="flow-summary">O grafo completo responde “quais tabelas existem?”. Os fluxos respondem “como elas colaboram para entregar um resultado?”. Selecione um fluxo; tabelas fora do caminho ficarão atenuadas.</p><div class="flow-steps"><div class="flow-step"><span class="flow-step-table">Exemplo</span><span class="flow-step-copy">Recomendar e notificar mostra sinais → consentimento → mensagem → inbox → dispositivo → entrega.</span></div></div>`;
+          return;
+        }
+        flowExplanation.innerHTML = `<h3 class="flow-title">${escapeHtml(flow.title)}</h3><p class="flow-summary">${escapeHtml(flow.summary)}</p><div class="flow-steps">${flow.steps.map(([tableId, copy]) => `<button type="button" class="flow-step" data-open-table="${escapeHtml(tableId)}"><span class="flow-step-table">${escapeHtml(tableId)}</span><span class="flow-step-copy">${escapeHtml(copy)}</span></button>`).join('')}</div>`;
+        bindOpenTableControls(flowExplanation);
+      }
+
+      function renderFilters() {
+        const all = [{ key: 'all', label: 'Todos' }, ...Object.entries(domainMeta).map(([key, value]) => ({ key, label: value.short }))];
+        document.getElementById('filters').innerHTML = all.map(({ key, label }) => `<button type="button" class="filter-button${state.domain === key ? ' is-active' : ''}" data-domain="${key}" aria-pressed="${state.domain === key}">${label}</button>`).join('');
+        document.querySelectorAll('[data-domain]').forEach(button => button.addEventListener('click', () => { state.domain = button.dataset.domain; renderFilters(); render(); }));
+      }
+
+      function renderDomainLegend() {
+        document.getElementById('domain-legend').innerHTML = Object.entries(domainMeta)
+          .map(([key, meta]) => `<div class="domain-legend-item" style="--domain-color:${meta.color}"><span class="domain-legend-swatch" aria-hidden="true"></span><div class="domain-legend-copy"><strong>${escapeHtml(meta.label)}</strong>${escapeHtml(domainPurposes[key])}</div></div>`)
+          .join('');
+      }
+
+      function renderBands() {
+        bandsLayer.innerHTML = '';
+        const bands = Object.keys(domainMeta).map(domain => {
+          const domainTables = tables.filter(table => table.domain === domain);
+          const minX = Math.min(...domainTables.map(table => table.x));
+          const maxX = Math.max(...domainTables.map(table => table.x));
+          const minY = Math.min(...domainTables.map(table => table.y));
+          const maxY = Math.max(...domainTables.map(table => table.y + heightOf(table)));
+          const y = Math.max(20, minY - 92);
+          return {
+            domain,
+            x: minX - 20,
+            y,
+            width: maxX - minX + NODE_WIDTH + 40,
+            height: maxY - y + 28
+          };
+        });
+        bands.forEach(band => {
+          const meta = domainMeta[band.domain];
+          const group = makeSvg('g');
+          group.innerHTML = `<rect class="domain-band" x="${band.x}" y="${band.y}" width="${band.width}" height="${band.height}" rx="26" style="stroke:${meta.color};stroke-opacity:.24"></rect><text class="band-label" x="${band.x + 20}" y="${band.y + 39}">${escapeHtml(meta.label)}</text><text class="band-caption" x="${band.x + 20}" y="${band.y + 59}">${escapeHtml(meta.caption)}</text>`;
+          bandsLayer.appendChild(group);
+        });
+      }
+
+      function anchor(node, other) {
+        const x = node.x, y = node.y, w = NODE_WIDTH, h = heightOf(node);
+        const cx = x + w / 2, cy = y + h / 2;
+        const dx = (other.x + NODE_WIDTH / 2) - cx;
+        const dy = (other.y + heightOf(other) / 2) - cy;
+        if (Math.abs(dx) >= Math.abs(dy)) return { x: dx >= 0 ? x + w : x, y: cy };
+        return { x: cx, y: dy >= 0 ? y + h : y };
+      }
+
+      function firstColumn(field) {
+        return field.split(' + ')[0].trim();
+      }
+
+      function targetColumn(from, to, field) {
+        const sourceColumns = field.split(' + ').map(column => column.trim());
+        return sourceColumns.map((sourceColumn, index) => {
+          if (sourceColumn.startsWith('parent_') && to.columns.some(column => column.name === 'id')) return 'id';
+          if (to.columns.some(column => column.name === sourceColumn)) return sourceColumn;
+          if (index === 0 && to.columns.some(column => column.name === 'id')) return 'id';
+          return to.columns[index]?.name || to.columns[0]?.name || 'id';
+        }).join(' + ');
+      }
+
+      function rowY(table, fieldName) {
+        const columnIndex = table.columns.findIndex(column => column.name === fieldName);
+        const visibleIndex = Math.max(0, Math.min(columnIndex < 0 ? 0 : columnIndex, state.detail ? table.columns.length - 1 : 5));
+        return table.y + 46 + NODE_PURPOSE_HEIGHT + visibleIndex * ROW_HEIGHT + ROW_HEIGHT / 2;
+      }
+
+      function anchorAtField(node, other, fieldName) {
+        const x = node.x, w = NODE_WIDTH;
+        const cx = x + w / 2, cy = node.y + heightOf(node) / 2;
+        const dx = (other.x + NODE_WIDTH / 2) - cx;
+        const dy = (other.y + heightOf(other) / 2) - cy;
+        const y = rowY(node, fieldName);
+        if (Math.abs(dx) >= Math.abs(dy)) return { x: dx >= 0 ? x + w : x, y };
+        return { x: cx, y };
+      }
+
+      function pathFor(from, to, relation, lane = 0) {
+        const sourceField = firstColumn(relation.field);
+        const destinationField = relation.targetField || targetColumn(from, to, relation.field);
+        const sameColumn = Math.abs(from.x - to.x) < 40;
+        if (sameColumn) {
+          const side = lane % 2 === 0 ? 1 : -1;
+          const distance = 38 + Math.floor(lane / 2) % 5 * 15;
+          const sourceX = side > 0 ? from.x + NODE_WIDTH : from.x;
+          const targetX = side > 0 ? to.x + NODE_WIDTH : to.x;
+          const p1 = { x: sourceX, y: rowY(from, sourceField) };
+          const p2 = { x: targetX, y: rowY(to, firstColumn(destinationField)) };
+          const gutterX = side > 0 ? Math.max(from.x, to.x) + NODE_WIDTH + distance : Math.min(from.x, to.x) - distance;
+          const labelX = p2.x + side * 10;
+          return {
+            d: `M ${p1.x} ${p1.y} C ${gutterX} ${p1.y}, ${gutterX} ${p2.y}, ${p2.x} ${p2.y}`,
+            mid: { x: gutterX, y: (p1.y + p2.y) / 2 },
+            source: p1,
+            destination: p2,
+            destinationField,
+            sameColumn: true,
+            keyLabel: { x: labelX, y: p2.y - 7, anchor: side > 0 ? 'start' : 'end' }
+          };
+        }
+        const p1 = anchorAtField(from, to, sourceField), p2 = anchorAtField(to, from, firstColumn(destinationField));
+        const horizontal = Math.abs(p2.x - p1.x) >= Math.abs(p2.y - p1.y);
+        const bend = horizontal ? Math.max(60, Math.abs(p2.x - p1.x) * .45) : Math.max(60, Math.abs(p2.y - p1.y) * .45);
+        const c1 = { x: p1.x + (horizontal ? (p2.x >= p1.x ? bend : -bend) : 0), y: p1.y + (horizontal ? 0 : (p2.y >= p1.y ? bend : -bend)) };
+        const c2 = { x: p2.x - (horizontal ? (p2.x >= p1.x ? bend : -bend) : 0), y: p2.y - (horizontal ? 0 : (p2.y >= p1.y ? bend : -bend)) };
+        return { d: `M ${p1.x} ${p1.y} C ${c1.x} ${c1.y}, ${c2.x} ${c2.y}, ${p2.x} ${p2.y}`, mid: { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 }, source: p1, destination: p2, destinationField, sameColumn: false };
+      }
+
+      function renderEdges() {
+        edgesLayer.innerHTML = '';
+        labelsLayer.innerHTML = '';
+        const columnLanes = new Map();
+        const allRelations = [...relations.map(relation => ({ ...relation, operational: false })), ...operationalRelations.map(relation => ({ ...relation, operational: true }))];
+        allRelations.forEach(relation => {
+          const from = tableById[relation.from], to = tableById[relation.to];
+          if (!from || !to) return;
+          const columnKey = Math.abs(from.x - to.x) < 40 ? `${Math.round((from.x + to.x) / 20)}` : '';
+          const lane = columnKey ? columnLanes.get(columnKey) || 0 : 0;
+          if (columnKey) columnLanes.set(columnKey, lane + 1);
+          const curve = pathFor(from, to, relation, lane);
+          const path = makeSvg('path', { class: `relation${relation.operational ? ' is-operational' : ''}`, id: relation.id, d: curve.d, 'marker-end': `url(#${relation.operational ? 'arrow-trigger' : 'arrow-fk'})` });
+          path.setAttribute('data-from', relation.from); path.setAttribute('data-to', relation.to);
+          path.innerHTML = `<title>${escapeHtml(relation.operational ? `${relation.from} → ${relation.to} · ${relation.edgeLabel} · ${relation.mapping}` : `${relation.from}.${relation.field} → ${relation.to} · on delete ${relation.onDelete}`)}</title>`;
+          edgesLayer.appendChild(path);
+          const ports = makeSvg('g', { class: 'edge-ports', id: `${relation.id}-ports`, 'data-relation-id': relation.id });
+          ports.appendChild(makeSvg('circle', { class: 'edge-port-source', cx: curve.source.x, cy: curve.source.y, r: 4 }));
+          ports.appendChild(makeSvg('circle', { class: 'edge-port-target', cx: curve.destination.x, cy: curve.destination.y, r: 5 }));
+          labelsLayer.appendChild(ports);
+          const label = makeSvg('text', {
+            class: `edge-label${curve.sameColumn ? ' is-column-key' : ''}`,
+            id: `${relation.id}-label`,
+            x: curve.sameColumn ? curve.keyLabel.x : curve.mid.x,
+            y: curve.sameColumn ? curve.keyLabel.y : curve.mid.y,
+            'text-anchor': curve.sameColumn ? curve.keyLabel.anchor : 'middle'
+          });
+          label.textContent = relation.edgeLabel || (curve.sameColumn ? `→ ${curve.destinationField}` : `${relation.from}.${relation.field} → ${relation.to}.${curve.destinationField}`);
+          labelsLayer.appendChild(label);
+        });
+      }
+
+      function nodeColumnHtml(field) {
+        const roles = field.role.split(' ').filter(Boolean);
+        const badges = roles.map(role => `<span class="node-key ${role === 'pk' ? 'pk' : 'fk'}">${role.toUpperCase()}</span>`).join('');
+        const reference = field.ref ? `→ ${field.ref}` : field.type;
+        return `<div class="node-row"><div class="node-field">${badges}${escapeHtml(field.name)}</div><div class="node-type${field.ref ? ' is-reference' : ''}">${escapeHtml(reference)}</div></div>`;
+      }
+
+      function renderNodes() {
+        nodesLayer.innerHTML = '';
+        const visible = visibleTables();
+        const flowTables = activeFlowTables();
+        tables.forEach(table => {
+          const fo = makeSvg('foreignObject', { class: 'node-fo', x: table.x, y: table.y, width: NODE_WIDTH, height: heightOf(table), 'data-table-id': table.id });
+          const div = document.createElement('div');
+          div.className = 'table-node';
+          div.dataset.tableId = table.id;
+          div.style.setProperty('--node-accent', domainMeta[table.domain]?.color || '#65728b');
+          if (!visible.some(item => item.id === table.id)) div.classList.add('is-hidden');
+          if (state.selected === table.id) div.classList.add('is-selected');
+          if (flowTables.has(table.id)) div.classList.add('is-flow');
+          const fields = state.detail ? table.columns : table.columns.slice(0, 6);
+          const more = !state.detail && table.columns.length > 6 ? `<div class="node-more">+${table.columns.length - 6} colunas · abrir inspetor</div>` : '';
+          div.innerHTML = `<div class="node-head"><div class="node-head-left"><span class="node-domain">${escapeHtml(domainMeta[table.domain]?.short || 'schema')}</span><span class="node-name">${escapeHtml(table.id)}</span></div><span class="node-lock" aria-label="RLS habilitado">●</span></div><div class="node-purpose"><span class="node-purpose-label">Para que serve</span>${escapeHtml(table.description)}</div>${fields.map(nodeColumnHtml).join('')}${more}`;
+          div.addEventListener('click', event => { event.stopPropagation(); selectTable(table.id); });
+          div.addEventListener('mouseenter', () => highlight(table.id));
+          div.addEventListener('mouseleave', () => highlight(state.selected));
+          fo.appendChild(div);
+          nodesLayer.appendChild(fo);
+        });
+        emptyState.style.display = visible.length ? 'none' : 'block';
+      }
+
+      function relationPurpose(relation) {
+        const field = relation.field;
+        if (relation.from === 'featured_placements' && ['listing_id', 'business_id'].includes(field)) return 'Escolhe exatamente um conteúdo como alvo do destaque; uma constraint impede apontar simultaneamente para anúncio e empresa.';
+        if (relation.from === 'featured_placements' && ['city_id', 'category_id', 'business_category_id'].includes(field)) return 'Restringe onde a prioridade pode aparecer usando a taxonomia própria do alvo, sem alterar sua classificação ou cidade.';
+        if (relation.from === 'featured_placements' && field === 'created_by_profile_id') return 'Audita qual administrador autorizou a prioridade temporária.';
+        if (relation.from.startsWith('analytics_') && field.startsWith('target_')) return 'Define a entidade visitada; a unicidade combina este alvo com a identidade pseudônima para não contar cliques repetidos como novas pessoas.';
+        if (relation.from.startsWith('analytics_') && field === 'actor_profile_id') return 'Mantém a origem exata para contas autenticadas, sem expor a identidade individual nos relatórios entregues ao proprietário.';
+        if (relation.from === 'reports' && ['listing_id', 'business_id', 'reported_profile_id'].includes(field)) return 'Identifica um único alvo denunciado; uma constraint impede que a mesma denúncia misture anúncio, empresa e perfil.';
+        if (relation.from === 'report_evidence' && field === 'report_id') return 'Faz o metadado da evidência existir somente enquanto o caso existir; os bytes permanecem protegidos no bucket privado.';
+        if (relation.from === 'moderation_actions' && field === 'report_id') return 'Liga a decisão ao caso que a motivou, preservando a ação mesmo se a denúncia for posteriormente anonimizada.';
+        if (relation.from === 'account_restrictions' && field === 'profile_id') return 'Materializa separadamente o efeito operacional da moderação, com início, fim e levantamento auditáveis.';
+        if (relation.from === 'verification_evidence' && field === 'verification_request_id') return 'Agrupa provas privadas sob a solicitação que define alvo, nível pedido e resultado da revisão.';
+        if (relation.from === 'user_consents' && field === 'legal_document_id') return 'Prova exatamente qual versão imutável do documento foi aceita, em vez de guardar apenas um booleano atual.';
+        if (relation.from === 'rate_limit_counters' && field === 'action_key') return 'Aplica ao contador a janela e o máximo configurados para aquela ação, permitindo ajuste operacional sem alterar código.';
+        if (relation.from === 'storage.objects' && field === 'bucket_id') return 'Separa os bytes por finalidade e permite políticas, tamanhos e MIME types próprios para mídia e evidência sensível.';
+        if (relation.from === 'official_accounts' && field === 'business_id + profile_id') return 'Garante que a conta oficial use exatamente o mesmo login proprietário da vitrine institucional.';
+        if (relation.from === 'official_accounts' && field === 'profile_id') return 'Faz a autorização oficial pertencer a um único login autenticado.';
+        if (relation.from === 'official_accounts' && field === 'verified_by_profile_id') return 'Registra qual administrador verificou ou aprovou a identidade institucional.';
+        if (relation.from === 'notifications' && field === 'official_account_id') return 'Identifica o órgão autorizado que originou o comunicado para toda a base.';
+        if (relation.from === 'notifications' && field === 'created_by_profile_id') return 'Audita qual login oficial executou a publicação.';
+        if (relation.from === 'profiles' && relation.to === 'auth.users') return 'Cria uma relação 1:1: o mesmo UUID autenticado também identifica o perfil de produto.';
+        if (field.includes('parent_id') || field.includes('parent_component_id')) return 'Forma uma hierarquia sem duplicar a entidade em tabelas diferentes.';
+        if (field.includes('owner_profile_id')) return 'Define propriedade e sustenta as políticas que autorizam somente o dono.';
+        if (field === 'profile_id') return 'Associa um perfil autenticado a uma entidade de negócio.';
+        if (field.includes('notification_id + user_id')) return 'Só permite uma entrega técnica quando a mensagem já existe na caixa daquele usuário.';
+        if (field.includes('user_id')) return 'Faz o registro pertencer ao usuário autenticado e permite RLS por auth.uid().';
+        if (field.includes('publication_type_id')) return 'Mantém o conteúdo alinhado ao tipo canônico que define suas regras gerais.';
+        if (field.includes('template_version_id')) return 'Fixa o contrato exato de campos e capacidades usado pelo registro.';
+        if (field === 'template_id') return 'Agrupa esta versão sob a identidade estável do template.';
+        if (field.includes('category_id')) return 'Liga o registro à taxonomia usada por descoberta, formulário e segmentação.';
+        if (field.includes('attribute_definition_id')) return 'Informa qual definição dá tipo, validação e significado ao valor ou override.';
+        if (field === 'option_id') return 'Garante que o valor escolhido seja uma opção normalizada e permitida.';
+        if (field.includes('neighborhood_id')) return 'Refina a localização e, quando composta com city_id, impede combinações geográficas inválidas.';
+        if (field.includes('city_id')) return 'Aplica o recorte geográfico local e evita depender de nomes de cidade repetidos.';
+        if (field.includes('listing_id')) return 'Faz este registro depender do anúncio raiz, evitando que detalhes existam sem oferta.';
+        if (field.includes('business_id')) return 'Vincula o registro à vitrine persistente sem repetir os dados institucionais da empresa.';
+        if (field.includes('component_template_id')) return 'Limita o componente a um formato previamente autorizado pela versão do template.';
+        if (field === 'component_id') return 'Faz valor ou imagem pertencer a um componente concreto.';
+        if (field === 'notification_delivery_id') return 'Atribui o evento à tentativa técnica exata que foi enviada para um dispositivo.';
+        if (field === 'notification_id') return 'Atribui leitura, entrega ou evento à identidade única da mensagem.';
+        if (field === 'device_token_id') return 'Identifica qual instalação recebeu a tentativa push sem misturar dispositivos do mesmo usuário.';
+        if (field === 'source_event_id') return 'Preserva a origem comportamental que motivou a criação da mensagem.';
+        return `A FK evita que ${relation.from}.${field} aponte para um registro inexistente em ${relation.to}.`;
+      }
+
+      function deleteRuleExplanation(relation) {
+        if (relation.onDelete === 'CASCADE') return `Se ${relation.to} for excluída, os registros dependentes em ${relation.from} também são removidos, pois não fazem sentido isoladamente.`;
+        if (relation.onDelete === 'SET NULL') return `Se ${relation.to} for excluída, ${relation.from} é preservada para manter histórico, mas a referência fica vazia.`;
+        if (relation.onDelete === 'RESTRICT') return `O banco impede excluir ${relation.to} enquanto ${relation.from} ainda depender dela, protegendo o contrato e a integridade.`;
+        if (relation.onDelete === 'NO ACTION') return `A migration não declarou ON DELETE. O PostgreSQL usa NO ACTION e rejeita a exclusão se a referência ainda estiver inválida ao verificar a constraint.`;
+        return 'Não existe FK física: a aplicação ou o worker precisa validar e limpar essa referência explicitamente.';
+      }
+
+      function relationRow(relation, perspective) {
+        const source = tableById[relation.from];
+        const target = tableById[relation.to];
+        const targetField = targetColumn(source, target, relation.field);
+        const direction = perspective === 'outgoing' ? 'Esta tabela depende de' : 'Esta tabela é usada por';
+        const relatedTable = perspective === 'outgoing' ? relation.to : relation.from;
+        return `<li class="relation-row"><div class="relation-summary"><span><strong>${escapeHtml(direction)} <button type="button" class="open-table" data-open-table="${escapeHtml(relatedTable)}">${escapeHtml(relatedTable)}</button></strong><small>${escapeHtml(relation.from)}.${escapeHtml(relation.field)} → ${escapeHtml(relation.to)}.${escapeHtml(targetField)}</small></span><span class="delete-rule">${escapeHtml(relation.onDelete)}</span></div><div class="relation-why">${escapeHtml(relationPurpose(relation))}</div><div class="relation-delete">${escapeHtml(deleteRuleExplanation(relation))}</div></li>`;
+      }
+
+      function operationalRelationRow(relation, perspective) {
+        const isSource = perspective === 'outgoing';
+        const relatedTable = isSource ? relation.to : relation.from;
+        const cleanupFlow = relation.id.includes('images-cleanup');
+        const mechanism = relation.id.startsWith('worker')
+          ? 'WORKER'
+          : relation.id.startsWith('rpc')
+            ? 'RPC'
+            : 'TRIGGER';
+        const direction = isSource ? 'Esta tabela alimenta' : 'Esta tabela recebe um fluxo de';
+        const why = cleanupFlow
+          ? 'Não é uma FK. O trigger enqueue_media_cleanup() executa depois da exclusão e copia os dados de OLD para uma nova tarefa.'
+          : `Não é uma FK. É uma conexão de comportamento executada por ${mechanism.toLowerCase()}; por isso a integridade não depende desta seta.`;
+        const consequence = cleanupFlow
+          ? `${relation.mapping}. O registro de origem já não existe, por isso source_id é apenas rastreabilidade histórica.`
+          : relation.mapping;
+        return `<li class="relation-row"><div class="relation-summary"><span><strong>${escapeHtml(direction)} <button type="button" class="open-table" data-open-table="${escapeHtml(relatedTable)}">${escapeHtml(relatedTable)}</button></strong><small>${escapeHtml(relation.edgeLabel)}</small></span><span class="delete-rule">${mechanism}</span></div><div class="relation-why">${escapeHtml(why)}</div><div class="relation-delete">${escapeHtml(consequence)}</div></li>`;
+      }
+
+      function renderInspector(table) {
+        if (!table) {
+          const domainCards = Object.entries(domainMeta).map(([key, meta]) => `<li class="analysis-item"><strong style="color:${meta.color}">${escapeHtml(meta.label)} · ${tables.filter(tableItem => tableItem.domain === key).length}</strong><br>${escapeHtml(domainPurposes[key])}</li>`).join('');
+          inspector.innerHTML = `<p class="inspector-kicker">Leitura do modelo</p><h2>Por que este banco existe assim?</h2><p class="inspector-copy">O modelo separa identidade, configuração, conteúdo, composição e comportamento para que cada regra tenha um único lugar. Escolha um fluxo à esquerda ou clique em uma tabela.</p><div class="inspector-section"><div class="section-label">Responsabilidade por domínio</div><ul class="analysis-list">${domainCards}</ul></div><div class="inspector-section"><div class="section-label">Como interpretar uma conexão</div><div class="explanation-card"><div class="explanation-card-label">Linha contínua · FK</div><p>A tabela de origem guarda uma chave da tabela de destino. Isso expressa dependência e impede referências inexistentes.</p></div><div class="explanation-card"><div class="explanation-card-label">Linha roxa tracejada · trigger</div><p>Representa fluxo operacional, não integridade referencial. Na limpeza de mídia, uma exclusão cria uma tarefa com uma cópia dos dados antigos.</p></div><div class="explanation-card"><div class="explanation-card-label">CASCADE</div><p>O filho desaparece com o pai porque não possui significado sozinho.</p></div><div class="explanation-card"><div class="explanation-card-label">SET NULL</div><p>O registro histórico permanece, mas perde o vínculo opcional.</p></div><div class="explanation-card"><div class="explanation-card-label">RESTRICT</div><p>O pai não pode ser apagado enquanto estiver em uso.</p></div><div class="explanation-card"><div class="explanation-card-label">NO ACTION</div><p>É o comportamento padrão quando a migration não declara ON DELETE; a constraint precisa estar válida ao ser verificada.</p></div></div><div class="inspector-section"><div class="section-label">Decisões centrais</div><ul class="analysis-list"><li class="analysis-item"><strong>Publicação primeiro.</strong> <code>publication_types → templates → template_versions → categories → listings/businesses</code>.</li><li class="analysis-item"><strong>Um negócio, um login.</strong> <code>businesses.owner_profile_id</code> é único e a conta oficial só pode usar o mesmo perfil proprietário.</li><li class="analysis-item"><strong>Campos sensíveis passam pelo servidor.</strong> Tipo e verificação da conta, status de empresa e lifecycle do anúncio não aceitam escrita direta do cliente.</li><li class="analysis-item"><strong>Busca é local e paginada.</strong> Anúncios e empresas usam documentos textuais indexados; <code>featured_placements</code> adiciona prioridade temporária sem alterar o conteúdo.</li><li class="analysis-item"><strong>Três imagens, uma ordem.</strong> Cada anúncio aceita posições 0, 1 e 2; o banco protege limite, dimensões e tamanho.</li><li class="analysis-item"><strong>Oficial alcança todos.</strong> O RPC oficial cria um destinatário para cada perfil; preferências e filtros continuam valendo somente para os demais fluxos.</li><li class="analysis-item"><strong>Evento bruto não é pessoa.</strong> <code>analytics_events</code> preserva ações; agregados vitalício e diário deduplicam contas e instalações. Proprietários recebem somente totais.</li><li class="analysis-item"><strong>Evidência é privada.</strong> Imagens públicas e provas sensíveis vivem em buckets privados diferentes e são liberadas por RLS.</li><li class="analysis-item"><strong>Decisão humana produz efeito.</strong> A RPC de moderação registra a ação e altera o alvo ou a restrição na mesma transação.</li><li class="analysis-item"><strong>Mensagem não é entrega.</strong> Notificação, destinatário, dispositivo e tentativa push possuem responsabilidades distintas.</li><li class="analysis-item"><strong>Histórico estável.</strong> Versões imutáveis evitam que mudanças futuras reinterpretem conteúdo antigo.</li></ul></div>`;
+          return;
+        }
+        const tableGuide = tableGuides[table.id] || guide(table.description, 'Esta tabela isola uma responsabilidade do domínio.', 'A responsabilidade teria de ser duplicada ou misturada em outra entidade.', []);
+        const comparison = tableComparisons[table.id];
+        const domainExplanation = domainExplanations[table.domain];
+        const outgoing = relations.filter(relation => relation.from === table.id);
+        const incoming = relations.filter(relation => relation.to === table.id);
+        const operationalOutgoing = operationalRelations.filter(relation => relation.from === table.id);
+        const operationalIncoming = operationalRelations.filter(relation => relation.to === table.id);
+        const fieldRows = table.columns.map(field => {
+          const roles = field.role.split(' ').filter(Boolean);
+          const badges = roles.map(role => `<span class="key ${role === 'pk' ? 'pk' : role === 'fk' ? 'fk' : 'ext'}">${role.toUpperCase()}</span>`).join('');
+          const meta = [field.ref, field.note].filter(Boolean).join(' · ');
+          return `<li class="field-row"><div class="field-name">${badges}${escapeHtml(field.name)}</div><div class="field-type">${escapeHtml(field.type)}</div>${meta ? `<div class="field-meta">${escapeHtml(meta)}</div>` : ''}</li>`;
+        }).join('');
+        const relationRows = [
+          ...outgoing.map(relation => relationRow(relation, 'outgoing')),
+          ...incoming.map(relation => relationRow(relation, 'incoming')),
+          ...operationalOutgoing.map(relation => operationalRelationRow(relation, 'outgoing')),
+          ...operationalIncoming.map(relation => operationalRelationRow(relation, 'incoming'))
+        ].join('');
+        const questions = tableGuide.questions.map(question => `<li class="question-item">${escapeHtml(question)}</li>`).join('');
+        inspector.innerHTML = `<p class="inspector-kicker">${escapeHtml(domainMeta[table.domain]?.label || 'Schema')}</p><h2>${escapeHtml(table.id)}</h2><p class="inspector-copy">${escapeHtml(table.description)}</p><div class="inspector-section"><div class="section-label">Por que ela existe</div><div class="explanation-card"><div class="explanation-card-label">Papel no produto</div><p>${escapeHtml(tableGuide.role)}</p></div><div class="explanation-card"><div class="explanation-card-label">Por que tabela própria</div><p>${escapeHtml(tableGuide.why)}</p></div><div class="explanation-card"><div class="explanation-card-label">Se ela não existisse</div><p>${escapeHtml(tableGuide.absence)}</p></div></div>${questions ? `<div class="inspector-section"><div class="section-label">Perguntas que ela responde</div><ul class="question-list">${questions}</ul></div>` : ''}<div class="inspector-section"><div class="section-label">Origem e segurança · ${escapeHtml(table.migration)}</div><ul class="analysis-list"><li class="analysis-item">${table.external ? 'Referência externa administrada pelo Supabase Auth.' : 'RLS habilitado: acesso depende do usuário, visibilidade pública ou papel administrativo.'}</li></ul></div><div class="inspector-section"><div class="section-label">Conexões explicadas · ${outgoing.length + incoming.length + operationalOutgoing.length + operationalIncoming.length}</div><ul class="relation-list">${relationRows || '<li class="analysis-item">Tabela independente no mapa atual; não possui FK nem fluxo operacional identificado.</li>'}</ul></div><div class="inspector-section"><div class="section-label">Colunas · ${table.columns.length}</div><ul class="field-list">${fieldRows}</ul></div>`;
+        if (domainExplanation) {
+          const domainSection = document.createElement('div');
+          domainSection.className = 'inspector-section';
+          domainSection.innerHTML = `<div class="section-label">O que a cor ${escapeHtml(domainMeta[table.domain].label)} representa</div><div class="explanation-card"><div class="explanation-card-label">Responsabilidade</div><p>${escapeHtml(domainExplanation.responsibility)}</p></div><div class="explanation-card"><div class="explanation-card-label">O que fica fora deste bloco</div><p>${escapeHtml(domainExplanation.boundary)}</p></div><div class="explanation-card"><div class="explanation-card-label">Como se conecta aos outros blocos</div><p>${escapeHtml(domainExplanation.relationship)}</p></div>`;
+          inspector.insertBefore(domainSection, inspector.querySelector('.inspector-section'));
+        }
+        if (comparison) {
+          const comparisonSection = document.createElement('div');
+          comparisonSection.className = 'inspector-section';
+          comparisonSection.innerHTML = `<div class="section-label">Diferença para uma tabela parecida</div><div class="explanation-card"><div class="explanation-card-label">${escapeHtml(table.id)} × ${escapeHtml(comparison[0])}</div><p>${escapeHtml(comparison[1])}</p><p style="margin-top:7px"><button type="button" class="open-table" data-open-table="${escapeHtml(comparison[0])}">Abrir ${escapeHtml(comparison[0])} para comparar →</button></p></div>`;
+          inspector.querySelector('.inspector-section')?.insertAdjacentElement('afterend', comparisonSection);
+        }
+        bindOpenTableControls(inspector);
+      }
+
+      function highlight(id) {
+        const connected = new Set();
+        const flowTables = activeFlowTables();
+        const hasFlow = flowTables.size > 0;
+        if (id) {
+          connected.add(id);
+          relations.forEach(relation => { if (relation.from === id) connected.add(relation.to); if (relation.to === id) connected.add(relation.from); });
+          operationalRelations.forEach(relation => { if (relation.from === id) connected.add(relation.to); if (relation.to === id) connected.add(relation.from); });
+        }
+        document.querySelectorAll('.table-node').forEach(node => {
+          const tableId = node.dataset.tableId;
+          node.classList.toggle('is-selected', tableId === state.selected);
+          node.classList.toggle('is-flow', flowTables.has(tableId));
+          node.classList.toggle('is-dimmed', Boolean(id) ? !connected.has(tableId) : hasFlow && !flowTables.has(tableId));
+        });
+        document.querySelectorAll('.relation').forEach(edge => {
+          const from = edge.getAttribute('data-from');
+          const to = edge.getAttribute('data-to');
+          const active = Boolean(id) && from && (from === id || to === id);
+          const flowActive = !id && hasFlow && flowTables.has(from) && flowTables.has(to);
+          edge.classList.toggle('is-active', active);
+          edge.classList.toggle('is-flow', flowActive);
+          edge.classList.toggle('is-dimmed', Boolean(id) ? !active : hasFlow && !flowActive);
+          edge.setAttribute('marker-end', active || flowActive ? 'url(#arrow-active)' : `url(#${edge.classList.contains('is-operational') ? 'arrow-trigger' : 'arrow-fk'})`);
+        });
+        document.querySelectorAll('.edge-label').forEach(label => {
+          const edge = document.getElementById(label.id.replace('-label', ''));
+          const active = edge?.classList.contains('is-active');
+          const flowActive = edge?.classList.contains('is-flow');
+          label.classList.toggle('is-visible', state.showLabels || active || flowActive);
+          label.classList.toggle('is-active-label', Boolean(active));
+        });
+        document.querySelectorAll('.edge-ports').forEach(ports => {
+          const edge = document.getElementById(ports.dataset.relationId);
+          ports.classList.toggle('is-active', Boolean(edge?.classList.contains('is-active')));
+          ports.classList.toggle('is-flow', Boolean(edge?.classList.contains('is-flow')));
+          ports.classList.toggle('is-dimmed', Boolean(edge?.classList.contains('is-dimmed')));
+        });
+      }
+
+      function updateSelection() {
+        highlight(state.selected);
+        const selected = tableById[state.selected];
+        const flow = flows[state.flow];
+        canvasTitle.textContent = selected
+          ? `${selected.id} · conexões destacadas e explicadas`
+          : flow
+            ? `${flow.label} · caminho de produto destacado`
+            : state.detail
+              ? 'Colunas expandidas · tabelas reorganizadas automaticamente para não se sobrepor'
+              : 'Visão geral · roda = zoom · arraste = mover · clique = focar';
+        document.getElementById('focus-selected').disabled = !selected;
+      }
+
+      function render() {
+        applyTableLayout();
+        renderBands();
+        renderEdges();
+        renderNodes();
+        renderFilters();
+        renderGuide();
+        updateSelection();
+        const count = visibleTables().length;
+        visibleCount.textContent = `${count} entidade${count === 1 ? '' : 's'} visíve${count === 1 ? 'l' : 'is'}`;
+        document.getElementById('table-count').textContent = tables.filter(table => !table.external).length;
+        document.getElementById('relation-count').textContent = relations.length;
+      }
+
+      function updateTransform() {
+        viewport.setAttribute('transform', `translate(${state.panX} ${state.panY}) scale(${state.zoom})`);
+        zoomReadout.textContent = `${Math.round(state.zoom * 100)}%`;
+      }
+
+      function baseMetrics() {
+        const rect = svg.getBoundingClientRect();
+        const scale = Math.min(rect.width / WORLD_WIDTH, rect.height / WORLD_HEIGHT) || 1;
+        return { rect, scale, offsetX: (rect.width - WORLD_WIDTH * scale) / 2, offsetY: (rect.height - WORLD_HEIGHT * scale) / 2 };
+      }
+
+      function focusTable(table, zoom = 2.05) {
+        if (!table) return;
+        const metrics = baseMetrics();
+        const targetX = table.x + NODE_WIDTH / 2;
+        const targetY = table.y + heightOf(table) / 2;
+        const screenCenterX = metrics.rect.width / 2;
+        const screenCenterY = metrics.rect.height / 2;
+        const worldCenterX = (screenCenterX - metrics.offsetX) / metrics.scale;
+        const worldCenterY = (screenCenterY - metrics.offsetY) / metrics.scale;
+        state.zoom = zoom;
+        state.panX = worldCenterX - targetX * state.zoom;
+        state.panY = worldCenterY - targetY * state.zoom;
+        updateTransform();
+      }
+
+      function homeView() {
+        const metrics = baseMetrics();
+        const screenCenterX = metrics.rect.width / 2;
+        const screenCenterY = metrics.rect.height / 2;
+        const worldCenterX = (screenCenterX - metrics.offsetX) / metrics.scale;
+        const worldCenterY = (screenCenterY - metrics.offsetY) / metrics.scale;
+        state.zoom = 1.18;
+        state.panX = worldCenterX - (WORLD_WIDTH / 2) * state.zoom;
+        state.panY = worldCenterY - (WORLD_HEIGHT / 2) * state.zoom;
+        updateTransform();
+      }
+
+      function fitView() {
+        state.zoom = 1;
+        state.panX = 0;
+        state.panY = 0;
+        updateTransform();
+      }
+
+      function zoomBy(factor, clientX = stage.clientWidth / 2, clientY = stage.clientHeight / 2) {
+        const metrics = baseMetrics();
+        const localX = clientX - metrics.rect.left, localY = clientY - metrics.rect.top;
+        const transformedX = (localX - metrics.offsetX) / metrics.scale;
+        const transformedY = (localY - metrics.offsetY) / metrics.scale;
+        const worldX = (transformedX - state.panX) / state.zoom;
+        const worldY = (transformedY - state.panY) / state.zoom;
+        state.zoom = Math.min(4.5, Math.max(.55, state.zoom * factor));
+        state.panX = transformedX - worldX * state.zoom;
+        state.panY = transformedY - worldY * state.zoom;
+        updateTransform();
+      }
+
+      searchInput.addEventListener('input', event => { state.query = event.target.value.trim().toLowerCase(); render(); });
+      detailToggle.addEventListener('click', () => {
+        state.detail = !state.detail;
+        detailToggle.classList.toggle('is-active', state.detail);
+        detailToggle.setAttribute('aria-pressed', String(state.detail));
+        detailToggle.textContent = state.detail ? 'Compactar colunas' : 'Expandir colunas';
+        render();
+        requestAnimationFrame(() => state.selected ? focusTable(tableById[state.selected]) : fitView());
+      });
+      document.getElementById('focus-selected').addEventListener('click', () => focusTable(tableById[state.selected]));
+      document.getElementById('fk-label-toggle').addEventListener('click', event => { state.showLabels = !state.showLabels; event.currentTarget.classList.toggle('is-active', state.showLabels); event.currentTarget.setAttribute('aria-pressed', String(state.showLabels)); highlight(state.selected); });
+      document.getElementById('fit').addEventListener('click', fitView);
+      document.getElementById('zoom-in').addEventListener('click', () => zoomBy(1.2));
+      document.getElementById('zoom-out').addEventListener('click', () => zoomBy(.84));
+      document.getElementById('reset').addEventListener('click', () => { state.query = ''; state.domain = 'all'; state.flow = ''; state.selected = ''; state.detail = false; state.showLabels = false; searchInput.value = ''; detailToggle.classList.remove('is-active'); detailToggle.setAttribute('aria-pressed', 'false'); detailToggle.textContent = 'Expandir colunas'; document.getElementById('fk-label-toggle').classList.remove('is-active'); document.getElementById('fk-label-toggle').setAttribute('aria-pressed', 'false'); render(); homeView(); renderInspector(); });
+      stage.addEventListener('wheel', event => { event.preventDefault(); zoomBy(event.deltaY > 0 ? .91 : 1.1, event.clientX, event.clientY); }, { passive: false });
+      stage.addEventListener('pointerdown', event => { if (event.target.closest('.table-node')) return; state.dragging = true; state.startX = event.clientX; state.startY = event.clientY; state.startPanX = state.panX; state.startPanY = state.panY; stage.classList.add('is-panning'); stage.setPointerCapture(event.pointerId); });
+      stage.addEventListener('pointermove', event => { if (!state.dragging) return; const metrics = baseMetrics(); state.panX = state.startPanX + (event.clientX - state.startX) / metrics.scale; state.panY = state.startPanY + (event.clientY - state.startY) / metrics.scale; updateTransform(); });
+      stage.addEventListener('pointerup', event => { state.dragging = false; stage.classList.remove('is-panning'); stage.releasePointerCapture?.(event.pointerId); });
+      stage.addEventListener('pointercancel', () => { state.dragging = false; stage.classList.remove('is-panning'); });
+      stage.addEventListener('click', event => { if (!event.target.closest('.table-node')) { state.selected = ''; updateSelection(); renderInspector(); } });
+      window.addEventListener('resize', () => state.selected ? focusTable(tableById[state.selected]) : homeView());
+
+      render();
+      renderDomainLegend();
+      renderInspector();
+      requestAnimationFrame(homeView);
+    })();
+  </script>
+</body>
+</html>

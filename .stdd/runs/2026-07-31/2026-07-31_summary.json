@@ -1,0 +1,248 @@
+{
+  "version": 1,
+  "date": "2026-07-31",
+  "runs": [
+    {
+      "run_id": "b1bf0e8d0db64a4b9b9f80129f13008a",
+      "timestamp": "2026-07-31T14:53:48.386204+00:00",
+      "description": "Separa IDs descritivos de desenhos e subfluxos dos IDs numéricos internos",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 63,
+        "lines_deleted": 37,
+        "files_changed": 2
+      }
+    },
+    {
+      "run_id": "e2f35f0040c0445196d03117fd740ccd",
+      "timestamp": "2026-07-31T15:00:13.126643+00:00",
+      "description": "Torna runs e Summary incrementais e move o baseline para runs/data",
+      "work_types": [
+        "implementacao",
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 1960,
+        "lines_deleted": 0,
+        "files_changed": 10
+      }
+    },
+    {
+      "run_id": "262b0c729f664d829039ed8d23937695",
+      "timestamp": "2026-07-31T15:02:49.368035+00:00",
+      "description": "Adiciona viewer runs.html somente leitura para Summary e Snapshot",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 85,
+        "lines_deleted": 1,
+        "files_changed": 3
+      }
+    },
+    {
+      "run_id": "f3671bf67ddc43bf8cc5480fc1498ff3",
+      "timestamp": "2026-07-31T15:04:52.027644+00:00",
+      "description": "Remove latest snapshot separado e usa o Snapshot da execução como baseline",
+      "work_types": [
+        "implementacao",
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 2063,
+        "lines_deleted": 0,
+        "files_changed": 11
+      }
+    },
+    {
+      "run_id": "fd21b360cc1f410bb50fa3dacceec418",
+      "timestamp": "2026-07-31T15:12:35.193816+00:00",
+      "description": "Classifica alterações grandes como refactor no WorkTypes",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 35,
+        "lines_deleted": 1,
+        "files_changed": 3
+      }
+    },
+    {
+      "run_id": "26c44cc84b344c37932e2778cf3c2811",
+      "timestamp": "2026-07-31T15:13:16.205815+00:00",
+      "description": "Atualiza classificação histórica de retrabalho no WorkTypes",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 13,
+        "lines_deleted": 0,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "2d0ad17b3af14b65bb66e4d8a0975248",
+      "timestamp": "2026-07-31T15:14:49.696401+00:00",
+      "description": "Define refactor para alterações sem planejamento prévio e aumenta o limiar determinístico",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 22,
+        "lines_deleted": 11,
+        "files_changed": 3
+      }
+    },
+    {
+      "run_id": "52050e3606e54149940acb74a20883ed",
+      "timestamp": "2026-07-31T15:16:06.082017+00:00",
+      "description": "Alinha skills com a classificação contextual de refactor",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "be2e05c6514a4b6abc3849c3a8c86150",
+      "timestamp": "2026-07-31T15:24:43.400603+00:00",
+      "description": "Especifica contratos das novas skills de agentes",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 36,
+        "lines_deleted": 0,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "f2564bead7954beca153ed2e58743aff",
+      "timestamp": "2026-07-31T15:26:50.710881+00:00",
+      "description": "Recria skills dos agentes com contratos de produção",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "c9aa1556f082493fbf2d431bceb0fe27",
+      "timestamp": "2026-07-31T15:27:02.354223+00:00",
+      "description": "Valida instalação exata das skills recriadas",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 3,
+        "lines_deleted": 0,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "e250d477ae4b47879a36087c964478d7",
+      "timestamp": "2026-07-31T15:33:00.845000+00:00",
+      "description": "Especifica alias global para todas as suítes",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 26,
+        "lines_deleted": 0,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "8b7d6efbf85e430385c6bd7142153f10",
+      "timestamp": "2026-07-31T15:34:19.313396+00:00",
+      "description": "Implementa alias global agregado para todas as suítes",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 63,
+        "lines_deleted": 8,
+        "files_changed": 3
+      }
+    },
+    {
+      "run_id": "7a4821e86b5948f7970192d045018976",
+      "timestamp": "2026-07-31T15:34:28.960872+00:00",
+      "description": "Valida execução global e continuidade após falhas",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "8064589bfae3440c809538b9ceb6ae4c",
+      "timestamp": "2026-07-31T15:37:46.445066+00:00",
+      "description": "Especifica perfis e aprovação para suítes opcionais",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 65,
+        "lines_deleted": 2,
+        "files_changed": 2
+      }
+    },
+    {
+      "run_id": "c6e6db74b3a64f83b5dc3626d84f7510",
+      "timestamp": "2026-07-31T15:39:02.745821+00:00",
+      "description": "Adiciona perfis e aprovação explícita ao alias de testes",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 99,
+        "lines_deleted": 4,
+        "files_changed": 3
+      }
+    },
+    {
+      "run_id": "da3b1bf836c04ae2b082060f7dfb2ace",
+      "timestamp": "2026-07-31T15:39:14.972061+00:00",
+      "description": "Valida controle MVP e bloqueio de ações sem aprovação",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    }
+  ],
+  "run_count": 17,
+  "last_run_id": "da3b1bf836c04ae2b082060f7dfb2ace"
+}

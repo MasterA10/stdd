@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "draws": [
+    {
+      "id": "checkout-resiliente",
+      "file": "checkout-resiliente.json",
+      "title": "Checkout resiliente",
+      "subtitle": "Do carrinho à confirmação, com falha e nova tentativa",
+      "kind": "feature",
+      "updated_at": "2026-07-31T14:53:10.284494+00:00",
+      "node_count": 7,
+      "edge_count": 7,
+      "subdraw_count": 1
+    },
+    {
+      "id": "payment-details",
+      "file": "payment-details.json",
+      "title": "Detalhes da autorização de pagamento",
+      "subtitle": "Tokenização, antifraude, provedor e resultado idempotente",
+      "kind": "subflow",
+      "updated_at": "2026-07-31T14:53:10.285687+00:00",
+      "node_count": 7,
+      "edge_count": 7,
+      "subdraw_count": 0
+    }
+  ]
+}

@@ -1,0 +1,222 @@
+{
+  "version": 1,
+  "id": "checkout-resiliente",
+  "title": "Checkout resiliente",
+  "subtitle": "Do carrinho à confirmação, com falha e nova tentativa",
+  "kind": "feature",
+  "groups": [
+    {
+      "id": 1,
+      "label": "Experiência do cliente",
+      "description": "Interação e estado visível para o usuário."
+    },
+    {
+      "id": 2,
+      "label": "Domínio de checkout",
+      "description": "Orquestra pedido e decisão de pagamento."
+    },
+    {
+      "id": 3,
+      "label": "Integração de pagamento",
+      "description": "Autoriza ou rejeita a cobrança externa."
+    }
+  ],
+  "nodes": [
+    {
+      "id": 1,
+      "label": "Carrinho",
+      "group": 1,
+      "description": "Mantém os itens escolhidos."
+    },
+    {
+      "id": 2,
+      "label": "Iniciar checkout",
+      "group": 2,
+      "description": "Valida itens, preço e usuário."
+    },
+    {
+      "id": 3,
+      "label": "Autorizar pagamento",
+      "group": 3,
+      "draw_ref": "payment-details",
+      "description": "Solicita autorização ao provedor."
+    },
+    {
+      "id": 4,
+      "label": "Pagamento aprovado?",
+      "kind": "decision",
+      "group": 2,
+      "description": "Decide o próximo caminho pelo resultado da autorização."
+    },
+    {
+      "id": 5,
+      "label": "Confirmar pedido",
+      "group": 2,
+      "description": "Persiste o pedido confirmado e publica o evento."
+    },
+    {
+      "id": 6,
+      "label": "Nova tentativa",
+      "group": 1,
+      "description": "Permite trocar o meio de pagamento ou tentar novamente."
+    },
+    {
+      "id": 7,
+      "label": "Notificar cliente",
+      "group": 1,
+      "description": "Mostra a confirmação final ao usuário."
+    }
+  ],
+  "edges": [
+    {
+      "id": 1,
+      "from": 1,
+      "to": 2,
+      "kind": "flow",
+      "condition": 1,
+      "label": "finaliza compra",
+      "description": "O usuário confirma os itens e inicia o checkout."
+    },
+    {
+      "id": 2,
+      "from": 2,
+      "to": 3,
+      "kind": "calls",
+      "condition": 1,
+      "label": "solicita autorização",
+      "description": "O checkout envia valor e referência idempotente."
+    },
+    {
+      "id": 3,
+      "from": 3,
+      "to": 4,
+      "kind": "flow",
+      "condition": 1,
+      "label": "retorna resultado",
+      "description": "O resultado determina a ramificação."
+    },
+    {
+      "id": 4,
+      "from": 4,
+      "to": 5,
+      "kind": "conditional",
+      "condition": 3,
+      "branch": "approved",
+      "label": "aprovado",
+      "description": "Somente pagamentos aprovados confirmam o pedido."
+    },
+    {
+      "id": 5,
+      "from": 4,
+      "to": 6,
+      "kind": "conditional",
+      "condition": 2,
+      "branch": "rejected",
+      "label": "rejeitado",
+      "description": "Falhas recuperáveis retornam ao cliente."
+    },
+    {
+      "id": 6,
+      "from": 6,
+      "to": 3,
+      "kind": "conditional",
+      "condition": 1,
+      "branch": "retry",
+      "label": "nova autorização",
+      "description": "A tentativa reutiliza o checkout com uma nova chave idempotente."
+    },
+    {
+      "id": 7,
+      "from": 5,
+      "to": 7,
+      "kind": "publishes",
+      "condition": 1,
+      "label": "pedido confirmado",
+      "description": "O evento confirmado atualiza a experiência do cliente."
+    }
+  ],
+  "flows": [
+    {
+      "id": 1,
+      "label": "Compra aprovada",
+      "title": "Caminho principal",
+      "summary": "O pagamento é autorizado, o pedido é confirmado e o cliente recebe a confirmação.",
+      "steps": [
+        {
+          "node": 1,
+          "text": "confirma os itens"
+        },
+        {
+          "node": 2,
+          "text": "valida o pedido"
+        },
+        {
+          "node": 3,
+          "text": "autoriza a cobrança"
+        },
+        {
+          "node": 4,
+          "text": "segue pelo ramo sim"
+        },
+        {
+          "node": 5,
+          "text": "persiste a confirmação"
+        },
+        {
+          "node": 7,
+          "text": "exibe o resultado"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "label": "Pagamento rejeitado",
+      "title": "Caminho de recuperação",
+      "summary": "A rejeição não confirma o pedido e permite uma nova tentativa.",
+      "steps": [
+        {
+          "node": 3,
+          "text": "recebe rejeição"
+        },
+        {
+          "node": 4,
+          "text": "segue pelo ramo não"
+        },
+        {
+          "node": 6,
+          "text": "solicita outro meio"
+        }
+      ]
+    }
+  ],
+  "tradeoffs": [
+    {
+      "title": "Confirmação síncrona ou assíncrona",
+      "decision": "Persistir a intenção imediatamente e confirmar pelo resultado idempotente do pagamento.",
+      "options": [
+        {
+          "label": "Síncrona",
+          "pros": [
+            "Fluxo simples para o cliente"
+          ],
+          "cons": [
+            "Maior acoplamento ao provedor"
+          ]
+        },
+        {
+          "label": "Assíncrona",
+          "pros": [
+            "Maior resiliência e retries"
+          ],
+          "cons": [
+            "Exige estado pendente e atualização posterior"
+          ]
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Nunca confirmar o pedido antes da autorização.",
+    "Toda nova tentativa deve usar idempotência."
+  ]
+}

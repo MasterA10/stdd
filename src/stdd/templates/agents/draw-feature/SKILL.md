@@ -1,0 +1,95 @@
+---
+name: draw-feature
+description: Cria JSONs de features, fluxos, arquiteturas e trade-offs para o viewer Draw do STDD, sem escrever HTML manualmente.
+---
+
+# Draw Feature
+
+Use esta skill quando uma feature, decisão, arquitetura ou trade-off ficar mais fácil de entender com um desenho de nós e relações.
+
+## Fluxo
+
+1. Modele o problema como dados: nós, grupos, relações, fluxos e trade-offs.
+2. Use IDs estáveis, labels curtos e descrições que expliquem a responsabilidade de cada nó.
+3. Faça cada relação declarar origem, destino, tipo e motivo.
+4. Gere ou atualize somente o JSON usando:
+
+```bash
+stdd draw create --data-json '<JSON>'
+```
+
+5. Abra o viewer com:
+
+```bash
+stdd draw serve
+```
+
+6. Selecione o desenho gerado no índice e confira conexões, fluxo e trade-offs.
+
+7. Para editar manualmente, ative `Editar desenho`. Conecte blocos arrastando a porta roxa de saída até o bloco de destino; o botão `Conectar blocos` mantém o fluxo alternativo por dois cliques. O usuário também pode adicionar, mover ou remover blocos e alterar propriedades pelo inspetor, sem editar JSON diretamente.
+8. Para começar do zero, use `Novo desenho`, defina título e tipo no inspetor e adicione o primeiro bloco. Um canvas sem nós é um desenho válido.
+9. Para iniciar uma feature a partir de um desenho, informe ao Feature Agent o ID do JSON; ele deve ler `.stdd/draws/<draw-id>.json` diretamente e interpretar a lógica do desenho.
+
+Não escreva HTML, CSS ou JavaScript para um desenho individual. O layout e os componentes pertencem ao `.stdd/draw.html`.
+
+## Modelo de dados
+
+O JSON deve conter `id`, `title`, `kind`, `nodes` e `edges`. Pode conter `groups`, `flows`, `tradeoffs` e `notes`.
+
+O `id` do desenho deve ser descritivo, seguro e corresponder ao nome do JSON, por exemplo `checkout-resiliente`. `draw_ref` usa o mesmo tipo de ID para relacionar um fluxo a um subfluxo. IDs internos de nós, grupos, relações e fluxos devem ser números inteiros não negativos.
+
+Use `nodes` para representar sistemas, módulos, atores, decisões, tabelas ou etapas. Use `edges` para relações como:
+
+- `depends-on`;
+- `calls`;
+- `stores-in`;
+- `publishes`;
+- `consumes`;
+- `blocks`;
+- `alternative-to`;
+- `flow`.
+
+Use `flows` para mostrar caminhos temporais ou operacionais. Use `tradeoffs` para registrar uma decisão, as opções consideradas, prós, contras e impacto.
+
+Toda seta deve declarar `condition` como código numérico: `1` representa `então`, `2` representa `ou` e `3` representa `se`. O viewer converte os códigos para os nomes no HTML. Use `label` e `description` para explicar o significado específico do caminho sem inventar um novo código.
+
+Para decompor sistemas complexos, use `draw_ref` em um nó:
+
+```json
+{"id":3,"label":"Pagamento","draw_ref":"payment-details"}
+```
+
+O valor deve ser o ID de outro JSON em `.stdd/draws/`. O viewer carregará esse subdesenho somente quando o usuário abrir o nó e permitirá voltar ao desenho pai. Não duplique os nós detalhados no desenho abstrato.
+
+## Escala e clareza
+
+- Não crie um nó para cada detalhe irrelevante.
+- Separe domínios com `groups`.
+- Prefira várias relações claras a uma descrição genérica escondida.
+- Use `description` para explicar por que o nó existe.
+- Use `edge.description` para explicar o efeito da conexão.
+- Em grafos muito grandes, divida por feature ou fluxo relacionado.
+- O viewer carrega apenas o JSON selecionado; não é necessário juntar o sistema inteiro em um arquivo.
+- Subdesenhos também são carregados sob demanda; um desenho abstrato guarda apenas o `draw_ref`.
+- Fluxos sem posições manuais são distribuídos em camadas da esquerda para a direita. Relações longas usam corredores externos para reduzir setas sobre blocos e cruzamentos difíceis de ler.
+- O JSON contém somente lógica. Não grave posição, coordenadas, dimensões, cores, estilos, tema, layout, viewport ou datas no desenho.
+- O script do viewer calcula distribuição, dimensões, quebra de texto, cores semânticas, portas, marcadores, rotas das setas, pan e zoom.
+- Posições ajustadas manualmente valem apenas para a sessão aberta; ao recarregar, o algoritmo recompõe o layout usando a lógica atual.
+- O JSON continua sendo a fonte de verdade interna, mas a edição humana acontece pelos controles visuais do Draw.
+- Cada ID possui somente um JSON atual; salvar novamente substitui esse desenho, sem criar histórico automático.
+- Não crie `request.md`, `scenarios.md` ou outra cópia intermediária: o JSON é a fonte de verdade.
+
+## Segurança e validação
+
+- Nunca inclua tokens, credenciais ou dados privados no JSON.
+- Não use HTML ou JavaScript dentro dos campos de dados.
+- O ID do desenho e `draw_ref` devem ser slugs descritivos; IDs internos devem ser números inteiros não negativos.
+- Toda relação deve apontar para nós existentes.
+- Toda etapa de fluxo deve apontar para um nó existente.
+- Um desenho inválido deve ser corrigido antes de ser registrado.
+
+Depois de alterar código ou documentação, registre a alteração com um único tipo de log apropriado:
+
+```bash
+stdd log "Atualiza desenho da feature" --impl
+```
