@@ -155,6 +155,30 @@ def test_delivery_agents_define_complete_production_test_contract():
             assert required in content, f"{name} não define {required}"
 
 
+def test_readme_documents_remote_install_and_interactive_integrations():
+    """Mantém a documentação de instalação alinhada com a CLI pública.
+    Verifica o comando remoto, a seleção múltipla e os três diretórios de integração.
+    """
+    readme = Path("README.md").read_text(encoding="utf-8")
+
+    assert "uv tool install stdd --from git+https://github.com/MasterA10/stdd.git@vX.Y.Z" in readme
+    assert "--all-integrations" in readme
+    assert ".agents/skills/" in readme
+    assert ".claude/skills/" in readme
+    assert ".gemini/skills/" in readme
+
+
+def test_readme_documents_codex_skill_invocation():
+    """Documenta como chamar as skills instaladas diretamente no terminal do Codex.
+    Confirma que o README relaciona cada comando de skill ao objetivo do fluxo do STDD.
+    """
+    readme = Path("README.md").read_text(encoding="utf-8")
+
+    for command in ("$setup", "$feature", "$draw-feature", "$static-analysis", "$implement"):
+        assert command in readme
+    assert ".agents/skills/<skill>/SKILL.md" in readme
+
+
 def test_feature_skill_uses_tests_and_draw_json_without_markdown_copies():
     """Mantém testes e desenhos como fontes diretas da especificação da feature.
     Impede que a skill volte a criar request.md ou scenarios.md como cópias intermediárias.

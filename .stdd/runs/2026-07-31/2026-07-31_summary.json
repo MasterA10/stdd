@@ -367,8 +367,64 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "4a5a03066e094c3187c176da548c06c0",
+      "timestamp": "2026-07-31T16:06:27.465551+00:00",
+      "description": "Valida README e seleção interativa de integrações",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 55,
+        "lines_deleted": 0,
+        "files_changed": 3
+      }
+    },
+    {
+      "run_id": "828c857089cd4634920899a270b0b7d9",
+      "timestamp": "2026-07-31T16:06:39.254037+00:00",
+      "description": "Cria README e instalação interativa por integrações",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "f36c5813deab467d80b1096bb797854c",
+      "timestamp": "2026-07-31T16:10:38.829757+00:00",
+      "description": "Valida instruções de invocação das skills no README",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 11,
+        "lines_deleted": 0,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "2a5f973523834cd1a2c4175a5796c37e",
+      "timestamp": "2026-07-31T16:10:49.406847+00:00",
+      "description": "Documenta invocação das skills no Codex",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 26,
-  "last_run_id": "9db636e3efaf4d6981f9daf1f7ba9368"
+  "run_count": 30,
+  "last_run_id": "2a5f973523834cd1a2c4175a5796c37e"
 }

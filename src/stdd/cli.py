@@ -1,4 +1,5 @@
 import json
+import sys
 from typing import List, Optional
 from pathlib import Path
 
@@ -18,6 +19,7 @@ def init(
     project: Path = typer.Argument(Path("."), help="Diretório do projeto a inicializar; por padrão, o diretório atual."),
     integration: List[str] = typer.Option(None, "--integration", help="Agente a integrar: codex, claude ou gemini; pode repetir."),
     all_integrations: bool = typer.Option(False, "--all-integrations", help="Instala as skills para Codex, Claude e Gemini."),
+    interactive: bool = typer.Option(False, "--interactive", help="Abre a seleção numérica de integrações e setup."),
 ) -> None:
     """Inicializa a estrutura do STDD e instala as skills dos agentes.
     Cria o diretório-alvo quando necessário, depois cria .stdd/ e .agents/skills.
@@ -30,15 +32,43 @@ def init(
     requested = tuple(integration or ("codex",))
     if all_integrations:
         requested = SUPPORTED_INTEGRATIONS
+    elif not integration and (interactive or sys.stdin.isatty()):
+        requested = choose_integrations()
     invalid = sorted(set(requested) - set(SUPPORTED_INTEGRATIONS))
     if invalid:
         typer.echo(f"Erro: integrações desconhecidas: {', '.join(invalid)}", err=True)
         raise typer.Exit(1)
     created = init_project(target, integrations=requested)
     typer.echo(f"Projeto inicializado em {target}. {len(created)} itens criados.")
+    if interactive or sys.stdin.isatty():
+        if typer.confirm("Executar o setup para detectar a stack agora?", default=True):
+            ensure_gitignore(target)
+            stack = configure_project(target)
+            ensure_stack_gitignore(target, stack["languages"])
+            typer.echo(f"Stack: {', '.join(stack['languages']) or 'não detectada'}")
     unavailable = [name for name, found in available_integrations().items() if name in requested and not found]
     if unavailable:
         typer.echo(f"Aviso: agente(s) não encontrado(s) no PATH: {', '.join(unavailable)}.", err=True)
+
+
+def choose_integrations() -> tuple[str, ...]:
+    """Apresenta uma seleção múltipla numerada para os agentes disponíveis.
+    Aceita números separados por vírgula ou a opção todos e retorna integrações únicas.
+    """
+    typer.echo("Selecione as integrações do agente (ex.: 1,3 ou 4 para todos):")
+    for index, name in enumerate((*SUPPORTED_INTEGRATIONS, "todos"), start=1):
+        typer.echo(f"  {index}. {name.title()}")
+    answer = typer.prompt("Integrações", default="1")
+    choices = {part.strip() for part in answer.split(",") if part.strip()}
+    if "4" in choices or "todos" in {choice.lower() for choice in choices}:
+        return SUPPORTED_INTEGRATIONS
+    selected = tuple(
+        name for index, name in enumerate(SUPPORTED_INTEGRATIONS, start=1) if str(index) in choices
+    )
+    if not selected:
+        typer.echo("Nenhuma opção válida; usando Codex.")
+        return ("codex",)
+    return selected
 
 
 @app.command()

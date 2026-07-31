@@ -36,6 +36,18 @@ def test_init_can_install_skills_for_all_supported_agents(tmp_path: Path):
         assert (tmp_path / directory / "skills" / "setup" / "SKILL.md").exists()
 
 
+def test_init_interactive_selects_multiple_agent_integrations(tmp_path: Path):
+    """Permite escolher várias integrações por números durante a inicialização.
+    Simula a seleção de Claude e Gemini e confirma que o setup também pode ser aceito no mesmo fluxo.
+    """
+    result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="2,3\ny\n")
+
+    assert result.exit_code == 0
+    assert (tmp_path / ".claude/skills/setup/SKILL.md").exists()
+    assert (tmp_path / ".gemini/skills/setup/SKILL.md").exists()
+    assert "Selecione" in result.stdout
+
+
 def test_setup_detects_stack_without_assuming_python(tmp_path: Path):
     """Detecta uma aplicação TypeScript e gera runner compatível com sua stack.
     Cria package.json e confirma que o diagnóstico não escolhe pytest ou outro comando Python.
