@@ -1,9 +1,0 @@
-{
-  "schema_version": 1,
-  "handoff_id": "handoff-fixture",
-  "source_session_id": "session-fixture",
-  "target": "generic",
-  "scope": {"statuses": ["approved"]},
-  "context": {"summary": {"lesson": ["Keep boundaries explicit"]}},
-  "source_checksum": "sha256:fixture"
-}

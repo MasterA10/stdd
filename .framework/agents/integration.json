@@ -1,7 +1,0 @@
-{
-  "default_integration": "codex",
-  "installed_integrations": [
-    "codex"
-  ],
-  "version": "0.2.0"
-}
