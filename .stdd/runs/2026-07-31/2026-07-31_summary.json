@@ -577,8 +577,64 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "1a42bd228c2840409b099ec9ce41799e",
+      "timestamp": "2026-07-31T18:33:39.577908+00:00",
+      "description": "Especifica persistência direta e badge numérico das perguntas do Draw",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 119,
+        "lines_deleted": 5,
+        "files_changed": 3
+      }
+    },
+    {
+      "run_id": "7437d02226ba4191955a350a8c781b6d",
+      "timestamp": "2026-07-31T18:33:42.235140+00:00",
+      "description": "Implementa salvamento direto sem download e histórico de perguntas no Draw",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "65c30692e6c74256b59db753ec8899a3",
+      "timestamp": "2026-07-31T18:38:07.993820+00:00",
+      "description": "Valida salvamento sem download ao abrir o Draw em .stdd",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 3,
+        "lines_deleted": 1,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "141e237391aa4a09ade55a2873888c79",
+      "timestamp": "2026-07-31T18:38:10.678215+00:00",
+      "description": "Impede download e orienta servidor HTTP no Draw",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 41,
-  "last_run_id": "74ed0992731f4597ab3f2a1696deee7c"
+  "run_count": 45,
+  "last_run_id": "141e237391aa4a09ade55a2873888c79"
 }

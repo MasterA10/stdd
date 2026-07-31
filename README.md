@@ -133,7 +133,7 @@ stdd test --approve-actions
 
 ## Abrir e editar o Draw
 
-O `draw.html` precisa ser servido por HTTP local. Abrir o arquivo diretamente com `file://` impede o `fetch` dos JSONs e o `PUT` usado para salvar alterações.
+O `draw.html` precisa ser servido por HTTP local. Abrir o arquivo diretamente com `file://` impede o `fetch` dos JSONs e o `PUT` usado para salvar alterações; nesse modo o Draw não baixa arquivo nem tenta salvar, apenas orienta iniciar o servidor local.
 
 No diretório raiz do projeto, execute:
 
@@ -149,7 +149,7 @@ http://127.0.0.1:8765/.stdd/draw.html
 
 Ao clicar em `＋ Novo desenho`, o Draw pede o nome do desenho antes de criá-lo. O viewer carrega apenas o desenho selecionado, lê seu JSON em `.stdd/draws/` e salva alterações lógicas pelo endpoint local `/__stdd/api/draws/<id>.json`. Cores e posições são preferências da experiência visual; elas ficam no armazenamento local do navegador e não alteram o contrato JSON.
 
-O Live Server é suficiente para o `fetch` de leitura, mas é um servidor estático e não aceita o `PUT` necessário para gravar arquivos. Ao salvar usando Live Server, o Draw tenta abrir a pasta do projeto com a File System Access API (`showDirectoryPicker`): escolha a raiz do repositório e ele grava `.stdd/draws/<id>.json` e atualiza `.stdd/draws/index.json`. Se o navegador não oferecer essa API, o JSON é baixado para você substituir no projeto. Para salvar automaticamente pelo endpoint, use:
+O Live Server é suficiente para o `fetch` de leitura, mas é um servidor estático e não aceita o `PUT` necessário para gravar arquivos. Ao salvar usando Live Server, o Draw tenta abrir a pasta do projeto com a File System Access API (`showDirectoryPicker`): escolha a raiz do repositório e ele grava diretamente `.stdd/draws/<id>.json` e atualiza `.stdd/draws/index.json`, sem baixar um arquivo. Se o navegador não oferecer essa API, o Draw mantém as alterações como não salvas e informa que é necessário usar o servidor local do STDD:
 
 ```bash
 stdd draw serve --port 8765
@@ -185,7 +185,7 @@ O cabeçalho do desenho pode ser editado com duplo clique. Setas selecionadas ex
 
 ### Perguntas de esclarecimento no Draw
 
-Um bloco pode declarar opcionalmente `questions` no JSON lógico. Cada pergunta usa `type: "choice"`, `"boolean"` ou `"open"`, e pode manter `answer: null` até uma decisão ser tomada. O pequeno indicador no bloco mostra quantas perguntas ainda estão sem resposta; quando todas forem respondidas, ele permanece visível com `0` para preservar o histórico. Clique no indicador para responder diretamente no bloco. Perguntas respondidas continuam no JSON e no painel, inclusive respostas booleanas `false`.
+Um bloco pode declarar opcionalmente `questions` no JSON lógico. Cada pergunta usa `type: "choice"`, `"boolean"` ou `"open"`, e pode manter `answer: null` até uma decisão ser tomada. O badge numérico no bloco mostra quantas perguntas ainda estão sem resposta; quando todas forem respondidas, ele permanece visível com `0` para preservar o histórico. Clique no badge para responder diretamente no bloco. Perguntas respondidas continuam no JSON e no painel, inclusive respostas booleanas `false`.
 
 ## Segurança e análise estática
 

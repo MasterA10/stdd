@@ -285,11 +285,11 @@ def test_draw_html_fetches_index_and_only_selected_json():
 
     assert "getJson('draws/index.json')" in template
     assert "getJson(`draws/${encodeURIComponent(id)}.json`)" in template
-    assert "fetch(url)" in template
+    assert "fetch(url, { cache: 'no-store' })" in template
     assert "Promise.all" not in template
     assert "draw_ref" in template
     assert "question-badge" in template
-    assert "questionPanel" in template
+    assert "expandedQuestionPanel" in template
     assert "unansweredQuestionCount" in template
     assert "question.answer" in template
     assert "Perguntas" in template
@@ -303,7 +303,7 @@ def test_draw_html_provides_visual_editor_pan_and_readable_long_flow_layout():
     """
     template = Path("src/stdd/templates/draw/draw.html").read_text(encoding="utf-8")
 
-    assert "content=\"4\"" in template
+    assert "content=\"5\"" in template
     assert "id=\"viewport\"" in template
     assert "beginPan" in template
     assert "moveCanvas" in template
@@ -368,15 +368,23 @@ def test_draw_html_provides_visual_editor_pan_and_readable_long_flow_layout():
     assert "deleteEdge" in template
     assert "edge-remove" in template
     assert "Conexão removida diretamente pela seta" in template
-    assert "inlineNodeEditor" in template
-    assert "inline-node-editor" in template
-    assert "Nome do bloco" in template
-    assert "Descrição do bloco" in template
+    assert "inlineNodeField" in template
+    assert "inline-node-field" in template
+    assert "node-color-control" in template
+    assert "editNodeTitleDirect" in template
+    assert "beginInlineNodeEdit(node, 'description')" in template
+    assert "node-kind" in template
+    assert "input.type = 'text'" in template
+    assert "control = 'textarea'" in template
     assert "Cor do fundo" in template
     assert "Cor do texto" in template
     assert "Nome do desenho" in template
     assert "showDirectoryPicker" in template
     assert "saveDrawToDirectory" in template
+    assert "downloadDrawJson" not in template
+    assert "salvos diretamente no diretório escolhido" in template
+    assert "window.location.protocol === 'file:'" in template
+    assert "Salvamento direto indisponível em file://" in template
     assert "new URL(`/__stdd/api/draws/" in template
 
 
