@@ -563,7 +563,7 @@ export const App: React.FC = () => {
         pathOptions: edgeHandles.loop ? undefined : { borderRadius: 14, offset: 20 },
         animated: isHighlighted || connectsSelection || edge.kind === 'flow',
         sourceHandle: edgeHandles.loop ? edgeHandles.sourceHandle : (edgeRoutingMode === 'curved' ? `source-${condition}-right` : edgeHandles.sourceHandle),
-        targetHandle: edgeHandles.loop ? edgeHandles.targetHandle : (edgeRoutingMode === 'curved' ? `target-in-left` : edgeHandles.targetHandle),
+        targetHandle: edgeHandles.targetHandle,
         label: `${
           { 1: 'então', 2: 'ou', 3: 'se' }[condition]
         }${edge.label ? ` - ${edge.label}` : ''}`,

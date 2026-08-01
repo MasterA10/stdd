@@ -274,7 +274,7 @@ export function layoutGraph(
   });
 
   // Pass D: Strict Anti-Overlap Guarantee
-  const nodeKeys = Object.keys(calculatedPositions);
+  const nodeKeys = Object.keys(calculatedPositions).sort((a, b) => calculatedPositions[a].y - calculatedPositions[b].y);
   for (let i = 0; i < nodeKeys.length; i++) {
     for (let j = i + 1; j < nodeKeys.length; j++) {
       const posA = calculatedPositions[nodeKeys[i]];
@@ -318,7 +318,7 @@ export function computeEdgeHandles(
     return {
       loop: isBackEdge,
       sourceHandle: `source-${cond}-right`,
-      targetHandle: `target-in-left`
+      targetHandle: `target-in-top`
     };
   }
 
@@ -337,9 +337,9 @@ export function computeEdgeHandles(
       if (Math.abs(dy) < NODE_HEIGHT * 0.6) {
         return { loop: true, sourceHandle: `source-${cond}-bottom`, targetHandle: `target-in-top` };
       } else if (dy < 0) {
-        return { loop: true, sourceHandle: `source-${cond}-top`, targetHandle: `target-in-left` };
+        return { loop: true, sourceHandle: `source-${cond}-top`, targetHandle: `target-in-bottom` };
       } else {
-        return { loop: true, sourceHandle: `source-${cond}-bottom`, targetHandle: `target-in-left` };
+        return { loop: true, sourceHandle: `source-${cond}-bottom`, targetHandle: `target-in-top` };
       }
     }
     return { loop: true, sourceHandle: `source-${cond}-bottom`, targetHandle: `target-in-top` };
@@ -356,8 +356,8 @@ export function computeEdgeHandles(
     dir = dx >= 0 ? 'right' : (dy >= 0 ? 'bottom' : 'top');
   }
 
-  const targetDirMap: { [key: string]: string } = { right: 'left', left: 'left', bottom: 'top', top: 'bottom' };
-  const targetDir = targetDirMap[dir] || 'left';
+  // The input (target) of a block must always be on the top or bottom side, never left or right
+  const targetDir = dy >= 0 ? 'top' : 'bottom';
 
   return {
     loop: false,
@@ -473,6 +473,23 @@ export function layoutCurvedGraph(
       };
     });
   });
+
+  // Strict Anti-Overlap Guarantee
+  const nodeKeys = Object.keys(calculatedPositions).sort((a, b) => calculatedPositions[a].y - calculatedPositions[b].y);
+  for (let i = 0; i < nodeKeys.length; i++) {
+    for (let j = i + 1; j < nodeKeys.length; j++) {
+      const posA = calculatedPositions[nodeKeys[i]];
+      const posB = calculatedPositions[nodeKeys[j]];
+      if (!posA || !posB) continue;
+
+      const dx = Math.abs(posA.x - posB.x);
+      const dy = Math.abs(posA.y - posB.y);
+
+      if (dx < NODE_WIDTH + 30 && dy < NODE_HEIGHT + 30) {
+        posB.y = posA.y + NODE_HEIGHT + V_GAP_CURVED;
+      }
+    }
+  }
 
   return nodes.map(n => {
     const calcPos = calculatedPositions[String(n.id)] || { x: 100, y: 100 };

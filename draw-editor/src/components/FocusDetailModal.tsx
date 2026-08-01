@@ -105,13 +105,17 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
           3: { color: '#059669', dash: '3 6' }
         }[cond] || { color: '#1e293b', dash: undefined };
 
+        const predIdx = predNodes.findIndex((n) => n.id === edge.from);
+        const predY = centerY - ((P - 1) * 220) / 2 + predIdx * 220;
+        const targetHandle = predY <= centerY ? 'target-in-top' : 'target-in-bottom';
+
         return {
           id: `focus-edge-pred-${edge.id}`,
           source: String(edge.from),
           target: String(edge.to),
           type: 'default', // curved bezier edge
           sourceHandle: `source-${cond}-right`,
-          targetHandle: `target-in-left`,
+          targetHandle: targetHandle,
           label: `${
             { 1: 'então', 2: 'ou', 3: 'se' }[cond]
           }${edge.label ? ` - ${edge.label}` : ''}`,
@@ -152,13 +156,17 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
           3: { color: '#059669', dash: '3 6' }
         }[cond] || { color: '#1e293b', dash: undefined };
 
+        const succIdx = succNodes.findIndex((n) => n.id === edge.to);
+        const succY = centerY - ((S - 1) * 220) / 2 + succIdx * 220;
+        const targetHandle = succY >= centerY ? 'target-in-top' : 'target-in-bottom';
+
         return {
           id: `focus-edge-succ-${edge.id}`,
           source: String(edge.from),
           target: String(edge.to),
           type: 'default', // curved bezier edge
           sourceHandle: `source-${cond}-right`,
-          targetHandle: `target-in-left`,
+          targetHandle: targetHandle,
           label: `${
             { 1: 'então', 2: 'ou', 3: 'se' }[cond]
           }${edge.label ? ` - ${edge.label}` : ''}`,
