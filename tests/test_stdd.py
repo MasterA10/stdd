@@ -242,7 +242,7 @@ def test_readme_documents_remote_install_and_interactive_integrations():
     """
     readme = Path("README.md").read_text(encoding="utf-8")
 
-    assert "uv tool install --force --refresh stdd --from git+https://github.com/MasterA10/stdd.git@v0.1.1" in readme
+    assert "uv tool install --force --refresh stdd --from git+https://github.com/MasterA10/stdd.git@v0.1.2" in readme
     assert "--all-integrations" in readme
     assert ".agents/skills/" in readme
     assert ".claude/skills/" in readme
