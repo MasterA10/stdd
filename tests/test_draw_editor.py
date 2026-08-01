@@ -65,6 +65,21 @@ def test_loop_edges_choose_a_clear_lane_and_keep_the_arrow_visible():
     assert "<path d={arrowPath}" in loop_edge
 
 
+def test_loop_edges_use_distinct_lanes_when_returning_to_the_same_node():
+    """Separa retornos concorrentes que chegam ao mesmo bloco.
+    Confirma que cada loop recebe faixa e rótulo próprios sem alterar as idas.
+    """
+    loop_edge = (EDITOR_ROOT / "src/components/LoopEdge.tsx").read_text(encoding="utf-8")
+
+    assert "useEdges" in loop_edge
+    assert "sideLoops" in loop_edge
+    assert "const sourceIds" in loop_edge
+    assert "const sourceIndex" in loop_edge
+    assert "const loopSpacing = 72" in loop_edge
+    assert "const edgeIndex" in loop_edge
+    assert "edgeIndex - (loopCount - 1) / 2" in loop_edge
+
+
 def test_keyboard_shortcuts_connect_and_duplicate_selected_blocks():
     """Mantém atalhos básicos para conexão, duplicação e desfazer.
     Confirma a origem ordenada e os comandos Z, X, C e Ctrl/Cmd+D/Z.

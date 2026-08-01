@@ -61,6 +61,12 @@
       "label": "Normalizar resultado",
       "group": 1,
       "description": "Converte a resposta externa para o contrato interno."
+    },
+    {
+      "id": 8,
+      "label": "Rejeitar por risco (cópia)",
+      "group": 2,
+      "description": "Bloqueia a cobrança e registra os sinais."
     }
   ],
   "edges": [
@@ -119,6 +125,87 @@
       "to": 5,
       "kind": "flow",
       "condition": 2,
+      "label": "",
+      "description": ""
+    },
+    {
+      "id": 10,
+      "from": 5,
+      "to": 3,
+      "kind": "flow",
+      "condition": 1,
+      "label": "",
+      "description": ""
+    },
+    {
+      "id": 11,
+      "from": 4,
+      "to": 8,
+      "kind": "flow",
+      "condition": 2,
+      "label": "",
+      "description": ""
+    },
+    {
+      "id": 12,
+      "from": 8,
+      "to": 4,
+      "kind": "flow",
+      "condition": 1,
+      "label": "",
+      "description": ""
+    },
+    {
+      "id": 13,
+      "from": 4,
+      "to": 3,
+      "kind": "flow",
+      "condition": 1,
+      "label": "",
+      "description": ""
+    },
+    {
+      "id": 14,
+      "from": 8,
+      "to": 3,
+      "kind": "flow",
+      "condition": 1,
+      "label": "",
+      "description": ""
+    },
+    {
+      "id": 15,
+      "from": 8,
+      "to": 2,
+      "kind": "flow",
+      "condition": 1,
+      "label": "",
+      "description": ""
+    },
+    {
+      "id": 16,
+      "from": 2,
+      "to": 1,
+      "kind": "flow",
+      "condition": 1,
+      "label": "",
+      "description": ""
+    },
+    {
+      "id": 17,
+      "from": 7,
+      "to": 1,
+      "kind": "flow",
+      "condition": 1,
+      "label": "",
+      "description": ""
+    },
+    {
+      "id": 18,
+      "from": 8,
+      "to": 7,
+      "kind": "flow",
+      "condition": 1,
       "label": "",
       "description": ""
     }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BaseEdge, EdgeLabelRenderer, useNodes } from '@xyflow/react';
+import { BaseEdge, EdgeLabelRenderer, useEdges, useNodes } from '@xyflow/react';
 import type { EdgeProps } from '@xyflow/react';
 
 export const LoopEdge: React.FC<EdgeProps> = ({
@@ -15,6 +15,7 @@ export const LoopEdge: React.FC<EdgeProps> = ({
   targetHandleId
 }) => {
   const nodes = useNodes();
+  const edges = useEdges();
   const PAD = 24;
   const sourceNode = nodes.find(node => node.id === String(source));
   const targetNode = nodes.find(node => node.id === String(target));
@@ -35,9 +36,30 @@ export const LoopEdge: React.FC<EdgeProps> = ({
   const topLane = minNodeY - 80;
   const bottomLane = maxNodeY + 80;
   const targetSide = targetHandleId?.endsWith('bottom') ? 'bottom' : 'top';
+  const sideLoops = edges
+    .filter(edge => edge.type === 'loop')
+    .filter(edge => (edge.targetHandle?.endsWith('bottom') ? 'bottom' : 'top') === targetSide);
+  const sourceIds = [...new Set(sideLoops.map(edge => edge.source))].sort((sourceAId, sourceBId) => {
+      const sourceA = nodes.find(node => node.id === sourceAId);
+      const sourceB = nodes.find(node => node.id === sourceBId);
+      const yA = sourceA?.position.y ?? 0;
+      const yB = sourceB?.position.y ?? 0;
+      return yA - yB || sourceAId.localeCompare(sourceBId);
+    });
+  const sourceIndex = Math.max(0, sourceIds.indexOf(String(source)));
+  const sourceLoops = sideLoops.filter(edge => edge.source === String(source));
+  const edgeIndex = Math.max(0, sourceLoops.findIndex(edge => edge.id === id));
+  const loopCount = Math.max(1, sourceLoops.length);
+  const loopSpacing = 72;
+  const preferredLane = targetSide === 'bottom'
+    ? bottomLane + sourceIndex * loopSpacing
+    : topLane - sourceIndex * loopSpacing;
+  const alternateLane = targetSide === 'bottom'
+    ? topLane - sourceIndex * loopSpacing
+    : bottomLane + sourceIndex * loopSpacing;
   const lanes = targetSide === 'bottom'
-    ? [{ side: 'bottom', y: bottomLane }, { side: 'top', y: topLane }]
-    : [{ side: 'top', y: topLane }, { side: 'bottom', y: bottomLane }];
+    ? [{ side: 'bottom', y: preferredLane }, { side: 'top', y: alternateLane }]
+    : [{ side: 'top', y: preferredLane }, { side: 'bottom', y: alternateLane }];
 
   const intersects = (x1: number, y1: number, x2: number, y2: number, box: typeof otherBoxes[number]) => {
     if (x1 === x2) return x1 > box.left && x1 < box.right && Math.min(y1, y2) < box.bottom && Math.max(y1, y2) > box.top;
@@ -84,7 +106,7 @@ export const LoopEdge: React.FC<EdgeProps> = ({
     return `L ${point.x} ${point.y}`;
   }).join(' ');
 
-  const labelX = (sourceX + targetX) / 2;
+  const labelX = (sourceX + targetX) / 2 + (edgeIndex - (loopCount - 1) / 2) * 92;
   const labelY = route.lane.y - 12;
   const labelColor = style?.stroke || '#1e293b';
 

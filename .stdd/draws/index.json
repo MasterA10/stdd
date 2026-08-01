@@ -29,9 +29,9 @@
       "title": "Detalhes da autorização de pagamento",
       "subtitle": "Tokenização, antifraude, provedor e resultado idempotente",
       "kind": "subflow",
-      "updated_at": "2026-08-01T23:27:10.766533+00:00",
-      "node_count": 7,
-      "edge_count": 7,
+      "updated_at": "2026-08-01T23:35:27.462832+00:00",
+      "node_count": 8,
+      "edge_count": 16,
       "subdraw_count": 0
     },
     {
