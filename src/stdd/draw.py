@@ -5,6 +5,7 @@ Mantém os dados dos desenhos separados do HTML reutilizável e carregado sob de
 from __future__ import annotations
 
 import json
+import mimetypes
 import re
 from copy import deepcopy
 from datetime import datetime, timezone
@@ -20,7 +21,8 @@ DRAW_TEMPLATE_VERSION = "5"
 EDGE_CONDITIONS = {1: "então", 2: "ou", 3: "se"}
 QUESTION_TYPES = {"choice", "boolean", "open"}
 DRAW_ID_PATTERN = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$")
-DRAW_TEMPLATE = Path(__file__).parent / "templates" / "draw" / "draw.html"
+DRAW_ASSETS = Path(__file__).parent / "draw_assets"
+LEGACY_DRAW_VIEWER = Path(".stdd") / "draw.html"
 PRESENTATION_KEYS = {"color", "colors", "position", "style", "styles", "layout", "viewport", "theme", "x", "y", "width", "height"}
 
 
@@ -203,8 +205,8 @@ def validate_draw_payload(payload: Any) -> list[str]:
 
 
 def ensure_draw_workspace(root: Path) -> list[Path]:
-    """Cria o viewer único e o índice vazio do projeto.
-    É idempotente e não cria um HTML por desenho.
+    """Cria somente o armazenamento dos desenhos no projeto.
+    Remove o viewer legado porque o renderer agora vem do pacote instalado.
     """
     stdd_path = root / ".stdd"
     draws_path = draw_directory(root)
@@ -213,10 +215,9 @@ def ensure_draw_workspace(root: Path) -> list[Path]:
         if not directory.exists():
             directory.mkdir(parents=True, exist_ok=True)
             created.append(directory)
-    viewer = stdd_path / "draw.html"
-    template = DRAW_TEMPLATE.read_text(encoding="utf-8")
-    if not viewer.exists() or viewer.read_text(encoding="utf-8") != template:
-        viewer.write_text(template, encoding="utf-8")
+    viewer = root / LEGACY_DRAW_VIEWER
+    if viewer.exists():
+        viewer.unlink()
         created.append(viewer)
     index = draw_index_path(root)
     if not index.exists():
@@ -310,15 +311,81 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
     """
     if not (0 <= port <= 65535):
         raise ValueError("port deve estar entre 0 e 65535")
+    if not DRAW_ASSETS.is_dir():
+        raise RuntimeError("assets do viewer Draw não estão instalados no pacote")
 
     class ProjectHandler(SimpleHTTPRequestHandler):
-        """Serve arquivos do projeto sem registrar requisições no stderr."""
+        """Serve somente o viewer empacotado e a API de desenhos locais."""
 
         def __init__(self, *args: Any, **kwargs: Any) -> None:
             super().__init__(*args, directory=str(root), **kwargs)
 
         def log_message(self, format: str, *args: Any) -> None:
             return
+
+        def _send_bytes(self, content: bytes, content_type: str, status: int = 200) -> None:
+            """Envia conteúdo HTTP com tipo e tamanho explícitos.
+            Evita expor arquivos arbitrários do projeto pelo servidor do viewer.
+            """
+            self.send_response(status)
+            self.send_header("Content-Type", content_type)
+            self.send_header("Content-Length", str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+
+        def _send_file(self, path: Path) -> None:
+            """Envia um asset validado pertencente ao pacote do STDD.
+            Retorna 404 quando o asset solicitado não existe.
+            """
+            try:
+                resolved = path.resolve()
+                assets_root = DRAW_ASSETS.resolve()
+                resolved.relative_to(assets_root)
+                content = resolved.read_bytes()
+            except (OSError, ValueError):
+                self.send_error(404, "asset não encontrado")
+                return
+            content_type = mimetypes.guess_type(resolved.name)[0] or "application/octet-stream"
+            self._send_bytes(content, content_type)
+
+        def _send_json_error(self, status: int, message: str) -> None:
+            """Retorna erro da API em JSON para consumo acionável pelo viewer.
+            Mantém o corpo sem traceback ou caminho interno do servidor.
+            """
+            body = json.dumps({"status": "blocked", "error": message}, ensure_ascii=False).encode("utf-8")
+            self._send_bytes(body, "application/json; charset=utf-8", status)
+
+        def do_GET(self) -> None:
+            """Serve assets empacotados e desenhos selecionados sob demanda.
+            Nunca transforma a raiz do projeto em um servidor de arquivos.
+            """
+            path = urlparse(self.path).path
+            if path in {"/", "/.stdd/draw.html"}:
+                self._send_file(DRAW_ASSETS / "index.html")
+                return
+            if path.startswith("/assets/") or path in {"/icons.svg", "/favicon.svg"}:
+                asset_name = unquote(path.lstrip("/"))
+                self._send_file(DRAW_ASSETS / asset_name)
+                return
+            if path == "/.stdd/draws/index.json":
+                try:
+                    body = json.dumps(read_draw_index(root), ensure_ascii=False).encode("utf-8")
+                except ValueError as error:
+                    self._send_json_error(500, str(error))
+                    return
+                self._send_bytes(body, "application/json; charset=utf-8")
+                return
+            prefix = "/.stdd/draws/"
+            if path.startswith(prefix) and path.endswith(".json"):
+                draw_id = unquote(path[len(prefix):-5])
+                try:
+                    body = json.dumps(read_draw(root, draw_id), ensure_ascii=False).encode("utf-8")
+                except ValueError:
+                    self._send_json_error(404, "desenho não encontrado")
+                    return
+                self._send_bytes(body, "application/json; charset=utf-8")
+                return
+            self.send_error(404, "endpoint inexistente")
 
         def _allow_local_origin(self) -> None:
             """Autoriza somente origens HTTP locais para o endpoint de salvamento.

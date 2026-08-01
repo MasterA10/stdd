@@ -31,17 +31,31 @@ def draw_payload(draw_id: str = "checkout") -> dict:
     }
 
 
-def test_init_installs_draw_viewer_and_empty_index(tmp_path: Path, monkeypatch):
-    """Instala um viewer único e um índice vazio dentro de .stdd.
-    Executa init e verifica que o HTML e a pasta de desenhos são criados.
+def test_init_installs_draw_data_without_copying_viewer_code(tmp_path: Path, monkeypatch):
+    """Instala os dados do Draw sem copiar código do viewer para o projeto.
+    Executa init e verifica o índice persistente e a ausência do HTML legado.
     """
     monkeypatch.chdir(tmp_path)
     result = runner.invoke(app, ["init"], catch_exceptions=False)
 
     assert result.exit_code == 0
-    assert (tmp_path / ".stdd/draw.html").exists()
     assert (tmp_path / ".stdd/draws/index.json").exists()
+    assert not (tmp_path / ".stdd/draw.html").exists()
     assert json.loads((tmp_path / ".stdd/draws/index.json").read_text())["draws"] == []
+
+
+def test_init_removes_legacy_draw_viewer(tmp_path: Path, monkeypatch):
+    """Remove o viewer legado durante a migração do projeto.
+    Cria um HTML antigo e confirma que init deixa somente o armazenamento JSON.
+    """
+    monkeypatch.chdir(tmp_path)
+    legacy = tmp_path / ".stdd/draw.html"
+    legacy.parent.mkdir()
+    legacy.write_text("viewer legado", encoding="utf-8")
+
+    runner.invoke(app, ["init"], catch_exceptions=False)
+
+    assert not legacy.exists()
 
 
 def test_create_draw_writes_only_json_and_light_index(tmp_path: Path):
@@ -510,8 +524,8 @@ def test_draw_readme_documents_local_server_and_visual_shortcuts():
     assert "botão `×`" in readme
     assert "Live Server" in readme
     assert "nome do desenho" in readme.lower()
-    assert "file:///caminho/absoluto/do-projeto/.stdd/draw.html" in readme
-    assert "O Live Server não é necessário" in readme
+    assert "rota virtual" in readme
+    assert "nenhum arquivo HTML" in readme
 
 
 def test_draw_server_serves_viewer_index_and_selected_json(tmp_path: Path):
@@ -522,9 +536,33 @@ def test_draw_server_serves_viewer_index_and_selected_json(tmp_path: Path):
     server, thread = start_server_for_test(tmp_path)
     base_url = f"http://127.0.0.1:{server.server_address[1]}"
     try:
-        assert "STDD Draw" in urlopen(f"{base_url}/.stdd/draw.html").read().decode()
+        viewer_html = urlopen(f"{base_url}/.stdd/draw.html").read().decode()
+        assert 'id="root"' in viewer_html
         assert "Checkout" in urlopen(f"{base_url}/.stdd/draws/index.json").read().decode()
         assert "Carrinho" in urlopen(f"{base_url}/.stdd/draws/checkout.json").read().decode()
+        assert "assets/" in viewer_html
+        script_path = next(part.split('"', 1)[0] for part in viewer_html.split('src="') if part.startswith("/assets/") and ".js" in part)
+        assert "react" in urlopen(f"{base_url}{script_path}").read().decode().lower()
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_draw_server_does_not_expose_project_files(tmp_path: Path):
+    """Serve somente o viewer e a API, sem expor arquivos da codebase.
+    Cria um arquivo sensível na raiz e confirma que a rota arbitrária retorna 404.
+    """
+    (tmp_path / "secret.py").write_text("token = 'local'", encoding="utf-8")
+    server, thread = start_server_for_test(tmp_path)
+    base_url = f"http://127.0.0.1:{server.server_address[1]}"
+    try:
+        try:
+            urlopen(f"{base_url}/secret.py")
+        except Exception as error:
+            assert "404" in str(error)
+        else:
+            raise AssertionError("arquivo da codebase não deveria ser exposto")
     finally:
         server.shutdown()
         server.server_close()

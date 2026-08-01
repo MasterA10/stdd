@@ -30,7 +30,7 @@ stdd draw serve
 8. Para começar do zero, use `Novo desenho`, informe o título e adicione o primeiro bloco. Um canvas sem nós é válido. As mudanças ficam pendentes até o usuário pressionar `Salvar alterações`.
 9. Para iniciar uma feature a partir de um desenho, informe ao Feature Agent o ID do JSON; ele deve ler `.stdd/draws/<draw-id>.json` diretamente e interpretar a lógica do desenho.
 
-Não escreva HTML, CSS ou JavaScript para um desenho individual. O layout e os componentes pertencem ao `.stdd/draw.html`.
+Não escreva HTML, CSS ou JavaScript para um desenho individual. O layout e os componentes pertencem ao viewer React Flow empacotado pelo STDD.
 
 ## Modelo de dados
 

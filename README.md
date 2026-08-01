@@ -4,13 +4,13 @@ STDD é um framework de controle de desenvolvimento orientado por testes. Ele in
 
 ## Instalação
 
-O método recomendado é instalar o CLI diretamente de uma tag do repositório usando [`uv`](https://docs.astral.sh/uv/):
+O pacote atual é a versão `0.1.0`. Como ainda não há uma tag publicada, instale o CLI da branch de desenvolvimento disponível usando [`uv`](https://docs.astral.sh/uv/):
 
 ```bash
-uv tool install stdd --from git+https://github.com/MasterA10/stdd.git@vX.Y.Z
+uv tool install stdd --from git+https://github.com/MasterA10/stdd.git@v0.1.0
 ```
 
-Substitua `vX.Y.Z` pela tag desejada, mantendo o `v`. Em desenvolvimento local, dentro deste repositório:
+Em desenvolvimento local, dentro deste repositório:
 
 ```bash
 uv tool install --editable .
@@ -139,7 +139,7 @@ stdd test --approve-actions
 
 ## Abrir e editar o Draw
 
-O Draw Server é o processo responsável por ler e salvar os desenhos. Ele pode ser usado de duas formas: pela URL HTTP do próprio servidor ou abrindo diretamente o arquivo `draw.html` com `file://`. No segundo caso, o Draw usa o servidor local para carregar os JSONs e fazer o `PUT`, desde que o servidor esteja iniciado.
+O Draw Server é o processo responsável por ler e salvar os desenhos. O viewer React Flow compilado vem dentro do pacote Python do STDD; o projeto do usuário não recebe HTML, JavaScript, CSS ou dependências Node. O servidor lê e grava somente os JSONs em `.stdd/draws/`.
 
 No diretório raiz do projeto, execute:
 
@@ -153,17 +153,11 @@ Depois abra no navegador pela URL do servidor:
 http://127.0.0.1:8765/.stdd/draw.html
 ```
 
-Também é possível abrir diretamente o arquivo:
-
-```text
-file:///caminho/absoluto/do-projeto/.stdd/draw.html
-```
-
-Nesse modo, mantenha `stdd draw serve --port 8765` em execução. O Live Server não é necessário e pode ser evitado para não recarregar a página enquanto uma edição estiver em andamento.
+O caminho `/.stdd/draw.html` é uma rota virtual de compatibilidade: nenhum arquivo HTML é criado dentro do projeto. Mantenha `stdd draw serve --port 8765` em execução enquanto o viewer estiver aberto. O Live Server não é necessário.
 
 Ao clicar em `＋ Novo desenho`, o Draw pede o nome do desenho antes de criá-lo. O viewer carrega apenas o desenho selecionado, lê seu JSON em `.stdd/draws/` e salva alterações lógicas pelo endpoint local `/__stdd/api/draws/<id>.json`. Cores e posições são preferências da experiência visual; elas ficam no armazenamento local do navegador e não alteram o contrato JSON.
 
-O Live Server continua opcional para desenvolvimento, mas não é recomendado durante uma edição porque pode recarregar a página automaticamente. Para uma sessão estável, use o Draw Server e abra o arquivo com `file://` ou abra a URL HTTP dele.
+O Live Server continua opcional para desenvolvimento do próprio editor React, mas não é necessário para usar o viewer instalado.
 
 Atalhos e gestos principais:
 
@@ -219,7 +213,6 @@ Mantenha registros de implementação e testes separados quando forem trabalhos 
 ```text
 .stdd/
 ├── config.json
-├── draw.html
 ├── draws/
 ├── runs.html
 └── runs/

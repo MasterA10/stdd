@@ -83,7 +83,7 @@ def test_init_keeps_framework_artifacts_in_stdd_and_agent_skills_in_agents(tmp_p
     assert (tmp_path / ".agents/skills/setup/SKILL.md").exists()
     assert not (tmp_path / ".agents/config.json").exists()
     assert (tmp_path / ".stdd/config.json").exists()
-    assert (tmp_path / ".stdd/draw.html").exists()
+    assert not (tmp_path / ".stdd/draw.html").exists()
     assert (tmp_path / ".stdd/draws/index.json").exists()
     assert (tmp_path / ".stdd/runs.html").exists()
     assert (tmp_path / ".stdd/runs/index.json").exists()
@@ -241,7 +241,7 @@ def test_readme_documents_remote_install_and_interactive_integrations():
     """
     readme = Path("README.md").read_text(encoding="utf-8")
 
-    assert "uv tool install stdd --from git+https://github.com/MasterA10/stdd.git@vX.Y.Z" in readme
+    assert "uv tool install stdd --from git+https://github.com/MasterA10/stdd.git@v0.1.0" in readme
     assert "--all-integrations" in readme
     assert ".agents/skills/" in readme
     assert ".claude/skills/" in readme
