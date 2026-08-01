@@ -36,3 +36,98 @@ def test_flow_inputs_never_use_the_right_side_of_a_block():
     assert 'type="target" position={Position.Right}' not in custom_node
     assert "target-in-right" not in layout
     assert "targetHandle: edgeHandles.targetHandle" in app
+
+
+def test_orthogonal_edges_route_around_obstacles_using_semantic_ports():
+    """Preserva portas direcionais e corredores livres no roteamento.
+    Confirma que o desvio respeita a porta calculada e evita entradas à direita.
+    """
+    layout = (EDITOR_ROOT / "src/layout.ts").read_text(encoding="utf-8")
+    edge = (EDITOR_ROOT / "src/components/AvoidEdge.tsx").read_text(encoding="utf-8")
+
+    assert "targetDir = 'left'" in layout
+    assert "sourceHandleId" in edge
+    assert "targetHandleId" in edge
+    assert "const clearance = 16" in edge
+    assert "targetDir === 'right' ? ['left']" in edge
+
+
+def test_loop_edges_choose_a_clear_lane_and_keep_the_arrow_visible():
+    """Mantém loops fora dos blocos e exibe a seta antes da entrada.
+    Confirma que a faixa considera obstáculos e que o marcador não fica oculto.
+    """
+    loop_edge = (EDITOR_ROOT / "src/components/LoopEdge.tsx").read_text(encoding="utf-8")
+
+    assert "useNodes" in loop_edge
+    assert "const bottomLane" in loop_edge
+    assert "otherBoxes" in loop_edge
+    assert "const arrowTip" in loop_edge
+    assert "<path d={arrowPath}" in loop_edge
+
+
+def test_keyboard_shortcuts_connect_and_duplicate_selected_blocks():
+    """Mantém atalhos básicos para conexão, duplicação e desfazer.
+    Confirma a origem ordenada e os comandos Z, X, C e Ctrl/Cmd+D/Z.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+
+    assert "selectionOrderRef" in app
+    assert "const conditions: Record<string, number> = { z: 1, x: 2, c: 3 }" in app
+    assert "key === 'd'" in app
+    assert "key === 'z'" in app
+    assert "onSelectionChange={onSelectionChange}" in app
+    assert "multiSelectionKeyCode={['Shift']}" in app
+    assert "const isMultiSelect = event.shiftKey" in app
+    assert "(cópia)" in app
+
+
+def test_editor_persists_pending_layout_and_deletions_until_save():
+    """Preserva posições e exclusões durante a edição local.
+    Confirma que apagar e salvar usam o contrato e o cache visual corretos.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    layout = (EDITOR_ROOT / "src/layout.ts").read_text(encoding="utf-8")
+
+    assert "key === 'delete' || key === 'backspace'" in app
+    assert "onEdgesChange={handleEdgesChange}" in app
+    assert "presentationPositionsRef.current" in app
+    assert "presentationPositionsState" in app
+    assert "deleteKeyCode={null}" in app
+    assert "customPos?.x !== undefined ? customPos.x : calcPos.x" in layout
+
+
+def test_shift_selection_keeps_neighbors_visible_while_ctrl_focuses_one_block():
+    """Diferencia seleção para conexão de foco visual.
+    Confirma que Shift seleciona múltiplos e Ctrl ativa o isolamento.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+
+    assert "const hasMultiSelection = selectionOrderRef.current.length > 1" in app
+    assert "hasSelection && !hasMultiSelection" in app
+    assert "const isMultiSelect = event.shiftKey" in app
+    assert "const [isFocusMode, setIsFocusMode]" in app
+    assert "const hasSelection = selectedNodeId !== null && isFocusMode" in app
+    assert "setIsFocusMode((event.ctrlKey || event.metaKey) && !isMultiSelect)" in app
+
+
+def test_shift_click_appends_to_a_normal_first_selection():
+    """Mantém o primeiro bloco como âncora da seleção múltipla.
+    Confirma que Shift no segundo clique adiciona sem exigir Shift no primeiro.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+
+    assert "const currentSelection = selectionOrderRef.current.length > 0" in app
+    assert "? [selectedNodeId]" in app
+    assert "selectionOrderRef.current = [...currentSelection, id]" in app
+
+
+def test_selected_blocks_have_an_explicit_visual_state():
+    """Sincroniza a seleção lógica com o estado visual do React Flow.
+    Confirma que blocos selecionados são distinguíveis dos blocos comuns.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    node = (EDITOR_ROOT / "src/components/CustomNode.tsx").read_text(encoding="utf-8")
+
+    assert "selected: selectedNodeIds.has(Number(node.id))" in app
+    assert "className={`custom-flow-node ${selected ? 'selected' : ''}" in node
+    assert "const borderStyle = selected" in node

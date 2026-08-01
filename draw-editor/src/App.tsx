@@ -9,7 +9,7 @@ import {
   useEdgesState,
   MarkerType
 } from '@xyflow/react';
-import type { Connection, Edge, Node, EdgeTypes } from '@xyflow/react';
+import type { Connection, Edge, EdgeChange, Node, EdgeTypes } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import type { Contract, NodeData, EdgeData } from './types';
@@ -67,11 +67,14 @@ export const App: React.FC = () => {
   // --- UI States ---
   const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<number | null>(null);
+  const [isFocusMode, setIsFocusMode] = useState(false);
   const [activeFlowId, setActiveFlowId] = useState<number | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [isDirty, setIsDirty] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [edgeRoutingMode, setEdgeRoutingMode] = useState<'orthogonal' | 'curved'>('orthogonal');
+  const [selectionRevision, setSelectionRevision] = useState(0);
+  const [presentationPositionsState, setPresentationPositionsState] = useState<Record<string, { x: number; y: number }>>({});
 
   // --- Dialogs & Modals States ---
   const [questionsNode, setQuestionsNode] = useState<NodeData | null>(null);
@@ -97,6 +100,43 @@ export const App: React.FC = () => {
 
   // UseRef to maintain latest contract reference and avoid stale closures in window functions
   const contractRef = useRef(contract);
+  const selectionOrderRef = useRef<number[]>([]);
+  const contractHistoryRef = useRef<Contract[]>([]);
+  const lastContractSnapshotRef = useRef<string | null>(null);
+  const skipHistoryRef = useRef(false);
+  const presentationPositionsRef = useRef<Record<string, { x: number; y: number }>>({});
+
+  const readPresentationPositions = (id: string) => {
+    try {
+      const saved = localStorage.getItem(`stdd-draw-presentation:${id}`);
+      return saved ? JSON.parse(saved).positions || {} : {};
+    } catch (_) {
+      return {};
+    }
+  };
+
+  const setPresentationPositionsForDrawing = (id: string) => {
+    const positions = readPresentationPositions(id);
+    presentationPositionsRef.current = positions;
+    setPresentationPositionsState(positions);
+  };
+
+  useEffect(() => {
+    const snapshot = JSON.stringify(contract);
+    if (lastContractSnapshotRef.current === null) {
+      lastContractSnapshotRef.current = snapshot;
+      return;
+    }
+    if (lastContractSnapshotRef.current !== snapshot) {
+      if (!skipHistoryRef.current && isDirty) {
+        const previous = JSON.parse(lastContractSnapshotRef.current) as Contract;
+        contractHistoryRef.current = [...contractHistoryRef.current.slice(-49), previous];
+      }
+      skipHistoryRef.current = false;
+      lastContractSnapshotRef.current = snapshot;
+    }
+  }, [contract, isDirty]);
+
   useEffect(() => {
     contractRef.current = contract;
     window.currentDrawId = contract.id;
@@ -234,6 +274,7 @@ export const App: React.FC = () => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         setContract(data);
+        setPresentationPositionsForDrawing(id);
         window.currentDrawId = id;
         setIsDirty(false);
         setSelectedNodeId(null);
@@ -247,6 +288,7 @@ export const App: React.FC = () => {
         try {
           const data = JSON.parse(saved);
           setContract(data);
+          setPresentationPositionsForDrawing(id);
           window.currentDrawId = id;
           setIsDirty(false);
           setSelectedNodeId(null);
@@ -256,6 +298,7 @@ export const App: React.FC = () => {
         }
       } else if (id === typedDefaultContract.id) {
         setContract(typedDefaultContract);
+        setPresentationPositionsForDrawing(id);
         window.currentDrawId = id;
         setIsDirty(false);
         setSelectedNodeId(null);
@@ -294,6 +337,13 @@ export const App: React.FC = () => {
   const performSave = async (contractToSave: Contract) => {
     const id = contractToSave.id;
     const cleanPayload = cleanLogicalPayload(contractToSave);
+    const presentationKey = `stdd-draw-presentation:${id}`;
+    try {
+      const saved = localStorage.getItem(presentationKey);
+      const presentation = saved ? JSON.parse(saved) : {};
+      presentation.positions = presentationPositionsRef.current;
+      localStorage.setItem(presentationKey, JSON.stringify(presentation));
+    } catch (_) {}
 
     if (storageMode === 'backend') {
       try {
@@ -382,6 +432,8 @@ export const App: React.FC = () => {
     };
 
     setContract(newContract);
+    presentationPositionsRef.current = {};
+    setPresentationPositionsState({});
     window.currentDrawId = newId;
     setNodes([]);
     setEdges([]);
@@ -407,11 +459,11 @@ export const App: React.FC = () => {
     try {
       const saved = localStorage.getItem(presentationKey);
       if (saved) {
-        return JSON.parse(saved).positions || {};
+        return { ...(JSON.parse(saved).positions || {}), ...presentationPositionsState };
       }
     } catch (_) {}
-    return {};
-  }, [contract.id, isDirty]);
+    return presentationPositionsState;
+  }, [contract.id, isDirty, presentationPositionsState]);
 
   const presentationColors = useMemo(() => {
     const presentationKey = `stdd-draw-presentation:${contract.id}`;
@@ -441,7 +493,8 @@ export const App: React.FC = () => {
     }
 
     // Nodes highlighting/dimming based on selectedNodeId (Predecessors & Successors)
-    const hasSelection = selectedNodeId !== null;
+    const hasSelection = selectedNodeId !== null && isFocusMode;
+    const hasMultiSelection = selectionOrderRef.current.length > 1;
     let connectedNodeIds = new Set<number>();
     if (hasSelection && selectedNodeId !== null) {
       connectedNodeIds.add(selectedNodeId);
@@ -490,7 +543,7 @@ export const App: React.FC = () => {
         } else {
           isDimmed = true;
         }
-      } else if (hasSelection) {
+      } else if (hasSelection && !hasMultiSelection) {
         if (connectedNodeIds.has(node.id)) {
           isDimmed = false;
         } else {
@@ -512,10 +565,15 @@ export const App: React.FC = () => {
     const formattedNodes = edgeRoutingMode === 'curved'
       ? layoutCurvedGraph(filteredNodes, contract.edges, presentationPositions)
       : layoutGraph(filteredNodes, contract.edges, presentationPositions);
-    setNodes(formattedNodes);
+    const selectedNodeIds = new Set(selectionOrderRef.current);
+    const nodesWithSelection = formattedNodes.map((node) => ({
+      ...node,
+      selected: selectedNodeIds.has(Number(node.id))
+    }));
+    setNodes(nodesWithSelection);
 
     const positions = Object.fromEntries(
-      formattedNodes.map((n) => [n.id, n.position])
+      nodesWithSelection.map((n) => [n.id, n.position])
     );
 
     const formattedEdges = contract.edges.map((edge) => {
@@ -535,7 +593,7 @@ export const App: React.FC = () => {
         } else {
           isDimmed = true;
         }
-      } else if (hasSelection) {
+      } else if (hasSelection && !hasMultiSelection) {
         if (edge.from === selectedNodeId || edge.to === selectedNodeId) {
           isDimmed = false;
         } else {
@@ -553,7 +611,7 @@ export const App: React.FC = () => {
           3: { color: '#059669', dash: '3 6' }
         }[condition] || { color: '#1e293b', dash: undefined };
 
-      const connectsSelection = hasSelection && (edge.from === selectedNodeId || edge.to === selectedNodeId);
+      const connectsSelection = hasSelection && !hasMultiSelection && (edge.from === selectedNodeId || edge.to === selectedNodeId);
 
       return {
         id: String(edge.id),
@@ -603,23 +661,224 @@ export const App: React.FC = () => {
     });
 
     setEdges(formattedEdges);
-  }, [contract, activeFlowId, presentationPositions, presentationColors, searchQuery, theme, selectedNodeId, edgeRoutingMode]);
+  }, [contract, activeFlowId, presentationPositions, presentationColors, searchQuery, theme, selectedNodeId, isFocusMode, selectionRevision, edgeRoutingMode]);
 
   // --- Callbacks on Canvas Actions ---
-  const onNodeClick = (_: any, node: Node) => {
-    setSelectedNodeId(Number(node.id));
+  const getOrderedSelectedNodeIds = useCallback(() => {
+    const availableIds = new Set(contract.nodes.map((node) => node.id));
+    const ordered = selectionOrderRef.current.filter((id) => availableIds.has(id));
+    if (ordered.length > 0) return ordered;
+
+    const selectedIds = new Set(nodes.filter((node) => node.selected).map((node) => Number(node.id)));
+    const reactFlowOrder = selectionOrderRef.current.filter((id) => selectedIds.has(id));
+    nodes.forEach((node) => {
+      const id = Number(node.id);
+      if (node.selected && !reactFlowOrder.includes(id)) reactFlowOrder.push(id);
+    });
+    if (reactFlowOrder.length === 0 && selectedNodeId !== null) reactFlowOrder.push(selectedNodeId);
+    return reactFlowOrder;
+  }, [contract.nodes, nodes, selectedNodeId]);
+
+  const onSelectionChange = useCallback((selection: { nodes: Node[] }) => {
+    const selectedIds = selection.nodes.map((node) => Number(node.id));
+    if (selectedIds.length === 0 && selectionOrderRef.current.length > 0) return;
+    const availableIds = new Set(contract.nodes.map((node) => node.id));
+    const ordered = selectionOrderRef.current.filter((id) => availableIds.has(id));
+    selectedIds.forEach((id) => {
+      if (!ordered.includes(id)) ordered.push(id);
+    });
+    selectionOrderRef.current = ordered;
+    setSelectedNodeId(ordered[0] ?? null);
+    if (ordered.length > 0) setSelectedEdgeId(null);
+    setSelectionRevision((value) => value + 1);
+  }, [contract.nodes]);
+
+  const onNodeClick = (event: React.MouseEvent, node: Node) => {
+    const id = Number(node.id);
+    const isMultiSelect = event.shiftKey;
+    setIsFocusMode((event.ctrlKey || event.metaKey) && !isMultiSelect);
+    if (!isMultiSelect) {
+      selectionOrderRef.current = [id];
+      setSelectedNodeId(id);
+    } else {
+      const currentSelection = selectionOrderRef.current.length > 0
+        ? selectionOrderRef.current
+        : selectedNodeId !== null
+          ? [selectedNodeId]
+          : [];
+      if (!currentSelection.includes(id)) {
+        selectionOrderRef.current = [...currentSelection, id];
+      }
+      setSelectedNodeId(selectionOrderRef.current[0] ?? id);
+    }
     setSelectedEdgeId(null);
+    setSelectionRevision((value) => value + 1);
   };
 
   const onEdgeClick = (_: any, edge: Edge) => {
     setSelectedEdgeId(Number(edge.id));
     setSelectedNodeId(null);
+    setIsFocusMode(false);
   };
 
   const onPaneClick = () => {
+    selectionOrderRef.current = [];
     setSelectedNodeId(null);
     setSelectedEdgeId(null);
+    setIsFocusMode(false);
+    setSelectionRevision((value) => value + 1);
   };
+
+  const handleEdgesChange = useCallback((changes: EdgeChange[]) => {
+    const removedIds = changes
+      .filter((change) => change.type === 'remove')
+      .map((change) => Number(change.id));
+    if (removedIds.length > 0) {
+      setContract((prev) => ({
+        ...prev,
+        edges: prev.edges.filter((edge) => !removedIds.includes(edge.id))
+      }));
+      setIsDirty(true);
+    }
+    onEdgesChange(changes);
+  }, [onEdgesChange]);
+
+  const deleteSelectedItems = useCallback(() => {
+    const selectedIds = getOrderedSelectedNodeIds();
+    if (selectedIds.length > 0) {
+      const deleted = new Set(selectedIds);
+      setContract((prev) => ({
+        ...prev,
+        nodes: prev.nodes.filter((node) => !deleted.has(node.id)),
+        edges: prev.edges.filter((edge) => !deleted.has(edge.from) && !deleted.has(edge.to))
+      }));
+      const remainingPositions = { ...presentationPositionsRef.current };
+      selectedIds.forEach((id) => delete remainingPositions[String(id)]);
+      presentationPositionsRef.current = remainingPositions;
+      setPresentationPositionsState(remainingPositions);
+      selectionOrderRef.current = [];
+      setSelectedNodeId(null);
+      setSelectedEdgeId(null);
+      setSelectionRevision((value) => value + 1);
+      setIsDirty(true);
+      return true;
+    }
+    if (selectedEdgeId !== null) {
+      const edgeId = selectedEdgeId;
+      setContract((prev) => ({ ...prev, edges: prev.edges.filter((edge) => edge.id !== edgeId) }));
+      setSelectedEdgeId(null);
+      setIsDirty(true);
+      return true;
+    }
+    return false;
+  }, [getOrderedSelectedNodeIds, selectedEdgeId]);
+
+  const connectSelectedNodes = useCallback((condition: number) => {
+    const ordered = getOrderedSelectedNodeIds();
+    if (ordered.length < 2) return;
+    const sourceId = ordered[0];
+    const targetIds = ordered.slice(1).filter((id) => id !== sourceId);
+    if (targetIds.length === 0) return;
+
+    setContract((prev) => {
+      let nextEdgeId = prev.edges.length ? Math.max(...prev.edges.map((edge) => edge.id)) + 1 : 1;
+      const nextEdges = [...prev.edges];
+      targetIds.forEach((targetId) => {
+        const existing = nextEdges.find((edge) => edge.from === sourceId && edge.to === targetId);
+        if (existing) {
+          existing.condition = condition;
+          return;
+        }
+        nextEdges.push({
+          id: nextEdgeId++,
+          from: sourceId,
+          to: targetId,
+          kind: 'flow',
+          condition,
+          label: '',
+          description: ''
+        });
+      });
+      return { ...prev, edges: nextEdges };
+    });
+    setIsDirty(true);
+  }, [getOrderedSelectedNodeIds]);
+
+  const duplicateSelectedNodes = useCallback(() => {
+    const selectedIds = getOrderedSelectedNodeIds();
+    if (selectedIds.length === 0) return;
+
+    setContract((prev) => {
+      const selected = prev.nodes.filter((node) => selectedIds.includes(node.id));
+      const nextIdStart = prev.nodes.length ? Math.max(...prev.nodes.map((node) => node.id)) + 1 : 1;
+      const idMap = new Map<number, number>();
+      selected.forEach((node, index) => idMap.set(node.id, nextIdStart + index));
+      const copies = selected.map((node) => ({
+        ...JSON.parse(JSON.stringify(node)),
+        id: idMap.get(node.id),
+        label: `${node.label} (cópia)`
+      }));
+      const copiedEdges = prev.edges
+        .filter((edge) => idMap.has(edge.from) && idMap.has(edge.to))
+        .map((edge) => ({
+          ...JSON.parse(JSON.stringify(edge)),
+          id: 0,
+          from: idMap.get(edge.from),
+          to: idMap.get(edge.to)
+        }));
+      let nextEdgeId = prev.edges.length ? Math.max(...prev.edges.map((edge) => edge.id)) + 1 : 1;
+      copiedEdges.forEach((edge) => { edge.id = nextEdgeId++; });
+      selectionOrderRef.current = copies.map((node) => node.id);
+      setSelectedNodeId(copies[0]?.id ?? null);
+      return { ...prev, nodes: [...prev.nodes, ...copies], edges: [...prev.edges, ...copiedEdges] };
+    });
+    setIsDirty(true);
+  }, [getOrderedSelectedNodeIds]);
+
+  useEffect(() => {
+    const isEditableTarget = (target: EventTarget | null) => {
+      const element = target as HTMLElement | null;
+      return element?.tagName === 'INPUT' || element?.tagName === 'TEXTAREA' || element?.isContentEditable;
+    };
+
+    const handleKeyboardShortcuts = (event: KeyboardEvent) => {
+      if (isEditableTarget(event.target)) return;
+      const key = event.key.toLowerCase();
+      const modifier = event.metaKey || event.ctrlKey;
+
+      if (!modifier && !event.altKey && (key === 'delete' || key === 'backspace')) {
+        if (deleteSelectedItems()) event.preventDefault();
+        return;
+      }
+
+      if (modifier && key === 'z') {
+        event.preventDefault();
+        const previous = contractHistoryRef.current.pop();
+        if (!previous) return;
+        skipHistoryRef.current = true;
+        setContract(previous);
+        setIsDirty(true);
+        return;
+      }
+
+      if (modifier && key === 'd') {
+        event.preventDefault();
+        duplicateSelectedNodes();
+        return;
+      }
+
+      if (!modifier && !event.altKey && !event.shiftKey) {
+        const conditions: Record<string, number> = { z: 1, x: 2, c: 3 };
+        if (conditions[key]) {
+          event.preventDefault();
+          connectSelectedNodes(conditions[key]);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyboardShortcuts);
+    return () => window.removeEventListener('keydown', handleKeyboardShortcuts);
+  }, [connectSelectedNodes, deleteSelectedItems, duplicateSelectedNodes]);
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -658,13 +917,20 @@ export const App: React.FC = () => {
   const onNodeDragStop = useCallback(
     (_: any, node: Node) => {
       const presentationKey = `stdd-draw-presentation:${contractRef.current.id}`;
-      let parsed = { positions: {} as { [key: string]: { x: number; y: number } } };
+      let parsed = { positions: {} as { [key: string]: { x: number; y: number } }, nodes: {} as any };
       try {
         const saved = localStorage.getItem(presentationKey);
         if (saved) parsed = JSON.parse(saved);
       } catch (_) {}
 
-      parsed.positions[node.id] = node.position;
+      const nextPositions = {
+        ...presentationPositionsRef.current,
+        ...parsed.positions,
+        [String(node.id)]: node.position
+      };
+      presentationPositionsRef.current = nextPositions;
+      setPresentationPositionsState(nextPositions);
+      parsed.positions = nextPositions;
       localStorage.setItem(presentationKey, JSON.stringify(parsed));
       setIsDirty(true);
     },
@@ -695,6 +961,8 @@ export const App: React.FC = () => {
           edges: prev.edges.filter((e) => e.from !== id && e.to !== id)
         }));
         setSelectedNodeId(null);
+        selectionOrderRef.current = [];
+        setSelectionRevision((value) => value + 1);
         setIsDirty(true);
       }
     };
@@ -822,6 +1090,8 @@ export const App: React.FC = () => {
         localStorage.removeItem(`stdd-draw:${contract.id}`);
         const presentationKey = `stdd-draw-presentation:${contract.id}`;
         localStorage.removeItem(presentationKey);
+        presentationPositionsRef.current = {};
+        setPresentationPositionsState({});
         if (contract.id === typedDefaultContract.id) {
           setContract(typedDefaultContract);
         } else {
@@ -839,6 +1109,8 @@ export const App: React.FC = () => {
   const handleTriggerAutoLayout = () => {
     const presentationKey = `stdd-draw-presentation:${contract.id}`;
     localStorage.removeItem(presentationKey);
+    presentationPositionsRef.current = {};
+    setPresentationPositionsState({});
     setIsDirty(true);
     setContract((prev) => ({ ...prev }));
   };
@@ -1038,10 +1310,13 @@ export const App: React.FC = () => {
                 nodes={nodes}
                 edges={edges}
                 onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
+                onEdgesChange={handleEdgesChange}
+                deleteKeyCode={null}
                 nodeTypes={nodeTypes}
                 edgeTypes={edgeTypes}
                 onNodeClick={onNodeClick}
+                onSelectionChange={onSelectionChange}
+                multiSelectionKeyCode={['Shift']}
                 onEdgeClick={onEdgeClick}
                 onPaneClick={onPaneClick}
                 onConnect={onConnect}

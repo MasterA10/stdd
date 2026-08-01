@@ -18,8 +18,8 @@ src/stdd.egg-info/top_level.txt
 src/stdd/draw_assets/favicon.svg
 src/stdd/draw_assets/icons.svg
 src/stdd/draw_assets/index.html
-src/stdd/draw_assets/assets/index-B9LgpGeo.js
 src/stdd/draw_assets/assets/index-BgB1UiTs.css
+src/stdd/draw_assets/assets/index-CVLIs6wr.js
 src/stdd/templates/agents/draw-feature/SKILL.md
 src/stdd/templates/agents/draw-improve/SKILL.md
 src/stdd/templates/agents/draw-improve/agents/openai.yaml

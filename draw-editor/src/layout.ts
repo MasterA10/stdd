@@ -356,8 +356,14 @@ export function computeEdgeHandles(
     dir = dx >= 0 ? 'right' : (dy >= 0 ? 'bottom' : 'top');
   }
 
-  // The input (target) of a block must always be on the top or bottom side, never left or right
-  const targetDir = dy >= 0 ? 'top' : 'bottom';
+  // A forward edge enters from the left. Returning edges use top or bottom;
+  // the right side is never a valid input port.
+  let targetDir: string;
+  if (dx > NODE_WIDTH * 0.3 && absDx > absDy * 0.8) {
+    targetDir = 'left';
+  } else {
+    targetDir = dy >= 0 ? 'top' : 'bottom';
+  }
 
   return {
     loop: false,
@@ -493,13 +499,13 @@ export function layoutCurvedGraph(
 
   return nodes.map(n => {
     const calcPos = calculatedPositions[String(n.id)] || { x: 100, y: 100 };
-    const customY = presentationPositions?.[String(n.id)]?.y;
+    const customPos = presentationPositions?.[String(n.id)];
     return {
       id: String(n.id),
       type: 'custom',
       position: {
-        x: calcPos.x,
-        y: customY !== undefined ? customY : calcPos.y
+        x: customPos?.x !== undefined ? customPos.x : calcPos.x,
+        y: customPos?.y !== undefined ? customPos.y : calcPos.y
       },
       data: n
     };

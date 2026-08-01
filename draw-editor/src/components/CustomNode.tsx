@@ -106,10 +106,10 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
   };
 
   // Node visual styles
-  const borderStyle = isHighlighted
-    ? { borderColor: '#10b981', borderWidth: '2.5px', boxShadow: '0 0 0 4px rgba(16, 185, 129, 0.2)' }
-    : selected
+  const borderStyle = selected
     ? { borderColor: '#6366f1', borderWidth: '2.5px', boxShadow: '0 0 0 4px rgba(99, 102, 241, 0.15)' }
+    : isHighlighted
+    ? { borderColor: '#10b981', borderWidth: '2.5px', boxShadow: '0 0 0 4px rgba(16, 185, 129, 0.2)' }
     : { borderColor: data.background || preset.color };
 
   const bgStyle = {

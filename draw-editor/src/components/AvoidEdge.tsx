@@ -20,11 +20,11 @@ const lineIntersectsBox = (x1: number, y1: number, x2: number, y2: number, box: 
 
   // Vertical line segment
   if (x1 === x2) {
-    return x1 >= l && x1 <= r && minSegmentY <= b && maxSegmentY >= t;
+    return x1 > l && x1 < r && minSegmentY < b && maxSegmentY > t;
   }
   // Horizontal line segment
   if (y1 === y2) {
-    return y1 >= t && y1 <= b && minSegmentX <= r && maxSegmentX >= l;
+    return y1 > t && y1 < b && minSegmentX < r && maxSegmentX > l;
   }
   return false;
 };
@@ -37,16 +37,17 @@ function findGridPath(
   endY: number,
   boxes: any[]
 ): { x: number; y: number }[] | null {
+  const clearance = 16;
   const xCoords = Array.from(new Set([
     startX,
     endX,
-    ...boxes.flatMap(b => [b.left, b.right])
+    ...boxes.flatMap(b => [b.left - clearance, b.left, b.right, b.right + clearance])
   ])).sort((a, b) => a - b);
 
   const yCoords = Array.from(new Set([
     startY,
     endY,
-    ...boxes.flatMap(b => [b.top, b.bottom])
+    ...boxes.flatMap(b => [b.top - clearance, b.top, b.bottom, b.bottom + clearance])
   ])).sort((a, b) => a - b);
 
   // Restrict search space to bounding box + 150px margin
@@ -89,8 +90,11 @@ function findGridPath(
     const neighbors: PointKey[] = [];
     if (curr.xIdx > 0) neighbors.push({ xIdx: curr.xIdx - 1, yIdx: curr.yIdx });
     if (curr.xIdx < gridX.length - 1) neighbors.push({ xIdx: curr.xIdx + 1, yIdx: curr.yIdx });
-    if (curr.yIdx > 0) neighbors.push({ xIdx: curr.xIdx, yIdx: curr.yIdx - 1 });
-    if (curr.yIdx < gridY.length - 1) neighbors.push({ xIdx: curr.xIdx, yIdx: curr.yIdx + 1 });
+    const verticalSteps = endY >= startY ? [1, -1] : [-1, 1];
+    for (const step of verticalSteps) {
+      const nextY = curr.yIdx + step;
+      if (nextY >= 0 && nextY < gridY.length) neighbors.push({ xIdx: curr.xIdx, yIdx: nextY });
+    }
 
     for (const next of neighbors) {
       const key = `${next.xIdx},${next.yIdx}`;
@@ -195,7 +199,9 @@ export const AvoidEdge: React.FC<EdgeProps> = ({
   label,
   style,
   markerEnd,
-  data
+  data,
+  sourceHandleId,
+  targetHandleId
 }) => {
   const nodes = useNodes();
   
@@ -251,14 +257,31 @@ export const AvoidEdge: React.FC<EdgeProps> = ({
     return { x: tgtX + tgtW * offset, y: tgtY + tgtH, dirX: 0, dirY: 1 }; // bottom
   };
 
-  // Evaluate candidate directions to pick the one with 0 (or least) intersections & shortest path length
-  const dirs = ['left', 'right', 'top', 'bottom'];
+  const directionFromHandle = (handle: string | null | undefined, fallback: string) => {
+    const direction = handle?.split('-').pop();
+    return direction && ['left', 'right', 'top', 'bottom'].includes(direction) ? direction : fallback;
+  };
+
+  const dx = tgtX - srcX;
+  const dy = tgtY - srcY;
+  const sourceFallback = Math.abs(dx) >= Math.abs(dy) ? (dx >= 0 ? 'right' : 'left') : (dy >= 0 ? 'bottom' : 'top');
+  const targetFallback = dx > 0 ? 'left' : (dy >= 0 ? 'top' : 'bottom');
+  const sourceDir = directionFromHandle(sourceHandleId, sourceFallback);
+  const targetDir = directionFromHandle(targetHandleId, targetFallback);
+
+  // Keep the semantic ports fixed; the free-space decision happens in the
+  // corridor between those ports, so the visible edge remains connected.
+  const targetDirs = targetDir === 'right' ? ['left'] : [targetDir];
+  const sourceDirs = [sourceDir];
+
+  // Evaluate candidate directions to pick a free corridor, preferring the
+  // semantic handles and then the shortest obstacle-free path.
   let bestPath: { x: number; y: number }[] = [];
   let minIntersections = Infinity;
   let minPathLen = Infinity;
 
-  for (const srcDir of dirs) {
-    for (const tgtDir of dirs) {
+  for (const srcDir of sourceDirs) {
+    for (const tgtDir of targetDirs) {
       const pSrc = getSourcePort(srcDir);
       const pTgt = getTargetPort(tgtDir);
 
