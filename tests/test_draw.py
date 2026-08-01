@@ -41,7 +41,23 @@ def test_init_installs_draw_data_without_copying_viewer_code(tmp_path: Path, mon
     assert result.exit_code == 0
     assert (tmp_path / ".stdd/draws/index.json").exists()
     assert not (tmp_path / ".stdd/draw.html").exists()
-    assert json.loads((tmp_path / ".stdd/draws/index.json").read_text())["draws"] == []
+    index = json.loads((tmp_path / ".stdd/draws/index.json").read_text())
+    assert [entry["id"] for entry in index["draws"]] == ["demo-inicial"]
+    assert (tmp_path / ".stdd/draws/demo-inicial.json").exists()
+
+
+def test_init_installs_example_draw_idempotently(tmp_path: Path, monkeypatch):
+    """Instala um fluxo inicial para o primeiro uso do viewer.
+    Executa init duas vezes e confirma que o JSON de exemplo não é duplicado.
+    """
+    monkeypatch.chdir(tmp_path)
+
+    runner.invoke(app, ["init"], catch_exceptions=False)
+    runner.invoke(app, ["init"], catch_exceptions=False)
+
+    index = json.loads((tmp_path / ".stdd/draws/index.json").read_text())
+    assert [entry["id"] for entry in index["draws"]].count("demo-inicial") == 1
+    assert len(json.loads((tmp_path / ".stdd/draws/demo-inicial.json").read_text())["nodes"]) > 0
 
 
 def test_init_removes_legacy_draw_viewer(tmp_path: Path, monkeypatch):

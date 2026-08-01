@@ -22,6 +22,7 @@ EDGE_CONDITIONS = {1: "então", 2: "ou", 3: "se"}
 QUESTION_TYPES = {"choice", "boolean", "open"}
 DRAW_ID_PATTERN = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$")
 DRAW_ASSETS = Path(__file__).parent / "draw_assets"
+DRAW_EXAMPLE_TEMPLATE = Path(__file__).parent / "templates" / "draw" / "example.json"
 LEGACY_DRAW_VIEWER = Path(".stdd") / "draw.html"
 PRESENTATION_KEYS = {"color", "colors", "position", "style", "styles", "layout", "viewport", "theme", "x", "y", "width", "height"}
 
@@ -204,9 +205,9 @@ def validate_draw_payload(payload: Any) -> list[str]:
     return violations
 
 
-def ensure_draw_workspace(root: Path) -> list[Path]:
+def ensure_draw_workspace(root: Path, include_example: bool = False) -> list[Path]:
     """Cria somente o armazenamento dos desenhos no projeto.
-    Remove o viewer legado porque o renderer agora vem do pacote instalado.
+    Remove o viewer legado e opcionalmente instala um desenho demonstrativo.
     """
     stdd_path = root / ".stdd"
     draws_path = draw_directory(root)
@@ -223,7 +224,27 @@ def ensure_draw_workspace(root: Path) -> list[Path]:
     if not index.exists():
         index.write_text(json.dumps({"version": DRAW_VERSION, "draws": []}, indent=2) + "\n", encoding="utf-8")
         created.append(index)
+    if include_example:
+        created.extend(ensure_example_draw(root))
     return created
+
+
+def ensure_example_draw(root: Path) -> list[Path]:
+    """Garante um JSON demonstrativo idempotente no projeto inicializado.
+    Lê o fixture empacotado e usa o mesmo contrato de validação e índice dos desenhos reais.
+    """
+    if not DRAW_EXAMPLE_TEMPLATE.is_file():
+        raise RuntimeError("fixture do desenho de exemplo não está instalado no pacote")
+    try:
+        payload = json.loads(DRAW_EXAMPLE_TEMPLATE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise RuntimeError("fixture do desenho de exemplo está inválido") from error
+    example_id = payload.get("id") if isinstance(payload, dict) else None
+    index = read_draw_index(root)
+    example_path = draw_directory(root) / f"{example_id}.json"
+    if any(str(entry.get("id")) == str(example_id) for entry in index["draws"]) and example_path.exists():
+        return []
+    return [create_draw(root, payload)]
 
 
 def read_draw_index(root: Path) -> dict[str, Any]:
@@ -459,7 +480,7 @@ def serve_draw(root: Path, host: str = "127.0.0.1", port: int = 8765) -> None:
     """Serve o viewer Draw até receber interrupção do processo.
     Garante o workspace e informa a URL local antes de iniciar o loop HTTP.
     """
-    ensure_draw_workspace(root)
+    ensure_draw_workspace(root, include_example=True)
     server = create_server(root, host, port)
     print(f"Draw disponível em http://{server.server_address[0]}:{server.server_address[1]}/.stdd/draw.html")
     try:

@@ -4,10 +4,10 @@ STDD é um framework de controle de desenvolvimento orientado por testes. Ele in
 
 ## Instalação
 
-O pacote atual é a versão `0.1.0`. Use este comando para instalar ou atualizar o CLI pela tag publicada, usando [`uv`](https://docs.astral.sh/uv/):
+O pacote atual é a versão `0.1.1`. Use este comando para instalar ou atualizar o CLI pela tag publicada, usando [`uv`](https://docs.astral.sh/uv/):
 
 ```bash
-uv tool install --force --refresh stdd --from git+https://github.com/MasterA10/stdd.git@v0.1.0
+uv tool install --force --refresh stdd --from git+https://github.com/MasterA10/stdd.git@v0.1.1
 ```
 
 Em desenvolvimento local, dentro deste repositório:
@@ -154,6 +154,8 @@ http://127.0.0.1:8765/.stdd/draw.html
 ```
 
 O caminho `/.stdd/draw.html` é uma rota virtual de compatibilidade: nenhum arquivo HTML é criado dentro do projeto. Mantenha `stdd draw serve --port 8765` em execução enquanto o viewer estiver aberto. O Live Server não é necessário.
+
+O `stdd init` instala um JSON de exemplo em `.stdd/draws/demo-inicial.json`, para que o viewer sempre tenha um fluxo inicial visível. A instalação é idempotente e não duplica esse exemplo.
 
 Os fontes editáveis do viewer ficam em [`draw-editor/`](draw-editor/README.md). Eles são usados apenas para desenvolvimento e recompilação do pacote; não são instalados nos projetos dos usuários.
 

@@ -176,7 +176,7 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list
         )
         created.append(config)
 
-    created.extend(ensure_draw_workspace(root))
+    created.extend(ensure_draw_workspace(root, include_example=True))
     created.extend(ensure_runs_workspace(root))
     created.extend(ensure_gitignore(root))
 

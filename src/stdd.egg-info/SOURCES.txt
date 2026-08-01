@@ -18,8 +18,8 @@ src/stdd.egg-info/top_level.txt
 src/stdd/draw_assets/favicon.svg
 src/stdd/draw_assets/icons.svg
 src/stdd/draw_assets/index.html
-src/stdd/draw_assets/assets/index-DZhtb9XP.css
-src/stdd/draw_assets/assets/index-QXGHcNFT.js
+src/stdd/draw_assets/assets/index-Bb-IcGfw.js
+src/stdd/draw_assets/assets/index-BgB1UiTs.css
 src/stdd/templates/agents/draw-feature/SKILL.md
 src/stdd/templates/agents/draw-improve/SKILL.md
 src/stdd/templates/agents/draw-improve/agents/openai.yaml
@@ -28,8 +28,10 @@ src/stdd/templates/agents/implement/SKILL.md
 src/stdd/templates/agents/setup/SKILL.md
 src/stdd/templates/agents/static-analysis/SKILL.md
 src/stdd/templates/draw/draw.html
+src/stdd/templates/draw/example.json
 src/stdd/templates/runs/runs.html
 tests/test_cli.py
 tests/test_draw.py
+tests/test_draw_editor.py
 tests/test_static_analysis.py
 tests/test_stdd.py
