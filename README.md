@@ -155,6 +155,8 @@ http://127.0.0.1:8765/.stdd/draw.html
 
 O caminho `/.stdd/draw.html` é uma rota virtual de compatibilidade: nenhum arquivo HTML é criado dentro do projeto. Mantenha `stdd draw serve --port 8765` em execução enquanto o viewer estiver aberto. O Live Server não é necessário.
 
+Os fontes editáveis do viewer ficam em [`draw-editor/`](draw-editor/README.md). Eles são usados apenas para desenvolvimento e recompilação do pacote; não são instalados nos projetos dos usuários.
+
 Ao clicar em `＋ Novo desenho`, o Draw pede o nome do desenho antes de criá-lo. O viewer carrega apenas o desenho selecionado, lê seu JSON em `.stdd/draws/` e salva alterações lógicas pelo endpoint local `/__stdd/api/draws/<id>.json`. Cores e posições são preferências da experiência visual; elas ficam no armazenamento local do navegador e não alteram o contrato JSON.
 
 O Live Server continua opcional para desenvolvimento do próprio editor React, mas não é necessário para usar o viewer instalado.
