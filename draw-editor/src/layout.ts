@@ -337,9 +337,9 @@ export function computeEdgeHandles(
       if (Math.abs(dy) < NODE_HEIGHT * 0.6) {
         return { loop: true, sourceHandle: `source-${cond}-bottom`, targetHandle: `target-in-top` };
       } else if (dy < 0) {
-        return { loop: true, sourceHandle: `source-${cond}-top`, targetHandle: `target-in-right` };
+        return { loop: true, sourceHandle: `source-${cond}-top`, targetHandle: `target-in-left` };
       } else {
-        return { loop: true, sourceHandle: `source-${cond}-bottom`, targetHandle: `target-in-right` };
+        return { loop: true, sourceHandle: `source-${cond}-bottom`, targetHandle: `target-in-left` };
       }
     }
     return { loop: true, sourceHandle: `source-${cond}-bottom`, targetHandle: `target-in-top` };
@@ -356,7 +356,7 @@ export function computeEdgeHandles(
     dir = dx >= 0 ? 'right' : (dy >= 0 ? 'bottom' : 'top');
   }
 
-  const targetDirMap: { [key: string]: string } = { right: 'left', left: 'right', bottom: 'top', top: 'bottom' };
+  const targetDirMap: { [key: string]: string } = { right: 'left', left: 'left', bottom: 'top', top: 'bottom' };
   const targetDir = targetDirMap[dir] || 'left';
 
   return {

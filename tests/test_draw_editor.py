@@ -23,3 +23,16 @@ def test_draw_editor_removes_floating_canvas_hint():
 
     assert "canvas-hint" not in app
     assert "canvas-hint" not in styles
+
+
+def test_flow_inputs_never_use_the_right_side_of_a_block():
+    """Mantém entradas fora do lado direito nos dois modos de roteamento.
+    Confirma handles e fallback de curvas e retas sem target-in-right.
+    """
+    custom_node = (EDITOR_ROOT / "src/components/CustomNode.tsx").read_text(encoding="utf-8")
+    layout = (EDITOR_ROOT / "src/layout.ts").read_text(encoding="utf-8")
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+
+    assert 'type="target" position={Position.Right}' not in custom_node
+    assert "target-in-right" not in layout
+    assert "edgeRoutingMode === 'curved' ? `target-in-left`" in app

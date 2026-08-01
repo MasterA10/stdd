@@ -293,7 +293,6 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
       <Handle type="source" position={Position.Left} id="source-3-left" className="handle-cond-3" style={{ top: '80%' }} />
 
       {/* RIGHT SIDE */}
-      <Handle type="target" position={Position.Right} id="target-in-right" className="handle-target" style={{ top: '20%' }} />
       <Handle type="source" position={Position.Right} id="source-1-right" className="handle-cond-1" style={{ top: '40%' }} />
       <Handle type="source" position={Position.Right} id="source-2-right" className="handle-cond-2" style={{ top: '60%' }} />
       <Handle type="source" position={Position.Right} id="source-3-right" className="handle-cond-3" style={{ top: '80%' }} />
