@@ -33,6 +33,17 @@
       "node_count": 7,
       "edge_count": 7,
       "subdraw_count": 0
+    },
+    {
+      "id": "demo-inicial",
+      "file": "demo-inicial.json",
+      "title": "Exemplo inicial do STDD",
+      "subtitle": "Fluxo de demonstração para começar a explorar o viewer",
+      "kind": "feature",
+      "updated_at": "2026-08-01T21:24:58.723605+00:00",
+      "node_count": 4,
+      "edge_count": 4,
+      "subdraw_count": 0
     }
   ]
 }
