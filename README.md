@@ -4,10 +4,10 @@ STDD é um framework de controle de desenvolvimento orientado por testes. Ele in
 
 ## Instalação
 
-O pacote atual é a versão `0.1.0`. Como ainda não há uma tag publicada, instale o CLI da branch de desenvolvimento disponível usando [`uv`](https://docs.astral.sh/uv/):
+O pacote atual é a versão `0.1.0`. Use este comando para instalar ou atualizar o CLI pela tag publicada, usando [`uv`](https://docs.astral.sh/uv/):
 
 ```bash
-uv tool install stdd --from git+https://github.com/MasterA10/stdd.git@v0.1.0
+uv tool install --force --refresh stdd --from git+https://github.com/MasterA10/stdd.git@v0.1.0
 ```
 
 Em desenvolvimento local, dentro deste repositório:
