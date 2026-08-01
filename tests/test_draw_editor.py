@@ -131,3 +131,15 @@ def test_selected_blocks_have_an_explicit_visual_state():
     assert "selected: selectedNodeIds.has(Number(node.id))" in app
     assert "className={`custom-flow-node ${selected ? 'selected' : ''}" in node
     assert "const borderStyle = selected" in node
+
+
+def test_space_creates_an_instant_block_without_interrupting_text_fields():
+    """Cria um bloco padrão com o atalho de espaço no canvas.
+    Confirma que a criação respeita o bloqueio de campos editáveis.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+
+    assert "const createInstantNode = useCallback" in app
+    assert "event.code === 'Space'" in app
+    assert "createInstantNode();" in app
+    assert "if (isEditableTarget(event.target)) return;" in app

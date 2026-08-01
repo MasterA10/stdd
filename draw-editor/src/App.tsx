@@ -835,6 +835,27 @@ export const App: React.FC = () => {
     setIsDirty(true);
   }, [getOrderedSelectedNodeIds]);
 
+  const createInstantNode = useCallback(() => {
+    const nextNodeId = contractRef.current.nodes.length
+      ? Math.max(...contractRef.current.nodes.map((node) => node.id)) + 1
+      : 1;
+    const newNode: NodeData = {
+      id: nextNodeId,
+      label: `Novo bloco ${nextNodeId}`,
+      type: 'process',
+      description: 'Bloco criado pelo atalho de espaço.',
+      questions: []
+    };
+
+    setContract((prev) => ({ ...prev, nodes: [...prev.nodes, newNode] }));
+    selectionOrderRef.current = [nextNodeId];
+    setSelectedNodeId(nextNodeId);
+    setSelectedEdgeId(null);
+    setIsFocusMode(false);
+    setSelectionRevision((value) => value + 1);
+    setIsDirty(true);
+  }, []);
+
   useEffect(() => {
     const isEditableTarget = (target: EventTarget | null) => {
       const element = target as HTMLElement | null;
@@ -848,6 +869,12 @@ export const App: React.FC = () => {
 
       if (!modifier && !event.altKey && (key === 'delete' || key === 'backspace')) {
         if (deleteSelectedItems()) event.preventDefault();
+        return;
+      }
+
+      if (!modifier && !event.altKey && !event.shiftKey && event.code === 'Space') {
+        event.preventDefault();
+        createInstantNode();
         return;
       }
 
@@ -878,7 +905,7 @@ export const App: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyboardShortcuts);
     return () => window.removeEventListener('keydown', handleKeyboardShortcuts);
-  }, [connectSelectedNodes, deleteSelectedItems, duplicateSelectedNodes]);
+  }, [connectSelectedNodes, createInstantNode, deleteSelectedItems, duplicateSelectedNodes]);
 
   const onConnect = useCallback(
     (params: Connection) => {
