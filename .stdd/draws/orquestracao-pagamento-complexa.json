@@ -1,0 +1,627 @@
+{
+  "version": 1,
+  "id": "orquestracao-pagamento-complexa",
+  "title": "Orquestração de pagamento complexa",
+  "subtitle": "Fluxo completo com validação, paralelismo, retries, compensação e observabilidade",
+  "kind": "feature",
+  "groups": [
+    {
+      "id": 1,
+      "label": "Entrada e segurança",
+      "description": "Recebe e protege a solicitação."
+    },
+    {
+      "id": 2,
+      "label": "Decisão comercial",
+      "description": "Avalia risco, estoque e preço."
+    },
+    {
+      "id": 3,
+      "label": "Pagamento e entrega",
+      "description": "Autoriza, confirma e entrega."
+    },
+    {
+      "id": 4,
+      "label": "Resiliência e observabilidade",
+      "description": "Controla retries, filas e métricas."
+    }
+  ],
+  "nodes": [
+    {
+      "id": 1,
+      "label": "Receber solicitação",
+      "group": 1,
+      "description": "Aceita o pedido e cria o contexto de correlação.",
+      "type": "process",
+      "questions": []
+    },
+    {
+      "id": 2,
+      "label": "Autenticar cliente",
+      "group": 1,
+      "description": "Valida identidade, sessão e permissões.",
+      "type": "process",
+      "questions": []
+    },
+    {
+      "id": 3,
+      "label": "Aplicar rate limit",
+      "group": 1,
+      "description": "Protege a entrada contra excesso de tentativas.",
+      "type": "process",
+      "questions": []
+    },
+    {
+      "id": 4,
+      "label": "Validar pedido",
+      "group": 1,
+      "description": "Confere contrato, moeda, itens e idempotência.",
+      "type": "process",
+      "questions": []
+    },
+    {
+      "id": 5,
+      "label": "Orquestrar análise",
+      "group": 2,
+      "description": "Distribui as avaliações independentes do pedido.",
+      "type": "process",
+      "questions": []
+    },
+    {
+      "id": 6,
+      "label": "Avaliar fraude",
+      "group": 2,
+      "description": "Calcula sinais de fraude e confiança.",
+      "type": "process",
+      "questions": []
+    },
+    {
+      "id": 7,
+      "label": "Consultar estoque",
+      "group": 2,
+      "description": "Confirma disponibilidade e reserva possível.",
+      "type": "process",
+      "questions": []
+    },
+    {
+      "id": 8,
+      "label": "Calcular preço",
+      "group": 2,
+      "description": "Revalida descontos, impostos e frete.",
+      "type": "process",
+      "questions": []
+    },
+    {
+      "id": 9,
+      "label": "Consolidar análise",
+      "group": 2,
+      "description": "Combina fraude, estoque e preço.",
+      "type": "decision",
+      "questions": []
+    },
+    {
+      "id": 10,
+      "label": "Reservar recursos",
+      "group": 3,
+      "description": "Reserva estoque e limites comerciais.",
+      "type": "process",
+      "questions": []
+    },
+    {
+      "id": 11,
+      "label": "Criar cobrança",
+      "group": 3,
+      "description": "Monta a cobrança idempotente.",
+      "type": "process",
+      "questions": []
+    },
+    {
+      "id": 12,
+      "label": "Autorizar pagamento",
+      "group": 3,
+      "description": "Solicita autorização ao provedor.",
+      "type": "process",
+      "questions": []
+    },
+    {
+      "id": 13,
+      "label": "Pagamento aprovado?",
+      "group": 3,
+      "description": "Decide o próximo passo pelo resultado.",
+      "type": "decision",
+      "questions": []
+    },
+    {
+      "id": 14,
+      "label": "Confirmar pedido",
+      "group": 3,
+      "description": "Persiste o pedido confirmado.",
+      "type": "process",
+      "questions": []
+    },
+    {
+      "id": 15,
+      "label": "Publicar evento",
+      "group": 3,
+      "description": "Publica o evento de pedido confirmado.",
+      "type": "process",
+      "questions": []
+    },
+    {
+      "id": 16,
+      "label": "Separar entrega",
+      "group": 3,
+      "description": "Envia a ordem para fulfillment.",
+      "type": "process",
+      "questions": []
+    },
+    {
+      "id": 17,
+      "label": "Programar retry",
+      "group": 4,
+      "description": "Agenda nova tentativa quando há falha transitória.",
+      "type": "process",
+      "questions": []
+    },
+    {
+      "id": 18,
+      "label": "Avaliar retry",
+      "group": 4,
+      "description": "Decide entre repetir, compensar ou desistir.",
+      "type": "decision",
+      "questions": []
+    },
+    {
+      "id": 19,
+      "label": "Notificar cliente",
+      "group": 3,
+      "description": "Informa confirmação ou pendência ao cliente.",
+      "type": "process",
+      "questions": []
+    },
+    {
+      "id": 20,
+      "label": "Atualizar projeções",
+      "group": 4,
+      "description": "Atualiza read models e painéis operacionais.",
+      "type": "process",
+      "questions": []
+    },
+    {
+      "id": 21,
+      "label": "Medir operação",
+      "group": 4,
+      "description": "Registra latência, custo e resultado.",
+      "type": "process",
+      "questions": []
+    },
+    {
+      "id": 22,
+      "label": "Compensar reserva",
+      "group": 4,
+      "description": "Libera recursos após falha definitiva.",
+      "type": "process",
+      "questions": []
+    },
+    {
+      "id": 23,
+      "label": "Enviar dead letter",
+      "group": 4,
+      "description": "Isola eventos que não puderam ser processados.",
+      "type": "process",
+      "questions": []
+    },
+    {
+      "id": 24,
+      "label": "Reconciliar pagamento",
+      "group": 4,
+      "description": "Compara cobrança externa e pedido interno.",
+      "type": "process",
+      "questions": []
+    }
+  ],
+  "edges": [
+    {
+      "id": 1,
+      "from": 1,
+      "to": 2,
+      "kind": "flow",
+      "condition": 1,
+      "label": "autentica",
+      "description": "Conecta 1 a 2 no fluxo de orquestração."
+    },
+    {
+      "id": 2,
+      "from": 2,
+      "to": 3,
+      "kind": "flow",
+      "condition": 1,
+      "label": "protege entrada",
+      "description": "Conecta 2 a 3 no fluxo de orquestração."
+    },
+    {
+      "id": 3,
+      "from": 3,
+      "to": 4,
+      "kind": "flow",
+      "condition": 1,
+      "label": "valida limite",
+      "description": "Conecta 3 a 4 no fluxo de orquestração."
+    },
+    {
+      "id": 4,
+      "from": 4,
+      "to": 5,
+      "kind": "flow",
+      "condition": 1,
+      "label": "inicia análise",
+      "description": "Conecta 4 a 5 no fluxo de orquestração."
+    },
+    {
+      "id": 5,
+      "from": 5,
+      "to": 6,
+      "kind": "flow",
+      "condition": 1,
+      "label": "fraude",
+      "description": "Conecta 5 a 6 no fluxo de orquestração."
+    },
+    {
+      "id": 6,
+      "from": 5,
+      "to": 7,
+      "kind": "flow",
+      "condition": 2,
+      "label": "estoque",
+      "description": "Conecta 5 a 7 no fluxo de orquestração."
+    },
+    {
+      "id": 7,
+      "from": 5,
+      "to": 8,
+      "kind": "flow",
+      "condition": 3,
+      "label": "preço",
+      "description": "Conecta 5 a 8 no fluxo de orquestração."
+    },
+    {
+      "id": 8,
+      "from": 6,
+      "to": 9,
+      "kind": "flow",
+      "condition": 1,
+      "label": "sinal de fraude",
+      "description": "Conecta 6 a 9 no fluxo de orquestração."
+    },
+    {
+      "id": 9,
+      "from": 7,
+      "to": 9,
+      "kind": "flow",
+      "condition": 1,
+      "label": "disponibilidade",
+      "description": "Conecta 7 a 9 no fluxo de orquestração."
+    },
+    {
+      "id": 10,
+      "from": 8,
+      "to": 9,
+      "kind": "flow",
+      "condition": 1,
+      "label": "valor calculado",
+      "description": "Conecta 8 a 9 no fluxo de orquestração."
+    },
+    {
+      "id": 11,
+      "from": 9,
+      "to": 10,
+      "kind": "flow",
+      "condition": 1,
+      "label": "análise aprovada",
+      "description": "Conecta 9 a 10 no fluxo de orquestração."
+    },
+    {
+      "id": 12,
+      "from": 10,
+      "to": 11,
+      "kind": "flow",
+      "condition": 1,
+      "label": "reserva criada",
+      "description": "Conecta 10 a 11 no fluxo de orquestração."
+    },
+    {
+      "id": 13,
+      "from": 11,
+      "to": 12,
+      "kind": "flow",
+      "condition": 1,
+      "label": "cobrança pronta",
+      "description": "Conecta 11 a 12 no fluxo de orquestração."
+    },
+    {
+      "id": 14,
+      "from": 12,
+      "to": 13,
+      "kind": "flow",
+      "condition": 1,
+      "label": "resultado",
+      "description": "Conecta 12 a 13 no fluxo de orquestração."
+    },
+    {
+      "id": 15,
+      "from": 13,
+      "to": 14,
+      "kind": "flow",
+      "condition": 1,
+      "label": "aprovado",
+      "description": "Conecta 13 a 14 no fluxo de orquestração."
+    },
+    {
+      "id": 16,
+      "from": 13,
+      "to": 17,
+      "kind": "flow",
+      "condition": 2,
+      "label": "falha transitória",
+      "description": "Conecta 13 a 17 no fluxo de orquestração."
+    },
+    {
+      "id": 17,
+      "from": 14,
+      "to": 15,
+      "kind": "flow",
+      "condition": 1,
+      "label": "pedido confirmado",
+      "description": "Conecta 14 a 15 no fluxo de orquestração."
+    },
+    {
+      "id": 18,
+      "from": 15,
+      "to": 16,
+      "kind": "flow",
+      "condition": 1,
+      "label": "evento publicado",
+      "description": "Conecta 15 a 16 no fluxo de orquestração."
+    },
+    {
+      "id": 19,
+      "from": 16,
+      "to": 19,
+      "kind": "flow",
+      "condition": 1,
+      "label": "fulfillment",
+      "description": "Conecta 16 a 19 no fluxo de orquestração."
+    },
+    {
+      "id": 20,
+      "from": 19,
+      "to": 20,
+      "kind": "flow",
+      "condition": 1,
+      "label": "comunica",
+      "description": "Conecta 19 a 20 no fluxo de orquestração."
+    },
+    {
+      "id": 21,
+      "from": 20,
+      "to": 21,
+      "kind": "flow",
+      "condition": 1,
+      "label": "telemetria",
+      "description": "Conecta 20 a 21 no fluxo de orquestração."
+    },
+    {
+      "id": 22,
+      "from": 21,
+      "to": 24,
+      "kind": "flow",
+      "condition": 1,
+      "label": "reconcilia",
+      "description": "Conecta 21 a 24 no fluxo de orquestração."
+    },
+    {
+      "id": 23,
+      "from": 17,
+      "to": 18,
+      "kind": "flow",
+      "condition": 1,
+      "label": "controla tentativa",
+      "description": "Conecta 17 a 18 no fluxo de orquestração."
+    },
+    {
+      "id": 24,
+      "from": 18,
+      "to": 10,
+      "kind": "flow",
+      "condition": 2,
+      "label": "tentar novamente",
+      "description": "Conecta 18 a 10 no fluxo de orquestração."
+    },
+    {
+      "id": 25,
+      "from": 18,
+      "to": 22,
+      "kind": "flow",
+      "condition": 3,
+      "label": "compensar",
+      "description": "Conecta 18 a 22 no fluxo de orquestração."
+    },
+    {
+      "id": 26,
+      "from": 22,
+      "to": 23,
+      "kind": "flow",
+      "condition": 1,
+      "label": "falha definitiva",
+      "description": "Conecta 22 a 23 no fluxo de orquestração."
+    },
+    {
+      "id": 27,
+      "from": 23,
+      "to": 4,
+      "kind": "flow",
+      "condition": 1,
+      "label": "reprocessar entrada",
+      "description": "Conecta 23 a 4 no fluxo de orquestração."
+    },
+    {
+      "id": 28,
+      "from": 24,
+      "to": 3,
+      "kind": "flow",
+      "condition": 1,
+      "label": "corrigir divergência",
+      "description": "Conecta 24 a 3 no fluxo de orquestração."
+    },
+    {
+      "id": 29,
+      "from": 17,
+      "to": 19,
+      "kind": "flow",
+      "condition": 2,
+      "label": "notifica pendência",
+      "description": "Conecta 17 a 19 no fluxo de orquestração."
+    },
+    {
+      "id": 30,
+      "from": 14,
+      "to": 24,
+      "kind": "flow",
+      "condition": 1,
+      "label": "confirma externamente",
+      "description": "Conecta 14 a 24 no fluxo de orquestração."
+    },
+    {
+      "id": 31,
+      "from": 24,
+      "to": 12,
+      "kind": "flow",
+      "condition": 1,
+      "label": "regulariza cobrança",
+      "description": "Conecta 24 a 12 no fluxo de orquestração."
+    },
+    {
+      "id": 32,
+      "from": 21,
+      "to": 3,
+      "kind": "flow",
+      "condition": 1,
+      "label": "ciclo operacional",
+      "description": "Conecta 21 a 3 no fluxo de orquestração."
+    }
+  ],
+  "flows": [
+    {
+      "id": 1,
+      "label": "Compra aprovada",
+      "title": "Caminho principal",
+      "summary": "Da entrada à confirmação e entrega.",
+      "steps": [
+        {
+          "node": 1,
+          "text": "executa etapa"
+        },
+        {
+          "node": 2,
+          "text": "executa etapa"
+        },
+        {
+          "node": 3,
+          "text": "executa etapa"
+        },
+        {
+          "node": 4,
+          "text": "executa etapa"
+        },
+        {
+          "node": 5,
+          "text": "executa etapa"
+        },
+        {
+          "node": 6,
+          "text": "executa etapa"
+        },
+        {
+          "node": 7,
+          "text": "executa etapa"
+        },
+        {
+          "node": 8,
+          "text": "executa etapa"
+        },
+        {
+          "node": 9,
+          "text": "executa etapa"
+        },
+        {
+          "node": 10,
+          "text": "executa etapa"
+        },
+        {
+          "node": 11,
+          "text": "executa etapa"
+        },
+        {
+          "node": 12,
+          "text": "executa etapa"
+        },
+        {
+          "node": 13,
+          "text": "executa etapa"
+        },
+        {
+          "node": 14,
+          "text": "executa etapa"
+        },
+        {
+          "node": 15,
+          "text": "executa etapa"
+        },
+        {
+          "node": 16,
+          "text": "executa etapa"
+        },
+        {
+          "node": 19,
+          "text": "executa etapa"
+        },
+        {
+          "node": 20,
+          "text": "executa etapa"
+        },
+        {
+          "node": 21,
+          "text": "executa etapa"
+        },
+        {
+          "node": 24,
+          "text": "executa etapa"
+        }
+      ]
+    }
+  ],
+  "tradeoffs": [
+    {
+      "title": "Retry ou compensação",
+      "decision": "Repetir apenas falhas transitórias",
+      "options": [
+        "Retry limitado com backoff",
+        "Compensar e enviar para dead letter"
+      ],
+      "impact": "Evita cobranças duplicadas e preserva rastreabilidade."
+    },
+    {
+      "title": "Paralelismo da análise",
+      "decision": "Fraude, estoque e preço em paralelo",
+      "options": [
+        "Execução sequencial",
+        "Execução paralela"
+      ],
+      "impact": "Reduz latência, exigindo consolidação determinística."
+    }
+  ],
+  "notes": [
+    "Fluxo de demonstração para validar corredores de retorno e loops concorrentes.",
+    "Loops principais: retry para reserva, compensação para validação e reconciliação operacional."
+  ]
+}

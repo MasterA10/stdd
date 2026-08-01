@@ -335,7 +335,7 @@ export function computeEdgeHandles(
   if (isBackEdge) {
     if (dx < -NODE_WIDTH * 0.3) {
       if (Math.abs(dy) < NODE_HEIGHT * 0.6) {
-        return { loop: true, sourceHandle: `source-${cond}-bottom`, targetHandle: `target-in-top` };
+        return { loop: true, sourceHandle: `source-${cond}-bottom`, targetHandle: `target-in-bottom` };
       } else if (dy < 0) {
         return { loop: true, sourceHandle: `source-${cond}-top`, targetHandle: `target-in-bottom` };
       } else {

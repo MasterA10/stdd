@@ -54,12 +54,12 @@ export const LoopEdge: React.FC<EdgeProps> = ({
   const preferredLane = targetSide === 'bottom'
     ? bottomLane + sourceIndex * loopSpacing
     : topLane - sourceIndex * loopSpacing;
-  const alternateLane = targetSide === 'bottom'
-    ? topLane - sourceIndex * loopSpacing
-    : bottomLane + sourceIndex * loopSpacing;
+  const secondaryLane = targetSide === 'bottom'
+    ? bottomLane + (sourceIndex + sourceLoops.length) * loopSpacing
+    : topLane - (sourceIndex + sourceLoops.length) * loopSpacing;
   const lanes = targetSide === 'bottom'
-    ? [{ side: 'bottom', y: preferredLane }, { side: 'top', y: alternateLane }]
-    : [{ side: 'top', y: preferredLane }, { side: 'bottom', y: alternateLane }];
+    ? [{ side: 'bottom', y: preferredLane }, { side: 'bottom', y: secondaryLane }]
+    : [{ side: 'top', y: preferredLane }, { side: 'top', y: secondaryLane }];
 
   const intersects = (x1: number, y1: number, x2: number, y2: number, box: typeof otherBoxes[number]) => {
     if (x1 === x2) return x1 > box.left && x1 < box.right && Math.min(y1, y2) < box.bottom && Math.max(y1, y2) > box.top;

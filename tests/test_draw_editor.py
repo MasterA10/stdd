@@ -78,6 +78,18 @@ def test_loop_edges_use_distinct_lanes_when_returning_to_the_same_node():
     assert "const loopSpacing = 72" in loop_edge
     assert "const edgeIndex" in loop_edge
     assert "edgeIndex - (loopCount - 1) / 2" in loop_edge
+    assert "const secondaryLane" in loop_edge
+    assert "{ side: 'bottom', y: secondaryLane }" in loop_edge
+    assert "{ side: 'top', y: secondaryLane }" in loop_edge
+
+
+def test_same_level_back_edges_enter_from_the_bottom_when_the_lane_is_below():
+    """Alinha a porta de entrada com o corredor inferior do retorno.
+    Confirma que loops horizontais não chegam por cima sem necessidade.
+    """
+    layout = (EDITOR_ROOT / "src/layout.ts").read_text(encoding="utf-8")
+
+    assert "sourceHandle: `source-${cond}-bottom`, targetHandle: `target-in-bottom`" in layout
 
 
 def test_keyboard_shortcuts_connect_and_duplicate_selected_blocks():

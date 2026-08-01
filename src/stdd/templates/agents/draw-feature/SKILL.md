@@ -53,6 +53,34 @@ Use `flows` para mostrar caminhos temporais ou operacionais. Use `tradeoffs` par
 
 Toda seta deve declarar `condition` como código numérico: `1` representa `então`, `2` representa `ou` e `3` representa `se`. O viewer converte os códigos para os nomes no HTML. Use `label` e `description` para explicar o significado específico do caminho sem inventar um novo código.
 
+### Semântica das condições e atalhos
+
+As condições precisam representar a lógica do fluxo, não apenas colorir setas:
+
+- `Z` → `condition: 1` → **então**: sequência/default; use para o próximo passo após a etapa atual.
+- `O` → `condition: 2` → **ou**: alternativa mutuamente exclusiva; use quando o mesmo ponto oferece caminhos alternativos.
+- `C` → `condition: 3` → **se**: condição/guarda; use quando o caminho depende de um predicado explícito.
+
+Regras de consistência:
+
+- Caminho sequencial: `Z` seguido de `Z` é válido.
+- Decisão com várias guardas: vários `C` saindo do mesmo nó são válidos quando cada seta possui uma condição clara, como `se aprovado` e `se recusado`.
+- Alternativas: vários `O` saindo do mesmo nó são válidos quando representam opções do mesmo nível, como `ou cartão` e `ou Pix`.
+- Não misture `C` e `O` para representar a mesma decisão, nem use `O` como continuação de um `C`. Para expressões como “se A ou B”, crie uma decisão explícita ou um único predicado: não codifique a expressão alternando condições de setas.
+- Não use `Z` para esconder uma condição, nem `C`/`O` em uma etapa que é apenas sequência. Se a combinação não puder ser explicada em linguagem natural, revise o grafo antes de gravar o JSON.
+
+Exemplos válidos:
+
+```json
+[
+  {"from": 1, "to": 2, "condition": 1, "label": "então valida"},
+  {"from": 2, "to": 3, "condition": 3, "label": "se aprovado"},
+  {"from": 2, "to": 4, "condition": 3, "label": "se recusado"}
+]
+```
+
+Exemplo inválido: uma seta `condition: 3` com label `ou Pix` seguida de uma seta `condition: 2` com label `se aprovado`. Isso mistura guarda e alternativa sem uma decisão semântica clara.
+
 Para decompor sistemas complexos, use `draw_ref` em um nó:
 
 ```json

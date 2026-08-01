@@ -46,6 +46,17 @@
       "subdraw_count": 0
     },
     {
+      "id": "orquestracao-pagamento-complexa",
+      "file": "orquestracao-pagamento-complexa.json",
+      "title": "Orquestração de pagamento complexa",
+      "subtitle": "Fluxo completo com validação, paralelismo, retries, compensação e observabilidade",
+      "kind": "feature",
+      "updated_at": "2026-08-01T23:45:00.339199+00:00",
+      "node_count": 24,
+      "edge_count": 32,
+      "subdraw_count": 0
+    },
+    {
       "id": "teste",
       "file": "teste.json",
       "title": "Teste",
