@@ -1161,24 +1161,6 @@ body,
   min-height: 60px;
 }
 
-/* Floating Footer Hint */
-.canvas-hint {
-  position: absolute;
-  left: 24px;
-  bottom: 24px;
-  z-index: 8;
-  max-width: 480px;
-  padding: 8px 16px;
-  border: 1px solid var(--line);
-  border-radius: 99px;
-  color: var(--muted);
-  background: var(--panel);
-  box-shadow: var(--shadow-sm);
-  font-size: 11px;
-  backdrop-filter: blur(12px);
-  pointer-events: none;
-}
-
 /* React Flow control panels adjustment */
 .react-flow__controls {
   border-radius: 12px;

@@ -1059,11 +1059,6 @@ export const App: React.FC = () => {
         </main>
       </div>
 
-      {/* Footer Hints */}
-      <footer className="canvas-hint">
-        💡 <strong>Dica:</strong> Dê duplo clique em títulos e descrições dos blocos no mapa para editar em tempo real.
-      </footer>
-
       {/* Modal Dialogs */}
       {questionsNode && (
         <QuestionsModal

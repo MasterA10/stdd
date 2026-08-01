@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Contract, NodeData, EdgeData, Group, FlowPath, FlowStep } from '../types';
 import { NODE_KINDS } from './CustomNode';
 import { Plus, Trash2, FolderPlus, List, Info, ChevronRight, Activity, Settings } from 'lucide-react';
@@ -63,6 +63,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [newNodeType, setNewNodeType] = useState('process');
   const [newNodeGroup, setNewNodeGroup] = useState<string>('');
   const [newNodeDesc, setNewNodeDesc] = useState('');
+
+  const isEmptyDrawing = contract.nodes.length === 0;
+
+  useEffect(() => {
+    if (isEmptyDrawing) setActiveTab('info');
+  }, [currentDrawingId, isEmptyDrawing]);
 
   const filteredDrawings = drawingsIndex.filter((draw) =>
     `${draw.title} ${draw.subtitle} ${draw.kind}`.toLowerCase().includes(drawingSearchQuery.toLowerCase())
@@ -308,6 +314,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button className="sidebar-submit-btn" onClick={onNewDrawing} style={{ margin: '4px 0 8px' }}>
               <Plus size={14} />
               Novo Desenho
+            </button>
+            <button
+              className="quick-action-btn secondary"
+              onClick={() => setActiveTab('info')}
+              style={{ width: '100%', marginBottom: '10px' }}
+            >
+              <Plus size={14} />
+              Adicionar Bloco
             </button>
 
             <div className="editor-card" style={{ padding: '12px 14px' }}>
