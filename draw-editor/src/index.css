@@ -74,6 +74,35 @@ body,
   position: relative;
 }
 
+.shortcut-footer {
+  min-height: 26px;
+  flex: 0 0 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 0 16px;
+  border-top: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 650;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.shortcut-footer kbd {
+  padding: 1px 4px;
+  border: 1px solid var(--line-strong);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 8px;
+  font-weight: 800;
+}
+
 /* Header & Top Toolbar */
 .top-toolbar {
   height: 64px;

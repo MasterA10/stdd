@@ -143,3 +143,67 @@ def test_space_creates_an_instant_block_without_interrupting_text_fields():
     assert "event.code === 'Space'" in app
     assert "createInstantNode();" in app
     assert "if (isEditableTarget(event.target)) return;" in app
+
+
+def test_editor_uses_only_curved_edges_and_shows_shortcut_footer():
+    """Mantém apenas o roteamento curvo no viewer.
+    Confirma que o algoritmo reto e o botão de alternância não são usados.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    assert "layoutCurvedGraph(filteredNodes" in app
+    assert "AvoidEdge" not in app
+    assert "setEdgeRoutingMode" not in app
+    assert "shortcut-footer" in app
+    assert ".shortcut-footer" in styles
+
+
+def test_focus_view_connects_incoming_arrows_to_the_left_back_of_nodes():
+    """Mantém as entradas da visão de foco no lado traseiro dos blocos.
+    Confirma que setas coloridas não terminam no topo ou na base do destino.
+    """
+    focus = (EDITOR_ROOT / "src/components/FocusDetailModal.tsx").read_text(encoding="utf-8")
+
+    assert "const targetHandle = 'target-in-left'" in focus
+    assert "target-in-top" not in focus
+    assert "target-in-bottom" not in focus
+
+
+def test_logical_save_is_manual_but_positions_use_presentation_cache():
+    """Separa o salvamento manual do contrato lógico do cache de posições.
+    Confirma que o JSON só usa o botão Salvar e drag grava a apresentação.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+
+    assert "const handleSave = () =>" in app
+    assert "onClick={handleSave}" in app
+    assert "window.setTimeout" not in app
+    assert "localStorage.setItem(presentationKey, JSON.stringify(parsed))" in app
+    assert "setIsDirty(false);" in app.split("const onNodeDragStop", 1)[1].split("// --- Exposed", 1)[0]
+
+
+def test_manual_save_button_persists_the_logical_contract():
+    """Mantém o botão Salvar como persistência do contrato lógico.
+    Confirma que o autosave lógico não é disparado por timer.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+
+    assert "handleSave" in app
+    assert "Salvar Desenho" in app
+    assert "autoSaveTimerRef" not in app
+    assert "performSave(contract);" in app
+
+
+def test_new_drawing_button_persists_a_new_json_document():
+    """Mantém a criação de desenhos ligada à persistência do contrato.
+    Confirma que o novo ID é salvo e indexado pelo mesmo fluxo do autosave.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    draw = Path("src/stdd/draw.py").read_text(encoding="utf-8")
+
+    create_block = app.split("const handleCreateDrawing", 1)[1].split("// --- Subdraw Navigation", 1)[0]
+    assert "const newContract: Contract" in create_block
+    assert "await performSave(newContract)" in create_block
+    assert "create_draw(root, payload)" in draw
+    assert "draw_directory(root) / f\"{draw_id}.json\"" in draw

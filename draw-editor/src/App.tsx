@@ -15,15 +15,14 @@ import '@xyflow/react/dist/style.css';
 import type { Contract, NodeData, EdgeData } from './types';
 import { CustomNode } from './components/CustomNode';
 import { LoopEdge } from './components/LoopEdge';
-import { AvoidEdge } from './components/AvoidEdge';
 import { Sidebar } from './components/Sidebar';
 import { QuestionsModal } from './components/QuestionsModal';
 import { ImportExportModal } from './components/ImportExportModal';
 import { MetadataModal } from './components/MetadataModal';
 import { ConfirmModal } from './components/ConfirmModal';
 import { FocusDetailModal } from './components/FocusDetailModal';
-import { layoutGraph, layoutCurvedGraph, computeEdgeHandles } from './layout';
-import { RotateCcw, Save, Download, Sun, Moon, Route } from 'lucide-react';
+import { layoutCurvedGraph, computeEdgeHandles } from './layout';
+import { RotateCcw, Save, Download, Sun, Moon } from 'lucide-react';
 
 import defaultContract from '../contract.json';
 
@@ -34,8 +33,7 @@ const nodeTypes = {
 };
 
 const edgeTypes: EdgeTypes = {
-  loop: LoopEdge,
-  avoid: AvoidEdge
+  loop: LoopEdge
 };
 
 const DEFAULT_CONDITION = 1;
@@ -72,7 +70,6 @@ export const App: React.FC = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [isDirty, setIsDirty] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [edgeRoutingMode, setEdgeRoutingMode] = useState<'orthogonal' | 'curved'>('orthogonal');
   const [selectionRevision, setSelectionRevision] = useState(0);
   const [presentationPositionsState, setPresentationPositionsState] = useState<Record<string, { x: number; y: number }>>({});
 
@@ -562,9 +559,7 @@ export const App: React.FC = () => {
       };
     });
 
-    const formattedNodes = edgeRoutingMode === 'curved'
-      ? layoutCurvedGraph(filteredNodes, contract.edges, presentationPositions)
-      : layoutGraph(filteredNodes, contract.edges, presentationPositions);
+    const formattedNodes = layoutCurvedGraph(filteredNodes, contract.edges, presentationPositions);
     const selectedNodeIds = new Set(selectionOrderRef.current);
     const nodesWithSelection = formattedNodes.map((node) => ({
       ...node,
@@ -617,10 +612,10 @@ export const App: React.FC = () => {
         id: String(edge.id),
         source: String(edge.from),
         target: String(edge.to),
-        type: edgeHandles.loop ? 'loop' : (edgeRoutingMode === 'curved' ? 'default' : 'avoid'),
+        type: edgeHandles.loop ? 'loop' : 'default',
         pathOptions: edgeHandles.loop ? undefined : { borderRadius: 14, offset: 20 },
         animated: isHighlighted || connectsSelection || edge.kind === 'flow',
-        sourceHandle: edgeHandles.loop ? edgeHandles.sourceHandle : (edgeRoutingMode === 'curved' ? `source-${condition}-right` : edgeHandles.sourceHandle),
+        sourceHandle: edgeHandles.loop ? edgeHandles.sourceHandle : `source-${condition}-right`,
         targetHandle: edgeHandles.targetHandle,
         label: `${
           { 1: 'então', 2: 'ou', 3: 'se' }[condition]
@@ -661,7 +656,7 @@ export const App: React.FC = () => {
     });
 
     setEdges(formattedEdges);
-  }, [contract, activeFlowId, presentationPositions, presentationColors, searchQuery, theme, selectedNodeId, isFocusMode, selectionRevision, edgeRoutingMode]);
+  }, [contract, activeFlowId, presentationPositions, presentationColors, searchQuery, theme, selectedNodeId, isFocusMode, selectionRevision]);
 
   // --- Callbacks on Canvas Actions ---
   const getOrderedSelectedNodeIds = useCallback(() => {
@@ -959,7 +954,7 @@ export const App: React.FC = () => {
       setPresentationPositionsState(nextPositions);
       parsed.positions = nextPositions;
       localStorage.setItem(presentationKey, JSON.stringify(parsed));
-      setIsDirty(true);
+      setIsDirty(false);
     },
     []
   );
@@ -1279,19 +1274,6 @@ export const App: React.FC = () => {
           <button className="theme-toggle-btn" onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')} title="Alternar Tema">
             {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
           </button>
-          <button 
-            className="icon-btn" 
-            onClick={() => setEdgeRoutingMode(prev => prev === 'curved' ? 'orthogonal' : 'curved')} 
-            title="Alternar conexões entre Retas (Desvio) e Curvas (Bézier)"
-            style={{
-              border: edgeRoutingMode === 'curved' ? '1.5px solid var(--accent)' : '1px solid var(--line)',
-              background: edgeRoutingMode === 'curved' ? 'var(--accent-light)' : 'transparent',
-              color: edgeRoutingMode === 'curved' ? 'var(--accent-strong)' : 'inherit'
-            }}
-          >
-            <Route size={16} />
-            <span>{edgeRoutingMode === 'curved' ? 'Curvas' : 'Retas'}</span>
-          </button>
           <button className="icon-btn success" onClick={handleSave} title="Salvar Desenho">
             <Save size={16} />
             <span>Salvar</span>
@@ -1360,6 +1342,16 @@ export const App: React.FC = () => {
           </ReactFlowProvider>
         </main>
       </div>
+
+      <footer className="shortcut-footer" aria-label="Atalhos do editor">
+        <span><kbd>Espaço</kbd> novo bloco</span>
+        <span><kbd>Delete</kbd>/<kbd>Backspace</kbd> apagar</span>
+        <span><kbd>Ctrl</kbd> isolar</span>
+        <span><kbd>Shift</kbd> selecionar vários</span>
+        <span><kbd>Z</kbd>/<kbd>X</kbd>/<kbd>C</kbd> conectar</span>
+        <span><kbd>Ctrl+D</kbd> duplicar</span>
+        <span><kbd>Ctrl+Z</kbd> desfazer</span>
+      </footer>
 
       {/* Modal Dialogs */}
       {questionsNode && (

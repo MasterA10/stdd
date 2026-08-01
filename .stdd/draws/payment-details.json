@@ -89,24 +89,6 @@
       "label": "sinais calculados"
     },
     {
-      "id": 4,
-      "from": 4,
-      "to": 5,
-      "kind": "conditional",
-      "condition": 3,
-      "branch": "allow",
-      "label": "autorizar"
-    },
-    {
-      "id": 5,
-      "from": 4,
-      "to": 6,
-      "kind": "conditional",
-      "condition": 2,
-      "branch": "deny",
-      "label": "bloquear"
-    },
-    {
       "id": 6,
       "from": 5,
       "to": 7,
@@ -121,6 +103,24 @@
       "kind": "flow",
       "condition": 1,
       "label": "resultado rejeitado"
+    },
+    {
+      "id": 8,
+      "from": 4,
+      "to": 6,
+      "kind": "flow",
+      "condition": 2,
+      "label": "",
+      "description": ""
+    },
+    {
+      "id": 9,
+      "from": 4,
+      "to": 5,
+      "kind": "flow",
+      "condition": 2,
+      "label": "",
+      "description": ""
     }
   ],
   "flows": [

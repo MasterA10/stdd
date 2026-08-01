@@ -105,9 +105,7 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
           3: { color: '#059669', dash: '3 6' }
         }[cond] || { color: '#1e293b', dash: undefined };
 
-        const predIdx = predNodes.findIndex((n) => n.id === edge.from);
-        const predY = centerY - ((P - 1) * 220) / 2 + predIdx * 220;
-        const targetHandle = predY <= centerY ? 'target-in-top' : 'target-in-bottom';
+        const targetHandle = 'target-in-left';
 
         return {
           id: `focus-edge-pred-${edge.id}`,
@@ -156,9 +154,7 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
           3: { color: '#059669', dash: '3 6' }
         }[cond] || { color: '#1e293b', dash: undefined };
 
-        const succIdx = succNodes.findIndex((n) => n.id === edge.to);
-        const succY = centerY - ((S - 1) * 220) / 2 + succIdx * 220;
-        const targetHandle = succY >= centerY ? 'target-in-top' : 'target-in-bottom';
+        const targetHandle = 'target-in-left';
 
         return {
           id: `focus-edge-succ-${edge.id}`,
