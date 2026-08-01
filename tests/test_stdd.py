@@ -234,6 +234,8 @@ def test_delivery_agents_define_complete_production_test_contract():
         content = templates[name]
         for required in ("teste live", "pgtap", "performance", "segurança", "isolamento", "pentest", "not_executed"):
             assert required in content, f"{name} não define {required}"
+        for required in ("frontend", "markdown", "proporcional"):
+            assert required in content, f"{name} não define a política proporcional para {required}"
 
 
 def test_readme_documents_remote_install_and_interactive_integrations():

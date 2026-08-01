@@ -30,9 +30,21 @@ Se um desenho referenciado possuir `questions`, ler as respostas persistidas com
 6. Não gravar segredos, tokens, prompts privados ou respostas sensíveis.
 7. Não inserir comentários em funções de produção, exceto para decisão importante ou comportamento não óbvio.
 
-## Seleção de testes por superfície alterada
+## Seleção proporcional de testes
 
-Executar testes funcionais e não funcionais proporcionais ao risco:
+Testes protegem comportamento relevante, não cada arquivo alterado. Escolher a menor evidência suficiente para o risco real:
+
+- backend, scripts, regras de negócio, contratos, dados e segurança: testes automatizados são esperados quando a superfície tem comportamento observável;
+- frontend: testar automaticamente somente lógica de negócio, transformações de dados, estados críticos, acessibilidade, segurança ou fluxos cuja falha tenha impacto relevante;
+- renderização visual, layout, interação comum e acabamento: validar com revisão humana no viewer, screenshots ou inspeção manual reproduzível; não criar testes automatizados apenas para provar que uma tela renderiza;
+- Markdown e documentação: não testar automaticamente, salvo quando o arquivo contém comandos executáveis, schema, contrato gerado ou outra regra que realmente possa quebrar;
+- mudança sem comportamento relevante: registrar a análise e executar apenas sintaxe, build ou lint aplicável.
+
+Não transformar a ausência de teste de uma superfície não aplicável em bloqueio. Registrar a justificativa e a evidência alternativa, como `visual_review`.
+
+### Categorias aplicáveis
+
+Executar testes funcionais e não funcionais somente quando a categoria for justificada pelo risco:
 
 - regra local: unitários e regressão;
 - integração entre módulos: integração e contrato;

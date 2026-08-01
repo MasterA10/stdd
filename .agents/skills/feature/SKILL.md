@@ -35,7 +35,7 @@ Não converter Draw em documentação duplicada. O JSON e os testes permanecem f
 
 ## Contrato de testes
 
-Não limitar a estratégia a testes funcionais. Avaliar explicitamente:
+Não limitar a estratégia a testes funcionais, mas também não criar uma suíte por obrigação. Avaliar o risco da superfície e selecionar uma cobertura proporcional, somente com categorias aplicáveis:
 
 | Categoria | Exigir quando |
 | --- | --- |
@@ -50,6 +50,10 @@ Não limitar a estratégia a testes funcionais. Avaliar explicitamente:
 | Isolamento | tenants, testes paralelos, dados, processos ou integrações não podem vazar estado |
 | Pentest | há superfície atacável e ambiente explicitamente autorizado |
 | Teste live | uma integração com IA ou serviço externo precisa provar o contrato real |
+| Revisão visual | a mudança é principalmente frontend, layout, interação visual ou renderização |
+| Documentação | o Markdown possui comandos executáveis, schema ou contrato que pode quebrar |
+
+Frontend não exige teste automatizado por padrão. Criar teste quando houver lógica crítica, transformação de dados, estado complexo, acessibilidade, segurança ou impacto de negócio; para renderização e layout, registrar revisão visual humana. Markdown não exige teste automatizado quando é apenas documentação.
 
 ### Teste live de inteligência artificial
 
@@ -77,12 +81,12 @@ Em PostgreSQL, considerar pgTAP para validar schema, constraints, índices, fun�
 
 1. Escrever uma matriz curta de comportamento no raciocínio de trabalho: cenário, entrada, resultado, erro e efeito.
 2. Reutilizar o padrão de testes da stack; não criar framework paralelo.
-3. Criar primeiro os testes de sucesso, erro, limites e falha segura aplicáveis.
+3. Criar primeiro os testes de sucesso, erro, limites e falha segura aplicáveis ao risco; não fabricar cenários para superfícies sem comportamento testável.
 4. Usar fakes ou fixtures para serviços externos na suíte determinística.
 5. Separar testes caros ou online em suíte identificável.
 6. Executar os testes novos e confirmar estado vermelho pelo motivo correto.
 7. Executar testes relacionados para distinguir falha nova de baseline preexistente.
-8. Não alterar produção para fazer o teste passar.
+8. Não alterar produção para fazer o teste passar. Se a validação for visual ou documental, registrar a evidência adequada em vez de criar um teste artificial.
 
 Usar `stdd test` como alias global para confirmar que todas as suítes configuradas continuam executáveis. Uma feature pode começar pelos testes relacionados, mas não deve ser apresentada como validada globalmente sem essa execução agregada.
 

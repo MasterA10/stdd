@@ -35,4 +35,4 @@ def test_flow_inputs_never_use_the_right_side_of_a_block():
 
     assert 'type="target" position={Position.Right}' not in custom_node
     assert "target-in-right" not in layout
-    assert "edgeRoutingMode === 'curved' ? `target-in-left`" in app
+    assert "targetHandle: edgeHandles.targetHandle" in app

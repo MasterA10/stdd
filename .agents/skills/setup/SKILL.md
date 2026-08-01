@@ -72,7 +72,7 @@ Preservar comandos existentes até provar que estão obsoletos. Para suites que 
 
 ### Alias global
 
-Tratar `stdd test` como o alias global canônico. Todas as suítes existentes e configuradas em `test_commands` devem ser executadas uma vez na mesma chamada, incluindo unitários, integração, contrato, banco, end-to-end, segurança, performance e teste live quando a política permitir. Uma falha não interrompe as suítes seguintes: o alias termina todas as execuções e devolve resultado consolidado com status, duração e exit code por suíte.
+Tratar `stdd test` como o alias global canônico. Todas as suítes aplicáveis, existentes e configuradas em `test_commands` devem ser executadas uma vez na mesma chamada. Isso pode incluir unitários, integração, contrato, banco, end-to-end, segurança, performance e teste live quando a superfície e a política justificarem. Não criar ou exigir suíte para cada arquivo: frontend visual normalmente usa revisão humana, e Markdown puramente documental não precisa de teste. Uma falha não interrompe as suítes seguintes: o alias termina todas as execuções e devolve resultado consolidado com status, duração e exit code por suíte.
 
 Cada runner encapsula seu próprio ciclo de vida. Um runner de banco deve criar ou selecionar o banco isolado, aplicar migrations, preparar dados quando necessário, executar os testes e realizar cleanup mesmo após falha. O alias global apenas orquestra esses runners; não deve reproduzir comandos internos nem apontar para produção.
 
@@ -92,7 +92,7 @@ Manter scripts gerados pelo framework dentro de `.stdd/adapters/` ou outro diret
 
 ## Matriz mínima de descoberta de testes
 
-Procurar e classificar:
+Procurar e classificar quando a superfície existir e o risco justificar:
 
 - unitários;
 - integração;
@@ -106,7 +106,7 @@ Procurar e classificar:
 - pentest;
 - teste live de IA ou outro provedor externo.
 
-Não criar todas as categorias por obrigação. Criar ou configurar uma suíte quando a superfície existe e o risco justifica. Registrar lacunas relevantes para produção.
+Adicionar também `revisão visual` para frontend e `revisão documental` para Markdown. Não criar todas as categorias por obrigação. Para frontend, automatizar somente lógica crítica; para renderização, registrar revisão visual humana. Para Markdown simples, registrar `not_applicable` quando não houver comportamento executável. Registrar lacunas relevantes para produção.
 
 ## Contrato de inferência e teste live
 
