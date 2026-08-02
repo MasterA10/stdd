@@ -175,16 +175,17 @@ def test_editor_persists_pending_layout_and_deletions_until_save():
     assert "customPos?.x !== undefined ? customPos.x : calcPos.x" in layout
 
 
-def test_ctrl_shift_r_clears_local_positions_and_keeps_edges_behind_nodes():
-    """Limpa o cache visual sem alterar o contrato lógico.
-    Mantém caminhos atrás dos blocos para que nunca cubram sua superfície.
+def test_reset_button_is_the_only_way_to_clear_local_positions():
+    """Mantém o reset visual exclusivamente no botão superior.
+    Remove o atalho Ctrl/Cmd+Shift+R e preserva a limpeza no handler de reset.
     """
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
     styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
 
-    assert "modifier && event.shiftKey && key === 'r'" in app
+    assert "modifier && event.shiftKey && key === 'r'" not in app
     assert "localStorage.removeItem(presentationKey)" in app
     assert "setPresentationPositionsState({})" in app
+    assert "const handleReset = async () =>" in app
     assert ".react-flow__edges" in styles
     assert "z-index: 0 !important" in styles
     assert ".react-flow__edge" in styles
@@ -239,6 +240,22 @@ def test_space_creates_an_instant_block_without_interrupting_text_fields():
     assert "event.code === 'Space'" in app
     assert "createInstantNode();" in app
     assert "if (isEditableTarget(event.target)) return;" in app
+
+
+def test_v_opens_question_editor_from_the_block_and_footer_documents_it():
+    """Abre o editor de perguntas pelo bloco selecionado.
+    Mantém o atalho visível no rodapé e permite opções múltiplas pelo modal.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    node = (EDITOR_ROOT / "src/components/CustomNode.tsx").read_text(encoding="utf-8")
+    modal = (EDITOR_ROOT / "src/components/QuestionsModal.tsx").read_text(encoding="utf-8")
+
+    assert "key === 'v'" in app
+    assert "window.openQuestionsModal?.(selectedNode)" in app
+    assert "<kbd>V</kbd> perguntas" in app
+    assert "ClipboardList" in node
+    assert "Adicionar opção" in modal
+    assert "onUpdateQuestions" in modal
 
 
 def test_editor_uses_only_curved_edges_and_shows_shortcut_footer():
@@ -314,6 +331,34 @@ def test_manual_save_button_persists_the_logical_contract():
     assert "Salvar Desenho" in app
     assert "autoSaveTimerRef" not in app
     assert "performSave(contract);" in app
+
+
+def test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal():
+    """Exibe summaries de runs diretamente no menu esquerdo.
+    Confirma o carregamento do índice local, a data brasileira e as métricas do diff.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    sidebar = (EDITOR_ROOT / "src/components/Sidebar.tsx").read_text(encoding="utf-8")
+
+    assert "RunRecord" in app
+    assert "/.stdd/runs/index.json" in app
+    assert "runs={runs}" in app
+    assert "activeTab === 'runs'" in sidebar
+    assert sidebar.index("<span>Runs</span>") < sidebar.index("<span>Desenhos</span>")
+    assert "RunDetailsModal" not in sidebar
+    assert "new Intl.DateTimeFormat('pt-BR'" in sidebar
+    assert "timeZoneName: 'short'" in sidebar
+    assert "timeZone: 'America/Sao_Paulo'" in sidebar
+    assert "run-sidebar-summary" in sidebar
+    assert "run-sidebar-stats" in sidebar
+    assert "lines_added" in sidebar
+    assert "lines_deleted" in sidebar
+    assert "files_changed" in sidebar
+    assert "const runTotals = runs.reduce" in sidebar
+    assert "addedPercentage" in sidebar
+    assert "Saldo acumulado" in sidebar
+    assert "saldo final" in sidebar
+    assert "linear-gradient(90deg, #ef4444 0%, #f97316 50%, #22c55e 100%)" in (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
 
 
 def test_blocks_use_groups_instead_of_structural_types():

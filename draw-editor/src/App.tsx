@@ -12,7 +12,7 @@ import {
 import type { Connection, Edge, EdgeChange, Node, EdgeTypes } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import type { Contract, NodeData, EdgeData } from './types';
+import type { Contract, NodeData, EdgeData, RunRecord } from './types';
 import { CustomNode } from './components/CustomNode';
 import { LoopEdge } from './components/LoopEdge';
 import { Sidebar } from './components/Sidebar';
@@ -59,6 +59,7 @@ export const App: React.FC = () => {
   // --- Drawings & Storage States ---
   const [contract, setContract] = useState<Contract>(typedDefaultContract);
   const [drawingsIndex, setDrawingsIndex] = useState<any[]>([]);
+  const [runs, setRuns] = useState<RunRecord[]>([]);
   const [storageMode, setStorageMode] = useState<'backend' | 'local'>('local');
   const [navigation, setNavigation] = useState<string[]>([]);
   
@@ -94,6 +95,36 @@ export const App: React.FC = () => {
   // --- React Flow Node & Edge States ---
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<NodeData>>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadRuns = async () => {
+      try {
+        const origin = getApiOrigin();
+        const indexResponse = await fetch(`${origin}/.stdd/runs/index.json`, { cache: 'no-store' });
+        if (!indexResponse.ok) return;
+
+        const index = await indexResponse.json();
+        const days = Array.isArray(index.days) ? index.days : [];
+        const summaries = await Promise.all(days.map(async (day: { summary?: string }) => {
+          if (!day.summary) return null;
+          const response = await fetch(`${origin}/.stdd/runs/${day.summary}`, { cache: 'no-store' });
+          return response.ok ? response.json() : null;
+        }));
+        const records = summaries.flatMap((summary) => (
+          Array.isArray(summary?.runs) ? summary.runs : []
+        )) as RunRecord[];
+        records.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        if (!cancelled) setRuns(records);
+      } catch (_) {
+        if (!cancelled) setRuns([]);
+      }
+    };
+
+    loadRuns();
+    return () => { cancelled = true; };
+  }, []);
 
   // UseRef to maintain latest contract reference and avoid stale closures in window functions
   const contractRef = useRef(contract);
@@ -854,14 +885,14 @@ export const App: React.FC = () => {
       const key = event.key.toLowerCase();
       const modifier = event.metaKey || event.ctrlKey;
 
-      if (modifier && event.shiftKey && key === 'r') {
-        event.preventDefault();
-        const presentationKey = `stdd-draw-presentation:${contractRef.current.id}`;
-        localStorage.removeItem(presentationKey);
-        presentationPositionsRef.current = {};
-        setPresentationPositionsState({});
-        setIsDirty(false);
-        setContract((prev) => ({ ...prev }));
+      if (!modifier && !event.altKey && !event.shiftKey && key === 'v') {
+        const selectedNode = selectedNodeId === null
+          ? null
+          : contractRef.current.nodes.find((node) => node.id === selectedNodeId);
+        if (selectedNode) {
+          event.preventDefault();
+          window.openQuestionsModal?.(selectedNode);
+        }
         return;
       }
 
@@ -903,7 +934,7 @@ export const App: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyboardShortcuts);
     return () => window.removeEventListener('keydown', handleKeyboardShortcuts);
-  }, [connectSelectedNodes, createInstantNode, deleteSelectedItems, duplicateSelectedNodes]);
+  }, [connectSelectedNodes, createInstantNode, deleteSelectedItems, duplicateSelectedNodes, selectedNodeId]);
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -1090,33 +1121,13 @@ export const App: React.FC = () => {
     setContract((prev) => ({ ...prev }));
   };
 
-  const handleUpdateAnswer = (
-    nodeId: number,
-    questionId: number,
-    answer: string | boolean | number | null
-  ) => {
+  const handleUpdateQuestions = (nodeId: number, questions: NodeData['questions'] = []) => {
     setContract((prev) => ({
       ...prev,
-      nodes: prev.nodes.map((n) => {
-        if (n.id !== nodeId) return n;
-        return {
-          ...n,
-          questions: (n.questions || []).map((q) =>
-            q.id === questionId ? { ...q, answer } : q
-          )
-        };
-      })
+      nodes: prev.nodes.map((node) => node.id === nodeId ? { ...node, questions } : node)
     }));
+    setQuestionsNode((prev) => prev && prev.id === nodeId ? { ...prev, questions } : prev);
     setIsDirty(true);
-    setQuestionsNode((prev) => {
-      if (!prev || prev.id !== nodeId) return prev;
-      return {
-        ...prev,
-        questions: (prev.questions || []).map((q) =>
-          q.id === questionId ? { ...q, answer } : q
-        )
-      };
-    });
   };
 
   const handleMetadataSubmit = (data: { title: string; subtitle: string; kind: string }) => {
@@ -1262,6 +1273,7 @@ export const App: React.FC = () => {
           onLoadDrawing={(id) => loadDrawingById(id, { resetNavigation: true })}
           onNewDrawing={() => setMetadataModalConfig({ isOpen: true, mode: 'create' })}
           storageMode={storageMode}
+          runs={runs}
         />
 
         {/* Canvas Area */}
@@ -1305,6 +1317,7 @@ export const App: React.FC = () => {
         <span><kbd>Z</kbd>/<kbd>X</kbd>/<kbd>C</kbd> conectar</span>
         <span><kbd>Ctrl+D</kbd> duplicar</span>
         <span><kbd>Ctrl+Z</kbd> desfazer</span>
+        <span><kbd>V</kbd> perguntas</span>
       </footer>
 
       {/* Modal Dialogs */}
@@ -1312,7 +1325,7 @@ export const App: React.FC = () => {
         <QuestionsModal
           node={questionsNode}
           onClose={() => setQuestionsNode(null)}
-          onUpdateAnswer={handleUpdateAnswer}
+          onUpdateQuestions={handleUpdateQuestions}
         />
       )}
 

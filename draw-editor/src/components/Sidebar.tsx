@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import type { Contract, NodeData, EdgeData, Group, FlowPath, FlowStep } from '../types';
+import type { Contract, NodeData, EdgeData, Group, FlowPath, FlowStep, RunRecord } from '../types';
 import { Plus, Trash2, FolderPlus, List, Info, ChevronRight, Activity, Settings } from 'lucide-react';
 
 interface SidebarProps {
@@ -19,6 +19,7 @@ interface SidebarProps {
   onLoadDrawing: (id: string) => void;
   onNewDrawing: () => void;
   storageMode: 'backend' | 'local';
+  runs: RunRecord[];
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -36,9 +37,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
   currentDrawingId,
   onLoadDrawing,
   onNewDrawing,
-  storageMode
+  storageMode,
+  runs
 }) => {
-  const [activeTab, setActiveTab] = useState<'drawings' | 'info' | 'blocks' | 'groups' | 'flows'>('drawings');
+  const formatRunDate = (timestamp: string) => {
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) return timestamp;
+    return new Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short',
+      timeZone: 'America/Sao_Paulo'
+    }).format(date);
+  };
+
+  const [activeTab, setActiveTab] = useState<'drawings' | 'runs' | 'info' | 'blocks' | 'groups' | 'flows'>('drawings');
   const [drawingSearchQuery, setDrawingSearchQuery] = useState('');
 
   // Selected Node State
@@ -72,6 +88,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const filteredDrawings = drawingsIndex.filter((draw) =>
     `${draw.title} ${draw.subtitle} ${draw.kind}`.toLowerCase().includes(drawingSearchQuery.toLowerCase())
   );
+
+  const runTotals = runs.reduce((totals, run) => {
+    const added = Number(run.diff_stats?.lines_added || 0);
+    const removed = Number(run.diff_stats?.lines_deleted || 0);
+    return {
+      added: totals.added + added,
+      removed: totals.removed + removed
+    };
+  }, { added: 0, removed: 0 });
+  const runChangeTotal = runTotals.added + runTotals.removed;
+  const addedPercentage = runChangeTotal > 0 ? (runTotals.added / runChangeTotal) * 100 : 0;
+  const netLineBalance = runTotals.added - runTotals.removed;
 
   const handleUpdateNode = (updated: Partial<NodeData>) => {
     if (!selectedNode) return;
@@ -271,6 +299,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Tabs Menu */}
       <div className="sidebar-tabs">
         <button
+          className={`sidebar-tab-btn ${activeTab === 'runs' ? 'active' : ''}`}
+          onClick={() => setActiveTab('runs')}
+        >
+          <Activity size={14} />
+          <span>Runs</span>
+        </button>
+        <button
           className={`sidebar-tab-btn ${activeTab === 'drawings' ? 'active' : ''}`}
           onClick={() => setActiveTab('drawings')}
         >
@@ -390,6 +425,59 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 ))
               )}
             </div>
+          </div>
+        )}
+
+        {activeTab === 'runs' && (
+          <div className="sidebar-pane">
+            <div className="runs-sidebar-heading">
+              <div>
+                <span className="eyebrow">Histórico do agente</span>
+                <h3>Runs registradas</h3>
+              </div>
+              <span className="runs-total-badge">{runs.length}</span>
+            </div>
+            <div className="runs-total-card">
+              <div className="runs-total-card-header">
+                <span className="eyebrow">Saldo acumulado</span>
+                <strong>{addedPercentage.toFixed(1).replace('.', ',')}% adicionadas</strong>
+              </div>
+              <div className="runs-total-progress" aria-label={`${addedPercentage.toFixed(1)}% das linhas foram adicionadas`}>
+                <span style={{ width: `${addedPercentage}%` }} />
+              </div>
+              <div className="runs-total-grid">
+                <div><strong className="run-stat-added">+{runTotals.added}</strong><span>adicionadas</span></div>
+                <div><strong className="run-stat-removed">−{runTotals.removed}</strong><span>removidas</span></div>
+                <div><strong className={netLineBalance >= 0 ? 'run-stat-added' : 'run-stat-removed'}>{netLineBalance >= 0 ? '+' : '−'}{Math.abs(netLineBalance)}</strong><span>saldo final</span></div>
+              </div>
+            </div>
+            {runs.length === 0 ? (
+              <div className="runs-empty-sidebar">
+                <Activity size={22} />
+                <strong>Nenhum registro encontrado</strong>
+                <span>As execuções aparecerão aqui quando o STDD registrar um summary.</span>
+              </div>
+            ) : (
+              <div className="runs-sidebar-list">
+                {runs.map((run) => (
+                  <article key={run.run_id} className="run-sidebar-card">
+                    <span className="run-sidebar-date">{formatRunDate(run.timestamp)}</span>
+                    <strong className="run-sidebar-summary">{run.description || 'Sem resumo registrado'}</strong>
+                    <div className="run-sidebar-types">
+                      {(run.work_types || []).length > 0
+                        ? run.work_types.map((type) => <span key={type}>{type}</span>)
+                        : <span>tipo não informado</span>}
+                    </div>
+                    <div className="run-sidebar-stats" aria-label="Impacto da alteração">
+                      <span className="run-stat-added">+{run.diff_stats?.lines_added || 0} linhas</span>
+                      <span className="run-stat-removed">−{run.diff_stats?.lines_deleted || 0} removidas</span>
+                      <span>{run.diff_stats?.files_changed || 0} arquivos</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+            <p className="runs-sidebar-note">Resumo das execuções registradas pelo agente.</p>
           </div>
         )}
 

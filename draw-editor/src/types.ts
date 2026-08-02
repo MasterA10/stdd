@@ -71,3 +71,16 @@ export interface Contract {
   flows?: FlowPath[];
   tradeoffs?: any[];
 }
+
+export interface RunRecord {
+  run_id: string;
+  timestamp: string;
+  description: string;
+  work_types: string[];
+  diff_stats: {
+    lines_added?: number;
+    lines_deleted?: number;
+    files_changed?: number;
+    [key: string]: any;
+  };
+}

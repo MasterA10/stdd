@@ -53,21 +53,22 @@ Use `flows` para mostrar caminhos temporais ou operacionais. Use `tradeoffs` par
 
 Toda seta deve declarar `condition` como código numérico: `1` representa `então`, `2` representa `ou` e `3` representa `se`. O viewer converte os códigos para os nomes no HTML. Use `label` e `description` para explicar o significado específico do caminho sem inventar um novo código.
 
-### Semântica das condições e atalhos
+### Semântica das condições
 
-As condições precisam representar a lógica do fluxo, não apenas colorir setas:
+As condições precisam representar a lógica do fluxo, não apenas colorir setas. Os códigos do JSON são:
 
-- `Z` → `condition: 1` → **então**: sequência/default; use para o próximo passo após a etapa atual.
-- `O` → `condition: 2` → **ou**: alternativa mutuamente exclusiva; use quando o mesmo ponto oferece caminhos alternativos.
-- `C` → `condition: 3` → **se**: condição/guarda; use quando o caminho depende de um predicado explícito.
+- `condition: 1` → **então**: sequência incondicional/default; próximo passo do fluxo.
+- `condition: 2` → **ou**: alternativa mutuamente exclusiva; escolha entre opções de mesmo nível.
+- `condition: 3` → **se**: condição/guarda; caminho guiado por predicado explícito.
 
 Regras de consistência:
 
-- Caminho sequencial: `Z` seguido de `Z` é válido.
-- Decisão com várias guardas: vários `C` saindo do mesmo nó são válidos quando cada seta possui uma condição clara, como `se aprovado` e `se recusado`.
-- Alternativas: vários `O` saindo do mesmo nó são válidos quando representam opções do mesmo nível, como `ou cartão` e `ou Pix`.
-- Não misture `C` e `O` para representar a mesma decisão, nem use `O` como continuação de um `C`. Para expressões como “se A ou B”, crie uma decisão explícita ou um único predicado: não codifique a expressão alternando condições de setas.
-- Não use `Z` para esconder uma condição, nem `C`/`O` em uma etapa que é apenas sequência. Se a combinação não puder ser explicada em linguagem natural, revise o grafo antes de gravar o JSON.
+- **Sequência (`condition: 1` / `então`)**: Use para a passagem incondicional do fluxo.
+- **Alternativa (`condition: 2` / `ou`)**: Responde *"qual alternativa exclusiva foi escolhida?"*.
+- **Condicional (`condition: 3` / `se`)**: Responde *"em que condição este caminho executa?"* (`se A`, `se B`). Cada condição é um predicado próprio.
+- **Nunca misture `se` e `ou`**: Jamais combine `se` com `ou` — nem dentro da guarda (não existe `se A ou B`), nem na mesma bifurcação. Se existem condições A e B, modele cada uma como seu próprio caminho (`se A` e `se B`).
+- **Execução condicional**: Se A acontecer, segue `se A`; se B acontecer, segue `se B`. Se ambos puderem ocorrer, o fluxo deve representar sequência ou paralelismo, jamais uma escolha `ou`.
+- **Clareza semântica**: Não use condições para ocultar passos sequenciais simples. Se o fluxo não for inteligível em linguagem natural, revise o grafo antes de gravar o JSON.
 
 Exemplos válidos:
 
@@ -79,7 +80,7 @@ Exemplos válidos:
 ]
 ```
 
-Exemplo inválido: uma seta `condition: 3` com label `ou Pix` seguida de uma seta `condition: 2` com label `se aprovado`. Isso mistura guarda e alternativa sem uma decisão semântica clara.
+Exemplo inválido: uma seta `condition: 3` com label `se aprovado` e outra `condition: 2` com label `ou Pix` saindo da mesma decisão. Isso mistura guarda e alternativa sem uma decisão semântica clara.
 
 Para decompor sistemas complexos, use `draw_ref` em um nó:
 

@@ -565,6 +565,37 @@ def test_draw_server_serves_viewer_index_and_selected_json(tmp_path: Path):
         thread.join(timeout=2)
 
 
+def test_draw_server_serves_run_index_and_summary_only(tmp_path: Path):
+    """Serve o índice e os summaries das runs pela API local do viewer.
+    Confirma que o endpoint permite montar o histórico sem expor snapshots por padrão.
+    """
+    runs_dir = tmp_path / ".stdd" / "runs" / "2026-08-02"
+    runs_dir.mkdir(parents=True)
+    (tmp_path / ".stdd" / "runs" / "index.json").write_text(
+        json.dumps({"version": 1, "days": [{"date": "2026-08-02", "summary": "2026-08-02/2026-08-02_summary.json"}]}),
+        encoding="utf-8",
+    )
+    (runs_dir / "2026-08-02_summary.json").write_text(
+        json.dumps({"runs": [{"run_id": "run-1", "timestamp": "2026-08-02T12:00:00Z", "description": "Atualiza pagamentos", "work_types": ["feature"], "diff_stats": {"lines_added": 8}}]}),
+        encoding="utf-8",
+    )
+    server, thread = start_server_for_test(tmp_path)
+    base_url = f"http://127.0.0.1:{server.server_address[1]}"
+    try:
+        assert "2026-08-02_summary.json" in urlopen(f"{base_url}/.stdd/runs/index.json").read().decode()
+        assert "Atualiza pagamentos" in urlopen(f"{base_url}/.stdd/runs/2026-08-02/2026-08-02_summary.json").read().decode()
+        try:
+            urlopen(f"{base_url}/.stdd/runs/2026-08-02/2026-08-02_snapshot.json")
+        except Exception as error:
+            assert "404" in str(error)
+        else:
+            raise AssertionError("snapshot não deveria ser servido pela listagem de runs")
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
 def test_draw_server_does_not_expose_project_files(tmp_path: Path):
     """Serve somente o viewer e a API, sem expor arquivos da codebase.
     Cria um arquivo sensível na raiz e confirma que a rota arbitrária retorna 404.

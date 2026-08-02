@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import type { NodeProps, Node } from '@xyflow/react';
 import type { NodeData, Question } from '../types';
-import { Trash2, HelpCircle, Eye } from 'lucide-react';
+import { Trash2, ClipboardList, Eye } from 'lucide-react';
 
 const FALLBACK_GROUP_COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f97316', '#ec4899', '#3b82f6'];
 
@@ -154,16 +154,14 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
           >
             <Trash2 size={12} />
           </button>
-          {totalQuestions > 0 && (
-            <button
-              className="action-circle-btn info"
-              onClick={onOpenQuestions}
-              title="Perguntas do Bloco"
-              type="button"
-            >
-              <HelpCircle size={12} />
-            </button>
-          )}
+          <button
+            className="action-circle-btn info"
+            onClick={onOpenQuestions}
+            title="Perguntas e observações do bloco"
+            type="button"
+          >
+            <ClipboardList size={12} />
+          </button>
           <button
             className="action-circle-btn info"
             style={{ backgroundColor: '#6366f1', color: '#fff' }}

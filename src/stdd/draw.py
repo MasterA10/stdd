@@ -399,6 +399,30 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                     return
                 self._send_bytes(body, "application/json; charset=utf-8")
                 return
+            if path == "/.stdd/runs/index.json":
+                runs_index = root / ".stdd" / "runs" / "index.json"
+                try:
+                    body = runs_index.read_bytes() if runs_index.exists() else b'{"version": 1, "days": []}'
+                except OSError:
+                    self._send_json_error(500, "índice de runs indisponível")
+                    return
+                self._send_bytes(body, "application/json; charset=utf-8")
+                return
+            runs_prefix = "/.stdd/runs/"
+            if path.startswith(runs_prefix) and path.endswith(".json"):
+                relative_run_path = unquote(path[len(runs_prefix):])
+                runs_root = (root / ".stdd" / "runs").resolve()
+                run_path = (runs_root / relative_run_path).resolve()
+                try:
+                    run_path.relative_to(runs_root)
+                    if run_path.name not in {"index.json"} and not run_path.name.endswith(("_summary.json", "_snapshot.json")):
+                        raise ValueError("arquivo de run não permitido")
+                    body = run_path.read_bytes()
+                except (OSError, ValueError):
+                    self._send_json_error(404, "registro de run não encontrado")
+                    return
+                self._send_bytes(body, "application/json; charset=utf-8")
+                return
             prefix = "/.stdd/draws/"
             if path.startswith(prefix) and path.endswith(".json"):
                 draw_id = unquote(path[len(prefix):-5])

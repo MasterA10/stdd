@@ -9,6 +9,26 @@ description: Especifica funcionalidades por testes executáveis no STDD sem alte
 
 Transformar intenção em comportamento observável e testes que falhem pelo motivo esperado. Tratar testes como documentação executável. Não implementar código de produção, não enfraquecer testes existentes e não duplicar a especificação em arquivos Markdown intermediários.
 
+## Triagem da entrada
+
+Antes de especificar testes, identificar de onde vem a feature. Há três entradas possíveis:
+
+1. **Texto:** quando o pedido descreve diretamente o comportamento. Usar a solicitação, critérios aceitos e contexto do código como fontes principais.
+2. **Desenho informado:** quando o usuário fornece um ID, caminho ou indica explicitamente um Draw. Ler `.stdd/draws/<draw-id>.json` completo e abrir `draw_ref` somente quando o subfluxo fizer parte do escopo.
+3. **Desenho alterado:** quando o pedido não informa um desenho específico, inspecionar o estado do Git para descobrir fluxos novos ou modificados. Usar:
+
+   ```bash
+   git status --short -- .stdd/draws
+   git diff --name-status -- .stdd/draws
+   git diff --cached --name-status -- .stdd/draws
+   ```
+
+   Incluir também arquivos JSON não rastreados listados pelo `git status`. Para cada desenho alterado, ler o JSON atual completo e, para desenhos rastreados, comparar o patch com `git diff` (e com `git diff --cached` quando aplicável). O patch mostra a intenção incremental: nós, relações, condições, fluxos, `draw_ref`, perguntas e trade-offs criados, removidos ou alterados. O JSON atual mostra o contrato que deve orientar os testes.
+
+Se houver uma solicitação textual e um desenho alterado, combinar as fontes: o texto define o objetivo e o desenho fornece o fluxo observável. Não transformar todo desenho alterado em feature automaticamente; confirmar relevância pelo pedido, título, nós e relações. Se houver mais de um desenho candidato sem relação clara, pedir ao usuário que escolha antes de criar testes. Registrar no raciocínio qual modo foi usado, quais arquivos foram considerados e quais foram descartados.
+
+Não tratar `git diff` como fonte única: alterações locais podem estar staged, unstaged ou ainda não rastreadas. Não perder mudanças do usuário nem reverter desenhos para obter uma comparação limpa.
+
 ## Fontes de verdade
 
 Ler somente o contexto necessário:
@@ -17,7 +37,8 @@ Ler somente o contexto necessário:
 - `.stdd/config.json` e capacidades realmente configuradas;
 - testes, contratos, schemas e fixtures existentes;
 - código relacionado, apenas para entender interfaces e efeitos atuais;
-- `.stdd/draws/<draw-id>.json` quando a solicitação partir de um desenho;
+- `.stdd/draws/<draw-id>.json` quando a solicitação partir de um desenho informado ou identificado na triagem do Git;
+- o diff do Git do desenho, quando a feature vier de uma alteração de fluxo;
 - `draw_ref` apenas quando o subfluxo fizer parte do escopo.
 
 Quando um nó possuir `questions`, ler todas as perguntas. Tratar `answer` preenchido como decisão explícita do usuário e perguntas sem resposta como requisito ainda aberto; não inventar respostas nem apagar perguntas respondidas do histórico.
@@ -26,12 +47,13 @@ Não converter Draw em documentação duplicada. O JSON e os testes permanecem f
 
 ## Preflight
 
-1. Conferir o estado do Git e preservar alterações do usuário.
-2. Localizar testes e símbolos relacionados.
-3. Identificar linguagem, framework de teste, banco e integrações externas.
-4. Confirmar quais runners estão realmente disponíveis; capacidade não confirmada é `unavailable`.
-5. Definir comportamento de sucesso, erros, limites, efeitos colaterais e riscos.
-6. Escolher as categorias de teste proporcionais ao risco.
+1. Executar a triagem da entrada e conferir o estado do Git, preservando alterações do usuário.
+2. Quando a origem for um desenho, validar que todos os nós, relações, etapas de fluxo e `draw_ref` relevantes podem ser resolvidos; ler perguntas e decisões registradas.
+3. Localizar testes e símbolos relacionados.
+4. Identificar linguagem, framework de teste, banco e integrações externas.
+5. Confirmar quais runners estão realmente disponíveis; capacidade não confirmada é `unavailable`.
+6. Definir comportamento de sucesso, erros, limites, efeitos colaterais e riscos.
+7. Escolher as categorias de teste proporcionais ao risco.
 
 ## Contrato de testes
 

@@ -7,7 +7,27 @@ description: Especifica funcionalidades por testes executáveis no STDD sem alte
 
 ## Responsabilidade
 
-Transformar intenção em comportamento observável e testes que falhem pelo motivo esperado. Tratar testes como documentação executável. Não implementar código de produção, não enfraquecer testes existentes e não duplicar a especificação em arquivos Markdown intermediários.
+Transformar intenção em comportamento observável e testes que falhem pelo motivo esperado, com foco absoluto em **regras de negócio, backend, banco de dados e contratos**. Não criar testes para validar aparência, layout ou presença de componentes no HTML/DOM (testar componentes apenas se houver lógica de negócio extremamente crítica). Tratar testes como documentação executável. Não implementar código de produção, não enfraquecer testes existentes e não duplicar a especificação em arquivos Markdown intermediários.
+
+## Triagem da entrada
+
+Antes de especificar testes, identificar de onde vem a feature. Há três entradas possíveis:
+
+1. **Texto:** quando o pedido descreve diretamente o comportamento. Usar a solicitação, critérios aceitos e contexto do código como fontes principais.
+2. **Desenho informado:** quando o usuário fornece um ID, caminho ou indica explicitamente um Draw. Ler `.stdd/draws/<draw-id>.json` completo e abrir `draw_ref` somente quando o subfluxo fizer parte do escopo.
+3. **Desenho alterado:** quando o pedido não informa um desenho específico, inspecionar o estado do Git para descobrir fluxos novos ou modificados. Usar:
+
+   ```bash
+   git status --short -- .stdd/draws
+   git diff --name-status -- .stdd/draws
+   git diff --cached --name-status -- .stdd/draws
+   ```
+
+   Incluir também arquivos JSON não rastreados listados pelo `git status`. Para cada desenho alterado, ler o JSON atual completo e, para desenhos rastreados, comparar o patch com `git diff` (e com `git diff --cached` quando aplicável). O patch mostra a intenção incremental: nós, relações, condições, fluxos, `draw_ref`, perguntas e trade-offs criados, removidos ou alterados. O JSON atual mostra o contrato que deve orientar os testes.
+
+Se houver uma solicitação textual e um desenho alterado, combinar as fontes: o texto define o objetivo e o desenho fornece o fluxo observável. Não transformar todo desenho alterado em feature automaticamente; confirmar relevância pelo pedido, título, nós e relações. Se houver mais de um desenho candidato sem relação clara, pedir ao usuário que escolha antes de criar testes. Registrar no raciocínio qual modo foi usado, quais arquivos foram considerados e quais foram descartados.
+
+Não tratar `git diff` como fonte única: alterações locais podem estar staged, unstaged ou ainda não rastreadas. Não perder mudanças do usuário nem reverter desenhos para obter uma comparação limpa.
 
 ## Fontes de verdade
 
@@ -17,7 +37,8 @@ Ler somente o contexto necessário:
 - `.stdd/config.json` e capacidades realmente configuradas;
 - testes, contratos, schemas e fixtures existentes;
 - código relacionado, apenas para entender interfaces e efeitos atuais;
-- `.stdd/draws/<draw-id>.json` quando a solicitação partir de um desenho;
+- `.stdd/draws/<draw-id>.json` quando a solicitação partir de um desenho informado ou identificado na triagem do Git;
+- o diff do Git do desenho, quando a feature vier de uma alteração de fluxo;
 - `draw_ref` apenas quando o subfluxo fizer parte do escopo.
 
 Quando um nó possuir `questions`, ler todas as perguntas. Tratar `answer` preenchido como decisão explícita do usuário e perguntas sem resposta como requisito ainda aberto; não inventar respostas nem apagar perguntas respondidas do histórico.
@@ -26,34 +47,35 @@ Não converter Draw em documentação duplicada. O JSON e os testes permanecem f
 
 ## Preflight
 
-1. Conferir o estado do Git e preservar alterações do usuário.
-2. Localizar testes e símbolos relacionados.
-3. Identificar linguagem, framework de teste, banco e integrações externas.
-4. Confirmar quais runners estão realmente disponíveis; capacidade não confirmada é `unavailable`.
-5. Definir comportamento de sucesso, erros, limites, efeitos colaterais e riscos.
-6. Escolher as categorias de teste proporcionais ao risco.
+1. Executar a triagem da entrada e conferir o estado do Git, preservando alterações do usuário.
+2. Quando a origem for um desenho, validar que todos os nós, relações, etapas de fluxo e `draw_ref` relevantes podem ser resolvidos; ler perguntas e decisões registradas.
+3. Localizar testes e símbolos relacionados.
+4. Identificar linguagem, framework de teste, banco e integrações externas.
+5. Confirmar quais runners estão realmente disponíveis; capacidade não confirmada é `unavailable`.
+6. Definir comportamento de sucesso, erros, limites, efeitos colaterais e riscos.
+7. Escolher as categorias de teste proporcionais ao risco.
 
 ## Contrato de testes
 
-Não limitar a estratégia a testes funcionais, mas também não criar uma suíte por obrigação. Avaliar o risco da superfície e selecionar uma cobertura proporcional, somente com categorias aplicáveis:
+O objetivo prioritário dos testes é validar **regra de negócio, backend, banco de dados e contratos**. Não crie testes automatizados para frontend ou componentes (como verificar se um elemento existe no HTML, validar layout ou aparência). Teste componentes do frontend apenas se houver uma lógica de negócio ou transformação de dados realmente crítica. A meta é validar o **contrato**, não a interface visual.
 
-| Categoria | Exigir quando |
-| --- | --- |
-| Unitário | regra isolável, transformação, validação ou erro local |
-| Integração | dois componentes reais precisam colaborar |
-| Contrato | API, evento, schema, SDK ou resposta externa possui formato estável |
-| Regressão | existe bug ou comportamento anterior que não pode retornar |
-| End-to-end | o valor depende de várias etapas do sistema |
-| Banco | migrations, constraints, funções, triggers, RLS ou transações importam |
-| Performance | latência, throughput, memória ou volume possui objetivo mensurável |
-| Segurança | autenticação, autorização, entrada hostil, segredo ou exposição de dados muda |
-| Isolamento | tenants, testes paralelos, dados, processos ou integrações não podem vazar estado |
-| Pentest | há superfície atacável e ambiente explicitamente autorizado |
-| Teste live | uma integração com IA ou serviço externo precisa provar o contrato real |
-| Revisão visual | a mudança é principalmente frontend, layout, interação visual ou renderização |
-| Documentação | o Markdown possui comandos executáveis, schema ou contrato que pode quebrar |
+| Categoria      | Exigir quando                                                                     |
+| ----------------| -----------------------------------------------------------------------------------|
+| Unitário       | regra isolável, transformação, validação ou erro local                            |
+| Integração     | dois componentes reais precisam colaborar                                         |
+| Contrato       | API, evento, schema, SDK ou resposta externa possui formato estável               |
+| Regressão      | existe bug ou comportamento anterior que não pode retornar                        |
+| End-to-end     | o valor depende de várias etapas do sistema                                       |
+| Banco          | migrations, constraints, funções, triggers, RLS ou transações importam            |
+| Performance    | latência, throughput, memória ou volume possui objetivo mensurável                |
+| Segurança      | autenticação, autorização, entrada hostil, segredo ou exposição de dados muda     |
+| Isolamento     | tenants, testes paralelos, dados, processos ou integrações não podem vazar estado |
+| Pentest        | há superfície atacável e ambiente explicitamente autorizado                       |
+| Teste live     | uma integração com IA ou serviço externo precisa provar o contrato real           |
+| Revisão visual | a mudança é principalmente frontend, layout, interação visual ou renderização     |
+| Documentação   | o Markdown possui comandos executáveis, schema ou contrato que pode quebrar       |
 
-Frontend não exige teste automatizado por padrão. Criar teste quando houver lógica crítica, transformação de dados, estado complexo, acessibilidade, segurança ou impacto de negócio; para renderização e layout, registrar revisão visual humana. Markdown não exige teste automatizado quando é apenas documentação.
+Frontend não exige teste automatizado por padrão. Não crie testes para verificar se componentes existem na árvore DOM/HTML. Crie testes apenas quando houver lógica crítica de negócio ou estado complexo no cliente; caso contrário, a validação de contrato do backend/banco é suficiente. Markdown não exige teste automatizado quando é apenas documentação.
 
 ### Teste live de inteligência artificial
 
