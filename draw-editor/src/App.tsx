@@ -854,6 +854,17 @@ export const App: React.FC = () => {
       const key = event.key.toLowerCase();
       const modifier = event.metaKey || event.ctrlKey;
 
+      if (modifier && event.shiftKey && key === 'r') {
+        event.preventDefault();
+        const presentationKey = `stdd-draw-presentation:${contractRef.current.id}`;
+        localStorage.removeItem(presentationKey);
+        presentationPositionsRef.current = {};
+        setPresentationPositionsState({});
+        setIsDirty(false);
+        setContract((prev) => ({ ...prev }));
+        return;
+      }
+
       if (!modifier && !event.altKey && (key === 'delete' || key === 'backspace')) {
         if (deleteSelectedItems()) event.preventDefault();
         return;

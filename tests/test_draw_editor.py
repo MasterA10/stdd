@@ -175,6 +175,23 @@ def test_editor_persists_pending_layout_and_deletions_until_save():
     assert "customPos?.x !== undefined ? customPos.x : calcPos.x" in layout
 
 
+def test_ctrl_shift_r_clears_local_positions_and_keeps_edges_behind_nodes():
+    """Limpa o cache visual sem alterar o contrato lógico.
+    Mantém caminhos atrás dos blocos para que nunca cubram sua superfície.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    assert "modifier && event.shiftKey && key === 'r'" in app
+    assert "localStorage.removeItem(presentationKey)" in app
+    assert "setPresentationPositionsState({})" in app
+    assert ".react-flow__edges" in styles
+    assert "z-index: 0 !important" in styles
+    assert ".react-flow__edge" in styles
+    assert ".react-flow__nodes" in styles
+    assert ".react-flow__node" in styles
+
+
 def test_shift_selection_keeps_neighbors_visible_while_ctrl_focuses_one_block():
     """Diferencia seleção para conexão de foco visual.
     Confirma que Shift seleciona múltiplos e Ctrl ativa o isolamento.
@@ -233,6 +250,7 @@ def test_editor_uses_only_curved_edges_and_shows_shortcut_footer():
 
     assert "layoutCurvedGraph(filteredNodes" in app
     assert "AvoidEdge" not in app
+    assert "type: edgeHandles.loop ? 'loop' : 'default'" in app
     assert "setEdgeRoutingMode" not in app
     assert "shortcut-footer" in app
     assert ".shortcut-footer" in styles
@@ -312,7 +330,7 @@ def test_blocks_use_groups_instead_of_structural_types():
     assert 'node.pop("type", None)' in draw
     assert "groupColor" in node
     assert "#8b5cf6" in node
-    assert "withAlpha(accentColor, 0.16)" in node
+    assert "withTint(accentColor, 0.82)" in node
     assert "color: newGroupColor" in sidebar
 
 

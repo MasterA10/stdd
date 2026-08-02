@@ -1007,6 +1007,22 @@ body,
   to { stroke-dashoffset: 0; }
 }
 
+.react-flow__edges {
+  z-index: 0 !important;
+}
+
+.react-flow__edge {
+  z-index: 0 !important;
+}
+
+.react-flow__nodes {
+  z-index: 10 !important;
+}
+
+.react-flow__node {
+  z-index: 10 !important;
+}
+
 .react-flow__edge.animated .react-flow__edge-path,
 .react-flow__edge-path[stroke-dasharray] {
   animation: flowDashAnim 1.2s linear infinite !important;

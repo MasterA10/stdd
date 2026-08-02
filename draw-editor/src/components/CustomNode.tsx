@@ -21,6 +21,16 @@ function withAlpha(hex: string, alpha: number) {
   return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 }
 
+function withTint(hex: string, whiteAmount: number) {
+  const normalized = hex.replace('#', '');
+  if (!/^[0-9a-fA-F]{6}$/.test(normalized)) return '#f8fafc';
+  const channel = (offset: number) => {
+    const value = parseInt(normalized.slice(offset, offset + 2), 16);
+    return Math.round(value + (255 - value) * whiteAmount);
+  };
+  return `rgb(${channel(0)}, ${channel(2)}, ${channel(4)})`;
+}
+
 function unansweredQuestionCount(questions?: Question[]) {
   const qList = Array.isArray(questions) ? questions : [];
   return qList.filter(q => q.answer === null || q.answer === undefined || (typeof q.answer === 'string' && !q.answer.trim())).length;
@@ -122,7 +132,7 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
     : { borderColor: accentColor };
 
   const bgStyle = {
-    background: data.group !== undefined ? withAlpha(accentColor, 0.16) : '#f8fafc',
+    background: data.group !== undefined ? withTint(accentColor, 0.82) : '#f8fafc',
     color: '#0f172a',
     opacity: isDimmed ? 0.08 : 1
   };
