@@ -279,9 +279,11 @@ def test_focus_view_keeps_curves_except_for_mutual_orthogonal_loops():
     assert "const [showLoops, setShowLoops] = useState(true)" in focus
     assert "if (isOrthogonalLoop && !showLoops) return null" in focus
     assert "Loops {showLoops ? 'visíveis' : 'ocultos'}" in focus
-    assert "const neighborNodes = contract.nodes.filter" in focus
-    assert "node.id < nodeId" in focus
-    assert "node.id > nodeId" in focus
+    assert "const incomingIds = new Set" in focus
+    assert "const outgoingIds = new Set" in focus
+    assert "const loopIds = new Set" in focus
+    assert "incomingIds.has(node.id) && !loopIds.has(node.id)" in focus
+    assert "outgoingIds.has(node.id) || loopIds.has(node.id)" in focus
     assert "computeEdgeHandles" in focus
     assert "const laneY" in loop
     assert "L ${targetX} ${laneY}" in loop

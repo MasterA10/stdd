@@ -50,13 +50,22 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
     const predEdges = contract.edges.filter((e) => e.to === nodeId);
     const succEdges = contract.edges.filter((e) => e.from === nodeId);
 
-    const neighborNodes = contract.nodes.filter((n) =>
-      predEdges.some((e) => e.from === n.id) || succEdges.some((e) => e.to === n.id)
+    const incomingIds = new Set(predEdges.map((edge) => edge.from));
+    const outgoingIds = new Set(succEdges.map((edge) => edge.to));
+    const loopIds = new Set(
+      [...incomingIds].filter((neighborId) => outgoingIds.has(neighborId))
     );
-    // IDs menores representam o início do fluxo; IDs maiores representam etapas posteriores.
-    // Isso evita que um retorno faça o bloco inicial aparecer no lado do fim no modo foco.
-    const predNodes = neighborNodes.filter((node) => node.id < nodeId).sort((a, b) => a.id - b.id);
-    const succNodes = neighborNodes.filter((node) => node.id > nodeId).sort((a, b) => a.id - b.id);
+    const neighborNodes = contract.nodes.filter((node) =>
+      incomingIds.has(node.id) || outgoingIds.has(node.id)
+    );
+    // A direção da conexão define o lado. Um par bidirecional fica à direita,
+    // pois a entrada correspondente é o retorno ortogonal do loop.
+    const predNodes = neighborNodes.filter((node) =>
+      incomingIds.has(node.id) && !loopIds.has(node.id) && !outgoingIds.has(node.id)
+    );
+    const succNodes = neighborNodes.filter((node) =>
+      outgoingIds.has(node.id) || loopIds.has(node.id)
+    );
 
     const P = predNodes.length;
     const S = succNodes.length;
