@@ -92,6 +92,58 @@ def test_same_level_back_edges_enter_from_the_bottom_when_the_lane_is_below():
     assert "sourceHandle: `source-${cond}-bottom`, targetHandle: `target-in-bottom`" in layout
 
 
+def test_longest_return_from_terminal_node_can_use_the_upper_lane():
+    """Balanceia retornos longos para não concentrar todas as linhas embaixo.
+    Confirma que o retorno mais distante de uma origem terminal entra pelo topo.
+    """
+    layout = (EDITOR_ROOT / "src/layout.ts").read_text(encoding="utf-8")
+
+    assert "sourceHasOnlyReturns" in layout
+    assert "const farthestReturn" in layout
+    assert "const shouldUseUpperLane" in layout
+    assert "sourceHandle: `source-${cond}-top`, targetHandle: `target-in-top`" in layout
+
+
+def test_return_edges_choose_the_clearest_upper_or_lower_corridor():
+    """Escolhe a faixa de retorno com menos obstáculos.
+    Prefere a faixa superior quando as duas estão livres para manter o fluxo legível.
+    """
+    layout = (EDITOR_ROOT / "src/layout.ts").read_text(encoding="utf-8")
+
+    assert "function returnLaneFor" in layout
+    assert "const topHits = laneHits(topLane)" in layout
+    assert "const hasNodeAbove = boxes.some" in layout
+    assert "const hasNodeBelow = boxes.some" in layout
+    assert "if (!hasNodeAbove && hasNodeBelow) return 'top'" in layout
+    assert "const verticalDirection = source.y - target.y" in layout
+    assert "if (verticalDirection < 0) return 'top'" in layout
+    assert "if (verticalDirection > 0) return 'bottom'" in layout
+    assert "preferredReturnLane === 'top'" in layout
+
+
+def test_alt_click_opens_the_same_detail_view_as_the_eye_action():
+    """Abre os detalhes do bloco pelo atalho direto do canvas.
+    Confirma que Alt não altera a seleção comum do editor.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+
+    assert "if (event.altKey)" in app
+    assert "setActiveDetailNodeId(id)" in app
+    assert "<kbd>Alt</kbd> detalhes" in app
+
+
+def test_alt_click_also_changes_focus_inside_the_focus_canvas():
+    """Mantém o atalho Alt disponível dentro da visão de foco.
+    Confirma que Alt em um bloco vizinho abre seus próprios detalhes.
+    """
+    focus = (EDITOR_ROOT / "src/components/FocusDetailModal.tsx").read_text(encoding="utf-8")
+
+    assert "const onNodeClick = (event: React.MouseEvent, node: Node)" in focus
+    assert "if (!event.altKey) return;" in focus
+    assert "window.openDetailViewer" in focus
+    assert "onNodeClick={onNodeClick}" in focus
+
+
 def test_keyboard_shortcuts_connect_and_duplicate_selected_blocks():
     """Mantém atalhos básicos para conexão, duplicação e desfazer.
     Confirma a origem ordenada e os comandos Z, X, C e Ctrl/Cmd+D/Z.
@@ -197,6 +249,28 @@ def test_focus_view_connects_incoming_arrows_to_the_left_back_of_nodes():
     assert "target-in-bottom" not in focus
 
 
+def test_focus_view_keeps_curves_except_for_mutual_orthogonal_loops():
+    """Mantém curvas nas conexões comuns da visão de foco.
+    Apenas o retorno de uma conexão bidirecional usa segmentos ortogonais.
+    """
+    focus = (EDITOR_ROOT / "src/components/FocusDetailModal.tsx").read_text(encoding="utf-8")
+    loop = (EDITOR_ROOT / "src/components/FocusLoopEdge.tsx").read_text(encoding="utf-8")
+
+    assert "type: isOrthogonalLoop ? 'focus-loop' : 'default'" in focus
+    assert "const hasReverseEdge = contract.edges.some" in focus
+    assert "const [showLoops, setShowLoops] = useState(true)" in focus
+    assert "if (isOrthogonalLoop && !showLoops) return null" in focus
+    assert "Loops {showLoops ? 'visíveis' : 'ocultos'}" in focus
+    assert "const neighborNodes = contract.nodes.filter" in focus
+    assert "node.id < nodeId" in focus
+    assert "node.id > nodeId" in focus
+    assert "computeEdgeHandles" in focus
+    assert "const laneY" in loop
+    assert "L ${targetX} ${laneY}" in loop
+    assert "EdgeLabelRenderer" in loop
+    assert "{label}" in loop
+
+
 def test_logical_save_is_manual_but_positions_use_presentation_cache():
     """Separa o salvamento manual do contrato lógico do cache de posições.
     Confirma que o JSON só usa o botão Salvar e drag grava a apresentação.
@@ -220,6 +294,39 @@ def test_manual_save_button_persists_the_logical_contract():
     assert "Salvar Desenho" in app
     assert "autoSaveTimerRef" not in app
     assert "performSave(contract);" in app
+
+
+def test_blocks_use_groups_instead_of_structural_types():
+    """Mantém blocos agnósticos e usa grupos como única fonte de cor.
+    Confirma que o editor e o salvamento não reintroduzem tipos de nó ou cores individuais.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    node = (EDITOR_ROOT / "src/components/CustomNode.tsx").read_text(encoding="utf-8")
+    sidebar = (EDITOR_ROOT / "src/components/Sidebar.tsx").read_text(encoding="utf-8")
+    draw = Path("src/stdd/draw.py").read_text(encoding="utf-8")
+
+    assert "NODE_KINDS" not in node
+    assert "type: 'process'" not in app
+    assert "NODE_KINDS" not in sidebar
+    assert "delete cleanNode.type" in app
+    assert 'node.pop("type", None)' in draw
+    assert "groupColor" in node
+    assert "#8b5cf6" in node
+    assert "withAlpha(accentColor, 0.16)" in node
+    assert "color: newGroupColor" in sidebar
+
+
+def test_double_click_changes_group_and_canvas_click_exits_editing():
+    """Permite trocar grupo no próprio bloco.
+    Volta ao modo normal quando a lousa é clicada.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    node = (EDITOR_ROOT / "src/components/CustomNode.tsx").read_text(encoding="utf-8")
+
+    assert "onDoubleClick={handleNodeDoubleClick}" in node
+    assert "window.updateNodeGroup?." in node
+    assert "stdd:clear-node-editing" in node
+    assert "window.dispatchEvent(new Event('stdd:clear-node-editing'))" in app
 
 
 def test_new_drawing_button_persists_a_new_json_document():

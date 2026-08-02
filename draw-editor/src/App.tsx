@@ -318,6 +318,7 @@ export const App: React.FC = () => {
       delete cleanNode.isDimmed;
       delete cleanNode.background;
       delete cleanNode.text;
+      delete cleanNode.type;
       return cleanNode;
     });
 
@@ -462,17 +463,6 @@ export const App: React.FC = () => {
     return presentationPositionsState;
   }, [contract.id, isDirty, presentationPositionsState]);
 
-  const presentationColors = useMemo(() => {
-    const presentationKey = `stdd-draw-presentation:${contract.id}`;
-    try {
-      const saved = localStorage.getItem(presentationKey);
-      if (saved) {
-        return JSON.parse(saved).nodes || {};
-      }
-    } catch (_) {}
-    return {};
-  }, [contract.id, isDirty]);
-
   useEffect(() => {
     let activeNodeIds = new Set<number>();
     let activeEdgeConnections = new Set<string>();
@@ -515,7 +505,7 @@ export const App: React.FC = () => {
         const matches =
           node.label.toLowerCase().includes(searchLower) ||
           node.description.toLowerCase().includes(searchLower) ||
-          (node.type || '').toLowerCase().includes(searchLower);
+          (node.group !== undefined && String(node.group).includes(searchLower));
         if (matches) {
           matchingNodeIds.add(node.id);
         }
@@ -548,14 +538,11 @@ export const App: React.FC = () => {
         }
       }
 
-      const savedStyles = presentationColors[String(node.id)] || {};
-
       return {
         ...node,
+        groupOptions: contract.groups,
         isHighlighted,
-        isDimmed,
-        background: savedStyles.background,
-        text: savedStyles.text
+        isDimmed
       };
     });
 
@@ -656,7 +643,7 @@ export const App: React.FC = () => {
     });
 
     setEdges(formattedEdges);
-  }, [contract, activeFlowId, presentationPositions, presentationColors, searchQuery, theme, selectedNodeId, isFocusMode, selectionRevision]);
+  }, [contract, activeFlowId, presentationPositions, searchQuery, theme, selectedNodeId, isFocusMode, selectionRevision]);
 
   // --- Callbacks on Canvas Actions ---
   const getOrderedSelectedNodeIds = useCallback(() => {
@@ -690,6 +677,11 @@ export const App: React.FC = () => {
 
   const onNodeClick = (event: React.MouseEvent, node: Node) => {
     const id = Number(node.id);
+    if (event.altKey) {
+      event.preventDefault();
+      setActiveDetailNodeId(id);
+      return;
+    }
     const isMultiSelect = event.shiftKey;
     setIsFocusMode((event.ctrlKey || event.metaKey) && !isMultiSelect);
     if (!isMultiSelect) {
@@ -717,6 +709,7 @@ export const App: React.FC = () => {
   };
 
   const onPaneClick = () => {
+    window.dispatchEvent(new Event('stdd:clear-node-editing'));
     selectionOrderRef.current = [];
     setSelectedNodeId(null);
     setSelectedEdgeId(null);
@@ -837,7 +830,6 @@ export const App: React.FC = () => {
     const newNode: NodeData = {
       id: nextNodeId,
       label: `Novo bloco ${nextNodeId}`,
-      type: 'process',
       description: 'Bloco criado pelo atalho de espaço.',
       questions: []
     };
@@ -1006,69 +998,19 @@ export const App: React.FC = () => {
       return contractRef.current.groups.find((g) => g.id === groupId);
     };
 
+    window.updateNodeGroup = (id: number, groupId?: number) => {
+      setContract((prev) => ({
+        ...prev,
+        nodes: prev.nodes.map((node) => node.id === id ? { ...node, group: groupId } : node)
+      }));
+      setIsDirty(true);
+    };
+
     window.openSubdraw = (id: string) => {
       setNavigation((prev) => [...prev, contractRef.current.id]);
       loadDrawingById(id);
     };
 
-    window.updateNodeColors = (id: number, color: string, type: 'background' | 'text') => {
-      const currentId = contractRef.current.id;
-      setContract((prev) => {
-        const updatedNodes = prev.nodes.map((n) => {
-          if (n.id === id) {
-            return {
-              ...n,
-              [type]: color
-            };
-          }
-          return n;
-        });
-        return {
-          ...prev,
-          nodes: updatedNodes
-        };
-      });
-      setIsDirty(true);
-
-      const presentationKey = `stdd-draw-presentation:${currentId}`;
-      let parsed = { positions: {} as any, nodes: {} as any };
-      try {
-        const saved = localStorage.getItem(presentationKey);
-        if (saved) parsed = JSON.parse(saved);
-      } catch (_) {}
-      if (!parsed.nodes) parsed.nodes = {};
-      parsed.nodes[String(id)] = parsed.nodes[String(id)] || {};
-      parsed.nodes[String(id)][type] = color;
-      
-      if (type === 'background') {
-        const contrastColor = (hex: string) => {
-          const value = hex.replace('#', '');
-          if (value.length !== 6) return '#0f172a';
-          const rgb = [0, 2, 4].map(idx => parseInt(value.slice(idx, idx + 2), 16));
-          return (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000 > 150 ? '#0f172a' : '#ffffff';
-        };
-        const textHex = contrastColor(color);
-        parsed.nodes[String(id)].text = textHex;
-        
-        setContract((prev) => {
-          const updatedNodes = prev.nodes.map((n) => {
-            if (n.id === id) {
-              return {
-                ...n,
-                text: textHex
-              };
-            }
-            return n;
-          });
-          return {
-            ...prev,
-            nodes: updatedNodes
-          };
-        });
-      }
-
-      localStorage.setItem(presentationKey, JSON.stringify(parsed));
-    };
   }, []);
 
   const handleExportJson = () => {
@@ -1347,6 +1289,7 @@ export const App: React.FC = () => {
         <span><kbd>Espaço</kbd> novo bloco</span>
         <span><kbd>Delete</kbd>/<kbd>Backspace</kbd> apagar</span>
         <span><kbd>Ctrl</kbd> isolar</span>
+        <span><kbd>Alt</kbd> detalhes</span>
         <span><kbd>Shift</kbd> selecionar vários</span>
         <span><kbd>Z</kbd>/<kbd>X</kbd>/<kbd>C</kbd> conectar</span>
         <span><kbd>Ctrl+D</kbd> duplicar</span>

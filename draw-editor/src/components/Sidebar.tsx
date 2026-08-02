@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import type { Contract, NodeData, EdgeData, Group, FlowPath, FlowStep } from '../types';
-import { NODE_KINDS } from './CustomNode';
 import { Plus, Trash2, FolderPlus, List, Info, ChevronRight, Activity, Settings } from 'lucide-react';
 
 interface SidebarProps {
@@ -52,6 +51,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   // Add Group State
   const [newGroupName, setNewGroupName] = useState('');
   const [newGroupDesc, setNewGroupDesc] = useState('');
+  const [newGroupColor, setNewGroupColor] = useState('#8b5cf6');
 
   // Add Flow Path State
   const [newFlowLabel, setNewFlowLabel] = useState('');
@@ -60,7 +60,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   // Add Node State (Geral Tab)
   const [newNodeLabel, setNewNodeLabel] = useState('');
-  const [newNodeType, setNewNodeType] = useState('process');
   const [newNodeGroup, setNewNodeGroup] = useState<string>('');
   const [newNodeDesc, setNewNodeDesc] = useState('');
 
@@ -138,7 +137,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       const newGroup: Group = {
         id: nextGroupId,
         label: newGroupName.trim(),
-        description: newGroupDesc.trim() || undefined
+        description: newGroupDesc.trim() || undefined,
+        color: newGroupColor
       };
       return {
         ...prev,
@@ -148,6 +148,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
     setNewGroupName('');
     setNewGroupDesc('');
+    setNewGroupColor('#8b5cf6');
   };
 
   const handleDeleteGroup = (groupId: number) => {
@@ -213,7 +214,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       const newNode: NodeData = {
         id: nextNodeId,
         label: newNodeLabel.trim(),
-        type: newNodeType,
         group: newNodeGroup !== '' ? Number(newNodeGroup) : undefined,
         description: newNodeDesc.trim(),
         questions: []
@@ -456,16 +456,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   />
                 </div>
                 <div className="editor-field">
-                  <label>Tipo</label>
-                  <select value={newNodeType} onChange={(e) => setNewNodeType(e.target.value)}>
-                    {Object.entries(NODE_KINDS).map(([key, value]) => (
-                      <option key={key} value={key}>
-                        {value.icon} {value.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="editor-field">
                   <label>Grupo</label>
                   <select value={newNodeGroup} onChange={(e) => setNewNodeGroup(e.target.value)}>
                     <option value="">Nenhum Grupo</option>
@@ -518,20 +508,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       value={selectedNode.label}
                       onChange={(e) => handleUpdateNode({ label: e.target.value })}
                     />
-                  </div>
-
-                  <div className="editor-field">
-                    <label>Tipo</label>
-                    <select
-                      value={selectedNode.type || 'process'}
-                      onChange={(e) => handleUpdateNode({ type: e.target.value })}
-                    >
-                      {Object.entries(NODE_KINDS).map(([key, val]) => (
-                        <option key={key} value={key}>
-                          {val.icon} {val.label}
-                        </option>
-                      ))}
-                    </select>
                   </div>
 
                   <div className="editor-field">
@@ -703,6 +679,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     required
                     value={newGroupName}
                     onChange={(e) => setNewGroupName(e.target.value)}
+                  />
+                </div>
+                <div className="editor-field">
+                  <label>Cor do grupo</label>
+                  <input
+                    type="color"
+                    value={newGroupColor}
+                    onChange={(e) => setNewGroupColor(e.target.value)}
+                    aria-label="Cor do grupo"
                   />
                 </div>
                 <div className="editor-field">

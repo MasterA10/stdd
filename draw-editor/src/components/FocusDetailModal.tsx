@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -11,9 +11,11 @@ import {
 import type { Edge, Node } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import { X } from 'lucide-react';
+import { Eye, EyeOff, X } from 'lucide-react';
 import type { Contract, NodeData } from '../types';
 import { CustomNode } from './CustomNode';
+import { FocusLoopEdge } from './FocusLoopEdge';
+import { computeEdgeHandles } from '../layout';
 
 interface FocusDetailModalProps {
   nodeId: number;
@@ -26,6 +28,10 @@ const nodeTypes = {
   custom: CustomNode
 };
 
+const edgeTypes = {
+  'focus-loop': FocusLoopEdge
+};
+
 export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
   nodeId,
   contract,
@@ -34,6 +40,7 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<NodeData>>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+  const [showLoops, setShowLoops] = useState(true);
 
   useEffect(() => {
     const currentNode = contract.nodes.find((n) => n.id === nodeId);
@@ -43,8 +50,13 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
     const predEdges = contract.edges.filter((e) => e.to === nodeId);
     const succEdges = contract.edges.filter((e) => e.from === nodeId);
 
-    const predNodes = contract.nodes.filter((n) => predEdges.some((e) => e.from === n.id));
-    const succNodes = contract.nodes.filter((n) => succEdges.some((e) => e.to === n.id));
+    const neighborNodes = contract.nodes.filter((n) =>
+      predEdges.some((e) => e.from === n.id) || succEdges.some((e) => e.to === n.id)
+    );
+    // IDs menores representam o início do fluxo; IDs maiores representam etapas posteriores.
+    // Isso evita que um retorno faça o bloco inicial aparecer no lado do fim no modo foco.
+    const predNodes = neighborNodes.filter((node) => node.id < nodeId).sort((a, b) => a.id - b.id);
+    const succNodes = neighborNodes.filter((node) => node.id > nodeId).sort((a, b) => a.id - b.id);
 
     const P = predNodes.length;
     const S = succNodes.length;
@@ -53,25 +65,14 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
     // Center Y coordinate
     const centerY = ((maxRows - 1) * 220) / 2;
 
-    const presentationKey = `stdd-draw-presentation:${contract.id}`;
-    let presentationColors = {} as any;
-    try {
-      const saved = localStorage.getItem(presentationKey);
-      if (saved) {
-        presentationColors = JSON.parse(saved).nodes || {};
-      }
-    } catch (_) {}
-
     const mapNode = (n: NodeData, x: number, y: number) => {
-      const savedStyles = presentationColors[String(n.id)] || {};
       return {
         id: String(n.id),
         type: 'custom',
         position: { x, y },
         data: {
           ...n,
-          background: savedStyles.background,
-          text: savedStyles.text
+          groupOptions: contract.groups
         }
       };
     };
@@ -93,6 +94,11 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
 
     setNodes([...formattedPredNodes, formattedCurrentNode, ...formattedSuccNodes]);
 
+    const focusPositions = Object.fromEntries(
+      [...formattedPredNodes, formattedCurrentNode, ...formattedSuccNodes]
+        .map((node) => [Number(node.id), node.position])
+    );
+
     // Build Edges
     const DEFAULT_CONDITION = 1;
     const formattedEdges = [
@@ -106,14 +112,21 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
         }[cond] || { color: '#1e293b', dash: undefined };
 
         const targetHandle = 'target-in-left';
+        const route = computeEdgeHandles(edge, focusPositions, contract.nodes, contract.edges);
+        const hasReverseEdge = contract.edges.some((candidate) =>
+          candidate.from === edge.to && candidate.to === edge.from
+        );
+        const isOrthogonalLoop = route.loop && hasReverseEdge;
+
+        if (isOrthogonalLoop && !showLoops) return null;
 
         return {
           id: `focus-edge-pred-${edge.id}`,
           source: String(edge.from),
           target: String(edge.to),
-          type: 'default', // curved bezier edge
-          sourceHandle: `source-${cond}-right`,
-          targetHandle: targetHandle,
+          type: isOrthogonalLoop ? 'focus-loop' : 'default',
+          sourceHandle: isOrthogonalLoop ? route.sourceHandle : `source-${cond}-right`,
+          targetHandle: isOrthogonalLoop ? route.targetHandle : targetHandle,
           label: `${
             { 1: 'então', 2: 'ou', 3: 'se' }[cond]
           }${edge.label ? ` - ${edge.label}` : ''}`,
@@ -155,14 +168,21 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
         }[cond] || { color: '#1e293b', dash: undefined };
 
         const targetHandle = 'target-in-left';
+        const route = computeEdgeHandles(edge, focusPositions, contract.nodes, contract.edges);
+        const hasReverseEdge = contract.edges.some((candidate) =>
+          candidate.from === edge.to && candidate.to === edge.from
+        );
+        const isOrthogonalLoop = route.loop && hasReverseEdge;
+
+        if (isOrthogonalLoop && !showLoops) return null;
 
         return {
           id: `focus-edge-succ-${edge.id}`,
           source: String(edge.from),
           target: String(edge.to),
-          type: 'default', // curved bezier edge
-          sourceHandle: `source-${cond}-right`,
-          targetHandle: targetHandle,
+          type: isOrthogonalLoop ? 'focus-loop' : 'default',
+          sourceHandle: isOrthogonalLoop ? route.sourceHandle : `source-${cond}-right`,
+          targetHandle: isOrthogonalLoop ? route.targetHandle : targetHandle,
           label: `${
             { 1: 'então', 2: 'ou', 3: 'se' }[cond]
           }${edge.label ? ` - ${edge.label}` : ''}`,
@@ -196,11 +216,19 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
       })
     ];
 
-    setEdges(formattedEdges);
-  }, [contract, nodeId, theme]);
+    setEdges(formattedEdges.filter((edge) => edge !== null) as Edge[]);
+  }, [contract, nodeId, theme, showLoops]);
 
   const currentNode = contract.nodes.find((n) => n.id === nodeId);
   if (!currentNode) return null;
+
+  const onNodeClick = (event: React.MouseEvent, node: Node) => {
+    if (!event.altKey) return;
+    event.preventDefault();
+    if (window.openDetailViewer) {
+      window.openDetailViewer(Number(node.id));
+    }
+  };
 
   return (
     <div className="dialog-overlay" style={{ background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(8px)' }}>
@@ -213,9 +241,20 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
               <p className="eyebrow">STDD · Visão de Vizinhança (Zoom)</p>
               <h2>Foco no Bloco: {currentNode.label}</h2>
             </div>
-            <button className="close-btn" onClick={onClose} type="button">
-              <X size={20} />
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                className="quick-action-btn secondary"
+                onClick={() => setShowLoops((visible) => !visible)}
+                type="button"
+                title={showLoops ? 'Ocultar loops' : 'Mostrar loops'}
+              >
+                {showLoops ? <Eye size={14} /> : <EyeOff size={14} />}
+                <span>Loops {showLoops ? 'visíveis' : 'ocultos'}</span>
+              </button>
+              <button className="close-btn" onClick={onClose} type="button">
+                <X size={20} />
+              </button>
+            </div>
           </div>
 
           {/* Interactive Mini-Canvas */}
@@ -234,6 +273,8 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 nodeTypes={nodeTypes}
+                edgeTypes={edgeTypes}
+                onNodeClick={onNodeClick}
                 fitView
                 fitViewOptions={{ maxZoom: 1.2, padding: 0.15 }}
                 minZoom={0.2}

@@ -14,7 +14,6 @@ export interface Question {
 export interface NodeData {
   id: number;
   label: string;
-  type: string;
   group?: number;
   description: string;
   questions?: Question[];
@@ -43,6 +42,7 @@ export interface Group {
   id: number;
   label: string;
   description?: string;
+  color?: string;
 }
 
 export interface FlowStep {

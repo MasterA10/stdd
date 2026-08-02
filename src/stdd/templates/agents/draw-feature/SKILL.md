@@ -141,6 +141,13 @@ Perguntas respondidas permanecem no JSON como histórico. Não invente respostas
 
 ## Segurança e validação
 
+## Semântica dos blocos e grupos
+
+- O nó não possui tipo estrutural: não use `processo`, `decisão`, `ator`, `api` ou qualquer outro campo `nodes[].type`.
+- Pontos de decisão não são nós. A decisão é expressa pelas setas e por suas condições (`condition`, `label` e `description`).
+- Use `groups` para representar domínio, responsabilidade ou fronteira visual. A cor do bloco vem exclusivamente do grupo; não grave cores individuais no nó.
+- Um bloco sem grupo usa a aparência neutra do viewer. Para alterar o grupo, edite o campo `group` do nó no editor.
+
 - Nunca inclua tokens, credenciais ou dados privados no JSON.
 - Não use HTML ou JavaScript dentro dos campos de dados.
 - O ID do desenho e `draw_ref` devem ser slugs descritivos; IDs internos devem ser números inteiros não negativos.

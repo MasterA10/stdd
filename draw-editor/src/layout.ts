@@ -9,6 +9,59 @@ const H_GAP = 240;    // Horizontal gap for breathing room
 const V_GAP = 150;    // Vertical gap for step placement
 const MAX_PER_COL = 4; // Max nodes stacked before shifting to sub-column
 
+function returnLaneFor(
+  source: { x: number; y: number },
+  target: { x: number; y: number },
+  edge: EdgeData,
+  nodes: NodeData[],
+  positions: { [id: string]: { x: number; y: number } }
+): 'top' | 'bottom' {
+  const minX = Math.min(source.x, target.x);
+  const maxX = Math.max(source.x, target.x) + NODE_WIDTH;
+  const topLane = Math.min(source.y, target.y) - 80;
+  const bottomLane = Math.max(source.y, target.y) + NODE_HEIGHT + 80;
+  const boxes = nodes
+    .filter(node => node.id !== edge.from && node.id !== edge.to)
+    .map(node => {
+      const position = positions[String(node.id)];
+      return position ? {
+        left: position.x - 24,
+        right: position.x + NODE_WIDTH + 24,
+        top: position.y - 24,
+        bottom: position.y + NODE_HEIGHT + 24
+      } : null;
+    })
+    .filter(Boolean) as Array<{ left: number; right: number; top: number; bottom: number }>;
+
+  const laneHits = (laneY: number) => boxes.filter(box => {
+    const horizontalOverlap = box.left < maxX && box.right > minX;
+    return horizontalOverlap && laneY > box.top && laneY < box.bottom;
+  }).length;
+
+  const topHits = laneHits(topLane);
+  const bottomHits = laneHits(bottomLane);
+  const verticalDirection = source.y - target.y;
+
+  // O retorno acompanha a posição da origem: se o nó mais à direita estiver
+  // acima do destino, usa a faixa superior; se estiver abaixo, usa a inferior.
+  // O LoopEdge ainda pode abrir uma faixa paralela
+  // do mesmo lado caso exista outro retorno ou obstáculo no corredor principal.
+  if (verticalDirection < 0) return 'top';
+  if (verticalDirection > 0) return 'bottom';
+
+  if (topHits < bottomHits) return 'top';
+  if (bottomHits < topHits) return 'bottom';
+
+  const endpointTop = Math.min(source.y, target.y);
+  const endpointBottom = Math.max(source.y, target.y) + NODE_HEIGHT;
+  const hasNodeAbove = boxes.some(box => box.bottom <= endpointTop);
+  const hasNodeBelow = boxes.some(box => box.top >= endpointBottom);
+
+  if (!hasNodeAbove && hasNodeBelow) return 'top';
+  if (!hasNodeBelow && hasNodeAbove) return 'bottom';
+  return 'top';
+}
+
 // Step 1: Build forward DAG, detect back-edges via DFS
 function buildRanks(nodes: NodeData[], edges: EdgeData[]) {
   const ids = nodes.map(n => n.id);
@@ -334,15 +387,31 @@ export function computeEdgeHandles(
   let dir = 'right';
   if (isBackEdge) {
     if (dx < -NODE_WIDTH * 0.3) {
-      if (Math.abs(dy) < NODE_HEIGHT * 0.6) {
-        return { loop: true, sourceHandle: `source-${cond}-bottom`, targetHandle: `target-in-bottom` };
-      } else if (dy < 0) {
-        return { loop: true, sourceHandle: `source-${cond}-top`, targetHandle: `target-in-bottom` };
-      } else {
-        return { loop: true, sourceHandle: `source-${cond}-bottom`, targetHandle: `target-in-top` };
+      const sourceBackEdges = edges.filter((candidate) =>
+        candidate.from === edge.from && backEdges.has(`${candidate.from}->${candidate.to}`)
+      );
+      const sourceHasOnlyReturns = sourceBackEdges.length > 0 && edges
+        .filter((candidate) => candidate.from === edge.from)
+        .every((candidate) => backEdges.has(`${candidate.from}->${candidate.to}`));
+      const farthestReturn = sourceBackEdges.reduce<EdgeData | null>((farthest, candidate) => {
+        if (!farthest) return candidate;
+        const candidateDistance = Math.abs((positions[String(candidate.to)]?.x || 0) - sourcePos.x);
+        const farthestDistance = Math.abs((positions[String(farthest.to)]?.x || 0) - sourcePos.x);
+        return candidateDistance > farthestDistance ? candidate : farthest;
+      }, null);
+      const shouldUseUpperLane = sourceHasOnlyReturns &&
+        Math.abs(dx) > NODE_WIDTH * 4 &&
+        farthestReturn?.id === edge.id;
+      const preferredReturnLane = returnLaneFor(sourcePos, targetPos, edge, nodes, positions);
+      if (shouldUseUpperLane || preferredReturnLane === 'top') {
+        return { loop: true, sourceHandle: `source-${cond}-top`, targetHandle: `target-in-top` };
       }
+      return { loop: true, sourceHandle: `source-${cond}-bottom`, targetHandle: `target-in-bottom` };
     }
-    return { loop: true, sourceHandle: `source-${cond}-bottom`, targetHandle: `target-in-top` };
+    const preferredReturnLane = returnLaneFor(sourcePos, targetPos, edge, nodes, positions);
+    return preferredReturnLane === 'top'
+      ? { loop: true, sourceHandle: `source-${cond}-top`, targetHandle: `target-in-top` }
+      : { loop: true, sourceHandle: `source-${cond}-bottom`, targetHandle: `target-in-bottom` };
   }
 
   const absDx = Math.abs(dx);

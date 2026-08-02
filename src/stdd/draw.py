@@ -53,6 +53,9 @@ def logical_draw_payload(payload: dict[str, Any]) -> dict[str, Any]:
             if isinstance(item, dict):
                 for key in PRESENTATION_KEYS:
                     item.pop(key, None)
+    for node in document.get("nodes", []):
+        if isinstance(node, dict):
+            node.pop("type", None)
     return document
 
 

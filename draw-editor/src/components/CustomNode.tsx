@@ -4,18 +4,22 @@ import type { NodeProps, Node } from '@xyflow/react';
 import type { NodeData, Question } from '../types';
 import { Trash2, HelpCircle, Eye } from 'lucide-react';
 
-export const NODE_KINDS: { [key: string]: { label: string; color: string; bg: string; icon: string } } = {
-  actor: { label: 'Ator', color: '#8B5CF6', bg: '#F5F3FF', icon: '👤' },
-  ui: { label: 'Tela', color: '#06B6D4', bg: '#ECFEFF', icon: '🖥️' },
-  api: { label: 'API', color: '#3B82F6', bg: '#EFF6FF', icon: '⚡' },
-  database: { label: 'Dados', color: '#10B981', bg: '#ECFDF5', icon: '🗄️' },
-  external: { label: 'Externo', color: '#F59E0B', bg: '#FFFBEB', icon: '🌐' },
-  event: { label: 'Evento', color: '#EC4899', bg: '#FDF2F8', icon: '📡' },
-  service: { label: 'Serviço', color: '#6366F1', bg: '#EEF2FF', icon: '⚙️' },
-  decision: { label: 'Decisão', color: '#38BDF8', bg: '#F0F9FF', icon: '🔀' },
-  process: { label: 'Processo', color: '#F59E0B', bg: '#FEF3C7', icon: '⚡' },
-  note: { label: 'Nota', color: '#EAB308', bg: '#FEF9C3', icon: '📝' }
-};
+const FALLBACK_GROUP_COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f97316', '#ec4899', '#3b82f6'];
+
+function groupColor(groupId?: number, color?: string) {
+  if (color) return color;
+  if (groupId === undefined) return '#94a3b8';
+  return FALLBACK_GROUP_COLORS[Math.abs(groupId) % FALLBACK_GROUP_COLORS.length];
+}
+
+function withAlpha(hex: string, alpha: number) {
+  const normalized = hex.replace('#', '');
+  if (!/^[0-9a-fA-F]{6}$/.test(normalized)) return `rgba(148, 163, 184, ${alpha})`;
+  const red = parseInt(normalized.slice(0, 2), 16);
+  const green = parseInt(normalized.slice(2, 4), 16);
+  const blue = parseInt(normalized.slice(4, 6), 16);
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+}
 
 function unansweredQuestionCount(questions?: Question[]) {
   const qList = Array.isArray(questions) ? questions : [];
@@ -24,12 +28,14 @@ function unansweredQuestionCount(questions?: Question[]) {
 
 export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, data, selected }) => {
   const [editingField, setEditingField] = useState<'label' | 'description' | null>(null);
+  const [isEditingGroup, setIsEditingGroup] = useState(false);
   const [draft, setDraft] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const nodeTypeKey = data.type || 'process';
-  const preset = NODE_KINDS[nodeTypeKey] || NODE_KINDS.process;
+  const groupInfo = data.group !== undefined && window.getGroupInfo ? window.getGroupInfo(data.group) : undefined;
+  const accentColor = groupColor(data.group, groupInfo?.color);
+  const groupOptions = Array.isArray(data.groupOptions) ? data.groupOptions : [];
 
   const totalQuestions = Array.isArray(data.questions) ? data.questions.length : 0;
   const unansweredQuestions = unansweredQuestionCount(data.questions);
@@ -47,6 +53,15 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
       textareaRef.current.select();
     }
   }, [editingField]);
+
+  useEffect(() => {
+    const clearEditing = () => {
+      setEditingField(null);
+      setIsEditingGroup(false);
+    };
+    window.addEventListener('stdd:clear-node-editing', clearEditing);
+    return () => window.removeEventListener('stdd:clear-node-editing', clearEditing);
+  }, []);
 
   const handleDoubleClick = (field: 'label' | 'description', e: React.MouseEvent) => {
     e.stopPropagation();
@@ -68,7 +83,21 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
       finishEdit();
     } else if (e.key === 'Escape') {
       setEditingField(null);
+      setIsEditingGroup(false);
     }
+  };
+
+  const handleNodeDoubleClick = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('input, textarea, select, button')) return;
+    e.stopPropagation();
+    setEditingField(null);
+    setIsEditingGroup(true);
+  };
+
+  const handleGroupChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    window.updateNodeGroup?.(Number(id), value === '' ? undefined : Number(value));
+    setIsEditingGroup(false);
   };
 
   const onDeleteNode = (e: React.MouseEvent) => {
@@ -85,36 +114,16 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
     }
   };
 
-  const handleColorClick = (type: 'background' | 'text') => {
-    const input = document.createElement('input');
-    input.type = 'color';
-    input.value = type === 'background' ? (data.background || preset.bg) : (data.text || '#0f172a');
-    input.style.position = 'fixed';
-    input.style.left = '-100px';
-    input.style.top = '-100px';
-    document.body.append(input);
-
-    input.addEventListener('input', () => {
-      const hex = input.value;
-      if (window.updateNodeColors) {
-        window.updateNodeColors(Number(id), hex, type);
-      }
-    });
-
-    input.addEventListener('change', () => input.remove(), { once: true });
-    input.click();
-  };
-
   // Node visual styles
   const borderStyle = selected
     ? { borderColor: '#6366f1', borderWidth: '2.5px', boxShadow: '0 0 0 4px rgba(99, 102, 241, 0.15)' }
     : isHighlighted
     ? { borderColor: '#10b981', borderWidth: '2.5px', boxShadow: '0 0 0 4px rgba(16, 185, 129, 0.2)' }
-    : { borderColor: data.background || preset.color };
+    : { borderColor: accentColor };
 
   const bgStyle = {
-    background: data.background || preset.bg,
-    color: data.text || '#0f172a',
+    background: data.group !== undefined ? withAlpha(accentColor, 0.16) : '#f8fafc',
+    color: '#0f172a',
     opacity: isDimmed ? 0.08 : 1
   };
 
@@ -122,6 +131,7 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
     <div
       className={`custom-flow-node ${selected ? 'selected' : ''} ${isHighlighted ? 'highlighted' : ''} ${isDimmed ? 'dimmed' : ''}`}
       style={{ ...borderStyle, ...bgStyle }}
+      onDoubleClick={handleNodeDoubleClick}
     >
       {/* Node actions toolbar */}
       {(selected || isHighlighted) && (
@@ -158,39 +168,29 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
           >
             <Eye size={12} />
           </button>
-          {selected && (
-            <>
-              <button
-                className="action-circle-btn color-picker"
-                style={{ backgroundColor: bgStyle.background, border: '2px solid var(--paper)', width: '24px', height: '24px', borderRadius: '50%' }}
-                onClick={(e) => { e.stopPropagation(); handleColorClick('background'); }}
-                title="Cor do fundo"
-                type="button"
-              />
-              <button
-                className="action-circle-btn color-picker"
-                style={{ backgroundColor: bgStyle.color, border: '2px solid var(--paper)', width: '24px', height: '24px', borderRadius: '50%' }}
-                onClick={(e) => { e.stopPropagation(); handleColorClick('text'); }}
-                title="Cor do texto"
-                type="button"
-              />
-            </>
-          )}
         </div>
       )}
 
-      {/* Top row: node type and group badge */}
+      {/* Top row: group badge only; flow decisions are represented by edges. */}
       <div className="node-top-bar">
-        <span
-          className="node-type-pill"
-          style={{ backgroundColor: preset.color + '15', color: preset.color }}
-        >
-          <span className="node-type-icon">{preset.icon}</span>
-          {preset.label}
-        </span>
-        {data.group !== undefined && window.getGroupName && (
-          <span className="node-group-pill">
-            {window.getGroupName(data.group)}
+        {isEditingGroup ? (
+          <select
+            className="node-group-select"
+            autoFocus
+            value={data.group === undefined ? '' : String(data.group)}
+            onChange={handleGroupChange}
+            onBlur={() => setIsEditingGroup(false)}
+            onClick={(e) => e.stopPropagation()}
+            aria-label="Grupo do bloco"
+          >
+            <option value="">Sem grupo</option>
+            {groupOptions.map((group: any) => (
+              <option key={group.id} value={group.id}>{group.label}</option>
+            ))}
+          </select>
+        ) : (
+          <span className="node-group-pill" style={{ backgroundColor: withAlpha(accentColor, 0.22), color: accentColor }}>
+            {groupInfo?.label || 'Sem grupo'}
           </span>
         )}
         <span className="node-header-id">#{id}</span>
@@ -321,7 +321,7 @@ declare global {
     getGroupName?: (groupId: number) => string;
     getGroupInfo?: (groupId: number) => any;
     currentDrawId?: string;
-    updateNodeColors?: (id: number, color: string, type: 'background' | 'text') => void;
+    updateNodeGroup?: (id: number, groupId?: number) => void;
     openSubdraw?: (id: string) => void;
     openDetailViewer?: (id: number) => void;
   }

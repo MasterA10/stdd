@@ -34,7 +34,6 @@
     {
       "id": 0,
       "label": "Administrador",
-      "type": "actor",
       "group": 0,
       "description": "Usuário autenticado que informa o número e conclui as telas da Meta.",
       "questions": [
@@ -49,7 +48,6 @@
     {
       "id": 1,
       "label": "Tela WhatsApp Setup",
-      "type": "ui",
       "group": 0,
       "description": "Valida o telefone, abre SDK ou popup e acompanha o status.",
       "questions": [
@@ -64,7 +62,6 @@
     {
       "id": 2,
       "label": "onboarding/start",
-      "type": "api",
       "group": 1,
       "description": "Cria a tentativa, deriva o tenant da sessão e devolve dados públicos.",
       "questions": [
@@ -79,7 +76,6 @@
     {
       "id": 3,
       "label": "Tentativa + state",
-      "type": "database",
       "group": 3,
       "description": "Guarda attempt_id, hash do state, telefone, redirect_uri, validade e status.",
       "questions": [
@@ -94,28 +90,24 @@
     {
       "id": 4,
       "label": "Embedded Signup Meta",
-      "type": "external",
       "group": 2,
       "description": "Jornada oficial de autorização e configuração da conta WhatsApp."
     },
     {
       "id": 5,
       "label": "Retorno SDK ou OAuth",
-      "type": "event",
       "group": 2,
       "description": "SDK entrega code e IDs por postMessage; redirect entrega code e state no callback."
     },
     {
       "id": 6,
       "label": "complete ou callback",
-      "type": "api",
       "group": 1,
       "description": "Entrada autenticada do SDK ou callback server-side que valida e consome a tentativa."
     },
     {
       "id": 7,
       "label": "Reconciliação server-side",
-      "type": "service",
       "group": 1,
       "description": "Troca code, consulta Graph API, valida ownership, aplica retry e idempotência.",
       "questions": [
@@ -135,42 +127,36 @@
     {
       "id": 8,
       "label": "Graph API Meta",
-      "type": "external",
       "group": 2,
       "description": "Troca authorization code por token e descobre WABA e phone_number_id."
     },
     {
       "id": 9,
       "label": "Conexão WhatsApp",
-      "type": "database",
       "group": 3,
       "description": "Upsert de WABA, número e token criptografado, com vínculo ao tenant."
     },
     {
       "id": 10,
       "label": "Assinatura de webhooks",
-      "type": "service",
       "group": 3,
       "description": "Inscreve a WABA para eventos futuros após a conexão ser confirmada."
     },
     {
       "id": 11,
       "label": "Status da tentativa",
-      "type": "api",
       "group": 1,
       "description": "Polling tenant-scoped; pode avançar job pendente e retorna apenas dados seguros."
     },
     {
       "id": 12,
       "label": "Resultado na tela",
-      "type": "ui",
       "group": 0,
       "description": "Exibe completed, processamento, falha, expiração ou cancelamento."
     },
     {
       "id": 13,
       "label": "session_uuid legado",
-      "type": "service",
       "group": 1,
       "description": "Rotas antigas de compatibilidade que fazem persistência direta."
     }
