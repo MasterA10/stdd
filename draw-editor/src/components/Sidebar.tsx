@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import type { Contract, NodeData, EdgeData, Group, FlowPath, FlowStep, RunRecord } from '../types';
-import { Plus, Trash2, FolderPlus, List, Info, ChevronRight, Activity, Settings } from 'lucide-react';
+import type { Contract, NodeData, EdgeData, Group, FlowPath, FlowStep, RunRecord, StaticAnalysisKpiReport } from '../types';
+import { Plus, Trash2, FolderPlus, List, Info, ChevronRight, Activity, Settings, BarChart3 } from 'lucide-react';
 
 interface SidebarProps {
   contract: Contract;
@@ -20,6 +20,7 @@ interface SidebarProps {
   onNewDrawing: () => void;
   storageMode: 'backend' | 'local';
   runs: RunRecord[];
+  staticAnalysisKpis: StaticAnalysisKpiReport | null;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -38,7 +39,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onLoadDrawing,
   onNewDrawing,
   storageMode,
-  runs
+  runs,
+  staticAnalysisKpis
 }) => {
   const formatRunDate = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -54,7 +56,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }).format(date);
   };
 
-  const [activeTab, setActiveTab] = useState<'drawings' | 'runs' | 'info' | 'blocks' | 'groups' | 'flows'>('drawings');
+  const [activeTab, setActiveTab] = useState<'drawings' | 'analysis' | 'runs' | 'info' | 'blocks' | 'groups' | 'flows'>('drawings');
   const [drawingSearchQuery, setDrawingSearchQuery] = useState('');
 
   // Selected Node State
@@ -313,6 +315,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <span>Desenhos</span>
         </button>
         <button
+          className={`sidebar-tab-btn ${activeTab === 'analysis' ? 'active' : ''}`}
+          onClick={() => setActiveTab('analysis')}
+          title="Indicadores da análise estática"
+        >
+          <BarChart3 size={14} />
+          <span>Análise</span>
+        </button>
+        <button
           className={`sidebar-tab-btn ${activeTab === 'info' ? 'active' : ''}`}
           onClick={() => setActiveTab('info')}
         >
@@ -425,6 +435,63 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 ))
               )}
             </div>
+          </div>
+        )}
+
+        {activeTab === 'analysis' && (
+          <div className="sidebar-pane static-analysis-pane">
+            <div className="runs-sidebar-heading">
+              <div>
+                <span className="eyebrow">Adapter local</span>
+                <h3>Indicadores estáticos</h3>
+              </div>
+              <span className={`static-analysis-status ${staticAnalysisKpis?.status || 'unavailable'}`}>
+                {staticAnalysisKpis?.status === 'passed' ? 'OK' : staticAnalysisKpis?.status === 'blocked' ? 'BLOQUEADO' : 'INDISPONÍVEL'}
+              </span>
+            </div>
+            {!staticAnalysisKpis ? (
+              <div className="runs-empty-sidebar static-analysis-empty">
+                <BarChart3 size={22} />
+                <strong>Análise ainda não executada</strong>
+                <span>Execute <code>stdd test</code> para gerar os indicadores em <code>.stdd/adapters/</code>.</span>
+              </div>
+            ) : (
+              <>
+                <div className="static-analysis-kpi-grid">
+                  {(staticAnalysisKpis.indicators || []).map((indicator) => (
+                    <div className={`static-analysis-kpi-card ${indicator.status || ''}`} key={indicator.id}>
+                      <span>{indicator.label}</span>
+                      <strong>{indicator.value.toLocaleString('pt-BR')}</strong>
+                      <small>{indicator.unit || 'itens'}</small>
+                    </div>
+                  ))}
+                </div>
+                <div className="editor-card static-analysis-detail-card">
+                  <span className="eyebrow">Stack detectada</span>
+                  <div className="static-analysis-tags">
+                    {(staticAnalysisKpis.stack?.languages || []).map((item) => <span key={`language-${item}`}>{item}</span>)}
+                    {(staticAnalysisKpis.stack?.frameworks || []).map((item) => <span key={`framework-${item}`}>{item}</span>)}
+                    {(staticAnalysisKpis.stack?.test_runners || []).map((item) => <span key={`runner-${item}`}>{item}</span>)}
+                  </div>
+                  <div className="static-analysis-breakdown">
+                    {Object.entries(staticAnalysisKpis.summary?.findings_by_kind || {}).map(([kind, count]) => (
+                      <div key={kind}><span>{kind}</span><strong>{count}</strong></div>
+                    ))}
+                  </div>
+                </div>
+                <div className="editor-card static-analysis-detail-card">
+                  <span className="eyebrow">Arquivos afetados</span>
+                  {(staticAnalysisKpis.summary?.files || []).length === 0 ? (
+                    <p className="no-items-hint">Nenhum arquivo foi associado.</p>
+                  ) : (
+                    <ul className="static-analysis-file-list">
+                      {(staticAnalysisKpis.summary?.files || []).slice(0, 30).map((file) => <li key={file}><code>{file}</code></li>)}
+                    </ul>
+                  )}
+                  {(staticAnalysisKpis.summary?.files || []).length > 30 && <small>Mostrando 30 de {(staticAnalysisKpis.summary?.files || []).length} arquivos.</small>}
+                </div>
+              </>
+            )}
           </div>
         )}
 

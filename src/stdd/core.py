@@ -13,7 +13,7 @@ from .contract import check_contract
 from .draw import ensure_draw_workspace
 from .models import REWORK_LINE_THRESHOLD, RunLogEntry
 from .runs import ensure_runs_workspace, update_runs_index
-from .static_analysis import run_static_analysis
+from .static_analysis import run_static_analysis, write_static_analysis_kpis
 from .traceability import refresh_traceability
 
 VALID_WORK_TYPES = {"bug", "teste", "implementacao", "refactor"}
@@ -337,7 +337,11 @@ def run_tests(
         config,
         sorted(get_workspace_snapshot(root)),
     )
-    if static_report["status"] == "passed":
+    write_static_analysis_kpis(root, static_report, config)
+    # Um relatório estático pode conter fatos válidos mesmo quando o gate de
+    # qualidade bloqueia a execução. Preserve os facts para rastreabilidade;
+    # o status bloqueado continua sendo devolvido ao usuário e ao CI.
+    if static_report["status"] in {"passed", "blocked"} and static_report.get("symbols"):
         refresh_traceability(root, static_report)
     output: list[str] = []
     errors: list[str] = []
@@ -506,11 +510,11 @@ def get_previous_workspace_snapshot(root: Path) -> dict[str, list[str]]:
     candidates = sorted((stdd_dir(root) / "runs").glob("*/*_snapshot.json"))
     latest: tuple[str, dict[str, list[str]]] | None = None
     for path in candidates:
-        if path.parent.name == "data":
+        if path.parent.name == "data" or path.name.startswith("._"):
             continue
         try:
             document = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
             continue
         workspace = document.get("workspace_snapshot")
         runs = document.get("runs", [])

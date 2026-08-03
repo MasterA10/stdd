@@ -23,43 +23,100 @@
       "id": 1,
       "label": "Arquivos Rastreados",
       "group": 1,
-      "description": "Seleciona os arquivos de código relevantes por extensão e configuração, preservando o caminho relativo como origem auditável."
+      "description": "Seleciona os arquivos de código relevantes por extensão e configuração, preservando o caminho relativo como origem auditável.",
+      "code_refs": [
+        {
+          "symbol": "stdd.core.get_workspace_snapshot",
+          "source_dependencies": [
+            "stdd.core.get_tracked_extensions"
+          ]
+        }
+      ]
     },
     {
       "id": 2,
       "label": "Adaptador de Linguagem",
       "group": 1,
-      "description": "Analisa a sintaxe da linguagem suportada e identifica funções, classes, métodos, módulos e relações observáveis sem interpretar intenção."
+      "description": "Analisa a sintaxe da linguagem suportada e identifica funções, classes, métodos, módulos e relações observáveis sem interpretar intenção.",
+      "code_refs": [
+        {
+          "symbol": "stdd.static_analysis.run_static_analysis",
+          "source_dependencies": [
+            "stdd.static_analysis.build_analysis_request",
+            "stdd.static_analysis.validate_static_analysis_result"
+          ]
+        }
+      ]
     },
     {
       "id": 3,
       "label": "Índice de Símbolos",
       "group": 1,
-      "description": "Produz fatos determinísticos por símbolo: nome qualificado, arquivo, identidade estrutural, dependências observadas e versão do fato."
+      "description": "Produz fatos determinísticos por símbolo: nome qualificado, arquivo, identidade estrutural, dependências observadas e versão do fato.",
+      "code_refs": [
+        {
+          "symbol": "stdd.static_analysis.run_static_analysis",
+          "source_dependencies": [
+            "stdd.static_analysis.validate_static_analysis_result"
+          ]
+        }
+      ]
     },
     {
       "id": 4,
       "label": "Referências Declaradas pelo Nó",
       "group": 2,
-      "description": "Mantém no nó os vínculos explícitos com símbolos qualificados; o enriquecimento pode corrigir uma associação quando os fatos confirmarem deterministicamente a nova referência."
+      "description": "Mantém no nó os vínculos explícitos com símbolos qualificados; o enriquecimento pode corrigir uma associação quando os fatos confirmarem deterministicamente a nova referência.",
+      "code_refs": [
+        {
+          "symbol": "stdd.traceability.associate_node_reference",
+          "source_dependencies": [
+            "stdd.traceability.associate_node_references"
+          ]
+        }
+      ]
     },
     {
       "id": 5,
       "label": "Relações com Testes",
       "group": 2,
-      "description": "Relaciona o símbolo do comportamento aos testes que o exercitam por fatos de dependência, convenção ou análise disponível."
+      "description": "Relaciona o símbolo do comportamento aos testes que o exercitam por fatos de dependência, convenção ou análise disponível.",
+      "code_refs": [
+        {
+          "symbol": "stdd.traceability.build_traceability_report",
+          "source_dependencies": [
+            "stdd.traceability._find_node"
+          ]
+        }
+      ]
     },
     {
       "id": 6,
       "label": "Validador de Referência",
       "group": 2,
-      "description": "Compara a referência declarada com o índice atual e classifica resolvida, alterada, removida ou pendente."
+      "description": "Compara a referência declarada com o índice atual e classifica resolvida, alterada, removida ou pendente.",
+      "code_refs": [
+        {
+          "symbol": "stdd.traceability.build_traceability_report",
+          "source_dependencies": [
+            "stdd.traceability._find_node"
+          ]
+        }
+      ]
     },
     {
       "id": 7,
       "label": "Mapa de Arquivos e Revisões",
       "group": 3,
-      "description": "Entrega ao agente o conjunto reproduzível de arquivos, funções e testes para revisar quando o nó ou símbolo mudar."
+      "description": "Entrega ao agente o conjunto reproduzível de arquivos, funções e testes para revisar quando o nó ou símbolo mudar.",
+      "code_refs": [
+        {
+          "symbol": "stdd.traceability.build_traceability_report",
+          "source_dependencies": [
+            "stdd.traceability.enrich_traceability"
+          ]
+        }
+      ]
     },
     {
       "id": 8,
@@ -108,6 +165,15 @@
           ],
           "required": true,
           "answer": 1
+        }
+      ],
+      "code_refs": [
+        {
+          "symbol": "stdd.cli.draw_associate_reference",
+          "source_dependencies": [
+            "stdd.traceability.associate_node_reference",
+            "stdd.traceability.associate_node_references"
+          ]
         }
       ]
     },
@@ -159,6 +225,15 @@
           "required": true,
           "answer": 1
         }
+      ],
+      "code_refs": [
+        {
+          "symbol": "stdd.traceability.enrich_traceability",
+          "source_dependencies": [
+            "stdd.traceability._draw_facts_path",
+            "stdd.traceability.build_traceability_report"
+          ]
+        }
       ]
     },
     {
@@ -187,6 +262,14 @@
           ],
           "required": true,
           "answer": 3
+        }
+      ],
+      "code_refs": [
+        {
+          "symbol": "stdd.traceability.refresh_traceability",
+          "source_dependencies": [
+            "stdd.traceability.enrich_traceability"
+          ]
         }
       ]
     }

@@ -66,6 +66,11 @@ def draw_directory(root: Path) -> Path:
     return root / ".stdd" / "draws"
 
 
+def facts_directory(root: Path) -> Path:
+    """Retorna o diretório separado dos relatórios derivados de análise."""
+    return root / ".stdd" / "facts"
+
+
 def draw_index_path(root: Path) -> Path:
     """Retorna o caminho do índice leve de desenhos.
     O índice contém somente metadados para evitar carregar grafos completos.
@@ -214,8 +219,9 @@ def ensure_draw_workspace(root: Path, include_example: bool = False) -> list[Pat
     """
     stdd_path = root / ".stdd"
     draws_path = draw_directory(root)
+    facts_path = facts_directory(root)
     created: list[Path] = []
-    for directory in (stdd_path, draws_path):
+    for directory in (stdd_path, draws_path, facts_path):
         if not directory.exists():
             directory.mkdir(parents=True, exist_ok=True)
             created.append(directory)
@@ -417,6 +423,15 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                     return
                 self._send_bytes(body, "application/json; charset=utf-8")
                 return
+            if path == "/.stdd/adapters/static-analysis-kpis.json":
+                kpi_path = root / ".stdd" / "adapters" / "static-analysis-kpis.json"
+                try:
+                    body = kpi_path.read_bytes() if kpi_path.exists() else b'{"status":"unavailable","indicators":[],"details":{}}'
+                except OSError:
+                    self._send_json_error(404, "indicadores de análise estática não encontrados")
+                    return
+                self._send_bytes(body, "application/json; charset=utf-8")
+                return
             runs_prefix = "/.stdd/runs/"
             if path.startswith(runs_prefix) and path.endswith(".json"):
                 relative_run_path = unquote(path[len(runs_prefix):])
@@ -432,9 +447,25 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                     return
                 self._send_bytes(body, "application/json; charset=utf-8")
                 return
-            prefix = "/.stdd/draws/"
-            if path.startswith(prefix) and path.endswith(".json"):
-                draw_id = unquote(path[len(prefix):-5])
+            facts_prefix = "/.stdd/facts/"
+            facts_suffix = ".facts.json"
+            if path.startswith(facts_prefix) and path.endswith(facts_suffix):
+                draw_id = unquote(path[len(facts_prefix):-len(facts_suffix)])
+                facts_path = facts_directory(root) / f"{draw_id}{facts_suffix}"
+                try:
+                    if not _is_draw_id(draw_id):
+                        raise ValueError("id de desenho inválido")
+                    resolved = facts_path.resolve()
+                    resolved.relative_to(facts_directory(root).resolve())
+                    body = resolved.read_bytes()
+                except (OSError, ValueError):
+                    self._send_json_error(404, "facts do desenho não encontrados")
+                    return
+                self._send_bytes(body, "application/json; charset=utf-8")
+                return
+            draws_prefix = "/.stdd/draws/"
+            if path.startswith(draws_prefix) and path.endswith(".json"):
+                draw_id = unquote(path[len(draws_prefix):-5])
                 try:
                     body = json.dumps(read_draw(root, draw_id), ensure_ascii=False).encode("utf-8")
                 except ValueError:

@@ -7,6 +7,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -29,6 +30,7 @@ REQUIRED_RESULT_FIELDS = (
     "errors",
 )
 VALID_STATUSES = {"passed", "unavailable", "blocked"}
+STATIC_ANALYSIS_KPI_VERSION = 1
 SECRET_ASSIGNMENT_PATTERN = re.compile(
     r"(?i)(?<![A-Za-z0-9_])(?:[A-Za-z0-9]+_)?"
     r"(password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret|private[_-]?key)"
@@ -342,3 +344,70 @@ def run_static_analysis(
             f"{len(blocking_findings)} achado(s) de qualidade bloqueante(s)",
         ]
     return result
+
+
+def write_static_analysis_kpis(root: Path, report: dict[str, Any], config: dict[str, Any]) -> Path:
+    """Persiste um snapshot detalhado dos indicadores ao lado do adapter do projeto.
+    Mantém os fatos da análise fora dos Draws e evita caminhos absolutos ou segredos no JSON.
+    """
+    findings = [item for item in report.get("quality_findings", []) if isinstance(item, dict)]
+    severity_counts = {
+        "blocking": sum(1 for item in findings if item.get("severity") == "blocking"),
+        "warning": sum(1 for item in findings if item.get("severity") == "warning"),
+    }
+    findings_by_kind: dict[str, int] = {}
+    for finding in findings:
+        kind = str(finding.get("kind", "unknown"))
+        findings_by_kind[kind] = findings_by_kind.get(kind, 0) + 1
+    symbols = [item for item in report.get("symbols", []) if isinstance(item, dict)]
+    dependencies = [item for item in report.get("dependencies", []) if isinstance(item, dict)]
+    complexity = [item for item in report.get("complexity", []) if isinstance(item, dict)]
+    structural = [item for item in report.get("structural_metrics", []) if isinstance(item, dict)]
+    files = sorted({
+        str(item.get("file"))
+        for collection in (symbols, dependencies, complexity, structural, findings)
+        for item in collection
+        if item.get("file")
+    })
+    quality_status = "blocked" if severity_counts["blocking"] else "warning" if severity_counts["warning"] else "healthy"
+    static_config = config.get("static_analysis", {}) if isinstance(config.get("static_analysis"), dict) else {}
+    output = {
+        "version": STATIC_ANALYSIS_KPI_VERSION,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "status": report.get("status", "unavailable"),
+        "reason": report.get("reason"),
+        "adapter_command": static_config.get("adapter_command"),
+        "stack": config.get("stack", {}),
+        "indicators": [
+            {"id": "symbols", "label": "Símbolos", "value": len(symbols), "unit": "símbolos"},
+            {"id": "dependencies", "label": "Dependências", "value": len(dependencies), "unit": "relações"},
+            {"id": "files", "label": "Arquivos analisados", "value": len(files), "unit": "arquivos"},
+            {"id": "quality_findings", "label": "Achados de qualidade", "value": len(findings), "unit": "achados", "status": quality_status},
+            {"id": "blocking_findings", "label": "Bloqueantes", "value": severity_counts["blocking"], "unit": "achados", "status": "blocked" if severity_counts["blocking"] else "healthy"},
+        ],
+        "summary": {
+            "symbols": len(symbols),
+            "dependencies": len(dependencies),
+            "complexity": len(complexity),
+            "structural_metrics": len(structural),
+            "files": files,
+            "quality_findings": len(findings),
+            "severity": severity_counts,
+            "findings_by_kind": dict(sorted(findings_by_kind.items())),
+        },
+        "capabilities": report.get("capabilities", {}),
+        "warnings": report.get("warnings", []),
+        "errors": report.get("errors", []),
+        "details": {
+            "quality_findings": findings,
+            "complexity": complexity,
+            "structural_metrics": structural,
+            "symbols": symbols,
+            "dependencies": dependencies,
+            "changes": report.get("changes", []),
+        },
+    }
+    output_path = root / ".stdd" / "adapters" / "static-analysis-kpis.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(output, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return output_path

@@ -174,6 +174,10 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "Não começar pelo formato JSON" in setup_content
     assert "quality_findings" in setup_content
     assert "observed" in setup_content and "resolved" in setup_content and "unresolved" in setup_content
+    assert "diretório do próprio projeto analisado" in setup_content
+    assert "<project_root>/.stdd/adapters/" in setup_content
+    assert "não depender de serviço externo" in setup_content
+    assert "personalizado para a linguagem e para a codebase" in setup_content
 
     implement_content = templates["implement"].read_text()
     assert "Uso da análise estática para refatoração segura" in implement_content

@@ -94,6 +94,24 @@ def test_setup_detects_php_wordpress_and_custom_runner_and_generates_adapter(tmp
     assert "._*" in (tmp_path / ".gitignore").read_text()
 
 
+def test_setup_ignores_stdd_php_adapter_template_when_detecting_stack(tmp_path: Path):
+    """Não confunde template interno do STDD com PHP da aplicação.
+    Mantém uma codebase Python identificada sem gerar adapter PHP indevido.
+    """
+    (tmp_path / "pyproject.toml").write_text("[project]\ndependencies = ['pytest']\n")
+    template = tmp_path / "src/stdd/templates/adapters/php_static_adapter.php"
+    template.parent.mkdir(parents=True)
+    template.write_text("<?php echo 'template';\n")
+
+    result = runner.invoke(app, ["setup", str(tmp_path)])
+
+    assert result.exit_code == 0
+    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    assert config["stack"]["languages"] == ["python"]
+    assert config["static_analysis"]["adapter_command"] is None
+    assert not (tmp_path / ".stdd/adapters/php_static_adapter.php").exists()
+
+
 def test_php_adapter_reports_quality_metrics(tmp_path: Path):
     """Calcula complexidade e limites estruturais por função PHP.
     Executa o adapter gerado com um fixture controlado e valida achados determinísticos.
@@ -419,6 +437,23 @@ def test_log_command_creates_incremental_summary_and_snapshot_in_date_subfolder(
     assert isinstance(snapshot_data["workspace_snapshot"], dict)
     assert not (tmp_path / ".stdd/latest_snapshot.json").exists()
     assert not (tmp_path / ".stdd/runs/data/latest_snapshot.json").exists()
+
+
+def test_log_ignores_invalid_utf8_appledouble_snapshot(tmp_path: Path, monkeypatch):
+    """Mantém o log funcionando quando o macOS deixa snapshot AppleDouble inválido.
+    Cria um arquivo ._ binário no histórico e confirma que o próximo log não falha ao ler o diff.
+    """
+    monkeypatch.chdir(tmp_path)
+    runner.invoke(app, ["init"])
+    first = runner.invoke(app, ["log", "Primeiro registro", "-i"])
+    assert first.exit_code == 0
+    day_folder = next(path for path in (tmp_path / ".stdd/runs").iterdir() if path.is_dir() and path.name != "data")
+    (day_folder / "._invalid_snapshot.json").write_bytes(b"AppleDouble\x00\xff")
+
+    second = runner.invoke(app, ["log", "Segundo registro", "-t"])
+
+    assert second.exit_code == 0
+    assert "Registro gravado em" in second.stdout
 
 
 def test_workspace_snapshot_excludes_stdd_draw_and_run_json_documents(tmp_path: Path):

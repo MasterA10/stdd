@@ -25,6 +25,54 @@ export interface NodeData {
   [key: string]: any;
 }
 
+export interface CodeReference {
+  symbol: string;
+  source_dependencies?: string[];
+  identity?: string;
+}
+
+export interface TraceabilityFacts {
+  version?: number;
+  draw_id?: string;
+  nodes?: Record<string, {
+    references?: Array<{ symbol?: string; status?: string; file?: string }>;
+    source_dependencies?: string[];
+    files?: string[];
+    tests?: string[];
+    unresolved?: string[];
+  }>;
+}
+
+export interface StaticAnalysisKpiReport {
+  version?: number;
+  generated_at?: string;
+  status?: string;
+  reason?: string;
+  adapter_command?: string[] | null;
+  stack?: { languages?: string[]; frameworks?: string[]; test_runners?: string[] };
+  indicators?: Array<{ id: string; label: string; value: number; unit?: string; status?: string }>;
+  summary?: {
+    symbols?: number;
+    dependencies?: number;
+    complexity?: number;
+    structural_metrics?: number;
+    files?: string[];
+    quality_findings?: number;
+    severity?: Record<string, number>;
+    findings_by_kind?: Record<string, number>;
+  };
+  capabilities?: Record<string, boolean>;
+  warnings?: string[];
+  errors?: string[];
+  details?: {
+    quality_findings?: Array<Record<string, any>>;
+    complexity?: Array<Record<string, any>>;
+    structural_metrics?: Array<Record<string, any>>;
+    symbols?: Array<Record<string, any>>;
+    dependencies?: Array<Record<string, any>>;
+  };
+}
+
 export interface EdgeData {
   id: number;
   from: number;
