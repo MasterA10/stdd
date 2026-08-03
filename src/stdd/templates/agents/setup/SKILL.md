@@ -43,11 +43,15 @@ Executar esta sequência, adaptando os comandos à stack encontrada:
 1. Confirmar que `.stdd/config.json` contém `static_analysis.enabled`, `contract_version` e `adapter_command`. Se `adapter_command` estiver vazio, a capacidade deve permanecer `unavailable`; nunca declarar análise estática pronta sem executar uma chamada real.
 2. Inventariar a linguagem, o parser ou ferramenta escolhida, extensões analisadas, diretórios ignorados e limitações conhecidas. Preferir APIs estruturadas de compiladores, servidores de linguagem ou analisadores oficiais; usar regex somente para fatos simples e explicitamente limitados.
 3. Criar o adapter dentro de `.stdd/adapters/` ou em um executável da própria aplicação, com entrada JSON por `stdin`, saída JSON por `stdout` e diagnóstico somente em `stderr`. Não embutir comandos em uma string de shell.
+
+Regra de localização: o adapter específico da linguagem deve ficar dentro do diretório do próprio projeto analisado e ser versionável junto com ele, preferencialmente em `<project_root>/.stdd/adapters/`. Nunca colocar esse adapter no diretório de instalação global do STDD, no repositório do framework ou somente no ambiente do agente. O `adapter_command` deve apontar para o caminho relativo dentro da codebase, por exemplo `["php", ".stdd/adapters/php_static_adapter.php"]` ou `["python", ".stdd/adapters/static_adapter.py"]`.
 4. Executar o adapter diretamente com um projeto mínimo e com um caso real. Validar o JSON, o `contract_version`, o status, os símbolos e as dependências antes de configurar o comando.
 5. Configurar o comando em `.stdd/config.json`, executar `stdd test` e registrar em `.stdd/test-discovery.md` a ferramenta, versão, cobertura, limitações e pré-condições.
 6. Depois que os fatos estiverem disponíveis, associar os nós do desenho aos símbolos por nome qualificado. A associação deve ser explícita e determinística; o agente não deve inventar que um nó representa um arquivo apenas porque o texto parece semelhante.
 
 O núcleo do STDD permanece agnóstico: ele não escolhe parser, não embute regras de uma linguagem e não cria um adapter genérico que simula fatos. O agente `setup` é responsável por orientar a construção do adapter específico da codebase detectada. Se a stack mudar, o algoritmo, a ferramenta e as limitações devem ser reavaliados; não reutilizar um parser de outra linguagem apenas para preencher o contrato.
+
+Se o adapter ainda não existir no projeto, o `setup` não pode terminar apenas com `adapter_command: null` quando houver uma linguagem e uma ferramenta local comprovada. Deve criar ou orientar a criação do adapter em `<project_root>/.stdd/adapters/`, testar esse arquivo diretamente e só então configurar o comando. Se não houver parser, runtime ou ferramenta autorizada, registrar explicitamente `unavailable`, explicar a pré-condição ausente e não declarar análise estática pronta.
 
 O resultado do `init`/`setup` deve explicar ao usuário, em linguagem direta:
 
