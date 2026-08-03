@@ -1,10 +1,16 @@
 import json
 
+from typer.testing import CliRunner
+
+from stdd.cli import app
 from stdd.draw import create_draw
 from stdd.traceability import associate_node_reference, build_traceability_report, enrich_traceability
 
 
 def _draw_with_traceable_node():
+    """Monta um Draw mínimo com nó rastreável.
+    Reutiliza o fixture nos contratos de associação e enriquecimento.
+    """
     return {
         "version": 1,
         "id": "checkout",
@@ -15,6 +21,9 @@ def _draw_with_traceable_node():
         "edges": [],
         "flows": [],
     }
+
+
+runner = CliRunner()
 
 
 def test_traceability_maps_node_references_to_symbols_files_and_tests(tmp_path):
@@ -30,13 +39,21 @@ def test_traceability_maps_node_references_to_symbols_files_and_tests(tmp_path):
     node = {
         "id": 7,
         "label": "Autorizar pagamento",
-        "code_refs": [{"symbol": "checkout.authorize", "identity": "authorize-v1"}],
+        "code_refs": [{
+            "symbol": "checkout.authorize",
+            "identity": "authorize-v1",
+            "source_dependencies": ["checkout.repository.save"],
+        }],
     }
     facts = {
         "symbols": [{
             "qualified_name": "checkout.authorize",
             "identity": "authorize-v1",
             "file": "src/checkout.py",
+        }, {
+            "qualified_name": "checkout.repository.save",
+            "identity": "save-v1",
+            "file": "src/repository.py",
         }],
         "dependencies": [{
             "source": "tests.test_checkout.test_authorize",
@@ -55,9 +72,10 @@ def test_traceability_maps_node_references_to_symbols_files_and_tests(tmp_path):
         "status": "resolved",
         "file": "src/checkout.py",
     }]
-    assert report["files"] == ["src/checkout.py", "tests/test_checkout.py"]
+    assert report["files"] == ["src/checkout.py", "src/repository.py", "tests/test_checkout.py"]
     assert report["tests"] == ["tests.test_checkout.test_authorize"]
     assert report["unresolved"] == []
+    assert report["source_dependencies"] == ["checkout.repository.save"]
 
 
 def test_traceability_marks_changed_symbol_as_drift(tmp_path):
@@ -166,3 +184,46 @@ def test_enrich_traceability_recalculates_and_persists_separate_facts_file(tmp_p
     assert facts["version"] == 1
     assert facts["draw_id"] == "checkout"
     assert facts["nodes"]["7"]["references"][0]["status"] == "resolved"
+
+
+def test_cli_associate_reference_accepts_one_node_contract(tmp_path, monkeypatch):
+    """Expõe a associação mínima por comando CLI.
+    Executa o comando com node, símbolo qualificado e dependência de origem.
+    """
+    monkeypatch.chdir(tmp_path)
+    create_draw(tmp_path, _draw_with_traceable_node())
+
+    result = runner.invoke(app, [
+        "draw", "associate-reference",
+        "--draw-id", "checkout",
+        "--node-id", "7",
+        "--qualified-name", "checkout.authorize",
+        "--source-dependency", "checkout.authorize",
+    ])
+
+    assert result.exit_code == 0
+    saved = json.loads((tmp_path / ".stdd/draws/checkout.json").read_text(encoding="utf-8"))
+    assert saved["nodes"][0]["code_refs"][0]["symbol"] == "checkout.authorize"
+
+
+def test_cli_associate_reference_accepts_batch_contract(tmp_path, monkeypatch):
+    """Aceita várias associações em uma execução de lote.
+    Envia duas entradas JSON e confirma que ambas ficam nos nós corretos.
+    """
+    monkeypatch.chdir(tmp_path)
+    draw = _draw_with_traceable_node()
+    draw["nodes"].append({"id": 8, "label": "Capturar pagamento", "questions": []})
+    create_draw(tmp_path, draw)
+    batch = json.dumps([
+        {"node_id": 7, "qualified_name": "checkout.authorize", "source_dependencies": ["checkout.authorize"]},
+        {"node_id": 8, "qualified_name": "checkout.capture", "source_dependencies": ["checkout.capture"]},
+    ])
+
+    result = runner.invoke(app, ["draw", "associate-reference", "--draw-id", "checkout", "--batch-json", batch])
+
+    assert result.exit_code == 0
+    saved = json.loads((tmp_path / ".stdd/draws/checkout.json").read_text(encoding="utf-8"))
+    assert [node["code_refs"][0]["symbol"] for node in saved["nodes"]] == [
+        "checkout.authorize",
+        "checkout.capture",
+    ]

@@ -201,6 +201,29 @@ O scanner interno procura credenciais hardcoded, tokens conhecidos e valores cop
 
 Arquivos `.env`, `.pyc`, caches, ambientes virtuais e artefatos de build são ignorados pelo Git automaticamente. Variáveis de ambiente sem referência no código geram aviso, não bloqueio automático, porque podem ser utilizadas por infraestrutura ou serviços externos.
 
+### Rastreabilidade entre nós e símbolos
+
+O vínculo entre um nó do Draw e um símbolo da codebase é feito pelo agente, de forma explícita e determinística. A responsabilidade é dividida assim:
+
+- o adapter de análise estática descobre fatos reais: símbolos, dependências, arquivos, testes e métricas;
+- o agente analisa o desenho e os fatos do adapter para identificar a correspondência correta;
+- o agente executa `stdd draw associate-reference` para gravar a associação no nó;
+- o STDD recalcula os fatos derivados e informa se o vínculo está `resolved`, `unresolved` ou em `drift`;
+- o usuário intervém quando houver ambiguidade, símbolo ausente ou alteração que exija decisão arquitetural.
+
+O adapter não deve alterar desenhos automaticamente. Ele fornece os fatos; o agente decide qual símbolo representa o nó e persiste a referência declarada. O vínculo mínimo exige o desenho, o `node_id`, o nome qualificado do símbolo e pelo menos uma dependência de origem:
+
+```bash
+stdd draw associate-reference \
+  --draw-id nome-do-desenho \
+  --node-id 42 \
+  --qualified-name 'orders.OrderService.create' \
+  --source-dependency 'orders.OrderRepository.save' \
+  --source-dependency 'tests.orders.test_create_order'
+```
+
+O comando valida o desenho e o nó e grava a referência no JSON lógico. Em uma nova análise estática bem-sucedida, o STDD cruza essa referência com `symbols` e `dependencies` e gera o relatório derivado em `.stdd/draws/<draw-id>.facts.json`, incluindo arquivos, testes relacionados e possíveis dependências para revisão. Para subfluxos, repetir a associação nos nós do subfluxo e manter a referência ao nó chamador.
+
 ## Registrar trabalho
 
 ```bash

@@ -254,8 +254,22 @@
         "lines_deleted": 1,
         "files_changed": 1
       }
+    },
+    {
+      "run_id": "0bbe5bb3ea57452da7a82b2917715d39",
+      "timestamp": "2026-08-03T15:44:42.167018+00:00",
+      "description": "Implementa CLI e enriquecimento determinístico de facts",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 253,
+        "lines_deleted": 0,
+        "files_changed": 4
+      }
     }
   ],
-  "run_count": 18,
-  "last_run_id": "5910cc561ef945fd98a653e874745610"
+  "run_count": 19,
+  "last_run_id": "0bbe5bb3ea57452da7a82b2917715d39"
 }

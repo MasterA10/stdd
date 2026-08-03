@@ -27,7 +27,7 @@
     {
       "id": 4,
       "label": "Busca e Enriquece Referências Não Resolvidas",
-      "description": "Quando o mapa encontra uma referência ausente, procura evidências na base e propõe o enriquecimento do nó; não substitui vínculos explícitos sem registro.",
+      "description": "Quando o mapa encontra uma referência ausente ou incorreta, procura evidências na base e gera um relatório para o agente revisar; pode corrigir o vínculo explicitamente quando houver correspondência determinística.",
       "questions": []
     },
     {
@@ -143,20 +143,20 @@
             }
           ],
           "required": true,
-          "answer": 2
+          "answer": 1
         }
       ]
     },
     {
       "id": 9,
       "label": "Mapa de Impacto e Revisão",
-      "description": "Ao alterar um nó, apresenta arquivos, símbolos e testes para revisão; referências não resolvidas seguem para busca e enriquecimento antes da conclusão.",
+      "description": "Ao alterar um nó, apresenta arquivos, símbolos e testes para revisão; referências não resolvidas seguem para relatório e decisão explícita do agente antes da conclusão.",
       "questions": [
         {
           "id": 1,
           "type": "open",
           "prompt": "O que deve acontecer quando uma referência de nó não puder ser resolvida deterministicamente?",
-          "answer": "Deixar o agente procurar na codebase e se encontrar, enriquecer o nó!"
+          "answer": "O agente deve procurar evidências na codebase e, se encontrar uma correspondência segura, executar a associação explicitamente; o enriquecimento pode corrigir o vínculo, mas não deve substituí-lo sem essa validação."
         },
         {
           "id": 2,

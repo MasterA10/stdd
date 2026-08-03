@@ -34,6 +34,118 @@ O Codex usa `.agents/skills`, o Claude usa `.claude/skills` e o Gemini usa `.gem
 
 Depois do init, executar `stdd setup`. Essa etapa descobre a linguagem e gera comandos específicos, como `npm test`, `go test ./...`, `cargo test`, `dotnet test`, `mvn test` ou `python -m pytest` somente quando a evidência local indicar essa stack. O núcleo não assume Python para projetos de outras linguagens.
 
+### Roteiro obrigatório iniciado pelo `init`
+
+Ao iniciar um projeto com `stdd init`, apresentar também o plano de análise estática e rastreabilidade. Não terminar o setup apenas com um runner de testes: explicar quais fatos serão extraídos da codebase, qual adapter será usado e como os nós do Draw serão ligados aos símbolos reais.
+
+Executar esta sequência, adaptando os comandos à stack encontrada:
+
+1. Confirmar que `.stdd/config.json` contém `static_analysis.enabled`, `contract_version` e `adapter_command`. Se `adapter_command` estiver vazio, a capacidade deve permanecer `unavailable`; nunca declarar análise estática pronta sem executar uma chamada real.
+2. Inventariar a linguagem, o parser ou ferramenta escolhida, extensões analisadas, diretórios ignorados e limitações conhecidas. Preferir APIs estruturadas de compiladores, servidores de linguagem ou analisadores oficiais; usar regex somente para fatos simples e explicitamente limitados.
+3. Criar o adapter dentro de `.stdd/adapters/` ou em um executável da própria aplicação, com entrada JSON por `stdin`, saída JSON por `stdout` e diagnóstico somente em `stderr`. Não embutir comandos em uma string de shell.
+4. Executar o adapter diretamente com um projeto mínimo e com um caso real. Validar o JSON, o `contract_version`, o status, os símbolos e as dependências antes de configurar o comando.
+5. Configurar o comando em `.stdd/config.json`, executar `stdd test` e registrar em `.stdd/test-discovery.md` a ferramenta, versão, cobertura, limitações e pré-condições.
+6. Depois que os fatos estiverem disponíveis, associar os nós do desenho aos símbolos por nome qualificado. A associação deve ser explícita e determinística; o agente não deve inventar que um nó representa um arquivo apenas porque o texto parece semelhante.
+
+O resultado do `init`/`setup` deve explicar ao usuário, em linguagem direta:
+
+- qual comando cria ou executa o adapter;
+- quais símbolos, dependências, testes e métricas ele consegue produzir;
+- qual nó do desenho corresponde a qual símbolo qualificado;
+- quais vínculos estão resolvidos, ausentes ou desatualizados;
+- quais alterações futuras recalculam o impacto e quais ainda exigem revisão manual.
+
+## Como criar um adapter de análise estática
+
+Criar um adapter como uma fronteira pequena e testável entre a ferramenta de análise da linguagem e o contrato do STDD. O adapter não decide arquitetura nem interpreta o desenho: ele coleta fatos reproduzíveis.
+
+### 1. Definir a fonte de verdade
+
+Antes de escrever código, localizar o manifesto, o build, o runner e a configuração da linguagem. Identificar se o projeto usa, por exemplo, TypeScript, Python, Go, Rust, Java ou C#. Em seguida escolher a fonte de símbolos mais confiável disponível:
+
+- compilador, AST ou biblioteca de parser para declarações e referências;
+- Language Server Protocol quando a resolução de símbolos exigir o workspace completo;
+- ferramenta oficial de dependências ou grafo de importação;
+- diff do Git para mudanças, sem executar código da aplicação.
+
+Registrar limitações por capacidade. Um adapter que resolve funções, mas não consegue resolver macros ou geração de código, deve informar isso em `capabilities` e produzir `warnings`; não deve preencher fatos falsos.
+
+### 2. Implementar o protocolo do adapter
+
+O STDD envia uma requisição semelhante a:
+
+```json
+{
+  "contract_version": "1",
+  "execution_id": "exec-123",
+  "project_path": "/workspace/app",
+  "changed_files": ["src/orders/service.ts"],
+  "mode": "incremental"
+}
+```
+
+O adapter deve:
+
+1. ler exatamente essa requisição do `stdin`;
+2. resolver `project_path` sem atravessar o diretório permitido;
+3. analisar `changed_files` no modo incremental e usar o workspace completo quando a resolução exigir contexto;
+4. normalizar caminhos relativos à raiz do projeto;
+5. escrever uma única resposta JSON válida no `stdout`;
+6. escrever versões, comandos auxiliares, stack traces e diagnósticos no `stderr`;
+7. terminar com exit code coerente e respeitar timeout.
+
+A resposta mínima deve conter `contract_version`, `status`, `capabilities`, `symbols`, `dependencies`, `complexity`, `structural_metrics`, `quality_findings`, `changes`, `warnings` e `errors`. Cada símbolo precisa de identidade estável, nome qualificado, arquivo e localização quando disponíveis. Cada dependência precisa declarar origem, destino, tipo e arquivo da relação. Ordenar arrays e remover duplicatas para que duas execuções iguais produzam o mesmo JSON.
+
+Não registrar conteúdo de `.env`, tokens, chaves, prompts privados ou payloads. Para achados de segredo, retornar apenas categoria, arquivo, linha e valor `[REDACTED]`.
+
+### 3. Separar fatos primários de fatos derivados
+
+O adapter deve produzir fatos primários: símbolos, relações de dependência, complexidade, métricas de estrutura, achados e mudanças. O STDD deriva desses fatos o impacto de um nó, os arquivos envolvidos, testes relacionados e sugestões de revisão.
+
+Não colocar no adapter conclusões como “este nó é o fluxo de pagamento” sem uma regra explícita. O desenho pode conter intenção humana, mas a ligação com a codebase deve ser baseada em referências declaradas e nos nomes retornados pelo analisador.
+
+### 4. Testar antes de habilitar
+
+Criar fixtures pequenas contendo pelo menos uma função ou classe, uma importação, um teste dependente, uma alteração e um caso de símbolo não resolvido. Verificar:
+
+- contrato JSON válido em sucesso e erro;
+- símbolo com o mesmo nome em arquivos diferentes não sendo confundido;
+- dependência de teste apontando para o símbolo correto;
+- caminhos estáveis em macOS, Linux e CI;
+- modo incremental incluindo contexto necessário;
+- arquivos ignorados não aparecendo nos fatos;
+- timeout, ferramenta ausente e código inválido resultando em `unavailable`, `blocked` ou `failed`, nunca em `passed` falso.
+
+Só depois desses testes configurar `static_analysis.adapter_command`. Executar o adapter diretamente, depois `stdd test`, e guardar evidências sem segredos.
+
+## Como linkar nós do Draw a símbolos
+
+O vínculo começa com uma associação mínima fornecida pelo usuário ou pelo agente após inspecionar a codebase: `node_id`, `qualified_name` e pelo menos um `source_dependency`. O comando canônico é:
+
+```bash
+stdd draw associate-reference \
+  --draw-id nome-do-desenho \
+  --node-id 42 \
+  --qualified-name 'orders.OrderService.create' \
+  --source-dependency 'orders.OrderRepository.save' \
+  --source-dependency 'tests.orders.test_create_order'
+```
+
+Para vários vínculos, usar `--batch-json` com uma lista de objetos que contenham `node_id`, `qualified_name` e `source_dependencies`. Validar que o desenho existe, que o nó existe e que o nome qualificado é o formato usado pelo adapter. Não associar pelo texto visual, posição, índice do array ou nome curto isolado.
+
+O comando grava a referência declarada no desenho. Ele não calcula fatos derivados nem deve substituir uma associação explícita por uma sugestão. Em cada nova execução bem-sucedida da análise estática, o STDD cruza as referências com `symbols` e `dependencies` e gera um relatório separado em `.stdd/draws/<draw-id>.facts.json`. Esse relatório pode indicar:
+
+- `resolved`: o símbolo foi encontrado;
+- `unresolved`: o símbolo não apareceu nos fatos atuais;
+- `drift`: a identidade conhecida não corresponde mais ao símbolo atual;
+- arquivos do símbolo e das relações;
+- testes relacionados;
+- símbolos candidatos sugeridos por dependências.
+
+Quando um nó representa uma etapa de negócio que chama várias funções, manter uma referência principal e declarar as demais em `source_dependencies`. Quando um nó representa um subfluxo, repetir o mesmo procedimento no desenho do subfluxo e preservar o vínculo com o nó chamador. Depois de renomear, mover ou dividir um símbolo, procurar `unresolved`/`drift`, revisar o desenho inteiro e atualizar as associações; não corrigir somente o nó que causou o primeiro erro.
+
+Ao concluir o setup, mostrar uma tabela ou resumo equivalente com `node_id`, `qualified_name`, status, arquivos e testes. Símbolo ausente deve bloquear a afirmação de rastreabilidade completa e gerar uma ação de revisão clara.
+
 ## Responsabilidade
 
 Mapear a codebase e configurar capacidades comprovadas para `stdd test`. Detectar em vez de presumir. Criar adapters e scripts específicos da stack somente quando necessários e testá-los antes da ativação. Não alterar regras de negócio da aplicação.

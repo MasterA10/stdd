@@ -14,6 +14,7 @@ from .draw import ensure_draw_workspace
 from .models import REWORK_LINE_THRESHOLD, RunLogEntry
 from .runs import ensure_runs_workspace, update_runs_index
 from .static_analysis import run_static_analysis
+from .traceability import refresh_traceability
 
 VALID_WORK_TYPES = {"bug", "teste", "implementacao", "refactor"}
 DEFAULT_CODE_EXTENSIONS = {
@@ -331,6 +332,8 @@ def run_tests(
         config,
         sorted(get_workspace_snapshot(root)),
     )
+    if static_report["status"] == "passed":
+        refresh_traceability(root, static_report)
     output: list[str] = []
     errors: list[str] = []
     suite_reports: list[dict[str, Any]] = []

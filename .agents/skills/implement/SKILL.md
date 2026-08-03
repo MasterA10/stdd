@@ -16,7 +16,16 @@ Fazer a menor alteração coerente que satisfaça os testes aprovados e preserve
 3. Executar o teste mais específico e confirmar o estado vermelho esperado.
 4. Executar o baseline aplicável e registrar falhas preexistentes.
 5. Consultar fatos da análise estática quando disponível: símbolos, dependências, complexidade e testes relacionados.
-6. Tratar capacidade ausente como `unavailable`; não inventar cobertura.
+6. Revisar a consistência dos desenhos associados antes de alterar produção.
+7. Tratar capacidade ausente como `unavailable`; não inventar cobertura.
+
+### Verificação do desenho antes de implementar
+
+Antes de escrever código, confirmar que o desenho, os testes e os contratos descrevem a mesma intenção. Comparar o fluxo principal, subfluxos, grupos, relações, condições, entradas, saídas, erros, perguntas respondidas e referências de símbolos.
+
+Se existir uma inconsistência real — por exemplo, o desenho manda persistir em um lugar e o contrato manda persistir em outro, um teste exige um comportamento diferente, uma referência aponta para símbolo incorreto ou falta uma decisão necessária para escolher a implementação — não iniciar a implementação. Informar o conflito, apontar os nós/arquivos envolvidos e pedir a correção ou decisão do usuário. Não resolver uma contradição arquitetural silenciosamente no código.
+
+Se o desenho estiver consistente, registrar essa conclusão no raciocínio de implementação e usar suas referências como escopo. Perguntas já respondidas são decisões documentais; não tratá-las como pendências.
 
 ### Triagem obrigatória do diff
 
@@ -103,6 +112,40 @@ Para PostgreSQL, usar pgTAP quando houver contrato de schema, constraint, funç�
 Em perfil `mvp`, respeitar a cobertura escolhida pelo usuário. Usar `--suite`, `--exclude` e `--profile` para controlar a execução; usar `--approve-actions` somente depois de obter aprovação explícita. Antes de instalar dependência ou blocker, baixar ferramenta ou imagem, iniciar ou recriar container, criar banco, aplicar migrations fora de ambiente efêmero ou acionar serviço pago, apresentar impacto e pedir autorização. Sem autorização, registrar `not_executed` e continuar apenas com o trabalho seguro.
 
 Falha de ferramenta obrigatória é `blocked` ou `failed`, não sucesso. Teste live, pentest ou banco não configurado deve ser `not_executed` com ação necessária.
+
+## Revisão obrigatória dos desenhos após implementar
+
+Depois que o código e os testes estiverem validados, revisar novamente todos os desenhos associados ao comportamento implementado. Essa revisão confirma se o código entregue continua consistente com a intenção que foi validada antes da implementação.
+
+Executar a revisão nesta ordem:
+
+1. localizar os desenhos associados pelos `code_refs`, `qualified_name`, `source_dependencies`, `draw_ref` e pelos fatos em `.stdd/draws/*.facts.json`;
+2. ler o desenho principal completo e todos os subfluxos relacionados, não somente o nó alterado;
+3. comparar nós, relações, estados, nomes, condições, erros, entradas, saídas, perguntas e respostas com o comportamento realmente implementado;
+4. verificar referências `resolved`, `unresolved` e `drift`, além de arquivos, funções e testes retornados pela análise estática;
+5. se aparecer uma inconsistência real, não alterar silenciosamente o desenho: informar o conflito, os elementos afetados e a decisão necessária;
+6. se não houver inconsistência, enriquecer a documentação sem mudar a intenção do desenho: corrigir apenas referências factuais, adicionar detalhes, perguntas já respondidas, grupos ou subfluxos explicativos quando forem complementares ao comportamento entregue;
+7. reler o desenho inteiro após qualquer enriquecimento e confirmar que o fluxo principal, os subfluxos e as conexões continuam coerentes.
+
+Não limitar a revisão ao nó que originou a implementação. Se uma mudança alterou uma condição, contrato, dependência, tratamento de erro ou sequência, verificar todos os elementos afetados. Só atualizar o desenho automaticamente quando a alteração for um enriquecimento compatível com a intenção já aprovada; mudança de escopo, fluxo ou decisão arquitetural exige aviso ao usuário.
+
+### Documentação rápida com perguntas respondidas
+
+Não tratar perguntas pendentes como requisito para concluir a implementação. Quando a implementação revelar uma decisão já tomada, regra implícita, risco ou detalhe que vale preservar, criar uma pergunta no nó ou subfluxo e gravar imediatamente a resposta correspondente como documentação rápida. Essas perguntas devem documentar o que foi feito, não abrir uma nova pendência.
+
+Usar perguntas respondidas para registrar, por exemplo:
+
+- por que uma dependência foi escolhida;
+- qual é a fronteira entre fluxo principal e subfluxo;
+- o que acontece em timeout, erro, retry ou resposta inválida;
+- qual símbolo, teste ou contrato deve ser revisado quando o nó mudar;
+- qual limitação ou decisão de segurança foi aplicada.
+
+As perguntas devem ser curtas, específicas e verificáveis. Em perguntas de múltipla escolha, colocar `(sugestao)` na alternativa da resposta recomendada, nunca no texto da pergunta. A resposta deve refletir o código realmente implementado; não usar perguntas respondidas para esconder uma incerteza que ainda exige decisão do usuário.
+
+Se o comportamento novo exigir uma sequência independente, uma integração ou um caminho de erro que complemente o nó atual sem mudar sua intenção, criar um subfluxo e conectá-lo ao ponto correto do fluxo principal. Se isso mudar o escopo ou introduzir uma decisão arquitetural nova, parar e avisar o usuário antes de alterar o desenho. Associar os novos nós aos símbolos e testes correspondentes quando esses fatos estiverem disponíveis.
+
+Ao concluir, informar quais desenhos foram revisados, quais vínculos foram atualizados, quais detalhes ou subfluxos foram inseridos e quais associações permanecem `unresolved` ou `drift`. O resultado só pode ser declarado completo quando código, testes, referências e desenhos estiverem consistentes.
 
 ## Testes legíveis
 

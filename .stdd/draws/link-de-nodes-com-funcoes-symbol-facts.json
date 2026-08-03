@@ -41,7 +41,7 @@
       "id": 4,
       "label": "Referências Declaradas pelo Nó",
       "group": 2,
-      "description": "Mantém no nó os vínculos explícitos com símbolos qualificados; inferências podem sugerir enriquecimento, mas não substituem a declaração."
+      "description": "Mantém no nó os vínculos explícitos com símbolos qualificados; o enriquecimento pode corrigir uma associação quando os fatos confirmarem deterministicamente a nova referência."
     },
     {
       "id": 5,
@@ -115,7 +115,7 @@
       "id": 9,
       "label": "Script Enriquecedor Determinístico",
       "group": 1,
-      "description": "Usa a associação recebida e os fatos da codebase para preencher arquivos, identidade estrutural, dependências observadas e testes relacionados.",
+      "description": "Usa a associação recebida e os fatos da codebase para gerar um relatório separado com arquivos, identidade estrutural, dependências observadas e testes relacionados, sem alterar a associação declarada.",
       "questions": [
         {
           "id": 1,

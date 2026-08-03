@@ -7,6 +7,7 @@ import typer
 
 from .core import ensure_gitignore, init_project, project_root, record_run_entry, run_tests
 from .draw import create_draw, read_draw_index, serve_draw
+from .traceability import associate_node_reference, associate_node_references
 from .setup import SUPPORTED_INTEGRATIONS, available_integrations, configure_project, ensure_stack_gitignore
 
 app = typer.Typer(help="STDD: CLI de suporte ao desenvolvimento orientado por testes.")
@@ -182,6 +183,29 @@ def draw_list() -> None:
         return
     for entry in entries:
         typer.echo(f"{entry['id']}\t{entry.get('title', '')}\t{entry.get('node_count', 0)} nós\t{entry.get('edge_count', 0)} relações")
+
+
+@draw_app.command("associate-reference")
+def draw_associate_reference(
+    draw_id: str = typer.Option(..., "--draw-id", help="ID do desenho que contém o nó."),
+    node_id: Optional[int] = typer.Option(None, "--node-id", help="ID numérico do nó para associação unitária."),
+    qualified_name: Optional[str] = typer.Option(None, "--qualified-name", help="Símbolo qualificado da codebase."),
+    source_dependency: List[str] = typer.Option(None, "--source-dependency", help="Símbolo qualificado relacionado; pode repetir."),
+    batch_json: Optional[str] = typer.Option(None, "--batch-json", help="Lista JSON de associações unitárias."),
+) -> None:
+    """Associa um nó a símbolos qualificados sem calcular facts derivados."""
+    try:
+        if batch_json is not None:
+            batch = json.loads(batch_json)
+            output = associate_node_references(project_root(), draw_id, batch)
+        else:
+            if node_id is None or qualified_name is None:
+                raise ValueError("node_id e qualified_name são obrigatórios fora do modo lote")
+            output = associate_node_reference(project_root(), draw_id, node_id, qualified_name, source_dependency or [])
+    except (json.JSONDecodeError, ValueError) as error:
+        typer.echo(f"Erro: {error}", err=True)
+        raise typer.Exit(1)
+    typer.echo(f"Referência associada em {output}")
 
 
 @draw_app.command("serve")
