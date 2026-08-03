@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from pathlib import Path
 import json
 import sys
@@ -403,11 +404,11 @@ def test_log_migrates_legacy_daily_documents_before_appending(tmp_path: Path, mo
     """
     monkeypatch.chdir(tmp_path)
     runner.invoke(app, ["init"])
-    day = "2026-07-31"
+    day = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     day_folder = tmp_path / ".stdd/runs" / day
     day_folder.mkdir(parents=True)
     (day_folder / f"{day}_summary.json").write_text(
-        json.dumps({"run_id": "legacy-summary", "timestamp": "2026-07-31T10:00:00+00:00", "description": "Legado", "work_types": ["teste"], "diff_stats": {}}),
+        json.dumps({"run_id": "legacy-summary", "timestamp": f"{day}T10:00:00+00:00", "description": "Legado", "work_types": ["teste"], "diff_stats": {}}),
         encoding="utf-8",
     )
     (day_folder / f"{day}_snapshot.json").write_text(

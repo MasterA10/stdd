@@ -88,7 +88,19 @@ Para decompor sistemas complexos, use `draw_ref` em um nó:
 {"id":3,"label":"Pagamento","draw_ref":"payment-details"}
 ```
 
-O valor deve ser o ID de outro JSON em `.stdd/draws/`. O viewer carregará esse subdesenho somente quando o usuário abrir o nó e permitirá voltar ao desenho pai. Não duplique os nós detalhados no desenho abstrato.
+Ao utilizar subfluxos, observe rigorosamente as regras de **hierarquia de funções e encapsulamento**:
+
+1. **Separação Clara de Níveis de Abstração**:
+   - **Fluxo Principal (Visão Nível-1)**: Contém apenas a visão arquitetural de alto nível, grandes domínios e a sequência macro entre componentes.
+   - **Subfluxo (Visão Nível-2)**: Mantido em arquivo próprio (`.stdd/draws/<subflow-id>.json`), detalhando os passos internos, validações específicas e subprocessos executados exclusivamente dentro daquela fronteira.
+
+2. **Proibição de Duplicação e Poluição**:
+   - Um nó com `draw_ref` no fluxo principal atua como um **bloco/cápsula abstrato**. Ele **não deve expor ou duplicar** os subprocessos e passos detalhados que pertencem ao subfluxo.
+   - O subfluxo detalha o funcionamento interno daquela etapa específica, sem reinspecionar a sequência global externa do fluxo pai.
+   - **Nunca duplique etapas**: Um processo individual que ocorre dentro do subfluxo **jamais deve aparecer no fluxo principal** (e vice-versa), garantindo que a divisão de escopos seja limpa e modular.
+
+3. **Navegação sob Demanda**:
+   - O valor de `draw_ref` deve ser o ID descritivo de outro JSON em `.stdd/draws/`. O viewer carregará esse subdesenho somente quando o usuário abrir o nó e permitirá voltar ao desenho pai. Não duplique os nós detalhados no desenho abstrato.
 
 ### Perguntas de esclarecimento
 

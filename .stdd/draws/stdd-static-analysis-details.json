@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "id": "stdd-static-analysis-details",
+  "title": "Detalhes de Análise Estática & Scanner de Segredos",
+  "subtitle": "Varredura de extensões rastreadas, detecção de segredos hardcoded e bloqueio do gate",
+  "kind": "subflow",
+  "groups": [
+    {
+      "id": 1,
+      "label": "Varredura & Coleta de Arquivos"
+    },
+    {
+      "id": 2,
+      "label": "Análise de Segredos & Redação"
+    },
+    {
+      "id": 3,
+      "label": "Métricas & Bloqueio"
+    }
+  ],
+  "nodes": [
+    {
+      "id": 1,
+      "label": "Filtro de Extensões (get_tracked_extensions)",
+      "group": 1,
+      "description": "Seleciona arquivos de código (.py, .js, .ts, .go, etc.) respeitando regras de config.json e .gitignore."
+    },
+    {
+      "id": 2,
+      "label": "Scanner de Padrões de Segredos",
+      "group": 2,
+      "description": "Aplica expressões regulares para identificar chaves API, tokens, senhas e variáveis exportadas de arquivos .env."
+    },
+    {
+      "id": 3,
+      "label": "Mecanismo de Redação ([REDACTED])",
+      "group": 2,
+      "description": "Substitui o valor sensível por [REDACTED] no relatório para impedir que segredos fiquem gravados nos logs do STDD."
+    },
+    {
+      "id": 4,
+      "label": "Calculador de Métricas Estruturais",
+      "group": 3,
+      "description": "Mede complexidade ciclomática, tamanho de funções e dependências nos arquivos analisados."
+    },
+    {
+      "id": 5,
+      "label": "Decisor de Bloqueio do Gate",
+      "group": 3,
+      "description": "Se houver qualquer segredo não redigido no código de produção, retorna status de falha bloqueante para o stdd test."
+    }
+  ],
+  "edges": [
+    {
+      "id": 1,
+      "from": 1,
+      "to": 2,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então varre conteúdo dos arquivos",
+      "description": "Passa o conteúdo lido para os padrões do scanner."
+    },
+    {
+      "id": 2,
+      "from": 2,
+      "to": 3,
+      "kind": "conditional",
+      "condition": 3,
+      "label": "se credencial suspeita for encontrada",
+      "description": "Sanitiza o valor antes de incluir no relatório."
+    },
+    {
+      "id": 3,
+      "from": 2,
+      "to": 4,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então calcula métricas de código",
+      "description": "Avalia tamanho e complexidade das estruturas."
+    },
+    {
+      "id": 4,
+      "from": 3,
+      "to": 5,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então reporta violação de segurança",
+      "description": "Sinaliza que o gate de qualidade deve ser bloqueado."
+    },
+    {
+      "id": 5,
+      "from": 4,
+      "to": 5,
+      "kind": "conditional",
+      "condition": 3,
+      "label": "se código estiver limpo",
+      "description": "Autoriza a liberação para execução dos testes."
+    }
+  ],
+  "flows": [
+    {
+      "id": 1,
+      "label": "Auditoria de Segurança no Gate",
+      "title": "Verificação de segredos e métricas",
+      "summary": "Coleta de arquivos, varredura de regex, redação preventiva e decisão de bloqueio do gate.",
+      "steps": [
+        {
+          "node": 1,
+          "text": "Filtra extensões rastreadas"
+        },
+        {
+          "node": 2,
+          "text": "Busca segredos e tokens"
+        },
+        {
+          "node": 3,
+          "text": "Aplica marcação [REDACTED]"
+        },
+        {
+          "node": 5,
+          "text": "Bloqueia o gate se houver vazamento"
+        }
+      ]
+    }
+  ],
+  "tradeoffs": [],
+  "notes": [
+    "A redação garante que segredos reais jamais sejam vazados nos arquivos de relatório em .stdd/."
+  ]
+}

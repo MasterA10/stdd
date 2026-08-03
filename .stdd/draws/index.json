@@ -2,6 +2,17 @@
   "version": 1,
   "draws": [
     {
+      "id": "arquitetura-sistema-stdd",
+      "file": "arquitetura-sistema-stdd.json",
+      "title": "Arquitetura do Sistema STDD",
+      "subtitle": "Estrutura de componentes, fluxo de execução de testes, evidências e visualização visual",
+      "kind": "feature",
+      "updated_at": "2026-08-03T13:42:01.211013+00:00",
+      "node_count": 17,
+      "edge_count": 21,
+      "subdraw_count": 3
+    },
+    {
       "id": "checkout-resiliente",
       "file": "checkout-resiliente.json",
       "title": "Checkout resiliente",
@@ -32,6 +43,39 @@
       "updated_at": "2026-08-01T23:35:27.462832+00:00",
       "node_count": 8,
       "edge_count": 16,
+      "subdraw_count": 0
+    },
+    {
+      "id": "stdd-static-analysis-details",
+      "file": "stdd-static-analysis-details.json",
+      "title": "Detalhes de Análise Estática & Scanner de Segredos",
+      "subtitle": "Varredura de extensões rastreadas, detecção de segredos hardcoded e bloqueio do gate",
+      "kind": "subflow",
+      "updated_at": "2026-08-03T13:42:01.209751+00:00",
+      "node_count": 5,
+      "edge_count": 5,
+      "subdraw_count": 0
+    },
+    {
+      "id": "stdd-runs-details",
+      "file": "stdd-runs-details.json",
+      "title": "Detalhes de Registro de Evidências & Retrabalho",
+      "subtitle": "Captura de diffs git, acumuladores diários de summary/snapshot e geração do runs.html",
+      "kind": "subflow",
+      "updated_at": "2026-08-03T13:42:01.210274+00:00",
+      "node_count": 6,
+      "edge_count": 5,
+      "subdraw_count": 0
+    },
+    {
+      "id": "stdd-draw-details",
+      "file": "stdd-draw-details.json",
+      "title": "Detalhes do Servidor & API REST do Draw",
+      "subtitle": "Roteamento HTTP, validação de payload, isolamento de layout e persistência em .stdd/draws",
+      "kind": "subflow",
+      "updated_at": "2026-08-03T13:42:01.208806+00:00",
+      "node_count": 7,
+      "edge_count": 6,
       "subdraw_count": 0
     },
     {

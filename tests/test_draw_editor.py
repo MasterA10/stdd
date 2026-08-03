@@ -175,6 +175,31 @@ def test_editor_persists_pending_layout_and_deletions_until_save():
     assert "customPos?.x !== undefined ? customPos.x : calcPos.x" in layout
 
 
+def test_editor_discovers_draw_server_when_running_on_another_local_origin():
+    """Mantém subfluxos acessíveis quando o editor roda em outra porta.
+    O backend local padrão precisa ser descoberto antes de cair no localStorage.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+
+    assert "DEFAULT_DRAW_SERVER_ORIGIN = 'http://127.0.0.1:8765'" in app
+    assert "[window.location.origin, DEFAULT_DRAW_SERVER_ORIGIN]" in app
+    assert "const backendOrigin = await checkBackendAvailable()" in app
+    assert "detectedBackendOrigin = backendOrigin" in app
+
+
+def test_editor_retries_subdraw_in_backend_before_showing_local_storage_error():
+    """Evita falha no primeiro clique enquanto a detecção do backend termina.
+    Confere no App.tsx a estratégia de tentativas nos origins do backend antes de reportar erro.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+
+    assert "if the user" not in app
+    assert "for (const origin of getApiOrigins())" in app
+    assert "detectedBackendOrigin = origin" in app
+    assert "setStorageMode('backend')" in app
+    assert "Desenho não encontrado no armazenamento local." in app
+
+
 def test_reset_button_is_the_only_way_to_clear_local_positions():
     """Mantém o reset visual exclusivamente no botão superior.
     Remove o atalho Ctrl/Cmd+Shift+R e preserva a limpeza no handler de reset.

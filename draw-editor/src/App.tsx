@@ -38,21 +38,28 @@ const edgeTypes: EdgeTypes = {
 
 const DEFAULT_CONDITION = 1;
 
-const getApiOrigin = () => {
-  if (window.location.protocol === 'file:') {
-    return `http://127.0.0.1:8765`;
-  }
-  return window.location.origin;
+const DEFAULT_DRAW_SERVER_ORIGIN = 'http://127.0.0.1:8765';
+let detectedBackendOrigin: string | null = null;
+
+const getApiOrigins = () => {
+  const origins = window.location.protocol === 'file:'
+    ? [DEFAULT_DRAW_SERVER_ORIGIN]
+    : [window.location.origin, DEFAULT_DRAW_SERVER_ORIGIN];
+  return [...new Set(origins)];
 };
 
-const checkBackendAvailable = async (): Promise<boolean> => {
-  try {
-    const origin = getApiOrigin();
-    const response = await fetch(`${origin}/.stdd/draws/index.json`, { method: 'GET', cache: 'no-store' });
-    return response.ok;
-  } catch (_) {
-    return false;
+const getApiOrigin = () => detectedBackendOrigin || getApiOrigins()[0];
+
+const checkBackendAvailable = async (): Promise<string | null> => {
+  for (const origin of getApiOrigins()) {
+    try {
+      const response = await fetch(`${origin}/.stdd/draws/index.json`, { method: 'GET', cache: 'no-store' });
+      if (response.ok) return origin;
+    } catch (_) {
+      // Tenta a próxima origem, especialmente o Draw Server em outra porta.
+    }
   }
+  return null;
 };
 
 export const App: React.FC = () => {
@@ -188,13 +195,14 @@ export const App: React.FC = () => {
   useEffect(() => {
     const initializeApp = async () => {
       // 1. Detect backend
-      const isBackend = await checkBackendAvailable();
-      const mode = isBackend ? 'backend' : 'local';
+      const backendOrigin = await checkBackendAvailable();
+      detectedBackendOrigin = backendOrigin;
+      const mode = backendOrigin ? 'backend' : 'local';
       setStorageMode(mode);
 
       // 2. Load index
       let indexData: any[] = [];
-      if (isBackend) {
+      if (backendOrigin) {
         try {
           const origin = getApiOrigin();
           const response = await fetch(`${origin}/.stdd/draws/index.json`, { cache: 'no-store' });
@@ -332,6 +340,27 @@ export const App: React.FC = () => {
         setSelectedNodeId(null);
         setSelectedEdgeId(null);
       } else {
+        // A detecção do backend acontece de forma assíncrona. Se o usuário
+        // abrir um subfluxo antes dela terminar, tente o Draw Server antes
+        // de concluir que o desenho não existe no modo offline.
+        for (const origin of getApiOrigins()) {
+          try {
+            const response = await fetch(`${origin}/.stdd/draws/${encodeURIComponent(id)}.json`, { cache: 'no-store' });
+            if (!response.ok) continue;
+            const data = await response.json();
+            detectedBackendOrigin = origin;
+            setStorageMode('backend');
+            setContract(data);
+            setPresentationPositionsForDrawing(id);
+            window.currentDrawId = id;
+            setIsDirty(false);
+            setSelectedNodeId(null);
+            setSelectedEdgeId(null);
+            return;
+          } catch (_) {
+            // Continua procurando no próximo endpoint local.
+          }
+        }
         alert('Desenho não encontrado no armazenamento local.');
       }
     }

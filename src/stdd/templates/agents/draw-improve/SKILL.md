@@ -34,11 +34,11 @@ Avaliar no nível de sistemas, domínios, atores, responsabilidades, decisões e
 - segurança, autorização ou isolamento arquiteturalmente relevante;
 - observabilidade necessária para operar o fluxo;
 - caso de uso importante não representado;
-- parte complexa que merece um único `draw_ref`.
+- parte complexa que merece um único `draw_ref` (respeitando a hierarquia de funções: o fluxo pai mantém a cápsula abstrata e o subfluxo isola os passos detalhados internos, sem duplicar etapas no pai).
 
 Quando uma decisão depender do usuário, adicionar uma pergunta opcional ao nó responsável em vez de adivinhar. Usar `questions` com `type` `choice`, `boolean` ou `open`; contar como pendente e sem resposta somente quando `answer` for `null` ou vazio. Manter perguntas respondidas no JSON para formar histórico e tratar respostas como decisões do usuário nas próximas rodadas.
 
-Não detalhar classes, funções, métodos, chamadas internas triviais, campos ou passos de implementação. Um bom desenho de alto nível pode permanecer pequeno.
+Não detalhar classes, funções, métodos, chamadas internas triviais, campos ou passos de implementação. Um bom desenho de alto nível pode permanecer pequeno. Ao criar um subfluxo (`draw_ref`), garanta separação estrita de escopo: o que está no subfluxo não deve ser duplicado no fluxo principal.
 
 ## Contrato incremental
 

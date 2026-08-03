@@ -1,0 +1,140 @@
+{
+  "version": 1,
+  "id": "stdd-runs-details",
+  "title": "Detalhes de Registro de Evidências & Retrabalho",
+  "subtitle": "Captura de diffs git, acumuladores diários de summary/snapshot e geração do runs.html",
+  "kind": "subflow",
+  "groups": [
+    {
+      "id": 1,
+      "label": "Extração de Diffs Git"
+    },
+    {
+      "id": 2,
+      "label": "Classificação & Limiar de Retrabalho"
+    },
+    {
+      "id": 3,
+      "label": "Acumuladores & Relatórios HTML"
+    }
+  ],
+  "nodes": [
+    {
+      "id": 1,
+      "label": "Coletor de Diff (get_incremental_diff_stats)",
+      "group": 1,
+      "description": "Calcula estatísticas do git diff entre execuções: linhas adicionadas, deletadas e snapshot de arquivos."
+    },
+    {
+      "id": 2,
+      "label": "Avaliador de Retrabalho (is_rework_diff)",
+      "group": 2,
+      "description": "Compara linhas adicionadas e deletadas com REWORK_LINE_THRESHOLD (500 linhas). Se ambos excederem, inclui a flag refactor."
+    },
+    {
+      "id": 3,
+      "label": "Estruturador da Pasta Diária (.stdd/runs/YYYY-MM-DD)",
+      "group": 3,
+      "description": "Garante a pasta da data atual baseada no timestamp ISO da execução."
+    },
+    {
+      "id": 4,
+      "label": "Acumulador YYYY-MM-DD_summary.json",
+      "group": 3,
+      "description": "Lê ou migra o documento diário de resumo e adiciona a nova execução no array runs."
+    },
+    {
+      "id": 5,
+      "label": "Acumulador YYYY-MM-DD_snapshot.json",
+      "group": 3,
+      "description": "Armazena snapshots detalhados de código e diffs de arquivos alterados."
+    },
+    {
+      "id": 6,
+      "label": "Gerador de Painel (runs.html)",
+      "group": 3,
+      "description": "Compila o relatório visual de execuções acumuladas para navegação no navegador."
+    }
+  ],
+  "edges": [
+    {
+      "id": 1,
+      "from": 1,
+      "to": 2,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então avalia volume de alteração",
+      "description": "Dispara checagem de retrabalho."
+    },
+    {
+      "id": 2,
+      "from": 2,
+      "to": 3,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então obtém pasta da data",
+      "description": "Organiza o registro no diretório diário."
+    },
+    {
+      "id": 3,
+      "from": 3,
+      "to": 4,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então grava no resumo diário",
+      "description": "Adiciona a nova entrada no arquivo summary."
+    },
+    {
+      "id": 4,
+      "from": 3,
+      "to": 5,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então grava snapshot de código",
+      "description": "Persiste os detalhes de diffs e arquivos."
+    },
+    {
+      "id": 5,
+      "from": 4,
+      "to": 6,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então recompila o painel HTML",
+      "description": "Garante que runs.html reflita as últimas estatísticas."
+    }
+  ],
+  "flows": [
+    {
+      "id": 1,
+      "label": "Acúmulo Diário de Evidências",
+      "title": "Fluxo de gravação incremental de log",
+      "summary": "Coleta diffs, ajusta trabalho para refactor quando grande, acumula no dia e atualiza o relatório HTML.",
+      "steps": [
+        {
+          "node": 1,
+          "text": "Calcula diffs do git"
+        },
+        {
+          "node": 2,
+          "text": "Checa limiar de 500 linhas"
+        },
+        {
+          "node": 4,
+          "text": "Escreve YYYY-MM-DD_summary.json"
+        },
+        {
+          "node": 5,
+          "text": "Escreve YYYY-MM-DD_snapshot.json"
+        },
+        {
+          "node": 6,
+          "text": "Regenera runs.html"
+        }
+      ]
+    }
+  ],
+  "tradeoffs": [],
+  "notes": [
+    "Os relatórios acumulativos evitam a criação de milhares de arquivos isolados por execução."
+  ]
+}
