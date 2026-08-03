@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import type { NodeProps, Node } from '@xyflow/react';
 import type { NodeData, Question } from '../types';
-import { Trash2, ClipboardList, Eye } from 'lucide-react';
+import { Trash2, ClipboardList, Eye, Code2 } from 'lucide-react';
 
 const FALLBACK_GROUP_COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f97316', '#ec4899', '#3b82f6'];
 
@@ -50,6 +50,7 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
   const totalQuestions = Array.isArray(data.questions) ? data.questions.length : 0;
   const unansweredQuestions = unansweredQuestionCount(data.questions);
   const answeredQuestions = totalQuestions - unansweredQuestions;
+  const codeReferenceCount = Array.isArray(data.code_refs) ? data.code_refs.length : 0;
 
   const isHighlighted = data.isHighlighted;
   const isDimmed = data.isDimmed;
@@ -122,6 +123,11 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
     if (window.openQuestionsModal) {
       window.openQuestionsModal(data);
     }
+  };
+
+  const onOpenCodeReferences = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.openCodeReferencesModal?.(data);
   };
 
   // Node visual styles
@@ -247,7 +253,7 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
       </div>
 
       {/* Node Footer Row (Questions or Subdraw link) */}
-      {(totalQuestions > 0 || data.draw_ref) && (
+      {(totalQuestions > 0 || data.draw_ref || codeReferenceCount > 0) && (
         <>
           <div className="node-divider-line" />
           <div className="node-footer-row">
@@ -264,11 +270,11 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
               >
                 Detalhes: {data.draw_ref} ↗
               </span>
-            ) : (
+            ) : totalQuestions > 0 ? (
               <span className="node-footer-questions" onClick={onOpenQuestions}>
                 Perguntas
               </span>
-            )}
+              ) : <span />}
             
             {totalQuestions > 0 && (
               <div className="question-counts-pill" onClick={onOpenQuestions}>
@@ -283,6 +289,12 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
                   </span>
                 )}
               </div>
+            )}
+            {codeReferenceCount > 0 && (
+              <button className="node-code-ref-pill" onClick={onOpenCodeReferences} type="button" title="Ver símbolos e arquivos associados">
+                <Code2 size={11} />
+                <span className="code-ref-count">{codeReferenceCount}</span>
+              </button>
             )}
           </div>
         </>
@@ -326,6 +338,7 @@ declare global {
     updateNodeField?: (id: number, field: 'label' | 'description', value: string) => void;
     deleteNode?: (id: number) => void;
     openQuestionsModal?: (node: NodeData) => void;
+    openCodeReferencesModal?: (node: NodeData) => void;
     getGroupName?: (groupId: number) => string;
     getGroupInfo?: (groupId: number) => any;
     currentDrawId?: string;

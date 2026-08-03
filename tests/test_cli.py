@@ -94,6 +94,24 @@ def test_setup_detects_php_wordpress_and_custom_runner_and_generates_adapter(tmp
     assert "._*" in (tmp_path / ".gitignore").read_text()
 
 
+def test_setup_ignores_stdd_php_adapter_template_when_detecting_stack(tmp_path: Path):
+    """Não confunde template interno do STDD com PHP da aplicação.
+    Mantém uma codebase Python identificada sem gerar adapter PHP indevido.
+    """
+    (tmp_path / "pyproject.toml").write_text("[project]\ndependencies = ['pytest']\n")
+    template = tmp_path / "src/stdd/templates/adapters/php_static_adapter.php"
+    template.parent.mkdir(parents=True)
+    template.write_text("<?php echo 'template';\n")
+
+    result = runner.invoke(app, ["setup", str(tmp_path)])
+
+    assert result.exit_code == 0
+    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    assert config["stack"]["languages"] == ["python"]
+    assert config["static_analysis"]["adapter_command"] is None
+    assert not (tmp_path / ".stdd/adapters/php_static_adapter.php").exists()
+
+
 def test_php_adapter_reports_quality_metrics(tmp_path: Path):
     """Calcula complexidade e limites estruturais por função PHP.
     Executa o adapter gerado com um fixture controlado e valida achados determinísticos.

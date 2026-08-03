@@ -50,7 +50,9 @@ def detect_stack(root: Path) -> dict[str, Any]:
             runners.append("pytest")
             test_command = ["python", "-m", "pytest"]
 
-    php_files = sorted(root.rglob("*.php"))
+    # O pacote do STDD distribui templates de adapters PHP para outros projetos.
+    # Esses templates não são evidência da linguagem da aplicação atual.
+    php_files = _project_php_files(root)
     composer = root / "composer.json"
     if composer.exists() or php_files:
         languages.append("php")
@@ -213,12 +215,26 @@ def _stack_evidence(root: Path) -> list[str]:
     """
     candidates = ("package.json", "tsconfig.json", "pyproject.toml", "requirements.txt", "go.mod", "Cargo.toml", "pom.xml", "mvnw", "composer.json", "phpunit.xml", "phpunit.xml.dist")
     evidence = [name for name in candidates if (root / name).exists()]
-    if not evidence and list(root.rglob("*.php")):
+    if not evidence and _project_php_files(root):
         evidence.append("*.php")
     for runner in _php_runner_evidence(root):
         if runner not in evidence:
             evidence.append(runner)
     return evidence
+
+
+def _project_php_files(root: Path) -> list[Path]:
+    """Lista PHP da aplicação, ignorando artefatos e templates internos do STDD."""
+    ignored_parts = {".git", ".stdd", "node_modules", "vendor", "__pycache__"}
+    files: list[Path] = []
+    for path in root.rglob("*.php"):
+        relative = path.relative_to(root)
+        if ignored_parts.intersection(relative.parts):
+            continue
+        if relative.parts[:3] == ("src", "stdd", "templates"):
+            continue
+        files.append(path)
+    return sorted(files)
 
 
 def _find_php_test_runner(root: Path) -> str | None:

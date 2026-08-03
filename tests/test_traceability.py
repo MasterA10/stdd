@@ -171,7 +171,7 @@ def test_associate_node_reference_persists_only_minimal_cli_inputs(tmp_path):
         "symbol": "checkout.authorize",
         "source_dependencies": ["checkout.authorize"],
     }]
-    assert not list((tmp_path / ".stdd/draws").glob("*.facts.json"))
+    assert not list((tmp_path / ".stdd/facts").glob("*.facts.json"))
 
 
 def test_enrich_traceability_recalculates_and_persists_separate_facts_file(tmp_path):
@@ -191,7 +191,7 @@ def test_enrich_traceability_recalculates_and_persists_separate_facts_file(tmp_p
 
     facts_path = enrich_traceability(tmp_path, "checkout", analysis_facts)
 
-    assert facts_path == tmp_path / ".stdd/draws/checkout.facts.json"
+    assert facts_path == tmp_path / ".stdd/facts/checkout.facts.json"
     facts = json.loads(facts_path.read_text(encoding="utf-8"))
     assert facts["version"] == 1
     assert facts["draw_id"] == "checkout"

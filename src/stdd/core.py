@@ -337,7 +337,10 @@ def run_tests(
         config,
         sorted(get_workspace_snapshot(root)),
     )
-    if static_report["status"] == "passed":
+    # Um relatório estático pode conter fatos válidos mesmo quando o gate de
+    # qualidade bloqueia a execução. Preserve os facts para rastreabilidade;
+    # o status bloqueado continua sendo devolvido ao usuário e ao CI.
+    if static_report["status"] in {"passed", "blocked"} and static_report.get("symbols"):
         refresh_traceability(root, static_report)
     output: list[str] = []
     errors: list[str] = []

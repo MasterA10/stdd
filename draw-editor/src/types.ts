@@ -25,6 +25,24 @@ export interface NodeData {
   [key: string]: any;
 }
 
+export interface CodeReference {
+  symbol: string;
+  source_dependencies?: string[];
+  identity?: string;
+}
+
+export interface TraceabilityFacts {
+  version?: number;
+  draw_id?: string;
+  nodes?: Record<string, {
+    references?: Array<{ symbol?: string; status?: string; file?: string }>;
+    source_dependencies?: string[];
+    files?: string[];
+    tests?: string[];
+    unresolved?: string[];
+  }>;
+}
+
 export interface EdgeData {
   id: number;
   from: number;

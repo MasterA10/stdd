@@ -4,13 +4,19 @@ STDD é um framework de controle de desenvolvimento orientado por testes. Ele in
 
 ## Instalação
 
-O pacote atual é a versão `0.1.2`. Use este comando para instalar ou atualizar o CLI pela tag publicada, usando [`uv`](https://docs.astral.sh/uv/):
+Use [`uv`](https://docs.astral.sh/uv/) para instalar a versão publicada. O mesmo comando, executado novamente, força a atualização do CLI instalado:
 
 ```bash
 uv tool install --force --refresh stdd --from git+https://github.com/MasterA10/stdd.git@v0.1.2
 ```
 
-Em desenvolvimento local, dentro deste repositório:
+Para acompanhar as próximas modificações já disponíveis na branch principal, use:
+
+```bash
+uv tool install --force --refresh stdd --from git+https://github.com/MasterA10/stdd.git@main
+```
+
+Em desenvolvimento local, dentro deste repositório, a instalação editável acompanha automaticamente as próximas alterações do checkout; não é necessário reinstalar a cada edição:
 
 ```bash
 uv tool install --editable .
@@ -145,7 +151,7 @@ stdd test --approve-actions
 
 ## Abrir e editar o Draw
 
-O Draw Server é o processo responsável por ler e salvar os desenhos. O viewer React Flow compilado vem dentro do pacote Python do STDD; o projeto do usuário não recebe HTML, JavaScript, CSS ou dependências Node. O servidor lê e grava somente os JSONs em `.stdd/draws/`.
+O Draw Server é o processo responsável por ler e salvar os desenhos. O viewer React Flow compilado vem dentro do pacote Python do STDD; o projeto do usuário não recebe HTML, JavaScript, CSS ou dependências Node. O servidor mantém os Draws em `.stdd/draws/` e os relatórios derivados da análise em `.stdd/facts/`.
 
 No diretório raiz do projeto, execute:
 
@@ -228,7 +234,7 @@ stdd draw associate-reference \
   --source-dependency 'tests.orders.test_create_order'
 ```
 
-O comando valida o desenho e o nó e grava a referência no JSON lógico. Em uma nova análise estática bem-sucedida, o STDD cruza essa referência com `symbols` e `dependencies` e gera o relatório derivado em `.stdd/draws/<draw-id>.facts.json`, incluindo arquivos, testes relacionados e possíveis dependências para revisão. Para subfluxos, repetir a associação nos nós do subfluxo e manter a referência ao nó chamador.
+O comando valida o desenho e o nó e grava a referência no JSON lógico. Em uma nova análise estática, o STDD cruza essa referência com `symbols` e `dependencies` e gera o relatório derivado em `.stdd/facts/<draw-id>.facts.json`, incluindo arquivos, testes relacionados e possíveis dependências para revisão. Para subfluxos, repetir a associação nos nós do subfluxo e manter a referência ao nó chamador.
 
 ## Registrar trabalho
 

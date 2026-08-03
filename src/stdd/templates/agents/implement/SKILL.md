@@ -140,7 +140,7 @@ Depois que o código e os testes estiverem validados, revisar novamente todos os
 
 Executar a revisão nesta ordem:
 
-1. localizar os desenhos associados pelos `code_refs`, `qualified_name`, `source_dependencies`, `draw_ref` e pelos fatos em `.stdd/draws/*.facts.json`;
+1. localizar os desenhos associados pelos `code_refs`, `qualified_name`, `source_dependencies`, `draw_ref` e pelos fatos em `.stdd/facts/*.facts.json`;
 2. ler o desenho principal completo e todos os subfluxos relacionados, não somente o nó alterado;
 3. comparar nós, relações, estados, nomes, condições, erros, entradas, saídas, perguntas e respostas com o comportamento realmente implementado;
 4. verificar referências `resolved`, `unresolved` e `drift`, além de arquivos, funções e testes retornados pela análise estática;

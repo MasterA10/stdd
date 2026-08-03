@@ -186,7 +186,7 @@ stdd draw associate-reference \
 
 Para vários vínculos, usar `--batch-json` com uma lista de objetos que contenham `node_id`, `qualified_name` e `source_dependencies`. Validar que o desenho existe, que o nó existe e que o nome qualificado é o formato usado pelo adapter. Não associar pelo texto visual, posição, índice do array ou nome curto isolado.
 
-O comando grava a referência declarada no desenho. Ele não calcula fatos derivados nem deve substituir uma associação explícita por uma sugestão. Em cada nova execução bem-sucedida da análise estática, o STDD cruza as referências com `symbols` e `dependencies` e gera um relatório separado em `.stdd/draws/<draw-id>.facts.json`. Esse relatório pode indicar:
+O comando grava a referência declarada no desenho. Ele não calcula fatos derivados nem deve substituir uma associação explícita por uma sugestão. Em cada nova execução da análise estática, o STDD cruza as referências com `symbols` e `dependencies` e gera um relatório separado em `.stdd/facts/<draw-id>.facts.json`. Esse relatório pode indicar:
 
 - `resolved`: o símbolo foi encontrado;
 - `unresolved`: o símbolo não apareceu nos fatos atuais;

@@ -562,6 +562,9 @@ def test_draw_server_serves_viewer_index_and_selected_json(tmp_path: Path):
     Cria um desenho, consulta três URLs e encerra o servidor sem deixar thread ativa.
     """
     create_draw(tmp_path, draw_payload())
+    facts = {"version": 1, "draw_id": "checkout", "nodes": {}}
+    (tmp_path / ".stdd" / "facts").mkdir(parents=True, exist_ok=True)
+    (tmp_path / ".stdd" / "facts" / "checkout.facts.json").write_text(json.dumps(facts), encoding="utf-8")
     server, thread = start_server_for_test(tmp_path)
     base_url = f"http://127.0.0.1:{server.server_address[1]}"
     try:
@@ -569,6 +572,7 @@ def test_draw_server_serves_viewer_index_and_selected_json(tmp_path: Path):
         assert 'id="root"' in viewer_html
         assert "Checkout" in urlopen(f"{base_url}/.stdd/draws/index.json").read().decode()
         assert "Carrinho" in urlopen(f"{base_url}/.stdd/draws/checkout.json").read().decode()
+        assert json.loads(urlopen(f"{base_url}/.stdd/facts/checkout.facts.json").read().decode()) == facts
         assert "assets/" in viewer_html
         script_path = next(part.split('"', 1)[0] for part in viewer_html.split('src="') if part.startswith("/assets/") and ".js" in part)
         assert "react" in urlopen(f"{base_url}{script_path}").read().decode().lower()

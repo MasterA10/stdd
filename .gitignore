@@ -19,3 +19,9 @@ node_modules/
 .coverage
 coverage/
 htmlcov/
+
+._*
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon

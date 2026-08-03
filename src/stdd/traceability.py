@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any, Iterable
 
-from .draw import create_draw, read_draw
+from .draw import create_draw, facts_directory, read_draw
 
 
 TRACEABILITY_VERSION = 1
@@ -17,7 +17,7 @@ def _unique_strings(values: Iterable[str]) -> list[str]:
 
 
 def _draw_facts_path(root: Path, draw_id: str) -> Path:
-    return root / ".stdd" / "draws" / f"{draw_id}.facts.json"
+    return facts_directory(root) / f"{draw_id}.facts.json"
 
 
 def _find_node(document: dict[str, Any], node_id: int) -> dict[str, Any]:

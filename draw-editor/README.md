@@ -17,4 +17,4 @@ npm run build
 ```
 
 Depois copie o conteúdo de `dist/` para `src/stdd/draw_assets/` e execute os testes Python do STDD.
-O runtime do usuário continua usando somente os assets compilados do pacote e os JSONs em `.stdd/draws/`.
+O runtime do usuário continua usando somente os assets compilados do pacote, os Draws em `.stdd/draws/` e os fatos derivados em `.stdd/facts/`.
