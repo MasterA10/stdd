@@ -506,11 +506,11 @@ def get_previous_workspace_snapshot(root: Path) -> dict[str, list[str]]:
     candidates = sorted((stdd_dir(root) / "runs").glob("*/*_snapshot.json"))
     latest: tuple[str, dict[str, list[str]]] | None = None
     for path in candidates:
-        if path.parent.name == "data":
+        if path.parent.name == "data" or path.name.startswith("._"):
             continue
         try:
             document = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
             continue
         workspace = document.get("workspace_snapshot")
         runs = document.get("runs", [])

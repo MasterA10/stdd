@@ -421,6 +421,23 @@ def test_log_command_creates_incremental_summary_and_snapshot_in_date_subfolder(
     assert not (tmp_path / ".stdd/runs/data/latest_snapshot.json").exists()
 
 
+def test_log_ignores_invalid_utf8_appledouble_snapshot(tmp_path: Path, monkeypatch):
+    """Mantém o log funcionando quando o macOS deixa snapshot AppleDouble inválido.
+    Cria um arquivo ._ binário no histórico e confirma que o próximo log não falha ao ler o diff.
+    """
+    monkeypatch.chdir(tmp_path)
+    runner.invoke(app, ["init"])
+    first = runner.invoke(app, ["log", "Primeiro registro", "-i"])
+    assert first.exit_code == 0
+    day_folder = next(path for path in (tmp_path / ".stdd/runs").iterdir() if path.is_dir() and path.name != "data")
+    (day_folder / "._invalid_snapshot.json").write_bytes(b"AppleDouble\x00\xff")
+
+    second = runner.invoke(app, ["log", "Segundo registro", "-t"])
+
+    assert second.exit_code == 0
+    assert "Registro gravado em" in second.stdout
+
+
 def test_workspace_snapshot_excludes_stdd_draw_and_run_json_documents(tmp_path: Path):
     """Exclui JSONs operacionais dos desenhos e das execuções.
     Mantém arquivos de código do projeto disponíveis para o diff incremental.

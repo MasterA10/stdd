@@ -120,6 +120,12 @@ O comando identifica manifests e runners sem presumir Python. Exemplos de runner
 
 A configuração fica em `.stdd/config.json`. O setup também adiciona padrões de ambiente, dependências, builds e caches ao `.gitignore`, preservando regras existentes.
 
+### Adapter de análise estática
+
+Quando a codebase tiver uma linguagem e uma ferramenta local comprovadas, o agente `setup` constrói um adapter específico para aquela linguagem dentro do próprio projeto, preferencialmente em `.stdd/adapters/`. O adapter é versionado junto com a aplicação e o caminho em `static_analysis.adapter_command` é relativo à raiz do projeto. O núcleo do STDD permanece agnóstico: símbolos, dependências, complexidade e métricas são coletados por parser, tokenizer, AST, compiler API ou ferramenta local da própria stack, sem depender de serviço externo ou de um adapter instalado globalmente. Se a ferramenta necessária não existir, a capacidade fica explicitamente `unavailable`.
+
+O `stdd log` registra diffs incrementais e ignora snapshots AppleDouble `._*` e arquivos históricos que não sejam UTF-8, evitando que metadados binários gerados pelo macOS interrompam o registro de uma execução.
+
 ## Executar testes
 
 ```bash
