@@ -85,8 +85,23 @@
         "lines_deleted": 16,
         "files_changed": 7
       }
+    },
+    {
+      "run_id": "89814ed3fbfc48fcbfb7519750210b48",
+      "timestamp": "2026-08-03T14:31:07.722593+00:00",
+      "description": "Filtra execuções exibidas no viewer para considerar apenas o dia atual a partir das 00h",
+      "work_types": [
+        "teste",
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 47,
+        "lines_deleted": 47,
+        "files_changed": 7
+      }
     }
   ],
-  "run_count": 6,
-  "last_run_id": "22fd3892a2ad460299d25818dde77924"
+  "run_count": 7,
+  "last_run_id": "89814ed3fbfc48fcbfb7519750210b48"
 }

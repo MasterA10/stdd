@@ -164,7 +164,15 @@
       "id": 17,
       "label": "Viewer React Flow Embutido",
       "group": 5,
-      "description": "Interface visual embarcada nos assets do STDD para renderização dinâmica, pan/zoom e edição interativa no navegador."
+      "description": "Interface visual embarcada nos assets do STDD para renderização dinâmica, pan/zoom e edição interativa no navegador. Mostra também as runs do lado esquerdo somente do dia atual.",
+      "questions": [
+        {
+          "id": 1,
+          "type": "open",
+          "prompt": "Mostra runs das ultimas 24h?",
+          "answer": "Não. Somente das 00h em diante do dia atual"
+        }
+      ]
     }
   ],
   "edges": [

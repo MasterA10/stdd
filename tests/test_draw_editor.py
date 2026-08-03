@@ -442,3 +442,12 @@ def test_new_drawing_button_persists_a_new_json_document():
     assert "await performSave(newContract)" in create_block
     assert "create_draw(root, payload)" in draw
     assert "draw_directory(root) / f\"{draw_id}.json\"" in draw
+
+
+def test_runs_are_filtered_to_current_day():
+    """Filtra as runs para exibir apenas as ocorridas a partir das 00h do dia atual.
+    Garante que execuções de dias anteriores não sejam carregadas no menu lateral.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    assert "setHours(0, 0, 0, 0)" in app
+

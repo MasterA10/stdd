@@ -122,8 +122,14 @@ export const App: React.FC = () => {
         const records = summaries.flatMap((summary) => (
           Array.isArray(summary?.runs) ? summary.runs : []
         )) as RunRecord[];
-        records.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-        if (!cancelled) setRuns(records);
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+        const todayRecords = records.filter((run) => {
+          const runTime = new Date(run.timestamp).getTime();
+          return !Number.isNaN(runTime) && runTime >= startOfToday.getTime();
+        });
+        todayRecords.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        if (!cancelled) setRuns(todayRecords);
       } catch (_) {
         if (!cancelled) setRuns([]);
       }
