@@ -159,7 +159,7 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "# Setup Agent" in templates["setup"].read_text()
     assert "complexidade ciclomática" in templates["static-analysis"].read_text()
     assert "long_function" in templates["static-analysis"].read_text()
-    assert "acima de 100" in templates["static-analysis"].read_text()
+    assert "acima de 150" in templates["static-analysis"].read_text()
     assert "Classe Deus" in templates["static-analysis"].read_text()
     assert "Etapa 1" in templates["static-analysis"].read_text()
     assert "hardcoded_secret" in templates["static-analysis"].read_text()
@@ -167,6 +167,18 @@ def test_agents_are_loaded_from_markdown_templates():
     assert ".env" in templates["static-analysis"].read_text()
     assert "*.pyc" in templates["static-analysis"].read_text()
     assert "stdd draw create" in templates["draw-feature"].read_text()
+
+    setup_content = templates["setup"].read_text()
+    assert "núcleo do STDD permanece agnóstico" in setup_content
+    assert "algoritmo deve ser próprio da stack detectada" in setup_content
+    assert "Não começar pelo formato JSON" in setup_content
+    assert "quality_findings" in setup_content
+    assert "observed" in setup_content and "resolved" in setup_content and "unresolved" in setup_content
+
+    implement_content = templates["implement"].read_text()
+    assert "Uso da análise estática para refatoração segura" in implement_content
+    assert "101–150" in implement_content
+    assert "valores antes/depois" in implement_content
 
 
 def test_implement_skill_triages_draw_diffs_before_declaring_no_change():

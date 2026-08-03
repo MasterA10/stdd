@@ -1,7 +1,11 @@
 from datetime import datetime, timezone
 from pathlib import Path
 import json
+import shutil
+import subprocess
 import sys
+
+import pytest
 
 from typer.testing import CliRunner
 
@@ -65,6 +69,56 @@ def test_setup_detects_stack_without_assuming_python(tmp_path: Path):
     assert config["test_commands"][0]["command"] == ["npm", "test"]
     assert "pytest" not in json.dumps(config)
     assert "dist/" in (tmp_path / ".gitignore").read_text()
+
+
+def test_setup_detects_php_wordpress_and_custom_runner_and_generates_adapter(tmp_path: Path):
+    """Detecta PHP e WordPress por evidências locais e configura o adapter nativo.
+    Usa um runner PHP sem Composer e confirma que o setup produz comando executável.
+    """
+    (tmp_path / "whatsapp-plugin.php").write_text("<?php\n/** Plugin Name: Fixture */\n")
+    runner_file = tmp_path / "tests/router/run.php"
+    runner_file.parent.mkdir(parents=True)
+    runner_file.write_text("<?php echo 'ok';\n")
+
+    result = runner.invoke(app, ["setup", str(tmp_path)])
+
+    assert result.exit_code == 0
+    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    assert config["stack"]["languages"] == ["php"]
+    assert "wordpress" in config["stack"]["frameworks"]
+    assert "php custom runner" in config["stack"]["test_runners"]
+    assert config["test_commands"][0]["command"] == ["php", "tests/router/run.php"]
+    assert config["static_analysis"]["adapter_command"] == ["php", ".stdd/adapters/php_static_adapter.php"]
+    assert (tmp_path / ".stdd/adapters/php_static_adapter.php").exists()
+    assert "vendor/" in (tmp_path / ".gitignore").read_text()
+    assert "._*" in (tmp_path / ".gitignore").read_text()
+
+
+def test_php_adapter_reports_quality_metrics(tmp_path: Path):
+    """Calcula complexidade e limites estruturais por função PHP.
+    Executa o adapter gerado com um fixture controlado e valida achados determinísticos.
+    """
+    if shutil.which("php") is None:
+        pytest.skip("PHP CLI não disponível")
+    source = tmp_path / "src/Service.php"
+    source.parent.mkdir()
+    source.write_text(
+        "<?php\nnamespace Demo;\nclass Service {\n"
+        "public function process($a, $b, $c, $d, $e, $f) {\n"
+        + "\n".join("if ($a) { $a = $a + 1; }" for _ in range(11))
+        + "\nreturn $a;\n}\n}\n"
+    )
+    runner.invoke(app, ["setup", str(tmp_path)])
+    request = json.dumps({"contract_version": "1", "project_path": str(tmp_path), "changed_files": [], "mode": "full"})
+    process = subprocess.run(["php", ".stdd/adapters/php_static_adapter.php"], cwd=tmp_path, input=request, text=True, capture_output=True)
+    report = json.loads(process.stdout)
+
+    assert process.returncode == 0
+    assert report["capabilities"]["complexity"] is True
+    assert any(item["qualified_name"] == "Demo\\Service::process" for item in report["symbols"])
+    findings = {item["kind"] for item in report["quality_findings"]}
+    assert "high_complexity" in findings
+    assert "too_many_parameters" in findings
 
 
 def test_test_runs_all_configured_suites(tmp_path: Path):

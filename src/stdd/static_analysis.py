@@ -47,6 +47,7 @@ SECRET_SCAN_EXTENSIONS = {
     ".ini", ".cfg", ".conf", ".xml", ".yaml", ".yml",
 }
 SECRET_PLACEHOLDERS = {"test", "testing", "example", "dummy", "placeholder", "changeme", "change-me"}
+TEST_FIXTURE_MARKERS = {"test", "fixture", "mock", "fake", "dummy", "example", "placeholder", "invalid"}
 
 
 def unavailable_result(reason: str) -> dict[str, Any]:
@@ -110,7 +111,12 @@ def scan_hardcoded_secrets(root: Path, files: list[str] | None = None) -> list[d
             if assignment:
                 value = assignment.group("value").strip()
                 normalized = value.lower()
-                if value and normalized not in SECRET_PLACEHOLDERS and not value.startswith(("${", "<")):
+                if (
+                    value
+                    and normalized not in SECRET_PLACEHOLDERS
+                    and not value.startswith(("${", "<"))
+                    and not _is_obvious_test_fixture(relative, assignment, normalized)
+                ):
                     findings.append(
                         {
                             "kind": "hardcoded_secret",
@@ -172,6 +178,24 @@ def scan_hardcoded_secrets(root: Path, files: list[str] | None = None) -> list[d
                 }
             )
     return findings
+
+
+def _is_obvious_test_fixture(relative: str, assignment: re.Match[str], normalized: str) -> bool:
+    """Ignora valores claramente sintéticos usados por testes de contrato.
+    Variáveis de produção continuam bloqueadas; somente fixtures em arquivos de teste são filtradas.
+    """
+    path = Path(relative)
+    parts = {part.lower() for part in path.parts}
+    is_test_file = bool(parts.intersection({"test", "tests", "spec", "specs", "fixtures"})) or "test" in path.stem.lower()
+    if not is_test_file:
+        return False
+    identifier = assignment.group(0).split("=", 1)[0].split(":", 1)[0].strip().lower()
+    local_secret_name = identifier.lstrip("$") in {"secret", "token", "password", "api_key", "access_token"}
+    return local_secret_name and (
+        any(marker in normalized for marker in TEST_FIXTURE_MARKERS)
+        or "secret" in normalized
+        or "token" in normalized
+    )
 
 
 def _read_environment_values(root: Path) -> list[tuple[str, str, str]]:

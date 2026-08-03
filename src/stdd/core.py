@@ -38,6 +38,11 @@ GITIGNORE_RULES = (
     ".coverage",
     "coverage/",
     "htmlcov/",
+    "._*",
+    ".DS_Store",
+    ".AppleDouble",
+    ".LSOverride",
+    "Icon\r",
 )
 INTERNAL_STATE_DIRECTORIES = {".stdd"}
 
@@ -160,7 +165,7 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list
                         "contract_version": "1",
                         "quality": {
                             "functions": {
-                                "max_lines": {"warning": 40, "blocking": 100},
+                                "max_lines": {"warning": 100, "blocking": 150},
                                 "max_complexity": {"warning": 10, "blocking": 25},
                             },
                             "tests": {

@@ -18,6 +18,7 @@ STACK_GITIGNORE_RULES = {
     "rust": ("target/",),
     "java": ("target/",),
     "csharp": ("bin/", "obj/"),
+    "php": ("vendor/",),
 }
 
 
@@ -48,6 +49,34 @@ def detect_stack(root: Path) -> dict[str, Any]:
         if "pytest" in content or (root / "tests").exists():
             runners.append("pytest")
             test_command = ["python", "-m", "pytest"]
+
+    php_files = sorted(root.rglob("*.php"))
+    composer = root / "composer.json"
+    if composer.exists() or php_files:
+        languages.append("php")
+        composer_data = _read_json(composer) if composer.exists() else {}
+        dependencies = {
+            **(composer_data.get("require", {}) if isinstance(composer_data.get("require"), dict) else {}),
+            **(composer_data.get("require-dev", {}) if isinstance(composer_data.get("require-dev"), dict) else {}),
+        }
+        frameworks.extend(_matching_names(dependencies, ("wordpress", "laravel", "symfony", "slim", "laminas")))
+        scripts = composer_data.get("scripts", {})
+        composer_test = scripts.get("test") if isinstance(scripts, dict) else None
+        if isinstance(composer_test, str) and composer_test.strip():
+            runners.append("composer")
+            test_command = ["composer", "test"]
+        elif (root / "phpunit.xml").exists() or (root / "phpunit.xml.dist").exists():
+            runners.append("phpunit")
+            phpunit = root / "vendor/bin/phpunit"
+            test_command = [str(phpunit), "--configuration", "phpunit.xml"] if phpunit.exists() else ["phpunit"]
+        else:
+            custom_runner = _find_php_test_runner(root)
+            if custom_runner:
+                runners.append("php custom runner")
+                test_command = ["php", custom_runner]
+        if "wordpress" in dependencies or _looks_like_wordpress(root, php_files):
+            if "wordpress" not in frameworks:
+                frameworks.append("wordpress")
 
     if (root / "go.mod").exists():
         languages.append("go")
@@ -89,6 +118,17 @@ def configure_project(root: Path) -> dict[str, Any]:
     config["stack"] = {key: value for key, value in stack.items() if key != "test_command"}
     if stack["test_command"] and not config.get("test_commands"):
         config["test_commands"] = [{"name": "all", "command": stack["test_command"]}]
+    if "php" in stack["languages"]:
+        static_config = config.setdefault("static_analysis", {})
+        generated_adapter_missing = (
+            isinstance(static_config, dict)
+            and static_config.get("adapter_command") == ["php", ".stdd/adapters/php_static_adapter.php"]
+            and not (root / ".stdd/adapters/php_static_adapter.php").exists()
+        )
+        if isinstance(static_config, dict) and (not static_config.get("adapter_command") or generated_adapter_missing):
+            adapter = ensure_php_adapter(root)
+            if adapter:
+                static_config["adapter_command"] = ["php", str(adapter.relative_to(root))]
     config_path.parent.mkdir(parents=True, exist_ok=True)
     config_path.write_text(json.dumps(config, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return stack
@@ -171,5 +211,54 @@ def _stack_evidence(root: Path) -> list[str]:
     """Lista manifests locais que sustentam a detecção da stack.
     Os caminhos são relativos e não contêm valores de configuração.
     """
-    candidates = ("package.json", "tsconfig.json", "pyproject.toml", "requirements.txt", "go.mod", "Cargo.toml", "pom.xml", "mvnw")
-    return [name for name in candidates if (root / name).exists()]
+    candidates = ("package.json", "tsconfig.json", "pyproject.toml", "requirements.txt", "go.mod", "Cargo.toml", "pom.xml", "mvnw", "composer.json", "phpunit.xml", "phpunit.xml.dist")
+    evidence = [name for name in candidates if (root / name).exists()]
+    if not evidence and list(root.rglob("*.php")):
+        evidence.append("*.php")
+    for runner in _php_runner_evidence(root):
+        if runner not in evidence:
+            evidence.append(runner)
+    return evidence
+
+
+def _find_php_test_runner(root: Path) -> str | None:
+    """Encontra um runner PHP local sem executar código ou instalar dependências."""
+    return next((path for path in _php_runner_evidence(root) if path.endswith(".php")), None)
+
+
+def _php_runner_evidence(root: Path) -> list[str]:
+    """Lista runners PHP convencionais com caminhos relativos estáveis."""
+    candidates = sorted(
+        path.relative_to(root).as_posix()
+        for path in root.glob("tests/**/run.php")
+        if path.is_file()
+    )
+    if (root / "test.php").is_file():
+        candidates.append("test.php")
+    return candidates
+
+
+def _looks_like_wordpress(root: Path, php_files: list[Path]) -> bool:
+    """Reconhece WordPress apenas por marcadores locais, sem carregar a aplicação."""
+    for path in php_files[:200]:
+        try:
+            content = path.read_text(encoding="utf-8", errors="ignore")[:12000].lower()
+        except OSError:
+            continue
+        if "wp-content/plugins" in str(root).lower() or "plugin name:" in content or "abspath" in content:
+            return True
+    return False
+
+
+def ensure_php_adapter(root: Path) -> Path | None:
+    """Materializa o adapter PHP nativo do STDD quando o CLI PHP está disponível."""
+    if shutil.which("php") is None:
+        return None
+    source = Path(__file__).parent / "templates" / "adapters" / "php_static_adapter.php"
+    if not source.exists():
+        return None
+    target = root / ".stdd" / "adapters" / "php_static_adapter.php"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if not target.exists():
+        target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+    return target

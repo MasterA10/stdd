@@ -4,7 +4,7 @@ from typer.testing import CliRunner
 
 from stdd.cli import app
 from stdd.draw import create_draw
-from stdd.traceability import associate_node_reference, build_traceability_report, enrich_traceability
+from stdd.traceability import associate_node_reference, build_traceability_report, enrich_traceability, refresh_traceability
 
 
 def _draw_with_traceable_node():
@@ -24,6 +24,18 @@ def _draw_with_traceable_node():
 
 
 runner = CliRunner()
+
+
+def test_refresh_traceability_ignores_macos_appledouble_files(tmp_path):
+    """Ignora metadados AppleDouble que possuem extensão JSON aparente.
+    Evita que arquivos binários ._ gerados pelo macOS derrubem o teste global.
+    """
+    draws = tmp_path / ".stdd/draws"
+    draws.mkdir(parents=True)
+    (draws / "index.json").write_text("{}", encoding="utf-8")
+    (draws / "._broken.json").write_bytes(b"AppleDouble\x00\xff")
+
+    assert refresh_traceability(tmp_path, {"symbols": [], "dependencies": []}) == []
 
 
 def test_traceability_maps_node_references_to_symbols_files_and_tests(tmp_path):

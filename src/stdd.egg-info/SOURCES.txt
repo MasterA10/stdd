@@ -9,6 +9,7 @@ src/stdd/models.py
 src/stdd/runs.py
 src/stdd/setup.py
 src/stdd/static_analysis.py
+src/stdd/traceability.py
 src/stdd.egg-info/PKG-INFO
 src/stdd.egg-info/SOURCES.txt
 src/stdd.egg-info/dependency_links.txt
@@ -18,8 +19,9 @@ src/stdd.egg-info/top_level.txt
 src/stdd/draw_assets/favicon.svg
 src/stdd/draw_assets/icons.svg
 src/stdd/draw_assets/index.html
-src/stdd/draw_assets/assets/index-BROUJmtE.js
 src/stdd/draw_assets/assets/index-CxIPSdgs.css
+src/stdd/draw_assets/assets/index-DkQxT9GM.js
+src/stdd/templates/adapters/php_static_adapter.php
 src/stdd/templates/agents/draw-feature/SKILL.md
 src/stdd/templates/agents/draw-improve/SKILL.md
 src/stdd/templates/agents/draw-improve/agents/openai.yaml
@@ -35,3 +37,4 @@ tests/test_draw.py
 tests/test_draw_editor.py
 tests/test_static_analysis.py
 tests/test_stdd.py
+tests/test_traceability.py

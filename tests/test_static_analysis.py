@@ -36,6 +36,22 @@ def test_secret_scanner_ignores_environment_lookup_and_placeholders(tmp_path: Pa
     assert scan_hardcoded_secrets(tmp_path, ["settings.py"]) == []
 
 
+def test_secret_scanner_ignores_local_secret_fixture_in_test_file(tmp_path: Path):
+    """Não bloqueia segredos sintéticos de testes de contrato.
+    Mantém o bloqueio para atribuições equivalentes em arquivos de produção.
+    """
+    source = tmp_path / "tests/CoreContractsTest.php"
+    source.parent.mkdir()
+    source.write_text("<?php\n$secret = 'meta-app-secret';\n")
+
+    assert scan_hardcoded_secrets(tmp_path, ["tests/CoreContractsTest.php"]) == []
+
+    production = tmp_path / "src/Config.php"
+    production.parent.mkdir()
+    production.write_text("<?php\n$secret = 'production-secret-value';\n")
+    assert scan_hardcoded_secrets(tmp_path, ["src/Config.php"])[0]["kind"] == "hardcoded_secret"
+
+
 def test_static_analysis_blocks_hardcoded_secret_without_external_adapter(tmp_path: Path):
     """Bloqueia segredo hardcoded mesmo sem adapter externo configurado.
     Executa a análise built-in e confirma que o relatório não transforma o achado em indisponível aprovado.

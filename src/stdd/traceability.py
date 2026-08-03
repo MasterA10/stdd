@@ -174,11 +174,11 @@ def refresh_traceability(root: Path, analysis_facts: dict[str, Any]) -> list[Pat
     draws_root = root / ".stdd" / "draws"
     outputs: list[Path] = []
     for path in sorted(draws_root.glob("*.json")):
-        if path.name == "index.json" or path.name.endswith(".facts.json"):
+        if path.name == "index.json" or path.name.endswith(".facts.json") or path.name.startswith("._"):
             continue
         try:
             document = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
             continue
         if any(node.get("code_refs") for node in document.get("nodes", []) if isinstance(node, dict)):
             outputs.append(enrich_traceability(root, str(document.get("id")), analysis_facts))
