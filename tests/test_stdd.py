@@ -208,6 +208,25 @@ def test_draw_improve_skill_is_incremental_and_hands_off_through_feature():
     assert "100" not in content
 
 
+def test_draw_improve_skill_requires_global_consistency_groups_and_questions():
+    """Exige revisão integral, agrupamento e perguntas arquiteturais.
+    Impede que a skill apenas acrescente nós sem corrigir o desenho existente.
+    """
+    content = Path("src/stdd/templates/agents/draw-improve/SKILL.md").read_text(encoding="utf-8").lower()
+
+    for required in (
+        "revisão global obrigatória",
+        "todos os nós, relações, grupos, fluxos",
+        "corrigir descrições vagas",
+        "organizar os nós em grupos",
+        "groups",
+        "pelo menos 5 perguntas arquiteturais",
+        "opções neutros",
+        "sugestão arquitetural separadamente na resposta",
+    ):
+        assert required in content
+
+
 def test_draw_feature_matches_always_interactive_viewer():
     """Mantém a skill base alinhada ao Draw sem modo separado de edição.
     Rejeita instruções antigas sobre ativar edição ou usar inspetor.

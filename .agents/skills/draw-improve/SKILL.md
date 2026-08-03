@@ -36,13 +36,19 @@ Avaliar no nível de sistemas, domínios, atores, responsabilidades, decisões e
 - caso de uso importante não representado;
 - parte complexa que merece um único `draw_ref` (respeitando a hierarquia de funções: o fluxo pai mantém a cápsula abstrata e o subfluxo isola os passos detalhados internos, sem duplicar etapas no pai).
 
+### Revisão global obrigatória
+
+Cada ciclo deve revisar o desenho inteiro, não apenas os nós ou relações inseridos no ciclo anterior. Ler e avaliar todos os nós, relações, grupos, fluxos, `draw_ref`, perguntas e decisões respondidas. Corrigir descrições vagas, caminhos duplicados, responsabilidades sobrepostas, ramos que bypassam decisões, nós órfãos e inconsistências entre o fluxo principal e subfluxos. É permitido alterar nós e relações existentes quando a correção for necessária para deixar o desenho coerente; preservar IDs e significado sempre que não houver inconsistência objetiva.
+
+Organizar os nós em grupos arquiteturais coerentes. Criar ou ajustar `groups`, atribuir `group` a todos os nós quando o agrupamento trouxer clareza e verificar que os grupos não misturam responsabilidades sem justificativa. O resultado deve comunicar a arquitetura como um todo, e não apenas acumular detalhes.
+
 Quando uma decisão depender do usuário, adicionar uma pergunta opcional ao nó responsável em vez de adivinhar. Usar `questions` com `type` `choice`, `boolean` ou `open`; contar como pendente e sem resposta somente quando `answer` for `null` ou vazio. Manter perguntas respondidas no JSON para formar histórico e tratar respostas como decisões do usuário nas próximas rodadas.
 
 Não detalhar classes, funções, métodos, chamadas internas triviais, campos ou passos de implementação. Um bom desenho de alto nível pode permanecer pequeno. Ao criar um subfluxo (`draw_ref`), garanta separação estrita de escopo: o que está no subfluxo não deve ser duplicado no fluxo principal.
 
 ## Contrato incremental
 
-Executar um ciclo por invocação. Por padrão, um ciclo pode adicionar no máximo 3 novos nós, 5 novas conexões, 1 subdesenho e 3 perguntas. Alterações menores são preferíveis. Se a melhoria coerente exigir mais, explicar a expansão e pedir aprovação antes de gravá-la.
+Executar um ciclo por invocação. Por padrão, um ciclo pode adicionar no máximo 3 novos nós, 5 novas conexões, 1 subdesenho e deve criar ou refinar pelo menos 5 perguntas arquiteturais relevantes. Distribuir as perguntas pelos nós responsáveis, evitando perguntas genéricas duplicadas. Em toda pergunta `choice`, manter o enunciado e as opções neutros, sem inserir sugestões no JSON. Apresentar a sugestão arquitetural separadamente na resposta ao usuário, identificando a pergunta e a opção recomendada, sem registrar a resposta por conta própria. Alterações menores são preferíveis nos nós e relações, mas a revisão global pode corrigir qualquer elemento inconsistente. Se a melhoria coerente exigir mais de 3 nós, 5 relações ou 1 subdesenho, explicar a expansão e pedir aprovação antes de gravá-la.
 
 Preservar IDs e significado dos elementos existentes. Não remover, renomear ou redirecionar elementos do usuário sem corrigir uma inconsistência objetiva; quando isso ocorrer, declarar a correção no encerramento.
 

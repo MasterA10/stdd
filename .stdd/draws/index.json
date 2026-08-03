@@ -90,6 +90,28 @@
       "subdraw_count": 0
     },
     {
+      "id": "link-de-nodes-com-funcoes-symbol-facts",
+      "file": "link-de-nodes-com-funcoes-symbol-facts.json",
+      "title": "Fatos de Símbolos Determinísticos",
+      "subtitle": "Como nós, arquivos, funções e testes são ligados por fatos reproduzíveis da codebase",
+      "kind": "subflow",
+      "updated_at": "2026-08-03T15:37:48.442495+00:00",
+      "node_count": 10,
+      "edge_count": 9,
+      "subdraw_count": 0
+    },
+    {
+      "id": "link-de-nodes-com-funcoes",
+      "file": "link-de-nodes-com-funcoes.json",
+      "title": "Link de Nodes com Funções",
+      "subtitle": "Uma feature que vai descobrir alguma forma de fazer de maneira determinística o link de nodes com funções e testes.",
+      "kind": "feature",
+      "updated_at": "2026-08-03T15:35:50.383920+00:00",
+      "node_count": 10,
+      "edge_count": 10,
+      "subdraw_count": 1
+    },
+    {
       "id": "orquestracao-pagamento-complexa",
       "file": "orquestracao-pagamento-complexa.json",
       "title": "Orquestração de pagamento complexa",

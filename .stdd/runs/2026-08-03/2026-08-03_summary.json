@@ -100,8 +100,162 @@
         "lines_deleted": 47,
         "files_changed": 7
       }
+    },
+    {
+      "run_id": "ccf9c2d687b04a8b8818b8550bc96cbc",
+      "timestamp": "2026-08-03T15:06:55.328567+00:00",
+      "description": "Melhora o desenho link-de-nodes-com-funcoes com rastreabilidade determinística",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "4ff14b0c3bfd4ac4a39559c5e34283fc",
+      "timestamp": "2026-08-03T15:09:51.638357+00:00",
+      "description": "Melhora o desenho link-de-nodes-com-funcoes com perguntas arquiteturais",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "5fb404ed1bde4810a0c5b17faece8eb0",
+      "timestamp": "2026-08-03T15:14:44.870014+00:00",
+      "description": "Melhora o desenho link-de-nodes-com-funcoes com validação de drift",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "2f2a98124fed4f43a1adea6087b76fe3",
+      "timestamp": "2026-08-03T15:16:47.840786+00:00",
+      "description": "Melhora o desenho com perguntas e sugestões arquiteturais",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "f2d57d0e458740e885639e84029f147a",
+      "timestamp": "2026-08-03T15:18:17.532803+00:00",
+      "description": "Reorganiza globalmente o desenho de rastreabilidade de nós",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "7790beb82d8c4b4a878ecaecd50d0807",
+      "timestamp": "2026-08-03T15:20:50.944385+00:00",
+      "description": "Torna obrigatória a marca de sugestão em escolhas do draw-improve",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 18,
+        "lines_deleted": 0,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "6af209da2e8b4bc98244a56756f0961f",
+      "timestamp": "2026-08-03T15:22:25.482907+00:00",
+      "description": "Corrige sugestoes do draw-improve para aparecerem na resposta",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 2,
+        "lines_deleted": 1,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "c1fb78d980c64f9a920968f72888b8f5",
+      "timestamp": "2026-08-03T15:24:28.747227+00:00",
+      "description": "Cria subfluxo de fatos de símbolos e rastreabilidade",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "e763d27dc67342ea917a6bc1d4d62b72",
+      "timestamp": "2026-08-03T15:27:16.187918+00:00",
+      "description": "Especifica rastreabilidade determinística entre nós, símbolos, arquivos e testes",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 106,
+        "lines_deleted": 0,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "601f8b5c67c745f1aafdf0503a82aa13",
+      "timestamp": "2026-08-03T15:34:41.851428+00:00",
+      "description": "Melhora subfluxo com CLI de associação e enriquecimento determinístico",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "5910cc561ef945fd98a653e874745610",
+      "timestamp": "2026-08-03T15:39:33.815515+00:00",
+      "description": "Especifica CLI e enriquecimento dos facts de rastreabilidade",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 63,
+        "lines_deleted": 1,
+        "files_changed": 1
+      }
     }
   ],
-  "run_count": 7,
-  "last_run_id": "89814ed3fbfc48fcbfb7519750210b48"
+  "run_count": 18,
+  "last_run_id": "5910cc561ef945fd98a653e874745610"
 }
