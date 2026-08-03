@@ -38,6 +38,7 @@ GITIGNORE_RULES = (
     "coverage/",
     "htmlcov/",
 )
+INTERNAL_STATE_DIRECTORIES = {".stdd"}
 
 
 def get_tracked_extensions(root: Path) -> set[str]:
@@ -392,10 +393,10 @@ def run_tests(
 
 def get_workspace_snapshot(root: Path) -> dict[str, list[str]]:
     """Mapeia os arquivos rastreados da codebase e seus conteúdos em linhas.
-    Filtra pelas extensões de arquivo configuradas ignorando pastas ocultas e de ambiente.
+    Filtra extensões configuradas e exclui o estado operacional do STDD.
     """
     tracked_exts = get_tracked_extensions(root)
-    ignored = {".git", ".venv", "venv", "node_modules", ".stdd", ".pytest_cache", "__pycache__"}
+    ignored = {".git", ".venv", "venv", "node_modules", *INTERNAL_STATE_DIRECTORIES, ".pytest_cache", "__pycache__"}
     snapshot: dict[str, list[str]] = {}
     for path in sorted(root.rglob("*")):
         if (

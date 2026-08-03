@@ -7,7 +7,7 @@ from typer.testing import CliRunner
 
 from stdd.cli import app
 from stdd.contract import check_contract
-from stdd.core import is_rework_diff, run_tests
+from stdd.core import get_workspace_snapshot, is_rework_diff, run_tests
 from stdd.setup import detect_stack
 
 
@@ -365,6 +365,23 @@ def test_log_command_creates_incremental_summary_and_snapshot_in_date_subfolder(
     assert isinstance(snapshot_data["workspace_snapshot"], dict)
     assert not (tmp_path / ".stdd/latest_snapshot.json").exists()
     assert not (tmp_path / ".stdd/runs/data/latest_snapshot.json").exists()
+
+
+def test_workspace_snapshot_excludes_stdd_draw_and_run_json_documents(tmp_path: Path):
+    """Exclui JSONs operacionais dos desenhos e das execuções.
+    Mantém arquivos de código do projeto disponíveis para o diff incremental.
+    """
+    (tmp_path / ".stdd/draws").mkdir(parents=True)
+    (tmp_path / ".stdd/runs/2026-08-03").mkdir(parents=True)
+    (tmp_path / ".stdd/draws/subfluxo.json").write_text('{"nodes": []}', encoding="utf-8")
+    (tmp_path / ".stdd/runs/2026-08-03/2026-08-03_summary.json").write_text('{"runs": []}', encoding="utf-8")
+    source = tmp_path / "feature.py"
+    source.write_text("value = 1\n", encoding="utf-8")
+
+    snapshot = get_workspace_snapshot(tmp_path)
+
+    assert "feature.py" in snapshot
+    assert all(not path.startswith(".stdd/") for path in snapshot)
 
 
 def test_log_accumulates_runs_in_one_summary_and_snapshot_per_day(tmp_path: Path, monkeypatch):

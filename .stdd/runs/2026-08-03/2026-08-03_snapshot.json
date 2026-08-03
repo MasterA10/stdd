@@ -204,10 +204,28 @@
           "diff": "--- a/tests/test_draw_editor.py\n+++ b/tests/test_draw_editor.py\n@@ -173,6 +173,31 @@\n     assert \"presentationPositionsState\" in app\n     assert \"deleteKeyCode={null}\" in app\n     assert \"customPos?.x !== undefined ? customPos.x : calcPos.x\" in layout\n+\n+\n+def test_editor_discovers_draw_server_when_running_on_another_local_origin():\n+    \"\"\"Mantém subfluxos acessíveis quando o editor roda em outra porta.\n+    O backend local padrão precisa ser descoberto antes de cair no localStorage.\n+    \"\"\"\n+    app = (EDITOR_ROOT / \"src/App.tsx\").read_text(encoding=\"utf-8\")\n+\n+    assert \"DEFAULT_DRAW_SERVER_ORIGIN = 'http://127.0.0.1:8765'\" in app\n+    assert \"[window.location.origin, DEFAULT_DRAW_SERVER_ORIGIN]\" in app\n+    assert \"const backendOrigin = await checkBackendAvailable()\" in app\n+    assert \"detectedBackendOrigin = backendOrigin\" in app\n+\n+\n+def test_editor_retries_subdraw_in_backend_before_showing_local_storage_error():\n+    \"\"\"Evita falha no primeiro clique enquanto a detecção do backend termina.\n+    Confere no App.tsx a estratégia de tentativas nos origins do backend antes de reportar erro.\n+    \"\"\"\n+    app = (EDITOR_ROOT / \"src/App.tsx\").read_text(encoding=\"utf-8\")\n+\n+    assert \"if the user\" not in app\n+    assert \"for (const origin of getApiOrigins())\" in app\n+    assert \"detectedBackendOrigin = origin\" in app\n+    assert \"setStorageMode('backend')\" in app\n+    assert \"Desenho não encontrado no armazenamento local.\" in app\n \n \n def test_reset_button_is_the_only_way_to_clear_local_positions():"
         }
       ]
+    },
+    {
+      "run_id": "e9da880551a84260bf47dcdf2c97b1cf",
+      "timestamp": "2026-08-03T14:14:25.105138+00:00",
+      "files": [
+        {
+          "path": "src/stdd/core.py",
+          "lines_added": 3,
+          "lines_deleted": 2,
+          "diff": "--- a/src/stdd/core.py\n+++ b/src/stdd/core.py\n@@ -38,6 +38,7 @@\n     \"coverage/\",\n     \"htmlcov/\",\n )\n+INTERNAL_STATE_DIRECTORIES = {\".stdd\"}\n \n \n def get_tracked_extensions(root: Path) -> set[str]:\n@@ -392,10 +393,10 @@\n \n def get_workspace_snapshot(root: Path) -> dict[str, list[str]]:\n     \"\"\"Mapeia os arquivos rastreados da codebase e seus conteúdos em linhas.\n-    Filtra pelas extensões de arquivo configuradas ignorando pastas ocultas e de ambiente.\n+    Filtra extensões configuradas e exclui o estado operacional do STDD.\n     \"\"\"\n     tracked_exts = get_tracked_extensions(root)\n-    ignored = {\".git\", \".venv\", \"venv\", \"node_modules\", \".stdd\", \".pytest_cache\", \"__pycache__\"}\n+    ignored = {\".git\", \".venv\", \"venv\", \"node_modules\", *INTERNAL_STATE_DIRECTORIES, \".pytest_cache\", \"__pycache__\"}\n     snapshot: dict[str, list[str]] = {}\n     for path in sorted(root.rglob(\"*\")):\n         if ("
+        },
+        {
+          "path": "tests/test_cli.py",
+          "lines_added": 18,
+          "lines_deleted": 1,
+          "diff": "--- a/tests/test_cli.py\n+++ b/tests/test_cli.py\n@@ -7,7 +7,7 @@\n \n from stdd.cli import app\n from stdd.contract import check_contract\n-from stdd.core import is_rework_diff, run_tests\n+from stdd.core import get_workspace_snapshot, is_rework_diff, run_tests\n from stdd.setup import detect_stack\n \n \n@@ -367,6 +367,23 @@\n     assert not (tmp_path / \".stdd/runs/data/latest_snapshot.json\").exists()\n \n \n+def test_workspace_snapshot_excludes_stdd_draw_and_run_json_documents(tmp_path: Path):\n+    \"\"\"Exclui JSONs operacionais dos desenhos e das execuções.\n+    Mantém arquivos de código do projeto disponíveis para o diff incremental.\n+    \"\"\"\n+    (tmp_path / \".stdd/draws\").mkdir(parents=True)\n+    (tmp_path / \".stdd/runs/2026-08-03\").mkdir(parents=True)\n+    (tmp_path / \".stdd/draws/subfluxo.json\").write_text('{\"nodes\": []}', encoding=\"utf-8\")\n+    (tmp_path / \".stdd/runs/2026-08-03/2026-08-03_summary.json\").write_text('{\"runs\": []}', encoding=\"utf-8\")\n+    source = tmp_path / \"feature.py\"\n+    source.write_text(\"value = 1\\n\", encoding=\"utf-8\")\n+\n+    snapshot = get_workspace_snapshot(tmp_path)\n+\n+    assert \"feature.py\" in snapshot\n+    assert all(not path.startswith(\".stdd/\") for path in snapshot)\n+\n+\n def test_log_accumulates_runs_in_one_summary_and_snapshot_per_day(tmp_path: Path, monkeypatch):\n     \"\"\"Mantém somente um summary e um snapshot e acumula as duas execuções.\n     Executa dois registros no mesmo dia e verifica que os relatórios preservam ambos os run_id."
+        }
+      ]
     }
   ],
-  "run_count": 3,
-  "last_run_id": "7148e7239acd4031bb9b0774fee2dd31",
+  "run_count": 4,
+  "last_run_id": "e9da880551a84260bf47dcdf2c97b1cf",
   "workspace_snapshot": {
     "draw-editor/bin/serve.js": [
       "#!/usr/bin/env node",
@@ -5466,6 +5484,7 @@
       "    \"coverage/\",",
       "    \"htmlcov/\",",
       ")",
+      "INTERNAL_STATE_DIRECTORIES = {\".stdd\"}",
       "",
       "",
       "def get_tracked_extensions(root: Path) -> set[str]:",
@@ -5820,10 +5839,10 @@
       "",
       "def get_workspace_snapshot(root: Path) -> dict[str, list[str]]:",
       "    \"\"\"Mapeia os arquivos rastreados da codebase e seus conteúdos em linhas.",
-      "    Filtra pelas extensões de arquivo configuradas ignorando pastas ocultas e de ambiente.",
+      "    Filtra extensões configuradas e exclui o estado operacional do STDD.",
       "    \"\"\"",
       "    tracked_exts = get_tracked_extensions(root)",
-      "    ignored = {\".git\", \".venv\", \"venv\", \"node_modules\", \".stdd\", \".pytest_cache\", \"__pycache__\"}",
+      "    ignored = {\".git\", \".venv\", \"venv\", \"node_modules\", *INTERNAL_STATE_DIRECTORIES, \".pytest_cache\", \"__pycache__\"}",
       "    snapshot: dict[str, list[str]] = {}",
       "    for path in sorted(root.rglob(\"*\")):",
       "        if (",
@@ -7251,7 +7270,7 @@
       "",
       "from stdd.cli import app",
       "from stdd.contract import check_contract",
-      "from stdd.core import is_rework_diff, run_tests",
+      "from stdd.core import get_workspace_snapshot, is_rework_diff, run_tests",
       "from stdd.setup import detect_stack",
       "",
       "",
@@ -7609,6 +7628,23 @@
       "    assert isinstance(snapshot_data[\"workspace_snapshot\"], dict)",
       "    assert not (tmp_path / \".stdd/latest_snapshot.json\").exists()",
       "    assert not (tmp_path / \".stdd/runs/data/latest_snapshot.json\").exists()",
+      "",
+      "",
+      "def test_workspace_snapshot_excludes_stdd_draw_and_run_json_documents(tmp_path: Path):",
+      "    \"\"\"Exclui JSONs operacionais dos desenhos e das execuções.",
+      "    Mantém arquivos de código do projeto disponíveis para o diff incremental.",
+      "    \"\"\"",
+      "    (tmp_path / \".stdd/draws\").mkdir(parents=True)",
+      "    (tmp_path / \".stdd/runs/2026-08-03\").mkdir(parents=True)",
+      "    (tmp_path / \".stdd/draws/subfluxo.json\").write_text('{\"nodes\": []}', encoding=\"utf-8\")",
+      "    (tmp_path / \".stdd/runs/2026-08-03/2026-08-03_summary.json\").write_text('{\"runs\": []}', encoding=\"utf-8\")",
+      "    source = tmp_path / \"feature.py\"",
+      "    source.write_text(\"value = 1\\n\", encoding=\"utf-8\")",
+      "",
+      "    snapshot = get_workspace_snapshot(tmp_path)",
+      "",
+      "    assert \"feature.py\" in snapshot",
+      "    assert all(not path.startswith(\".stdd/\") for path in snapshot)",
       "",
       "",
       "def test_log_accumulates_runs_in_one_summary_and_snapshot_per_day(tmp_path: Path, monkeypatch):",

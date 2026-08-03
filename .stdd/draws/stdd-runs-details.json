@@ -23,7 +23,15 @@
       "id": 1,
       "label": "Coletor de Diff (get_incremental_diff_stats)",
       "group": 1,
-      "description": "Calcula estatísticas do git diff entre execuções: linhas adicionadas, deletadas e snapshot de arquivos."
+      "description": "Calcula estatísticas do git diff entre execuções: linhas adicionadas, deletadas e snapshot de arquivos.",
+      "questions": [
+        {
+          "id": 1,
+          "type": "open",
+          "prompt": "Como calcular o diff sem inchar informações de linhas adicionadas",
+          "answer": "O coletor de diff precisa ser capaz de colocar no script de alguma forma para ele não pegar informações de JSON como o subfluxos, fluxos, ou runs, enfim, esses JSON que nós estamos usando no projeto para salvar coisas."
+        }
+      ]
     },
     {
       "id": 2,
