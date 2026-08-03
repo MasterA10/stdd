@@ -132,6 +132,8 @@ Quando a codebase tiver uma linguagem e uma ferramenta local comprovadas, o agen
 
 O `stdd log` registra diffs incrementais e ignora snapshots AppleDouble `._*` e arquivos históricos que não sejam UTF-8, evitando que metadados binários gerados pelo macOS interrompam o registro de uma execução.
 
+Cada execução de `stdd test` também atualiza `.stdd/adapters/static-analysis-kpis.json` com os indicadores agregados e os detalhes dos símbolos, dependências, métricas, arquivos e achados de qualidade. O Draw Server expõe esse JSON e o viewer o apresenta na aba lateral `Análise`, ao lado de `Desenhos`; os Draws continuam separados em `.stdd/draws/` e os facts de rastreabilidade em `.stdd/facts/`.
+
 ## Executar testes
 
 ```bash

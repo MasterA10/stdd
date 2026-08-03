@@ -12,7 +12,7 @@ import {
 import type { Connection, Edge, EdgeChange, Node, EdgeTypes } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import type { Contract, NodeData, EdgeData, RunRecord, TraceabilityFacts } from './types';
+import type { Contract, NodeData, EdgeData, RunRecord, TraceabilityFacts, StaticAnalysisKpiReport } from './types';
 import { CustomNode } from './components/CustomNode';
 import { LoopEdge } from './components/LoopEdge';
 import { Sidebar } from './components/Sidebar';
@@ -86,6 +86,7 @@ export const App: React.FC = () => {
   const [questionsNode, setQuestionsNode] = useState<NodeData | null>(null);
   const [codeReferencesNode, setCodeReferencesNode] = useState<NodeData | null>(null);
   const [traceabilityFacts, setTraceabilityFacts] = useState<TraceabilityFacts | null>(null);
+  const [staticAnalysisKpis, setStaticAnalysisKpis] = useState<StaticAnalysisKpiReport | null>(null);
   const [activeDetailNodeId, setActiveDetailNodeId] = useState<number | null>(null);
   const [importExportMode, setImportExportMode] = useState<'import' | 'export' | null>(null);
   const [metadataModalConfig, setMetadataModalConfig] = useState<{
@@ -205,6 +206,26 @@ export const App: React.FC = () => {
     loadFacts();
     return () => { cancelled = true; };
   }, [contract.id, storageMode]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadKpis = async () => {
+      for (const origin of getApiOrigins()) {
+        try {
+          const response = await fetch(`${origin}/.stdd/adapters/static-analysis-kpis.json`, { cache: 'no-store' });
+          if (!response.ok) continue;
+          const data = await response.json();
+          if (!cancelled) setStaticAnalysisKpis(data as StaticAnalysisKpiReport);
+          return;
+        } catch (_) {
+          // O painel permanece disponível quando a análise ainda não foi executada.
+        }
+      }
+      if (!cancelled) setStaticAnalysisKpis(null);
+    };
+    loadKpis();
+    return () => { cancelled = true; };
+  }, [storageMode]);
 
   // Non-blocking Promise-based Confirm Dialogue
   const askConfirm = (title: string, message: string, confirmLabel?: string, isDanger?: boolean): Promise<boolean> => {
@@ -1345,6 +1366,7 @@ export const App: React.FC = () => {
           onNewDrawing={() => setMetadataModalConfig({ isOpen: true, mode: 'create' })}
           storageMode={storageMode}
           runs={runs}
+          staticAnalysisKpis={staticAnalysisKpis}
         />
 
         {/* Canvas Area */}

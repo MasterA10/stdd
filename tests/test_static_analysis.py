@@ -1,6 +1,7 @@
+import json
 from pathlib import Path
 
-from stdd.static_analysis import run_static_analysis, scan_hardcoded_secrets
+from stdd.static_analysis import run_static_analysis, scan_hardcoded_secrets, write_static_analysis_kpis
 
 
 def test_secret_scanner_detects_hardcoded_password_without_leaking_value(tmp_path: Path):
@@ -65,6 +66,34 @@ def test_static_analysis_blocks_hardcoded_secret_without_external_adapter(tmp_pa
     assert report["status"] == "blocked"
     assert report["reason"] == "hardcoded_secret"
     assert report["quality_findings"][0]["kind"] == "hardcoded_secret"
+
+
+def test_static_analysis_writes_kpi_snapshot_next_to_adapter_directory(tmp_path: Path):
+    """Persiste indicadores agregados e detalhes sem misturar com os Draws.
+    Reúne um relatório mínimo e confirma a estrutura consumida pelo viewer lateral.
+    """
+    report = {
+        "status": "blocked",
+        "reason": "quality_gate_blocked",
+        "capabilities": {"symbols": True},
+        "symbols": [{"qualified_name": "demo.run", "file": "src/demo.py"}],
+        "dependencies": [],
+        "complexity": [],
+        "structural_metrics": [],
+        "quality_findings": [{"kind": "long_function", "severity": "blocking", "file": "src/demo.py"}],
+        "changes": [],
+        "warnings": [],
+        "errors": ["quality gate"],
+    }
+
+    output = write_static_analysis_kpis(tmp_path, report, {"static_analysis": {"adapter_command": ["python", "adapter.py"]}})
+
+    assert output == tmp_path / ".stdd/adapters/static-analysis-kpis.json"
+    saved = json.loads(output.read_text(encoding="utf-8"))
+    assert saved["indicators"][0]["value"] == 1
+    assert saved["summary"]["severity"]["blocking"] == 1
+    assert saved["details"]["quality_findings"][0]["kind"] == "long_function"
+    assert not (tmp_path / ".stdd/draws").exists()
 
 
 def test_secret_scanner_detects_env_value_copied_into_source_without_leaking_value(tmp_path: Path):

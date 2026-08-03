@@ -13,7 +13,7 @@ from .contract import check_contract
 from .draw import ensure_draw_workspace
 from .models import REWORK_LINE_THRESHOLD, RunLogEntry
 from .runs import ensure_runs_workspace, update_runs_index
-from .static_analysis import run_static_analysis
+from .static_analysis import run_static_analysis, write_static_analysis_kpis
 from .traceability import refresh_traceability
 
 VALID_WORK_TYPES = {"bug", "teste", "implementacao", "refactor"}
@@ -337,6 +337,7 @@ def run_tests(
         config,
         sorted(get_workspace_snapshot(root)),
     )
+    write_static_analysis_kpis(root, static_report, config)
     # Um relatório estático pode conter fatos válidos mesmo quando o gate de
     # qualidade bloqueia a execução. Preserve os facts para rastreabilidade;
     # o status bloqueado continua sendo devolvido ao usuário e ao CI.

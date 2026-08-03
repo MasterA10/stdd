@@ -423,6 +423,15 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                     return
                 self._send_bytes(body, "application/json; charset=utf-8")
                 return
+            if path == "/.stdd/adapters/static-analysis-kpis.json":
+                kpi_path = root / ".stdd" / "adapters" / "static-analysis-kpis.json"
+                try:
+                    body = kpi_path.read_bytes() if kpi_path.exists() else b'{"status":"unavailable","indicators":[],"details":{}}'
+                except OSError:
+                    self._send_json_error(404, "indicadores de análise estática não encontrados")
+                    return
+                self._send_bytes(body, "application/json; charset=utf-8")
+                return
             runs_prefix = "/.stdd/runs/"
             if path.startswith(runs_prefix) and path.endswith(".json"):
                 relative_run_path = unquote(path[len(runs_prefix):])

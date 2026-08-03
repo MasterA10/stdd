@@ -7,7 +7,7 @@
       "references": [
         {
           "symbol": "stdd.core.get_workspace_snapshot",
-          "identity": "a1932343395475a2",
+          "identity": "d1058cece7d50a8d",
           "status": "resolved",
           "file": "src/stdd/core.py"
         }
@@ -34,7 +34,7 @@
       "references": [
         {
           "symbol": "stdd.static_analysis.run_static_analysis",
-          "identity": "ba9297feabb6e83d",
+          "identity": "3c696f20df2bd6e0",
           "status": "resolved",
           "file": "src/stdd/static_analysis.py"
         }
@@ -78,7 +78,7 @@
       "references": [
         {
           "symbol": "stdd.static_analysis.run_static_analysis",
-          "identity": "ba9297feabb6e83d",
+          "identity": "3c696f20df2bd6e0",
           "status": "resolved",
           "file": "src/stdd/static_analysis.py"
         }

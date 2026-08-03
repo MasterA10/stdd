@@ -1336,6 +1336,123 @@ body,
   font-size: 11px;
 }
 
+/* Static analysis KPI sidebar */
+.static-analysis-pane {
+  gap: 12px;
+}
+
+.static-analysis-status {
+  padding: 4px 7px;
+  border-radius: 99px;
+  background: rgba(100, 116, 139, .14);
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.static-analysis-status.passed {
+  background: rgba(14, 165, 233, .14);
+  color: #0369a1;
+}
+
+.static-analysis-status.blocked {
+  background: rgba(245, 158, 11, .16);
+  color: #b45309;
+}
+
+.static-analysis-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.static-analysis-kpi-card {
+  display: grid;
+  gap: 2px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--canvas);
+}
+
+.static-analysis-kpi-card span,
+.static-analysis-kpi-card small {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.static-analysis-kpi-card strong {
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.static-analysis-kpi-card.blocked strong {
+  color: #b45309;
+}
+
+.static-analysis-detail-card {
+  display: grid;
+  gap: 9px;
+  padding: 12px;
+}
+
+.static-analysis-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.static-analysis-tags span {
+  padding: 4px 6px;
+  border-radius: 6px;
+  background: rgba(14, 165, 233, .12);
+  color: #0369a1;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.static-analysis-breakdown {
+  display: grid;
+  gap: 5px;
+}
+
+.static-analysis-breakdown div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.static-analysis-breakdown strong {
+  color: var(--ink);
+}
+
+.static-analysis-file-list {
+  display: grid;
+  gap: 5px;
+  max-height: 180px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.static-analysis-file-list li {
+  padding: 5px 6px;
+  border-radius: 6px;
+  background: var(--canvas);
+  color: var(--ink);
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+
+.static-analysis-empty code,
+.static-analysis-detail-card code {
+  font-size: 10px;
+}
+
 /* Questions inside Modal */
 .questions-dialog {
   width: min(680px, calc(100vw - 32px));
