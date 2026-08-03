@@ -59,7 +59,15 @@
       "id": 7,
       "label": "Atualizador de Índice (index.json)",
       "group": 3,
-      "description": "Recalcula node_count, edge_count, subdraw_count e updated_at no arquivo index.json."
+      "description": "Recalcula node_count, edge_count, subdraw_count e updated_at no arquivo index.json.",
+      "questions": [
+        {
+          "id": 1,
+          "type": "open",
+          "prompt": "Se clicar em salvar em um desenho que não tem alterações, o que acontece?",
+          "answer": "Só insere nova data em index.json se houve alteração. Se clicar em salvar e não tiver alteração do desenho, não altera também o index.json"
+        }
+      ]
     }
   ],
   "edges": [

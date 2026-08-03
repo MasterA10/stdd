@@ -18,6 +18,17 @@ Fazer a menor alteração coerente que satisfaça os testes aprovados e preserve
 5. Consultar fatos da análise estática quando disponível: símbolos, dependências, complexidade e testes relacionados.
 6. Tratar capacidade ausente como `unavailable`; não inventar cobertura.
 
+### Triagem obrigatória do diff
+
+Antes de decidir o escopo ou concluir que nada precisa ser feito, avaliar o estado completo do Git:
+
+- `git status --short`, `git diff` e `git diff --cached`;
+- arquivos não rastreados, especialmente `.stdd/draws/`;
+- `git diff -- .stdd/draws` e `git diff --cached -- .stdd/draws`;
+- para cada desenho alterado, criado ou removido, ler o JSON atual completo e comparar a intenção do patch, incluindo nós, relações, `draw_ref`, fluxos, perguntas e respostas.
+
+O diff de desenho é entrada de implementação, não apenas evidência auxiliar. Não concluir que não há mudança só porque o diff de produção está vazio ou porque os testes atuais já passam. Ao receber um pedido explícito de implementar, assumir que existe comportamento pendente: localizar a alteração correspondente no diff, nos desenhos e nos contratos, fazer uma mudança coerente e validar seus efeitos. Só encerrar sem alteração quando houver um bloqueio externo explícito e documentado.
+
 Se um desenho referenciado possuir `questions`, ler as respostas persistidas como decisões do usuário. Perguntas sem resposta permanecem ambíguas e devem ser resolvidas antes de escolher um comportamento de produção que dependa delas.
 
 ## Implementação

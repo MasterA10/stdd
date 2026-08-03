@@ -422,6 +422,15 @@ export const App: React.FC = () => {
       }
     } else {
       // Local Storage
+      const savedLogicalPayload = localStorage.getItem(`stdd-draw:${id}`);
+      if (savedLogicalPayload) {
+        try {
+          if (JSON.stringify(JSON.parse(savedLogicalPayload)) === JSON.stringify(cleanPayload)) {
+            setIsDirty(false);
+            return;
+          }
+        } catch (_) {}
+      }
       localStorage.setItem(`stdd-draw:${id}`, JSON.stringify(cleanPayload));
       
       // Update index

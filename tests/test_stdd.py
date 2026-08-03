@@ -169,6 +169,24 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "stdd draw create" in templates["draw-feature"].read_text()
 
 
+def test_implement_skill_triages_draw_diffs_before_declaring_no_change():
+    """Exige que implement considere diffs de desenhos como contrato.
+    Também impede concluir implementação sem uma alteração coerente pendente.
+    """
+    content = Path("src/stdd/templates/agents/implement/SKILL.md").read_text(encoding="utf-8").lower()
+
+    for required in (
+        "git diff -- .stdd/draws",
+        "git diff --cached -- .stdd/draws",
+        "arquivos não rastreados",
+        "ler o json atual completo",
+        "o diff de desenho é entrada de implementação",
+        "pedido explícito de implementar",
+        "fazer uma mudança coerente",
+    ):
+        assert required in content
+
+
 def test_draw_improve_skill_is_incremental_and_hands_off_through_feature():
     """Limita cada melhoria do desenho e impede salto direto para produção.
     Confirma revisão humana, término sem alteração e sequência feature antes de implement.

@@ -187,6 +187,17 @@ def test_editor_discovers_draw_server_when_running_on_another_local_origin():
     assert "detectedBackendOrigin = backendOrigin" in app
 
 
+def test_editor_does_not_update_local_index_for_an_unchanged_drawing():
+    """Mantém updated_at estável no índice local.
+    Salvar o mesmo contrato não cria uma nova atualização.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+
+    assert "savedLogicalPayload = localStorage.getItem(`stdd-draw:${id}`)" in app
+    assert "JSON.stringify(JSON.parse(savedLogicalPayload)) === JSON.stringify(cleanPayload)" in app
+    assert "setIsDirty(false);\n            return;" in app
+
+
 def test_editor_retries_subdraw_in_backend_before_showing_local_storage_error():
     """Evita falha no primeiro clique enquanto a detecção do backend termina.
     Confere no App.tsx a estratégia de tentativas nos origins do backend antes de reportar erro.

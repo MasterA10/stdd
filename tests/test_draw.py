@@ -146,6 +146,19 @@ def test_create_draw_replaces_current_json_without_history(tmp_path: Path):
     assert not (tmp_path / ".stdd/draws/history").exists()
 
 
+def test_create_draw_does_not_update_index_when_logical_payload_is_unchanged(tmp_path: Path):
+    """Preserva o índice quando salvar repete o mesmo contrato lógico.
+    Evita atualizar updated_at em um salvamento sem alterações reais.
+    """
+    payload = draw_payload()
+    create_draw(tmp_path, payload)
+    first_index = read_draw_index(tmp_path)
+
+    create_draw(tmp_path, payload)
+
+    assert read_draw_index(tmp_path) == first_index
+
+
 def test_create_draw_accepts_descriptive_draw_id_and_numeric_internal_ids(tmp_path: Path):
     """Aceita ID descritivo do desenho e IDs numéricos nas entidades internas.
     Remove posição, cor, estilo e datas do JSON principal porque o viewer os calcula.

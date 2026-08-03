@@ -288,9 +288,18 @@ def create_draw(root: Path, payload: dict[str, Any]) -> Path:
     timestamp = datetime.now(timezone.utc).isoformat()
     document = {"version": DRAW_VERSION, **logical_payload}
     output = draw_directory(root) / f"{draw_id}.json"
+    index = read_draw_index(root)
+    existing_entry = next((entry for entry in index["draws"] if str(entry.get("id")) == str(draw_id)), None)
+    if output.exists() and existing_entry is not None:
+        try:
+            existing_document = json.loads(output.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            existing_document = None
+        if isinstance(existing_document, dict) and logical_draw_payload(existing_document) == document:
+            return output
+
     _atomic_write(output, json.dumps(document, indent=2, ensure_ascii=False) + "\n")
 
-    index = read_draw_index(root)
     metadata = {
         "id": draw_id,
         "file": output.name,

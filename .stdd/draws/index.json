@@ -62,7 +62,7 @@
       "title": "Detalhes de Registro de Evidências & Retrabalho",
       "subtitle": "Captura de diffs git, acumuladores diários de summary/snapshot e geração do runs.html",
       "kind": "subflow",
-      "updated_at": "2026-08-03T14:13:04.394656+00:00",
+      "updated_at": "2026-08-03T14:16:56.458352+00:00",
       "node_count": 6,
       "edge_count": 5,
       "subdraw_count": 0
@@ -73,7 +73,7 @@
       "title": "Detalhes do Servidor & API REST do Draw",
       "subtitle": "Roteamento HTTP, validação de payload, isolamento de layout e persistência em .stdd/draws",
       "kind": "subflow",
-      "updated_at": "2026-08-03T13:42:01.208806+00:00",
+      "updated_at": "2026-08-03T14:20:39.779261+00:00",
       "node_count": 7,
       "edge_count": 6,
       "subdraw_count": 0
