@@ -5,6 +5,14 @@ description: Descobre a stack e prepara o STDD para executar testes e análise e
 
 # Setup Agent
 
+## Compatibilidade com Draw System
+
+O setup deve preservar a hierarquia dos desenhos existentes. Não reclassificar nós ou criar comportamento para preencher níveis: nível 1 é arquitetura, nível 2 é jornada do cliente, nível 3 é implementação e nível 4 é codebase quando necessário. Ao descobrir a stack, registrar capacidades que possam ser usadas pelos níveis 3 e 4, sem inventar símbolos, integrações ou fluxos.
+
+Se validar desenhos como parte do diagnóstico, exigir que cada descendente tenha `parent_draw_ref`, `parent_node_id` e `root_draw_ref`, que o pai possua o `draw_ref` correspondente e que folhas não implementadas permaneçam terminais. Um `draw_ref` quebrado ou fluxo órfão é inconsistência a relatar, não motivo para alterar o desenho automaticamente.
+
+Depois de detectar a stack, verificar `.stdd/draws/` procurando ao menos um desenho de sistema com `kind: "system"` e `hierarchy.level: 1`. Se não houver uma raiz de sistema, encaminhar para `$draw-system` e criar a arquitetura, as jornadas do cliente e os níveis de implementação aplicáveis antes de considerar o diagnóstico arquitetural completo. O setup não deve inventar essa árvore nem substituir o `$draw-system` por um desenho de feature.
+
 ## Instalação do CLI
 
 Para instalar uma versão publicada no Git e colocar `stdd` no `PATH`, usar `uv`:
@@ -143,6 +151,8 @@ O comando grava a referência declarada no desenho. Ele não calcula fatos deriv
 - símbolos candidatos sugeridos por dependências.
 
 Quando um nó representa uma etapa de negócio que chama várias funções, manter uma referência principal e declarar as demais em `source_dependencies`. Quando um nó representa um subfluxo, repetir o mesmo procedimento no desenho do subfluxo e preservar o vínculo com o nó chamador. Depois de renomear, mover ou dividir um símbolo, procurar `unresolved`/`drift`, revisar o desenho inteiro e atualizar as associações; não corrigir somente o nó que causou o primeiro erro.
+
+A checagem deve cobrir a implementação real além da linguagem principal: handlers e consumidores de RPC, contratos ou IDLs rastreáveis, procedures e funções SQL, triggers, views e arquivos de migration/schema quando contiverem a lógica. O símbolo principal deve apontar para o handler ou procedimento que executa o comportamento; model, DTO e entidade entram apenas como dependência quando forem relevantes, não como substitutos da implementação. Um símbolo só pode ser considerado `resolved` quando possuir nome qualificado e arquivo de origem rastreável.
 
 Ao concluir o setup, mostrar uma tabela ou resumo equivalente com `node_id`, `qualified_name`, status, arquivos e testes. Símbolo ausente deve bloquear a afirmação de rastreabilidade completa e gerar uma ação de revisão clara.
 

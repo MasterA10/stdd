@@ -7,15 +7,32 @@ description: Cria JSONs de features, fluxos, arquiteturas e trade-offs para o vi
 
 Use esta skill quando uma feature, decisão, arquitetura ou trade-off ficar mais fácil de entender com um desenho de nós e relações.
 
+## Hierarquia do sistema
+
+Quando o desenho fizer parte de um sistema maior, preserve uma árvore explícita de níveis:
+
+- **Nível 1 — arquitetura:** escolhas macro ao redor da codebase, como aplicativo, linguagem, runtime, banco, cache, autenticação e sistemas externos. Não descrever comportamento do aplicativo aqui.
+- **Nível 2 — jornada:** navegação do frontend do cliente, opções disponíveis, regras de negócio e estados observáveis. Uma opção ainda não implementada é uma folha terminal, sem continuação fictícia.
+- **Nível 3 — implementação:** como o backend atende uma jornada, incluindo API, validações, autorização, persistência, eventos, integrações e falhas.
+- **Nível 4 — codebase:** arquivos, módulos, símbolos, testes e dependências reais, somente quando a complexidade justificar.
+
+Desenhos integrados a essa árvore devem declarar `hierarchy.level`, `hierarchy.role`, `hierarchy.parent_draw_ref`, `hierarchy.parent_node_id` e `hierarchy.root_draw_ref`. A raiz usa nível 1 e pai nulo. Todo descendente tem pai e o pai aponta para ele com `draw_ref`; não existem fluxos órfãos. Um nível pode pular diretamente para outro quando não houver detalhe útil intermediário, mas nunca pode perder a relação de pai.
+
 ## Fluxo
 
-1. Modele o problema como dados: nós, grupos, relações, fluxos e trade-offs.
+1. Modele o problema como dados: nós, grupos, relações, fluxos, trade-offs e, quando aplicável, a posição na hierarquia do sistema.
 2. Use IDs estáveis, labels curtos e descrições que expliquem a responsabilidade de cada nó.
 3. Faça cada relação declarar origem, destino, tipo e motivo.
 4. Gere ou atualize somente o JSON usando:
 
 ```bash
 stdd draw create --data-json '<JSON>'
+```
+
+Depois de criar ou atualizar o JSON, inclusive quando somente o Draw mudou, registre o checkpoint da interação:
+
+```bash
+stdd log "Atualiza desenho da feature" --impl
 ```
 
 5. Abra o viewer com:
@@ -91,8 +108,9 @@ Para decompor sistemas complexos, use `draw_ref` em um nó:
 Ao utilizar subfluxos, observe rigorosamente as regras de **hierarquia de funções e encapsulamento**:
 
 1. **Separação Clara de Níveis de Abstração**:
-   - **Fluxo Principal (Visão Nível-1)**: Contém apenas a visão arquitetural de alto nível, grandes domínios e a sequência macro entre componentes.
-   - **Subfluxo (Visão Nível-2)**: Mantido em arquivo próprio (`.stdd/draws/<subflow-id>.json`), detalhando os passos internos, validações específicas e subprocessos executados exclusivamente dentro daquela fronteira.
+   - **Desenho pai**: mantém somente a abstração do nível em que está e aponta para o filho por `draw_ref`.
+   - **Desenho filho**: mantido em arquivo próprio (`.stdd/draws/<subflow-id>.json`), detalha exclusivamente a fronteira interna e declara seu `parent_draw_ref` e `parent_node_id`.
+   - Em sistemas, use nível 1 para arquitetura, nível 2 para jornadas, nível 3 para implementação e nível 4 para codebase. Um desenho de feature pode começar no nível que corresponde ao seu escopo, mas não pode criar um filho sem pai.
 
 2. **Proibição de Duplicação e Poluição**:
    - Um nó com `draw_ref` no fluxo principal atua como um **bloco/cápsula abstrato**. Ele **não deve expor ou duplicar** os subprocessos e passos detalhados que pertencem ao subfluxo.
@@ -108,7 +126,7 @@ Um nó pode declarar `questions` opcionalmente para registrar decisões que aind
 
 Cada pergunta possui ID numérico, `prompt`, `type` e `answer` opcional. Use:
 
-- `choice` para múltipla escolha, com pelo menos duas opções `{ "id": 1, "label": "..." }` e `answer` igual ao ID escolhido;
+- `choice` para múltipla escolha, com pelo menos duas opções `{ "id": 1, "label": "..." }`; `answer` é o ID escolhido ou um texto quando a pessoa usa a resposta livre;
 - `boolean` para sim ou não, com `answer` booleano ou `null`;
 - `open` para resposta aberta, com `answer` textual ou `null`.
 
@@ -168,7 +186,7 @@ Perguntas respondidas permanecem no JSON como histórico. Não invente respostas
 - Toda etapa de fluxo deve apontar para um nó existente.
 - Um desenho inválido deve ser corrigido antes de ser registrado.
 
-Depois de alterar código ou documentação, registre a alteração com um único tipo de log apropriado:
+Depois de criar ou atualizar qualquer JSON lógico do Draw, mesmo sem alteração de código, registre a alteração com um único tipo de log apropriado:
 
 ```bash
 stdd log "Atualiza desenho da feature" --impl

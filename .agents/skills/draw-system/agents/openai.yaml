@@ -1,0 +1,4 @@
+interface:
+  display_name: "Draw System"
+  short_description: "Desenha o sistema em níveis hierárquicos navegáveis."
+  default_prompt: "Use $draw-system para criar a arquitetura, as jornadas do cliente e os níveis de implementação do sistema."

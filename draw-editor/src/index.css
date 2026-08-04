@@ -1669,6 +1669,8 @@ body,
 .runs-sidebar-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 4px 2px 2px; }
 .runs-sidebar-heading h3 { margin-top: 4px; font-size: 18px; letter-spacing: -.03em; }
 .runs-total-badge { display: grid; place-items: center; min-width: 28px; height: 28px; border-radius: 9px; background: var(--accent-light); color: var(--accent-strong); font-size: 12px; font-weight: 850; }
+.runs-filter-toggle { display: flex; align-items: center; gap: 7px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; color: var(--muted); font-size: 10px; font-weight: 750; cursor: pointer; }
+.runs-filter-toggle input { accent-color: var(--accent); }
 .runs-total-card { display: grid; gap: 11px; padding: 13px; border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--line)); border-radius: 15px; background: linear-gradient(135deg, var(--accent-light), var(--paper)); }
 .runs-total-card-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .runs-total-card-header strong { color: var(--accent-strong); font-size: 10px; white-space: nowrap; }

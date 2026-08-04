@@ -827,6 +827,15 @@ export const App: React.FC = () => {
     setIsFocusMode(false);
   };
 
+  const onEdgeDoubleClick = (_event: React.MouseEvent, edge: Edge) => {
+    setSelectedEdgeId(Number(edge.id));
+    setSelectedNodeId(null);
+    selectionOrderRef.current = [];
+    setIsFocusMode(false);
+    setSelectionRevision((value) => value + 1);
+    window.dispatchEvent(new Event('stdd:edit-edge'));
+  };
+
   const onPaneClick = () => {
     window.dispatchEvent(new Event('stdd:clear-node-editing'));
     selectionOrderRef.current = [];
@@ -1385,6 +1394,7 @@ export const App: React.FC = () => {
                 onSelectionChange={onSelectionChange}
                 multiSelectionKeyCode={['Shift']}
                 onEdgeClick={onEdgeClick}
+                onEdgeDoubleClick={onEdgeDoubleClick}
                 onPaneClick={onPaneClick}
                 onConnect={onConnect}
                 onNodeDragStop={onNodeDragStop}

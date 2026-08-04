@@ -20,6 +20,8 @@ DRAW_VERSION = 1
 DRAW_TEMPLATE_VERSION = "5"
 EDGE_CONDITIONS = {1: "então", 2: "ou", 3: "se"}
 QUESTION_TYPES = {"choice", "boolean", "open"}
+HIERARCHY_ROLES = {"architecture", "journey", "implementation", "codebase"}
+HIERARCHY_ROLE_BY_LEVEL = {1: "architecture", 2: "journey", 3: "implementation", 4: "codebase"}
 DRAW_ID_PATTERN = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$")
 DRAW_ASSETS = Path(__file__).parent / "draw_assets"
 DRAW_EXAMPLE_TEMPLATE = Path(__file__).parent / "templates" / "draw" / "example.json"
@@ -91,6 +93,37 @@ def validate_draw_payload(payload: Any) -> list[str]:
     if not isinstance(payload.get("title"), str) or not payload["title"].strip():
         violations.append("title é obrigatório")
 
+    hierarchy = payload.get("hierarchy")
+    if payload.get("kind") == "system" and hierarchy is None:
+        violations.append("desenho kind system deve declarar hierarchy")
+    if hierarchy is not None:
+        if not isinstance(hierarchy, dict):
+            violations.append("hierarchy deve ser um objeto")
+            hierarchy = {}
+        level = hierarchy.get("level")
+        role = hierarchy.get("role")
+        parent_draw_ref = hierarchy.get("parent_draw_ref")
+        parent_node_id = hierarchy.get("parent_node_id")
+        root_draw_ref = hierarchy.get("root_draw_ref")
+        if level not in HIERARCHY_ROLE_BY_LEVEL:
+            violations.append("hierarchy.level deve ser 1, 2, 3 ou 4")
+        if role not in HIERARCHY_ROLES:
+            violations.append("hierarchy.role deve ser architecture, journey, implementation ou codebase")
+        elif level in HIERARCHY_ROLE_BY_LEVEL and role != HIERARCHY_ROLE_BY_LEVEL[level]:
+            violations.append("hierarchy.role não corresponde ao hierarchy.level")
+        if not _is_draw_id(root_draw_ref):
+            violations.append("hierarchy.root_draw_ref deve ser um ID de desenho seguro")
+        if level == 1:
+            if parent_draw_ref is not None or parent_node_id is not None:
+                violations.append("a raiz de hierarchy não pode declarar pai")
+            if root_draw_ref != draw_id:
+                violations.append("hierarchy.root_draw_ref da raiz deve ser o próprio id")
+        elif level in HIERARCHY_ROLE_BY_LEVEL:
+            if not _is_draw_id(parent_draw_ref):
+                violations.append("desenho hierárquico descendente deve declarar parent_draw_ref")
+            if not _is_numeric_id(parent_node_id):
+                violations.append("desenho hierárquico descendente deve declarar parent_node_id numérico")
+
     nodes = payload.get("nodes")
     if not isinstance(nodes, list):
         violations.append("nodes deve ser uma lista")
@@ -147,8 +180,11 @@ def validate_draw_payload(payload: Any) -> list[str]:
                     option_ids.add(option_id)
                     if not isinstance(option.get("label"), str) or not option["label"].strip():
                         violations.append(f"{option_prefix}.label é obrigatório")
-                if answer is not None and (not _is_numeric_id(answer) or answer not in option_ids):
-                    violations.append(f"{prefix}.answer deve apontar para uma opção existente")
+                if answer is not None:
+                    is_selected_option = _is_numeric_id(answer) and answer in option_ids
+                    is_custom_answer = isinstance(answer, str)
+                    if not is_selected_option and not is_custom_answer:
+                        violations.append(f"{prefix}.answer deve apontar para uma opção existente ou conter uma resposta livre")
             elif question_type == "boolean":
                 if "options" in question:
                     violations.append(f"{prefix} boolean não deve declarar options")
@@ -211,6 +247,41 @@ def validate_draw_payload(payload: Any) -> list[str]:
             if not isinstance(step, dict) or step.get("node") not in node_ids:
                 violations.append(f"flows[{flow_index}].steps[{step_index}] aponta para nó que não existe")
     return violations
+
+
+def validate_hierarchy_parent(root: Path, payload: dict[str, Any]) -> list[str]:
+    """Confere o vínculo pai-filho de um desenho hierárquico persistido.
+    Exige que o pai exista, declare a mesma raiz e exponha a cápsula apontada pelo filho.
+    """
+    hierarchy = payload.get("hierarchy")
+    if not isinstance(hierarchy, dict) or hierarchy.get("level") == 1:
+        return []
+    parent_id = hierarchy.get("parent_draw_ref")
+    parent_node_id = hierarchy.get("parent_node_id")
+    parent_path = draw_directory(root) / f"{parent_id}.json"
+    if not parent_path.is_file():
+        return [f"hierarchy.parent_draw_ref não encontrado: {parent_id}"]
+    try:
+        parent = json.loads(parent_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return [f"desenho pai inválido: {parent_id}"]
+    if not isinstance(parent, dict):
+        return [f"desenho pai inválido: {parent_id}"]
+    parent_hierarchy = parent.get("hierarchy")
+    if not isinstance(parent_hierarchy, dict):
+        return [f"desenho pai sem hierarchy: {parent_id}"]
+    if parent_hierarchy.get("root_draw_ref") != hierarchy.get("root_draw_ref"):
+        return ["hierarchy.root_draw_ref diverge entre pai e filho"]
+    parent_level = parent_hierarchy.get("level")
+    child_level = hierarchy.get("level")
+    if not isinstance(parent_level, int) or not isinstance(child_level, int) or parent_level >= child_level:
+        return ["hierarchy deve avançar para um nível descendente"]
+    parent_node = next((node for node in parent.get("nodes", []) if isinstance(node, dict) and node.get("id") == parent_node_id), None)
+    if parent_node is None:
+        return [f"hierarchy.parent_node_id não encontrado no pai: {parent_node_id}"]
+    if parent_node.get("draw_ref") != payload.get("id"):
+        return ["o nó pai deve apontar para o filho com draw_ref"]
+    return []
 
 
 def ensure_draw_workspace(root: Path, include_example: bool = False) -> list[Path]:
@@ -290,6 +361,9 @@ def create_draw(root: Path, payload: dict[str, Any]) -> Path:
     if violations:
         raise ValueError("Desenho inválido: " + "; ".join(violations))
     ensure_draw_workspace(root)
+    hierarchy_violations = validate_hierarchy_parent(root, logical_payload)
+    if hierarchy_violations:
+        raise ValueError("Desenho inválido: " + "; ".join(hierarchy_violations))
     draw_id = logical_payload["id"]
     timestamp = datetime.now(timezone.utc).isoformat()
     document = {"version": DRAW_VERSION, **logical_payload}
@@ -341,6 +415,9 @@ def read_draw(root: Path, draw_id: str) -> dict[str, Any]:
     violations = validate_draw_payload(payload)
     if violations:
         raise ValueError("Desenho inválido: " + "; ".join(violations))
+    hierarchy_violations = validate_hierarchy_parent(root, payload)
+    if hierarchy_violations:
+        raise ValueError("Desenho inválido: " + "; ".join(hierarchy_violations))
     return payload
 
 

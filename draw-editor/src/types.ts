@@ -125,6 +125,7 @@ export interface RunRecord {
   timestamp: string;
   description: string;
   work_types: string[];
+  checkpoint?: boolean;
   diff_stats: {
     lines_added?: number;
     lines_deleted?: number;

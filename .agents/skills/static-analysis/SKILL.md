@@ -5,6 +5,12 @@ description: Implementa e conecta adaptadores agnósticos de análise estática 
 
 # Static Analysis Skill
 
+## Rastreabilidade da hierarquia Draw
+
+Os fatos estáticos devem respeitar a árvore criada pelo `$draw-system`: nível 1 fornece contexto de fronteiras, nível 2 fornece a jornada, nível 3 delimita o comportamento técnico e nível 4 pode apontar para símbolos e testes reais. Não criar ou mover `draw_ref`, `parent_draw_ref`, `parent_node_id` ou `root_draw_ref` automaticamente. O adapter fornece fatos; o agente decide as associações.
+
+Ao produzir fatos para um desenho filho, preservar seu pai e a raiz. Reportar referências `resolved`, `unresolved` e `drift` sem tratar um fluxo órfão como resolvido. Uma folha não implementada não deve receber símbolos ou dependências como se fosse código entregue.
+
 Esta skill orienta a criação de um adaptador específico para a stack do projeto. O adaptador implementa o contrato do STDD; ele não altera o fluxo geral do framework, não inventa fatos e não substitui os gates determinísticos.
 
 ## Objetivo
@@ -12,6 +18,7 @@ Esta skill orienta a criação de um adaptador específico para a stack do proje
 Conectar um analisador local ao comando `stdd test` para que a execução produza, quando houver capacidade disponível:
 
 - símbolos e assinaturas;
+- handlers e consumidores de RPC, contratos/IDLs rastreáveis e símbolos de procedure, função, trigger ou view SQL quando a stack os utilizar;
 - imports, chamadas e dependências;
 - dependentes diretos e indiretos;
 - ciclos, fan-in e fan-out;
@@ -86,11 +93,11 @@ Cada item deve indicar, quando aplicável, `file`, `position`, `symbol_id` e `so
 
 ### Símbolos
 
-Inclua funções, métodos, classes, construtores, endpoints e handlers, com nome, nome qualificado, tipo, assinatura, visibilidade e posição.
+Inclua funções, métodos, classes, construtores, endpoints e handlers, com nome, nome qualificado, tipo, assinatura, visibilidade e posição. Quando existirem no projeto, inclua também procedures, funções, triggers e views do banco, handlers/consumidores RPC e contratos ou IDLs que tenham implementação rastreável. Cada símbolo deve informar `file`, `qualified_name`, `kind` e `source`; para SQL, o arquivo deve ser a migration, schema ou script que contém a definição ou implementação.
 
 ### Dependências
 
-Inclua imports, chamadas, herança, implementação, uso de símbolos, dependentes diretos e indiretos, ciclos, fan-in e fan-out. Diferencie relação observada de relação apenas sugerida.
+Inclua imports, chamadas, herança, implementação, uso de símbolos, dependentes diretos e indiretos, ciclos, fan-in e fan-out. Inclua também relações entre handler RPC e contrato/cliente, handler e procedure SQL, ou migration/schema e símbolo SQL quando observadas. Diferencie relação observada de relação apenas sugerida.
 
 ### Complexidade
 
@@ -165,6 +172,7 @@ Classifique símbolos criados, removidos, alterados, movidos, assinaturas altera
 
 - O adaptador deve possuir testes determinísticos para cada capacidade declarada.
 - Dado um arquivo de exemplo, a contagem de símbolos deve ser exata.
+- Quando a stack possuir RPC ou banco, fixtures devem cobrir o handler/contrato e uma procedure ou função SQL com o arquivo de origem correspondente.
 - Dado um diff que altera uma função, somente os símbolos afetados devem ser marcados.
 - Dependências e ciclos devem ser reproduzíveis no mesmo fixture.
 - A complexidade ciclomática deve ter casos com valor conhecido.

@@ -11,6 +11,12 @@ Evoluir um desenho existente sem substituir a intenção do usuário nem explodi
 
 Alterar somente o JSON lógico em `.stdd/draws/`. Não criar HTML individual, documentação Markdown paralela, código de produção ou testes durante a melhoria do desenho.
 
+## Revisão da hierarquia do sistema
+
+Quando o desenho possuir `hierarchy`, revisar a árvore e não apenas o arquivo aberto. Confirmar que o nível 1 contém somente decisões macro de arquitetura, que o nível 2 representa a navegação e as regras observáveis do cliente, que o nível 3 contém a implementação da jornada e que o nível 4 só aparece quando a codebase exigir rastreabilidade ou detalhe técnico.
+
+Todo descendente deve declarar `parent_draw_ref`, `parent_node_id` e `root_draw_ref`, enquanto o pai aponta para ele com `draw_ref`. Uma melhoria não pode criar fluxo órfão. Folhas não implementadas devem permanecer terminais, sem continuação inventada. Se o problema estiver entre dois níveis, corrigir a cápsula e o vínculo pai-filho preservando o escopo de cada desenho.
+
 ## Resolver o desenho
 
 Resolver `<draw-id>` nesta ordem:
@@ -35,6 +41,8 @@ Avaliar no nível de sistemas, domínios, atores, responsabilidades, decisões e
 - observabilidade necessária para operar o fluxo;
 - caso de uso importante não representado;
 - parte complexa que merece um único `draw_ref` (respeitando a hierarquia de funções: o fluxo pai mantém a cápsula abstrata e o subfluxo isola os passos detalhados internos, sem duplicar etapas no pai).
+- vínculo hierárquico ausente, `draw_ref` quebrado, pai que duplica o filho ou nível que mistura arquitetura, jornada e implementação;
+- caminho de jornada não implementado que continua para passos fictícios em vez de terminar explicitamente.
 
 ### Revisão global obrigatória
 
@@ -43,6 +51,12 @@ Cada ciclo deve revisar o desenho inteiro, não apenas os nós ou relações ins
 Organizar os nós em grupos arquiteturais coerentes. Criar ou ajustar `groups`, atribuir `group` a todos os nós quando o agrupamento trouxer clareza e verificar que os grupos não misturam responsabilidades sem justificativa. O resultado deve comunicar a arquitetura como um todo, e não apenas acumular detalhes.
 
 Quando uma decisão depender do usuário, adicionar uma pergunta opcional ao nó responsável em vez de adivinhar. Usar `questions` com `type` `choice`, `boolean` ou `open`; contar como pendente e sem resposta somente quando `answer` for `null` ou vazio. Manter perguntas respondidas no JSON para formar histórico e tratar respostas como decisões do usuário nas próximas rodadas.
+
+### Perguntas endereçadas ao agente
+
+O marcador `@STDD` no `prompt` identifica uma pergunta feita explicitamente ao agente. Só agir sobre uma pergunta quando as duas condições forem verdadeiras: o `prompt` contém `@STDD` e `answer` está ausente, `null` ou é uma string vazia. Nesse caso, responder com base nos fatos e no desenho revisado, gravar a resposta no próprio `answer` e continuar o ciclo apenas se a resposta revelar uma melhoria coerente.
+
+Perguntas sem `@STDD` pertencem ao usuário ou a um revisor humano: não responder, não preencher e não transformar em ação automática. Se o usuário remover `@STDD`, deixar de tratar a pergunta como pendência do agente. Se `answer` já estiver preenchido, considerar a decisão encerrada e não fazer nada; `false` e `0` são respostas válidas e não significam ausência de resposta.
 
 Não detalhar classes, funções, métodos, chamadas internas triviais, campos ou passos de implementação. Um bom desenho de alto nível pode permanecer pequeno. Ao criar um subfluxo (`draw_ref`), garanta separação estrita de escopo: o que está no subfluxo não deve ser duplicado no fluxo principal.
 
@@ -58,20 +72,23 @@ Se o desenho já comunicar responsabilidades, fluxo principal, falhas relevantes
 
 ## Fluxo de melhoria
 
-1. Conferir Git e preservar alterações existentes.
-2. Ler o índice, o JSON escolhido e apenas os subdesenhos necessários.
-3. Validar IDs numéricos internos, referências, condições e integridade das conexões.
-4. Identificar a maior lacuna arquitetural e escolher um único incremento.
-5. Atualizar o JSON preservando seu `id` descritivo e usando `condition`: `1` para `então`, `2` para `ou` e `3` para `se`.
-6. Manter posição, cor, dimensão, data e estilo fora do JSON.
-7. Gravar pelo contrato existente, preferencialmente com:
+1. Conferir Git e preservar alterações existentes, sem usar o diff geral como fonte da melhoria.
+2. Executar `stdd draw diff`; sem `--run-id`, o comando compara o estado atual com o último snapshot salvo por `stdd log` e mostra somente alterações em `.stdd/draws/*.json`, excluindo `.stdd/draws/index.json`.
+3. Para um ponto específico, executar `stdd draw diff --run-id <run-id>`. Nunca usar GitHub, pull request, `git diff` ou o snapshot geral da codebase para decidir o que mudou no desenho.
+4. Ler o índice, o JSON escolhido e apenas os subdesenhos necessários.
+5. Transformar o diff de Draws em revisão: identificar o que mudou, verificar coerência com a arquitetura inteira, responder somente às perguntas marcadas com `@STDD` e sem `answer`, gravar essas respostas no JSON, fazer perguntas humanas sem o marcador permanecerem abertas e apresentar sugestões de correção separadas.
+6. Validar IDs numéricos internos, referências, condições, integridade das conexões e a árvore `hierarchy`/`draw_ref` sem órfãos.
+7. Identificar a maior lacuna arquitetural e escolher um único incremento.
+8. Atualizar o JSON preservando seu `id` descritivo e usando `condition`: `1` para `então`, `2` para `ou` e `3` para `se`.
+9. Manter posição, cor, dimensão, data e estilo fora do JSON.
+10. Gravar pelo contrato existente, preferencialmente com:
 
 ```bash
 stdd draw create --data-json '<JSON_COMPLETO_ATUALIZADO>'
 ```
 
-8. Validar o desenho gerado, abrir com `stdd draw serve` quando a revisão visual for útil e registrar o trabalho como implementação do desenho.
-9. Informar o incremento, a razão, o que ficou deliberadamente fora e pedir revisão. Encerrar o ciclo.
+11. Validar o desenho gerado, abrir com `stdd draw serve` quando a revisão visual for útil e registrar o trabalho como implementação do desenho.
+12. Informar o incremento, as mudanças encontradas no diff salvo, as perguntas e sugestões, o que ficou deliberadamente fora e pedir revisão. Encerrar o ciclo.
 
 ## Handoff para feature e implementação
 

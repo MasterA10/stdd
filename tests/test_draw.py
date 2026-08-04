@@ -285,6 +285,50 @@ def test_create_draw_accepts_subdraw_reference_and_counts_it(tmp_path: Path):
     path = create_draw(tmp_path, payload)
 
     assert json.loads(path.read_text())["nodes"][1]["draw_ref"] == "payment-details"
+
+
+def test_create_draw_enforces_hierarchical_parent_and_child_link(tmp_path: Path):
+    """Aceita uma árvore de desenhos quando pai e filho apontam um para o outro.
+    Rejeita um descendente cujo pai não existe ou não expõe a cápsula correspondente.
+    """
+    root = draw_payload("system-architecture")
+    root["title"] = "Arquitetura do sistema"
+    root["kind"] = "system"
+    root["hierarchy"] = {
+        "level": 1,
+        "role": "architecture",
+        "parent_draw_ref": None,
+        "parent_node_id": None,
+        "root_draw_ref": "system-architecture",
+    }
+    root["nodes"][1]["draw_ref"] = "system-journeys"
+    create_draw(tmp_path, root)
+
+    child = draw_payload("system-journeys")
+    child["title"] = "Jornadas do cliente"
+    child["hierarchy"] = {
+        "level": 2,
+        "role": "journey",
+        "parent_draw_ref": "system-architecture",
+        "parent_node_id": 2,
+        "root_draw_ref": "system-architecture",
+    }
+    create_draw(tmp_path, child)
+
+    broken = draw_payload("orphan-journey")
+    broken["hierarchy"] = {
+        "level": 2,
+        "role": "journey",
+        "parent_draw_ref": "missing-system",
+        "parent_node_id": 1,
+        "root_draw_ref": "missing-system",
+    }
+    try:
+        create_draw(tmp_path, broken)
+    except ValueError as error:
+        assert "parent_draw_ref" in str(error)
+    else:
+        raise AssertionError("desenho órfão deveria ser rejeitado")
     assert read_draw_index(tmp_path)["draws"][0]["subdraw_count"] == 1
 
 

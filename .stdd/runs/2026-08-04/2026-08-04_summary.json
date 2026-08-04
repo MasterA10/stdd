@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "date": "2026-08-04",
+  "runs": [
+    {
+      "run_id": "084b49e623a34c2e9a22f769fb355804",
+      "timestamp": "2026-08-04T20:05:13.944663+00:00",
+      "description": "Atualiza agentes e hierarquia do Draw",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 1212,
+        "lines_deleted": 84,
+        "files_changed": 22
+      }
+    },
+    {
+      "run_id": "5bd111b137324c73a72171947341ec22",
+      "timestamp": "2026-08-04T20:08:02.995961+00:00",
+      "description": "Permite editar conexões por duplo clique e responder múltipla escolha com texto livre",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 36,
+        "lines_deleted": 18,
+        "files_changed": 5
+      }
+    },
+    {
+      "run_id": "f4d03fd86f6c43b09a68a38b7544ab64",
+      "timestamp": "2026-08-04T20:29:17.438561+00:00",
+      "description": "Calcula Draw diff atual desde o último checkpoint e oculta checkpoints de zero linhas",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 290,
+        "lines_deleted": 26,
+        "files_changed": 11
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 3146,
+        "lines_deleted": 0,
+        "files_changed": 12
+      }
+    },
+    {
+      "run_id": "67940f79deec4970a2f819cbf711cd9a",
+      "timestamp": "2026-08-04T20:37:23.923999+00:00",
+      "description": "Cobre rastreabilidade de RPCs e implementações SQL nos símbolos",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 104,
+        "lines_deleted": 6,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    }
+  ],
+  "run_count": 4,
+  "last_run_id": "67940f79deec4970a2f819cbf711cd9a"
+}

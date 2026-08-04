@@ -58,6 +58,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const [activeTab, setActiveTab] = useState<'drawings' | 'analysis' | 'runs' | 'info' | 'blocks' | 'groups' | 'flows'>('drawings');
   const [drawingSearchQuery, setDrawingSearchQuery] = useState('');
+  const [showZeroLineRuns, setShowZeroLineRuns] = useState(true);
 
   // Selected Node State
   const [newQuestionPrompt, setNewQuestionPrompt] = useState('');
@@ -87,11 +88,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
     if (isEmptyDrawing) setActiveTab('info');
   }, [currentDrawingId, isEmptyDrawing]);
 
+  useEffect(() => {
+    const openEdgeEditor = () => setActiveTab('blocks');
+    window.addEventListener('stdd:edit-edge', openEdgeEditor);
+    return () => window.removeEventListener('stdd:edit-edge', openEdgeEditor);
+  }, []);
+
   const filteredDrawings = drawingsIndex.filter((draw) =>
     `${draw.title} ${draw.subtitle} ${draw.kind}`.toLowerCase().includes(drawingSearchQuery.toLowerCase())
   );
 
-  const runTotals = runs.reduce((totals, run) => {
+  const isZeroLineRun = (run: RunRecord) =>
+    Boolean(run.checkpoint) ||
+    (Number(run.diff_stats?.lines_added || 0) === 0 && Number(run.diff_stats?.lines_deleted || 0) === 0);
+  const visibleRuns = showZeroLineRuns ? runs : runs.filter((run) => !isZeroLineRun(run));
+  const runTotals = visibleRuns.reduce((totals, run) => {
     const added = Number(run.diff_stats?.lines_added || 0);
     const removed = Number(run.diff_stats?.lines_deleted || 0);
     return {
@@ -502,8 +513,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <span className="eyebrow">Histórico do agente</span>
                 <h3>Runs registradas</h3>
               </div>
-              <span className="runs-total-badge">{runs.length}</span>
+              <span className="runs-total-badge">{visibleRuns.length}</span>
             </div>
+            <label className="runs-filter-toggle">
+              <input
+                type="checkbox"
+                checked={showZeroLineRuns}
+                onChange={(event) => setShowZeroLineRuns(event.target.checked)}
+              />
+              <span>Mostrar checkpoints (0 linhas)</span>
+            </label>
             <div className="runs-total-card">
               <div className="runs-total-card-header">
                 <span className="eyebrow">Saldo acumulado</span>
@@ -518,15 +537,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <div><strong className={netLineBalance >= 0 ? 'run-stat-added' : 'run-stat-removed'}>{netLineBalance >= 0 ? '+' : '−'}{Math.abs(netLineBalance)}</strong><span>saldo final</span></div>
               </div>
             </div>
-            {runs.length === 0 ? (
+            {visibleRuns.length === 0 ? (
               <div className="runs-empty-sidebar">
                 <Activity size={22} />
-                <strong>Nenhum registro encontrado</strong>
-                <span>As execuções aparecerão aqui quando o STDD registrar um summary.</span>
+                <strong>{runs.length === 0 ? 'Nenhum registro encontrado' : 'Nenhuma run visível'}</strong>
+                <span>{runs.length === 0
+                  ? 'As execuções aparecerão aqui quando o STDD registrar um summary.'
+                  : 'Desative o filtro para mostrar os checkpoints de 0 linhas.'}</span>
               </div>
             ) : (
               <div className="runs-sidebar-list">
-                {runs.map((run) => (
+                {visibleRuns.map((run) => (
                   <article key={run.run_id} className="run-sidebar-card">
                     <span className="run-sidebar-date">{formatRunDate(run.timestamp)}</span>
                     <strong className="run-sidebar-summary">{run.description || 'Sem resumo registrado'}</strong>
@@ -534,6 +555,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       {(run.work_types || []).length > 0
                         ? run.work_types.map((type) => <span key={type}>{type}</span>)
                         : <span>tipo não informado</span>}
+                      {isZeroLineRun(run) && <span>checkpoint</span>}
                     </div>
                     <div className="run-sidebar-stats" aria-label="Impacto da alteração">
                       <span className="run-stat-added">+{run.diff_stats?.lines_added || 0} linhas</span>

@@ -9,6 +9,7 @@ interface QuestionsModalProps {
 }
 
 const emptyOptions = () => ['', ''];
+const CUSTOM_ANSWER_VALUE = 'custom';
 
 /** Permite criar, editar, responder e remover perguntas de um bloco. */
 export const QuestionsModal: React.FC<QuestionsModalProps> = ({
@@ -118,25 +119,42 @@ export const QuestionsModal: React.FC<QuestionsModalProps> = ({
                       onChange={(event) => updateQuestion(question.id, { answer: event.target.value })}
                     />
                   ) : (
-                    <select
-                      className="question-answer-select"
-                      value={question.answer === null || question.answer === undefined ? '' : String(question.answer)}
-                      onChange={(event) => {
-                        const value = event.target.value;
-                        updateQuestion(question.id, {
-                          answer: value === ''
-                            ? null
-                            : question.type === 'boolean' ? value === 'true' : Number(value)
-                        });
-                      }}
-                    >
-                      <option value="">Selecione uma resposta</option>
-                      {question.type === 'boolean'
-                        ? <><option value="true">Sim</option><option value="false">Não</option></>
-                        : (question.options || []).map((option) => (
-                          <option key={option.id} value={String(option.id)}>{option.label}</option>
-                        ))}
-                    </select>
+                    <>
+                      <select
+                        className="question-answer-select"
+                        value={question.type === 'choice' && typeof question.answer === 'string'
+                          ? CUSTOM_ANSWER_VALUE
+                          : question.answer === null || question.answer === undefined ? '' : String(question.answer)}
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          updateQuestion(question.id, {
+                            answer: value === ''
+                              ? null
+                              : question.type === 'boolean'
+                                ? value === 'true'
+                                : value === CUSTOM_ANSWER_VALUE ? '' : Number(value)
+                          });
+                        }}
+                      >
+                        <option value="">Selecione uma resposta</option>
+                        {question.type === 'boolean'
+                          ? <><option value="true">Sim</option><option value="false">Não</option></>
+                          : <>
+                            {(question.options || []).map((option) => (
+                              <option key={option.id} value={String(option.id)}>{option.label}</option>
+                            ))}
+                            <option value={CUSTOM_ANSWER_VALUE}>Descreva a resposta...</option>
+                          </>}
+                      </select>
+                      {question.type === 'choice' && typeof question.answer === 'string' && (
+                        <textarea
+                          className="question-answer-textarea"
+                          placeholder="Descreva a resposta..."
+                          value={question.answer}
+                          onChange={(event) => updateQuestion(question.id, { answer: event.target.value })}
+                        />
+                      )}
+                    </>
                   )}
                 </div>
               </div>

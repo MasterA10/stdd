@@ -5,7 +5,15 @@ from pathlib import Path
 
 import typer
 
-from .core import ensure_gitignore, init_project, project_root, record_run_entry, run_tests
+from .core import (
+    ensure_gitignore,
+    get_incremental_draw_diff,
+    get_logged_draw_diff,
+    init_project,
+    project_root,
+    record_run_entry,
+    run_tests,
+)
 from .draw import create_draw, read_draw_index, serve_draw
 from .traceability import associate_node_reference, associate_node_references
 from .setup import SUPPORTED_INTEGRATIONS, available_integrations, configure_project, ensure_stack_gitignore
@@ -183,6 +191,41 @@ def draw_list() -> None:
         return
     for entry in entries:
         typer.echo(f"{entry['id']}\t{entry.get('title', '')}\t{entry.get('node_count', 0)} nós\t{entry.get('edge_count', 0)} relações")
+
+
+@draw_app.command("diff")
+def draw_diff(
+    run_id: Optional[str] = typer.Option(None, "--run-id", help="ID do log histórico a consultar."),
+) -> None:
+    """Exibe mudanças atuais dos JSONs de Draws desde o último stdd log.
+    Com --run-id, consulta o diff histórico salvo naquele log.
+    """
+    root = project_root()
+    if run_id is None:
+        diff_stats, draws, _ = get_incremental_draw_diff(root)
+        typer.echo("Alterações dos Draws desde o último log:")
+        typer.echo(
+            f"Arquivos: {diff_stats['files_changed']} · "
+            f"Linhas: +{diff_stats['lines_added']} / -{diff_stats['lines_deleted']}"
+        )
+    else:
+        diff_record = get_logged_draw_diff(root, run_id=run_id)
+        if diff_record is None:
+            typer.echo("Nenhum snapshot de Draw encontrado nos logs.")
+            return
+        typer.echo(f"Log: {diff_record['run_id']} · {diff_record['timestamp']}")
+        draws = diff_record.get("draws", [])
+    if not draws:
+        message = (
+            "Nenhuma alteração nos JSONs de Draws desde o último log."
+            if run_id is None
+            else "Nenhuma alteração nos JSONs de Draws neste log."
+        )
+        typer.echo(message)
+        return
+    for draw in draws:
+        typer.echo(f"\n[{draw.get('status', 'changed')}] {draw.get('path', 'desenho desconhecido')}")
+        typer.echo(str(draw.get("diff", "")))
 
 
 @draw_app.command("associate-reference")

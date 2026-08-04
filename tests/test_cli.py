@@ -40,6 +40,7 @@ def test_init_can_install_skills_for_all_supported_agents(tmp_path: Path):
     for directory in (".agents", ".claude", ".gemini"):
         assert (tmp_path / directory / "skills" / "setup" / "SKILL.md").exists()
         assert (tmp_path / directory / "skills" / "draw-improve" / "SKILL.md").exists()
+        assert (tmp_path / directory / "skills" / "draw-system" / "SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-improve/agents/openai.yaml").exists()
 
 
@@ -660,3 +661,57 @@ def test_log_command_requires_at_least_one_work_type(tmp_path: Path, monkeypatch
     result = runner.invoke(app, ["log", "Descrição sem tipo"])
     assert result.exit_code != 0
     assert "Ao menos um tipo de trabalho deve ser informado" in result.stderr
+
+
+def test_draw_diff_command_reads_only_logged_draw_json_changes(tmp_path: Path, monkeypatch):
+    """Exibe somente mudanças de JSONs de Draws registradas por log.
+    Ignora alterações simultâneas em arquivos de código e o índice operacional.
+    """
+    monkeypatch.chdir(tmp_path)
+    runner.invoke(app, ["init"])
+    draws_dir = tmp_path / ".stdd/draws"
+    draw_file = draws_dir / "checkout.json"
+    draw_file.write_text('{"id":"checkout","title":"Inicial"}\n', encoding="utf-8")
+    (tmp_path / "service.py").write_text("return 1\n", encoding="utf-8")
+    first = runner.invoke(app, ["log", "Baseline do desenho", "-i"])
+    assert first.exit_code == 0
+
+    draw_file.write_text('{"id":"checkout","title":"Atualizado"}\n', encoding="utf-8")
+    (tmp_path / "service.py").write_text("return 2\n", encoding="utf-8")
+    result = runner.invoke(app, ["draw", "diff"])
+
+    assert result.exit_code == 0
+    assert "checkout.json" in result.stdout
+    assert "Atualizado" in result.stdout
+    assert "service.py" not in result.stdout
+    assert "index.json" not in result.stdout
+
+    second = runner.invoke(app, ["log", "Atualiza desenho", "-i"])
+    assert second.exit_code == 0
+    after_log = runner.invoke(app, ["draw", "diff"])
+    assert after_log.exit_code == 0
+    assert "Nenhuma alteração nos JSONs de Draws desde o último log." in after_log.stdout
+
+
+def test_log_marks_draw_only_changes_as_zero_line_checkpoint(tmp_path: Path, monkeypatch):
+    """Marca alterações apenas no Draw como checkpoints sem linhas de código.
+    Mantém o diff incremental dos JSONs disponível no snapshot da run.
+    """
+    monkeypatch.chdir(tmp_path)
+    runner.invoke(app, ["init"])
+    draw_file = tmp_path / ".stdd/draws/checkout.json"
+    draw_file.write_text('{"title":"Inicial"}\n', encoding="utf-8")
+    baseline = runner.invoke(app, ["log", "Baseline do desenho", "-i"])
+    assert baseline.exit_code == 0
+
+    draw_file.write_text('{"title":"Atualizado"}\n', encoding="utf-8")
+    result = runner.invoke(app, ["log", "Atualiza desenho", "-i"])
+    assert result.exit_code == 0
+
+    summary_file = next((tmp_path / ".stdd/runs").glob("*/*_summary.json"))
+    latest = json.loads(summary_file.read_text(encoding="utf-8"))["runs"][-1]
+
+    assert latest["checkpoint"] is True
+    assert latest["diff_stats"]["lines_added"] == 0
+    assert latest["diff_stats"]["lines_deleted"] == 0
+    assert latest["draw_diff_stats"]["files_changed"] == 1

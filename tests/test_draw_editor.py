@@ -390,7 +390,8 @@ def test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal():
     assert "lines_added" in sidebar
     assert "lines_deleted" in sidebar
     assert "files_changed" in sidebar
-    assert "const runTotals = runs.reduce" in sidebar
+    assert "const runTotals = visibleRuns.reduce" in sidebar
+    assert "Mostrar checkpoints (0 linhas)" in sidebar
     assert "addedPercentage" in sidebar
     assert "Saldo acumulado" in sidebar
     assert "saldo final" in sidebar
@@ -450,4 +451,3 @@ def test_runs_are_filtered_to_current_day():
     """
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
     assert "setHours(0, 0, 0, 0)" in app
-

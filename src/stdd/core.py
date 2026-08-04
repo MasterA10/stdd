@@ -424,6 +424,25 @@ def get_workspace_snapshot(root: Path) -> dict[str, list[str]]:
     return snapshot
 
 
+def get_draw_snapshot(root: Path) -> dict[str, list[str]]:
+    """Mapeia somente os JSONs lógicos dos desenhos para o histórico de logs.
+    Exclui o índice operacional e arquivos fora da pasta direta de Draws.
+    """
+    draws_dir = stdd_dir(root) / "draws"
+    snapshot: dict[str, list[str]] = {}
+    if not draws_dir.is_dir():
+        return snapshot
+    for path in sorted(draws_dir.glob("*.json")):
+        if path.name == "index.json":
+            continue
+        try:
+            rel_path = str(path.relative_to(root))
+            snapshot[rel_path] = path.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+    return snapshot
+
+
 def build_unified_diff(path: str, previous: list[str], current: list[str]) -> str:
     """Gera o patch textual entre duas versões de um arquivo rastreado.
     Usa o formato unified diff com caminhos relativos estáveis para facilitar auditoria e leitura.
@@ -437,6 +456,50 @@ def build_unified_diff(path: str, previous: list[str], current: list[str]) -> st
             lineterm="",
         )
     )
+
+
+def get_incremental_draw_diff(root: Path) -> tuple[dict[str, Any], list[dict[str, Any]], dict[str, list[str]]]:
+    """Compara os JSONs de Draws com o último ponto registrado por log.
+    Não consulta GitHub, git diff ou arquivos de código da base.
+    """
+    previous_snapshot = get_previous_draw_snapshot(root)
+    current_snapshot = get_draw_snapshot(root)
+    total_added = 0
+    total_deleted = 0
+    detailed_draws: list[dict[str, Any]] = []
+    all_keys = set(previous_snapshot.keys()) | set(current_snapshot.keys())
+
+    for key in sorted(all_keys):
+        previous_lines = previous_snapshot.get(key, [])
+        current_lines = current_snapshot.get(key, [])
+        if key not in previous_snapshot:
+            status = "created"
+        elif key not in current_snapshot:
+            status = "deleted"
+        elif previous_lines != current_lines:
+            status = "modified"
+        else:
+            continue
+
+        diff = build_unified_diff(key, previous_lines, current_lines)
+        added = sum(1 for line in diff.splitlines() if line.startswith("+") and not line.startswith("+++"))
+        deleted = sum(1 for line in diff.splitlines() if line.startswith("-") and not line.startswith("---"))
+        total_added += added
+        total_deleted += deleted
+        detailed_draws.append({
+            "path": key,
+            "status": status,
+            "lines_added": added,
+            "lines_deleted": deleted,
+            "diff": diff,
+        })
+
+    return {
+        "incremental": True,
+        "lines_added": total_added,
+        "lines_deleted": total_deleted,
+        "files_changed": len(detailed_draws),
+    }, detailed_draws, current_snapshot
 
 
 
@@ -524,6 +587,58 @@ def get_previous_workspace_snapshot(root: Path) -> dict[str, list[str]]:
     return latest[1] if latest else {}
 
 
+def get_previous_draw_snapshot(root: Path) -> dict[str, list[str]]:
+    """Lê o último snapshot exclusivo dos JSONs lógicos dos desenhos.
+    Retorna vazio quando o histórico ainda não possui essa trilha.
+    """
+    candidates = sorted((stdd_dir(root) / "runs").glob("*/*_snapshot.json"))
+    latest: tuple[str, dict[str, list[str]]] | None = None
+    for path in candidates:
+        if path.parent.name == "data" or path.name.startswith("._"):
+            continue
+        try:
+            document = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+            continue
+        draws = document.get("draws_snapshot")
+        runs = document.get("runs", [])
+        timestamp = runs[-1].get("timestamp", "") if isinstance(runs, list) and runs and isinstance(runs[-1], dict) else ""
+        if isinstance(draws, dict) and (latest is None or timestamp >= latest[0]):
+            latest = (timestamp, draws)
+    return latest[1] if latest else {}
+
+
+def get_logged_draw_diff(root: Path, run_id: str | None = None) -> dict[str, Any] | None:
+    """Retorna o diff de Draws armazenado em um ponto de log.
+    Sem ID, seleciona a execução mais recente; nunca calcula o diff da codebase.
+    """
+    candidates = sorted((stdd_dir(root) / "runs").glob("*/*_snapshot.json"))
+    selected: dict[str, Any] | None = None
+    for path in candidates:
+        if path.parent.name == "data" or path.name.startswith("._"):
+            continue
+        try:
+            document = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+            continue
+        runs = document.get("runs", [])
+        if not isinstance(runs, list):
+            continue
+        for run in runs:
+            if not isinstance(run, dict) or not isinstance(run.get("run_id"), str):
+                continue
+            if run_id is not None and run["run_id"] != run_id:
+                continue
+            candidate = {
+                "run_id": run["run_id"],
+                "timestamp": run.get("timestamp", ""),
+                "draws": run.get("draws", []),
+            }
+            if selected is None or str(candidate["timestamp"]) >= str(selected["timestamp"]):
+                selected = candidate
+    return selected
+
+
 def record_run_entry(root: Path, description: str, work_types: list[str]) -> Path:
     """Cria o resumo e o snapshot detalhado do código na pasta .stdd/runs/YYYY-MM-DD/.
     Valida os tipos de trabalho, calcula os diffs de código e grava os relatórios da execução.
@@ -542,6 +657,8 @@ def record_run_entry(root: Path, description: str, work_types: list[str]) -> Pat
     run_id = uuid.uuid4().hex
     timestamp = datetime.now(timezone.utc).isoformat()
     diff_stats, detailed_files = get_incremental_diff_stats(root)
+    draw_diff_stats, draw_diffs, draw_snapshot = get_incremental_draw_diff(root)
+    checkpoint = not diff_stats.get("lines_added") and not diff_stats.get("lines_deleted")
     if get_previous_workspace_snapshot(root) and is_rework_diff(diff_stats) and "refactor" not in normalized_types:
         normalized_types.append("refactor")
     entry = RunLogEntry(
@@ -550,8 +667,12 @@ def record_run_entry(root: Path, description: str, work_types: list[str]) -> Pat
         description=description.strip(),
         work_types=normalized_types,
         diff_stats=diff_stats,
+        checkpoint=checkpoint,
         detailed_files=detailed_files,
         workspace_snapshot=get_workspace_snapshot(root),
+        draw_diff_stats=draw_diff_stats,
+        draw_diffs=draw_diffs,
+        draw_snapshot=draw_snapshot,
     )
     runs_dir = stdd_dir(root) / "runs"
     summary_file = entry.write(runs_dir)

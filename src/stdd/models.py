@@ -42,6 +42,7 @@ class RunDiffSnapshot:
     run_id: str
     timestamp: str
     files: list[dict[str, Any]] = field(default_factory=list)
+    draws: list[dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         """Converte o snapshot detalhado de código para um dicionário serializável.
@@ -57,8 +58,12 @@ class RunLogEntry:
     description: str
     work_types: list[str]
     diff_stats: dict[str, Any] = field(default_factory=dict)
+    checkpoint: bool = False
     detailed_files: list[dict[str, Any]] = field(default_factory=list)
     workspace_snapshot: dict[str, list[str]] = field(default_factory=dict)
+    draw_diff_stats: dict[str, Any] = field(default_factory=dict)
+    draw_diffs: list[dict[str, Any]] = field(default_factory=list)
+    draw_snapshot: dict[str, list[str]] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         """Converte a entrada de registro para um dicionário serializável.
@@ -67,6 +72,8 @@ class RunLogEntry:
         data = asdict(self)
         data.pop("detailed_files", None)
         data.pop("workspace_snapshot", None)
+        data.pop("draw_diffs", None)
+        data.pop("draw_snapshot", None)
         return data
 
     def write(self, directory: Path) -> Path:
@@ -101,11 +108,13 @@ class RunLogEntry:
                 run_id=self.run_id,
                 timestamp=self.timestamp,
                 files=self.detailed_files,
+                draws=self.draw_diffs,
             ).to_dict()
         )
         snapshot_data["run_count"] = len(snapshot_data["runs"])
         snapshot_data["last_run_id"] = self.run_id
         snapshot_data["workspace_snapshot"] = self.workspace_snapshot
+        snapshot_data["draws_snapshot"] = self.draw_snapshot
         snapshot_file.write_text(
             json.dumps(snapshot_data, indent=2, ensure_ascii=False) + "\n",
             encoding="utf-8",

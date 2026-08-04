@@ -9,6 +9,12 @@ description: Especifica funcionalidades por testes executáveis no STDD sem alte
 
 Transformar intenção em comportamento observável e testes que falhem pelo motivo esperado. Tratar testes como documentação executável. Não implementar código de produção, não enfraquecer testes existentes e não duplicar a especificação em arquivos Markdown intermediários.
 
+## Leitura hierárquica de Draws
+
+Quando a entrada vier de `$draw-system` ou de um desenho com `hierarchy`, tratar a árvore como contrato navegável: nível 1 fornece contexto arquitetural, nível 2 define as jornadas e regras observáveis, nível 3 delimita a implementação a ser testada e nível 4 fornece referências reais da codebase. Ler o desenho pai antes do filho e preservar `parent_draw_ref`, `parent_node_id`, `root_draw_ref` e `draw_ref`.
+
+Não transformar decisões macro de arquitetura em testes de comportamento sem uma jornada correspondente. Não testar uma folha marcada como não implementada como se ela existisse. Se houver fluxo órfão, caminho implementado sem pai, `draw_ref` não resolvido ou pai e filho duplicando passos, interromper a especificação e reportar a inconsistência antes de criar testes.
+
 ## Triagem da entrada
 
 Antes de especificar testes, identificar de onde vem a feature. Há três entradas possíveis:

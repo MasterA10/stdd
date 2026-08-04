@@ -90,6 +90,76 @@ def test_traceability_maps_node_references_to_symbols_files_and_tests(tmp_path):
     assert report["source_dependencies"] == ["checkout.repository.save"]
 
 
+def test_traceability_resolves_rpc_and_sql_implementation_symbols(tmp_path):
+    """Resolve handlers RPC e procedures SQL com seus arquivos rastreáveis.
+    Mantém modelos fora do vínculo principal quando não implementam o comportamento.
+    """
+    node = {
+        "id": 10,
+        "label": "Criar pedido",
+        "code_refs": [{
+            "symbol": "orders.rpc.create_order",
+            "source_dependencies": ["db.public.create_order"],
+        }],
+    }
+    facts = {
+        "symbols": [{
+            "qualified_name": "orders.rpc.create_order",
+            "kind": "rpc_handler",
+            "source": "typescript_ast",
+            "file": "src/orders/rpc.ts",
+        }, {
+            "qualified_name": "db.public.create_order",
+            "kind": "sql_procedure",
+            "source": "postgres_catalog",
+            "file": "db/procedures/create_order.sql",
+        }, {
+            "qualified_name": "orders.CreateOrderModel",
+            "kind": "model",
+            "source": "typescript_ast",
+            "file": "src/orders/models.ts",
+        }],
+        "dependencies": [],
+    }
+
+    report = build_traceability_report(tmp_path, node, facts)
+
+    assert report["references"] == [{
+        "symbol": "orders.rpc.create_order",
+        "identity": None,
+        "status": "resolved",
+        "file": "src/orders/rpc.ts",
+        "kind": "rpc_handler",
+        "source": "typescript_ast",
+    }]
+    assert report["files"] == ["db/procedures/create_order.sql", "src/orders/rpc.ts"]
+    assert report["unresolved"] == []
+
+
+def test_traceability_does_not_resolve_symbols_without_a_source_file(tmp_path):
+    """Não considera símbolo resolvido sem arquivo de implementação.
+    Evita afirmar rastreabilidade para procedure, RPC ou função sem origem verificável.
+    """
+    node = {
+        "id": 11,
+        "label": "Executar procedure",
+        "code_refs": [{"symbol": "db.public.calculate_total", "source_dependencies": []}],
+    }
+    facts = {
+        "symbols": [{"qualified_name": "db.public.calculate_total", "kind": "sql_procedure"}],
+        "dependencies": [],
+    }
+
+    report = build_traceability_report(tmp_path, node, facts)
+
+    assert report["references"] == [{
+        "symbol": "db.public.calculate_total",
+        "status": "unresolved",
+        "reason": "file_missing",
+    }]
+    assert report["unresolved"] == ["db.public.calculate_total"]
+
+
 def test_traceability_marks_changed_symbol_as_drift(tmp_path):
     """Detecta quando uma referência deixou de apontar para o mesmo símbolo.
     Compara a identidade estrutural e evita produzir impacto como fato resolvido.

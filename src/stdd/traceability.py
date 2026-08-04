@@ -27,6 +27,11 @@ def _find_node(document: dict[str, Any], node_id: int) -> dict[str, Any]:
     raise ValueError(f"nó não encontrado: {node_id}")
 
 
+def _traceable_file(symbol: dict[str, Any]) -> str | None:
+    file = symbol.get("file")
+    return file.strip() if isinstance(file, str) and file.strip() else None
+
+
 def associate_node_reference(
     root: Path,
     draw_id: str,
@@ -101,16 +106,24 @@ def build_traceability_report(root: Path, node: dict[str, Any], facts: dict[str,
             references.append({"symbol": symbol_name, "status": "unresolved"})
             unresolved.append(symbol_name)
             continue
+        symbol_file = _traceable_file(symbol)
+        if symbol_file is None:
+            references.append({"symbol": symbol_name, "status": "unresolved", "reason": "file_missing"})
+            unresolved.append(symbol_name)
+            continue
         status = "resolved" if reference.get("identity") in (None, symbol.get("identity")) else "drift"
         item = {
             "symbol": symbol_name,
             "identity": reference.get("identity", symbol.get("identity")),
             "status": status,
-            "file": symbol.get("file"),
+            "file": symbol_file,
         }
+        for field in ("kind", "source"):
+            if symbol.get(field):
+                item[field] = symbol[field]
         references.append(item)
-        if status == "resolved" and symbol.get("file"):
-            files.add(symbol["file"])
+        if status == "resolved":
+            files.add(symbol_file)
         else:
             unresolved.append(symbol_name)
 
@@ -119,8 +132,11 @@ def build_traceability_report(root: Path, node: dict[str, Any], facts: dict[str,
         if dependency_symbol is None:
             unresolved.append(dependency_name)
             continue
-        if dependency_symbol.get("file"):
-            files.add(dependency_symbol["file"])
+        dependency_file = _traceable_file(dependency_symbol)
+        if dependency_file:
+            files.add(dependency_file)
+        else:
+            unresolved.append(dependency_name)
 
     tests: set[str] = set()
     suggestions: list[dict[str, str]] = []

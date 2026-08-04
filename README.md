@@ -80,6 +80,7 @@ $setup Detecte a stack deste repositório e configure os runners sem instalar de
 $feature Quero implementar autenticação por sessão; transforme o pedido em uma feature testável.
 $draw-feature Desenhe o fluxo de autenticação, incluindo falhas e subfluxos.
 $draw-improve Revise o desenho atual e acrescente somente o próximo detalhe arquitetural relevante.
+$draw-system Desenhe o sistema completo em arquitetura, jornadas do cliente e níveis de implementação.
 $static-analysis Analise dependências, complexidade, funções longas e segredos hardcoded.
 $implement Execute a implementação aprovada e rode os gates do STDD.
 ```
@@ -98,12 +99,17 @@ O agente deve ler o `SKILL.md` correspondente antes de agir. A skill define o co
 ```text
 $setup
 $feature Descreva aqui o que o produto precisa fazer.
+$draw-system Modele a arquitetura, as jornadas do cliente e os subfluxos de implementação.
 $draw-feature Mostre a arquitetura e os trade-offs dessa feature.
 $draw-improve Evolua o desenho em um ciclo curto e pare para minha revisão.
 $implement Execute somente depois da aprovação.
 ```
 
 `$draw-improve` trabalha sobre um JSON existente em `.stdd/draws/`. Cada chamada faz no máximo um incremento pequeno e encerra para revisão; se a arquitetura já estiver suficiente, a resposta correta pode ser `Já está bom`. Quando o desenho estiver aprovado, `$feature` transforma sua lógica em testes. Mesmo que o próximo pedido seja apenas `$implement`, o agente deve passar primeiro pela etapa de feature e confirmar os testes vermelhos antes de alterar produção.
+
+Perguntas de um Draw só devem ser respondidas automaticamente pelo agente quando o `prompt` contiver `@STDD` e `answer` estiver ausente, `null` ou vazio. Nesse caso, o agente responde e grava o resultado no próprio `answer`. Sem `@STDD`, a pergunta pertence ao usuário ou a um revisor humano; se o marcador for removido, ela deixa de ser responsabilidade do agente. Respostas já preenchidas, inclusive `false` e `0`, não geram nova ação.
+
+`$draw-system` cria uma árvore sem fluxos órfãos: nível 1 contém somente arquitetura macro, nível 2 acompanha as jornadas e a navegação do cliente, nível 3 detalha a implementação e nível 4 liga a codebase quando necessário. Cada filho declara seu pai e cada pai aponta para o filho com `draw_ref`; caminhos ainda não implementados terminam no próprio nó, sem continuação fictícia.
 
 Para Claude e Gemini, as mesmas skills são instaladas em `.claude/skills/` e `.gemini/skills/`; a forma exata de chamada pode ser o comando de skill adotado pelo agente, mas os nomes e contratos permanecem iguais.
 
@@ -131,6 +137,17 @@ A configuração fica em `.stdd/config.json`. O setup também adiciona padrões 
 Quando a codebase tiver uma linguagem e uma ferramenta local comprovadas, o agente `setup` constrói um adapter específico para aquela linguagem dentro do próprio projeto, preferencialmente em `.stdd/adapters/`. O adapter é versionado junto com a aplicação e o caminho em `static_analysis.adapter_command` é relativo à raiz do projeto. O núcleo do STDD permanece agnóstico: símbolos, dependências, complexidade e métricas são coletados por parser, tokenizer, AST, compiler API ou ferramenta local da própria stack, sem depender de serviço externo ou de um adapter instalado globalmente. Se a ferramenta necessária não existir, a capacidade fica explicitamente `unavailable`.
 
 O `stdd log` registra diffs incrementais e ignora snapshots AppleDouble `._*` e arquivos históricos que não sejam UTF-8, evitando que metadados binários gerados pelo macOS interrompam o registro de uma execução.
+
+Para revisar somente as alterações atuais dos JSONs lógicos dos Draws desde o último log, use:
+
+```bash
+stdd draw diff
+stdd draw diff --run-id <run-id>
+```
+
+Sem `--run-id`, o comando compara o estado atual com o último checkpoint salvo em `.stdd/runs/`; com `--run-id`, ele reexibe o diff histórico daquela interação. Em ambos os casos, considera apenas JSONs diretos de `.stdd/draws/`, exclui `index.json` e não consulta GitHub, `git diff` nem arquivos da codebase.
+
+Logs sem linhas adicionadas ou removidas no código são mantidos como checkpoints, com `checkpoint: true` no `*_summary.json`. O detalhamento dos JSONs alterados fica no `*_snapshot.json`; a aba `Runs` do Draw permite ocultar esses checkpoints de 0 linhas.
 
 Cada execução de `stdd test` também atualiza `.stdd/adapters/static-analysis-kpis.json` com os indicadores agregados e os detalhes dos símbolos, dependências, métricas, arquivos e achados de qualidade. O Draw Server expõe esse JSON e o viewer o apresenta na aba lateral `Análise`, ao lado de `Desenhos`; os Draws continuam separados em `.stdd/draws/` e os facts de rastreabilidade em `.stdd/facts/`.
 

@@ -26,6 +26,8 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert (tmp_path / ".agents/skills/static-analysis/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-feature/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-improve/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/draw-system/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/draw-system/agents/openai.yaml").exists()
     assert (tmp_path / ".agents/skills/draw-improve/agents/openai.yaml").exists()
     assert (tmp_path / "AGENTS.md").exists()
     assert "stdd test" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
@@ -153,7 +155,7 @@ def test_agents_are_loaded_from_markdown_templates():
     Chama agent_templates e valida a presença dos títulos dos agentes feature, implement e setup.
     """
     templates = {template.parent.name: template for template in agent_templates()}
-    assert set(templates) == {"draw-feature", "draw-improve", "feature", "implement", "setup", "static-analysis"}
+    assert set(templates) == {"draw-feature", "draw-improve", "draw-system", "feature", "implement", "setup", "static-analysis"}
     assert "# Feature Agent" in templates["feature"].read_text()
     assert "# Implement Agent" in templates["implement"].read_text()
     assert "# Setup Agent" in templates["setup"].read_text()
@@ -167,6 +169,12 @@ def test_agents_are_loaded_from_markdown_templates():
     assert ".env" in templates["static-analysis"].read_text()
     assert "*.pyc" in templates["static-analysis"].read_text()
     assert "stdd draw create" in templates["draw-feature"].read_text()
+    assert "stdd log" in templates["draw-feature"].read_text()
+    assert "stdd log" in templates["draw-system"].read_text()
+
+    draw_system_content = templates["draw-system"].read_text().lower()
+    for required in ("nível 1", "nível 2", "nível 3", "nível 4", "parent_draw_ref", "parent_node_id", "root_draw_ref", "não implementada", "sem órfãos", "code_refs", "source_dependencies", "símbolo qualificado"):
+        assert required in draw_system_content
 
     setup_content = templates["setup"].read_text()
     assert "núcleo do STDD permanece agnóstico" in setup_content
@@ -218,6 +226,8 @@ def test_draw_improve_skill_is_incremental_and_hands_off_through_feature():
         "$feature",
         "$implement",
         "estado vermelho",
+        "stdd draw diff",
+        "somente alterações em `.stdd/draws/*.json`",
     ):
         assert required in content
     assert "não pular" in content
@@ -260,8 +270,50 @@ def test_draw_skills_document_optional_questions_and_answer_history():
     """
     for name in ("draw-feature", "draw-improve"):
         content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
-        for required in ("questions", "choice", "boolean", "open", "answer", "histórico", "sem resposta"):
+        required_items = ("questions", "choice", "boolean", "open", "answer", "histórico", "sem resposta")
+        if name == "draw-improve":
+            required_items += ("@stdd", "`false` e `0`")
+        for required in required_items:
             assert required in content, f"{name} não define {required}"
+
+
+def test_draw_skills_preserve_system_hierarchy_and_terminal_unimplemented_paths():
+    """Alinha os agentes de desenho à árvore de arquitetura, jornada e implementação.
+    Confirma que pai, filho e folhas ainda não implementadas são tratados sem órfãos.
+    """
+    for name in ("draw-feature", "draw-improve", "draw-system"):
+        content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
+        for required in ("nível 1", "nível 2", "nível 3", "parent_draw_ref", "draw_ref", "órfãos", "não implementada"):
+            assert required in content, f"{name} não define {required}"
+
+
+def test_feature_and_implement_skills_honor_draw_system_boundaries():
+    """Impede que testes ou produção ignorem a árvore de desenhos do sistema.
+    Confirma leitura de pais, filhos, referências e folhas não implementadas.
+    """
+    for name in ("feature", "implement", "setup", "static-analysis"):
+        content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
+        for required in ("draw-system", "parent_draw_ref", "parent_node_id", "root_draw_ref", "fluxo órfão"):
+            assert required in content, f"{name} não define {required}"
+
+
+def test_traceability_skills_cover_rpc_and_sql_implementations():
+    """Cobre implementações RPC e SQL na checagem de símbolos.
+    Mantém modelos como dependências opcionais, nunca como implementação principal.
+    """
+    for name in ("draw-system", "setup", "static-analysis"):
+        content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
+        for required in ("rpc", "procedure", "sql", "arquivo", "model"):
+            assert required in content, f"{name} não define {required}"
+
+
+def test_setup_routes_projects_without_system_draws_to_draw_system():
+    """Exige que o setup encaminhe projetos sem uma raiz arquitetural ao Draw System.
+    Confirma que a verificação procura kind system e hierarchy nível 1 sem inventar o desenho.
+    """
+    content = Path("src/stdd/templates/agents/setup/SKILL.md").read_text(encoding="utf-8").lower()
+    for required in (".stdd/draws/", "kind: \"system\"", "hierarchy.level: 1", "$draw-system", "não houver uma raiz de sistema"):
+        assert required in content
 
 
 def test_agent_skills_are_self_contained_and_do_not_reference_internal_plan():
@@ -313,7 +365,7 @@ def test_readme_documents_codex_skill_invocation():
     """
     readme = Path("README.md").read_text(encoding="utf-8")
 
-    for command in ("$setup", "$feature", "$draw-feature", "$draw-improve", "$static-analysis", "$implement"):
+    for command in ("$setup", "$feature", "$draw-feature", "$draw-improve", "$draw-system", "$static-analysis", "$implement"):
         assert command in readme
     assert ".agents/skills/<skill>/SKILL.md" in readme
 
