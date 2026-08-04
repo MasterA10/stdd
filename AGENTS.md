@@ -12,4 +12,4 @@ Este projeto usa o STDD para especificação, implementação, testes e evidênc
 - Ao relatar o resultado, informe status, arquivos alterados, testes executados, evidências e limitações.
 <!-- STDD:END AGENT INSTRUCTIONS -->
 
-O comando do readme deve ser sempre atualizado de forma que qualquer push na main deve repletir nele. Se for necessário, pode mudar o comando, pode mudar a tag, mas o comando do README tem que estar sempre instalado e apontando para as últimas alterações.
+O comando do readme deve ser sempre atualizado de forma que qualquer push na main deve repletir nele. Se for necessário, pode mudar o comando, pode mudar a tag, mas o comando do README tem que estar sempre instalado e apontando para as últimas alterações. Sempre verifique o comando para ver se ele está atualizado.
