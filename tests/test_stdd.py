@@ -37,6 +37,19 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
         assert installed.read_text(encoding="utf-8") == source.read_text(encoding="utf-8")
 
 
+def test_init_always_synchronizes_existing_agent_skills(tmp_path: Path):
+    """Atualiza skills já instaladas sempre que o init é executado.
+    Confirma que uma versão antiga recebe o template atual sem opção adicional.
+    """
+    init_project(tmp_path)
+    skill = tmp_path / ".agents/skills/draw-system/SKILL.md"
+    skill.write_text("versao antiga", encoding="utf-8")
+
+    init_project(tmp_path)
+
+    assert skill.read_text(encoding="utf-8") == Path("src/stdd/templates/agents/draw-system/SKILL.md").read_text(encoding="utf-8")
+
+
 def test_init_defers_language_specific_test_runner_to_setup(tmp_path: Path):
     """Mantém o init agnóstico e não escolhe um runner de linguagem antecipadamente.
     Chama init_project e verifica que a configuração inicial aguarda o setup da stack.
@@ -116,6 +129,10 @@ def test_init_injects_idempotent_instructions_for_all_agents(tmp_path: Path):
         assert (tmp_path / name).read_text(encoding="utf-8") == content
         assert content.count("STDD:BEGIN AGENT INSTRUCTIONS") == 1
         assert "stdd log" in content
+        assert "commit" in content
+        assert "push" in content
+        assert "branch `main`" in content
+        assert "uv tool install --force --editable ." in content
     assert "Não remova este texto." in first["AGENTS.md"]
 
 

@@ -19,7 +19,7 @@ uv tool install --force --refresh stdd --from git+https://github.com/MasterA10/s
 Em desenvolvimento local, dentro deste repositório, a instalação editável acompanha automaticamente as próximas alterações do checkout; não é necessário reinstalar a cada edição:
 
 ```bash
-uv tool install --editable .
+uv tool install --force --editable .
 ```
 
 Confirme a instalação:
@@ -27,6 +27,8 @@ Confirme a instalação:
 ```bash
 stdd --help
 ```
+
+Antes de qualquer commit ou push na branch main, confirme que as fontes, templates, skills, assets empacotados, README e testes necessários para essa instalação estão no diff publicado. Depois de alterar o framework, valide localmente com uv tool install --force --editable . e stdd init; assim, o comando remoto do README poderá reproduzir a mesma versão a partir da main.
 
 ## Inicializar um repositório
 
@@ -56,6 +58,8 @@ stdd init meu-projeto --integration codex
 stdd init meu-projeto --integration claude --integration gemini
 stdd init meu-projeto --all-integrations
 ```
+
+O `stdd init` sempre sincroniza as skills já instaladas com os templates desta versão, adicionando agentes novos e atualizando instruções existentes. Se o comando ainda não reconhecer `draw-system`, reinstale o CLI a partir deste checkout com `uv tool install --force --editable .` e execute o init novamente.
 
 As skills são instaladas em:
 

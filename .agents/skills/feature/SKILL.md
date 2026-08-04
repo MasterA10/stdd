@@ -7,7 +7,7 @@ description: Especifica funcionalidades por testes executáveis no STDD sem alte
 
 ## Responsabilidade
 
-Transformar intenção em comportamento observável e testes que falhem pelo motivo esperado, com foco absoluto em **regras de negócio, backend, banco de dados e contratos**. Não criar testes para validar aparência, layout ou presença de componentes no HTML/DOM (testar componentes apenas se houver lógica de negócio extremamente crítica). Tratar testes como documentação executável. Não implementar código de produção, não enfraquecer testes existentes e não duplicar a especificação em arquivos Markdown intermediários.
+Transformar intenção em comportamento observável e testes que falhem pelo motivo esperado. Tratar testes como documentação executável. Não implementar código de produção, não enfraquecer testes existentes e não duplicar a especificação em arquivos Markdown intermediários.
 
 ## Leitura hierárquica de Draws
 
@@ -63,25 +63,25 @@ Não converter Draw em documentação duplicada. O JSON e os testes permanecem f
 
 ## Contrato de testes
 
-O objetivo prioritário dos testes é validar **regra de negócio, backend, banco de dados e contratos**. Não crie testes automatizados para frontend ou componentes (como verificar se um elemento existe no HTML, validar layout ou aparência). Teste componentes do frontend apenas se houver uma lógica de negócio ou transformação de dados realmente crítica. A meta é validar o **contrato**, não a interface visual.
+Não limitar a estratégia a testes funcionais, mas também não criar uma suíte por obrigação. Avaliar o risco da superfície e selecionar uma cobertura proporcional, somente com categorias aplicáveis:
 
-| Categoria      | Exigir quando                                                                     |
-| ----------------| -----------------------------------------------------------------------------------|
-| Unitário       | regra isolável, transformação, validação ou erro local                            |
-| Integração     | dois componentes reais precisam colaborar                                         |
-| Contrato       | API, evento, schema, SDK ou resposta externa possui formato estável               |
-| Regressão      | existe bug ou comportamento anterior que não pode retornar                        |
-| End-to-end     | o valor depende de várias etapas do sistema                                       |
-| Banco          | migrations, constraints, funções, triggers, RLS ou transações importam            |
-| Performance    | latência, throughput, memória ou volume possui objetivo mensurável                |
-| Segurança      | autenticação, autorização, entrada hostil, segredo ou exposição de dados muda     |
-| Isolamento     | tenants, testes paralelos, dados, processos ou integrações não podem vazar estado |
-| Pentest        | há superfície atacável e ambiente explicitamente autorizado                       |
-| Teste live     | uma integração com IA ou serviço externo precisa provar o contrato real           |
-| Revisão visual | a mudança é principalmente frontend, layout, interação visual ou renderização     |
-| Documentação   | o Markdown possui comandos executáveis, schema ou contrato que pode quebrar       |
+| Categoria | Exigir quando |
+| --- | --- |
+| Unitário | regra isolável, transformação, validação ou erro local |
+| Integração | dois componentes reais precisam colaborar |
+| Contrato | API, evento, schema, SDK ou resposta externa possui formato estável |
+| Regressão | existe bug ou comportamento anterior que não pode retornar |
+| End-to-end | o valor depende de várias etapas do sistema |
+| Banco | migrations, constraints, funções, triggers, RLS ou transações importam |
+| Performance | latência, throughput, memória ou volume possui objetivo mensurável |
+| Segurança | autenticação, autorização, entrada hostil, segredo ou exposição de dados muda |
+| Isolamento | tenants, testes paralelos, dados, processos ou integrações não podem vazar estado |
+| Pentest | há superfície atacável e ambiente explicitamente autorizado |
+| Teste live | uma integração com IA ou serviço externo precisa provar o contrato real |
+| Revisão visual | a mudança é principalmente frontend, layout, interação visual ou renderização |
+| Documentação | o Markdown possui comandos executáveis, schema ou contrato que pode quebrar |
 
-Frontend não exige teste automatizado por padrão. Não crie testes para verificar se componentes existem na árvore DOM/HTML. Crie testes apenas quando houver lógica crítica de negócio ou estado complexo no cliente; caso contrário, a validação de contrato do backend/banco é suficiente. Markdown não exige teste automatizado quando é apenas documentação.
+Frontend não exige teste automatizado por padrão. Criar teste quando houver lógica crítica, transformação de dados, estado complexo, acessibilidade, segurança ou impacto de negócio; para renderização e layout, registrar revisão visual humana. Markdown não exige teste automatizado quando é apenas documentação.
 
 ### Teste live de inteligência artificial
 

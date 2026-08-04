@@ -51,9 +51,15 @@ Executar esta sequência, adaptando os comandos à stack encontrada:
 1. Confirmar que `.stdd/config.json` contém `static_analysis.enabled`, `contract_version` e `adapter_command`. Se `adapter_command` estiver vazio, a capacidade deve permanecer `unavailable`; nunca declarar análise estática pronta sem executar uma chamada real.
 2. Inventariar a linguagem, o parser ou ferramenta escolhida, extensões analisadas, diretórios ignorados e limitações conhecidas. Preferir APIs estruturadas de compiladores, servidores de linguagem ou analisadores oficiais; usar regex somente para fatos simples e explicitamente limitados.
 3. Criar o adapter dentro de `.stdd/adapters/` ou em um executável da própria aplicação, com entrada JSON por `stdin`, saída JSON por `stdout` e diagnóstico somente em `stderr`. Não embutir comandos em uma string de shell.
+
+Regra de localização: o adapter específico da linguagem deve ficar dentro do diretório do próprio projeto analisado e ser versionável junto com ele, preferencialmente em `<project_root>/.stdd/adapters/`. Nunca colocar esse adapter no diretório de instalação global do STDD, no repositório do framework ou somente no ambiente do agente. O adapter deve ser personalizado para a linguagem e para a codebase, usando parser, tokenizer, AST ou APIs locais; não depender de serviço externo, agente remoto ou adapter genérico instalado fora do projeto para descobrir símbolos e dependências. O `adapter_command` deve apontar para o caminho relativo dentro da codebase, por exemplo `["php", ".stdd/adapters/php_static_adapter.php"]` ou `["python", ".stdd/adapters/static_adapter.py"]`.
 4. Executar o adapter diretamente com um projeto mínimo e com um caso real. Validar o JSON, o `contract_version`, o status, os símbolos e as dependências antes de configurar o comando.
 5. Configurar o comando em `.stdd/config.json`, executar `stdd test` e registrar em `.stdd/test-discovery.md` a ferramenta, versão, cobertura, limitações e pré-condições.
 6. Depois que os fatos estiverem disponíveis, associar os nós do desenho aos símbolos por nome qualificado. A associação deve ser explícita e determinística; o agente não deve inventar que um nó representa um arquivo apenas porque o texto parece semelhante.
+
+O núcleo do STDD permanece agnóstico: ele não escolhe parser, não embute regras de uma linguagem e não cria um adapter genérico que simula fatos. O agente `setup` é responsável por orientar a construção do adapter específico da codebase detectada. Se a stack mudar, o algoritmo, a ferramenta e as limitações devem ser reavaliados; não reutilizar um parser de outra linguagem apenas para preencher o contrato.
+
+Se o adapter ainda não existir no projeto, o `setup` não pode terminar apenas com `adapter_command: null` quando houver uma linguagem e uma ferramenta local comprovada. Deve criar ou orientar a criação do adapter em `<project_root>/.stdd/adapters/`, testar esse arquivo diretamente e só então configurar o comando. Se não houver parser, runtime ou ferramenta autorizada, registrar explicitamente `unavailable`, explicar a pré-condição ausente e não declarar análise estática pronta.
 
 O resultado do `init`/`setup` deve explicar ao usuário, em linguagem direta:
 
@@ -63,11 +69,13 @@ O resultado do `init`/`setup` deve explicar ao usuário, em linguagem direta:
 - quais vínculos estão resolvidos, ausentes ou desatualizados;
 - quais alterações futuras recalculam o impacto e quais ainda exigem revisão manual.
 
+Quando a análise estática ainda não existir, o resultado deve conter um plano de implementação específico da linguagem, e não apenas “criar um adapter”. Esse plano deve informar a fonte de verdade escolhida, o algoritmo de coleta, as métricas possíveis, as fixtures de validação, o comando final e as limitações que continuarão como `unavailable`.
+
 ## Como criar um adapter de análise estática
 
 Criar um adapter como uma fronteira pequena e testável entre a ferramenta de análise da linguagem e o contrato do STDD. O adapter não decide arquitetura nem interpreta o desenho: ele coleta fatos reproduzíveis.
 
-### 1. Definir a fonte de verdade
+### 1. Definir a fonte de verdade e o algoritmo da linguagem
 
 Antes de escrever código, localizar o manifesto, o build, o runner e a configuração da linguagem. Identificar se o projeto usa, por exemplo, TypeScript, Python, Go, Rust, Java ou C#. Em seguida escolher a fonte de símbolos mais confiável disponível:
 
@@ -75,6 +83,28 @@ Antes de escrever código, localizar o manifesto, o build, o runner e a configur
 - Language Server Protocol quando a resolução de símbolos exigir o workspace completo;
 - ferramenta oficial de dependências ou grafo de importação;
 - diff do Git para mudanças, sem executar código da aplicação.
+
+Descrever antes de implementar como a linguagem representa cada fato. O algoritmo deve ser próprio da stack detectada:
+
+- para linguagens com AST ou compiler API, percorrer nós de declaração, escopos, referências e blocos; usar posições fornecidas pelo parser;
+- para linguagens com Language Server, solicitar símbolos e referências no workspace e preservar a identidade retornada pelo servidor;
+- para linguagens com ferramenta oficial de análise, adaptar a saída estruturada dessa ferramenta, sem interpretar mensagens livres como fatos;
+- para linguagens sem analisador disponível, implementar somente fatos simples com tokenizer/parser local comprovado e marcar o restante como `unavailable`;
+- para linguagens compiladas, considerar imports, módulos, macros, geração de código e resolução de tipos conforme a ferramenta realmente resolver;
+- para linguagens dinâmicas, distinguir símbolo observado, símbolo inferido e símbolo não resolvido, sem transformar heurística em certeza.
+
+O plano do adapter deve mapear explicitamente:
+
+| Fato do STDD | Estratégia específica da linguagem | Evidência mínima |
+| --- | --- | --- |
+| símbolo | AST/compiler API/LSP ou tokenizer limitado | nome qualificado, tipo, arquivo e posição |
+| dependência | grafo de imports, referências ou chamadas resolvidas | origem, destino, tipo e arquivo |
+| complexidade | nós de decisão e operadores booleanos do AST/tokenizer | valor por função ou método |
+| estrutura | escopos, classes, funções, parâmetros e blocos | linhas, profundidade e contagens |
+| qualidade | limites aplicados aos fatos coletados | `kind`, `severity`, `value`, `limit` e evidência |
+| mudança | diff do Git cruzado com identidades estáveis | símbolo criado, removido ou alterado |
+
+Não começar pelo formato JSON. Primeiro provar a coleta em uma fixture mínima da linguagem e só então fazer o mapeamento para o contrato do STDD.
 
 Registrar limitações por capacidade. Um adapter que resolve funções, mas não consegue resolver macros ou geração de código, deve informar isso em `capabilities` e produzir `warnings`; não deve preencher fatos falsos.
 
@@ -126,6 +156,29 @@ Criar fixtures pequenas contendo pelo menos uma função ou classe, uma importa�
 
 Só depois desses testes configurar `static_analysis.adapter_command`. Executar o adapter diretamente, depois `stdd test`, e guardar evidências sem segredos.
 
+### 5. Validar qualidade de código por linguagem
+
+Para cada função, método, closure ou equivalente que a linguagem realmente expuser, calcular somente métricas suportadas pela fonte de verdade:
+
+- linhas e posição inicial/final;
+- quantidade de parâmetros;
+- complexidade ciclomática a partir de decisões da linguagem;
+- profundidade máxima de blocos;
+- métodos, campos e dependências por classe/módulo;
+- fan-in, fan-out e ciclos quando as referências forem resolvidas;
+- tamanho e complexidade de testes, identificando testes pela convenção comprovada da stack;
+- duplicação, código morto, tipos ausentes ou problemas de lint apenas quando houver ferramenta determinística disponível.
+
+Aplicar os limites configurados em `.stdd/config.json` e produzir `long_function`, `long_test`, `high_complexity`, `too_many_parameters`, `deep_nesting`, `high_fan_out` e `god_class_candidate` somente quando os fatos exigidos pelo achado estiverem disponíveis. Um limite não suportado pela linguagem deve aparecer em `capabilities`/`warnings`, não como zero ou como aprovação falsa.
+
+O adapter deve separar três níveis no relatório:
+
+1. `observed`: fato diretamente obtido pelo parser, compilador, LSP ou ferramenta oficial;
+2. `resolved`: fato ligado a uma identidade qualificada e a uma dependência verificável;
+3. `unresolved`: referência ou métrica que a ferramenta não conseguiu provar.
+
+O agente `setup` deve registrar essa matriz de cobertura no diagnóstico e explicar quais riscos continuarão exigindo revisão manual. O contrato JSON é comum a todas as linguagens; o algoritmo que produz cada campo é sempre específico da codebase.
+
 ## Como linkar nós do Draw a símbolos
 
 O vínculo começa com uma associação mínima fornecida pelo usuário ou pelo agente após inspecionar a codebase: `node_id`, `qualified_name` e pelo menos um `source_dependency`. O comando canônico é:
@@ -141,7 +194,7 @@ stdd draw associate-reference \
 
 Para vários vínculos, usar `--batch-json` com uma lista de objetos que contenham `node_id`, `qualified_name` e `source_dependencies`. Validar que o desenho existe, que o nó existe e que o nome qualificado é o formato usado pelo adapter. Não associar pelo texto visual, posição, índice do array ou nome curto isolado.
 
-O comando grava a referência declarada no desenho. Ele não calcula fatos derivados nem deve substituir uma associação explícita por uma sugestão. Em cada nova execução bem-sucedida da análise estática, o STDD cruza as referências com `symbols` e `dependencies` e gera um relatório separado em `.stdd/draws/<draw-id>.facts.json`. Esse relatório pode indicar:
+O comando grava a referência declarada no desenho. Ele não calcula fatos derivados nem deve substituir uma associação explícita por uma sugestão. Em cada nova execução da análise estática, o STDD cruza as referências com `symbols` e `dependencies` e gera um relatório separado em `.stdd/facts/<draw-id>.facts.json`. Esse relatório pode indicar:
 
 - `resolved`: o símbolo foi encontrado;
 - `unresolved`: o símbolo não apareceu nos fatos atuais;

@@ -358,10 +358,48 @@
         }
       ],
       "draws": []
+    },
+    {
+      "run_id": "2252a3198aea481492f632e69fc56a9a",
+      "timestamp": "2026-08-04T20:47:19.661985+00:00",
+      "files": [
+        {
+          "path": "src/stdd/core.py",
+          "lines_added": 5,
+          "lines_deleted": 3,
+          "diff": "--- a/src/stdd/core.py\n+++ b/src/stdd/core.py\n@@ -197,10 +197,12 @@\n             for skill_source in sources:\n                 relative = skill_source.relative_to(source.parent)\n                 target = root / AGENT_SKILL_DIRECTORIES[integration] / name / relative\n-                if not target.exists():\n+                source_text = skill_source.read_text(encoding=\"utf-8\")\n+                if not target.exists() or target.read_text(encoding=\"utf-8\") != source_text:\n                     target.parent.mkdir(parents=True, exist_ok=True)\n-                    target.write_text(skill_source.read_text(encoding=\"utf-8\"), encoding=\"utf-8\")\n-                    created.append(target)\n+                    target.write_text(source_text, encoding=\"utf-8\")\n+                    if target not in created:\n+                        created.append(target)\n     created.extend(ensure_agent_instructions(root, integrations))\n     return created\n "
+        },
+        {
+          "path": "tests/test_stdd.py",
+          "lines_added": 13,
+          "lines_deleted": 0,
+          "diff": "--- a/tests/test_stdd.py\n+++ b/tests/test_stdd.py\n@@ -37,6 +37,19 @@\n         assert installed.read_text(encoding=\"utf-8\") == source.read_text(encoding=\"utf-8\")\n \n \n+def test_init_always_synchronizes_existing_agent_skills(tmp_path: Path):\n+    \"\"\"Atualiza skills já instaladas sempre que o init é executado.\n+    Confirma que uma versão antiga recebe o template atual sem opção adicional.\n+    \"\"\"\n+    init_project(tmp_path)\n+    skill = tmp_path / \".agents/skills/draw-system/SKILL.md\"\n+    skill.write_text(\"versao antiga\", encoding=\"utf-8\")\n+\n+    init_project(tmp_path)\n+\n+    assert skill.read_text(encoding=\"utf-8\") == Path(\"src/stdd/templates/agents/draw-system/SKILL.md\").read_text(encoding=\"utf-8\")\n+\n+\n def test_init_defers_language_specific_test_runner_to_setup(tmp_path: Path):\n     \"\"\"Mantém o init agnóstico e não escolhe um runner de linguagem antecipadamente.\n     Chama init_project e verifica que a configuração inicial aguarda o setup da stack."
+        }
+      ],
+      "draws": []
+    },
+    {
+      "run_id": "4899330bce054e84b72c6c4fe4346ae1",
+      "timestamp": "2026-08-04T20:49:16.148923+00:00",
+      "files": [
+        {
+          "path": "src/stdd/core.py",
+          "lines_added": 2,
+          "lines_deleted": 0,
+          "diff": "--- a/src/stdd/core.py\n+++ b/src/stdd/core.py\n@@ -103,6 +103,8 @@\n - Execute `stdd test` antes de declarar uma tarefa concluída e trate falhas como bloqueios.\n - Preserve o contrato existente, os testes aprovados e os arquivos protegidos.\n - Use `.stdd/` para configuração, desenhos, execuções e evidências; não registre segredos nos logs.\n+- Antes de qualquer commit ou push na branch `main`, confirme que o diff inclui as fontes, templates, skills, assets empacotados, README e testes necessários para o comando de instalação do README reproduzir a versão publicada.\n+- Depois de alterar o framework, valide a instalação equivalente com `uv tool install --force --editable .` e confirme que `stdd init` instala as skills atuais; não publique somente uma parte da alteração.\n - Ao relatar o resultado, informe status, arquivos alterados, testes executados, evidências e limitações.\n {STDD_AGENT_BLOCK_END}\"\"\"\n _STDD_AGENT_BLOCK_PATTERN = re.compile("
+        },
+        {
+          "path": "tests/test_stdd.py",
+          "lines_added": 4,
+          "lines_deleted": 0,
+          "diff": "--- a/tests/test_stdd.py\n+++ b/tests/test_stdd.py\n@@ -129,6 +129,10 @@\n         assert (tmp_path / name).read_text(encoding=\"utf-8\") == content\n         assert content.count(\"STDD:BEGIN AGENT INSTRUCTIONS\") == 1\n         assert \"stdd log\" in content\n+        assert \"commit\" in content\n+        assert \"push\" in content\n+        assert \"branch `main`\" in content\n+        assert \"uv tool install --force --editable .\" in content\n     assert \"Não remova este texto.\" in first[\"AGENTS.md\"]\n \n "
+        }
+      ],
+      "draws": []
     }
   ],
-  "run_count": 4,
-  "last_run_id": "67940f79deec4970a2f819cbf711cd9a",
+  "run_count": 6,
+  "last_run_id": "4899330bce054e84b72c6c4fe4346ae1",
   "workspace_snapshot": {
     "draw-editor/bin/serve.js": [
       "#!/usr/bin/env node",
@@ -6096,6 +6134,8 @@
       "- Execute `stdd test` antes de declarar uma tarefa concluída e trate falhas como bloqueios.",
       "- Preserve o contrato existente, os testes aprovados e os arquivos protegidos.",
       "- Use `.stdd/` para configuração, desenhos, execuções e evidências; não registre segredos nos logs.",
+      "- Antes de qualquer commit ou push na branch `main`, confirme que o diff inclui as fontes, templates, skills, assets empacotados, README e testes necessários para o comando de instalação do README reproduzir a versão publicada.",
+      "- Depois de alterar o framework, valide a instalação equivalente com `uv tool install --force --editable .` e confirme que `stdd init` instala as skills atuais; não publique somente uma parte da alteração.",
       "- Ao relatar o resultado, informe status, arquivos alterados, testes executados, evidências e limitações.",
       "{STDD_AGENT_BLOCK_END}\"\"\"",
       "_STDD_AGENT_BLOCK_PATTERN = re.compile(",
@@ -6190,10 +6230,12 @@
       "            for skill_source in sources:",
       "                relative = skill_source.relative_to(source.parent)",
       "                target = root / AGENT_SKILL_DIRECTORIES[integration] / name / relative",
-      "                if not target.exists():",
+      "                source_text = skill_source.read_text(encoding=\"utf-8\")",
+      "                if not target.exists() or target.read_text(encoding=\"utf-8\") != source_text:",
       "                    target.parent.mkdir(parents=True, exist_ok=True)",
-      "                    target.write_text(skill_source.read_text(encoding=\"utf-8\"), encoding=\"utf-8\")",
-      "                    created.append(target)",
+      "                    target.write_text(source_text, encoding=\"utf-8\")",
+      "                    if target not in created:",
+      "                        created.append(target)",
       "    created.extend(ensure_agent_instructions(root, integrations))",
       "    return created",
       "",
@@ -10812,6 +10854,19 @@
       "        assert installed.read_text(encoding=\"utf-8\") == source.read_text(encoding=\"utf-8\")",
       "",
       "",
+      "def test_init_always_synchronizes_existing_agent_skills(tmp_path: Path):",
+      "    \"\"\"Atualiza skills já instaladas sempre que o init é executado.",
+      "    Confirma que uma versão antiga recebe o template atual sem opção adicional.",
+      "    \"\"\"",
+      "    init_project(tmp_path)",
+      "    skill = tmp_path / \".agents/skills/draw-system/SKILL.md\"",
+      "    skill.write_text(\"versao antiga\", encoding=\"utf-8\")",
+      "",
+      "    init_project(tmp_path)",
+      "",
+      "    assert skill.read_text(encoding=\"utf-8\") == Path(\"src/stdd/templates/agents/draw-system/SKILL.md\").read_text(encoding=\"utf-8\")",
+      "",
+      "",
       "def test_init_defers_language_specific_test_runner_to_setup(tmp_path: Path):",
       "    \"\"\"Mantém o init agnóstico e não escolhe um runner de linguagem antecipadamente.",
       "    Chama init_project e verifica que a configuração inicial aguarda o setup da stack.",
@@ -10891,6 +10946,10 @@
       "        assert (tmp_path / name).read_text(encoding=\"utf-8\") == content",
       "        assert content.count(\"STDD:BEGIN AGENT INSTRUCTIONS\") == 1",
       "        assert \"stdd log\" in content",
+      "        assert \"commit\" in content",
+      "        assert \"push\" in content",
+      "        assert \"branch `main`\" in content",
+      "        assert \"uv tool install --force --editable .\" in content",
       "    assert \"Não remova este texto.\" in first[\"AGENTS.md\"]",
       "",
       "",

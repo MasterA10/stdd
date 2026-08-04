@@ -47,7 +47,7 @@ stdd draw serve
 8. Para começar do zero, use `Novo desenho`, informe o título e adicione o primeiro bloco. Um canvas sem nós é válido. As mudanças ficam pendentes até o usuário pressionar `Salvar alterações`.
 9. Para iniciar uma feature a partir de um desenho, informe ao Feature Agent o ID do JSON; ele deve ler `.stdd/draws/<draw-id>.json` diretamente e interpretar a lógica do desenho.
 
-Não escreva HTML, CSS ou JavaScript para um desenho individual. O layout e os componentes pertencem ao `.stdd/draw.html`.
+Não escreva HTML, CSS ou JavaScript para um desenho individual. O layout e os componentes pertencem ao viewer React Flow empacotado pelo STDD.
 
 ## Modelo de dados
 
@@ -74,18 +74,18 @@ Toda seta deve declarar `condition` como código numérico: `1` representa `ent�
 
 As condições precisam representar a lógica do fluxo, não apenas colorir setas. Os códigos do JSON são:
 
-- `condition: 1` → **então**: sequência incondicional/default; próximo passo do fluxo.
-- `condition: 2` → **ou**: alternativa mutuamente exclusiva; escolha entre opções de mesmo nível.
-- `condition: 3` → **se**: condição/guarda; caminho guiado por predicado explícito.
+- `condition: 1` → **então**: sequência/default; use para o próximo passo após a etapa atual.
+- `condition: 2` → **ou**: escolha alternativa mutuamente exclusiva; use quando exatamente uma opção pode acontecer.
+- `condition: 3` → **se** (`C`): condição/guarda; use quando o caminho depende de um predicado explícito.
 
 Regras de consistência:
 
-- **Sequência (`condition: 1` / `então`)**: Use para a passagem incondicional do fluxo.
-- **Alternativa (`condition: 2` / `ou`)**: Responde *"qual alternativa exclusiva foi escolhida?"*.
-- **Condicional (`condition: 3` / `se`)**: Responde *"em que condição este caminho executa?"* (`se A`, `se B`). Cada condição é um predicado próprio.
-- **Nunca misture `se` e `ou`**: Jamais combine `se` com `ou` — nem dentro da guarda (não existe `se A ou B`), nem na mesma bifurcação. Se existem condições A e B, modele cada uma como seu próprio caminho (`se A` e `se B`).
-- **Execução condicional**: Se A acontecer, segue `se A`; se B acontecer, segue `se B`. Se ambos puderem ocorrer, o fluxo deve representar sequência ou paralelismo, jamais uma escolha `ou`.
-- **Clareza semântica**: Não use condições para ocultar passos sequenciais simples. Se o fluxo não for inteligível em linguagem natural, revise o grafo antes de gravar o JSON.
+- Caminho sequencial: setas `condition: 1` são válidas quando representam apenas a continuação do fluxo.
+- Condicionais: quando uma etapa tem caminhos baseados em condições, use uma seta `C` para cada condição: `se A` e `se B`. Não represente uma dessas condições com `ou`.
+- Alternativas: use várias setas `condition: 2` quando representam opções do mesmo nível e somente uma pode acontecer: `A ou B`; nunca modele esse caso como se ambas as opções fossem executadas.
+- Não misture `C` e `O` para representar a mesma decisão. `C` responde “em que condição este caminho acontece?”; `O` responde “qual alternativa exclusiva será escolhida?”.
+- Para “se A ou B”, use uma única condição `C` com o predicado `se A ou B` quando A ou B forem apenas partes da mesma guarda. Se A e B forem caminhos distintos, use duas setas `C`, uma `se A` e outra `se B`, desde que as condições sejam mutuamente exclusivas no domínio. Se ambas puderem acontecer, o fluxo precisa representar sequência ou paralelismo, não uma escolha `O`.
+- Não use uma condição para esconder uma etapa que é apenas sequência. Se a combinação não puder ser explicada em linguagem natural, revise o grafo antes de gravar o JSON.
 
 Exemplos válidos:
 
@@ -129,6 +129,26 @@ Cada pergunta possui ID numérico, `prompt`, `type` e `answer` opcional. Use:
 - `choice` para múltipla escolha, com pelo menos duas opções `{ "id": 1, "label": "..." }`; `answer` é o ID escolhido ou um texto quando a pessoa usa a resposta livre;
 - `boolean` para sim ou não, com `answer` booleano ou `null`;
 - `open` para resposta aberta, com `answer` textual ou `null`.
+
+Exemplo:
+
+```json
+{
+  "id": 4,
+  "label": "Pagamento",
+  "questions": [
+    {
+      "id": 1,
+      "type": "choice",
+      "prompt": "Qual provedor deve ser priorizado?",
+      "options": [{"id": 1, "label": "Stripe"}, {"id": 2, "label": "Adyen"}],
+      "answer": null
+    },
+    {"id": 2, "type": "boolean", "prompt": "Precisa de fallback?", "answer": true},
+    {"id": 3, "type": "open", "prompt": "Qual risco devemos explorar?", "answer": "Fraude"}
+  ]
+}
+```
 
 Perguntas respondidas permanecem no JSON como histórico. Não invente respostas: uma pergunta sem resposta é uma decisão aberta para o usuário ou para a próxima rodada do agente.
 

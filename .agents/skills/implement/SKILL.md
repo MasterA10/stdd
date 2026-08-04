@@ -25,6 +25,27 @@ Não implementar uma folha marcada como não implementada sem escopo aprovado. S
 6. Revisar a consistência dos desenhos associados antes de alterar produção.
 7. Tratar capacidade ausente como `unavailable`; não inventar cobertura.
 
+### Uso da análise estática para refatoração segura
+
+Quando houver relatório de `static_analysis`, o agente deve usá-lo como evidência de risco, não como ordem automática de reescrita. Para cada `quality_finding` relevante:
+
+1. localizar o `file`, `symbol_id`, `qualified_name`, `value`, `limit` e `evidence` no código;
+2. confirmar que o adapter realmente suporta aquela métrica para a linguagem da codebase;
+3. ler o símbolo completo, seus chamadores, dependências, testes relacionados e referências dos Draws;
+4. classificar o achado como correção necessária, refatoração segura, dívida técnica ou falso positivo justificado;
+5. escolher a menor divisão coerente de responsabilidades, preservando entrada, saída, efeitos, transações, autorização e tratamento de erros;
+6. criar ou confirmar um teste de regressão antes da refatoração quando o comportamento ainda não estiver protegido;
+7. fazer a mudança em passos pequenos, executando a suíte específica após cada passo;
+8. executar novamente o adapter e comparar `value`/`limit` antes e depois, sem esconder o achado alterando o limite apenas para obter aprovação.
+
+Para funções de produção, considerar como padrão: até 100 linhas é normal, 101–150 é warning de manutenção e acima de 150 é bloqueante. Uma função acima do limite não deve ser dividida mecanicamente; investigar primeiro coesão, dependências, fronteiras de domínio, efeitos colaterais e pontos de decisão. Preferir extrair funções com nomes comportamentais, manter uma sequência principal legível e preservar as identidades públicas quando o contrato não tiver autorizado renomeação.
+
+Para `high_complexity`, reduzir decisões aninhadas e caminhos implícitos apenas quando isso preservar a semântica. Para `too_many_parameters`, avaliar objeto de parâmetros ou agregação de dados somente quando houver coesão real; não agrupar argumentos arbitrariamente. Para `deep_nesting`, usar guard clauses ou extrair políticas quando os caminhos de erro continuarem equivalentes. Para `god_class_candidate` e `high_fan_out`, mapear responsabilidades e dependências antes de mover código.
+
+Warnings não são falhas automáticas e findings bloqueantes não autorizam uma grande refatoração sem escopo. Se o risco ou a mudança de contrato for maior que o pedido, parar e informar a decisão necessária. Se o achado for falso positivo, documentar a evidência e ajustar o adapter/fixture na camada correta, nunca silenciar o relatório no código de produção.
+
+Ao concluir, informar quais achados foram resolvidos, quais permaneceram, os valores antes/depois, testes executados e limitações da análise estática.
+
 ### Verificação do desenho antes de implementar
 
 Antes de escrever código, confirmar que o desenho, os testes e os contratos descrevem a mesma intenção. Comparar o fluxo principal, subfluxos, grupos, relações, condições, entradas, saídas, erros, perguntas respondidas e referências de símbolos.
@@ -125,7 +146,7 @@ Depois que o código e os testes estiverem validados, revisar novamente todos os
 
 Executar a revisão nesta ordem:
 
-1. localizar os desenhos associados pelos `code_refs`, `qualified_name`, `source_dependencies`, `draw_ref` e pelos fatos em `.stdd/draws/*.facts.json`;
+1. localizar os desenhos associados pelos `code_refs`, `qualified_name`, `source_dependencies`, `draw_ref` e pelos fatos em `.stdd/facts/*.facts.json`;
 2. ler o desenho principal completo e todos os subfluxos relacionados, não somente o nó alterado;
 3. comparar nós, relações, estados, nomes, condições, erros, entradas, saídas, perguntas e respostas com o comportamento realmente implementado;
 4. verificar referências `resolved`, `unresolved` e `drift`, além de arquivos, funções e testes retornados pela análise estática;

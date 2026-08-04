@@ -109,7 +109,7 @@ Use estes padrões como default quando o projeto não configurar limites própri
 
 | Métrica | Normal | Warning | Blocking |
 | --- | ---: | ---: | ---: |
-| Linhas em função de produção | até 40 | 41–100 | acima de 100 |
+| Linhas em função de produção | até 100 | 101–150 | acima de 150 |
 | Complexidade ciclomática | até 10 | 11–25 | acima de 25 |
 | Parâmetros por função | até 5 | 6–9 | acima de 9 |
 | Profundidade máxima de blocos | até 4 | 5–6 | acima de 6 |

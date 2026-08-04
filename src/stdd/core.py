@@ -103,6 +103,8 @@ Este projeto usa o STDD para especificação, implementação, testes e evidênc
 - Execute `stdd test` antes de declarar uma tarefa concluída e trate falhas como bloqueios.
 - Preserve o contrato existente, os testes aprovados e os arquivos protegidos.
 - Use `.stdd/` para configuração, desenhos, execuções e evidências; não registre segredos nos logs.
+- Antes de qualquer commit ou push na branch `main`, confirme que o diff inclui as fontes, templates, skills, assets empacotados, README e testes necessários para o comando de instalação do README reproduzir a versão publicada.
+- Depois de alterar o framework, valide a instalação equivalente com `uv tool install --force --editable .` e confirme que `stdd init` instala as skills atuais; não publique somente uma parte da alteração.
 - Ao relatar o resultado, informe status, arquivos alterados, testes executados, evidências e limitações.
 {STDD_AGENT_BLOCK_END}"""
 _STDD_AGENT_BLOCK_PATTERN = re.compile(
@@ -197,10 +199,12 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list
             for skill_source in sources:
                 relative = skill_source.relative_to(source.parent)
                 target = root / AGENT_SKILL_DIRECTORIES[integration] / name / relative
-                if not target.exists():
+                source_text = skill_source.read_text(encoding="utf-8")
+                if not target.exists() or target.read_text(encoding="utf-8") != source_text:
                     target.parent.mkdir(parents=True, exist_ok=True)
-                    target.write_text(skill_source.read_text(encoding="utf-8"), encoding="utf-8")
-                    created.append(target)
+                    target.write_text(source_text, encoding="utf-8")
+                    if target not in created:
+                        created.append(target)
     created.extend(ensure_agent_instructions(root, integrations))
     return created
 
