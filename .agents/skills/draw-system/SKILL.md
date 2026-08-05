@@ -110,6 +110,16 @@ O nível 2 é a **View do aplicativo**. Ele representa as **telas** que o usuár
 
 Olhando o nível 2, a pessoa deve conseguir dizer "preciso criar esta tela, que leva para essas outras telas, com essas condições".
 
+**Ponto(s) de entrada — poucos nós iniciais que façam sentido:**
+
+O nível 2 deve evitar sair de muitos nós iniciais dispersos. O fluxo precisa ter uma raiz coerente:
+
+- **Aplicativos mobile** geralmente partem de **um único nó inicial** (a tela de abertura ou home). A partir dali, o mapa se ramifica naturalmente.
+- **Sites** tipicamente partem da **home page** como nó inicial. Podem ter um segundo ponto de entrada quando há uma área administrativa ou painel que não é acessível pelo fluxo normal do cliente (URL diferente, login separado).
+- **Roles com fluxos isolados** (ex: administrador vs. cliente) podem justificar pontos de entrada diferentes quando não há interseção entre os caminhos. Nesse caso, cada role tem seu próprio nó inicial, mas o número total de raízes deve ser mínimo e cada uma deve representar um ponto de acesso real do sistema.
+
+A regra geral: **o número de nós iniciais do nível 2 deve ser o menor possível e cada um deve corresponder a um ponto de acesso real do sistema.** Se o fluxo tem muitos nós iniciais sem justificativa, o mapa está fragmentado e precisa ser reorganizado.
+
 **Regra obrigatória — todo nó do nível 2 aponta para o nível 3:**
 
 Todo nó (tela/view) do nível 2 **deve** ter um `draw_ref` apontando para um subfluxo no nível 3 que explica com mais detalhes as regras de negócio e a implementação daquela tela. O nível 2 mostra **o que** o usuário vê; o nível 3 mostra **como** aquilo funciona por dentro — as regras de negócio escolhidas, validações, autorizações e orquestração do backend. Não existe nó no nível 2 sem subfluxo no nível 3, exceto nós terminais não implementados.
@@ -128,7 +138,7 @@ Criar um desenho próprio que se pareça com a navegação e operação de cada 
 
 Se o papel de um usuário ainda não estiver confirmado, criar uma pergunta aberta ou de escolha; não inventar permissões.
 
-**Funcionalidades não implementadas — nós terminais:**
+**Funcionalidades não implementadas — nós terminais e grupo separado:**
 
 Se uma opção ainda não foi implementada, ela é um **nó terminal** do caminho. Regras:
 - Registrar o estado como `não implementado`
@@ -136,6 +146,9 @@ Se uma opção ainda não foi implementada, ela é um **nó terminal** do caminh
 - O nó não implementado nunca tem filhos, subfluxos ou passos seguintes (este é o **único caso** em que um nó do nível 2 não aponta para o nível 3)
 - Manter a pergunta/decisão pendente se for necessária
 - Um caminho não implementado pode apontar para uma nota de produto ou trade-off, mas **nunca** para passos de execução que não existem
+
+**Grupo de nós não implementados:** Quando o sistema tem telas que já foram implementadas e telas que ainda não foram, os nós não implementados **devem** ficar dentro de um `group` separado (ex: `"Não implementado"` ou `"Planejado"`). Isso torna visualmente claro no fluxo o que já existe e o que ainda precisa ser construído. As setas que levam a esses nós continuam saindo dos nós implementados normalmente — o grupo serve apenas para agrupar e destacar visualmente os nós que ainda não existem no sistema.
+
 
 ### Nível 3 — implementação / Controller (regras de negócio e orquestração)
 
@@ -167,13 +180,19 @@ O nível 4 explica em **linguagem puramente técnica e de baixo nível** como o 
 
 O nível 4 não é lugar para suposições: se o símbolo ainda não puder ser resolvido, usar uma pergunta aberta ou marcar a associação como pendente. Ligar nós a `code_refs`, `qualified_name`, testes e dependências reais.
 
-### Símbolos nos nós correspondentes
+### Símbolos nos nós correspondentes — associação incremental por fase
 
-Todo nó que representar um módulo, serviço, caso de uso, função, classe, endpoint, teste ou outro comportamento já existente na codebase deve carregar a associação no próprio nó, usando `code_refs`. Cada referência deve usar o símbolo qualificado real retornado pela análise estática, além de `identity` e `source_dependencies` quando esses fatos estiverem disponíveis. Não colocar os símbolos em um nó genérico diferente nem apenas na descrição.
+A vinculação de nós a símbolos da codebase ocorre de forma **incremental em cada fase** do desenho, conforme o nível trabalhado:
 
-Nós abstratos de arquitetura ou jornada que não correspondam diretamente a um símbolo não devem receber referências inventadas; a associação deve ficar no nó de implementação ou codebase que realiza aquele comportamento. Se o símbolo correspondente ainda não puder ser encontrado, marcar a associação como pendente e não declarar rastreabilidade completa.
+- **Fase 1 (Nível 2 — Views):** Para cada nó de tela/view criado, buscar na codebase os componentes frontend correspondentes (ex: componentes React, Vue, Angular, páginas `.tsx`, `.jsx`, `.vue`, templates HTML, arquivos de view) e associá-los ao nó via `code_refs`.
+- **Fase 2 (Nível 3 — Controller):** Para cada nó de implementação/controller criado, buscar e associar os símbolos de backend (controllers, rotas/endpoints, handlers, use cases, services, validadores) aos nós de nível 3 via `code_refs`.
+- **Fase 3 (Nível 4 — Codebase):** Mapear e associar os símbolos técnicos de mais baixo nível (funções internas, procedimentos SQL, migrations, schemas, entidades, DTOs e testes) aos nós de nível 4 via `code_refs`.
 
-Quando uma implementação atravessar uma RPC, incluir no nó o handler ou consumidor real da RPC e declarar a interface, contrato ou dependência remota em `source_dependencies` quando ela também tiver fatos rastreáveis. Quando a lógica estiver em uma procedure, função, trigger ou view do banco, referenciar o símbolo SQL no nó correspondente e apontar para o arquivo de migration, schema ou SQL que contém a implementação. Não apontar somente para o model, DTO ou entidade se eles apenas carregarem dados.
+Todo nó que representar um elemento já existente na codebase deve carregar a associação no próprio nó, usando `code_refs`. Cada referência deve usar o símbolo qualificado real retornado pela análise estática, além de `identity` e `source_dependencies` quando esses fatos estiverem disponíveis. Não colocar os símbolos em um nó genérico diferente nem apenas na descrição.
+
+Nós abstratos que não correspondam diretamente a um símbolo existente não devem receber referências inventadas. Se o símbolo correspondente ainda não puder ser encontrado, marcar a associação como pendente.
+
+Quando uma implementação atravessar uma RPC, incluir no nó o handler ou consumidor real da RPC e declarar a interface, contrato ou dependência remota em `source_dependencies`. Quando a lógica estiver em uma procedure, função, trigger ou view do banco, referenciar o símbolo SQL no nó correspondente e apontar para o arquivo de migration, schema ou SQL que contém a implementação.
 
 ## Fluxo de criação — execução faseada
 
@@ -186,12 +205,13 @@ Esta é a fase inicial e a mais importante. O agente deve:
 1. Inspecionar o pedido, a stack disponível, `.stdd/config.json`, desenhos existentes e o estado do Git.
 2. Criar o desenho raiz de **nível 1** (arquitetura) com as escolhas macro.
 3. Concentrar-se **exclusiva e exaustivamente** no **nível 2**: mapear todas as telas, todos os fluxos de interação, para cada role diferente (usuário, administrador, vendedor, etc.). Não compactar. Cada tela é um nó. Buscar a riqueza máxima de detalhes sobre quais telas existem e como se conectam.
-4. Criar cada JSON separadamente em `.stdd/draws/`, começando pela raiz e mantendo IDs estáveis.
-5. Em cada JSON, usar `groups` para fronteiras de responsabilidade e `flows` para caminhos temporais. Não gravar layout, cor, posição, data ou HTML.
-6. Validar que todas as relações apontam para nós existentes e todas as referências hierárquicas resolvem para um pai.
-7. Gravar cada desenho com `stdd draw create --data-json '<JSON>'` e conferir pelo viewer com `stdd draw serve`.
-8. Revisar a árvore de telas, incluindo terminais não implementados, perguntas e trade-offs.
-9. **Parar e perguntar ao usuário** se quer continuar para a Fase 2.
+4. Para cada nó de tela/view que já existir na codebase, consultar a análise estática e associar os componentes frontend (React, Vue, HTML, views, `.tsx`, `.jsx`, etc.) em `code_refs`.
+5. Criar cada JSON separadamente em `.stdd/draws/`, começando pela raiz e mantendo IDs estáveis.
+6. Em cada JSON, usar `groups` para fronteiras de responsabilidade e `flows` para caminhos temporais. Não gravar layout, cor, posição, data ou HTML.
+7. Validar que todas as relações apontam para nós existentes e todas as referências hierárquicas resolvem para um pai.
+8. Gravar cada desenho com `stdd draw create --data-json '<JSON>'` e conferir pelo viewer com `stdd draw serve`.
+9. Revisar a árvore de telas, incluindo terminais não implementados, perguntas e trade-offs.
+10. **Parar e perguntar ao usuário** se quer continuar para a Fase 2.
 
 ### Fase 2 — Controller / Regras de negócio (nível 3)
 
@@ -199,7 +219,7 @@ Só executar quando o usuário aprovar a continuação após a Fase 1. O agente 
 
 1. Ler os desenhos de nível 2 já criados.
 2. Para cada nó/tela do nível 2, criar o subfluxo de **nível 3** correspondente com regras de negócio, validações, autorizações e orquestração.
-3. Consultar os fatos da análise estática quando disponíveis.
+3. Consultar os fatos da análise estática e associar os símbolos de backend (controllers, endpoints, rotas, handlers, services e use cases) em `code_refs`.
 4. Gravar, validar e revisar.
 5. **Parar e perguntar ao usuário** se quer continuar para a Fase 3.
 
@@ -209,7 +229,7 @@ Só executar quando o usuário aprovar a continuação após a Fase 2. O agente 
 
 1. Ler os desenhos de nível 3 já criados.
 2. Para cada nó que justifique, criar o subfluxo de **nível 4** com `code_refs`, `qualified_name`, queries, migrations, testes e dependências reais.
-3. Consultar os fatos da análise estática e mapear cada símbolo real para o nó correspondente.
+3. Consultar os fatos da análise estática e associar os símbolos de baixo nível (funções internas, queries SQL, migrations, DTOs e testes) no nó correspondente em `code_refs`.
 4. Gravar, validar e revisar.
 
 ### Regras gerais de todas as fases

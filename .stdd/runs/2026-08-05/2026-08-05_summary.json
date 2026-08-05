@@ -148,8 +148,71 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "ec41f7fd2aa84d6697917c9a9e04fbc5",
+      "timestamp": "2026-08-05T14:20:29.840262+00:00",
+      "description": "Adiciona regra de pontos de entrada do nível 2: poucos nós iniciais coerentes (mobile=1, site=1-2, roles isolados podem ter entradas separadas)",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "02c8d2b05d2e49b1b76b741a830aa66f",
+      "timestamp": "2026-08-05T14:22:28.311678+00:00",
+      "description": "Adiciona regra de grupo separado para nós não implementados no nível 2: telas/recursos planejados ficam em group próprio para distinção visual",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d820299be0aa43b7a8f729177ed49988",
+      "timestamp": "2026-08-05T14:24:51.975044+00:00",
+      "description": "Adiciona associação incremental de símbolos em cada fase do draw-system (views no nível 2, controllers no nível 3, baixo nível no nível 4)",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 7,
-  "last_run_id": "bd3727a4e35f436892446852d13a16ea"
+  "run_count": 10,
+  "last_run_id": "d820299be0aa43b7a8f729177ed49988"
 }
