@@ -61,6 +61,16 @@ stdd init meu-projeto --all-integrations
 
 O `stdd init` sempre sincroniza as skills já instaladas com os templates desta versão, adicionando agentes novos e atualizando instruções existentes. Se o comando ainda não reconhecer `draw-system`, reinstale o CLI a partir deste checkout com `uv tool install --force --editable .` e execute o init novamente.
 
+Para substituir as skills de um projeto já existente pela versão mais recente publicada na `main`:
+
+```bash
+uv tool install --force --refresh stdd --from git+https://github.com/MasterA10/stdd.git@main
+cd meu-projeto
+stdd init . --all-integrations
+```
+
+Se o projeto usa somente Codex, substitua a última linha por `stdd init . --integration codex`. O init é idempotente: atualiza as skills e instruções existentes sem duplicá-las e não altera o código de produção.
+
 As skills são instaladas em:
 
 - Codex: `.agents/skills/`
