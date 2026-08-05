@@ -258,7 +258,11 @@ def draw_serve(
     """Serve o viewer Draw localmente para carregar JSONs por fetch.
     Vincula o servidor a 127.0.0.1 e mantém o processo ativo até interrupção.
     """
-    serve_draw(project_root(), port=port)
+    try:
+        serve_draw(project_root(), port=port)
+    except (RuntimeError, ValueError) as error:
+        typer.echo(f"Erro: {error}", err=True)
+        raise typer.Exit(1)
 
 
 

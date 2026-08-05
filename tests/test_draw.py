@@ -5,7 +5,7 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from stdd.cli import app
-from stdd.draw import create_draw, read_draw_index, start_server_for_test
+from stdd.draw import create_draw, create_server, read_draw_index, start_server_for_test
 
 
 runner = CliRunner()
@@ -285,6 +285,73 @@ def test_create_draw_accepts_subdraw_reference_and_counts_it(tmp_path: Path):
     path = create_draw(tmp_path, payload)
 
     assert json.loads(path.read_text())["nodes"][1]["draw_ref"] == "payment-details"
+
+
+def test_draw_server_rejects_legacy_edge_keys_before_starting(tmp_path: Path):
+    """Bloqueia desenhos com chaves de aresta incompatíveis antes do viewer.
+    Grava source e target no schema antigo e confirma que a porta não é aberta.
+    """
+    draws = tmp_path / ".stdd" / "draws"
+    draws.mkdir(parents=True)
+    payload = draw_payload()
+    payload["edges"][0]["source"] = payload["edges"][0].pop("from")
+    payload["edges"][0]["target"] = payload["edges"][0].pop("to")
+    (draws / "checkout.json").write_text(json.dumps(payload), encoding="utf-8")
+    (draws / "index.json").write_text(
+        json.dumps({"version": 1, "draws": [{"id": "checkout", "file": "checkout.json", "title": "Checkout", "subtitle": "", "kind": "feature", "node_count": 2, "edge_count": 1, "subdraw_count": 0}]}),
+        encoding="utf-8",
+    )
+
+    try:
+        create_server(tmp_path, port=0)
+    except ValueError as error:
+        message = str(error)
+        assert "checkout.json" in message
+        assert "from/to" in message
+        assert "source/target" in message
+    else:
+        raise AssertionError("schema antigo de arestas deveria bloquear o servidor")
+
+
+def test_draw_server_rejects_index_reference_to_missing_draw(tmp_path: Path):
+    """Bloqueia links do índice que não possuem JSON correspondente.
+    Cria uma entrada órfã e confirma que o erro aparece ao iniciar o servidor.
+    """
+    draws = tmp_path / ".stdd" / "draws"
+    draws.mkdir(parents=True)
+    (draws / "index.json").write_text(
+        json.dumps({"version": 1, "draws": [{"id": "checkout", "file": "checkout.json"}]}),
+        encoding="utf-8",
+    )
+
+    try:
+        create_server(tmp_path, port=0)
+    except ValueError as error:
+        assert "desenho inexistente" in str(error)
+    else:
+        raise AssertionError("entrada órfã do índice deveria bloquear o servidor")
+
+
+def test_draw_cli_reports_invalid_workspace_before_starting_viewer(tmp_path: Path, monkeypatch):
+    """Exibe a causa do contrato inválido no comando de servir.
+    Confirma que o usuário recebe erro acionável sem abrir uma página que falharia em 404.
+    """
+    monkeypatch.chdir(tmp_path)
+    draws = tmp_path / ".stdd" / "draws"
+    draws.mkdir(parents=True)
+    payload = draw_payload()
+    payload["edges"][0]["source"] = payload["edges"][0].pop("from")
+    payload["edges"][0]["target"] = payload["edges"][0].pop("to")
+    (draws / "checkout.json").write_text(json.dumps(payload), encoding="utf-8")
+    (draws / "index.json").write_text(
+        json.dumps({"version": 1, "draws": [{"id": "checkout", "file": "checkout.json", "title": "Checkout", "subtitle": "", "kind": "feature", "node_count": 2, "edge_count": 1, "subdraw_count": 0}]}),
+        encoding="utf-8",
+    )
+
+    result = runner.invoke(app, ["draw", "serve", "--port", "8765"])
+
+    assert result.exit_code == 1
+    assert "source/target" in result.stderr
 
 
 def test_create_draw_enforces_hierarchical_parent_and_child_link(tmp_path: Path):

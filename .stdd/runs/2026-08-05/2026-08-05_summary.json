@@ -211,8 +211,71 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "a8d304e9fbe141dd8051ce5e62e7e3db",
+      "timestamp": "2026-08-05T14:56:49.022644+00:00",
+      "description": "Atualiza draw-system para tornar o detalhamento nível 3 condicional por lógica de negócio",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "b6c84ac01e6c4ee7a401c76c589bedf9",
+      "timestamp": "2026-08-05T15:10:00.482450+00:00",
+      "description": "Bloqueia o Draw serve quando desenhos têm schema ou referências inconsistentes",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 167,
+        "lines_deleted": 3,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "e9d921c12eaf46e3820fdbb96d45c125",
+      "timestamp": "2026-08-05T15:10:01.062680+00:00",
+      "description": "Adiciona regressões para validar workspace antes do servidor Draw",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 10,
-  "last_run_id": "d820299be0aa43b7a8f729177ed49988"
+  "run_count": 13,
+  "last_run_id": "e9d921c12eaf46e3820fdbb96d45c125"
 }

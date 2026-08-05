@@ -219,8 +219,12 @@ def validate_draw_payload(payload: Any) -> list[str]:
         if not isinstance(edge, dict):
             violations.append(f"edges[{index}] deve ser um objeto")
             continue
+        if "source" in edge or "target" in edge:
+            violations.append(f"edges[{index}] deve usar from/to; source/target não fazem parte do schema")
+        if "from" not in edge or "to" not in edge:
+            violations.append(f"edges[{index}] deve declarar as chaves from e to")
         source, target = edge.get("from"), edge.get("to")
-        if source not in node_ids or target not in node_ids:
+        if "from" in edge and "to" in edge and (source not in node_ids or target not in node_ids):
             violations.append(f"relação {index} aponta para nó que não existe")
         edge_id = edge.get("id")
         if not _is_numeric_id(edge_id):
@@ -282,6 +286,92 @@ def validate_hierarchy_parent(root: Path, payload: dict[str, Any]) -> list[str]:
     if parent_node.get("draw_ref") != payload.get("id"):
         return ["o nó pai deve apontar para o filho com draw_ref"]
     return []
+
+
+def _validate_index_metadata(entry: dict[str, Any], payload: dict[str, Any], draw_id: str, prefix: str) -> list[str]:
+    """Compara os contadores leves do índice com o JSON carregado.
+    Impede que a biblioteca exiba uma chave antiga que não corresponda ao documento atual.
+    """
+    nodes = payload.get("nodes")
+    edges = payload.get("edges")
+    counts = {
+        "node_count": len(nodes) if isinstance(nodes, list) else None,
+        "edge_count": len(edges) if isinstance(edges, list) else None,
+        "subdraw_count": sum(1 for node in nodes if isinstance(node, dict) and node.get("draw_ref") is not None)
+        if isinstance(nodes, list) else None,
+    }
+    return [
+        f"{prefix}.{field} diverge do desenho {draw_id} (esperado {expected})"
+        for field, expected in counts.items()
+        if entry.get(field) != expected
+    ]
+
+
+def _load_indexed_draw(root: Path, entry_index: int, entry: Any) -> tuple[list[str], str | None, dict[str, Any] | None]:
+    """Carrega e valida um desenho anunciado pelo índice.
+    Retorna violações, ID válido e payload para as verificações cruzadas do workspace.
+    """
+    prefix = f".stdd/draws/index.json draws[{entry_index}]"
+    if not isinstance(entry, dict):
+        return [f"{prefix} deve ser um objeto"], None, None
+    draw_id = entry.get("id")
+    if not _is_draw_id(draw_id):
+        return [f"{prefix}.id deve ser um ID de desenho seguro"], None, None
+    expected_file = f"{draw_id}.json"
+    violations = [] if entry.get("file") == expected_file else [f"{prefix}.file deve ser {expected_file}"]
+    path = draw_directory(root) / expected_file
+    if not path.is_file():
+        return [*violations, f"{prefix} aponta para desenho inexistente: {draw_id}"], draw_id, None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        return [*violations, f"{expected_file}: JSON inválido ({error.__class__.__name__})"], draw_id, None
+    if not isinstance(payload, dict):
+        return [*violations, f"{expected_file}: desenho deve ser um objeto JSON"], draw_id, None
+    violations.extend(
+        [f"{expected_file}: {item}" for item in validate_draw_payload(payload)]
+        + [f"{expected_file}: {item}" for item in validate_hierarchy_parent(root, payload)]
+        + _validate_index_metadata(entry, payload, draw_id, prefix)
+    )
+    if payload.get("id") != draw_id:
+        violations.append(f"{expected_file}: id do JSON diverge do índice ({draw_id})")
+    return violations, draw_id, payload
+
+
+def validate_draw_workspace(root: Path) -> list[str]:
+    """Valida todos os desenhos e referências antes de iniciar o viewer.
+    Detecta schema incompatível, índice desatualizado e cápsulas quebradas antes de qualquer fetch HTTP.
+    """
+    draws_path = draw_directory(root)
+    if not draws_path.is_dir():
+        return []
+    try:
+        entries = read_draw_index(root).get("draws", [])
+    except ValueError as error:
+        return [f".stdd/draws/index.json: {error}"]
+
+    violations: list[str] = []
+    indexed_ids: set[str] = set()
+    documents: dict[str, dict[str, Any]] = {}
+    for entry_index, entry in enumerate(entries):
+        entry_violations, draw_id, payload = _load_indexed_draw(root, entry_index, entry)
+        violations.extend(entry_violations)
+        if draw_id is None or draw_id in indexed_ids:
+            if draw_id in indexed_ids:
+                violations.append(f".stdd/draws/index.json draws[{entry_index}].id duplicado: {draw_id}")
+            continue
+        indexed_ids.add(draw_id)
+        if payload is not None:
+            documents[draw_id] = payload
+
+    file_ids = {path.stem for path in draws_path.glob("*.json") if path.name != "index.json"}
+    violations.extend(f".stdd/draws/{draw_id}.json não está presente no índice" for draw_id in sorted(file_ids - indexed_ids))
+    available_ids = set(documents)
+    for draw_id, payload in documents.items():
+        for node_index, node in enumerate(payload.get("nodes", [])):
+            if isinstance(node, dict) and node.get("draw_ref") is not None and node["draw_ref"] not in available_ids:
+                violations.append(f"{draw_id}.json nodes[{node_index}].draw_ref aponta para desenho inexistente: {node['draw_ref']}")
+    return violations
 
 
 def ensure_draw_workspace(root: Path, include_example: bool = False) -> list[Path]:
@@ -429,6 +519,9 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
         raise ValueError("port deve estar entre 0 e 65535")
     if not DRAW_ASSETS.is_dir():
         raise RuntimeError("assets do viewer Draw não estão instalados no pacote")
+    workspace_violations = validate_draw_workspace(root)
+    if workspace_violations:
+        raise ValueError("Workspace de desenhos inválido: " + "; ".join(workspace_violations))
 
     class ProjectHandler(SimpleHTTPRequestHandler):
         """Serve somente o viewer empacotado e a API de desenhos locais."""

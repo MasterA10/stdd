@@ -27,8 +27,8 @@ Os níveis são:
 **Regra fundamental de separação:**
 
 - O **nível 1 não explica comportamento**. Ele não descreve o funcionamento do aplicativo. O que o usuário faz, regras de negócio, opções do cliente, sequência de telas — tudo isso pertence ao nível 2. O nível 1 é exclusivamente sobre as escolhas macro e o que está em torno da codebase: que linguagem, que banco, que sistema de cache, que tipo de autenticação, que provedores externos, que fronteiras existem.
-- O **nível 2 é a View** — o mapa de telas e navegação do frontend. Representa as telas que existem, quais views o usuário pode acessar a partir de cada tela, e os caminhos de navegação entre elas. Ao olhar o nível 2, deve ser possível reconstruir 95% da interface do frontend. **Todo nó do nível 2 deve apontar para um subfluxo no nível 3** que detalha as regras de negócio e a implementação daquela tela/ação.
-- O **nível 3 é o Controller** — a ponte entre a view e a implementação. Ele detalha as regras de negócio escolhidas, as decisões de fluxo, validações, autorizações e como o backend orquestra a resposta para cada ação do nível 2. Todo nó do nível 2 tem um subfluxo correspondente no nível 3.
+- O **nível 2 é a View** — o mapa de telas e navegação do frontend. Representa as telas que existem, quais views o usuário pode acessar a partir de cada tela, e os caminhos de navegação entre elas. Ao olhar o nível 2, deve ser possível reconstruir 95% da interface do frontend. **A maioria dos nós do nível 2 deve apontar para um subfluxo no nível 3**, sempre que houver regra de negócio, decisão de fluxo ou detalhe de implementação relevante para explicar aquela tela/ação.
+- O **nível 3 é o Controller** — a ponte entre a view e a implementação. Ele detalha as regras de negócio escolhidas, as decisões de fluxo, validações, autorizações e como o backend orquestra a resposta para cada ação do nível 2 **quando esse detalhamento for necessário**. Nem todo nó do nível 2 precisa de um subfluxo no nível 3: telas de transição, loading, confirmação ou outros nós sem lógica de negócio própria podem permanecer sem esse apontamento, desde que isso seja coerente com o que o nó faz.
 - O **nível 4 explica em linguagem técnica e de baixo nível** — liga a implementação a fatos reais da codebase, com detalhes de código, queries, módulos e contratos. Sem inventar arquivos ou símbolos.
 
 **Saltos entre níveis:** O nível 1 pode apontar diretamente para o nível 3 ou 4 quando o assunto for puramente técnico e não envolver jornada de usuário (exemplo: configuração de infraestrutura, pipeline de deploy, migração de banco). Mas para qualquer assunto que envolva comportamento do aplicativo, o nível 1 **deve** passar pelo nível 2 primeiro. A relação de pai é sempre obrigatória, independente do salto.
@@ -120,9 +120,11 @@ O nível 2 deve evitar sair de muitos nós iniciais dispersos. O fluxo precisa t
 
 A regra geral: **o número de nós iniciais do nível 2 deve ser o menor possível e cada um deve corresponder a um ponto de acesso real do sistema.** Se o fluxo tem muitos nós iniciais sem justificativa, o mapa está fragmentado e precisa ser reorganizado.
 
-**Regra obrigatória — todo nó do nível 2 aponta para o nível 3:**
+**Regra de detalhamento — nós do nível 2 apontam para o nível 3 quando necessário:**
 
-Todo nó (tela/view) do nível 2 **deve** ter um `draw_ref` apontando para um subfluxo no nível 3 que explica com mais detalhes as regras de negócio e a implementação daquela tela. O nível 2 mostra **o que** o usuário vê; o nível 3 mostra **como** aquilo funciona por dentro — as regras de negócio escolhidas, validações, autorizações e orquestração do backend. Não existe nó no nível 2 sem subfluxo no nível 3, exceto nós terminais não implementados.
+Todo nó (tela/view) do nível 2 **deve ser avaliado** para decidir se precisa de um `draw_ref` apontando para um subfluxo no nível 3. O nível 2 mostra **o que** o usuário vê; o nível 3 mostra **como** aquilo funciona por dentro — as regras de negócio escolhidas, decisões, validações, autorizações e orquestração do backend. Criar o apontamento quando a tela ou ação tiver uma regra de negócio associada, depender de uma decisão relevante ou exigir um detalhe de implementação para ser compreendida. Como regra prática, isso se aplica à grande maioria dos nós (aproximadamente 90%), mas não é uma obrigação mecânica para todos eles.
+
+Telas de transição, loading, confirmação ou encaminhamento que apenas conectam estados/telas e não possuem lógica de negócio própria **podem não** apontar para o nível 3. Nesses casos, manter o nó no nível 2 com seu estado e destino claramente descritos. A ausência de um subfluxo só é válida quando o próprio nó não tiver decisão, regra ou implementação relevante a explicar; não usar essa exceção para omitir o detalhamento de uma tela que realmente possua comportamento.
 
 **Separação por roles/papéis:**
 
@@ -143,7 +145,7 @@ Se o papel de um usuário ainda não estiver confirmado, criar uma pergunta aber
 Se uma opção ainda não foi implementada, ela é um **nó terminal** do caminho. Regras:
 - Registrar o estado como `não implementado`
 - **Não criar uma continuação fictícia** — o caminho para ali
-- O nó não implementado nunca tem filhos, subfluxos ou passos seguintes (este é o **único caso** em que um nó do nível 2 não aponta para o nível 3)
+- O nó não implementado nunca tem filhos, subfluxos ou passos seguintes; ele é um dos casos em que um nó do nível 2 não aponta para o nível 3, junto com nós implementados que não possuem lógica de negócio, decisão ou detalhe de implementação próprio (como telas de transição)
 - Manter a pergunta/decisão pendente se for necessária
 - Um caminho não implementado pode apontar para uma nota de produto ou trade-off, mas **nunca** para passos de execução que não existem
 
@@ -152,7 +154,7 @@ Se uma opção ainda não foi implementada, ela é um **nó terminal** do caminh
 
 ### Nível 3 — implementação / Controller (regras de negócio e orquestração)
 
-O nível 3 é o **Controller** — a ponte entre o que o usuário vê (nível 2) e como o sistema executa. Cada subfluxo do nível 3 corresponde a um nó/tela do nível 2 e detalha:
+O nível 3 é o **Controller** — a ponte entre o que o usuário vê (nível 2) e como o sistema executa. Cada subfluxo do nível 3 corresponde a um nó/tela do nível 2 que foi avaliado como necessitando de detalhamento e explica:
 
 - **Regras de negócio escolhidas** para aquela tela/ação
 - Entrada da API ou caso de uso correspondente
@@ -218,7 +220,7 @@ Esta é a fase inicial e a mais importante. O agente deve:
 Só executar quando o usuário aprovar a continuação após a Fase 1. O agente deve:
 
 1. Ler os desenhos de nível 2 já criados.
-2. Para cada nó/tela do nível 2, criar o subfluxo de **nível 3** correspondente com regras de negócio, validações, autorizações e orquestração.
+2. Para cada nó/tela do nível 2, avaliar se há regra de negócio, decisão de fluxo ou detalhe de implementação relevante. Criar o subfluxo de **nível 3** correspondente para os nós que precisarem desse detalhamento; manter sem subfluxo as telas de transição e outros nós sem lógica própria, registrando essa decisão quando não for óbvia.
 3. Consultar os fatos da análise estática e associar os símbolos de backend (controllers, endpoints, rotas, handlers, services e use cases) em `code_refs`.
 4. Gravar, validar e revisar.
 5. **Parar e perguntar ao usuário** se quer continuar para a Fase 3.
