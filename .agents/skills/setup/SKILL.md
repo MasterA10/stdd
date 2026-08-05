@@ -7,11 +7,11 @@ description: Descobre a stack e prepara o STDD para executar testes e análise e
 
 ## Compatibilidade com Draw System
 
-O setup deve preservar a hierarquia dos desenhos existentes. Não reclassificar nós ou criar comportamento para preencher níveis: nível 1 é arquitetura, nível 2 é jornada do cliente, nível 3 é implementação e nível 4 é codebase quando necessário. Ao descobrir a stack, registrar capacidades que possam ser usadas pelos níveis 3 e 4, sem inventar símbolos, integrações ou fluxos.
+O setup deve preservar a hierarquia dos desenhos existentes. Não reclassificar nós, criar desenhos ou criar comportamento para preencher níveis: nível 1 é arquitetura, nível 2 é jornada do usuário por papel, nível 3 é implementação e nível 4 é codebase quando necessário. Ao descobrir a stack, registrar capacidades que possam ser usadas pelos níveis 3 e 4, sem inventar símbolos, integrações ou fluxos.
 
 Se validar desenhos como parte do diagnóstico, exigir que cada descendente tenha `parent_draw_ref`, `parent_node_id` e `root_draw_ref`, que o pai possua o `draw_ref` correspondente e que folhas não implementadas permaneçam terminais. Um `draw_ref` quebrado ou fluxo órfão é inconsistência a relatar, não motivo para alterar o desenho automaticamente.
 
-Depois de detectar a stack, verificar `.stdd/draws/` procurando ao menos um desenho de sistema com `kind: "system"` e `hierarchy.level: 1`. Se não houver uma raiz de sistema, encaminhar para `$draw-system` e criar a arquitetura, as jornadas do cliente e os níveis de implementação aplicáveis antes de considerar o diagnóstico arquitetural completo. O setup não deve inventar essa árvore nem substituir o `$draw-system` por um desenho de feature.
+Depois de detectar a stack, verificar `.stdd/draws/` procurando ao menos um desenho de sistema com `kind: "system"` e `hierarchy.level: 1`. Se não houver uma raiz de sistema, informar que a documentação arquitetural ainda não existe e recomendar uma chamada separada a `$draw-system`. O `setup` não cria, edita, completa ou substitui desenhos; ele somente configura a stack, os runners, o contrato e a análise estática. A criação da arquitetura, das jornadas do usuário — incluindo cliente e administrador — e dos níveis de implementação pertence exclusivamente ao `$draw-system`.
 
 ## Instalação do CLI
 
@@ -55,7 +55,7 @@ Executar esta sequência, adaptando os comandos à stack encontrada:
 Regra de localização: o adapter específico da linguagem deve ficar dentro do diretório do próprio projeto analisado e ser versionável junto com ele, preferencialmente em `<project_root>/.stdd/adapters/`. Nunca colocar esse adapter no diretório de instalação global do STDD, no repositório do framework ou somente no ambiente do agente. O adapter deve ser personalizado para a linguagem e para a codebase, usando parser, tokenizer, AST ou APIs locais; não depender de serviço externo, agente remoto ou adapter genérico instalado fora do projeto para descobrir símbolos e dependências. O `adapter_command` deve apontar para o caminho relativo dentro da codebase, por exemplo `["php", ".stdd/adapters/php_static_adapter.php"]` ou `["python", ".stdd/adapters/static_adapter.py"]`.
 4. Executar o adapter diretamente com um projeto mínimo e com um caso real. Validar o JSON, o `contract_version`, o status, os símbolos e as dependências antes de configurar o comando.
 5. Configurar o comando em `.stdd/config.json`, executar `stdd test` e registrar em `.stdd/test-discovery.md` a ferramenta, versão, cobertura, limitações e pré-condições.
-6. Depois que os fatos estiverem disponíveis, associar os nós do desenho aos símbolos por nome qualificado. A associação deve ser explícita e determinística; o agente não deve inventar que um nó representa um arquivo apenas porque o texto parece semelhante.
+6. Depois que os fatos estiverem disponíveis, deixar a associação dos nós do desenho aos símbolos para o agente de desenho/análise responsável. O `setup` pode relatar capacidades e limitações, mas não deve editar o Draw nem inventar que um nó representa um arquivo apenas porque o texto parece semelhante.
 
 O núcleo do STDD permanece agnóstico: ele não escolhe parser, não embute regras de uma linguagem e não cria um adapter genérico que simula fatos. O agente `setup` é responsável por orientar a construção do adapter específico da codebase detectada. Se a stack mudar, o algoritmo, a ferramenta e as limitações devem ser reavaliados; não reutilizar um parser de outra linguagem apenas para preencher o contrato.
 

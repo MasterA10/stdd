@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "date": "2026-08-05",
+  "runs": [
+    {
+      "run_id": "8fd75527e65a4852b82e1b715e0b29b2",
+      "timestamp": "2026-08-05T00:17:10.210860+00:00",
+      "description": "Adiciona agentes e responsabilidades ao desenho do sistema",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 544,
+        "lines_deleted": 2,
+        "files_changed": 3
+      }
+    },
+    {
+      "run_id": "416543fe89af4964b3419f7ec3e818bc",
+      "timestamp": "2026-08-05T00:31:26.996270+00:00",
+      "description": "Atualiza agentes para jornadas por papel e separa setup de Draw System",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 5,
+        "lines_deleted": 5,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "be8650b6c3e84a85909324f5ebeea028",
+      "timestamp": "2026-08-05T00:38:04.263658+00:00",
+      "description": "Permite credenciais fictícias marcadas em testes sem bloquear",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 218,
+        "lines_deleted": 58,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    }
+  ],
+  "run_count": 3,
+  "last_run_id": "be8650b6c3e84a85909324f5ebeea028"
+}

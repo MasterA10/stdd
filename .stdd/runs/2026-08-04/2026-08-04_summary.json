@@ -113,8 +113,50 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "26400c5793fb4d18a11fd206a550c0dc",
+      "timestamp": "2026-08-04T23:20:45.338278+00:00",
+      "description": "Cria desenho hierárquico do sistema STDD",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 970,
+        "lines_deleted": 2968,
+        "files_changed": 17
+      }
+    },
+    {
+      "run_id": "bfd29da0e2b24f3eb4405ebe1fb6e7be",
+      "timestamp": "2026-08-04T23:21:36.975605+00:00",
+      "description": "Ajusta rastreabilidade do desenho do sistema STDD",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 1,
+        "files_changed": 1
+      }
     }
   ],
-  "run_count": 6,
-  "last_run_id": "4899330bce054e84b72c6c4fe4346ae1"
+  "run_count": 8,
+  "last_run_id": "bfd29da0e2b24f3eb4405ebe1fb6e7be"
 }

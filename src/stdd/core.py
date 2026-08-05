@@ -165,6 +165,7 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list
                         "enabled": True,
                         "adapter_command": None,
                         "contract_version": "1",
+                        "allow_marked_test_credentials": True,
                         "quality": {
                             "functions": {
                                 "max_lines": {"warning": 100, "blocking": 150},

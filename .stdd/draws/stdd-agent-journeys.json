@@ -1,0 +1,354 @@
+{
+  "version": 1,
+  "id": "stdd-agent-journeys",
+  "title": "Agentes e responsabilidades do STDD",
+  "subtitle": "As skills que conduzem o ciclo de especificação orientada por testes",
+  "kind": "system",
+  "hierarchy": {
+    "level": 2,
+    "role": "journey",
+    "parent_draw_ref": "stdd-system-architecture",
+    "parent_node_id": 11,
+    "root_draw_ref": "stdd-system-architecture"
+  },
+  "groups": [
+    {
+      "id": 1,
+      "label": "Preparação"
+    },
+    {
+      "id": 2,
+      "label": "Desenho e especificação"
+    },
+    {
+      "id": 3,
+      "label": "Entrega"
+    },
+    {
+      "id": 4,
+      "label": "Capacidades transversais"
+    },
+    {
+      "id": 5,
+      "label": "Integrações"
+    }
+  ],
+  "nodes": [
+    {
+      "id": 1,
+      "label": "Pedido do usuário",
+      "group": 1,
+      "description": "Intenção, problema, mudança arquitetural ou necessidade de documentação recebida pelo agente hospedeiro."
+    },
+    {
+      "id": 2,
+      "label": "$setup",
+      "group": 1,
+      "description": "Descobre a stack, runners, bancos, provedores e configura o STDD sem inventar capacidades. Encaminha para $draw-system quando falta uma raiz de sistema."
+    },
+    {
+      "id": 3,
+      "label": "$draw-system",
+      "group": 2,
+      "description": "Modela o sistema completo em arquitetura, jornadas, implementação e codebase quando necessário; mantém a árvore hierárquica sem órfãos."
+    },
+    {
+      "id": 4,
+      "label": "$draw-feature",
+      "group": 2,
+      "description": "Desenha uma feature, fluxo, decisão ou trade-off como JSON navegável, respeitando a árvore do sistema quando existir."
+    },
+    {
+      "id": 5,
+      "label": "$draw-improve",
+      "group": 2,
+      "description": "Revisa um Draw existente e acrescenta apenas o próximo detalhe arquitetural relevante, preservando intenção, escopo e vínculos."
+    },
+    {
+      "id": 6,
+      "label": "$feature",
+      "group": 3,
+      "description": "Transforma jornadas e desenhos em testes executáveis vermelhos, sem alterar código de produção; trata folhas não implementadas como escopo ausente."
+    },
+    {
+      "id": 7,
+      "label": "$implement",
+      "group": 3,
+      "description": "Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural."
+    },
+    {
+      "id": 8,
+      "label": "$static-analysis",
+      "group": 4,
+      "description": "Implementa ou conecta adapters agnósticos e produz fatos determinísticos sobre símbolos, dependências, complexidade, estrutura e alterações."
+    },
+    {
+      "id": 9,
+      "label": "stdd test e stdd log",
+      "group": 4,
+      "description": "Não são agentes: são gates e evidências operacionais que verificam e registram o trabalho conduzido pelas skills."
+    },
+    {
+      "id": 10,
+      "label": "Codex",
+      "group": 5,
+      "description": "Integração de agente que instala as skills em .agents/skills/."
+    },
+    {
+      "id": 11,
+      "label": "Claude",
+      "group": 5,
+      "description": "Integração de agente que instala as skills em .claude/skills/."
+    },
+    {
+      "id": 12,
+      "label": "Gemini",
+      "group": 5,
+      "description": "Integração de agente que instala as skills em .gemini/skills/."
+    },
+    {
+      "id": 13,
+      "label": "Entrega documentada",
+      "group": 3,
+      "description": "Estado final esperado: comportamento especificado, implementado quando aplicável, verificado, desenhado e registrado."
+    }
+  ],
+  "edges": [
+    {
+      "id": 1,
+      "from": 1,
+      "to": 2,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então prepara",
+      "description": "A stack e os gates precisam ser conhecidos antes da execução."
+    },
+    {
+      "id": 2,
+      "from": 1,
+      "to": 3,
+      "kind": "conditional",
+      "condition": 3,
+      "label": "se o escopo é um sistema",
+      "description": "O agente cria ou amplia a arquitetura completa."
+    },
+    {
+      "id": 3,
+      "from": 1,
+      "to": 4,
+      "kind": "conditional",
+      "condition": 3,
+      "label": "se o escopo é uma feature",
+      "description": "O agente desenha somente o fluxo relacionado."
+    },
+    {
+      "id": 4,
+      "from": 3,
+      "to": 6,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então especifica",
+      "description": "Jornadas implementáveis viram testes executáveis."
+    },
+    {
+      "id": 5,
+      "from": 4,
+      "to": 6,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então especifica",
+      "description": "O desenho da feature vira contrato de testes."
+    },
+    {
+      "id": 6,
+      "from": 5,
+      "to": 3,
+      "kind": "conditional",
+      "condition": 3,
+      "label": "se revelar lacuna sistêmica",
+      "description": "A melhoria retorna ao contexto arquitetural sem duplicar o filho."
+    },
+    {
+      "id": 7,
+      "from": 5,
+      "to": 6,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então encaminha",
+      "description": "Após a revisão, o desenho aprovado pode gerar testes."
+    },
+    {
+      "id": 8,
+      "from": 6,
+      "to": 7,
+      "kind": "conditional",
+      "condition": 3,
+      "label": "se os testes vermelhos foram aprovados",
+      "description": "A implementação só começa depois da especificação testável."
+    },
+    {
+      "id": 9,
+      "from": 8,
+      "to": 9,
+      "kind": "publishes",
+      "condition": 1,
+      "label": "fornece fatos para",
+      "description": "A análise alimenta rastreabilidade e gates, não inventa associações."
+    },
+    {
+      "id": 10,
+      "from": 7,
+      "to": 9,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então verifica e registra",
+      "description": "Toda implementação passa por stdd test e stdd log."
+    },
+    {
+      "id": 11,
+      "from": 6,
+      "to": 9,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então verifica e registra",
+      "description": "Uma especificação também produz evidência do trabalho realizado."
+    },
+    {
+      "id": 12,
+      "from": 9,
+      "to": 13,
+      "kind": "conditional",
+      "condition": 3,
+      "label": "se os gates passam",
+      "description": "A entrega fica rastreável e pronta para revisão."
+    },
+    {
+      "id": 13,
+      "from": 9,
+      "to": 6,
+      "kind": "conditional",
+      "condition": 3,
+      "label": "se algum gate falha",
+      "description": "O fluxo retorna à especificação ou implementação; não declara sucesso falso."
+    },
+    {
+      "id": 14,
+      "from": 10,
+      "to": 3,
+      "kind": "publishes",
+      "condition": 1,
+      "label": "hospeda",
+      "description": "Codex disponibiliza as skills ao agente."
+    },
+    {
+      "id": 15,
+      "from": 11,
+      "to": 3,
+      "kind": "publishes",
+      "condition": 1,
+      "label": "hospeda",
+      "description": "Claude disponibiliza as skills ao agente."
+    },
+    {
+      "id": 16,
+      "from": 12,
+      "to": 3,
+      "kind": "publishes",
+      "condition": 1,
+      "label": "hospeda",
+      "description": "Gemini disponibiliza as skills ao agente."
+    }
+  ],
+  "flows": [
+    {
+      "id": 1,
+      "label": "Sistema completo",
+      "title": "Da arquitetura à entrega",
+      "summary": "Setup, desenho sistêmico, testes, implementação, gates e evidência.",
+      "steps": [
+        {
+          "node": 1,
+          "text": "recebe pedido"
+        },
+        {
+          "node": 2,
+          "text": "descobre capacidades"
+        },
+        {
+          "node": 3,
+          "text": "desenha sistema"
+        },
+        {
+          "node": 6,
+          "text": "especifica por testes"
+        },
+        {
+          "node": 7,
+          "text": "implementa"
+        },
+        {
+          "node": 9,
+          "text": "verifica e registra"
+        },
+        {
+          "node": 13,
+          "text": "entrega documentada"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "label": "Feature isolada",
+      "title": "Do fluxo ao teste",
+      "summary": "Uma mudança menor pode usar draw-feature e seguir para feature.",
+      "steps": [
+        {
+          "node": 1,
+          "text": "recebe feature"
+        },
+        {
+          "node": 4,
+          "text": "desenha fluxo"
+        },
+        {
+          "node": 6,
+          "text": "cria testes"
+        },
+        {
+          "node": 9,
+          "text": "verifica e registra"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "label": "Melhoria incremental",
+      "title": "Revisar sem explodir escopo",
+      "summary": "draw-improve acrescenta um detalhe e devolve o desenho para revisão.",
+      "steps": [
+        {
+          "node": 5,
+          "text": "revisa Draw"
+        },
+        {
+          "node": 3,
+          "text": "corrige contexto sistêmico quando necessário"
+        },
+        {
+          "node": 6,
+          "text": "encaminha para testes"
+        }
+      ]
+    }
+  ],
+  "tradeoffs": [
+    "Os agentes são skills instaláveis; Codex, Claude e Gemini são integrações hospedeiras, não responsabilidades de negócio diferentes.",
+    "setup, static-analysis, feature e implement podem atuar sobre a codebase; draw-system, draw-feature e draw-improve alteram somente JSONs de desenho.",
+    "stdd test e stdd log permanecem como mecanismos do núcleo, garantindo que nenhum agente declare conclusão sem evidência."
+  ],
+  "notes": [
+    "Os nomes e responsabilidades foram derivados dos templates em src/stdd/templates/agents/.",
+    "A árvore atual não cria um nível 3 para cada agente porque os agentes são papéis de orquestração, não endpoints ou casos de uso independentes.",
+    "O agente que documenta este sistema é $draw-system; seu resultado é o desenho raiz e seus descendentes."
+  ]
+}

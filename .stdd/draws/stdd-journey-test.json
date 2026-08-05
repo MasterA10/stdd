@@ -1,0 +1,138 @@
+{
+  "version": 1,
+  "id": "stdd-journey-test",
+  "title": "Implementação da jornada de verificação",
+  "subtitle": "Como stdd test transforma configuração em evidência de qualidade",
+  "kind": "system",
+  "hierarchy": {
+    "level": 3,
+    "role": "implementation",
+    "parent_draw_ref": "stdd-user-journeys",
+    "parent_node_id": 4,
+    "root_draw_ref": "stdd-system-architecture"
+  },
+  "groups": [
+    {
+      "id": 1,
+      "label": "Orquestração"
+    },
+    {
+      "id": 2,
+      "label": "Gates"
+    },
+    {
+      "id": 3,
+      "label": "Resultado"
+    }
+  ],
+  "nodes": [
+    {
+      "id": 1,
+      "label": "Ler perfil e suítes",
+      "group": 1,
+      "description": "A execução seleciona suítes, exclusões, perfil e aprovações."
+    },
+    {
+      "id": 2,
+      "label": "Executar runners e contrato",
+      "group": 2,
+      "description": "Subprocessos, contrato e ações aprovadas são executados com captura de resultado."
+    },
+    {
+      "id": 3,
+      "label": "Analisar estática e rastreabilidade",
+      "group": 2,
+      "description": "O adapter gera símbolos, dependências e métricas; fatos de rastreabilidade são atualizados.",
+      "code_refs": [
+        {
+          "symbol": "stdd.core.run_tests",
+          "identity": "5d8bef5f73daedc0",
+          "source_dependencies": [
+            "stdd.static_analysis.run_static_analysis",
+            "stdd.traceability.refresh_traceability"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "label": "Gate aprovado",
+      "group": 3,
+      "description": "Todos os gates passam e a execução pode ser registrada."
+    },
+    {
+      "id": 5,
+      "label": "Gate bloqueado",
+      "group": 3,
+      "description": "Falha de teste, contrato, análise ou segurança retorna status bloqueado."
+    }
+  ],
+  "edges": [
+    {
+      "id": 1,
+      "from": 1,
+      "to": 2,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então executa",
+      "description": "A configuração determina os comandos."
+    },
+    {
+      "id": 2,
+      "from": 2,
+      "to": 3,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então analisa",
+      "description": "A análise complementa os runners."
+    },
+    {
+      "id": 3,
+      "from": 3,
+      "to": 4,
+      "kind": "conditional",
+      "condition": 3,
+      "label": "se todos passarem",
+      "description": "A execução fica aprovada."
+    },
+    {
+      "id": 4,
+      "from": 3,
+      "to": 5,
+      "kind": "conditional",
+      "condition": 3,
+      "label": "se algum falhar",
+      "description": "O bloqueio é mantido como evidência."
+    }
+  ],
+  "flows": [
+    {
+      "id": 1,
+      "label": "Verificação",
+      "title": "Gates do STDD",
+      "summary": "Runners, contrato e análise consolidam o resultado.",
+      "steps": [
+        {
+          "node": 1,
+          "text": "lê configuração"
+        },
+        {
+          "node": 2,
+          "text": "executa suítes"
+        },
+        {
+          "node": 3,
+          "text": "analisa fatos"
+        },
+        {
+          "node": 4,
+          "text": "aprova ou bloqueia"
+        }
+      ]
+    }
+  ],
+  "tradeoffs": [
+    "O alias global concentra os gates em uma única decisão; uma falha pode bloquear a entrega mesmo quando uma suíte isolada passa."
+  ],
+  "notes": []
+}

@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "draw_id": "stdd-journey-init",
+  "nodes": {
+    "4": {
+      "node_id": 4,
+      "references": [
+        {
+          "symbol": "stdd.core.init_project",
+          "identity": "0b657e84450a304e",
+          "status": "drift",
+          "file": "src/stdd/core.py",
+          "kind": "function",
+          "source": "python_ast"
+        }
+      ],
+      "source_dependencies": [
+        "stdd.core.ensure_agent_instructions",
+        "stdd.core.ensure_gitignore",
+        "stdd.draw.ensure_draw_workspace"
+      ],
+      "files": [
+        "src/stdd/core.py",
+        "src/stdd/draw.py"
+      ],
+      "tests": [
+        "tests.test_stdd.test_init_always_synchronizes_existing_agent_skills",
+        "tests.test_stdd.test_init_defers_language_specific_test_runner_to_setup",
+        "tests.test_stdd.test_init_injects_idempotent_instructions_for_all_agents",
+        "tests.test_stdd.test_init_keeps_framework_artifacts_in_stdd_and_agent_skills_in_agents",
+        "tests.test_stdd.test_init_preserves_existing_gitignore_and_does_not_duplicate_rules",
+        "tests.test_stdd.test_init_uses_existing_claude_project_memory_file"
+      ],
+      "unresolved": [
+        "stdd.core.init_project"
+      ],
+      "suggestions": [
+        {
+          "symbol": "stdd.core.agent_templates",
+          "reason": "dependency"
+        },
+        {
+          "symbol": "stdd.core.ensure_agent_instructions",
+          "reason": "dependency"
+        },
+        {
+          "symbol": "stdd.core.ensure_gitignore",
+          "reason": "dependency"
+        },
+        {
+          "symbol": "stdd.core.stdd_dir",
+          "reason": "dependency"
+        }
+      ]
+    }
+  }
+}

@@ -11,7 +11,7 @@ Os fatos estáticos devem respeitar a árvore criada pelo `$draw-system`: nível
 
 Ao produzir fatos para um desenho filho, preservar seu pai e a raiz. Reportar referências `resolved`, `unresolved` e `drift` sem tratar um fluxo órfão como resolvido. Uma folha não implementada não deve receber símbolos ou dependências como se fosse código entregue.
 
-Esta skill orienta a criação de um adaptador específico para a stack do projeto. O adaptador implementa o contrato do STDD; ele não altera o fluxo geral do framework, não inventa fatos e não substitui os gates determinísticos.
+Esta skill orienta a criação de um adaptador específico para a stack do projeto. O adaptador implementa o contrato do STDD; ele não altera o fluxo geral do framework, não inventa fatos e não substitui os gates determinísticos. Quando houver rastreabilidade de autorização, preservar como dependências os símbolos reais de middleware, policies, guards, handlers ou casos de uso; não inferir que cliente e administrador têm as mesmas permissões.
 
 ## Objetivo
 
@@ -193,3 +193,25 @@ Leituras por ambiente (`os.getenv`, `process.env`, `${TOKEN}`), placeholders (`t
 Durante `stdd init`, o framework mantém um `.gitignore` na raiz do projeto e adiciona regras idempotentes para `.env`, `.env.*`, `*.pyc`, `__pycache__/`, ambientes virtuais e `node_modules/`, preservando regras preexistentes. A exceção `!.env.example` permite versionar apenas o modelo sem credenciais. Não crie nem registre arquivos `.env` como evidência.
 
 Além do valor literal hardcoded, compare os valores dos arquivos `.env`, `.env.local` e variantes locais com o conteúdo do código. Se um valor de ambiente aparecer no código, gere `hardcoded_env_value` com severidade `blocking`, identificando somente a chave, arquivo e linha e redigindo o valor. Se uma variável não tiver referência detectável, gere `unreferenced_env_variable` como `warning`; isso não bloqueia sozinho porque variáveis podem ser consumidas por infraestrutura, scripts ou serviços externos.
+
+### Credenciais fictícias em testes
+
+Fixtures de teste podem conter credenciais sintéticas, CEDs, INVs ou tokens de integração que parecem reais para o scanner. Para permitir conscientemente uma ocorrência específica, marque a própria linha da fixture — ou a linha imediatamente anterior — com:
+
+```python
+PASSWORD = "ced-ficticia"  # stdd:allow-credential
+```
+
+O marcador só funciona em arquivos reconhecidos como teste (`test`, `tests`, `spec`, `specs` ou `fixtures`). A ocorrência continua no relatório como `hardcoded_secret` ou `hardcoded_env_value`, com `severity: "warning"`, `value: "[REDACTED]"` e `exception: "explicit_test_credential_allowlist"`; ela não bloqueia o `stdd test`. O mesmo marcador em código de produção continua `blocking`.
+
+O projeto pode impor a política rígida em `.stdd/config.json`:
+
+```json
+{
+  "static_analysis": {
+    "allow_marked_test_credentials": false
+  }
+}
+```
+
+O padrão é `true` para permitir fixtures explicitamente marcadas, nunca para liberar credenciais silenciosamente. Não colocar valores reais em uma lista de exceções, no relatório ou no log.

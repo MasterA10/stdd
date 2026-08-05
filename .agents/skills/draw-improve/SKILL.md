@@ -13,7 +13,7 @@ Alterar somente o JSON lógico em `.stdd/draws/`. Não criar HTML individual, do
 
 ## Revisão da hierarquia do sistema
 
-Quando o desenho possuir `hierarchy`, revisar a árvore e não apenas o arquivo aberto. Confirmar que o nível 1 contém somente decisões macro de arquitetura, que o nível 2 representa a navegação e as regras observáveis do cliente, que o nível 3 contém a implementação da jornada e que o nível 4 só aparece quando a codebase exigir rastreabilidade ou detalhe técnico.
+Quando o desenho possuir `hierarchy`, revisar a árvore e não apenas o arquivo aberto. Confirmar que o nível 1 contém somente decisões macro de arquitetura, que o nível 2 representa as jornadas de cada usuário — cliente, administrador e outros papéis — com permissões e regras observáveis, que o nível 3 contém a implementação da jornada e que o nível 4 só aparece quando a codebase exigir rastreabilidade ou detalhe técnico.
 
 Todo descendente deve declarar `parent_draw_ref`, `parent_node_id` e `root_draw_ref`, enquanto o pai aponta para ele com `draw_ref`. Uma melhoria não pode criar fluxo órfão. Folhas não implementadas devem permanecer terminais, sem continuação inventada. Se o problema estiver entre dois níveis, corrigir a cápsula e o vínculo pai-filho preservando o escopo de cada desenho.
 
@@ -29,6 +29,8 @@ Resolver `<draw-id>` nesta ordem:
 Se houver mais de um candidato, perguntar qual desenho usar. Não escolher silenciosamente. Ler `.stdd/draws/<draw-id>.json` e abrir `draw_ref` somente quando o subfluxo for necessário para avaliar o ponto atual.
 
 ## Análise arquitetural
+
+Verificar se o desenho separa jornadas de cliente e administrador quando seus objetivos, permissões, entradas, estados ou caminhos de recuperação forem diferentes. Se houver um usuário genérico escondendo papéis distintos, corrigir essa fronteira como o próximo incremento relevante; não inventar permissões sem registrar uma pergunta.
 
 Avaliar no nível de sistemas, domínios, atores, responsabilidades, decisões e fluxos. Procurar primeiro a maior lacuna entre:
 

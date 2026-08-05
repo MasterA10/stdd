@@ -1,13 +1,13 @@
 ---
 name: draw-system
-description: Cria o desenho completo de um sistema no STDD Draw usando uma hierarquia de arquitetura, jornadas do cliente, implementação e, quando necessário, relações com a codebase.
+description: Cria o desenho completo de um sistema no STDD Draw usando uma hierarquia de arquitetura, jornadas de usuário por papel, implementação e, quando necessário, relações com a codebase.
 ---
 
 # Draw System
 
 ## Responsabilidade
 
-Modelar um sistema inteiro como uma árvore navegável de desenhos JSON. O resultado deve permitir sair da arquitetura macro, entrar nas jornadas que o cliente percorre no frontend e descer até a implementação do backend e da codebase quando esse detalhe for necessário.
+Modelar um sistema inteiro como uma árvore navegável de desenhos JSON. O resultado deve permitir sair da arquitetura macro, entrar nas jornadas que cada tipo de usuário percorre e descer até a implementação do backend e da codebase quando esse detalhe for necessário.
 
 Use esta skill quando o pedido falar de sistema, produto, aplicativo, arquitetura completa ou mapa de jornadas. Para um único comportamento isolado, use `$draw-feature`.
 
@@ -54,11 +54,21 @@ A raiz usa `level: 1`, `role: "architecture"`, `parent_draw_ref: null`, `parent_
 
 Criar um desenho raiz `kind: "system"` com os grandes domínios e sistemas ao redor da codebase. Mostrar escolhas como stack, armazenamento, cache, autenticação, mensageria e provedores externos. Usar `depends-on`, `calls`, `stores-in`, `publishes` e `consumes` para relações macro. Não inserir “cliente clica”, validações de formulário, regras de aprovação ou sequência de telas neste nível.
 
-Incluir um bloco como `Jornadas do cliente` ou equivalente com `draw_ref` para o desenho de nível 2. Esse é o ponto que conecta arquitetura a comportamento sem misturar as abstrações.
+Incluir um bloco como `Jornadas do usuário` ou equivalente com `draw_ref` para o desenho de nível 2. Esse é o ponto que conecta arquitetura a comportamento sem misturar as abstrações. A arquitetura deve deixar claro que cliente, administrador, operador, suporte ou serviço automatizado podem ser usuários diferentes do mesmo sistema.
 
-### Nível 2 — jornadas do cliente
+### Nível 2 — jornadas do usuário
 
-Criar um desenho próprio que se pareça com a navegação do frontend: entrada, áreas, opções disponíveis, retornos e estados que o cliente consegue observar. Cobrir as opções relevantes do aplicativo, não apenas o caminho feliz. Representar regras de negócio com nós, relações e condições, sem descrever cores ou aparência.
+Criar um desenho próprio que se pareça com a navegação e operação de cada usuário: entrada, áreas, opções disponíveis, retornos e estados observáveis. O nome deve ser `Jornadas do usuário`, nunca assumir que todo usuário é cliente. Antes dos fluxos, identificar os atores/papéis relevantes — por exemplo cliente e administrador — e registrar para cada um:
+
+- objetivo e ponto de entrada;
+- opções permitidas e ações proibidas;
+- permissões, escopos, tenant ou contexto de acesso;
+- dados e estados que consegue observar;
+- caminhos de sucesso, erro, recuperação e encerramento.
+
+Separar jornadas de cliente e administrador quando as permissões, objetivos ou passos forem diferentes. Só compartilhar um fluxo quando a regra e o estado observável forem realmente os mesmos; nesse caso, registrar os papéis autorizados na descrição ou em uma pergunta. Não reduzir duas jornadas diferentes a um único “usuário” genérico.
+
+Cobrir as opções relevantes do aplicativo, não apenas o caminho feliz. Representar regras de negócio com nós, relações e condições, sem descrever cores ou aparência. Se o papel de um usuário ainda não estiver confirmado, criar uma pergunta aberta ou de escolha; não inventar permissões.
 
 Se uma opção ainda não foi implementada, ela é um nó terminal do caminho: registrar o estado como não implementado, não criar uma continuação fictícia e manter a pergunta/decisão pendente se for necessária. Um caminho não implementado pode apontar para uma nota de produto ou trade-off, mas não para passos de execução que não existem.
 
@@ -66,7 +76,7 @@ Cada jornada que tiver comportamento de backend deve ser uma cápsula com `draw_
 
 ### Nível 3 — implementação
 
-Descrever a implementação dentro da fronteira da jornada: entrada da API ou caso de uso, autenticação/autorização, validações, regras, transação, banco, cache, eventos, integrações, timeout, retry, compensação e resposta para o cliente. Não repetir a navegação global nem transformar cada chamada trivial em um desenho separado.
+Descrever a implementação dentro da fronteira da jornada: entrada da API ou caso de uso, identidade do usuário, autenticação, autorização por papel/escopo/tenant, validações, regras, transação, banco, cache, eventos, integrações, timeout, retry, compensação e resposta para o usuário correspondente. Explicar quando cliente e administrador usam a mesma API com permissões diferentes ou quando percorrem casos de uso distintos. Não repetir a navegação global nem transformar cada chamada trivial em um desenho separado.
 
 Criar nível 4 somente quando a decisão depender da codebase real, de uma integração complexa, de rastreabilidade ou de uma refatoração com risco. Caso contrário, manter o nível 3 como folha técnica.
 
@@ -97,7 +107,7 @@ Quando uma implementação atravessar uma RPC, incluir no nó o handler ou consu
 
 Usar `condition: 1` para sequência (`então`), `condition: 2` para alternativas exclusivas (`ou`) e `condition: 3` para guardas explícitas (`se`). Nunca misturar `se` e `ou` na mesma bifurcação. Se dois caminhos puderem ocorrer, modelar sequência ou paralelismo; não tratá-los como alternativa.
 
-Pontos de decisão são expressos pelas setas. Não usar `nodes[].type` para criar decisões. Perguntas devem registrar decisões que ainda dependem do usuário; respostas preenchidas permanecem como histórico e não podem ser inventadas pelo agente.
+Pontos de decisão são expressos pelas setas. Não usar `nodes[].type` para criar decisões. Perguntas devem registrar decisões que ainda dependem do usuário, inclusive qual papel executa uma ação e qual permissão deve ser exigida; respostas preenchidas permanecem como histórico e não podem ser inventadas pelo agente.
 
 ## Encapsulamento e handoff
 

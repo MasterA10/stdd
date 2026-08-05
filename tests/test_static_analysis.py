@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+from stdd.core import run_tests
 from stdd.static_analysis import run_static_analysis, scan_hardcoded_secrets, write_static_analysis_kpis
 
 
@@ -51,6 +52,91 @@ def test_secret_scanner_ignores_local_secret_fixture_in_test_file(tmp_path: Path
     production.parent.mkdir()
     production.write_text("<?php\n$secret = 'production-secret-value';\n")
     assert scan_hardcoded_secrets(tmp_path, ["src/Config.php"])[0]["kind"] == "hardcoded_secret"
+
+
+def test_secret_scanner_warns_for_explicitly_allowed_test_credential(tmp_path: Path):
+    """Mantém visível, mas não bloqueia, uma credencial fictícia marcada no teste.
+    A anotação precisa estar no fixture de teste e o valor continua redigido.
+    """
+    source = tmp_path / "tests/credentials_test.py"
+    source.parent.mkdir()
+    source.write_text('PASSWORD = "ced-ficticia-123456"  # stdd:allow-credential\n')
+
+    findings = scan_hardcoded_secrets(tmp_path, ["tests/credentials_test.py"])
+
+    assert findings[0]["kind"] == "hardcoded_secret"
+    assert findings[0]["severity"] == "warning"
+    assert findings[0]["exception"] == "explicit_test_credential_allowlist"
+    assert findings[0]["value"] == "[REDACTED]"
+    assert "ced-ficticia-123456" not in str(findings[0])
+
+
+def test_secret_scanner_does_not_allow_marker_in_production_file(tmp_path: Path):
+    """Não transforma uma anotação fora de teste em permissão silenciosa."""
+    source = tmp_path / "src/settings.py"
+    source.parent.mkdir()
+    source.write_text('PASSWORD = "ced-ficticia-123456"  # stdd:allow-credential\n')
+
+    findings = scan_hardcoded_secrets(tmp_path, ["src/settings.py"])
+
+    assert findings[0]["severity"] == "blocking"
+    assert "exception" not in findings[0]
+
+
+def test_static_analysis_can_disable_marked_test_credential_exceptions(tmp_path: Path):
+    """Permite que um projeto imponha bloqueio mesmo em fixtures marcadas."""
+    source = tmp_path / "tests/credentials_test.py"
+    source.parent.mkdir()
+    source.write_text('PASSWORD = "ced-ficticia-123456"  # stdd:allow-credential\n')
+
+    report = run_static_analysis(
+        tmp_path,
+        "execution-credentials",
+        {"static_analysis": {"allow_marked_test_credentials": False}},
+        ["tests/credentials_test.py"],
+    )
+
+    assert report["status"] == "blocked"
+    assert report["quality_findings"][0]["severity"] == "blocking"
+
+
+def test_static_analysis_passes_gate_for_marked_test_credential(tmp_path: Path):
+    """Mantém o gate aprovado quando a exceção explícita transforma o achado em warning."""
+    source = tmp_path / "tests/credentials_test.py"
+    source.parent.mkdir()
+    source.write_text('PASSWORD = "ced-ficticia-123456"  # stdd:allow-credential\n')
+
+    report = run_static_analysis(
+        tmp_path,
+        "execution-credentials-allowed",
+        {"static_analysis": {"allow_marked_test_credentials": True}},
+        ["tests/credentials_test.py"],
+    )
+
+    assert report["status"] == "unavailable"
+    assert report["quality_findings"][0]["severity"] == "warning"
+
+
+def test_stdd_test_passes_with_marked_test_credential_and_keeps_warning(tmp_path: Path):
+    """Confirma o comportamento completo do gate global, não apenas do scanner."""
+    source = tmp_path / "tests/credentials_test.py"
+    source.parent.mkdir()
+    source.write_text('PASSWORD = "ced-ficticia-123456"  # stdd:allow-credential\n')
+    (tmp_path / ".stdd").mkdir()
+    (tmp_path / ".stdd/config.json").write_text(json.dumps({
+        "test_commands": [{"name": "unit", "command": ["python3", "-c", "print('unit')"]}],
+        "static_analysis": {
+            "enabled": True,
+            "adapter_command": None,
+            "allow_marked_test_credentials": True,
+        },
+    }))
+
+    process, report = run_tests(tmp_path)
+
+    assert process.returncode == 0
+    assert report["status"] == "passed"
+    assert report["static_analysis"]["quality_findings"][0]["severity"] == "warning"
 
 
 def test_static_analysis_blocks_hardcoded_secret_without_external_adapter(tmp_path: Path):

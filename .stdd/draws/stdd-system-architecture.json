@@ -1,0 +1,217 @@
+{
+  "version": 1,
+  "id": "stdd-system-architecture",
+  "title": "Arquitetura do sistema de especificação STDD",
+  "subtitle": "O próprio STDD documentado pelo método que ele oferece aos agentes",
+  "kind": "system",
+  "hierarchy": {
+    "level": 1,
+    "role": "architecture",
+    "parent_draw_ref": null,
+    "parent_node_id": null,
+    "root_draw_ref": "stdd-system-architecture"
+  },
+  "groups": [
+    {
+      "id": 1,
+      "label": "Interface e agentes"
+    },
+    {
+      "id": 2,
+      "label": "Núcleo de controle"
+    },
+    {
+      "id": 3,
+      "label": "Estado e evidências"
+    },
+    {
+      "id": 4,
+      "label": "Visualização"
+    },
+    {
+      "id": 5,
+      "label": "Ecossistema"
+    }
+  ],
+  "nodes": [
+    {
+      "id": 1,
+      "label": "Agente de código",
+      "group": 1,
+      "description": "Consumidor das skills instaladas, responsável por especificar, desenhar, implementar e relatar o trabalho."
+    },
+    {
+      "id": 2,
+      "label": "CLI stdd",
+      "group": 1,
+      "description": "Interface operacional para init, setup, test, log e draw."
+    },
+    {
+      "id": 3,
+      "label": "Núcleo de execução",
+      "group": 2,
+      "description": "Coordena inicialização, runners, contratos, análise estática, rastreabilidade e registro de execuções."
+    },
+    {
+      "id": 4,
+      "label": "Contrato e testes do framework",
+      "group": 2,
+      "description": "Suítes pytest e regras de contrato que protegem o comportamento do próprio STDD."
+    },
+    {
+      "id": 5,
+      "label": ".stdd/config.json",
+      "group": 3,
+      "description": "Configuração de runners, stack detectada, contrato e adapter de análise estática."
+    },
+    {
+      "id": 6,
+      "label": ".stdd/runs e facts",
+      "group": 3,
+      "description": "Estado versionável de execuções, snapshots, KPIs de análise e fatos de rastreabilidade."
+    },
+    {
+      "id": 7,
+      "label": ".stdd/draws",
+      "group": 4,
+      "description": "Fonte de verdade JSON dos desenhos, com índice e relações hierárquicas."
+    },
+    {
+      "id": 8,
+      "label": "Jornadas do usuário do STDD",
+      "group": 1,
+      "description": "Entrada para o desenho de nível 2: como agente e desenvolvedor usam o sistema.",
+      "draw_ref": "stdd-user-journeys"
+    },
+    {
+      "id": 9,
+      "label": "Draw Server e viewer embutido",
+      "group": 4,
+      "description": "Servidor HTTP local que entrega o viewer React Flow empacotado e a API de desenhos."
+    },
+    {
+      "id": 10,
+      "label": "Codebase Python e pytest",
+      "group": 5,
+      "description": "Runtime Python >= 3.11, Typer, setuptools e pytest; sem banco ou serviço externo obrigatório."
+    },
+    {
+      "id": 11,
+      "label": "Agentes STDD e integrações",
+      "group": 5,
+      "description": "Skills especializadas que conduzem o ciclo de especificação, desenho, análise e implementação; instaladas nas integrações Codex, Claude e Gemini.",
+      "draw_ref": "stdd-agent-journeys"
+    }
+  ],
+  "edges": [
+    {
+      "id": 1,
+      "from": 1,
+      "to": 2,
+      "kind": "calls",
+      "condition": 1,
+      "label": "opera por",
+      "description": "O agente usa a CLI como superfície de controle."
+    },
+    {
+      "id": 2,
+      "from": 2,
+      "to": 3,
+      "kind": "calls",
+      "condition": 1,
+      "label": "despacha para",
+      "description": "Os subcomandos delegam ao núcleo Python."
+    },
+    {
+      "id": 3,
+      "from": 3,
+      "to": 5,
+      "kind": "stores-in",
+      "condition": 1,
+      "label": "lê e atualiza",
+      "description": "A execução é orientada pela configuração do projeto."
+    },
+    {
+      "id": 4,
+      "from": 3,
+      "to": 6,
+      "kind": "publishes",
+      "condition": 1,
+      "label": "registra evidências",
+      "description": "Resultados, snapshots e fatos ficam em .stdd/."
+    },
+    {
+      "id": 5,
+      "from": 3,
+      "to": 4,
+      "kind": "depends-on",
+      "condition": 3,
+      "label": "se houver gate",
+      "description": "Contratos e testes bloqueiam a conclusão quando falham."
+    },
+    {
+      "id": 6,
+      "from": 3,
+      "to": 7,
+      "kind": "stores-in",
+      "condition": 1,
+      "label": "persiste desenhos",
+      "description": "Desenhos são JSONs versionáveis."
+    },
+    {
+      "id": 7,
+      "from": 9,
+      "to": 7,
+      "kind": "calls",
+      "condition": 1,
+      "label": "lê e salva",
+      "description": "O viewer acessa desenhos pela API local."
+    },
+    {
+      "id": 8,
+      "from": 10,
+      "to": 3,
+      "kind": "depends-on",
+      "condition": 1,
+      "label": "implementa",
+      "description": "O núcleo é implementado em Python e executado pelos runners configurados."
+    },
+    {
+      "id": 9,
+      "from": 11,
+      "to": 1,
+      "kind": "publishes",
+      "condition": 1,
+      "label": "instrui",
+      "description": "As skills orientam o comportamento do agente no projeto."
+    },
+    {
+      "id": 10,
+      "from": 2,
+      "to": 8,
+      "kind": "calls",
+      "condition": 1,
+      "label": "abre jornadas",
+      "description": "Os comandos e skills são detalhados no nível de jornada."
+    },
+    {
+      "id": 11,
+      "from": 11,
+      "to": 8,
+      "kind": "calls",
+      "condition": 1,
+      "label": "conduz jornadas",
+      "description": "Os agentes transformam pedidos em jornadas documentadas e entregáveis verificáveis."
+    }
+  ],
+  "flows": [],
+  "tradeoffs": [
+    "O estado operacional fica em arquivos JSON versionáveis; isso simplifica auditoria, mas não substitui um banco concorrente.",
+    "A análise estática é agnóstica no núcleo e delegada a adapters da stack; a qualidade depende da cobertura do adapter local.",
+    "O Draw Server é local e embutido no pacote, reduzindo dependências de frontend no projeto-alvo."
+  ],
+  "notes": [
+    "A arquitetura não detalha cliques, regras de negócio ou telas; esses aspectos pertencem ao desenho de jornadas.",
+    "O ponto de entrada para o comportamento do sistema é o nó 8."
+  ]
+}

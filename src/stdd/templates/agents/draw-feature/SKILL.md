@@ -12,7 +12,7 @@ Use esta skill quando uma feature, decisão, arquitetura ou trade-off ficar mais
 Quando o desenho fizer parte de um sistema maior, preserve uma árvore explícita de níveis:
 
 - **Nível 1 — arquitetura:** escolhas macro ao redor da codebase, como aplicativo, linguagem, runtime, banco, cache, autenticação e sistemas externos. Não descrever comportamento do aplicativo aqui.
-- **Nível 2 — jornada:** navegação do frontend do cliente, opções disponíveis, regras de negócio e estados observáveis. Uma opção ainda não implementada é uma folha terminal, sem continuação fictícia.
+- **Nível 2 — jornada:** navegação e operação de cada usuário, incluindo cliente, administrador e outros papéis, com opções, permissões, regras de negócio e estados observáveis. Uma opção ainda não implementada é uma folha terminal, sem continuação fictícia.
 - **Nível 3 — implementação:** como o backend atende uma jornada, incluindo API, validações, autorização, persistência, eventos, integrações e falhas.
 - **Nível 4 — codebase:** arquivos, módulos, símbolos, testes e dependências reais, somente quando a complexidade justificar.
 
@@ -21,7 +21,7 @@ Desenhos integrados a essa árvore devem declarar `hierarchy.level`, `hierarchy.
 ## Fluxo
 
 1. Modele o problema como dados: nós, grupos, relações, fluxos, trade-offs e, quando aplicável, a posição na hierarquia do sistema.
-2. Use IDs estáveis, labels curtos e descrições que expliquem a responsabilidade de cada nó.
+2. Use IDs estáveis, labels curtos e descrições que expliquem a responsabilidade de cada nó. Identifique o papel do usuário em cada jornada; não trate cliente e administrador como o mesmo ator quando as permissões ou objetivos forem diferentes.
 3. Faça cada relação declarar origem, destino, tipo e motivo.
 4. Gere ou atualize somente o JSON usando:
 

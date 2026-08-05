@@ -183,6 +183,8 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "Etapa 1" in templates["static-analysis"].read_text()
     assert "hardcoded_secret" in templates["static-analysis"].read_text()
     assert "[REDACTED]" in templates["static-analysis"].read_text()
+    assert "stdd:allow-credential" in templates["static-analysis"].read_text()
+    assert "allow_marked_test_credentials" in templates["static-analysis"].read_text()
     assert ".env" in templates["static-analysis"].read_text()
     assert "*.pyc" in templates["static-analysis"].read_text()
     assert "stdd draw create" in templates["draw-feature"].read_text()
@@ -190,7 +192,7 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "stdd log" in templates["draw-system"].read_text()
 
     draw_system_content = templates["draw-system"].read_text().lower()
-    for required in ("nível 1", "nível 2", "nível 3", "nível 4", "parent_draw_ref", "parent_node_id", "root_draw_ref", "não implementada", "sem órfãos", "code_refs", "source_dependencies", "símbolo qualificado"):
+    for required in ("nível 1", "nível 2", "nível 3", "nível 4", "parent_draw_ref", "parent_node_id", "root_draw_ref", "não implementada", "sem órfãos", "code_refs", "source_dependencies", "símbolo qualificado", "jornadas do usuário", "administrador", "permissões"):
         assert required in draw_system_content
 
     setup_content = templates["setup"].read_text()
@@ -324,12 +326,12 @@ def test_traceability_skills_cover_rpc_and_sql_implementations():
             assert required in content, f"{name} não define {required}"
 
 
-def test_setup_routes_projects_without_system_draws_to_draw_system():
-    """Exige que o setup encaminhe projetos sem uma raiz arquitetural ao Draw System.
-    Confirma que a verificação procura kind system e hierarchy nível 1 sem inventar o desenho.
+def test_setup_reports_missing_system_draw_without_creating_it():
+    """Mantém setup separado da documentação arquitetural.
+    Confirma que a verificação procura uma raiz, recomenda Draw System e não cria/edita o desenho.
     """
     content = Path("src/stdd/templates/agents/setup/SKILL.md").read_text(encoding="utf-8").lower()
-    for required in (".stdd/draws/", "kind: \"system\"", "hierarchy.level: 1", "$draw-system", "não houver uma raiz de sistema"):
+    for required in (".stdd/draws/", "kind: \"system\"", "hierarchy.level: 1", "$draw-system", "não houver uma raiz de sistema", "não cria", "não deve editar o draw"):
         assert required in content
 
 

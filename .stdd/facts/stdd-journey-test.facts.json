@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "draw_id": "stdd-journey-test",
+  "nodes": {
+    "3": {
+      "node_id": 3,
+      "references": [
+        {
+          "symbol": "stdd.core.run_tests",
+          "identity": "5d8bef5f73daedc0",
+          "status": "drift",
+          "file": "src/stdd/core.py",
+          "kind": "function",
+          "source": "python_ast"
+        }
+      ],
+      "source_dependencies": [
+        "stdd.static_analysis.run_static_analysis",
+        "stdd.traceability.refresh_traceability"
+      ],
+      "files": [
+        "src/stdd/core.py",
+        "src/stdd/static_analysis.py",
+        "src/stdd/traceability.py"
+      ],
+      "tests": [
+        "tests.test_cli.test_global_alias_can_explicitly_run_approved_suite",
+        "tests.test_cli.test_global_alias_respects_mvp_profile_and_approval_controls",
+        "tests.test_cli.test_global_test_alias_continues_after_suite_failure",
+        "tests.test_cli.test_test_blocks_blocking_long_function_quality_finding",
+        "tests.test_cli.test_test_blocks_invalid_static_analysis_output",
+        "tests.test_cli.test_test_command_returns_execution_report",
+        "tests.test_cli.test_test_executes_fake_static_analysis_adapter",
+        "tests.test_cli.test_test_reports_static_analysis_unavailable_without_adapter",
+        "tests.test_cli.test_test_runs_all_configured_suites",
+        "tests.test_static_analysis.test_static_analysis_blocks_hardcoded_secret_without_external_adapter",
+        "tests.test_static_analysis.test_static_analysis_can_disable_marked_test_credential_exceptions",
+        "tests.test_static_analysis.test_static_analysis_passes_gate_for_marked_test_credential",
+        "tests.test_static_analysis.test_stdd_test_passes_with_marked_test_credential_and_keeps_warning",
+        "tests.test_traceability.test_refresh_traceability_ignores_macos_appledouble_files"
+      ],
+      "unresolved": [
+        "stdd.core.run_tests"
+      ],
+      "suggestions": [
+        {
+          "symbol": "stdd.core.build_not_executed_suite_report",
+          "reason": "dependency"
+        },
+        {
+          "symbol": "stdd.core.execute_test_suite",
+          "reason": "dependency"
+        },
+        {
+          "symbol": "stdd.core.get_suite_skip_reason",
+          "reason": "dependency"
+        },
+        {
+          "symbol": "stdd.core.get_workspace_snapshot",
+          "reason": "dependency"
+        },
+        {
+          "symbol": "stdd.core.stdd_dir",
+          "reason": "dependency"
+        }
+      ]
+    }
+  }
+}

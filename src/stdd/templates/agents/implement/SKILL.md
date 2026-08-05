@@ -9,6 +9,10 @@ description: Implementa comportamento de produção guiado por testes no STDD, p
 
 Fazer a menor alteração coerente que satisfaça os testes aprovados e preserve o restante do sistema. Separar implementação, correção e refactor nos WorkTypes. Não editar testes aprovados para obter verde e não contornar gates, adapters ou skills.
 
+## Usuários, papéis e autorização
+
+Ao implementar uma jornada, confirmar o papel do usuário e aplicar a autorização correspondente. Cliente e administrador não são intercambiáveis: quando seus objetivos, permissões, tenant, dados visíveis ou caminhos diferirem, preservar fronteiras e testes separados. Rejeitar acesso não autorizado de forma segura e não ampliar permissões apenas para satisfazer um caminho feliz. Se a regra de autorização não estiver definida no Draw ou nos testes, parar e registrar a decisão pendente.
+
 ## Hierarquia como contrato de implementação
 
 Quando houver um desenho de `$draw-system`, ler a cadeia completa do nó de nível 2 até o nível 3 e, se existir, o nível 4. O nível 1 orienta fronteiras e escolhas de infraestrutura; o nível 2 define o comportamento do cliente; o nível 3 define o comportamento técnico a implementar; o nível 4 fornece referências verificáveis da codebase. Preservar `draw_ref`, `parent_draw_ref`, `parent_node_id` e `root_draw_ref`.

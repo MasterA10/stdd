@@ -9,6 +9,10 @@ description: Especifica funcionalidades por testes executáveis no STDD sem alte
 
 Transformar intenção em comportamento observável e testes que falhem pelo motivo esperado. Tratar testes como documentação executável. Não implementar código de produção, não enfraquecer testes existentes e não duplicar a especificação em arquivos Markdown intermediários.
 
+## Papéis e permissões
+
+Quando a entrada vier de um sistema ou jornada de usuário, identificar explicitamente o papel que executa cada ação — por exemplo cliente ou administrador. Especificar caminhos separados quando objetivos, permissões, dados visíveis ou estados forem diferentes. Cobrir autorização negativa e tentativa de acesso indevido quando a regra fizer parte do comportamento; não testar uma permissão inventada. Se o papel ou escopo ainda estiver indefinido, registrar a decisão como pendência antes de criar o teste.
+
 ## Leitura hierárquica de Draws
 
 Quando a entrada vier de `$draw-system` ou de um desenho com `hierarchy`, tratar a árvore como contrato navegável: nível 1 fornece contexto arquitetural, nível 2 define as jornadas e regras observáveis, nível 3 delimita a implementação a ser testada e nível 4 fornece referências reais da codebase. Ler o desenho pai antes do filho e preservar `parent_draw_ref`, `parent_node_id`, `root_draw_ref` e `draw_ref`.

@@ -1,0 +1,216 @@
+{
+  "version": 1,
+  "id": "stdd-user-journeys",
+  "title": "Jornadas de uso do STDD",
+  "subtitle": "Como agente e desenvolvedor especificam, verificam e documentam o sistema",
+  "kind": "system",
+  "hierarchy": {
+    "level": 2,
+    "role": "journey",
+    "parent_draw_ref": "stdd-system-architecture",
+    "parent_node_id": 8,
+    "root_draw_ref": "stdd-system-architecture"
+  },
+  "groups": [
+    {
+      "id": 1,
+      "label": "Preparar projeto"
+    },
+    {
+      "id": 2,
+      "label": "Controlar entrega"
+    },
+    {
+      "id": 3,
+      "label": "Documentar sistema"
+    },
+    {
+      "id": 4,
+      "label": "Estados observáveis"
+    }
+  ],
+  "nodes": [
+    {
+      "id": 1,
+      "label": "Entrada: projeto e pedido",
+      "group": 1,
+      "description": "O usuário abre o agente em um projeto e descreve o que precisa ser especificado ou alterado."
+    },
+    {
+      "id": 2,
+      "label": "Inicializar e instalar skills",
+      "group": 1,
+      "description": "O agente prepara .stdd/, instruções e skills para o projeto.",
+      "draw_ref": "stdd-journey-init"
+    },
+    {
+      "id": 3,
+      "label": "Especificar e desenhar",
+      "group": 3,
+      "description": "O pedido vira feature testável ou árvore Draw; o desenho registra caminhos implementados e folhas ausentes."
+    },
+    {
+      "id": 4,
+      "label": "Executar gates",
+      "group": 2,
+      "description": "O agente executa testes, contrato e análise estática antes de declarar conclusão.",
+      "draw_ref": "stdd-journey-test"
+    },
+    {
+      "id": 5,
+      "label": "Registrar evidência",
+      "group": 2,
+      "description": "O trabalho concluído recebe log com tipo e diff incremental.",
+      "draw_ref": "stdd-journey-log"
+    },
+    {
+      "id": 6,
+      "label": "Revisar no Draw",
+      "group": 3,
+      "description": "O usuário abre o viewer local, navega pela árvore e revisa decisões, perguntas e trade-offs.",
+      "draw_ref": "stdd-journey-draw"
+    },
+    {
+      "id": 7,
+      "label": "Bloqueado ou pendente",
+      "group": 4,
+      "description": "Falha de teste, símbolo não resolvido ou decisão em aberto permanece visível e impede uma conclusão falsa."
+    },
+    {
+      "id": 8,
+      "label": "Entrega rastreável",
+      "group": 4,
+      "description": "A mudança termina com fontes, testes, desenho e evidências coerentes no repositório."
+    }
+  ],
+  "edges": [
+    {
+      "id": 1,
+      "from": 1,
+      "to": 2,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então prepara",
+      "description": "O agente inicializa o projeto quando a estrutura ainda não está disponível."
+    },
+    {
+      "id": 2,
+      "from": 2,
+      "to": 3,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então especifica",
+      "description": "Skills instaladas orientam a especificação e o desenho."
+    },
+    {
+      "id": 3,
+      "from": 3,
+      "to": 4,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então verifica",
+      "description": "A implementação ou documentação passa pelos gates do STDD."
+    },
+    {
+      "id": 4,
+      "from": 4,
+      "to": 5,
+      "kind": "flow",
+      "condition": 1,
+      "label": "se aprovado, registra",
+      "description": "Somente após os gates passarem o trabalho é registrado como concluído."
+    },
+    {
+      "id": 5,
+      "from": 5,
+      "to": 6,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então revisa",
+      "description": "A evidência e o desenho ficam disponíveis para revisão humana."
+    },
+    {
+      "id": 6,
+      "from": 4,
+      "to": 7,
+      "kind": "conditional",
+      "condition": 3,
+      "label": "se algum gate falhar",
+      "description": "A tarefa não pode ser declarada concluída."
+    },
+    {
+      "id": 7,
+      "from": 6,
+      "to": 8,
+      "kind": "conditional",
+      "condition": 3,
+      "label": "se não houver pendência",
+      "description": "A revisão confirma a entrega rastreável."
+    },
+    {
+      "id": 8,
+      "from": 7,
+      "to": 3,
+      "kind": "loop",
+      "condition": 1,
+      "label": "corrige e repete",
+      "description": "O agente retorna à especificação ou implementação após resolver o bloqueio."
+    }
+  ],
+  "flows": [
+    {
+      "id": 1,
+      "label": "Ciclo documentado",
+      "title": "Do pedido à evidência",
+      "summary": "Preparar, especificar, verificar, registrar e revisar.",
+      "steps": [
+        {
+          "node": 1,
+          "text": "recebe pedido"
+        },
+        {
+          "node": 3,
+          "text": "produz especificação/desenho"
+        },
+        {
+          "node": 4,
+          "text": "executa gates"
+        },
+        {
+          "node": 5,
+          "text": "registra evidência"
+        },
+        {
+          "node": 6,
+          "text": "revisa resultado"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "label": "Recuperação",
+      "title": "Falha visível",
+      "summary": "Falhas retornam ao escopo para correção, sem continuação fictícia.",
+      "steps": [
+        {
+          "node": 4,
+          "text": "detecta falha"
+        },
+        {
+          "node": 7,
+          "text": "expõe bloqueio"
+        },
+        {
+          "node": 3,
+          "text": "corrige escopo"
+        }
+      ]
+    }
+  ],
+  "tradeoffs": [
+    "O fluxo privilegia rastreabilidade e revisão explícita; isso aumenta o número de artefatos, mas evita declarar comportamento não verificado."
+  ],
+  "notes": [
+    "As quatro cápsulas com descendentes descrevem os caminhos técnicos mais relevantes do próprio STDD."
+  ]
+}

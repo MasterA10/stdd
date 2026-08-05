@@ -22,6 +22,7 @@
       ".stdd/adapters/python_static_adapter.py"
     ],
     "contract_version": "1",
+    "allow_marked_test_credentials": true,
     "quality": {
       "functions": {
         "max_lines": {

@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "id": "stdd-journey-init",
+  "title": "Implementação da jornada de inicialização",
+  "subtitle": "Como stdd init prepara o projeto para o agente",
+  "kind": "system",
+  "hierarchy": {
+    "level": 3,
+    "role": "implementation",
+    "parent_draw_ref": "stdd-user-journeys",
+    "parent_node_id": 2,
+    "root_draw_ref": "stdd-system-architecture"
+  },
+  "groups": [
+    {
+      "id": 1,
+      "label": "CLI"
+    },
+    {
+      "id": 2,
+      "label": "Persistência"
+    },
+    {
+      "id": 3,
+      "label": "Resultado"
+    }
+  ],
+  "nodes": [
+    {
+      "id": 1,
+      "label": "Receber destino e integrações",
+      "group": 1,
+      "description": "A CLI valida o diretório e a seleção Codex, Claude ou Gemini."
+    },
+    {
+      "id": 2,
+      "label": "Criar configuração e estado",
+      "group": 2,
+      "description": "Cria .stdd/config.json, runs, features, draws e regras de gitignore."
+    },
+    {
+      "id": 3,
+      "label": "Instalar skills e instruções",
+      "group": 2,
+      "description": "Copia templates atuais e atualiza AGENTS.md, CLAUDE.md ou GEMINI.md."
+    },
+    {
+      "id": 4,
+      "label": "Projeto pronto",
+      "group": 3,
+      "description": "O agente pode usar as skills no projeto inicializado.",
+      "code_refs": [
+        {
+          "symbol": "stdd.core.init_project",
+          "identity": "0b657e84450a304e",
+          "source_dependencies": [
+            "stdd.draw.ensure_draw_workspace",
+            "stdd.core.ensure_gitignore",
+            "stdd.core.ensure_agent_instructions"
+          ]
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": 1,
+      "from": 1,
+      "to": 2,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então cria estado",
+      "description": "A inicialização materializa a estrutura mínima."
+    },
+    {
+      "id": 2,
+      "from": 2,
+      "to": 3,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então instala",
+      "description": "Skills e instruções são sincronizadas."
+    },
+    {
+      "id": 3,
+      "from": 3,
+      "to": 4,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então retorna sucesso",
+      "description": "A CLI informa o projeto inicializado."
+    }
+  ],
+  "flows": [
+    {
+      "id": 1,
+      "label": "Init",
+      "title": "Inicialização",
+      "summary": "Configuração, estado e skills tornam o projeto operável.",
+      "steps": [
+        {
+          "node": 1,
+          "text": "valida entrada"
+        },
+        {
+          "node": 2,
+          "text": "cria .stdd"
+        },
+        {
+          "node": 3,
+          "text": "instala skills"
+        },
+        {
+          "node": 4,
+          "text": "retorna sucesso"
+        }
+      ]
+    }
+  ],
+  "tradeoffs": [
+    "A inicialização é idempotente e preserva instruções existentes, mas mantém o estado operacional dentro do projeto."
+  ],
+  "notes": [
+    "A associação está no nó que representa o caso de uso real, não em um nó genérico de arquitetura."
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "id": "stdd-journey-log",
+  "title": "Implementação da jornada de evidência",
+  "subtitle": "Como stdd log registra o trabalho e o diff incremental",
+  "kind": "system",
+  "hierarchy": {
+    "level": 3,
+    "role": "implementation",
+    "parent_draw_ref": "stdd-user-journeys",
+    "parent_node_id": 5,
+    "root_draw_ref": "stdd-system-architecture"
+  },
+  "groups": [
+    {
+      "id": 1,
+      "label": "Entrada"
+    },
+    {
+      "id": 2,
+      "label": "Evidência"
+    },
+    {
+      "id": 3,
+      "label": "Resultado"
+    }
+  ],
+  "nodes": [
+    {
+      "id": 1,
+      "label": "Receber descrição e tipo",
+      "group": 1,
+      "description": "Aceita descrição curta e tipo implementacao, teste, bug ou refactor."
+    },
+    {
+      "id": 2,
+      "label": "Coletar diff e snapshot",
+      "group": 2,
+      "description": "Compara o estado atual com o checkpoint e salva resumo e snapshot em .stdd/runs."
+    },
+    {
+      "id": 3,
+      "label": "Registrar execução",
+      "group": 2,
+      "description": "Persiste o registro sem incluir segredos e marca retrabalho quando aplicável."
+    },
+    {
+      "id": 4,
+      "label": "Evidência disponível",
+      "group": 3,
+      "description": "O usuário pode revisar o log e o diff no painel de runs."
+    }
+  ],
+  "edges": [
+    {
+      "id": 1,
+      "from": 1,
+      "to": 2,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então mede",
+      "description": "A descrição é acompanhada por estatísticas do Git."
+    },
+    {
+      "id": 2,
+      "from": 2,
+      "to": 3,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então persiste",
+      "description": "O registro é salvo nos artefatos internos."
+    },
+    {
+      "id": 3,
+      "from": 3,
+      "to": 4,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então expõe",
+      "description": "A evidência fica disponível para revisão."
+    }
+  ],
+  "flows": [
+    {
+      "id": 1,
+      "label": "Log",
+      "title": "Registro de trabalho",
+      "summary": "Descrição, diff e snapshot formam evidência auditável.",
+      "steps": [
+        {
+          "node": 1,
+          "text": "recebe tipo"
+        },
+        {
+          "node": 2,
+          "text": "mede alteração"
+        },
+        {
+          "node": 3,
+          "text": "salva execução"
+        },
+        {
+          "node": 4,
+          "text": "expõe evidência"
+        }
+      ]
+    }
+  ],
+  "tradeoffs": [
+    "O log usa diffs incrementais e checkpoints diários, facilitando revisão, mas não é um sistema externo de auditoria imutável."
+  ],
+  "notes": []
+}

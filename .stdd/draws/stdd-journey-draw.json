@@ -1,0 +1,170 @@
+{
+  "version": 1,
+  "id": "stdd-journey-draw",
+  "title": "Implementação da jornada de documentação visual",
+  "subtitle": "Como stdd draw cria, serve e persiste a árvore de desenhos",
+  "kind": "system",
+  "hierarchy": {
+    "level": 3,
+    "role": "implementation",
+    "parent_draw_ref": "stdd-user-journeys",
+    "parent_node_id": 6,
+    "root_draw_ref": "stdd-system-architecture"
+  },
+  "groups": [
+    {
+      "id": 1,
+      "label": "Criação"
+    },
+    {
+      "id": 2,
+      "label": "Servidor"
+    },
+    {
+      "id": 3,
+      "label": "Persistência"
+    }
+  ],
+  "nodes": [
+    {
+      "id": 1,
+      "label": "Receber JSON lógico",
+      "group": 1,
+      "description": "O comando draw create recebe o payload sem layout, cores ou HTML.",
+      "code_refs": [
+        {
+          "symbol": "stdd.cli.draw_create",
+          "identity": "64fd878f20627d43",
+          "source_dependencies": [
+            "stdd.draw.create_draw"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "label": "Validar contrato e hierarquia",
+      "group": 1,
+      "description": "Confere IDs, relações, fluxos, perguntas e pai explícito antes de persistir."
+    },
+    {
+      "id": 3,
+      "label": "Persistir desenho e índice",
+      "group": 3,
+      "description": "Grava o JSON em .stdd/draws e atualiza o índice.",
+      "code_refs": [
+        {
+          "symbol": "stdd.draw.create_draw",
+          "identity": "8a42d3855073c490",
+          "source_dependencies": [
+            "stdd.draw.validate_draw_payload",
+            "stdd.draw.validate_hierarchy_parent"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "label": "Servir viewer e API local",
+      "group": 2,
+      "description": "O servidor embutido entrega o viewer e endpoints GET/PUT dos desenhos.",
+      "code_refs": [
+        {
+          "symbol": "stdd.cli.draw_serve",
+          "identity": "6fc36dddf6301a84",
+          "source_dependencies": [
+            "stdd.draw.serve_draw"
+          ]
+        },
+        {
+          "symbol": "stdd.draw.serve_draw",
+          "identity": "324880b0e1533bd3",
+          "source_dependencies": [
+            "stdd.draw.create_draw"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "label": "Árvore navegável",
+      "group": 3,
+      "description": "O usuário navega da arquitetura às jornadas e implementações, mantendo perguntas e trade-offs visíveis."
+    }
+  ],
+  "edges": [
+    {
+      "id": 1,
+      "from": 1,
+      "to": 2,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então valida",
+      "description": "A criação rejeita payload inválido."
+    },
+    {
+      "id": 2,
+      "from": 2,
+      "to": 3,
+      "kind": "flow",
+      "condition": 1,
+      "label": "se válido, grava",
+      "description": "O desenho vira fonte de verdade."
+    },
+    {
+      "id": 3,
+      "from": 3,
+      "to": 4,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então serve",
+      "description": "O viewer lê o estado persistido."
+    },
+    {
+      "id": 4,
+      "from": 4,
+      "to": 5,
+      "kind": "flow",
+      "condition": 1,
+      "label": "então permite revisar",
+      "description": "A árvore é explorada visualmente."
+    }
+  ],
+  "flows": [
+    {
+      "id": 1,
+      "label": "Documentação Draw",
+      "title": "Do JSON ao viewer",
+      "summary": "Payload lógico validado, persistido e servido localmente.",
+      "steps": [
+        {
+          "node": 1,
+          "text": "recebe JSON"
+        },
+        {
+          "node": 2,
+          "text": "valida contrato"
+        },
+        {
+          "node": 3,
+          "text": "persiste"
+        },
+        {
+          "node": 4,
+          "text": "serve viewer"
+        },
+        {
+          "node": 5,
+          "text": "revisa árvore"
+        }
+      ]
+    }
+  ],
+  "tradeoffs": [
+    "O layout é preferência do viewer e não faz parte da fonte de verdade; isso preserva portabilidade e revisão por diff textual.",
+    "A API é local, simples e suficiente para uso individual, mas não modela colaboração concorrente."
+  ],
+  "notes": [
+    "Este é o caminho usado para documentar o próprio STDD nesta solicitação."
+  ]
+}

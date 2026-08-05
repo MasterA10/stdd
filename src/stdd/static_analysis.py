@@ -50,6 +50,7 @@ SECRET_SCAN_EXTENSIONS = {
 }
 SECRET_PLACEHOLDERS = {"test", "testing", "example", "dummy", "placeholder", "changeme", "change-me"}
 TEST_FIXTURE_MARKERS = {"test", "fixture", "mock", "fake", "dummy", "example", "placeholder", "invalid"}
+TEST_CREDENTIAL_ALLOW_MARKER = "stdd:allow-credential"
 
 
 def unavailable_result(reason: str) -> dict[str, Any]:
@@ -82,70 +83,108 @@ def blocked_result(reason: str, errors: list[str] | None = None) -> dict[str, An
     }
 
 
-def scan_hardcoded_secrets(root: Path, files: list[str] | None = None) -> list[dict[str, Any]]:
+def scan_hardcoded_secrets(
+    root: Path,
+    files: list[str] | None = None,
+    allow_marked_test_credentials: bool = True,
+) -> list[dict[str, Any]]:
     """Detecta literais suspeitos sem retornar o valor sensível.
     Analisa somente arquivos textuais de código/configuração fora de ambientes e artefatos ignorados.
     """
-    ignored_parts = {".git", ".stdd", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache"}
-    if files is None:
-        candidates = sorted(
-            path for path in root.rglob("*")
-            if path.is_file() and path.suffix.lower() in SECRET_SCAN_EXTENSIONS
-        )
-    else:
-        candidates = [root / relative for relative in files]
+    candidates = _secret_scan_candidates(root, files)
     findings: list[dict[str, Any]] = []
-    env_values = _read_environment_values(root)
     code_contents: dict[str, str] = {}
     for path in candidates:
-        if ignored_parts.intersection(path.parts) or path.name == ".env" or path.name.startswith(".env."):
+        source = _read_secret_source(root, path)
+        if source is None:
             continue
-        if path.suffix.lower() not in SECRET_SCAN_EXTENSIONS or not path.is_file():
-            continue
-        try:
-            lines = path.read_text(encoding="utf-8").splitlines()
-            relative = str(path.relative_to(root))
-        except (OSError, UnicodeDecodeError, ValueError):
-            continue
+        relative, lines = source
         code_contents[relative] = "\n".join(lines)
-        for line_number, line in enumerate(lines, start=1):
-            assignment = SECRET_ASSIGNMENT_PATTERN.search(line)
-            if assignment:
-                value = assignment.group("value").strip()
-                normalized = value.lower()
-                if (
-                    value
-                    and normalized not in SECRET_PLACEHOLDERS
-                    and not value.startswith(("${", "<"))
-                    and not _is_obvious_test_fixture(relative, assignment, normalized)
-                ):
-                    findings.append(
-                        {
-                            "kind": "hardcoded_secret",
-                            "severity": "blocking",
-                            "file": relative,
-                            "line": line_number,
-                            "value": "[REDACTED]",
-                            "evidence": f"literal assigned to {assignment.group(1).lower()}-like identifier",
-                            "source": "builtin_secret_scanner",
-                        }
-                    )
-                    continue
-            for pattern, token_kind in SECRET_TOKEN_PATTERNS:
-                if pattern.search(line):
-                    findings.append(
-                        {
-                            "kind": "hardcoded_secret",
-                            "severity": "blocking",
-                            "file": relative,
-                            "line": line_number,
-                            "value": "[REDACTED]",
-                            "evidence": f"literal matches {token_kind} pattern",
-                            "source": "builtin_secret_scanner",
-                        }
-                    )
-                    break
-    for env_key, env_value, env_file in env_values:
+        findings.extend(_scan_secret_lines(relative, lines, allow_marked_test_credentials))
+    findings.extend(_scan_environment_values(root, code_contents, allow_marked_test_credentials))
+    return findings
+
+
+def _secret_scan_candidates(root: Path, files: list[str] | None) -> list[Path]:
+    """Resolve os arquivos candidatos sem atravessar artefatos ignorados."""
+    if files is not None:
+        return [root / relative for relative in files]
+    ignored_parts = {".git", ".stdd", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache"}
+    return sorted(
+        path for path in root.rglob("*")
+        if path.is_file() and path.suffix.lower() in SECRET_SCAN_EXTENSIONS and not ignored_parts.intersection(path.parts)
+    )
+
+
+def _read_secret_source(root: Path, path: Path) -> tuple[str, list[str]] | None:
+    """Lê uma fonte textual elegível para o scanner."""
+    if path.name == ".env" or path.name.startswith(".env.") or path.suffix.lower() not in SECRET_SCAN_EXTENSIONS or not path.is_file():
+        return None
+    try:
+        return str(path.relative_to(root)), path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError, ValueError):
+        return None
+
+
+def _scan_secret_lines(relative: str, lines: list[str], allow_marked: bool) -> list[dict[str, Any]]:
+    """Detecta atribuições e tokens suspeitos em uma fonte."""
+    findings: list[dict[str, Any]] = []
+    for line_number, line in enumerate(lines, start=1):
+        assignment = SECRET_ASSIGNMENT_PATTERN.search(line)
+        if assignment and _is_suspicious_assignment(relative, assignment):
+            allowed = allow_marked and _is_marked_test_credential(relative, lines, line_number)
+            findings.append(_credential_finding(
+                "literal assigned to " + assignment.group(1).lower() + "-like identifier",
+                relative,
+                line_number,
+                allowed,
+            ))
+            continue
+        for pattern, token_kind in SECRET_TOKEN_PATTERNS:
+            if pattern.search(line):
+                allowed = allow_marked and _is_marked_test_credential(relative, lines, line_number)
+                findings.append(_credential_finding(
+                    "literal matches " + token_kind + " pattern",
+                    relative,
+                    line_number,
+                    allowed,
+                ))
+                break
+    return findings
+
+
+def _is_suspicious_assignment(relative: str, assignment: re.Match[str]) -> bool:
+    """Filtra placeholders, leituras indiretas e fixtures sintéticas já conhecidas."""
+    value = assignment.group("value").strip()
+    normalized = value.lower()
+    return bool(
+        value
+        and normalized not in SECRET_PLACEHOLDERS
+        and not value.startswith(("${", "<"))
+        and not _is_obvious_test_fixture(relative, assignment, normalized)
+    )
+
+
+def _credential_finding(evidence: str, relative: str, line_number: int, allowed: bool) -> dict[str, Any]:
+    """Monta um finding redigido, distinguindo exceção explícita de bloqueio."""
+    finding = {
+        "kind": "hardcoded_secret",
+        "severity": "warning" if allowed else "blocking",
+        "file": relative,
+        "line": line_number,
+        "value": "[REDACTED]",
+        "evidence": evidence,
+        "source": "builtin_secret_scanner",
+    }
+    if allowed:
+        finding["exception"] = "explicit_test_credential_allowlist"
+    return finding
+
+
+def _scan_environment_values(root: Path, code_contents: dict[str, str], allow_marked: bool) -> list[dict[str, Any]]:
+    """Compara valores de ambientes locais com fontes e preserva a redação."""
+    findings: list[dict[str, Any]] = []
+    for env_key, env_value, env_file in _read_environment_values(root):
         if not env_value or _is_safe_environment_value(env_value):
             continue
         references = [relative for relative, content in code_contents.items() if env_value in content]
@@ -155,16 +194,22 @@ def scan_hardcoded_secrets(root: Path, files: list[str] | None = None) -> list[d
                     (index for index, line in enumerate(code_contents[relative].splitlines(), start=1) if env_value in line),
                     1,
                 )
+                allowed = allow_marked and _is_marked_test_credential(
+                    relative,
+                    code_contents[relative].splitlines(),
+                    line_number,
+                )
                 findings.append(
                     {
                         "kind": "hardcoded_env_value",
-                        "severity": "blocking",
+                        "severity": "warning" if allowed else "blocking",
                         "file": relative,
                         "line": line_number,
                         "env_key": env_key,
                         "value": "[REDACTED]",
                         "evidence": f"value from {env_file} is present in source code",
                         "source": "builtin_secret_scanner",
+                        **({"exception": "explicit_test_credential_allowlist"} if allowed else {}),
                     }
                 )
         elif not any(re.search(rf"(?<![A-Za-z0-9_]){re.escape(env_key)}(?![A-Za-z0-9_])", content) for content in code_contents.values()):
@@ -180,6 +225,22 @@ def scan_hardcoded_secrets(root: Path, files: list[str] | None = None) -> list[d
                 }
             )
     return findings
+
+
+def _is_marked_test_credential(relative: str, lines: list[str], line_number: int) -> bool:
+    """Permite conscientemente uma credencial fictícia somente dentro de um teste.
+    A marca deve estar na própria linha ou na linha imediatamente anterior; o valor
+    nunca é retornado e a ocorrência continua visível como warning.
+    """
+    path = Path(relative)
+    parts = {part.lower() for part in path.parts}
+    is_test_file = bool(parts.intersection({"test", "tests", "spec", "specs", "fixtures"})) or "test" in path.stem.lower()
+    if not is_test_file or not 1 <= line_number <= len(lines):
+        return False
+    marker = TEST_CREDENTIAL_ALLOW_MARKER
+    current = lines[line_number - 1].lower()
+    previous = lines[line_number - 2].lower() if line_number > 1 else ""
+    return marker in current or marker in previous
 
 
 def _is_obvious_test_fixture(relative: str, assignment: re.Match[str], normalized: str) -> bool:
@@ -287,7 +348,17 @@ def run_static_analysis(
     if static_config.get("enabled", True) is False:
         return unavailable_result("static_analysis_disabled")
 
-    builtin_findings = scan_hardcoded_secrets(root, changed_files)
+    allow_marked_test_credentials = static_config.get("allow_marked_test_credentials", True)
+    if not isinstance(allow_marked_test_credentials, bool):
+        return blocked_result(
+            "static_analysis_config_invalid",
+            ["static_analysis.allow_marked_test_credentials deve ser booleano"],
+        )
+    builtin_findings = scan_hardcoded_secrets(
+        root,
+        changed_files,
+        allow_marked_test_credentials=allow_marked_test_credentials,
+    )
 
     command = static_config.get("adapter_command")
     if command is None:

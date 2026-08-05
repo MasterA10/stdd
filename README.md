@@ -84,7 +84,7 @@ $setup Detecte a stack deste repositório e configure os runners sem instalar de
 $feature Quero implementar autenticação por sessão; transforme o pedido em uma feature testável.
 $draw-feature Desenhe o fluxo de autenticação, incluindo falhas e subfluxos.
 $draw-improve Revise o desenho atual e acrescente somente o próximo detalhe arquitetural relevante.
-$draw-system Desenhe o sistema completo em arquitetura, jornadas do cliente e níveis de implementação.
+$draw-system Desenhe o sistema completo em arquitetura, jornadas do usuário por papel (incluindo cliente e administrador) e níveis de implementação.
 $static-analysis Analise dependências, complexidade, funções longas e segredos hardcoded.
 $implement Execute a implementação aprovada e rode os gates do STDD.
 ```
@@ -103,7 +103,7 @@ O agente deve ler o `SKILL.md` correspondente antes de agir. A skill define o co
 ```text
 $setup
 $feature Descreva aqui o que o produto precisa fazer.
-$draw-system Modele a arquitetura, as jornadas do cliente e os subfluxos de implementação.
+$draw-system Modele a arquitetura, as jornadas do usuário por papel — separando cliente, administrador e permissões — e os subfluxos de implementação.
 $draw-feature Mostre a arquitetura e os trade-offs dessa feature.
 $draw-improve Evolua o desenho em um ciclo curto e pare para minha revisão.
 $implement Execute somente depois da aprovação.
@@ -233,6 +233,14 @@ Um bloco pode declarar opcionalmente `questions` no JSON lógico. Cada pergunta 
 ## Segurança e análise estática
 
 O scanner interno procura credenciais hardcoded, tokens conhecidos e valores copiados de `.env` para o código. O valor nunca é gravado no relatório; ele aparece como `[REDACTED]`. Um vazamento detectado bloqueia o gate de testes.
+
+Fixtures de teste que usam credenciais sintéticas, CEDs, INVs ou tokens fictícios podem ser marcadas explicitamente na própria linha (ou na linha anterior):
+
+```python
+PASSWORD = "ced-ficticia"  # stdd:allow-credential
+```
+
+Em arquivos de teste, o achado continua visível como `warning` e não bloqueia. Fora de arquivos de teste, o marcador é ignorado e o achado continua bloqueante. Para exigir bloqueio mesmo em fixtures marcadas, configure `"allow_marked_test_credentials": false` dentro de `static_analysis` em `.stdd/config.json`.
 
 Arquivos `.env`, `.pyc`, caches, ambientes virtuais e artefatos de build são ignorados pelo Git automaticamente. Variáveis de ambiente sem referência no código geram aviso, não bloqueio automático, porque podem ser utilizadas por infraestrutura ou serviços externos.
 
