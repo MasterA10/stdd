@@ -85,19 +85,30 @@ Para assuntos puramente técnicos (infraestrutura, deploy, migração), o nível
 
 ### Nível 2 — jornadas do usuário / View (95% de proximidade com o frontend)
 
+> **O nível 2 é o nível mais importante de todo o desenho.** Ele será, quase sempre, o maior e mais detalhado. Isso é esperado e desejável — não compactar.
+
 O nível 2 é a **View do aplicativo**. Ele representa as **telas** que o usuário vê e a navegação entre elas. Ao ler o nível 2, o desenvolvedor deve conseguir reconstruir **95% da interface do frontend**. A única coisa que o nível 2 **não** representa são botões individuais — ele representa telas, views e as opções de navegação entre elas.
 
-O nível 2 é um **mapa de telas**. Cada nó é uma tela ou view. As setas mostram para quais telas o usuário pode navegar a partir daquela tela. Isso significa representar:
+**Cada tela = um nó.** O nível 2 é um mapa de telas onde cada nó é uma tela ou view distinta. Quando o usuário clica em algo e vai para outra tela, essa outra tela é outro nó. Quando nessa nova tela ele tem opções que levam para mais telas, cada uma dessas telas é mais um nó. Por isso, o nível 2 tende a ter **muitos nós**, e isso é o comportamento correto. O entendimento de cada nó é simples — é apenas uma tela — então mesmo com muitos nós a leitura permanece clara.
 
+**Exemplo concreto:** Considere o Instagram. A tela de feed é um nó. Os ícones da barra inferior (Home, Search, Reels, Shop, Profile) levam para telas diferentes — cada uma é outro nó. Ao entrar no perfil, há opções como Editar Perfil, Configurações, Posts salvos — cada uma dessas telas é mais um nó. Configurações abre uma lista de sub-telas (Privacidade, Segurança, Notificações...) — cada sub-tela é um nó adicional. O nível 2 mapeia **todas** essas telas, para cada role, exaustivamente.
+
+**O que o nível 2 NÃO contém:**
+- Rotas ou URLs (isso é detalhe de implementação, pertence ao nível 3)
+- Cores, fontes, tamanhos, aparência visual ou layout CSS
+- Botões individuais (o nó é a tela, não o botão)
+- Regras de negócio detalhadas (isso vai para o nível 3)
+
+**O que o nível 2 DEVE conter:**
 - Cada **tela**, seção ou área acessível como um nó
 - A partir de cada tela, **para quais outras telas/views** o usuário pode ir
 - A sequência de navegação: o que vem primeiro, o que vem depois
 - Os estados visíveis em cada tela: loading, sucesso, erro, vazio, bloqueado
-- As regras de negócio que determinam **quais opções aparecem** em cada tela
+- As condições de negócio que determinam **quais opções aparecem** em cada tela (sem detalhar a regra — apenas qual opção aparece ou não)
 - Os caminhos de navegação: ida, volta, atalhos, redirecionamentos
 - Todas as opções que o usuário tem em cada tela, não apenas o caminho feliz
 
-**Não** descrever cores, fontes, tamanhos, aparência visual, layout CSS ou botões individuais. O nível 2 mostra **quais telas existem**, **para onde cada tela leva** e **quais condições determinam a navegação**. Olhando o nível 2, a pessoa deve conseguir dizer "preciso criar esta tela, que leva para essas outras telas, com essas condições".
+Olhando o nível 2, a pessoa deve conseguir dizer "preciso criar esta tela, que leva para essas outras telas, com essas condições".
 
 **Regra obrigatória — todo nó do nível 2 aponta para o nível 3:**
 
@@ -164,16 +175,50 @@ Nós abstratos de arquitetura ou jornada que não correspondam diretamente a um 
 
 Quando uma implementação atravessar uma RPC, incluir no nó o handler ou consumidor real da RPC e declarar a interface, contrato ou dependência remota em `source_dependencies` quando ela também tiver fatos rastreáveis. Quando a lógica estiver em uma procedure, função, trigger ou view do banco, referenciar o símbolo SQL no nó correspondente e apontar para o arquivo de migration, schema ou SQL que contém a implementação. Não apontar somente para o model, DTO ou entidade se eles apenas carregarem dados.
 
-## Fluxo de criação
+## Fluxo de criação — execução faseada
+
+O draw-system é executado em **fases**. Cada fase produz um ou dois níveis completos. Ao final de cada fase, o agente **para e pergunta** se o usuário quer continuar para a próxima fase. Não produzir todos os níveis de uma vez.
+
+### Fase 1 — Arquitetura + Views (nível 1 + nível 2)
+
+Esta é a fase inicial e a mais importante. O agente deve:
 
 1. Inspecionar o pedido, a stack disponível, `.stdd/config.json`, desenhos existentes e o estado do Git.
-2. Definir o desenho raiz e uma árvore mínima com níveis 1, 2 e 3. Adicionar nível 4 somente onde a complexidade exigir.
-3. Consultar os fatos da análise estática e mapear cada símbolo real para o nó de implementação ou codebase correspondente antes de gravar a árvore.
+2. Criar o desenho raiz de **nível 1** (arquitetura) com as escolhas macro.
+3. Concentrar-se **exclusiva e exaustivamente** no **nível 2**: mapear todas as telas, todos os fluxos de interação, para cada role diferente (usuário, administrador, vendedor, etc.). Não compactar. Cada tela é um nó. Buscar a riqueza máxima de detalhes sobre quais telas existem e como se conectam.
 4. Criar cada JSON separadamente em `.stdd/draws/`, começando pela raiz e mantendo IDs estáveis.
-5. Em cada JSON, usar `groups` para fronteiras de responsabilidade, `flows` para caminhos temporais e `code_refs` nos nós técnicos correspondentes. Não gravar layout, cor, posição, data ou HTML.
-6. Validar que todas as relações apontam para nós existentes, todas as etapas apontam para nós existentes, todas as referências hierárquicas resolvem para um pai e cada símbolo está no nó que realmente o representa.
+5. Em cada JSON, usar `groups` para fronteiras de responsabilidade e `flows` para caminhos temporais. Não gravar layout, cor, posição, data ou HTML.
+6. Validar que todas as relações apontam para nós existentes e todas as referências hierárquicas resolvem para um pai.
 7. Gravar cada desenho com `stdd draw create --data-json '<JSON>'` e conferir pelo viewer com `stdd draw serve`.
-8. Revisar a árvore inteira, incluindo terminais não implementados, trade-offs, perguntas sem resposta e associações de símbolos.
+8. Revisar a árvore de telas, incluindo terminais não implementados, perguntas e trade-offs.
+9. **Parar e perguntar ao usuário** se quer continuar para a Fase 2.
+
+### Fase 2 — Controller / Regras de negócio (nível 3)
+
+Só executar quando o usuário aprovar a continuação após a Fase 1. O agente deve:
+
+1. Ler os desenhos de nível 2 já criados.
+2. Para cada nó/tela do nível 2, criar o subfluxo de **nível 3** correspondente com regras de negócio, validações, autorizações e orquestração.
+3. Consultar os fatos da análise estática quando disponíveis.
+4. Gravar, validar e revisar.
+5. **Parar e perguntar ao usuário** se quer continuar para a Fase 3.
+
+### Fase 3 — Codebase / Baixo nível (nível 4)
+
+Só executar quando o usuário aprovar a continuação após a Fase 2. O agente deve:
+
+1. Ler os desenhos de nível 3 já criados.
+2. Para cada nó que justifique, criar o subfluxo de **nível 4** com `code_refs`, `qualified_name`, queries, migrations, testes e dependências reais.
+3. Consultar os fatos da análise estática e mapear cada símbolo real para o nó correspondente.
+4. Gravar, validar e revisar.
+
+### Regras gerais de todas as fases
+
+- Cada JSON é criado separadamente em `.stdd/draws/`.
+- Usar `groups` para fronteiras de responsabilidade, `flows` para caminhos temporais e `code_refs` nos nós técnicos correspondentes.
+- Não gravar layout, cor, posição, data ou HTML.
+- Validar que todas as relações apontam para nós existentes.
+- Gravar cada desenho com `stdd draw create --data-json '<JSON>'` e conferir pelo viewer com `stdd draw serve`.
 
 ## Condições e decisões
 
