@@ -11,18 +11,27 @@ Modelar um sistema inteiro como uma árvore navegável de desenhos JSON. O resul
 
 Use esta skill quando o pedido falar de sistema, produto, aplicativo, arquitetura completa ou mapa de jornadas. Para um único comportamento isolado, use `$draw-feature`.
 
-## Hierarquia obrigatória
+## Hierarquia obrigatória — mínimo 3 níveis
 
-Todo desenho gerado por esta skill declara `hierarchy` e possui um pai explícito, exceto a raiz. Os níveis são:
+O sistema opera como uma **hierarquia estrita sem fluxos órfãos**: todo fluxo, etapa e subfluxo tem um pai. Subindo pela cadeia de pais, sempre se chega ao nível 1 (arquitetura). Todo desenho gerado por esta skill declara `hierarchy` e possui um pai explícito, exceto a raiz.
+
+Os níveis são:
 
 | Nível | Foco | O que pode aparecer |
 | --- | --- | --- |
-| 1 — arquitetura | O que envolve a codebase | aplicativo, linguagem, runtime, banco, cache, autenticação, sistemas externos, fronteiras e decisões macro |
-| 2 — jornada | O que o cliente pode fazer | navegação do frontend, opções, estados visíveis, regras de negócio e caminhos de sucesso, erro e recuperação |
-| 3 — implementação | Como uma jornada é atendida | API, caso de uso, validação, autorização, persistência, filas, eventos, integrações, retries e falha segura |
-| 4 — codebase | Onde e como o código realiza isso | módulos, arquivos, símbolos, testes, dependências e contratos; usar somente quando a complexidade justificar |
+| 1 — arquitetura | O que está **em volta** da codebase | aplicativo, linguagem, runtime, banco, cache, tipo de autenticação, sistemas externos, fronteiras e decisões macro — **não** explica comportamento |
+| 2 — jornada | O que cada tipo de usuário pode fazer no aplicativo | navegação do frontend passo a passo, opções, estados visíveis, regras de negócio, caminhos de sucesso, erro e recuperação — **90% de proximidade com o frontend real** |
+| 3 — implementação | Como o backend atende uma jornada | API, caso de uso, validação, autorização, persistência, filas, eventos, integrações, retries e falha segura |
+| 4 — codebase | Onde e como o código realiza isso | módulos, arquivos, símbolos, testes, dependências e contratos; usar **somente** quando a complexidade justificar |
 
-O nível 1 não explica o comportamento do aplicativo. Funcionamento, regras de negócio e opções do cliente pertencem ao nível 2. O nível 3 explica a mecânica técnica de um caminho do nível 2. O nível 4 liga a implementação a fatos reais da codebase, sem inventar arquivos ou símbolos.
+**Regra fundamental de separação:**
+
+- O **nível 1 não explica comportamento**. Ele não descreve o funcionamento do aplicativo. O que o usuário faz, regras de negócio, opções do cliente, sequência de telas — tudo isso pertence ao nível 2. O nível 1 é exclusivamente sobre as escolhas macro e o que está em torno da codebase: que linguagem, que banco, que sistema de cache, que tipo de autenticação, que provedores externos, que fronteiras existem.
+- O **nível 2 é o mapa de navegação do frontend** com representação de regras de negócio. Ao olhar o nível 2, deve ser possível associar facilmente o que fazer no frontend, passo a passo, detalhe por detalhe.
+- O **nível 3 é o interior técnico** de um caminho do nível 2.
+- O **nível 4 liga a implementação a fatos reais da codebase**, sem inventar arquivos ou símbolos.
+
+**Saltos entre níveis:** O nível 1 pode apontar diretamente para o nível 3 ou 4 quando o assunto for puramente técnico e não envolver jornada de usuário (exemplo: configuração de infraestrutura, pipeline de deploy, migração de banco). Mas para qualquer assunto que envolva comportamento do aplicativo, o nível 1 **deve** passar pelo nível 2 primeiro. A relação de pai é sempre obrigatória, independente do salto.
 
 Um desenho deve usar uma estrutura equivalente a:
 
@@ -43,20 +52,52 @@ A raiz usa `level: 1`, `role: "architecture"`, `parent_draw_ref: null`, `parent_
 - Todo desenho abaixo do nível 1 declara `parent_draw_ref` e `parent_node_id`.
 - O desenho pai deve conter um único bloco-cápsula com `draw_ref` apontando para o filho.
 - O `draw_ref` do pai, o `parent_draw_ref` do filho e o `root_draw_ref` devem formar uma cadeia resolvível em `.stdd/draws/`.
-- Todo fluxo, etapa e subfluxo tem um pai. Um caminho não pode começar em um desenho sem ancestral nem terminar em um nó sem explicar seu estado.
+- **Todo fluxo tem um pai. Todo caminho, subindo pela hierarquia, chega ao nível 1.** Não pode existir um fluxo que começa em um desenho sem ancestral nem termina em um nó sem explicar seu estado.
 - Um nível pode apontar diretamente para um nível mais baixo quando não houver detalhe útil intermediário, mas a relação de pai continua obrigatória. Para um sistema completo, o nível 1 deve possuir pelo menos um ponto de entrada para o nível 2.
 - Não duplicar os passos do filho no pai. O pai mostra a responsabilidade encapsulada; o filho mostra somente o interior dessa fronteira.
 - Ao alterar uma cadeia, ler o pai, o filho e os descendentes necessários. Nunca criar um `draw_ref` para um arquivo inexistente.
 
 ## Como desenhar cada nível
 
-### Nível 1 — arquitetura
+### Nível 1 — arquitetura (o que está em volta da codebase)
 
-Criar um desenho raiz `kind: "system"` com os grandes domínios e sistemas ao redor da codebase. Mostrar escolhas como stack, armazenamento, cache, autenticação, mensageria e provedores externos. Usar `depends-on`, `calls`, `stores-in`, `publishes` e `consumes` para relações macro. Não inserir “cliente clica”, validações de formulário, regras de aprovação ou sequência de telas neste nível.
+O nível 1 trata **exclusivamente de escolhas macro**. Ele mostra o que envolve a codebase, **não** como o aplicativo funciona.
+
+Criar um desenho raiz `kind: "system"` com os grandes domínios e sistemas ao redor da codebase. Conteúdo típico do nível 1:
+
+- Tipo do aplicativo (mobile, web, API, CLI, etc.)
+- Linguagem e runtime
+- Banco de dados (tipo, motor, estratégia de acesso)
+- Cache (tipo, estratégia)
+- Tipo de autenticação (OAuth, JWT, sessão, etc.)
+- Mensageria (filas, tópicos, broker)
+- Provedores e serviços externos
+- Fronteiras de domínio e sistemas auxiliares
+- Monitoramento, observabilidade, CI/CD
+
+Usar `depends-on`, `calls`, `stores-in`, `publishes` e `consumes` para relações macro.
+
+**O que NÃO pertence ao nível 1:** "cliente clica", validações de formulário, regras de aprovação, sequência de telas, opções do usuário, estados do aplicativo, fluxos de navegação, qualquer descrição de comportamento. Tudo isso vai para o nível 2.
 
 Incluir um bloco como `Jornadas do usuário` ou equivalente com `draw_ref` para o desenho de nível 2. Esse é o ponto que conecta arquitetura a comportamento sem misturar as abstrações. A arquitetura deve deixar claro que cliente, administrador, operador, suporte ou serviço automatizado podem ser usuários diferentes do mesmo sistema.
 
-### Nível 2 — jornadas do usuário
+Para assuntos puramente técnicos (infraestrutura, deploy, migração), o nível 1 pode apontar diretamente para um nível 3 ou 4, sem passar pelo nível 2.
+
+### Nível 2 — jornadas do usuário (90% de proximidade com o frontend)
+
+O nível 2 é o **mapa de navegação do aplicativo**. Ao ler o nível 2, o desenvolvedor deve conseguir reconstruir praticamente toda a interface do frontend, com **90% de fidelidade**. Isso significa representar:
+
+- Cada tela, seção ou área acessível
+- Cada opção, botão ou ação que o usuário pode executar
+- A sequência de passos: o que vem primeiro, o que vem depois
+- Os estados visíveis: loading, sucesso, erro, vazio, bloqueado
+- As regras de negócio que determinam o que aparece ou não
+- Os caminhos de navegação: ida, volta, atalhos, redirecionamentos
+- Todas as opções que o usuário tem em cada ponto, não apenas o caminho feliz
+
+**Não** descrever cores, fontes, tamanhos, aparência visual ou layout CSS. O nível 2 mostra **o que** o usuário pode fazer e **quais opções** ele tem, representando as regras de negócio que determinam essas opções. Olhando o nível 2, a pessoa deve conseguir dizer "preciso criar uma tela com essas opções, que leva para essas outras telas, com essas condições".
+
+**Separação por roles/papéis:**
 
 Criar um desenho próprio que se pareça com a navegação e operação de cada usuário: entrada, áreas, opções disponíveis, retornos e estados observáveis. O nome deve ser `Jornadas do usuário`, nunca assumir que todo usuário é cliente. Antes dos fluxos, identificar os atores/papéis relevantes — por exemplo cliente e administrador — e registrar para cada um:
 
@@ -66,13 +107,20 @@ Criar um desenho próprio que se pareça com a navegação e operação de cada 
 - dados e estados que consegue observar;
 - caminhos de sucesso, erro, recuperação e encerramento.
 
-Separar jornadas de cliente e administrador quando as permissões, objetivos ou passos forem diferentes. Só compartilhar um fluxo quando a regra e o estado observável forem realmente os mesmos; nesse caso, registrar os papéis autorizados na descrição ou em uma pergunta. Não reduzir duas jornadas diferentes a um único “usuário” genérico.
+**Caminhos separados para roles diferentes:** Quando não houver interseção entre as jornadas de dois papéis diferentes (cliente vs. administrador, por exemplo), criar caminhos completamente separados. Não misturar as jornadas de roles diferentes no mesmo fluxo se os passos, permissões ou objetivos forem distintos. Só compartilhar um fluxo quando a regra e o estado observável forem **realmente** os mesmos para todos os papéis; nesse caso, registrar os papéis autorizados na descrição ou em uma pergunta. Não reduzir duas jornadas diferentes a um único "usuário" genérico.
 
-Cobrir as opções relevantes do aplicativo, não apenas o caminho feliz. Representar regras de negócio com nós, relações e condições, sem descrever cores ou aparência. Se o papel de um usuário ainda não estiver confirmado, criar uma pergunta aberta ou de escolha; não inventar permissões.
+Se o papel de um usuário ainda não estiver confirmado, criar uma pergunta aberta ou de escolha; não inventar permissões.
 
-Se uma opção ainda não foi implementada, ela é um nó terminal do caminho: registrar o estado como não implementado, não criar uma continuação fictícia e manter a pergunta/decisão pendente se for necessária. Um caminho não implementado pode apontar para uma nota de produto ou trade-off, mas não para passos de execução que não existem.
+**Funcionalidades não implementadas — nós terminais:**
 
-Cada jornada que tiver comportamento de backend deve ser uma cápsula com `draw_ref` para um desenho de nível 3. A jornada continua descrevendo o que o cliente escolhe e percebe; o subdesenho descreve como o servidor atende essa escolha.
+Se uma opção ainda não foi implementada, ela é um **nó terminal** do caminho. Regras:
+- Registrar o estado como `não implementado`
+- **Não criar uma continuação fictícia** — o caminho para ali
+- O nó não implementado nunca tem filhos, subfluxos ou passos seguintes
+- Manter a pergunta/decisão pendente se for necessária
+- Um caminho não implementado pode apontar para uma nota de produto ou trade-off, mas **nunca** para passos de execução que não existem
+
+Cada jornada que tiver comportamento de backend deve ser uma cápsula com `draw_ref` para um desenho de nível 3. A jornada continua descrevendo o que o usuário escolhe e percebe; o subdesenho descreve como o servidor atende essa escolha.
 
 ### Nível 3 — implementação
 

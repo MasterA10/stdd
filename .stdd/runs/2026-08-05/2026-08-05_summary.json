@@ -85,8 +85,29 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "ff0029a3959342bfb6a1fd84f2d0189a",
+      "timestamp": "2026-08-05T13:05:02.317373+00:00",
+      "description": "Atualiza skill draw-system com regras detalhadas de hierarquia: nível 1 em volta da codebase sem comportamento, nível 2 com 90% de proximidade do frontend e separação por roles, nós terminais para não implementado",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 4,
-  "last_run_id": "5b7c717e24ee46baba63935bfbdf1069"
+  "run_count": 5,
+  "last_run_id": "ff0029a3959342bfb6a1fd84f2d0189a"
 }
