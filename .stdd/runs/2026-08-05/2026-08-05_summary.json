@@ -106,8 +106,29 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "96606f453eda48a29c054939ad09b959",
+      "timestamp": "2026-08-05T13:35:00.053490+00:00",
+      "description": "Atualiza draw-system: nível 2 = View (95% do frontend, telas sem botões), nível 3 = Controller (regras de negócio e orquestração), nível 4 = baixo nível técnico, todo nó do nível 2 obrigatoriamente aponta para subfluxo no nível 3",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 5,
-  "last_run_id": "ff0029a3959342bfb6a1fd84f2d0189a"
+  "run_count": 6,
+  "last_run_id": "96606f453eda48a29c054939ad09b959"
 }

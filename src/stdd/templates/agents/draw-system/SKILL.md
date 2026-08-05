@@ -17,19 +17,19 @@ O sistema opera como uma **hierarquia estrita sem fluxos órfãos**: todo fluxo,
 
 Os níveis são:
 
-| Nível | Foco | O que pode aparecer |
-| --- | --- | --- |
-| 1 — arquitetura | O que está **em volta** da codebase | aplicativo, linguagem, runtime, banco, cache, tipo de autenticação, sistemas externos, fronteiras e decisões macro — **não** explica comportamento |
-| 2 — jornada | O que cada tipo de usuário pode fazer no aplicativo | navegação do frontend passo a passo, opções, estados visíveis, regras de negócio, caminhos de sucesso, erro e recuperação — **90% de proximidade com o frontend real** |
-| 3 — implementação | Como o backend atende uma jornada | API, caso de uso, validação, autorização, persistência, filas, eventos, integrações, retries e falha segura |
-| 4 — codebase | Onde e como o código realiza isso | módulos, arquivos, símbolos, testes, dependências e contratos; usar **somente** quando a complexidade justificar |
+| Nível | Foco | Analogia MVC | O que pode aparecer |
+| --- | --- | --- | --- |
+| 1 — arquitetura | O que está **em volta** da codebase | — | aplicativo, linguagem, runtime, banco, cache, tipo de autenticação, sistemas externos, fronteiras e decisões macro — **não** explica comportamento |
+| 2 — jornada (View) | Telas e navegação do aplicativo | **View** | telas, seções, áreas acessíveis, opções de navegação entre views, estados visíveis, caminhos entre telas — **95% de proximidade com o frontend real** |
+| 3 — implementação (Controller) | Regras de negócio e como o backend atende | **Controller** | regras de negócio, validações, autorizações, orquestração de casos de uso, decisões de fluxo, API, persistência, integrações — a ponte entre view e model |
+| 4 — codebase (baixo nível) | Linguagem técnica e de baixo nível | — | módulos, arquivos, símbolos, testes, dependências, contratos, queries, migrations; linguagem puramente técnica e de baixo nível |
 
 **Regra fundamental de separação:**
 
 - O **nível 1 não explica comportamento**. Ele não descreve o funcionamento do aplicativo. O que o usuário faz, regras de negócio, opções do cliente, sequência de telas — tudo isso pertence ao nível 2. O nível 1 é exclusivamente sobre as escolhas macro e o que está em torno da codebase: que linguagem, que banco, que sistema de cache, que tipo de autenticação, que provedores externos, que fronteiras existem.
-- O **nível 2 é o mapa de navegação do frontend** com representação de regras de negócio. Ao olhar o nível 2, deve ser possível associar facilmente o que fazer no frontend, passo a passo, detalhe por detalhe.
-- O **nível 3 é o interior técnico** de um caminho do nível 2.
-- O **nível 4 liga a implementação a fatos reais da codebase**, sem inventar arquivos ou símbolos.
+- O **nível 2 é a View** — o mapa de telas e navegação do frontend. Representa as telas que existem, quais views o usuário pode acessar a partir de cada tela, e os caminhos de navegação entre elas. Ao olhar o nível 2, deve ser possível reconstruir 95% da interface do frontend. **Todo nó do nível 2 deve apontar para um subfluxo no nível 3** que detalha as regras de negócio e a implementação daquela tela/ação.
+- O **nível 3 é o Controller** — a ponte entre a view e a implementação. Ele detalha as regras de negócio escolhidas, as decisões de fluxo, validações, autorizações e como o backend orquestra a resposta para cada ação do nível 2. Todo nó do nível 2 tem um subfluxo correspondente no nível 3.
+- O **nível 4 explica em linguagem técnica e de baixo nível** — liga a implementação a fatos reais da codebase, com detalhes de código, queries, módulos e contratos. Sem inventar arquivos ou símbolos.
 
 **Saltos entre níveis:** O nível 1 pode apontar diretamente para o nível 3 ou 4 quando o assunto for puramente técnico e não envolver jornada de usuário (exemplo: configuração de infraestrutura, pipeline de deploy, migração de banco). Mas para qualquer assunto que envolva comportamento do aplicativo, o nível 1 **deve** passar pelo nível 2 primeiro. A relação de pai é sempre obrigatória, independente do salto.
 
@@ -83,19 +83,25 @@ Incluir um bloco como `Jornadas do usuário` ou equivalente com `draw_ref` para 
 
 Para assuntos puramente técnicos (infraestrutura, deploy, migração), o nível 1 pode apontar diretamente para um nível 3 ou 4, sem passar pelo nível 2.
 
-### Nível 2 — jornadas do usuário (90% de proximidade com o frontend)
+### Nível 2 — jornadas do usuário / View (95% de proximidade com o frontend)
 
-O nível 2 é o **mapa de navegação do aplicativo**. Ao ler o nível 2, o desenvolvedor deve conseguir reconstruir praticamente toda a interface do frontend, com **90% de fidelidade**. Isso significa representar:
+O nível 2 é a **View do aplicativo**. Ele representa as **telas** que o usuário vê e a navegação entre elas. Ao ler o nível 2, o desenvolvedor deve conseguir reconstruir **95% da interface do frontend**. A única coisa que o nível 2 **não** representa são botões individuais — ele representa telas, views e as opções de navegação entre elas.
 
-- Cada tela, seção ou área acessível
-- Cada opção, botão ou ação que o usuário pode executar
-- A sequência de passos: o que vem primeiro, o que vem depois
-- Os estados visíveis: loading, sucesso, erro, vazio, bloqueado
-- As regras de negócio que determinam o que aparece ou não
+O nível 2 é um **mapa de telas**. Cada nó é uma tela ou view. As setas mostram para quais telas o usuário pode navegar a partir daquela tela. Isso significa representar:
+
+- Cada **tela**, seção ou área acessível como um nó
+- A partir de cada tela, **para quais outras telas/views** o usuário pode ir
+- A sequência de navegação: o que vem primeiro, o que vem depois
+- Os estados visíveis em cada tela: loading, sucesso, erro, vazio, bloqueado
+- As regras de negócio que determinam **quais opções aparecem** em cada tela
 - Os caminhos de navegação: ida, volta, atalhos, redirecionamentos
-- Todas as opções que o usuário tem em cada ponto, não apenas o caminho feliz
+- Todas as opções que o usuário tem em cada tela, não apenas o caminho feliz
 
-**Não** descrever cores, fontes, tamanhos, aparência visual ou layout CSS. O nível 2 mostra **o que** o usuário pode fazer e **quais opções** ele tem, representando as regras de negócio que determinam essas opções. Olhando o nível 2, a pessoa deve conseguir dizer "preciso criar uma tela com essas opções, que leva para essas outras telas, com essas condições".
+**Não** descrever cores, fontes, tamanhos, aparência visual, layout CSS ou botões individuais. O nível 2 mostra **quais telas existem**, **para onde cada tela leva** e **quais condições determinam a navegação**. Olhando o nível 2, a pessoa deve conseguir dizer "preciso criar esta tela, que leva para essas outras telas, com essas condições".
+
+**Regra obrigatória — todo nó do nível 2 aponta para o nível 3:**
+
+Todo nó (tela/view) do nível 2 **deve** ter um `draw_ref` apontando para um subfluxo no nível 3 que explica com mais detalhes as regras de negócio e a implementação daquela tela. O nível 2 mostra **o que** o usuário vê; o nível 3 mostra **como** aquilo funciona por dentro — as regras de negócio escolhidas, validações, autorizações e orquestração do backend. Não existe nó no nível 2 sem subfluxo no nível 3, exceto nós terminais não implementados.
 
 **Separação por roles/papéis:**
 
@@ -116,21 +122,39 @@ Se o papel de um usuário ainda não estiver confirmado, criar uma pergunta aber
 Se uma opção ainda não foi implementada, ela é um **nó terminal** do caminho. Regras:
 - Registrar o estado como `não implementado`
 - **Não criar uma continuação fictícia** — o caminho para ali
-- O nó não implementado nunca tem filhos, subfluxos ou passos seguintes
+- O nó não implementado nunca tem filhos, subfluxos ou passos seguintes (este é o **único caso** em que um nó do nível 2 não aponta para o nível 3)
 - Manter a pergunta/decisão pendente se for necessária
 - Um caminho não implementado pode apontar para uma nota de produto ou trade-off, mas **nunca** para passos de execução que não existem
 
-Cada jornada que tiver comportamento de backend deve ser uma cápsula com `draw_ref` para um desenho de nível 3. A jornada continua descrevendo o que o usuário escolhe e percebe; o subdesenho descreve como o servidor atende essa escolha.
+### Nível 3 — implementação / Controller (regras de negócio e orquestração)
 
-### Nível 3 — implementação
+O nível 3 é o **Controller** — a ponte entre o que o usuário vê (nível 2) e como o sistema executa. Cada subfluxo do nível 3 corresponde a um nó/tela do nível 2 e detalha:
 
-Descrever a implementação dentro da fronteira da jornada: entrada da API ou caso de uso, identidade do usuário, autenticação, autorização por papel/escopo/tenant, validações, regras, transação, banco, cache, eventos, integrações, timeout, retry, compensação e resposta para o usuário correspondente. Explicar quando cliente e administrador usam a mesma API com permissões diferentes ou quando percorrem casos de uso distintos. Não repetir a navegação global nem transformar cada chamada trivial em um desenho separado.
+- **Regras de negócio escolhidas** para aquela tela/ação
+- Entrada da API ou caso de uso correspondente
+- Identidade do usuário, autenticação e autorização por papel/escopo/tenant
+- Validações e suas mensagens de erro
+- Orquestração do fluxo: decisões, condições, ramificações
+- Transação, banco, cache, eventos, integrações
+- Timeout, retry, compensação e falha segura
+- Resposta formatada para o frontend
+
+O nível 3 representa as **decisões de negócio e implementação** que estão por trás de cada tela. Ele não repete a navegação global do nível 2 — ele explica o interior de cada nó. Explicar quando cliente e administrador usam a mesma API com permissões diferentes ou quando percorrem casos de uso distintos.
 
 Criar nível 4 somente quando a decisão depender da codebase real, de uma integração complexa, de rastreabilidade ou de uma refatoração com risco. Caso contrário, manter o nível 3 como folha técnica.
 
-### Nível 4 — codebase
+### Nível 4 — codebase (linguagem técnica de baixo nível)
 
-Ligar nós a `code_refs`, `qualified_name`, testes e dependências comprovados por análise estática. O nível 4 não é lugar para suposições: se o símbolo ainda não puder ser resolvido, usar uma pergunta aberta ou marcar a associação como pendente.
+O nível 4 explica em **linguagem puramente técnica e de baixo nível** como o código realiza o que o nível 3 descreve. Conteúdo típico:
+
+- Módulos, classes, funções e seus `qualified_name`
+- Queries SQL, migrations, schemas
+- Contratos de interface (tipos, DTOs, protobuf)
+- Dependências entre pacotes e serviços
+- Testes e suas asserções
+- `code_refs` comprovados por análise estática
+
+O nível 4 não é lugar para suposições: se o símbolo ainda não puder ser resolvido, usar uma pergunta aberta ou marcar a associação como pendente. Ligar nós a `code_refs`, `qualified_name`, testes e dependências reais.
 
 ### Símbolos nos nós correspondentes
 
