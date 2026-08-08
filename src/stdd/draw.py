@@ -433,6 +433,40 @@ def read_draw_index(root: Path) -> dict[str, Any]:
     return index
 
 
+def find_addressed_questions(root: Path) -> list[dict[str, Any]]:
+    """Localiza perguntas abertas endereçadas ao Draw Answer nos desenhos.
+    Usa o índice para descobrir os desenhos e retorna somente perguntas com @stdd.
+    """
+    questions: list[dict[str, Any]] = []
+    for entry in read_draw_index(root).get("draws", []):
+        draw_id = entry.get("id") if isinstance(entry, dict) else None
+        if not isinstance(draw_id, str):
+            continue
+        document = read_draw(root, draw_id)
+        for node in document.get("nodes", []):
+            if not isinstance(node, dict):
+                continue
+            for question in node.get("questions", []):
+                if not isinstance(question, dict):
+                    continue
+                prompt = question.get("prompt")
+                answer = question.get("answer")
+                unanswered = answer is None or (isinstance(answer, str) and not answer.strip())
+                if isinstance(prompt, str) and re.search(r"@stdd", prompt, re.IGNORECASE) and unanswered:
+                    questions.append({
+                        "draw_id": draw_id,
+                        "draw_file": f".stdd/draws/{draw_id}.json",
+                        "node_id": node.get("id"),
+                        "node_label": node.get("label", ""),
+                        "question_id": question.get("id"),
+                        "type": question.get("type"),
+                        "question": prompt,
+                        "prompt": prompt,
+                        "answer": answer,
+                    })
+    return questions
+
+
 def _atomic_write(path: Path, content: str) -> None:
     """Escreve um arquivo por substituição atômica no mesmo diretório.
     Evita deixar JSON parcial quando o processo é interrompido durante a gravação.

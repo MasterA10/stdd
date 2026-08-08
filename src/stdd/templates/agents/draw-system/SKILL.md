@@ -19,16 +19,16 @@ Os níveis são:
 
 | Nível | Foco | Analogia MVC | O que pode aparecer |
 | --- | --- | --- | --- |
-| 1 — arquitetura | O que está **em volta** da codebase | — | aplicativo, linguagem, runtime, banco, cache, tipo de autenticação, sistemas externos, fronteiras e decisões macro — **não** explica comportamento |
-| 2 — jornada (View) | Telas e navegação do aplicativo | **View** | telas, seções, áreas acessíveis, opções de navegação entre views, estados visíveis, caminhos entre telas — **95% de proximidade com o frontend real** |
-| 3 — implementação (Controller) | Regras de negócio e como o backend atende | **Controller** | regras de negócio, validações, autorizações, orquestração de casos de uso, decisões de fluxo, API, persistência, integrações — a ponte entre view e model |
-| 4 — codebase (baixo nível) | Linguagem técnica e de baixo nível | — | módulos, arquivos, símbolos, testes, dependências, contratos, queries, migrations; linguagem puramente técnica e de baixo nível |
+| 1 — arquitetura | O que está **em volta** da codebase | — | aplicativo, linguagem, runtime, banco, cache, tipo de autenticação, sistemas externos, fronteiras, decisões macro e símbolos de configuração/infraestrutura quando existirem |
+| 2 — jornada (View) | Telas e navegação do aplicativo | **View** | telas, seções, áreas acessíveis, opções de navegação, estados visíveis, caminhos entre telas e símbolos reais de frontend/interface |
+| 3 — comportamento (Controller) | O que acontece depois da ação do usuário | **Controller** | regras de negócio, validações, autorizações, decisões e resultados em linguagem simples, com `code_refs` das funções/handlers que executam a tarefa quando existirem |
+| 4 — codebase (baixo nível) | Linguagem técnica e de baixo nível | — | módulos, arquivos, símbolos internos, testes, dependências, contratos, queries, migrations, procedures e funções externas quando implementados |
 
 **Regra fundamental de separação:**
 
 - O **nível 1 não explica comportamento**. Ele não descreve o funcionamento do aplicativo. O que o usuário faz, regras de negócio, opções do cliente, sequência de telas — tudo isso pertence ao nível 2. O nível 1 é exclusivamente sobre as escolhas macro e o que está em torno da codebase: que linguagem, que banco, que sistema de cache, que tipo de autenticação, que provedores externos, que fronteiras existem.
 - O **nível 2 é a View** — o mapa de telas e navegação do frontend. Representa as telas que existem, quais views o usuário pode acessar a partir de cada tela, e os caminhos de navegação entre elas. Ao olhar o nível 2, deve ser possível reconstruir 95% da interface do frontend. **A maioria dos nós do nível 2 deve apontar para um subfluxo no nível 3**, sempre que houver regra de negócio, decisão de fluxo ou detalhe de implementação relevante para explicar aquela tela/ação.
-- O **nível 3 é o Controller** — a ponte entre a view e a implementação. Ele detalha as regras de negócio escolhidas, as decisões de fluxo, validações, autorizações e como o backend orquestra a resposta para cada ação do nível 2 **quando esse detalhamento for necessário**. Nem todo nó do nível 2 precisa de um subfluxo no nível 3: telas de transição, loading, confirmação ou outros nós sem lógica de negócio própria podem permanecer sem esse apontamento, desde que isso seja coerente com o que o nó faz.
+- O **nível 3 é o Controller em linguagem simples** — a ponte entre a view e a implementação técnica. Ele explica o que acontece, quais regras são aplicadas, quem pode executar a ação e qual resultado ou erro é produzido. O texto não deve virar uma lista de nomes técnicos, mas o próprio nó deve receber `code_refs` das funções, handlers, services, use cases ou outros símbolos que executam a tarefa quando forem encontrados. Nem todo nó do nível 2 precisa de um subfluxo no nível 3: telas de transição, loading, confirmação ou outros nós sem lógica de negócio própria podem permanecer sem esse apontamento, desde que isso seja coerente com o que o nó faz.
 - O **nível 4 explica em linguagem técnica e de baixo nível** — liga a implementação a fatos reais da codebase, com detalhes de código, queries, módulos e contratos. Sem inventar arquivos ou símbolos.
 
 **Saltos entre níveis:** O nível 1 pode apontar diretamente para o nível 3 ou 4 quando o assunto for puramente técnico e não envolver jornada de usuário (exemplo: configuração de infraestrutura, pipeline de deploy, migração de banco). Mas para qualquer assunto que envolva comportamento do aplicativo, o nível 1 **deve** passar pelo nível 2 primeiro. A relação de pai é sempre obrigatória, independente do salto.
@@ -56,6 +56,10 @@ A raiz usa `level: 1`, `role: "architecture"`, `parent_draw_ref: null`, `parent_
 - Um nível pode apontar diretamente para um nível mais baixo quando não houver detalhe útil intermediário, mas a relação de pai continua obrigatória. Para um sistema completo, o nível 1 deve possuir pelo menos um ponto de entrada para o nível 2.
 - Não duplicar os passos do filho no pai. O pai mostra a responsabilidade encapsulada; o filho mostra somente o interior dessa fronteira.
 - Ao alterar uma cadeia, ler o pai, o filho e os descendentes necessários. Nunca criar um `draw_ref` para um arquivo inexistente.
+
+## Nó correto para cada alteração
+
+Toda alteração de fluxo, explicação, relação ou referência deve ser aplicada ao nó que mais se relaciona diretamente com o pedido. Antes de criar um nó novo, procurar no desenho e nos subdesenhos um nó específico que já represente o assunto. Por exemplo, uma solicitação para explicar recomendações de notificações deve alterar o nó de notificações quando ele for a cápsula mais relacionada; somente usar um nó de recomendações separado quando ele representar melhor o comportamento pedido. Não deslocar a mudança para um nó genérico nem espalhá-la por nós vizinhos sem necessidade.
 
 ## Como desenhar cada nível
 
@@ -151,23 +155,25 @@ Se uma opção ainda não foi implementada, ela é um **nó terminal** do caminh
 
 **Grupo de nós não implementados:** Quando o sistema tem telas que já foram implementadas e telas que ainda não foram, os nós não implementados **devem** ficar dentro de um `group` separado (ex: `"Não implementado"` ou `"Planejado"`). Isso torna visualmente claro no fluxo o que já existe e o que ainda precisa ser construído. As setas que levam a esses nós continuam saindo dos nós implementados normalmente — o grupo serve apenas para agrupar e destacar visualmente os nós que ainda não existem no sistema.
 
+Essa regra vale para **todo fluxo e subfluxo**, não somente para o nível 2. Se houver ao menos uma funcionalidade planejada ainda não implementada, criar ou preservar no JSON daquele fluxo um grupo específico, como `"Não implementado"`, atribuir os nós planejados a esse grupo e mantê-los terminais. A diferenciação visual deve vir do grupo e da paleta semântica do viewer; não gravar cor individual no nó. Se o fluxo não tiver funcionalidades planejadas, não inventar nós ou grupo de escopo ausente.
 
-### Nível 3 — implementação / Controller (regras de negócio e orquestração)
 
-O nível 3 é o **Controller** — a ponte entre o que o usuário vê (nível 2) e como o sistema executa. Cada subfluxo do nível 3 corresponde a um nó/tela do nível 2 que foi avaliado como necessitando de detalhamento e explica:
+### Nível 3 — comportamento / Controller (linguagem simples)
 
-- **Regras de negócio escolhidas** para aquela tela/ação
-- Entrada da API ou caso de uso correspondente
-- Identidade do usuário, autenticação e autorização por papel/escopo/tenant
-- Validações e suas mensagens de erro
-- Orquestração do fluxo: decisões, condições, ramificações
-- Transação, banco, cache, eventos, integrações
-- Timeout, retry, compensação e falha segura
-- Resposta formatada para o frontend
+O nível 3 é o **Controller descrito em linguagem simples** — a ponte entre o que o usuário vê (nível 2) e a implementação técnica do nível 4. Cada subfluxo do nível 3 corresponde a um nó/tela do nível 2 que foi avaliado como necessitando de detalhamento e explica:
 
-O nível 3 representa as **decisões de negócio e implementação** que estão por trás de cada tela. Ele não repete a navegação global do nível 2 — ele explica o interior de cada nó. Explicar quando cliente e administrador usam a mesma API com permissões diferentes ou quando percorrem casos de uso distintos.
+- **O que a pessoa ou o sistema está tentando fazer**
+- **Regras de negócio** e condições que determinam o resultado
+- Quem pode executar a ação, em linguagem de papel, permissão e contexto
+- Validações e mensagens de erro compreensíveis
+- Decisões, condições, ramificações, sucesso e recuperação
+- Dependências descritas por responsabilidade, sem nomear tecnologia
+- Timeout, nova tentativa, compensação e falha segura em termos de comportamento
+- Resultado apresentado para a pessoa ou para o próximo passo da jornada
 
-Criar nível 4 somente quando a decisão depender da codebase real, de uma integração complexa, de rastreabilidade ou de uma refatoração com risco. Caso contrário, manter o nível 3 como folha técnica.
+O nível 3 representa as **decisões de negócio e comportamento** que estão por trás de cada tela. Ele não repete a navegação global do nível 2 — ele explica o interior de cada nó. Dizer, por exemplo, que cliente e administrador têm permissões diferentes e recebem resultados distintos, sem dizer o nome da API, função ou serviço que implementa isso.
+
+Criar nível 4 quando a decisão depender da codebase real, de rastreabilidade, de uma integração complexa ou de lógica que esteja fora da linguagem principal. Se o nível 3 mencionar uma procedure, função externa, RPC, tabela, rota, classe, arquivo ou símbolo, esse detalhe deve ser movido para o nível 4. O nível 3 nunca deve virar uma lista de nomes técnicos.
 
 ### Nível 4 — codebase (linguagem técnica de baixo nível)
 
@@ -184,13 +190,13 @@ O nível 4 não é lugar para suposições: se o símbolo ainda não puder ser r
 
 ### Símbolos nos nós correspondentes — associação incremental por fase
 
-A vinculação de nós a símbolos da codebase ocorre de forma **incremental em cada fase** do desenho, conforme o nível trabalhado:
+A vinculação de nós a símbolos da codebase ocorre em **todos os níveis**, com o tipo de símbolo correspondente à responsabilidade do nó:
 
-- **Fase 1 (Nível 2 — Views):** Para cada nó de tela/view criado, buscar na codebase os componentes frontend correspondentes (ex: componentes React, Vue, Angular, páginas `.tsx`, `.jsx`, `.vue`, templates HTML, arquivos de view) e associá-los ao nó via `code_refs`.
-- **Fase 2 (Nível 3 — Controller):** Para cada nó de implementação/controller criado, buscar e associar os símbolos de backend (controllers, rotas/endpoints, handlers, use cases, services, validadores) aos nós de nível 3 via `code_refs`.
-- **Fase 3 (Nível 4 — Codebase):** Mapear e associar os símbolos técnicos de mais baixo nível (funções internas, procedimentos SQL, migrations, schemas, entidades, DTOs e testes) aos nós de nível 4 via `code_refs`.
+- **Fase 1 (Nível 1 e 2):** Associar símbolos de configuração, infraestrutura, frontend e interface aos nós correspondentes quando existirem.
+- **Fase 2 (Nível 3 — Comportamento):** Associar funções, handlers, services, use cases e endpoints que realizam a tarefa; manter a descrição do nó em linguagem simples.
+- **Fase 3 (Nível 4 — Codebase):** Associar símbolos técnicos mais profundos — funções internas, procedures, RPCs, migrations, schemas, entidades, DTOs, testes e dependências — quando a implementação existir.
 
-Todo nó que representar um elemento já existente na codebase deve carregar a associação no próprio nó, usando `code_refs`. Cada referência deve usar o símbolo qualificado real retornado pela análise estática, além de `identity` e `source_dependencies` quando esses fatos estiverem disponíveis. Não colocar os símbolos em um nó genérico diferente nem apenas na descrição.
+Todo nó de qualquer nível que representar um elemento já existente na codebase deve carregar a associação no próprio nó, usando `code_refs`. Cada referência deve usar o símbolo qualificado real retornado pela análise estática, além de `identity` e `source_dependencies` quando esses fatos estiverem disponíveis. Não colocar os símbolos em um nó genérico diferente nem apenas na descrição. Os níveis 2 e 3 podem manter a responsabilidade em texto simples, enquanto o nível 4 detalha a implementação profunda.
 
 Nós abstratos que não correspondam diretamente a um símbolo existente não devem receber referências inventadas. Se o símbolo correspondente ainda não puder ser encontrado, marcar a associação como pendente.
 

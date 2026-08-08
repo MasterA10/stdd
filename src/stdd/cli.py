@@ -14,7 +14,7 @@ from .core import (
     record_run_entry,
     run_tests,
 )
-from .draw import create_draw, read_draw_index, serve_draw
+from .draw import create_draw, find_addressed_questions, read_draw_index, serve_draw
 from .traceability import associate_node_reference, associate_node_references
 from .setup import SUPPORTED_INTEGRATIONS, available_integrations, configure_project, ensure_stack_gitignore
 
@@ -191,6 +191,17 @@ def draw_list() -> None:
         return
     for entry in entries:
         typer.echo(f"{entry['id']}\t{entry.get('title', '')}\t{entry.get('node_count', 0)} nós\t{entry.get('edge_count', 0)} relações")
+
+
+@draw_app.command("questions")
+def draw_questions() -> None:
+    """Localiza perguntas abertas marcadas com @stdd para o Draw Answer."""
+    try:
+        questions = find_addressed_questions(project_root())
+    except (OSError, ValueError, RuntimeError) as error:
+        typer.echo(f"Erro: {error}", err=True)
+        raise typer.Exit(1)
+    typer.echo(json.dumps(questions, ensure_ascii=False, indent=2))
 
 
 @draw_app.command("diff")

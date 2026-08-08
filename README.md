@@ -7,12 +7,6 @@ STDD é um framework de controle de desenvolvimento orientado por testes. Ele in
 Use [`uv`](https://docs.astral.sh/uv/) para instalar a versão publicada. O mesmo comando, executado novamente, força a atualização do CLI instalado:
 
 ```bash
-uv tool install --force --refresh stdd --from git+https://github.com/MasterA10/stdd.git@v0.1.2
-```
-
-Para acompanhar as próximas modificações já disponíveis na branch principal, use:
-
-```bash
 uv tool install --force --refresh stdd --from git+https://github.com/MasterA10/stdd.git@main
 ```
 
@@ -94,6 +88,7 @@ $setup Detecte a stack deste repositório e configure os runners sem instalar de
 $feature Quero implementar autenticação por sessão; transforme o pedido em uma feature testável.
 $draw-feature Desenhe o fluxo de autenticação, incluindo falhas e subfluxos.
 $draw-improve Revise o desenho atual e acrescente somente o próximo detalhe arquitetural relevante.
+$draw-answer Investigue e responda perguntas do Draw marcadas explicitamente com @stdd.
 $draw-system Desenhe o sistema completo em arquitetura, jornadas do usuário por papel (incluindo cliente e administrador) e níveis de implementação.
 $static-analysis Analise dependências, complexidade, funções longas e segredos hardcoded.
 $implement Execute a implementação aprovada e rode os gates do STDD.
@@ -105,6 +100,7 @@ Também é possível chamar a skill sem instrução adicional quando o objetivo 
 $setup
 $feature
 $draw-improve
+$draw-answer
 $implement
 ```
 
@@ -121,7 +117,7 @@ $implement Execute somente depois da aprovação.
 
 `$draw-improve` trabalha sobre um JSON existente em `.stdd/draws/`. Cada chamada faz no máximo um incremento pequeno e encerra para revisão; se a arquitetura já estiver suficiente, a resposta correta pode ser `Já está bom`. Quando o desenho estiver aprovado, `$feature` transforma sua lógica em testes. Mesmo que o próximo pedido seja apenas `$implement`, o agente deve passar primeiro pela etapa de feature e confirmar os testes vermelhos antes de alterar produção.
 
-Perguntas de um Draw só devem ser respondidas automaticamente pelo agente quando o `prompt` contiver `@STDD` e `answer` estiver ausente, `null` ou vazio. Nesse caso, o agente responde e grava o resultado no próprio `answer`. Sem `@STDD`, a pergunta pertence ao usuário ou a um revisor humano; se o marcador for removido, ela deixa de ser responsabilidade do agente. Respostas já preenchidas, inclusive `false` e `0`, não geram nova ação.
+Perguntas de um Draw só devem ser respondidas automaticamente pelo `$draw-answer` quando o `prompt` contiver `@stdd` e `answer` estiver ausente, `null` ou vazio. O agente executa `stdd draw questions`, que já busca todas as perguntas nos JSONs e retorna JSON, consulta a codebase e os símbolos associados; se houver evidência, grava a resposta, marca os símbolos relevantes e remove o marcador. Se não houver evidência suficiente, mantém a pergunta aberta e associa ao próprio nó o arquivo e o símbolo relevante em `code_refs`. Sem `@stdd`, a pergunta pertence ao usuário ou a um revisor humano; respostas já preenchidas, inclusive `false` e `0`, não geram nova ação. O `$draw-improve` preserva essa responsabilidade separada e não responde perguntas.
 
 `$draw-system` cria uma árvore sem fluxos órfãos: nível 1 contém somente arquitetura macro, nível 2 acompanha as jornadas e a navegação do cliente, nível 3 detalha a implementação e nível 4 liga a codebase quando necessário. Cada filho declara seu pai e cada pai aponta para o filho com `draw_ref`; caminhos ainda não implementados terminam no próprio nó, sem continuação fictícia.
 

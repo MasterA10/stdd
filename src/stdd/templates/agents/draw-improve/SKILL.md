@@ -54,11 +54,7 @@ Organizar os nós em grupos arquiteturais coerentes. Criar ou ajustar `groups`, 
 
 Quando uma decisão depender do usuário, adicionar uma pergunta opcional ao nó responsável em vez de adivinhar. Usar `questions` com `type` `choice`, `boolean` ou `open`; contar como pendente e sem resposta somente quando `answer` for `null` ou vazio. Manter perguntas respondidas no JSON para formar histórico e tratar respostas como decisões do usuário nas próximas rodadas.
 
-### Perguntas endereçadas ao agente
-
-O marcador `@STDD` no `prompt` identifica uma pergunta feita explicitamente ao agente. Só agir sobre uma pergunta quando as duas condições forem verdadeiras: o `prompt` contém `@STDD` e `answer` está ausente, `null` ou é uma string vazia. Nesse caso, responder com base nos fatos e no desenho revisado, gravar a resposta no próprio `answer` e continuar o ciclo apenas se a resposta revelar uma melhoria coerente.
-
-Perguntas sem `@STDD` pertencem ao usuário ou a um revisor humano: não responder, não preencher e não transformar em ação automática. Se o usuário remover `@STDD`, deixar de tratar a pergunta como pendência do agente. Se `answer` já estiver preenchido, considerar a decisão encerrada e não fazer nada; `false` e `0` são respostas válidas e não significam ausência de resposta.
+Perguntas endereçadas à investigação da codebase pertencem exclusivamente ao `$draw-answer`. O `draw-improve` não responde, não preenche `answer` e não remove marcadores `@stdd`; deve preservá-los para a skill dedicada.
 
 Não detalhar classes, funções, métodos, chamadas internas triviais, campos ou passos de implementação. Um bom desenho de alto nível pode permanecer pequeno. Ao criar um subfluxo (`draw_ref`), garanta separação estrita de escopo: o que está no subfluxo não deve ser duplicado no fluxo principal.
 
@@ -78,7 +74,7 @@ Se o desenho já comunicar responsabilidades, fluxo principal, falhas relevantes
 2. Executar `stdd draw diff`; sem `--run-id`, o comando compara o estado atual com o último snapshot salvo por `stdd log` e mostra somente alterações em `.stdd/draws/*.json`, excluindo `.stdd/draws/index.json`.
 3. Para um ponto específico, executar `stdd draw diff --run-id <run-id>`. Nunca usar GitHub, pull request, `git diff` ou o snapshot geral da codebase para decidir o que mudou no desenho.
 4. Ler o índice, o JSON escolhido e apenas os subdesenhos necessários.
-5. Transformar o diff de Draws em revisão: identificar o que mudou, verificar coerência com a arquitetura inteira, responder somente às perguntas marcadas com `@STDD` e sem `answer`, gravar essas respostas no JSON, fazer perguntas humanas sem o marcador permanecerem abertas e apresentar sugestões de correção separadas.
+5. Transformar o diff de Draws em revisão: identificar o que mudou, verificar coerência com a arquitetura inteira, preservar perguntas marcadas com `@stdd` para o `$draw-answer`, fazer perguntas humanas permanecerem abertas e apresentar sugestões de correção separadas.
 6. Validar IDs numéricos internos, referências, condições, integridade das conexões e a árvore `hierarchy`/`draw_ref` sem órfãos.
 7. Identificar a maior lacuna arquitetural e escolher um único incremento.
 8. Atualizar o JSON preservando seu `id` descritivo e usando `condition`: `1` para `então`, `2` para `ou` e `3` para `se`.

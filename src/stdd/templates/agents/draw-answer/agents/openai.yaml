@@ -1,0 +1,4 @@
+interface:
+  display_name: "Draw Answer"
+  short_description: "Responde perguntas do Draw com evidências da codebase"
+  default_prompt: "Use $draw-answer para investigar e responder perguntas do Draw marcadas com @stdd."

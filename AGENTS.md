@@ -12,4 +12,9 @@ Este projeto usa o STDD para especificação, implementação, testes e evidênc
 - Ao relatar o resultado, informe status, arquivos alterados, testes executados, evidências e limitações.
 <!-- STDD:END AGENT INSTRUCTIONS -->
 
+## Regras de edição dos Draws
+
+- Alterações de fluxos, desenhos, explicações e referências devem ser feitas no nó que mais se relaciona com o pedido. Por exemplo, ao explicar um sistema de recomendação de notificações, usar primeiro o nó de notificações; só usar outro nó se ele representar de forma mais direta as recomendações. Não criar ou alterar um nó genérico quando já existir uma cápsula específica para o assunto.
+- Todo fluxo e subfluxo deve possuir um grupo específico para funcionalidades não implementadas quando houver uma funcionalidade planejada que ainda não existe. Os nós não implementados devem pertencer a esse grupo, permanecer terminais e receber a diferenciação visual do grupo; não usar cor individual no nó nem inventar continuação.
+
 O comando do readme deve ser sempre atualizado de forma que qualquer push na main deve repletir nele. Se for necessário, pode mudar o comando, pode mudar a tag, mas o comando do README tem que estar sempre instalado e apontando para as últimas alterações. Sempre verifique o comando para ver se ele está atualizado.

@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "date": "2026-08-08",
+  "runs": [
+    {
+      "run_id": "1501cabafaac4065ab88ad3e5de1c869",
+      "timestamp": "2026-08-08T18:25:16.619221+00:00",
+      "description": "Implementa o agente draw-answer e o localizador de perguntas @stdd",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 106,
+        "lines_deleted": 7,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "5caffa77ecaa44c594e8c6e89a1921ab",
+      "timestamp": "2026-08-08T18:27:17.459100+00:00",
+      "description": "Define retorno do JSON da pergunta e sua localização",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 11,
+        "lines_deleted": 14,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "8731352200c749198fda7c7b2274e420",
+      "timestamp": "2026-08-08T18:33:43.856062+00:00",
+      "description": "Atualiza regras de localização dos Draws e grupos não implementados",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 4,
+        "lines_deleted": 1,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "a4f9b68552664c6bb755bb0b1548d3c2",
+      "timestamp": "2026-08-08T18:36:27.996916+00:00",
+      "description": "Ajusta símbolos associados em todos os níveis do Draw System",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 2,
+        "lines_deleted": 2,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    }
+  ],
+  "run_count": 4,
+  "last_run_id": "a4f9b68552664c6bb755bb0b1548d3c2"
+}

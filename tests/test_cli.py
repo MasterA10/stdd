@@ -39,9 +39,11 @@ def test_init_can_install_skills_for_all_supported_agents(tmp_path: Path):
     assert result.exit_code == 0
     for directory in (".agents", ".claude", ".gemini"):
         assert (tmp_path / directory / "skills" / "setup" / "SKILL.md").exists()
+        assert (tmp_path / directory / "skills" / "draw-answer" / "SKILL.md").exists()
         assert (tmp_path / directory / "skills" / "draw-improve" / "SKILL.md").exists()
         assert (tmp_path / directory / "skills" / "draw-system" / "SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-improve/agents/openai.yaml").exists()
+    assert (tmp_path / ".agents/skills/draw-answer/agents/openai.yaml").exists()
 
 
 def test_init_interactive_selects_multiple_agent_integrations(tmp_path: Path):

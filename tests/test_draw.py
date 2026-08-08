@@ -5,7 +5,7 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from stdd.cli import app
-from stdd.draw import create_draw, create_server, read_draw_index, start_server_for_test
+from stdd.draw import create_draw, create_server, find_addressed_questions, read_draw_index, start_server_for_test
 
 
 runner = CliRunner()
@@ -109,6 +109,30 @@ def test_create_draw_preserves_optional_questions_and_answers(tmp_path: Path):
     assert saved["nodes"][0]["questions"][0]["answer"] == 2
     assert saved["nodes"][0]["questions"][1]["answer"] is False
     assert saved["nodes"][0]["questions"][2]["answer"] == "Fraude"
+
+
+def test_draw_questions_finds_only_open_stdd_questions(tmp_path: Path, monkeypatch):
+    """Localiza perguntas endereçadas sem reprocessar decisões existentes.
+    Confirma o filtro oficial usado pelo agente Draw Answer e sua saída JSON.
+    """
+    payload = draw_payload("perguntas-agente")
+    payload["nodes"][0]["questions"] = [
+        {"id": 1, "type": "open", "prompt": "@stdd Onde está o handler?", "answer": None},
+        {"id": 2, "type": "open", "prompt": "@STDD Já respondida", "answer": "sim"},
+        {"id": 3, "type": "open", "prompt": "Pergunta humana", "answer": None},
+        {"id": 4, "type": "boolean", "prompt": "@stdd Decisão", "answer": False},
+    ]
+    create_draw(tmp_path, payload)
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(app, ["draw", "questions"])
+
+    assert result.exit_code == 0
+    found = json.loads(result.stdout)
+    assert [(item["draw_id"], item["question_id"]) for item in found] == [("perguntas-agente", 1)]
+    assert found[0]["question"] == "@stdd Onde está o handler?"
+    assert found[0]["draw_file"] == ".stdd/draws/perguntas-agente.json"
+    assert find_addressed_questions(tmp_path)[0]["prompt"] == "@stdd Onde está o handler?"
 
 
 def test_create_draw_rejects_invalid_question_contract(tmp_path: Path):

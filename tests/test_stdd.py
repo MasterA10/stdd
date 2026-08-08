@@ -26,6 +26,7 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert (tmp_path / ".agents/skills/static-analysis/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-feature/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-improve/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/draw-answer/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-system/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-system/agents/openai.yaml").exists()
     assert (tmp_path / ".agents/skills/draw-improve/agents/openai.yaml").exists()
@@ -172,7 +173,7 @@ def test_agents_are_loaded_from_markdown_templates():
     Chama agent_templates e valida a presença dos títulos dos agentes feature, implement e setup.
     """
     templates = {template.parent.name: template for template in agent_templates()}
-    assert set(templates) == {"draw-feature", "draw-improve", "draw-system", "feature", "implement", "setup", "static-analysis"}
+    assert set(templates) == {"draw-answer", "draw-feature", "draw-improve", "draw-system", "feature", "implement", "setup", "static-analysis"}
     assert "# Feature Agent" in templates["feature"].read_text()
     assert "# Implement Agent" in templates["implement"].read_text()
     assert "# Setup Agent" in templates["setup"].read_text()
@@ -192,8 +193,11 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "stdd log" in templates["draw-system"].read_text()
 
     draw_system_content = templates["draw-system"].read_text().lower()
-    for required in ("nível 1", "nível 2", "nível 3", "nível 4", "parent_draw_ref", "parent_node_id", "root_draw_ref", "não implementada", "sem órfãos", "code_refs", "source_dependencies", "símbolo qualificado", "jornadas do usuário", "administrador", "permissões"):
+    for required in ("nível 1", "nível 2", "nível 3", "nível 4", "parent_draw_ref", "parent_node_id", "root_draw_ref", "não implementada", "sem órfãos", "code_refs", "source_dependencies", "símbolo qualificado", "jornadas do usuário", "administrador", "permissões", "nó que mais se relaciona", "todo fluxo e subfluxo", "todos os níveis", "frontend/interface"):
         assert required in draw_system_content
+
+    for required in ("supabase", "rpc", "back-end", "external_logic", "technologies", "sql_procedure", "sql_function", "localização da regra", "todos os níveis", "frontend/interface"):
+        assert required in templates["static-analysis"].read_text().lower()
 
     setup_content = templates["setup"].read_text()
     assert "núcleo do STDD permanece agnóstico" in setup_content
@@ -272,6 +276,30 @@ def test_draw_improve_skill_requires_global_consistency_groups_and_questions():
         assert required in content
 
 
+def test_draw_answer_owns_question_discovery_and_codebase_traceability():
+    """Isola respostas endereçadas e exige evidência de símbolos reais.
+    Confirma que a skill usa o localizador oficial e separa resposta de associação.
+    """
+    content = Path("src/stdd/templates/agents/draw-answer/SKILL.md").read_text(encoding="utf-8").lower()
+    for required in (
+        "stdd draw questions",
+        "somente sobre os itens json retornados",
+        "draw_file",
+        "question_id",
+        "@stdd",
+        "codebase",
+        "símbolos",
+        "code_refs",
+        "não deve continuar aberta",
+        "mantém a pergunta aberta",
+        "qualified_name",
+    ):
+        assert required in content
+    improve = Path("src/stdd/templates/agents/draw-improve/SKILL.md").read_text(encoding="utf-8").lower()
+    assert "draw-answer" in improve
+    assert "não responde" in improve
+
+
 def test_draw_feature_matches_always_interactive_viewer():
     """Mantém a skill base alinhada ao Draw sem modo separado de edição.
     Rejeita instruções antigas sobre ativar edição ou usar inspetor.
@@ -287,10 +315,10 @@ def test_draw_skills_document_optional_questions_and_answer_history():
     """Documenta perguntas opcionais como decisões persistentes do desenho.
     Confirma suporte a escolha, sim ou não, resposta aberta e histórico respondido.
     """
-    for name in ("draw-feature", "draw-improve"):
+    for name in ("draw-feature", "draw-improve", "draw-answer"):
         content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         required_items = ("questions", "choice", "boolean", "open", "answer", "histórico", "sem resposta")
-        if name == "draw-improve":
+        if name == "draw-answer":
             required_items += ("@stdd", "`false` e `0`")
         for required in required_items:
             assert required in content, f"{name} não define {required}"
@@ -368,7 +396,7 @@ def test_readme_documents_remote_install_and_interactive_integrations():
     """
     readme = Path("README.md").read_text(encoding="utf-8")
 
-    assert "uv tool install --force --refresh stdd --from git+https://github.com/MasterA10/stdd.git@v0.1.2" in readme
+    assert "uv tool install --force --refresh stdd --from git+https://github.com/MasterA10/stdd.git@main" in readme
     assert "--all-integrations" in readme
     assert ".agents/skills/" in readme
     assert ".claude/skills/" in readme
@@ -384,7 +412,7 @@ def test_readme_documents_codex_skill_invocation():
     """
     readme = Path("README.md").read_text(encoding="utf-8")
 
-    for command in ("$setup", "$feature", "$draw-feature", "$draw-improve", "$draw-system", "$static-analysis", "$implement"):
+    for command in ("$setup", "$feature", "$draw-feature", "$draw-improve", "$draw-answer", "$draw-system", "$static-analysis", "$implement"):
         assert command in readme
     assert ".agents/skills/<skill>/SKILL.md" in readme
 
