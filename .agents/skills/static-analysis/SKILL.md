@@ -7,7 +7,7 @@ description: Implementa e conecta adaptadores agnósticos de análise estática 
 
 ## Rastreabilidade da hierarquia Draw
 
-Os fatos estáticos devem respeitar a árvore criada pelo `$draw-system`: nível 1 fornece contexto de fronteiras, nível 2 fornece a jornada, nível 3 delimita o comportamento técnico e nível 4 pode apontar para símbolos e testes reais. Não criar ou mover `draw_ref`, `parent_draw_ref`, `parent_node_id` ou `root_draw_ref` automaticamente. O adapter fornece fatos; o agente decide as associações.
+Os fatos estáticos devem respeitar a árvore criada pelo `$draw-system`: nível 1 fornece contexto de fronteiras, nível 2 fornece a jornada, nível 3 delimita o comportamento em linguagem simples e nível 4 aprofunda os símbolos e testes reais. Todos os níveis podem ter `code_refs` no próprio nó quando houver símbolo comprovado: nível 1 para configuração/infraestrutura, nível 2 para frontend/interface, nível 3 para funções/handlers que executam a tarefa e nível 4 para detalhes internos, SQL, procedures, RPCs, migrations e testes. Não criar ou mover `draw_ref`, `parent_draw_ref`, `parent_node_id` ou `root_draw_ref` automaticamente. O adapter fornece fatos; o agente decide as associações.
 
 Ao produzir fatos para um desenho filho, preservar seu pai e a raiz. Reportar referências `resolved`, `unresolved` e `drift` sem tratar um fluxo órfão como resolvido. Uma folha não implementada não deve receber símbolos ou dependências como se fosse código entregue.
 
@@ -26,6 +26,9 @@ Conectar um analisador local ao comando `stdd test` para que a execução produz
 - linhas, parâmetros, retornos e profundidade de blocos;
 - métricas estruturais de arquivos, módulos e classes;
 - alterações de símbolos entre estados.
+- tecnologias e plataformas detectadas, como Supabase, provedores de banco, frameworks de back-end e serviços externos;
+- locais reais onde a lógica pode estar implementada: aplicação, banco, RPC, procedure, função SQL, trigger, view, serviço externo ou contrato remoto;
+- regras de negócio e dependências que atravessam a linguagem principal, o banco ou outro back-end.
 
 O agente deve usar a melhor ferramenta da stack, como AST nativo, compiler API ou parser especializado. A skill não presume uma linguagem específica.
 
@@ -72,12 +75,16 @@ O stdout do adaptador deve conter um objeto com estes campos:
   "capabilities": {
     "symbols": true,
     "dependencies": true,
+    "technologies": true,
+    "external_logic": true,
     "complexity": true,
     "structural_metrics": true,
     "changes": true
   },
   "symbols": [],
   "dependencies": [],
+  "technologies": [],
+  "external_logic": [],
   "complexity": [],
   "structural_metrics": [],
   "quality_findings": [],
@@ -89,15 +96,42 @@ O stdout do adaptador deve conter um objeto com estes campos:
 
 Cada item deve indicar, quando aplicável, `file`, `position`, `symbol_id` e `source`. Tipos, relações ou métricas desconhecidas devem ser marcados como `unknown` ou `unresolved`, nunca inferidos como fatos.
 
+## Descoberta de plataforma e localização da regra
+
+A análise não pode presumir que toda regra de negócio está em arquivos da linguagem principal. Antes de associar um nó do Draw a um símbolo, investigar a arquitetura executável completa:
+
+- detectar Supabase por configuração, URLs, dependências, migrations, policies, funções Edge, chamadas ao cliente e referências ao banco; registrar a evidência e distinguir Auth, Database, Storage, Realtime e Edge Functions;
+- detectar back-end próprio ou framework por manifests, servidores, rotas, handlers, controllers, workers, jobs e clientes HTTP;
+- detectar RPC por contratos, clientes, handlers, endpoints, chamadas remotas e consumidores; ligar contrato, handler e consumidor quando existirem;
+- detectar lógica em SQL, procedure, função, trigger, view, policy, migration ou schema, preservando o arquivo de origem e o símbolo qualificado;
+- detectar funções externas e serviços remotos por SDKs, URLs, contratos, webhooks, filas e chamadas observáveis, sem tratar apenas o nome de um pacote como prova de execução;
+- detectar regras divididas entre aplicação, banco e serviço externo, mantendo cada localização como fato separado e as dependências entre elas como relações observadas.
+
+O relatório deve expor essas descobertas em estruturas determinísticas, por exemplo:
+
+```json
+{
+  "technologies": [
+    {"name": "supabase", "kind": "backend_platform", "components": ["auth", "database"], "evidence": [{"file": "supabase/config.toml", "source": "config"}]}
+  ],
+  "external_logic": [
+    {"kind": "sql_procedure", "qualified_name": "public.create_order", "file": "supabase/migrations/001_orders.sql", "source": "sql_ast"},
+    {"kind": "rpc_handler", "qualified_name": "orders.create", "file": "src/orders/rpc.ts", "source": "typescript_ast"}
+  ]
+}
+```
+
+Cada tecnologia ou localização deve conter evidência rastreável (`file`, `source`, posição ou símbolo quando disponível). Não afirmar Supabase, RPC, back-end ou regra externa somente por semelhança textual. Se a capacidade não existir para a stack, usar `unavailable` ou `unresolved` e explicar a limitação.
+
 ## Conteúdo determinístico esperado
 
 ### Símbolos
 
-Inclua funções, métodos, classes, construtores, endpoints e handlers, com nome, nome qualificado, tipo, assinatura, visibilidade e posição. Quando existirem no projeto, inclua também procedures, funções, triggers e views do banco, handlers/consumidores RPC e contratos ou IDLs que tenham implementação rastreável. Cada símbolo deve informar `file`, `qualified_name`, `kind` e `source`; para SQL, o arquivo deve ser a migration, schema ou script que contém a definição ou implementação.
+Inclua funções, métodos, classes, construtores, endpoints e handlers, com nome, nome qualificado, tipo, assinatura, visibilidade e posição. Quando existirem no projeto, inclua também procedures, funções, triggers, views e policies do banco, funções Edge, handlers/consumidores RPC, contratos/IDLs e serviços externos que tenham implementação ou chamada rastreável. Cada símbolo deve informar `file`, `qualified_name`, `kind` e `source`; para SQL, o arquivo deve ser a migration, schema ou script que contém a definição ou implementação. Classifique `kind` para distinguir `backend_endpoint`, `rpc_handler`, `rpc_consumer`, `sql_procedure`, `sql_function`, `sql_trigger`, `sql_view`, `sql_policy`, `edge_function`, `external_service` e símbolos da aplicação.
 
 ### Dependências
 
-Inclua imports, chamadas, herança, implementação, uso de símbolos, dependentes diretos e indiretos, ciclos, fan-in e fan-out. Inclua também relações entre handler RPC e contrato/cliente, handler e procedure SQL, ou migration/schema e símbolo SQL quando observadas. Diferencie relação observada de relação apenas sugerida.
+Inclua imports, chamadas, herança, implementação, uso de símbolos, dependentes diretos e indiretos, ciclos, fan-in e fan-out. Inclua também relações entre cliente e plataforma Supabase, handler RPC e contrato/cliente, handler e procedure/função SQL, policy e tabela, migration/schema e símbolo SQL, aplicação e serviço externo, quando observadas. Diferencie relação observada de relação apenas sugerida e informe a localização da regra de negócio atravessada.
 
 ### Complexidade
 
@@ -172,7 +206,7 @@ Classifique símbolos criados, removidos, alterados, movidos, assinaturas altera
 
 - O adaptador deve possuir testes determinísticos para cada capacidade declarada.
 - Dado um arquivo de exemplo, a contagem de símbolos deve ser exata.
-- Quando a stack possuir RPC ou banco, fixtures devem cobrir o handler/contrato e uma procedure ou função SQL com o arquivo de origem correspondente.
+- Quando a stack possuir Supabase, RPC, back-end externo ou banco, fixtures devem cobrir a detecção da plataforma, o handler/contrato e uma procedure, função, trigger, view ou policy SQL com o arquivo de origem correspondente.
 - Dado um diff que altera uma função, somente os símbolos afetados devem ser marcados.
 - Dependências e ciclos devem ser reproduzíveis no mesmo fixture.
 - A complexidade ciclomática deve ter casos com valor conhecido.
@@ -183,6 +217,59 @@ Classifique símbolos criados, removidos, alterados, movidos, assinaturas altera
 - Não inclua tokens, chaves ou credenciais no relatório, stdout ou stderr.
 
 O relatório factual deve permanecer separado de qualquer explicação ou sugestão produzida por IA.
+
+## Frontend agnóstico de stack
+
+Quando a codebase possuir superfície frontend, o adapter deve analisar a stack real sem presumir React ou Next. O contrato e as regras são comuns; o parser, a resolução de rotas e a descoberta de assets são específicos da linguagem, framework ou bundler detectado.
+
+Detecte, quando houver evidência local:
+
+- HTML/DOM e templates server-side;
+- CSS, Sass, Less e referências estáticas a assets;
+- JavaScript e TypeScript;
+- JSX/TSX, Vue, Svelte, Angular e outros templates de componentes;
+- roteadores, páginas, layouts, actions de formulário, bundlers e monorepos.
+
+Prefira parser AST, compiler API ou ferramenta oficial já disponível no projeto. Use regex somente para fatos simples e explicitamente limitados; nunca trate uma busca textual como prova de que uma rota ou interação existe.
+
+As regras frontend devem retornar achados em `quality_findings` com `domain: "frontend"`, `rule`, `file`, posição e evidência:
+
+- `frontend.missing_destination`: link, formulário ou navegação sem destino;
+- `frontend.dead_reference`: rota, asset ou arquivo local estático inexistente;
+- `frontend.interactive_without_action`: elemento interativo sem handler, destino ou ação comprovável;
+- `frontend.decorative_semantics`: elemento visual marcado como interativo sem semântica ou ação correspondente.
+
+Ausência comprovada pode ser `blocking`. Rotas dinâmicas, código gerado, componentes externos e referências que o parser não consegue resolver devem ser `warning` ou `unresolved`, nunca aprovação falsa. Elementos decorativos sem `role`, `tabIndex` ou ação não devem ser classificados como interação quebrada.
+
+O adapter deve testar a própria stack antes de ser habilitado. As fixtures devem cobrir links e formulários, referências de assets, handlers, roteamento, elementos decorativos, valores dinâmicos, arquivos ignorados e parser indisponível. Em stacks híbridas, usar módulos específicos por linguagem atrás de um dispatcher local, mantendo o mesmo contrato JSON.
+
+## Exceções controladas
+
+O projeto pode aceitar um achado específico sem desligar a análise inteira. Configure `static_analysis.exceptions` em `.stdd/config.json`:
+
+```json
+{
+  "static_analysis": {
+    "frontend": {
+      "enabled": true,
+      "mode": "blocking"
+    },
+    "exceptions": [
+      {
+        "rule": "frontend.dead_reference",
+        "file": "src/components/LegacyMenu.tsx",
+        "action": "warning",
+        "reason": "Destino fornecido por CMS externo.",
+        "expires": "2027-01-01"
+      }
+    ]
+  }
+}
+```
+
+Cada exceção deve indicar exatamente uma regra e um alvo (`file`, `symbol_id` ou intervalo `lines`), além de `reason` e `expires`. `warning` mantém o achado visível sem bloquear; `ignore` remove o achado dos indicadores ativos, mas deixa evidência da exceção aplicada. Exceções expiradas bloqueiam a análise até serem revisadas. Não usar curingas implícitos.
+
+Adapters podem reconhecer marcadores inline equivalentes à linguagem (`// stdd:ignore`, `<!-- stdd:ignore -->` ou `/* stdd:ignore */`), sempre exigindo regra, motivo e validade. Exceções não podem ignorar falha de contrato, saída inválida, parser quebrado ou achados de segredo hardcoded.
 
 ## Segredos hardcoded e arquivos ignorados
 

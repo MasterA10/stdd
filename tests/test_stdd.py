@@ -61,6 +61,20 @@ def test_init_defers_language_specific_test_runner_to_setup(tmp_path: Path):
     assert config["testing"]["profile"] == "mvp"
 
 
+def test_init_creates_frontend_policy_and_exception_controls(tmp_path: Path):
+    """Inicializa controles frontend sem presumir parser ou adapter.
+    Confirma defaults seguros, regras habilitadas e lista de exceções vazia.
+    """
+    init_project(tmp_path)
+
+    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    frontend = config["static_analysis"]["frontend"]
+    assert frontend["enabled"] is False
+    assert frontend["mode"] == "blocking"
+    assert frontend["rules"]["dead_reference"] is True
+    assert config["static_analysis"]["exceptions"] == []
+
+
 def test_init_accepts_project_directory_argument(tmp_path: Path, monkeypatch):
     """Inicializa um projeto novo no diretório informado pelo usuário.
     Executa init com caminho relativo a outro diretório e confirma os artefatos no alvo.
@@ -196,7 +210,7 @@ def test_agents_are_loaded_from_markdown_templates():
     for required in ("nível 1", "nível 2", "nível 3", "nível 4", "parent_draw_ref", "parent_node_id", "root_draw_ref", "não implementada", "sem órfãos", "code_refs", "source_dependencies", "símbolo qualificado", "jornadas do usuário", "administrador", "permissões", "nó que mais se relaciona", "todo fluxo e subfluxo", "todos os níveis", "frontend/interface"):
         assert required in draw_system_content
 
-    for required in ("supabase", "rpc", "back-end", "external_logic", "technologies", "sql_procedure", "sql_function", "localização da regra", "todos os níveis", "frontend/interface"):
+    for required in ("supabase", "rpc", "back-end", "external_logic", "technologies", "sql_procedure", "sql_function", "localização da regra", "todos os níveis", "frontend/interface", "frontend agnóstico", "frontend.dead_reference", "static_analysis.exceptions", "stdd:ignore"):
         assert required in templates["static-analysis"].read_text().lower()
 
     setup_content = templates["setup"].read_text()
@@ -209,11 +223,36 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "<project_root>/.stdd/adapters/" in setup_content
     assert "não depender de serviço externo" in setup_content
     assert "personalizado para a linguagem e para a codebase" in setup_content
+    assert "frontend em qualquer stack" in setup_content.lower()
+    assert "frontend-analysis blocking|warning|disabled" in setup_content
+    assert "static_analysis.exceptions" in setup_content
 
     implement_content = templates["implement"].read_text()
     assert "Uso da análise estática para refatoração segura" in implement_content
     assert "101–150" in implement_content
     assert "valores antes/depois" in implement_content
+
+
+def test_draw_system_splits_level_three_into_two_detailed_phases():
+    """Mantém o nível 3 em dois lotes variáveis e deixa o nível 4 sob demanda.
+    Lê o template publicado e impede o retorno à fase única ou ao desenho padronizado.
+    """
+    content = Path("src/stdd/templates/agents/draw-system/SKILL.md").read_text(encoding="utf-8").lower()
+
+    for required in (
+        "execução em três fases",
+        "primeiro lote",
+        "primeira metade do nível 3",
+        "segundo lote",
+        "segunda metade do nível 3",
+        "quantidade fixa de nós",
+        "quatro nós por padrão",
+        "sob demanda",
+        "não iniciar o nível 4 automaticamente",
+    ):
+        assert required in content
+
+    assert "fase 3 — codebase / baixo nível" not in content
 
 
 def test_implement_skill_triages_draw_diffs_before_declaring_no_change():

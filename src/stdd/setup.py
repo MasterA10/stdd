@@ -20,6 +20,11 @@ STACK_GITIGNORE_RULES = {
     "csharp": ("bin/", "obj/"),
     "php": ("vendor/",),
 }
+FRONTEND_ANALYSIS_MODES = {"blocking", "warning", "disabled"}
+FRONTEND_FRAMEWORKS = {
+    "react", "next", "vue", "angular", "svelte", "solid", "astro", "ember",
+    "lit", "preact", "alpine", "nuxt", "sveltekit",
+}
 
 
 def detect_stack(root: Path) -> dict[str, Any]:
@@ -134,6 +139,42 @@ def configure_project(root: Path) -> dict[str, Any]:
     config_path.parent.mkdir(parents=True, exist_ok=True)
     config_path.write_text(json.dumps(config, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return stack
+
+
+def configure_frontend_analysis(root: Path, mode: str) -> dict[str, Any]:
+    """Configura o gate frontend sem criar um adapter ou instalar dependências."""
+    if mode not in FRONTEND_ANALYSIS_MODES:
+        raise ValueError("frontend analysis deve ser blocking, warning ou disabled")
+    config_path = root / ".stdd" / "config.json"
+    config = _read_json(config_path)
+    static_config = config.setdefault("static_analysis", {})
+    if not isinstance(static_config, dict):
+        raise ValueError("static_analysis deve ser um objeto")
+    frontend = static_config.setdefault("frontend", {})
+    if not isinstance(frontend, dict):
+        raise ValueError("static_analysis.frontend deve ser um objeto")
+    frontend["enabled"] = mode != "disabled"
+    frontend["mode"] = "blocking" if mode == "disabled" else mode
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    config_path.write_text(json.dumps(config, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return config
+
+
+def has_frontend_surface(root: Path, stack: dict[str, Any]) -> bool:
+    """Detecta uma superfície frontend local antes de oferecer o gate interativo."""
+    if FRONTEND_FRAMEWORKS.intersection(stack.get("frameworks", [])):
+        return True
+    ignored = {".git", ".stdd", ".venv", "venv", "node_modules", "vendor", "__pycache__"}
+    return any(
+        path.is_file()
+        and path.suffix.lower() in {
+            ".html", ".htm", ".css", ".scss", ".sass", ".less", ".js", ".jsx", ".ts", ".tsx",
+            ".vue", ".svelte", ".astro", ".hbs", ".handlebars", ".ejs", ".pug", ".twig",
+            ".jinja", ".jinja2", ".erb", ".razor", ".cshtml", ".php",
+        }
+        and not ignored.intersection(path.parts)
+        for path in root.rglob("*")
+    )
 
 
 def ensure_stack_gitignore(root: Path, languages: list[str]) -> bool:

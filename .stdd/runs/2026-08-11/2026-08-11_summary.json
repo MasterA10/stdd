@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "date": "2026-08-11",
+  "runs": [
+    {
+      "run_id": "479b059f6edf4e988cbafc001af3aeb1",
+      "timestamp": "2026-08-11T18:33:59.877988+00:00",
+      "description": "Divide o nível 3 do draw-system em dois lotes detalhados e deixa o nível 4 sob demanda",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 690,
+        "lines_deleted": 28,
+        "files_changed": 7
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d45f3cca9eca4437b4d73f0cadfa729e",
+      "timestamp": "2026-08-11T18:37:08.028925+00:00",
+      "description": "Implementa política frontend agnóstica e exceções da análise estática",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 39,
+        "lines_deleted": 4,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "25be908f69a343569653163fe293e1c0",
+      "timestamp": "2026-08-11T18:37:08.660754+00:00",
+      "description": "Valida regras frontend, exceções e configuração do init",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    }
+  ],
+  "run_count": 3,
+  "last_run_id": "25be908f69a343569653163fe293e1c0"
+}

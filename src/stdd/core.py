@@ -103,6 +103,8 @@ Este projeto usa o STDD para especificação, implementação, testes e evidênc
 - Execute `stdd test` antes de declarar uma tarefa concluída e trate falhas como bloqueios.
 - Preserve o contrato existente, os testes aprovados e os arquivos protegidos.
 - Use `.stdd/` para configuração, desenhos, execuções e evidências; não registre segredos nos logs.
+- Ao detectar frontend, siga a skill `static-analysis`: escolha um adapter conforme a stack, valide links, rotas, assets e interações somente com fatos comprováveis e registre limitações como `unavailable`.
+- Use `static_analysis.frontend` para ativar, deixar como aviso ou desativar as regras frontend; exceções devem indicar regra, alvo, motivo e validade, nunca mascarar falhas do adapter ou segredos.
 - Antes de qualquer commit ou push na branch `main`, confirme que o diff inclui as fontes, templates, skills, assets empacotados, README e testes necessários para o comando de instalação do README reproduzir a versão publicada.
 - Depois de alterar o framework, valide a instalação equivalente com `uv tool install --force --editable .` e confirme que `stdd init` instala as skills atuais; não publique somente uma parte da alteração.
 - Ao relatar o resultado, informe status, arquivos alterados, testes executados, evidências e limitações.
@@ -166,6 +168,17 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list
                         "adapter_command": None,
                         "contract_version": "1",
                         "allow_marked_test_credentials": True,
+                        "frontend": {
+                            "enabled": False,
+                            "mode": "blocking",
+                            "rules": {
+                                "missing_destination": True,
+                                "dead_reference": True,
+                                "interactive_without_action": True,
+                                "decorative_semantics": True,
+                            },
+                        },
+                        "exceptions": [],
                         "quality": {
                             "functions": {
                                 "max_lines": {"warning": 100, "blocking": 150},
@@ -185,6 +198,8 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list
             encoding="utf-8",
         )
         created.append(config)
+
+    created.extend(ensure_static_analysis_defaults(config))
 
     created.extend(ensure_draw_workspace(root, include_example=True))
     created.extend(ensure_runs_workspace(root))
@@ -208,6 +223,48 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list
                         created.append(target)
     created.extend(ensure_agent_instructions(root, integrations))
     return created
+
+
+def ensure_static_analysis_defaults(config_path: Path) -> list[Path]:
+    """Completa configurações antigas sem substituir escolhas existentes."""
+    try:
+        config_data = json.loads(config_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        return []
+    if not isinstance(config_data, dict):
+        return []
+    static_config = config_data.get("static_analysis")
+    if static_config is None:
+        static_config = {}
+        config_data["static_analysis"] = static_config
+    if not isinstance(static_config, dict):
+        return []
+    changed = False
+    defaults = {
+        "enabled": True,
+        "adapter_command": None,
+        "contract_version": "1",
+        "allow_marked_test_credentials": True,
+        "frontend": {
+            "enabled": False,
+            "mode": "blocking",
+            "rules": {
+                "missing_destination": True,
+                "dead_reference": True,
+                "interactive_without_action": True,
+                "decorative_semantics": True,
+            },
+        },
+        "exceptions": [],
+    }
+    for key, value in defaults.items():
+        if key not in static_config:
+            static_config[key] = value
+            changed = True
+    if changed:
+        config_path.write_text(json.dumps(config_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        return [config_path]
+    return []
 
 
 def ensure_gitignore(root: Path) -> list[Path]:

@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -51,6 +51,15 @@ SECRET_SCAN_EXTENSIONS = {
 SECRET_PLACEHOLDERS = {"test", "testing", "example", "dummy", "placeholder", "changeme", "change-me"}
 TEST_FIXTURE_MARKERS = {"test", "fixture", "mock", "fake", "dummy", "example", "placeholder", "invalid"}
 TEST_CREDENTIAL_ALLOW_MARKER = "stdd:allow-credential"
+FRONTEND_RULE_PREFIX = "frontend."
+FRONTEND_PROTECTED_KINDS = {"hardcoded_secret", "hardcoded_env_value"}
+FRONTEND_RULES = {
+    "missing_destination",
+    "dead_reference",
+    "interactive_without_action",
+    "decorative_semantics",
+}
+EXCEPTION_ACTIONS = {"warning", "ignore"}
 
 
 def unavailable_result(reason: str) -> dict[str, Any]:
@@ -65,6 +74,7 @@ def unavailable_result(reason: str) -> dict[str, Any]:
         **{collection: [] for collection in ANALYSIS_COLLECTIONS},
         "warnings": [reason],
         "errors": [],
+        "applied_exceptions": [],
     }
 
 
@@ -80,6 +90,7 @@ def blocked_result(reason: str, errors: list[str] | None = None) -> dict[str, An
         **{collection: [] for collection in ANALYSIS_COLLECTIONS},
         "warnings": [],
         "errors": errors or [reason],
+        "applied_exceptions": [],
     }
 
 
@@ -318,6 +329,222 @@ def validate_static_analysis_result(result: Any) -> list[str]:
     return violations
 
 
+def validate_static_analysis_policy(static_config: dict[str, Any]) -> list[str]:
+    """Valida as políticas locais que o núcleo aplica aos achados do adapter."""
+    return [
+        *_validate_frontend_policy(static_config.get("frontend", {})),
+        *_validate_exceptions(static_config.get("exceptions", [])),
+    ]
+
+
+def _validate_frontend_policy(frontend: Any) -> list[str]:
+    """Valida o interruptor e as regras específicas da superfície frontend."""
+    violations: list[str] = []
+    if frontend is None:
+        frontend = {}
+    if not isinstance(frontend, dict):
+        violations.append("static_analysis.frontend deve ser um objeto")
+    else:
+        if not isinstance(frontend.get("enabled", False), bool):
+            violations.append("static_analysis.frontend.enabled deve ser booleano")
+        if frontend.get("mode", "blocking") not in {"blocking", "warning"}:
+            violations.append("static_analysis.frontend.mode deve ser blocking ou warning")
+        rules = frontend.get("rules", {})
+        if not isinstance(rules, dict) or any(not isinstance(value, bool) for value in rules.values()):
+            violations.append("static_analysis.frontend.rules deve ser um objeto de valores booleanos")
+
+    return violations
+
+
+def _validate_exceptions(exceptions: Any) -> list[str]:
+    """Valida a lista de exceções sem aceitar alvos ambíguos."""
+    violations: list[str] = []
+    if not isinstance(exceptions, list):
+        violations.append("static_analysis.exceptions deve ser uma lista")
+        return violations
+    for index, exception in enumerate(exceptions):
+        violations.extend(_validate_exception(exception, index))
+    return violations
+
+
+def _validate_exception(exception: Any, index: int) -> list[str]:
+    """Valida uma exceção e exige regra, alvo, motivo e expiração."""
+    prefix = f"static_analysis.exceptions[{index}]"
+    if not isinstance(exception, dict):
+        return [f"{prefix} deve ser um objeto"]
+    return [
+        *_validate_exception_metadata(exception, prefix),
+        *_validate_exception_target(exception, prefix),
+    ]
+
+
+def _validate_exception_metadata(exception: dict[str, Any], prefix: str) -> list[str]:
+    """Valida regra, ação, justificativa e validade da exceção."""
+    violations: list[str] = []
+    if not isinstance(exception.get("rule"), str) or not exception["rule"].strip():
+        violations.append(f"{prefix}.rule deve ser um texto não vazio")
+    if exception.get("action") not in EXCEPTION_ACTIONS:
+        violations.append(f"{prefix}.action deve ser warning ou ignore")
+    if not isinstance(exception.get("reason"), str) or not exception["reason"].strip():
+        violations.append(f"{prefix}.reason deve ser um texto não vazio")
+    if not isinstance(exception.get("expires"), str):
+        violations.append(f"{prefix}.expires deve ser uma data ISO")
+    else:
+        try:
+            date.fromisoformat(exception["expires"])
+        except ValueError:
+            violations.append(f"{prefix}.expires deve ser uma data ISO válida")
+    return violations
+
+
+def _validate_exception_target(exception: dict[str, Any], prefix: str) -> list[str]:
+    """Valida o único alvo permitido para uma exceção."""
+    violations: list[str] = []
+    scopes = [key for key in ("file", "symbol_id", "lines") if key in exception]
+    if len(scopes) != 1:
+        violations.append(f"{prefix} deve ter exatamente um alvo entre file, symbol_id ou lines")
+    if "file" in exception:
+        file_value = exception["file"]
+        if (
+            not isinstance(file_value, str)
+            or not file_value.strip()
+            or Path(file_value).is_absolute()
+            or ".." in Path(file_value).parts
+        ):
+            violations.append(f"{prefix}.file deve ser um caminho relativo não vazio")
+    if "symbol_id" in exception and (not isinstance(exception["symbol_id"], str) or not exception["symbol_id"].strip()):
+        violations.append(f"{prefix}.symbol_id deve ser um texto não vazio")
+    if "lines" in exception:
+        lines = exception["lines"]
+        if (
+            not isinstance(lines, list)
+            or len(lines) != 2
+            or any(not isinstance(line, int) or line < 1 for line in lines)
+            or lines[0] > lines[1]
+        ):
+            violations.append(f"{prefix}.lines deve conter duas linhas inteiras válidas")
+    return violations
+
+
+def _finding_rule(finding: dict[str, Any]) -> str:
+    """Retorna a identidade estável usada para habilitar e excepcionar um finding."""
+    value = finding.get("rule") or finding.get("kind") or "unknown"
+    return str(value)
+
+
+def _is_frontend_finding(finding: dict[str, Any]) -> bool:
+    """Reconhece achados frontend sem exigir que adapters antigos conheçam domain."""
+    return finding.get("domain") == "frontend" or _finding_rule(finding).startswith(FRONTEND_RULE_PREFIX)
+
+
+def _frontend_rule_enabled(finding: dict[str, Any], frontend: dict[str, Any]) -> bool:
+    """Aplica a chave curta ou completa da regra frontend."""
+    rules = frontend.get("rules", {})
+    rule = _finding_rule(finding)
+    short_rule = rule.removeprefix(FRONTEND_RULE_PREFIX)
+    return rules.get(rule, rules.get(short_rule, True)) is not False
+
+
+def _finding_line(finding: dict[str, Any]) -> int | None:
+    """Obtém a linha do finding em formatos aceitos pelo contrato."""
+    if isinstance(finding.get("line"), int):
+        return finding["line"]
+    position = finding.get("position")
+    if isinstance(position, dict):
+        for key in ("line", "start_line"):
+            if isinstance(position.get(key), int):
+                return position[key]
+    return None
+
+
+def _exception_matches(exception: dict[str, Any], finding: dict[str, Any]) -> bool:
+    """Confere regra e alvo de uma exceção sem usar curingas implícitos."""
+    exception_rule = str(exception.get("rule", ""))
+    finding_rule = _finding_rule(finding)
+    if exception_rule not in {finding_rule, finding_rule.removeprefix(FRONTEND_RULE_PREFIX)}:
+        return False
+    if "file" in exception:
+        return finding.get("file") == exception["file"]
+    if "symbol_id" in exception:
+        return finding.get("symbol_id") == exception["symbol_id"]
+    line = _finding_line(finding)
+    return line is not None and exception["lines"][0] <= line <= exception["lines"][1]
+
+
+def _expired_exception_finding(exception: dict[str, Any], index: int) -> dict[str, Any] | None:
+    """Transforma uma exceção vencida em finding bloqueante, sem ocultar o alvo."""
+    if date.fromisoformat(exception["expires"]) >= date.today():
+        return None
+    target = exception.get("file") or exception.get("symbol_id") or str(exception.get("lines"))
+    return {
+        "kind": "static_analysis.exception_expired",
+        "rule": "static_analysis.exception_expired",
+        "severity": "blocking",
+        "file": str(target),
+        "value": 1,
+        "limit": 0,
+        "evidence": f"exception-{index + 1} expirou em {exception['expires']}",
+        "source": "builtin_static_policy",
+    }
+
+
+def apply_static_analysis_policy(
+    findings: list[dict[str, Any]],
+    static_config: dict[str, Any],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Aplica frontend, exceções e expiração antes do quality gate.
+
+    Exceções mantêm evidência em ``applied_exceptions`` e nunca se aplicam aos
+    achados de segredo protegidos pelo scanner interno.
+    """
+    frontend = static_config.get("frontend", {})
+    if not isinstance(frontend, dict):
+        frontend = {}
+    exceptions = static_config.get("exceptions", [])
+    if not isinstance(exceptions, list):
+        exceptions = []
+    output: list[dict[str, Any]] = []
+    applied: list[dict[str, Any]] = []
+
+    for index, exception in enumerate(exceptions):
+        expired = _expired_exception_finding(exception, index)
+        if expired:
+            output.append(expired)
+
+    for original in findings:
+        if not isinstance(original, dict):
+            continue
+        finding = dict(original)
+        if _is_frontend_finding(finding):
+            if frontend.get("enabled", False) is not True or not _frontend_rule_enabled(finding, frontend):
+                continue
+            if frontend.get("mode", "blocking") == "warning" and finding.get("severity") == "blocking":
+                finding["severity"] = "warning"
+                finding["policy"] = "frontend_warning_mode"
+
+        matched = None
+        if finding.get("kind") not in FRONTEND_PROTECTED_KINDS:
+            matched = next(
+                (exception for exception in exceptions if date.fromisoformat(exception["expires"]) >= date.today() and _exception_matches(exception, finding)),
+                None,
+            )
+        if matched:
+            exception_id = matched.get("id", f"exception-{exceptions.index(matched) + 1}")
+            applied.append({
+                "id": exception_id,
+                "rule": matched["rule"],
+                "action": matched["action"],
+                "file": finding.get("file"),
+                "symbol_id": finding.get("symbol_id"),
+            })
+            if matched["action"] == "ignore":
+                continue
+            finding["severity"] = "warning"
+            finding["exception_applied"] = exception_id
+        output.append(finding)
+    return output, applied
+
+
 def build_analysis_request(root: Path, execution_id: str, changed_files: list[str]) -> dict[str, Any]:
     """Monta a requisição versionada enviada ao adaptador externo.
     Inclui somente caminhos relativos, modo incremental e o identificador da execução.
@@ -329,6 +556,44 @@ def build_analysis_request(root: Path, execution_id: str, changed_files: list[st
         "changed_files": sorted(changed_files),
         "mode": "incremental" if changed_files else "full",
     }
+
+
+def _apply_quality_gate(
+    result: dict[str, Any],
+    builtin_findings: list[dict[str, Any]],
+    static_config: dict[str, Any],
+) -> dict[str, Any]:
+    """Combina findings, aplica políticas e bloqueia somente o que restou ativo."""
+    result["quality_findings"], result["applied_exceptions"] = apply_static_analysis_policy(
+        [*result.get("quality_findings", []), *builtin_findings],
+        static_config,
+    )
+    blocking_findings = [
+        finding for finding in result["quality_findings"]
+        if finding.get("severity") == "blocking"
+    ]
+    if not blocking_findings:
+        return result
+    result["status"] = "blocked"
+    if any(finding.get("kind") in FRONTEND_PROTECTED_KINDS for finding in blocking_findings):
+        result["reason"] = "hardcoded_secret"
+        message = f"{len(blocking_findings)} segredo(s) hardcoded detectado(s)"
+    else:
+        result["reason"] = "quality_gate_blocked"
+        message = f"{len(blocking_findings)} achado(s) de qualidade bloqueante(s)"
+    if message not in result["errors"]:
+        result["errors"].append(message)
+    return result
+
+
+def _kpi_exception_counts(
+    report: dict[str, Any],
+    findings: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], int]:
+    """Resume exceções aplicadas e vencidas para o snapshot do viewer."""
+    applied = [item for item in report.get("applied_exceptions", []) if isinstance(item, dict)]
+    expired = sum(item.get("kind") == "static_analysis.exception_expired" for item in findings)
+    return applied, expired
 
 
 def run_static_analysis(
@@ -348,6 +613,10 @@ def run_static_analysis(
     if static_config.get("enabled", True) is False:
         return unavailable_result("static_analysis_disabled")
 
+    policy_violations = validate_static_analysis_policy(static_config)
+    if policy_violations:
+        return blocked_result("static_analysis_config_invalid", policy_violations)
+
     allow_marked_test_credentials = static_config.get("allow_marked_test_credentials", True)
     if not isinstance(allow_marked_test_credentials, bool):
         return blocked_result(
@@ -364,13 +633,7 @@ def run_static_analysis(
     if command is None:
         result = unavailable_result("adapter_not_configured")
         result["capabilities"] = {"secrets": True}
-        result["quality_findings"] = builtin_findings
-        blocking_findings = [finding for finding in builtin_findings if finding.get("severity") == "blocking"]
-        if blocking_findings:
-            result["status"] = "blocked"
-            result["reason"] = "hardcoded_secret"
-            result["errors"] = [f"{len(blocking_findings)} segredo(s) hardcoded detectado(s)"]
-        return result
+        return _apply_quality_gate(result, builtin_findings, static_config)
     if (
         not isinstance(command, list)
         or not command
@@ -401,20 +664,7 @@ def run_static_analysis(
     violations = validate_static_analysis_result(result)
     if violations:
         return blocked_result("adapter_schema_invalid", violations)
-    result["quality_findings"] = [*result["quality_findings"], *builtin_findings]
-    blocking_findings = [
-        finding
-        for finding in result["quality_findings"]
-        if finding.get("severity") == "blocking"
-    ]
-    if blocking_findings and result["status"] == "passed":
-        result["status"] = "blocked"
-        result["reason"] = "quality_gate_blocked"
-        result["errors"] = [
-            *result["errors"],
-            f"{len(blocking_findings)} achado(s) de qualidade bloqueante(s)",
-        ]
-    return result
+    return _apply_quality_gate(result, builtin_findings, static_config)
 
 
 def write_static_analysis_kpis(root: Path, report: dict[str, Any], config: dict[str, Any]) -> Path:
@@ -442,6 +692,7 @@ def write_static_analysis_kpis(root: Path, report: dict[str, Any], config: dict[
     })
     quality_status = "blocked" if severity_counts["blocking"] else "warning" if severity_counts["warning"] else "healthy"
     static_config = config.get("static_analysis", {}) if isinstance(config.get("static_analysis"), dict) else {}
+    applied_exceptions, expired_exceptions = _kpi_exception_counts(report, findings)
     output = {
         "version": STATIC_ANALYSIS_KPI_VERSION,
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -455,6 +706,8 @@ def write_static_analysis_kpis(root: Path, report: dict[str, Any], config: dict[
             {"id": "files", "label": "Arquivos analisados", "value": len(files), "unit": "arquivos"},
             {"id": "quality_findings", "label": "Achados de qualidade", "value": len(findings), "unit": "achados", "status": quality_status},
             {"id": "blocking_findings", "label": "Bloqueantes", "value": severity_counts["blocking"], "unit": "achados", "status": "blocked" if severity_counts["blocking"] else "healthy"},
+            {"id": "applied_exceptions", "label": "Exceções aplicadas", "value": len(applied_exceptions), "unit": "exceções", "status": "warning" if applied_exceptions else "healthy"},
+            {"id": "expired_exceptions", "label": "Exceções expiradas", "value": expired_exceptions, "unit": "exceções", "status": "blocked" if expired_exceptions else "healthy"},
         ],
         "summary": {
             "symbols": len(symbols),
@@ -465,10 +718,13 @@ def write_static_analysis_kpis(root: Path, report: dict[str, Any], config: dict[
             "quality_findings": len(findings),
             "severity": severity_counts,
             "findings_by_kind": dict(sorted(findings_by_kind.items())),
+            "applied_exceptions": len(applied_exceptions),
+            "expired_exceptions": expired_exceptions,
         },
         "capabilities": report.get("capabilities", {}),
         "warnings": report.get("warnings", []),
         "errors": report.get("errors", []),
+        "applied_exceptions": applied_exceptions,
         "details": {
             "quality_findings": findings,
             "complexity": complexity,

@@ -40,7 +40,75 @@
           "blocking": 160
         }
       }
-    }
+    },
+    "frontend": {
+      "enabled": false,
+      "mode": "blocking",
+      "rules": {
+        "missing_destination": true,
+        "dead_reference": true,
+        "interactive_without_action": true,
+        "decorative_semantics": true
+      }
+    },
+    "exceptions": [
+      {
+        "rule": "deep_nesting",
+        "symbol_id": "src/stdd/core.py:stdd.core.get_incremental_diff_stats",
+        "action": "warning",
+        "reason": "Achado preexistente; refatoração dedicada está fora deste trabalho.",
+        "expires": "2027-01-01"
+      },
+      {
+        "rule": "high_complexity",
+        "symbol_id": "src/stdd/core.py:stdd.core.run_tests",
+        "action": "warning",
+        "reason": "Achado preexistente; refatoração dedicada está fora deste trabalho.",
+        "expires": "2027-01-01"
+      },
+      {
+        "rule": "high_complexity",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.create_server",
+        "action": "warning",
+        "reason": "Achado preexistente; refatoração dedicada está fora deste trabalho.",
+        "expires": "2027-01-01"
+      },
+      {
+        "rule": "long_function",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.create_server",
+        "action": "warning",
+        "reason": "Achado preexistente; refatoração dedicada está fora deste trabalho.",
+        "expires": "2027-01-01"
+      },
+      {
+        "rule": "high_complexity",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.validate_draw_payload",
+        "action": "warning",
+        "reason": "Achado preexistente; refatoração dedicada está fora deste trabalho.",
+        "expires": "2027-01-01"
+      },
+      {
+        "rule": "long_function",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.validate_draw_payload",
+        "action": "warning",
+        "reason": "Achado preexistente; refatoração dedicada está fora deste trabalho.",
+        "expires": "2027-01-01"
+      },
+      {
+        "rule": "high_complexity",
+        "symbol_id": "src/stdd/setup.py:stdd.setup.detect_stack",
+        "action": "warning",
+        "reason": "Achado preexistente; refatoração dedicada está fora deste trabalho.",
+        "expires": "2027-01-01"
+      },
+      {
+        "rule": "high_complexity",
+        "symbol_id": "src/stdd/traceability.py:stdd.traceability.build_traceability_report",
+        "action": "warning",
+        "reason": "Achado preexistente; refatoração dedicada está fora deste trabalho.",
+        "expires": "2027-01-01"
+      }
+    ]
   },
   "tracked_extensions": [
     ".bash",

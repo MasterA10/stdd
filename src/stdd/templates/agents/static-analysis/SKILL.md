@@ -218,6 +218,59 @@ Classifique símbolos criados, removidos, alterados, movidos, assinaturas altera
 
 O relatório factual deve permanecer separado de qualquer explicação ou sugestão produzida por IA.
 
+## Frontend agnóstico de stack
+
+Quando a codebase possuir superfície frontend, o adapter deve analisar a stack real sem presumir React ou Next. O contrato e as regras são comuns; o parser, a resolução de rotas e a descoberta de assets são específicos da linguagem, framework ou bundler detectado.
+
+Detecte, quando houver evidência local:
+
+- HTML/DOM e templates server-side;
+- CSS, Sass, Less e referências estáticas a assets;
+- JavaScript e TypeScript;
+- JSX/TSX, Vue, Svelte, Angular e outros templates de componentes;
+- roteadores, páginas, layouts, actions de formulário, bundlers e monorepos.
+
+Prefira parser AST, compiler API ou ferramenta oficial já disponível no projeto. Use regex somente para fatos simples e explicitamente limitados; nunca trate uma busca textual como prova de que uma rota ou interação existe.
+
+As regras frontend devem retornar achados em `quality_findings` com `domain: "frontend"`, `rule`, `file`, posição e evidência:
+
+- `frontend.missing_destination`: link, formulário ou navegação sem destino;
+- `frontend.dead_reference`: rota, asset ou arquivo local estático inexistente;
+- `frontend.interactive_without_action`: elemento interativo sem handler, destino ou ação comprovável;
+- `frontend.decorative_semantics`: elemento visual marcado como interativo sem semântica ou ação correspondente.
+
+Ausência comprovada pode ser `blocking`. Rotas dinâmicas, código gerado, componentes externos e referências que o parser não consegue resolver devem ser `warning` ou `unresolved`, nunca aprovação falsa. Elementos decorativos sem `role`, `tabIndex` ou ação não devem ser classificados como interação quebrada.
+
+O adapter deve testar a própria stack antes de ser habilitado. As fixtures devem cobrir links e formulários, referências de assets, handlers, roteamento, elementos decorativos, valores dinâmicos, arquivos ignorados e parser indisponível. Em stacks híbridas, usar módulos específicos por linguagem atrás de um dispatcher local, mantendo o mesmo contrato JSON.
+
+## Exceções controladas
+
+O projeto pode aceitar um achado específico sem desligar a análise inteira. Configure `static_analysis.exceptions` em `.stdd/config.json`:
+
+```json
+{
+  "static_analysis": {
+    "frontend": {
+      "enabled": true,
+      "mode": "blocking"
+    },
+    "exceptions": [
+      {
+        "rule": "frontend.dead_reference",
+        "file": "src/components/LegacyMenu.tsx",
+        "action": "warning",
+        "reason": "Destino fornecido por CMS externo.",
+        "expires": "2027-01-01"
+      }
+    ]
+  }
+}
+```
+
+Cada exceção deve indicar exatamente uma regra e um alvo (`file`, `symbol_id` ou intervalo `lines`), além de `reason` e `expires`. `warning` mantém o achado visível sem bloquear; `ignore` remove o achado dos indicadores ativos, mas deixa evidência da exceção aplicada. Exceções expiradas bloqueiam a análise até serem revisadas. Não usar curingas implícitos.
+
+Adapters podem reconhecer marcadores inline equivalentes à linguagem (`// stdd:ignore`, `<!-- stdd:ignore -->` ou `/* stdd:ignore */`), sempre exigindo regra, motivo e validade. Exceções não podem ignorar falha de contrato, saída inválida, parser quebrado ou achados de segredo hardcoded.
+
 ## Segredos hardcoded e arquivos ignorados
 
 O `stdd test` sempre executa um scanner determinístico interno para procurar credenciais gravadas como literais no código ou em arquivos de configuração. O scanner deve reconhecer atribuições a `PASSWORD`, `PASSWD`, `SECRET`, `API_KEY`, `ACCESS_TOKEN`, `AUTH_TOKEN`, `CLIENT_SECRET` e `PRIVATE_KEY`, inclusive com prefixos como `DATABASE_PASSWORD`, além de tokens conhecidos e cabeçalhos de chaves privadas.

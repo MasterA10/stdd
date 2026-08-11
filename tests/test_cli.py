@@ -58,6 +58,46 @@ def test_init_interactive_selects_multiple_agent_integrations(tmp_path: Path):
     assert "Selecione" in result.stdout
 
 
+def test_init_configures_frontend_analysis_policy_without_creating_adapter(tmp_path: Path):
+    """Permite escolher o gate frontend durante a inicialização automatizada.
+    Confirma que o modo é salvo sem inventar uma ferramenta de análise local.
+    """
+    result = runner.invoke(app, ["init", str(tmp_path), "--frontend-analysis", "warning"])
+
+    assert result.exit_code == 0
+    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    assert config["static_analysis"]["frontend"]["enabled"] is True
+    assert config["static_analysis"]["frontend"]["mode"] == "warning"
+    assert config["static_analysis"]["adapter_command"] is None
+
+
+def test_setup_can_disable_only_frontend_analysis(tmp_path: Path):
+    """Desativa somente a política frontend e preserva o restante da análise.
+    Usa um documento HTML local para confirmar que setup aceita a opção explícita.
+    """
+    (tmp_path / "index.html").write_text("<a href='/home'>home</a>")
+
+    result = runner.invoke(app, ["setup", str(tmp_path), "--frontend-analysis", "disabled"])
+
+    assert result.exit_code == 0
+    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    assert config["static_analysis"]["frontend"]["enabled"] is False
+
+
+def test_init_interactive_asks_frontend_policy_when_surface_is_detected(tmp_path: Path):
+    """Pergunta a política frontend somente após detectar arquivos da superfície.
+    Escolhe warning no fluxo interativo e confirma a configuração persistida.
+    """
+    (tmp_path / "index.html").write_text("<button>menu</button>")
+
+    result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="1\ny\n2\n")
+
+    assert result.exit_code == 0
+    assert "política de análise estática frontend" in result.stdout
+    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    assert config["static_analysis"]["frontend"]["mode"] == "warning"
+
+
 def test_setup_detects_stack_without_assuming_python(tmp_path: Path):
     """Detecta uma aplicação TypeScript e gera runner compatível com sua stack.
     Cria package.json e confirma que o diagnóstico não escolhe pytest ou outro comando Python.

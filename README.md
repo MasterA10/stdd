@@ -146,6 +146,30 @@ A configuração fica em `.stdd/config.json`. O setup também adiciona padrões 
 
 Quando a codebase tiver uma linguagem e uma ferramenta local comprovadas, o agente `setup` constrói um adapter específico para aquela linguagem dentro do próprio projeto, preferencialmente em `.stdd/adapters/`. O adapter é versionado junto com a aplicação e o caminho em `static_analysis.adapter_command` é relativo à raiz do projeto. O núcleo do STDD permanece agnóstico: símbolos, dependências, complexidade e métricas são coletados por parser, tokenizer, AST, compiler API ou ferramenta local da própria stack, sem depender de serviço externo ou de um adapter instalado globalmente. Se a ferramenta necessária não existir, a capacidade fica explicitamente `unavailable`.
 
+O mesmo contrato também cobre frontend em qualquer stack. O setup detecta HTML, CSS, JavaScript, TypeScript, templates de componentes, roteadores, bundlers e frameworks como React, Vue, Svelte ou Angular. O parser e a resolução de rotas/assets permanecem específicos da stack; não há um script universal baseado somente em regex. Os findings frontend usam regras como `frontend.missing_destination`, `frontend.dead_reference`, `frontend.interactive_without_action` e `frontend.decorative_semantics`. Fatos estáticos comprovados podem bloquear; referências dinâmicas ou não resolvidas permanecem como aviso.
+
+Em terminal interativo, o `init` pergunta se a análise frontend deve ser bloqueante, apenas aviso ou desativada. Para automação, use `--frontend-analysis blocking`, `--frontend-analysis warning` ou `--frontend-analysis disabled` em `stdd init` ou `stdd setup`. O controle também pode ser ajustado em `.stdd/config.json`:
+
+```json
+{
+  "static_analysis": {
+    "frontend": {
+      "enabled": true,
+      "mode": "blocking",
+      "rules": {
+        "missing_destination": true,
+        "dead_reference": true,
+        "interactive_without_action": true,
+        "decorative_semantics": true
+      }
+    },
+    "exceptions": []
+  }
+}
+```
+
+Exceções devem ser específicas e temporárias. Cada item precisa informar uma `rule`, exatamente um alvo (`file`, `symbol_id` ou `lines`), `action` (`warning` ou `ignore`), `reason` e data `expires`. `warning` preserva o achado sem bloquear; `ignore` o retira dos indicadores ativos, mas mantém a evidência da exceção. Exceções expiradas bloqueiam a análise. Falhas do adapter, do contrato e segredos hardcoded não podem ser liberados por essa lista.
+
 O `stdd log` registra diffs incrementais e ignora snapshots AppleDouble `._*` e arquivos históricos que não sejam UTF-8, evitando que metadados binários gerados pelo macOS interrompam o registro de uma execução.
 
 Para revisar somente as alterações atuais dos JSONs lógicos dos Draws desde o último log, use:

@@ -173,7 +173,15 @@ O nível 3 é o **Controller descrito em linguagem simples** — a ponte entre o
 
 O nível 3 representa as **decisões de negócio e comportamento** que estão por trás de cada tela. Ele não repete a navegação global do nível 2 — ele explica o interior de cada nó. Dizer, por exemplo, que cliente e administrador têm permissões diferentes e recebem resultados distintos, sem dizer o nome da API, função ou serviço que implementa isso.
 
-Criar nível 4 quando a decisão depender da codebase real, de rastreabilidade, de uma integração complexa ou de lógica que esteja fora da linguagem principal. Se o nível 3 mencionar uma procedure, função externa, RPC, tabela, rota, classe, arquivo ou símbolo, esse detalhe deve ser movido para o nível 4. O nível 3 nunca deve virar uma lista de nomes técnicos.
+Criar nível 4 sob demanda quando a decisão depender da codebase real, de rastreabilidade, de uma integração complexa ou de lógica que esteja fora da linguagem principal. Se o nível 3 mencionar uma procedure, função externa, RPC, tabela, rota, classe, arquivo ou símbolo, esse detalhe deve ser movido para o nível 4 quando essa camada for aberta. O nível 3 nunca deve virar uma lista de nomes técnicos.
+
+**Detalhamento sem molde fixo:**
+
+- Não impor uma quantidade fixa de nós, etapas ou setas a um subfluxo. Em particular, não repetir um modelo de quatro nós em todos os desenhos.
+- Derivar cada nó de uma ação, decisão, validação, estado, integração ou resultado que realmente exista no comportamento. Um caso simples pode ter poucos nós; um caso com permissões, ramificações, efeitos colaterais, retry, compensação e falhas deve ter todos os nós necessários para torná-lo compreensível.
+- Preservar os caminhos de sucesso, validação, autorização, vazio, timeout, nova tentativa, erro e recuperação quando forem possíveis naquele caso. Não criar passos decorativos apenas para igualar o tamanho de outro subfluxo.
+- Dividir os subfluxos entre as Fases 2 e 3 por lotes completos, sem interromper um subfluxo no meio. A divisão deve ser explícita e estável, respeitar roles e dependências e não servir para esconder detalhes.
+- Se a codebase ou o pedido não fornecer evidência suficiente para decidir um passo, registrar a pendência ou fazer uma pergunta; nunca preencher a lacuna com uma estrutura genérica.
 
 ### Nível 4 — codebase (linguagem técnica de baixo nível)
 
@@ -192,9 +200,10 @@ O nível 4 não é lugar para suposições: se o símbolo ainda não puder ser r
 
 A vinculação de nós a símbolos da codebase ocorre em **todos os níveis**, com o tipo de símbolo correspondente à responsabilidade do nó:
 
-- **Fase 1 (Nível 1 e 2):** Associar símbolos de configuração, infraestrutura, frontend e interface aos nós correspondentes quando existirem.
-- **Fase 2 (Nível 3 — Comportamento):** Associar funções, handlers, services, use cases e endpoints que realizam a tarefa; manter a descrição do nó em linguagem simples.
-- **Fase 3 (Nível 4 — Codebase):** Associar símbolos técnicos mais profundos — funções internas, procedures, RPCs, migrations, schemas, entidades, DTOs, testes e dependências — quando a implementação existir.
+- **Fase 1 (Níveis 1 e 2):** Associar símbolos de configuração, infraestrutura, frontend e interface aos nós correspondentes quando existirem.
+- **Fase 2 (primeiro lote do nível 3 — Comportamento):** Associar funções, handlers, services, use cases e endpoints que realizam as tarefas do primeiro lote; manter a descrição dos nós em linguagem simples.
+- **Fase 3 (lote restante do nível 3 — Comportamento):** Associar os mesmos tipos de símbolos às tarefas restantes e completar as associações do nível 3 sem inventar simetria entre subfluxos.
+- **Nível 4 sob demanda:** Associar símbolos técnicos mais profundos — funções internas, procedures, RPCs, migrations, schemas, entidades, DTOs, testes e dependências — somente quando o nível 4 for solicitado ou quando houver necessidade técnica explícita de rastreabilidade.
 
 Todo nó de qualquer nível que representar um elemento já existente na codebase deve carregar a associação no próprio nó, usando `code_refs`. Cada referência deve usar o símbolo qualificado real retornado pela análise estática, além de `identity` e `source_dependencies` quando esses fatos estiverem disponíveis. Não colocar os símbolos em um nó genérico diferente nem apenas na descrição. Os níveis 2 e 3 podem manter a responsabilidade em texto simples, enquanto o nível 4 detalha a implementação profunda.
 
@@ -202,9 +211,9 @@ Nós abstratos que não correspondam diretamente a um símbolo existente não de
 
 Quando uma implementação atravessar uma RPC, incluir no nó o handler ou consumidor real da RPC e declarar a interface, contrato ou dependência remota em `source_dependencies`. Quando a lógica estiver em uma procedure, função, trigger ou view do banco, referenciar o símbolo SQL no nó correspondente e apontar para o arquivo de migration, schema ou SQL que contém a implementação.
 
-## Fluxo de criação — execução faseada
+## Fluxo de criação — execução em três fases
 
-O draw-system é executado em **fases**. Cada fase produz um ou dois níveis completos. Ao final de cada fase, o agente **para e pergunta** se o usuário quer continuar para a próxima fase. Não produzir todos os níveis de uma vez.
+O draw-system é executado em **três fases**. A Fase 1 cria os níveis 1 e 2. As Fases 2 e 3, juntas, criam o nível 3 em dois lotes para permitir subfluxos mais detalhados. Ao final de cada fase, o agente **para e pergunta** se o usuário quer continuar para a próxima fase. Não produzir todos os níveis de uma vez. O nível 4 fica fora dessa sequência e só é aberto sob demanda.
 
 ### Fase 1 — Arquitetura + Views (nível 1 + nível 2)
 
@@ -221,29 +230,42 @@ Esta é a fase inicial e a mais importante. O agente deve:
 9. Revisar a árvore de telas, incluindo terminais não implementados, perguntas e trade-offs.
 10. **Parar e perguntar ao usuário** se quer continuar para a Fase 2.
 
-### Fase 2 — Controller / Regras de negócio (nível 3)
+### Fase 2 — Primeiro lote do Controller / Regras de negócio (primeira metade do nível 3)
 
 Só executar quando o usuário aprovar a continuação após a Fase 1. O agente deve:
 
-1. Ler os desenhos de nível 2 já criados.
-2. Para cada nó/tela do nível 2, avaliar se há regra de negócio, decisão de fluxo ou detalhe de implementação relevante. Criar o subfluxo de **nível 3** correspondente para os nós que precisarem desse detalhamento; manter sem subfluxo as telas de transição e outros nós sem lógica própria, registrando essa decisão quando não for óbvia.
-3. Consultar os fatos da análise estática e associar os símbolos de backend (controllers, endpoints, rotas, handlers, services e use cases) em `code_refs`.
-4. Gravar, validar e revisar.
-5. **Parar e perguntar ao usuário** se quer continuar para a Fase 3.
+1. Ler os desenhos de nível 2 já criados e inventariar quais nós precisam de um subfluxo do nível 3.
+2. Separar os subfluxos elegíveis em dois lotes completos, de tamanho aproximadamente equilibrado, respeitando roles, fronteiras e dependências. Não dividir um mesmo subfluxo entre fases nem escolher o lote apenas por truncamento arbitrário.
+3. Criar somente o primeiro lote do **nível 3**. Para cada subfluxo, explicar o comportamento real com a quantidade de nós necessária, sem molde fixo, incluindo decisões, validações, autorizações, resultados e falhas quando existirem.
+4. Consultar os fatos da análise estática e associar os símbolos de backend (controllers, endpoints, rotas, handlers, services, use cases e validadores) nos próprios nós correspondentes em `code_refs`.
+5. Gravar, validar e revisar o lote criado, preservando IDs, relações hierárquicas, grupos de não implementados e terminais.
+6. **Parar e perguntar ao usuário** se quer continuar para a Fase 3.
 
-### Fase 3 — Codebase / Baixo nível (nível 4)
+### Fase 3 — Segundo lote e fechamento do Controller (segunda metade do nível 3)
 
 Só executar quando o usuário aprovar a continuação após a Fase 2. O agente deve:
 
-1. Ler os desenhos de nível 3 já criados.
-2. Para cada nó que justifique, criar o subfluxo de **nível 4** com `code_refs`, `qualified_name`, queries, migrations, testes e dependências reais.
-3. Consultar os fatos da análise estática e associar os símbolos de baixo nível (funções internas, queries SQL, migrations, DTOs e testes) no nó correspondente em `code_refs`.
-4. Gravar, validar e revisar.
+1. Ler os desenhos de nível 2, a divisão dos lotes e os subfluxos de nível 3 já criados.
+2. Criar somente o segundo lote do **nível 3**, mantendo a mesma regra de detalhamento orientado pelo comportamento e pela evidência. Não copiar a forma dos subfluxos da primeira metade.
+3. Consultar os fatos da análise estática e associar os símbolos de backend nos próprios nós correspondentes em `code_refs`.
+4. Revisar o nível 3 completo: verificar que todos os nós elegíveis foram avaliados, que os subfluxos não têm quantidade fixa de nós, que as ramificações relevantes estão representadas e que não há referências órfãs ou continuidades inventadas.
+5. Gravar, validar e revisar a árvore completa até o nível 3.
+6. Encerrar a sequência automática nesta fase. Se houver necessidade de rastreabilidade técnica, informar que o nível 4 pode ser aberto sob demanda.
+
+### Nível 4 — Codebase / Baixo nível (sob demanda)
+
+Não iniciar o nível 4 automaticamente ao concluir a Fase 3. Só criar um descendente de nível 4 quando o usuário solicitar ou autorizar esse aprofundamento para uma parte específica do nível 3. Nesse caso:
+
+1. Ler o nó de nível 3, seu pai e os descendentes relevantes.
+2. Criar o subfluxo de **nível 4** somente para a decisão que exige rastreabilidade, com `code_refs`, `qualified_name`, queries, migrations, testes e dependências reais.
+3. Consultar os fatos da análise estática e associar os símbolos de baixo nível no próprio nó correspondente.
+4. Validar a cadeia hierárquica e manter o nível 4 terminal quando não houver outro detalhe técnico necessário.
 
 ### Regras gerais de todas as fases
 
 - Cada JSON é criado separadamente em `.stdd/draws/`.
 - Usar `groups` para fronteiras de responsabilidade, `flows` para caminhos temporais e `code_refs` nos nós técnicos correspondentes.
+- As Fases 2 e 3 devem representar o nível 3 com granularidade orientada pelo caso real; nunca usar quantidade fixa de nós, quatro nós por padrão ou passos de preenchimento.
 - Não gravar layout, cor, posição, data ou HTML.
 - Validar que todas as relações apontam para nós existentes.
 - Gravar cada desenho com `stdd draw create --data-json '<JSON>'` e conferir pelo viewer com `stdd draw serve`.
@@ -265,5 +287,5 @@ Ao concluir, informar a raiz, a árvore de níveis criada, folhas ainda não imp
 Quando houver alteração, registrar:
 
 ```bash
-stdd log "Cria desenho hierárquico do sistema" --impl
+stdd log "Cria desenho hierárquico do sistema" --type implementacao
 ```

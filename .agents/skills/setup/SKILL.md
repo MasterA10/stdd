@@ -18,7 +18,7 @@ Depois de detectar a stack, verificar `.stdd/draws/` procurando ao menos um dese
 Para instalar uma versão publicada no Git e colocar `stdd` no `PATH`, usar `uv`:
 
 ```bash
-uv tool install stdd --from git+https://github.com/MasterA10/stdd.git@vX.Y.Z
+uv tool install --force --refresh stdd --from git+https://github.com/MasterA10/stdd.git@main
 ```
 
 Depois inicializar o repositório pelo caminho, sem copiar o pacote para dentro dele:
@@ -38,7 +38,7 @@ stdd init . --integration claude --integration gemini
 stdd init . --all-integrations
 ```
 
-O Codex usa `.agents/skills`, o Claude usa `.claude/skills` e o Gemini usa `.gemini/skills`. A instalação é local e idempotente; não instala o agente nem dependências da aplicação. O CLI pode ser instalado remotamente com `uv tool install stdd --from git+https://github.com/MasterA10/stdd.git@vX.Y.Z`.
+O Codex usa `.agents/skills`, o Claude usa `.claude/skills` e o Gemini usa `.gemini/skills`. A instalação é local e idempotente; não instala o agente nem dependências da aplicação. O CLI pode ser instalado remotamente com `uv tool install --force --refresh stdd --from git+https://github.com/MasterA10/stdd.git@main`.
 
 Depois do init, executar `stdd setup`. Essa etapa descobre a linguagem e gera comandos específicos, como `npm test`, `go test ./...`, `cargo test`, `dotnet test`, `mvn test` ou `python -m pytest` somente quando a evidência local indicar essa stack. O núcleo não assume Python para projetos de outras linguagens.
 
@@ -60,6 +60,25 @@ Regra de localização: o adapter específico da linguagem deve ficar dentro do 
 O núcleo do STDD permanece agnóstico: ele não escolhe parser, não embute regras de uma linguagem e não cria um adapter genérico que simula fatos. O agente `setup` é responsável por orientar a construção do adapter específico da codebase detectada. Se a stack mudar, o algoritmo, a ferramenta e as limitações devem ser reavaliados; não reutilizar um parser de outra linguagem apenas para preencher o contrato.
 
 Se o adapter ainda não existir no projeto, o `setup` não pode terminar apenas com `adapter_command: null` quando houver uma linguagem e uma ferramenta local comprovada. Deve criar ou orientar a criação do adapter em `<project_root>/.stdd/adapters/`, testar esse arquivo diretamente e só então configurar o comando. Se não houver parser, runtime ou ferramenta autorizada, registrar explicitamente `unavailable`, explicar a pré-condição ausente e não declarar análise estática pronta.
+
+### Frontend em qualquer stack
+
+Quando houver HTML, CSS, JavaScript, TypeScript ou templates de componentes, detectar a superfície frontend e orientar um adapter conforme a stack comprovada. O contrato de findings é comum, mas o algoritmo deve ser específico:
+
+- HTML e templates server-side devem usar parser DOM/template quando disponível;
+- CSS deve verificar referências estáticas e só inferir comportamento quando houver ligação determinística com markup ou componente;
+- JavaScript/TypeScript devem usar AST, compiler API ou ferramenta local para imports, handlers, routers e valores dinâmicos;
+- JSX/TSX, Vue, Svelte, Angular e outras linguagens devem usar o parser/compiler correspondente;
+- rotas, layouts, assets e bundlers devem ser resolvidos pela convenção real da stack, sem presumir Next ou React;
+- monorepos e stacks híbridas podem usar um dispatcher local com módulos específicos, sempre devolvendo o mesmo contrato STDD.
+
+Os achados frontend devem usar `domain: "frontend"` e regras estáveis como `frontend.missing_destination`, `frontend.dead_reference`, `frontend.interactive_without_action` e `frontend.decorative_semantics`. Fatos estáticos comprovados podem bloquear; referências dinâmicas ou não resolvidas devem permanecer como `warning`/`unresolved`.
+
+O `init --interactive` pergunta a política frontend quando encontrar evidência local: `blocking`, `warning` ou `disabled`. O modo não interativo mantém o frontend desativado até uma escolha explícita. Também é possível usar `stdd init --frontend-analysis blocking|warning|disabled` ou `stdd setup --frontend-analysis blocking|warning|disabled`.
+
+### Exceções
+
+Inicialize `static_analysis.exceptions` como lista vazia. Uma exceção deve indicar exatamente uma regra e um alvo (`file`, `symbol_id` ou `lines`), além de `reason`, `action` (`warning` ou `ignore`) e `expires`. O núcleo aplica a exceção depois de combinar os findings e registra `applied_exceptions`; exceções expiradas bloqueiam. Não permitir exceções para falhas de contrato, adapter inválido ou segredos hardcoded.
 
 O resultado do `init`/`setup` deve explicar ao usuário, em linguagem direta:
 
