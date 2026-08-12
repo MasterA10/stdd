@@ -14,7 +14,7 @@ from .core import (
     record_run_entry,
     run_tests,
 )
-from .draw import create_draw, find_addressed_questions, read_draw_index, serve_draw
+from .draw import analyze_draw_contract, analyze_draw_structure, create_draw, find_addressed_questions, logical_draw_payload, read_draw_index, serve_draw
 from .traceability import associate_node_reference, associate_node_references
 from .setup import (
     FRONTEND_ANALYSIS_MODES,
@@ -201,10 +201,37 @@ def draw_create(
     """
     try:
         payload = json.loads(data_json)
-        created = create_draw(project_root(), payload)
+        root = project_root()
+        logical_payload = logical_draw_payload(payload)
+        analysis = analyze_draw_structure(root, logical_payload)
+        contract_warnings = analyze_draw_contract(
+            logical_payload,
+            f".stdd/draws/{logical_payload.get('id', '(novo desenho)')}.json",
+        )
+        created = create_draw(root, payload)
     except (json.JSONDecodeError, ValueError) as error:
         typer.echo(f"Erro: {error}", err=True)
         raise typer.Exit(1)
+    if analysis["warnings"]:
+        summary = analysis["summary"]
+        typer.echo(
+            "Aviso: análise estrutural encontrou "
+            f"{summary['warnings']} ocorrência(s) "
+            f"({summary['exact_duplicates']} exata(s), {summary['near_duplicates']} próxima(s)); "
+            "nenhum warning bloqueia a criação."
+        )
+        for warning in analysis["warnings"]:
+            similarity = f"{warning['similarity']:.0%}"
+            typer.echo(
+                f"  - [{warning['structure']}] {warning['left']['source']} "
+                f"({warning['left']['label']}) ↔ {warning['right']['source']} "
+                f"({warning['right']['label']}): {warning['evidence']} ({similarity})."
+            )
+    for warning in contract_warnings:
+        typer.echo(
+            f"Aviso: [{warning['kind']}] {warning['file']} nó={warning['node_id']}: "
+            f"{warning['evidence']} (mínimo {warning['limit']}); nenhum warning bloqueia a criação."
+        )
     typer.echo(f"Desenho gravado em {created}")
 
 

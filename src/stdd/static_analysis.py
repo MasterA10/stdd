@@ -628,6 +628,9 @@ def run_static_analysis(
         changed_files,
         allow_marked_test_credentials=allow_marked_test_credentials,
     )
+    from .draw import scan_draw_contracts
+
+    builtin_findings.extend(scan_draw_contracts(root))
 
     command = static_config.get("adapter_command")
     if command is None:

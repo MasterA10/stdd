@@ -19,58 +19,14 @@
         "stdd.traceability.refresh_traceability"
       ],
       "files": [
-        "src/stdd/core.py",
         "src/stdd/static_analysis.py",
         "src/stdd/traceability.py"
       ],
-      "tests": [
-        "tests.test_cli.test_global_alias_can_explicitly_run_approved_suite",
-        "tests.test_cli.test_global_alias_respects_mvp_profile_and_approval_controls",
-        "tests.test_cli.test_global_test_alias_continues_after_suite_failure",
-        "tests.test_cli.test_test_blocks_blocking_long_function_quality_finding",
-        "tests.test_cli.test_test_blocks_invalid_static_analysis_output",
-        "tests.test_cli.test_test_command_returns_execution_report",
-        "tests.test_cli.test_test_executes_fake_static_analysis_adapter",
-        "tests.test_cli.test_test_reports_static_analysis_unavailable_without_adapter",
-        "tests.test_cli.test_test_runs_all_configured_suites",
-        "tests.test_static_analysis.test_expired_static_analysis_exception_blocks",
-        "tests.test_static_analysis.test_frontend_static_finding_blocks_only_when_frontend_policy_is_enabled",
-        "tests.test_static_analysis.test_frontend_warning_mode_downgrades_static_findings",
-        "tests.test_static_analysis.test_static_analysis_blocks_hardcoded_secret_without_external_adapter",
-        "tests.test_static_analysis.test_static_analysis_can_disable_marked_test_credential_exceptions",
-        "tests.test_static_analysis.test_static_analysis_exception_downgrades_and_records_frontend_finding",
-        "tests.test_static_analysis.test_static_analysis_exceptions_do_not_release_hardcoded_secrets",
-        "tests.test_static_analysis.test_static_analysis_ignore_exception_removes_active_finding_but_keeps_evidence",
-        "tests.test_static_analysis.test_static_analysis_passes_gate_for_marked_test_credential",
-        "tests.test_static_analysis.test_static_analysis_rejects_invalid_exception_policy",
-        "tests.test_static_analysis.test_stdd_test_passes_with_marked_test_credential_and_keeps_warning",
-        "tests.test_traceability.test_refresh_traceability_ignores_macos_appledouble_files"
-      ],
+      "tests": [],
       "unresolved": [
         "stdd.core.run_tests"
       ],
-      "suggestions": [
-        {
-          "symbol": "stdd.core.build_not_executed_suite_report",
-          "reason": "dependency"
-        },
-        {
-          "symbol": "stdd.core.execute_test_suite",
-          "reason": "dependency"
-        },
-        {
-          "symbol": "stdd.core.get_suite_skip_reason",
-          "reason": "dependency"
-        },
-        {
-          "symbol": "stdd.core.get_workspace_snapshot",
-          "reason": "dependency"
-        },
-        {
-          "symbol": "stdd.core.stdd_dir",
-          "reason": "dependency"
-        }
-      ]
+      "suggestions": []
     }
   }
 }

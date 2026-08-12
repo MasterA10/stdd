@@ -7,7 +7,7 @@ description: "Cria o nível 3 de um Draw System no STDD: o Controller detalhado 
 
 ## Responsabilidade
 
-Ser a ponte entre a View do nível 2 e a codebase do nível 4. Cada subfluxo corresponde a uma tela/nó do nível 2 que foi avaliado como necessitando de detalhamento. O texto explica o comportamento em linguagem simples; o nó recebe `code_refs` de funções, handlers, services, use cases, endpoints e validadores reais quando encontrados.
+Ser a ponte entre a View do nível 2 e a codebase do nível 4. Cada subfluxo corresponde a uma tela/nó do nível 2 que foi avaliado como necessitando de detalhamento. O nível 3 não é um fluxo genérico: ele começa pelas ações que a pessoa pode executar naquela tela e explica o comportamento iniciado por cada uma. O texto explica o comportamento em linguagem simples; o nó recebe `code_refs` de funções, handlers, services, use cases, endpoints e validadores reais quando encontrados.
 
 Use esta skill somente depois de ler o nível 2, sua raiz e os descendentes relevantes. Não refaça a navegação global do nível 2, não transforme o nível 3 em lista de nomes técnicos e não abra nível 4 automaticamente.
 
@@ -17,10 +17,19 @@ Para cada tela, crie um desenho filho com `hierarchy.level: 3`, `role: "implemen
 
 O pai mostra apenas a cápsula da tela e aponta para o filho. O filho mostra somente o interior daquela fronteira. Nunca duplicar os passos internos no nível 2, nem a sequência global no nível 3. Alterar sempre o nó que mais se relaciona ao pedido, procurando primeiro uma cápsula existente.
 
+## Cada ação da tela inicia um caminho
+
+O subfluxo de uma tela deve começar com um conjunto de nós-gatilho: crie um nó inicial para cada botão, link, aba, filtro, envio, confirmação, cancelamento, retorno ou outra ação de usuário comprovada que a tela permita. A tela fornece o contexto, mas não substitui os nós das ações. Não esconder várias ações em um único nó chamado `Controller`, `Interação` ou equivalente.
+
+Cada nó-gatilho deve estar conectado a outros nós por edges e iniciar uma sequência que explique o caso de uso correspondente: intenção, pré-condições, dados necessários, regra de negócio, autorização, validações, decisões, resultado, erro, bloqueio, retry, recuperação e saída. O primeiro nó de cada caminho é a ação do usuário; os nós seguintes explicam o que o sistema faz e o que a pessoa observa, sem antecipar detalhes técnicos do nível 4.
+
+Quando ações diferentes tiverem exatamente a mesma regra e o mesmo comportamento comprovado, elas podem convergir para um nó compartilhado depois de seus gatilhos. A convergência não autoriza apagar os gatilhos nem tratar ações diferentes como uma única ação. Quando os comportamentos divergirem, manter caminhos separados. Eventos automáticos, loading, atualização, timeout e reconexão podem aparecer como estados ou consequências do caminho acionado, mas não substituem as ações de entrada da tela.
+
 ## Detalhamento obrigatório de ponta a ponta
 
 O nível 3 deve explicar **tudo o que é possível fazer naquela tela ou nó**, do início ao fim, quando a funcionalidade existir e houver evidência:
 
+- inventário completo das ações de usuário comprovadas e um nó-gatilho para cada ação;
 - o que a pessoa ou o sistema está tentando fazer;
 - entrada, pré-condições, dados carregados e contexto do papel;
 - opções e ações disponíveis, inclusive as que ficam ocultas por permissão;
@@ -37,17 +46,19 @@ Para uma tela dinâmica, como chat, marketplace, feed, busca, carrinho ou painel
 
 Se a evidência não for suficiente para decidir um passo, registrar a pendência em `questions` ou fazer uma pergunta. Nunca preencher lacunas com um molde genérico ou inventar permissões.
 
-## Tamanho mínimo das descrições
+## Critérios de análise estática do nível 3
 
-Cada nó criado no nível 3 deve possuir o campo `description` com **no mínimo 150 caracteres**, contando a string efetivamente gravada no JSON depois de remover espaços no início e no fim. A regra vale para todos os nós do subfluxo, inclusive entradas, decisões, validações, estados de erro, sucesso, retry, recuperação e terminais não implementados quando eles existirem nesse nível. `label`, `title`, `questions`, `code_refs` e `edge.description` não contam para atingir o mínimo.
+Todo desenho filho com `hierarchy.level: 3` deve possuir **no mínimo quatro nós**. Cada nó desse subfluxo deve possuir `description` com **no mínimo 80 caracteres**, contando a string efetivamente gravada no JSON depois de remover espaços no início e no fim. A regra vale para entradas, ações, decisões, validações, estados de erro, sucesso, retry e recuperação quando existirem nesse nível. `label`, `title`, `questions`, `code_refs` e `edge.description` não contam para atingir o mínimo.
 
-A descrição não pode ser preenchida com repetição, adjetivos vazios ou texto decorativo. Os 150 caracteres devem explicar a responsabilidade daquele nó e, conforme o caso, sua intenção, papel autorizado, entrada, regra, condição, estado observável, efeito, resultado, falha ou dependência. Em uma tela dinâmica, escrever o contexto do ciclo específico — por exemplo atualização, paginação, concorrência, evento, reconexão ou indisponibilidade — no nó correspondente. Quando a evidência não sustentar esse nível de detalhe, registrar a lacuna em `questions` e manter a descrição factual; nunca inventar comportamento só para alcançar a contagem.
+A análise estática deve emitir warnings, sem bloquear a criação ou o `stdd test`, quando o subfluxo tiver menos de quatro nós (`draw.level3_min_nodes`) ou quando qualquer `description` estiver ausente, não for string ou tiver menos de 80 caracteres (`draw.level3_short_description`). O finding deve identificar o arquivo do desenho, o ID do nó quando aplicável, o valor observado, o limite e a evidência; não transformar uma lacuna desconhecida em aprovação.
+
+A descrição não pode ser preenchida com repetição, adjetivos vazios ou texto decorativo. Os 80 caracteres devem explicar a responsabilidade daquele nó e, conforme o caso, sua intenção, papel autorizado, entrada, regra, condição, estado observável, efeito, resultado, falha ou dependência. Em uma tela dinâmica, escrever o contexto do ciclo específico — por exemplo atualização, paginação, concorrência, evento, reconexão ou indisponibilidade — no nó correspondente. Quando a evidência não sustentar esse nível de detalhe, registrar a lacuna em `questions` e manter a descrição factual; nunca inventar comportamento só para alcançar a contagem.
 
 ## Granularidade sem molde fixo
 
-Não impor quantidade fixa de nós, quatro nós por padrão ou simetria entre subfluxos. Derivar nós de ações, decisões, validações, estados, integrações e resultados reais. Um caso simples pode ter poucos nós; um caso com permissões, ramificações, efeitos, retry, compensação e falhas deve incluir todos os nós necessários.
+Não impor quantidade exata de nós, quatro nós por padrão ou simetria entre subfluxos. O mínimo de quatro nós é um critério de análise estática, não um molde: derivar os nós de ações, decisões, validações, estados, integrações e resultados reais. Não criar passos decorativos para evitar o warning; registrar a insuficiência e manter a descrição factual.
 
-Preservar caminhos de sucesso, validação, autorização, vazio, timeout, nova tentativa, erro e recuperação quando forem possíveis no caso. Não criar passos decorativos só para igualar outro fluxo.
+Preservar caminhos de sucesso, validação, autorização, vazio, timeout, nova tentativa, erro e recuperação quando forem possíveis no caso.
 
 ## Fases e lotes do nível 3
 
@@ -57,13 +68,13 @@ O nível 3 continua dividido em fases para permitir detalhe real:
 
 Só executar após aprovação da continuação do nível 2. Ler todos os nós elegíveis, inventariar os subfluxos e separar lotes completos, aproximadamente equilibrados, respeitando papéis, fronteiras e dependências. O primeiro lote não pode truncar uma tela nem ser escolhido por corte arbitrário.
 
-Criar somente esse lote. Para cada tela, explicar o comportamento completo com a quantidade necessária de nós, incluindo regras, autorizações, validações, resultados e falhas. Consultar análise estática e associar handlers, controllers, endpoints, rotas, services, use cases e validadores nos próprios nós. Gravar, validar, revisar e pare e solicite confirmação antes de perguntar se o usuário quer continuar.
+Criar somente esse lote. Para cada tela, primeiro inventariar todas as ações de usuário e criar seus nós-gatilho; depois explicar o comportamento completo de cada caminho com a quantidade necessária de nós, incluindo regras, autorizações, validações, resultados e falhas. Consultar análise estática e associar handlers, controllers, endpoints, rotas, services, use cases e validadores nos próprios nós. Gravar, validar, revisar e pare e solicite confirmação antes de perguntar se o usuário quer continuar.
 
 ### Fase 3 — segundo lote e fechamento do Controller
 
-Só executar após aprovação da Fase 2. Ler a divisão dos lotes e os subfluxos já criados. Criar somente o segundo lote, mantendo o detalhamento orientado pelo caso e sem copiar a forma dos subfluxos da primeira metade. Associar símbolos de backend nos nós correspondentes.
+Só executar após aprovação da Fase 2. Ler a divisão dos lotes e os subfluxos já criados. Criar somente o segundo lote, mantendo o detalhamento orientado pelas ações reais de cada tela e sem copiar a forma dos subfluxos da primeira metade. Associar símbolos de backend nos nós correspondentes.
 
-Ao fechar, revisar o nível 3 completo: todos os nós elegíveis foram avaliados, cada tela está ponta a ponta, não há quantidade fixa de nós, as ramificações relevantes estão representadas e não existem referências órfãs, pais duplicados ou continuidades inventadas.
+Ao fechar, revisar o nível 3 completo: todos os nós elegíveis foram avaliados, cada tela tem uma entrada para cada ação comprovada, cada ação está ligada ao seu comportamento ponta a ponta, não há quantidade fixa de nós, as ramificações relevantes estão representadas e não existem referências órfãs, pais duplicados ou continuidades inventadas.
 
 ### Lotes adicionais
 
@@ -100,9 +111,10 @@ Para cada lote:
 
 1. Ler pai, jornada, raiz, divisão de lotes e descendentes necessários.
 2. Criar cada JSON separadamente com IDs estáveis usando `stdd draw create --data-json '<JSON>'`.
-3. Validar nós, arestas, fluxos, condições, grupos, `draw_ref`, pais, raiz e terminais.
+3. Validar nós, arestas, fluxos, condições, grupos, `draw_ref`, pais, raiz, terminais e os critérios estáticos de quatro nós e 80 caracteres.
 4. Revisar no viewer com `stdd draw serve`.
-5. Entregar IDs, telas concluídas, regras cobertas, `code_refs` resolvidos/pendentes, folhas não implementadas, perguntas, trade-offs, limitações e próximo lote.
+5. Conferir que cada ação de usuário comprovada possui um nó-gatilho conectado e que nenhum caminho foi reduzido a um fluxo genérico.
+6. Entregar IDs, telas concluídas, regras cobertas, `code_refs` resolvidos/pendentes, folhas não implementadas, perguntas, trade-offs, limitações e próximo lote.
 
 Ao alterar o desenho, registrar:
 

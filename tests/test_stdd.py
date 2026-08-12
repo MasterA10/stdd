@@ -213,16 +213,16 @@ def test_agents_are_loaded_from_markdown_templates():
     for required in ("nível 1", "parent_draw_ref", "parent_node_id", "root_draw_ref", "jornadas do usuário", "sem fluxos órfãos", "code_refs"):
         assert required in level_one
     level_two = templates["draw-system-level-2"].read_text().lower()
-    for required in ("nível 2", "jornadas", "administrador", "permissões", "frontend/interface", "não implementado", "draw_ref"):
+    for required in ("nível 2", "jornadas", "administrador", "permissões", "frontend/interface", "não implementado", "draw_ref", "draw.level2_missing_code_ref", "nunca bloqueia"):
         assert required in level_two
     level_three = templates["draw-system-level-3"].read_text().lower()
-    for required in ("nível 3", "dois lotes", "mais lotes", "ponta a ponta", "tudo o que é possível fazer", "chat", "marketplace", "code_refs", "source_dependencies", "no mínimo 150 caracteres", "description", "label", "edge.description"):
+    for required in ("nível 3", "dois lotes", "mais lotes", "ponta a ponta", "tudo o que é possível fazer", "chat", "marketplace", "code_refs", "source_dependencies", "no mínimo quatro nós", "no mínimo 80 caracteres", "warning", "draw.level3_min_nodes", "draw.level3_short_description", "description", "label", "edge.description"):
         assert required in level_three
     level_four = templates["draw-system-level-4"].read_text().lower()
     for required in ("nível 4", "sob demanda", "qualified_name", "rpc", "procedure", "sql", "arquivo", "model"):
         assert required in level_four
 
-    for required in ("supabase", "rpc", "back-end", "external_logic", "technologies", "sql_procedure", "sql_function", "localização da regra", "todos os níveis", "frontend/interface", "frontend agnóstico", "frontend.dead_reference", "static_analysis.exceptions", "stdd:ignore"):
+    for required in ("supabase", "rpc", "back-end", "external_logic", "technologies", "sql_procedure", "sql_function", "localização da regra", "todos os níveis", "frontend/interface", "frontend agnóstico", "frontend.dead_reference", "static_analysis.exceptions", "stdd:ignore", "draw.level2_missing_code_ref", "draw.level3_min_nodes", "draw.level3_short_description", "menos de quatro nós", "menos de 80 caracteres", "nunca bloqueiam"):
         assert required in templates["static-analysis"].read_text().lower()
 
     setup_content = templates["setup"].read_text()
@@ -262,6 +262,14 @@ def test_draw_system_level_three_splits_complete_detailed_screen_flows_into_phas
         "tela dinâmica",
         "quantidade fixa de nós",
         "quatro nós por padrão",
+        "no mínimo quatro nós",
+        "80 caracteres",
+        "warning",
+        "nós-gatilho",
+        "cada ação",
+        "ação de usuário",
+        "fluxo genérico",
+        "podem convergir",
         "pare e solicite confirmação",
     ):
         assert required in content

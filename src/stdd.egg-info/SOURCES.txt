@@ -26,7 +26,9 @@ src/stdd/draw_assets/assets/index-CFZzx4kl.css
 src/stdd/draw_assets/assets/index-CaIF5rg4.js
 src/stdd/draw_assets/assets/index-DbsnVHOU.css
 src/stdd/draw_assets/assets/index-i9K_ZGD0.js
+src/stdd/templates/adapters/js_ts_static_adapter.js
 src/stdd/templates/adapters/php_static_adapter.php
+src/stdd/templates/adapters/static_adapter.py
 src/stdd/templates/agents/create-tests/SKILL.md
 src/stdd/templates/agents/draw-answer/SKILL.md
 src/stdd/templates/agents/draw-answer/agents/openai.yaml
@@ -50,6 +52,7 @@ src/stdd/templates/runs/runs.html
 tests/test_cli.py
 tests/test_draw.py
 tests/test_draw_editor.py
+tests/test_multilanguage_static_analysis.py
 tests/test_static_analysis.py
 tests/test_stdd.py
 tests/test_traceability.py

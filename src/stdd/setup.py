@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import shutil
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -36,16 +37,21 @@ def detect_stack(root: Path) -> dict[str, Any]:
     runners: list[str] = []
     test_command: list[str] | None = None
 
+    package_files = _project_package_files(root)
     package_json = root / "package.json"
-    if package_json.exists():
-        data = _read_json(package_json)
+    for package_file in package_files:
+        data = _read_json(package_file)
         dependencies = {**data.get("dependencies", {}), **data.get("devDependencies", {})}
-        languages.append("typescript" if (root / "tsconfig.json").exists() or any("typescript" in key for key in dependencies) or any(name in dependencies for name in ("vitest", "ts-jest", "tsx")) else "javascript")
+        package_root = package_file.parent
+        languages.append("typescript" if (package_root / "tsconfig.json").exists() or any("typescript" in key for key in dependencies) or any(name in dependencies for name in ("vitest", "ts-jest", "tsx")) else "javascript")
         frameworks.extend(_matching_names(dependencies, ("react", "next", "vue", "angular", "express", "fastify", "nestjs")))
         script = data.get("scripts", {}).get("test") if isinstance(data.get("scripts"), dict) else None
+        if package_file != package_json:
+            runners.append(f"{package_file.parent.relative_to(root).as_posix()}:javascript")
         if isinstance(script, str) and script.strip():
             runners.append(script.split()[0])
-            test_command = ["npm", "test"] if (root / "package-lock.json").exists() else _package_manager_command(root, "test")
+            if package_file == package_json:
+                test_command = ["npm", "test"] if (root / "package-lock.json").exists() else _package_manager_command(root, "test")
 
     if (root / "pyproject.toml").exists() or (root / "requirements.txt").exists() or (root / "setup.py").exists():
         languages.append("python")
@@ -125,14 +131,21 @@ def configure_project(root: Path) -> dict[str, Any]:
     config["stack"] = {key: value for key, value in stack.items() if key != "test_command"}
     if stack["test_command"] and not config.get("test_commands"):
         config["test_commands"] = [{"name": "all", "command": stack["test_command"]}]
-    if "php" in stack["languages"]:
+    analyzable = {"python", "javascript", "typescript", "php"}.intersection(stack["languages"])
+    if analyzable:
         static_config = config.setdefault("static_analysis", {})
-        generated_adapter_missing = (
-            isinstance(static_config, dict)
-            and static_config.get("adapter_command") == ["php", ".stdd/adapters/php_static_adapter.php"]
-            and not (root / ".stdd/adapters/php_static_adapter.php").exists()
-        )
-        if isinstance(static_config, dict) and (not static_config.get("adapter_command") or generated_adapter_missing):
+        current_command = static_config.get("adapter_command") if isinstance(static_config, dict) else None
+        legacy_php = analyzable == {"php"} and isinstance(current_command, list) and current_command == ["php", ".stdd/adapters/php_static_adapter.php"]
+        replace_generated = isinstance(current_command, list) and any(str(item).endswith("python_static_adapter.py") for item in current_command)
+        if isinstance(static_config, dict) and analyzable == {"php"} and not current_command and shutil.which("php"):
+            adapter = ensure_php_adapter(root)
+            if adapter:
+                static_config["adapter_command"] = ["php", str(adapter.relative_to(root))]
+        elif isinstance(static_config, dict) and (not current_command or replace_generated) and len(analyzable) > 1:
+            adapter = ensure_static_adapter(root, stack["languages"])
+            if adapter:
+                static_config["adapter_command"] = [_python_executable(), str(adapter.relative_to(root))]
+        elif isinstance(static_config, dict) and legacy_php and not (root / ".stdd/adapters/php_static_adapter.php").exists():
             adapter = ensure_php_adapter(root)
             if adapter:
                 static_config["adapter_command"] = ["php", str(adapter.relative_to(root))]
@@ -256,6 +269,8 @@ def _stack_evidence(root: Path) -> list[str]:
     """
     candidates = ("package.json", "tsconfig.json", "pyproject.toml", "requirements.txt", "go.mod", "Cargo.toml", "pom.xml", "mvnw", "composer.json", "phpunit.xml", "phpunit.xml.dist")
     evidence = [name for name in candidates if (root / name).exists()]
+    nested_packages = [path.relative_to(root).as_posix() for path in _project_package_files(root) if path != root / "package.json"]
+    evidence.extend(nested_packages)
     if not evidence and _project_php_files(root):
         evidence.append("*.php")
     for runner in _php_runner_evidence(root):
@@ -319,3 +334,36 @@ def ensure_php_adapter(root: Path) -> Path | None:
     if not target.exists():
         target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
     return target
+
+
+def _project_package_files(root: Path) -> list[Path]:
+    """Encontra manifests JavaScript/TypeScript em um monorepo sem atravessar artefatos."""
+    ignored = {".git", ".stdd", "node_modules", "vendor", "dist", "build", "coverage"}
+    return sorted(
+        path for path in root.rglob("package.json")
+        if path.is_file() and not ignored.intersection(path.relative_to(root).parts)
+    )
+
+
+def ensure_static_adapter(root: Path, languages: list[str]) -> Path | None:
+    """Materializa o dispatcher e os módulos específicos das linguagens detectadas."""
+    sources = Path(__file__).parent / "templates" / "adapters"
+    target_dir = root / ".stdd" / "adapters"
+    target_dir.mkdir(parents=True, exist_ok=True)
+    dispatcher = target_dir / "static_adapter.py"
+    source = sources / "static_adapter.py"
+    if not dispatcher.exists() and source.exists():
+        dispatcher.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+    if any(language in languages for language in ("javascript", "typescript")):
+        js_source = sources / "js_ts_static_adapter.js"
+        js_target = target_dir / js_source.name
+        if not js_target.exists() and js_source.exists():
+            js_target.write_text(js_source.read_text(encoding="utf-8"), encoding="utf-8")
+    if "php" in languages:
+        ensure_php_adapter(root)
+    return dispatcher if dispatcher.exists() else None
+
+
+def _python_executable() -> str:
+    """Escolhe um executável Python portável para o comando do adapter."""
+    return shutil.which("python") or shutil.which("python3") or sys.executable

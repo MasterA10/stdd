@@ -5,7 +5,7 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from stdd.cli import app
-from stdd.draw import create_draw, create_server, find_addressed_questions, read_draw_index, start_server_for_test
+from stdd.draw import analyze_draw_contract, analyze_draw_structure, create_draw, create_server, find_addressed_questions, read_draw_index, start_server_for_test
 
 
 runner = CliRunner()
@@ -297,6 +297,134 @@ def test_create_draw_rejects_dangling_edges_without_writing(tmp_path: Path):
     else:
         raise AssertionError("payload inválido deveria ser rejeitado")
     assert not (tmp_path / ".stdd/draws/checkout.json").exists()
+
+
+def test_create_draw_rejects_isolated_node_without_writing(tmp_path: Path):
+    """Bloqueia nó sem qualquer edge incidente.
+    Mantém o workspace sem JSON quando a conectividade falha.
+    """
+    payload = draw_payload()
+    payload["nodes"].append({"id": 3, "label": "Órfão", "group": 1})
+
+    try:
+        create_draw(tmp_path, payload)
+    except ValueError as error:
+        assert "sem conexão" in str(error)
+        assert "Órfão" in str(error)
+    else:
+        raise AssertionError("nó isolado deveria ser rejeitado")
+    assert not (tmp_path / ".stdd/draws/checkout.json").exists()
+
+
+def test_create_draw_accepts_nodes_connected_in_either_direction(tmp_path: Path):
+    """Trata conexão como relação não direcionada.
+    Aceita um nó terminal conectado somente como origem ou destino.
+    """
+    payload = draw_payload()
+    payload["nodes"].append({"id": 3, "label": "Confirmação", "group": 1})
+    payload["edges"].append({"id": 2, "from": 3, "to": 2, "kind": "flow", "condition": 1})
+
+    assert create_draw(tmp_path, payload).exists()
+
+
+def test_structural_analysis_warns_for_duplicate_flow_without_blocking(tmp_path: Path):
+    """Detecta fluxos logicamente repetidos como warning.
+    A criação continua permitida porque repetição nunca é bloqueante.
+    """
+    payload = draw_payload()
+    duplicate = dict(payload["flows"][0])
+    duplicate["id"] = 2
+    payload["flows"].append(duplicate)
+
+    analysis = analyze_draw_structure(tmp_path, payload)
+
+    assert analysis["isolated_nodes"] == []
+    assert analysis["summary"]["exact_duplicates"] > 0
+    assert any(item["kind"] in {"duplicate_title", "duplicate_structure"} for item in analysis["warnings"])
+    assert create_draw(tmp_path, payload).exists()
+
+
+def test_draw_create_warns_for_duplicate_structure_against_existing_draw(tmp_path: Path, monkeypatch):
+    """Compara o desenho novo com desenhos persistidos.
+    Exibe warning, mantém exit code zero e grava o novo ID.
+    """
+    monkeypatch.chdir(tmp_path)
+    create_draw(tmp_path, draw_payload("primeiro"))
+    second = draw_payload("segundo")
+    second["title"] = "Checkout"
+
+    result = runner.invoke(app, ["draw", "create", "--data-json", json.dumps(second, ensure_ascii=False)])
+
+    assert result.exit_code == 0
+    assert "nenhum warning bloqueia a criação" in result.stdout
+    assert "Desenho gravado" in result.stdout
+    assert (tmp_path / ".stdd/draws/segundo.json").exists()
+
+
+def test_structural_analysis_warns_for_near_duplicate_at_threshold(tmp_path: Path):
+    """Sinaliza estruturas próximas acima de 85 por cento.
+    Não transforma similaridade em erro de criação.
+    """
+    payload = draw_payload()
+    second = draw_payload("second")
+    second["title"] = "Checkout ajustado"
+    first_signature = analyze_draw_structure(tmp_path, payload)
+    create_draw(tmp_path, payload)
+
+    analysis = analyze_draw_structure(tmp_path, second)
+
+    assert first_signature["summary"]["warnings"] == 0
+    assert analysis["summary"]["near_duplicates"] > 0
+    assert create_draw(tmp_path, second).exists()
+
+
+def test_level_two_contract_warns_for_nodes_without_code_refs(tmp_path: Path):
+    """Identifica nós de jornada sem rastreabilidade de interface.
+    Mantém o finding como warning e não impede que o desenho seja criado.
+    """
+    payload = draw_payload("journey-without-refs")
+    payload["hierarchy"] = {"level": 2, "role": "journey", "root_draw_ref": "journey-without-refs"}
+    payload["nodes"][0]["code_refs"] = [{"symbol": "ui.Checkout"}]
+
+    findings = analyze_draw_contract(payload, ".stdd/draws/journey-without-refs.json")
+
+    assert len(findings) == 1
+    assert findings[0]["kind"] == "draw.level2_missing_code_ref"
+    assert findings[0]["node_id"] == 2
+    assert findings[0]["severity"] == "warning"
+
+
+def test_draw_create_reports_level_two_code_ref_warning_without_blocking(tmp_path: Path, monkeypatch):
+    """Exibe a lacuna de code_ref no próprio comando de criação.
+    Confirma exit code zero e persistência do desenho de jornada.
+    """
+    monkeypatch.chdir(tmp_path)
+    root = draw_payload("journey-create-root")
+    root["kind"] = "system"
+    root["hierarchy"] = {
+        "level": 1,
+        "role": "architecture",
+        "parent_draw_ref": None,
+        "parent_node_id": None,
+        "root_draw_ref": "journey-create-root",
+    }
+    root["nodes"][1]["draw_ref"] = "journey-create-warning"
+    create_draw(tmp_path, root)
+    payload = draw_payload("journey-create-warning")
+    payload["hierarchy"] = {
+        "level": 2,
+        "role": "journey",
+        "parent_draw_ref": "journey-create-root",
+        "parent_node_id": 2,
+        "root_draw_ref": "journey-create-root",
+    }
+
+    result = runner.invoke(app, ["draw", "create", "--data-json", json.dumps(payload, ensure_ascii=False)])
+
+    assert result.exit_code == 0
+    assert "draw.level2_missing_code_ref" in result.stdout
+    assert "nenhum warning bloqueia a criação" in result.stdout
+    assert (tmp_path / ".stdd/draws/journey-create-warning.json").exists()
 
 
 def test_create_draw_accepts_subdraw_reference_and_counts_it(tmp_path: Path):

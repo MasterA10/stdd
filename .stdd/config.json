@@ -19,7 +19,7 @@
     "enabled": true,
     "adapter_command": [
       "python3",
-      ".stdd/adapters/python_static_adapter.py"
+      ".stdd/adapters/static_adapter.py"
     ],
     "contract_version": "1",
     "allow_marked_test_credentials": true,
@@ -107,6 +107,55 @@
         "action": "warning",
         "reason": "Achado preexistente; refatoração dedicada está fora deste trabalho.",
         "expires": "2027-01-01"
+      },
+      {
+        "rule": "high_complexity",
+        "symbol_id": "draw-editor/src/components/AvoidEdge.tsx:function:findGridPath",
+        "action": "warning",
+        "reason": "Achado preexistente no editor; refatoração dedicada está fora deste trabalho.",
+        "expires": "2027-01-01"
+      },
+      {
+        "rule": "long_function",
+        "symbol_id": "draw-editor/src/components/AvoidEdge.tsx:function:findGridPath",
+        "action": "warning",
+        "reason": "Achado preexistente no editor; refatoração dedicada está fora deste trabalho.",
+        "expires": "2027-01-01"
+      },
+      {
+        "rule": "high_complexity",
+        "symbol_id": "draw-editor/src/layout.ts:function:layoutCurvedGraph",
+        "action": "warning",
+        "reason": "Achado preexistente no editor; refatoração dedicada está fora deste trabalho.",
+        "expires": "2027-01-01"
+      },
+      {
+        "rule": "long_function",
+        "symbol_id": "draw-editor/src/layout.ts:function:layoutCurvedGraph",
+        "action": "warning",
+        "reason": "Achado preexistente no editor; refatoração dedicada está fora deste trabalho.",
+        "expires": "2027-01-01"
+      },
+      {
+        "rule": "high_complexity",
+        "symbol_id": "draw-editor/src/layout.ts:function:layoutGraph",
+        "action": "warning",
+        "reason": "Achado preexistente no editor; refatoração dedicada está fora deste trabalho.",
+        "expires": "2027-01-01"
+      },
+      {
+        "rule": "high_complexity",
+        "symbol_id": "draw-editor/src/layout.ts:function:computeEdgeHandles",
+        "action": "warning",
+        "reason": "Achado preexistente no editor; refatoração dedicada está fora deste trabalho.",
+        "expires": "2027-01-01"
+      },
+      {
+        "rule": "long_function",
+        "symbol_id": "draw-editor/src/layout.ts:function:layoutGraph",
+        "action": "warning",
+        "reason": "Achado preexistente no editor; refatoração dedicada está fora deste trabalho.",
+        "expires": "2027-01-01"
       }
     ]
   },
@@ -135,10 +184,14 @@
   "version": 1,
   "stack": {
     "languages": [
+      "typescript",
       "python"
     ],
-    "frameworks": [],
+    "frameworks": [
+      "react"
+    ],
     "test_runners": [
+      "draw-editor:javascript",
       "pytest"
     ],
     "evidence": [

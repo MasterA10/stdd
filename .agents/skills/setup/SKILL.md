@@ -42,6 +42,8 @@ O Codex usa `.agents/skills`, o Claude usa `.claude/skills` e o Gemini usa `.gem
 
 Depois do init, executar `stdd setup`. Essa etapa descobre a linguagem e gera comandos específicos, como `npm test`, `go test ./...`, `cargo test`, `dotnet test`, `mvn test` ou `python -m pytest` somente quando a evidência local indicar essa stack. O núcleo não assume Python para projetos de outras linguagens.
 
+Na primeira versão, os adapters distribuídos cobrem Python, JavaScript/TypeScript (incluindo JSX/TSX) e PHP. Em monorepos, o setup percorre manifests de subprojetos e usa um dispatcher local em `.stdd/adapters/static_adapter.py`; o parser deve ser encontrado no próprio projeto. Go, Rust, Java e C# podem ser detectados, mas permanecem `unavailable` enquanto não houver adapter comprovado.
+
 ### Roteiro obrigatório iniciado pelo `init`
 
 Ao iniciar um projeto com `stdd init`, apresentar também o plano de análise estática e rastreabilidade. Não terminar o setup apenas com um runner de testes: explicar quais fatos serão extraídos da codebase, qual adapter será usado e como os nós do Draw serão ligados aos símbolos reais.

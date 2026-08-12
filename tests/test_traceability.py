@@ -17,8 +17,11 @@ def _draw_with_traceable_node():
         "title": "Checkout",
         "kind": "feature",
         "groups": [],
-        "nodes": [{"id": 7, "label": "Autorizar pagamento", "questions": []}],
-        "edges": [],
+        "nodes": [
+            {"id": 7, "label": "Autorizar pagamento", "questions": []},
+            {"id": 8, "label": "Capturar pagamento", "questions": []},
+        ],
+        "edges": [{"id": 1, "from": 7, "to": 8, "kind": "flow", "condition": 1}],
         "flows": [],
     }
 
@@ -294,18 +297,18 @@ def test_cli_associate_reference_accepts_batch_contract(tmp_path, monkeypatch):
     """
     monkeypatch.chdir(tmp_path)
     draw = _draw_with_traceable_node()
-    draw["nodes"].append({"id": 8, "label": "Capturar pagamento", "questions": []})
+    draw["nodes"].append({"id": 9, "label": "Confirmar pagamento", "questions": []})
+    draw["edges"].append({"id": 2, "from": 8, "to": 9, "kind": "flow", "condition": 1})
     create_draw(tmp_path, draw)
     batch = json.dumps([
         {"node_id": 7, "qualified_name": "checkout.authorize", "source_dependencies": ["checkout.authorize"]},
-        {"node_id": 8, "qualified_name": "checkout.capture", "source_dependencies": ["checkout.capture"]},
+        {"node_id": 9, "qualified_name": "checkout.capture", "source_dependencies": ["checkout.capture"]},
     ])
 
     result = runner.invoke(app, ["draw", "associate-reference", "--draw-id", "checkout", "--batch-json", batch])
 
     assert result.exit_code == 0
     saved = json.loads((tmp_path / ".stdd/draws/checkout.json").read_text(encoding="utf-8"))
-    assert [node["code_refs"][0]["symbol"] for node in saved["nodes"]] == [
-        "checkout.authorize",
-        "checkout.capture",
-    ]
+    references = {node["id"]: node.get("code_refs", [{}])[0].get("symbol") for node in saved["nodes"]}
+    assert references[7] == "checkout.authorize"
+    assert references[9] == "checkout.capture"

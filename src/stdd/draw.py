@@ -7,8 +7,10 @@ from __future__ import annotations
 import json
 import mimetypes
 import re
+import unicodedata
 from copy import deepcopy
 from datetime import datetime, timezone
+from difflib import SequenceMatcher
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Thread
@@ -27,6 +29,8 @@ DRAW_ASSETS = Path(__file__).parent / "draw_assets"
 DRAW_EXAMPLE_TEMPLATE = Path(__file__).parent / "templates" / "draw" / "example.json"
 LEGACY_DRAW_VIEWER = Path(".stdd") / "draw.html"
 PRESENTATION_KEYS = {"color", "colors", "position", "style", "styles", "layout", "viewport", "theme", "x", "y", "width", "height"}
+DRAW_ANALYSIS_SIMILARITY_THRESHOLD = 0.85
+DRAW_LEVEL2_CODE_REF_RULE = "draw.level2_missing_code_ref"
 
 
 def _is_numeric_id(value: Any) -> bool:
@@ -251,6 +255,328 @@ def validate_draw_payload(payload: Any) -> list[str]:
             if not isinstance(step, dict) or step.get("node") not in node_ids:
                 violations.append(f"flows[{flow_index}].steps[{step_index}] aponta para nó que não existe")
     return violations
+
+
+def _analysis_text(value: Any) -> str:
+    """Normaliza texto para comparar estruturas sem diferenças cosméticas."""
+    if not isinstance(value, str):
+        return ""
+    decomposed = unicodedata.normalize("NFKD", value)
+    without_accents = "".join(char for char in decomposed if not unicodedata.combining(char))
+    return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9]+", " ", without_accents.lower())).strip()
+
+
+def _analysis_group_labels(payload: dict[str, Any]) -> dict[Any, str]:
+    """Mapeia grupos para rótulos estáveis, ignorando IDs internos."""
+    return {
+        group.get("id"): _analysis_text(group.get("label")) or "group"
+        for group in payload.get("groups", [])
+        if isinstance(group, dict)
+    }
+
+
+def _analysis_node_tokens(payload: dict[str, Any]) -> dict[Any, str]:
+    """Cria tokens de nó baseados no conteúdo, não no ID numérico."""
+    groups = _analysis_group_labels(payload)
+    tokens: dict[Any, str] = {}
+    for node in payload.get("nodes", []):
+        if not isinstance(node, dict):
+            continue
+        label = _analysis_text(node.get("label")) or "node"
+        group = groups.get(node.get("group"), "")
+        tokens[node.get("id")] = f"{label}|{group}"
+    return tokens
+
+
+def _analysis_edge_tokens(payload: dict[str, Any], node_tokens: dict[Any, str]) -> list[str]:
+    """Representa conexões com endpoints sem depender dos IDs internos."""
+    tokens = []
+    for edge in payload.get("edges", []):
+        if not isinstance(edge, dict):
+            continue
+        source = node_tokens.get(edge.get("from"), "unknown")
+        target = node_tokens.get(edge.get("to"), "unknown")
+        tokens.append("|".join((source, target, _analysis_text(edge.get("kind")), str(edge.get("condition", "")), _analysis_text(edge.get("label")))))
+    return sorted(tokens)
+
+
+def _analysis_flow_signature(payload: dict[str, Any], flow: dict[str, Any]) -> dict[str, Any]:
+    """Calcula fingerprint lógico de um fluxo sem IDs, posições ou estilos."""
+    node_tokens = _analysis_node_tokens(payload)
+    steps = flow.get("steps", []) if isinstance(flow.get("steps", []), list) else []
+    step_nodes = [node_tokens.get(step.get("node"), "unknown") for step in steps if isinstance(step, dict)]
+    edge_by_pair = {
+        (edge.get("from"), edge.get("to")): edge
+        for edge in payload.get("edges", [])
+        if isinstance(edge, dict)
+    }
+    connections = []
+    for first, second in zip(steps, steps[1:]):
+        if not isinstance(first, dict) or not isinstance(second, dict):
+            continue
+        edge = edge_by_pair.get((first.get("node"), second.get("node")))
+        if edge is None:
+            edge = edge_by_pair.get((second.get("node"), first.get("node")))
+        connections.append(
+            "|".join((
+                _analysis_text(edge.get("kind")) if edge else "unresolved",
+                str(edge.get("condition", "")) if edge else "",
+                _analysis_text(edge.get("label")) if edge else "",
+            ))
+        )
+    return {
+        "title": _analysis_text(flow.get("title") or flow.get("label")),
+        "nodes": step_nodes,
+        "connections": connections,
+    }
+
+
+def _analysis_draw_signature(payload: dict[str, Any]) -> dict[str, Any]:
+    """Calcula fingerprint lógico do desenho sem metadados de apresentação."""
+    node_tokens = _analysis_node_tokens(payload)
+    nodes = sorted(
+        (token, _analysis_text(node.get("description")))
+        for node in payload.get("nodes", [])
+        if isinstance(node, dict)
+        for token in [node_tokens.get(node.get("id"), "unknown")]
+    )
+    flows = [
+        _analysis_flow_signature(payload, flow)
+        for flow in payload.get("flows", [])
+        if isinstance(flow, dict)
+    ]
+    flows.sort(key=_analysis_fingerprint)
+    return {
+        "title": _analysis_text(payload.get("title")),
+        "subtitle": _analysis_text(payload.get("subtitle")),
+        "kind": _analysis_text(payload.get("kind")),
+        "groups": sorted(_analysis_text(group.get("label")) for group in payload.get("groups", []) if isinstance(group, dict)),
+        "nodes": nodes,
+        "edges": _analysis_edge_tokens(payload, node_tokens),
+        "flows": flows,
+    }
+
+
+def _analysis_fingerprint(value: Any) -> str:
+    """Serializa uma estrutura canônica para igualdade e similaridade estáveis."""
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def _analysis_documents(root: Path) -> list[tuple[str, dict[str, Any]]]:
+    """Carrega desenhos existentes para comparação sem interromper a criação."""
+    try:
+        entries = read_draw_index(root).get("draws", [])
+    except ValueError:
+        return []
+    documents: list[tuple[str, dict[str, Any]]] = []
+    for entry in entries:
+        if not isinstance(entry, dict) or not _is_draw_id(entry.get("id")):
+            continue
+        path = draw_directory(root) / f"{entry['id']}.json"
+        try:
+            document = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+            continue
+        if isinstance(document, dict):
+            documents.append((entry["id"], document))
+    return documents
+
+
+def _analysis_entity(kind: str, label: str, source: str, signature: Any) -> dict[str, Any]:
+    """Monta entidade comparável e legível no diagnóstico do Draw."""
+    return {
+        "kind": kind,
+        "label": label or "(sem título)",
+        "source": source,
+        "normalized_label": _analysis_text(label),
+        "signature": _analysis_fingerprint(signature),
+    }
+
+
+def _analysis_entities(draw_id: str, payload: dict[str, Any]) -> list[dict[str, Any]]:
+    """Extrai desenho e fluxos do payload em entidades comparáveis."""
+    entities = [_analysis_entity("draw", str(payload.get("title", "")), draw_id, _analysis_draw_signature(payload))]
+    for flow in payload.get("flows", []):
+        if isinstance(flow, dict):
+            label = str(flow.get("title") or flow.get("label") or "")
+            entities.append(_analysis_entity("flow", label, f"{draw_id}:flow:{flow.get('id')}", _analysis_flow_signature(payload, flow)))
+    return entities
+
+
+def _analysis_subflow_entities(draw_id: str, payload: dict[str, Any], documents: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+    """Extrai títulos e fingerprints dos subfluxos referenciados por nós."""
+    entities = []
+    for node in payload.get("nodes", []):
+        if not isinstance(node, dict) or node.get("draw_ref") not in documents:
+            continue
+        child_id = node["draw_ref"]
+        child = documents[child_id]
+        entities.append(_analysis_entity("subflow", str(child.get("title", "")), f"{draw_id}:node:{node.get('id')}->{child_id}", _analysis_draw_signature(child)))
+    return entities
+
+
+def _analysis_isolated_nodes(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    """Identifica nós sem qualquer aresta incidente, em qualquer direção."""
+    nodes = [node for node in payload.get("nodes", []) if isinstance(node, dict)]
+    node_ids = {node.get("id") for node in nodes}
+    degrees = {node_id: 0 for node_id in node_ids}
+    for edge in payload.get("edges", []):
+        if not isinstance(edge, dict):
+            continue
+        for endpoint in (edge.get("from"), edge.get("to")):
+            if endpoint in degrees:
+                degrees[endpoint] += 1
+    return [
+        {"id": node.get("id"), "label": node.get("label", ""), "degree": degrees.get(node.get("id"), 0)}
+        for node in nodes
+        if degrees.get(node.get("id"), 0) == 0
+    ]
+
+
+def _analysis_warning(
+    kind: str,
+    rule: str,
+    left: dict[str, Any],
+    right: dict[str, Any],
+    similarity: float,
+    seen: set[tuple[str, str, str]],
+) -> dict[str, Any] | None:
+    """Cria um warning estrutural uma única vez para um par de entidades."""
+    pair = tuple(sorted((left["source"], right["source"])))
+    marker = (kind, rule, "|".join(pair))
+    if marker in seen:
+        return None
+    seen.add(marker)
+    return {
+        "kind": rule,
+        "severity": "warning",
+        "structure": kind,
+        "similarity": round(similarity, 4),
+        "left": {key: left[key] for key in ("source", "label")},
+        "right": {key: right[key] for key in ("source", "label")},
+        "evidence": "estrutura lógica repetida" if similarity == 1.0 else "estrutura lógica muito próxima",
+        "message": "suspeita de repetição ou geração automatizada; revisar personalização por caso de uso",
+    }
+
+
+def _analysis_entity_pairs(
+    current_entities: list[dict[str, Any]],
+    other_entities: list[dict[str, Any]],
+) -> list[tuple[dict[str, Any], dict[str, Any]]]:
+    """Monta pares: desenhos atuais contra existentes; fluxos contra todos."""
+    pairs = []
+    by_kind: dict[str, list[dict[str, Any]]] = {}
+    for entity in [*current_entities, *other_entities]:
+        by_kind.setdefault(entity["kind"], []).append(entity)
+    for kind, entities in by_kind.items():
+        current = [entity for entity in current_entities if entity["kind"] == kind]
+        candidates = other_entities if kind == "draw" else entities
+        for left in current:
+            for right in candidates:
+                if left["source"] != right["source"]:
+                    pairs.append((left, right))
+    return pairs
+
+
+def _analysis_compare_entities(
+    current_entities: list[dict[str, Any]],
+    other_entities: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Compara entidades e produz somente diagnósticos não bloqueantes."""
+    warnings = []
+    seen: set[tuple[str, str, str]] = set()
+    for left, right in _analysis_entity_pairs(current_entities, other_entities):
+        if left["normalized_label"] and left["normalized_label"] == right["normalized_label"]:
+            warning = _analysis_warning(left["kind"], "duplicate_title", left, right, 1.0, seen)
+            if warning:
+                warnings.append(warning)
+        similarity = SequenceMatcher(None, left["signature"], right["signature"]).ratio()
+        if similarity >= DRAW_ANALYSIS_SIMILARITY_THRESHOLD:
+            rule = "duplicate_structure" if similarity == 1.0 else "similar_structure"
+            warning = _analysis_warning(left["kind"], rule, left, right, similarity, seen)
+            if warning:
+                warnings.append(warning)
+    return sorted(warnings, key=lambda item: (item["kind"], item["structure"], item["left"]["source"], item["right"]["source"]))
+
+
+def analyze_draw_structure(root: Path, payload: dict[str, Any]) -> dict[str, Any]:
+    """Analisa conectividade, repetição e similaridade sem bloquear por repetição."""
+    draw_id = str(payload.get("id", "(novo desenho)"))
+    isolated_nodes = _analysis_isolated_nodes(payload)
+    existing = {
+        existing_id: document
+        for existing_id, document in _analysis_documents(root)
+        if existing_id != draw_id
+    }
+    current_entities = _analysis_entities(draw_id, payload)
+    current_entities.extend(_analysis_subflow_entities(draw_id, payload, {**existing, draw_id: payload}))
+    other_entities: list[dict[str, Any]] = []
+    for existing_id, document in existing.items():
+        other_entities.extend(_analysis_entities(existing_id, document))
+        other_entities.extend(_analysis_subflow_entities(existing_id, document, existing))
+
+    warnings = _analysis_compare_entities(current_entities, other_entities)
+    return {
+        "status": "warning" if warnings else "passed",
+        "isolated_nodes": isolated_nodes,
+        "warnings": warnings,
+        "summary": {
+            "isolated_nodes": len(isolated_nodes),
+            "warnings": len(warnings),
+            "exact_duplicates": sum(1 for warning in warnings if warning["similarity"] == 1.0),
+            "near_duplicates": sum(1 for warning in warnings if warning["similarity"] < 1.0),
+        },
+    }
+
+
+def _has_code_reference(node: dict[str, Any]) -> bool:
+    """Confere se o nó possui ao menos uma referência estrutural não vazia."""
+    references = node.get("code_refs")
+    return isinstance(references, list) and any(isinstance(reference, dict) and reference for reference in references)
+
+
+def analyze_draw_contract(payload: dict[str, Any], source: str = "(novo desenho)") -> list[dict[str, Any]]:
+    """Produz warnings de contratos estáticos específicos da hierarquia Draw."""
+    hierarchy = payload.get("hierarchy")
+    if not isinstance(hierarchy, dict) or hierarchy.get("level") != 2:
+        return []
+    draw_id = str(payload.get("id", "(novo desenho)"))
+    findings = []
+    for node in payload.get("nodes", []):
+        if not isinstance(node, dict) or _has_code_reference(node):
+            continue
+        node_id = node.get("id")
+        findings.append({
+            "kind": DRAW_LEVEL2_CODE_REF_RULE,
+            "rule": DRAW_LEVEL2_CODE_REF_RULE,
+            "severity": "warning",
+            "file": source,
+            "draw_id": draw_id,
+            "node_id": node_id,
+            "value": 0,
+            "limit": 1,
+            "evidence": f"nó {node_id!r} não possui code_refs",
+            "source": "builtin_draw_contract",
+        })
+    return findings
+
+
+def scan_draw_contracts(root: Path) -> list[dict[str, Any]]:
+    """Analisa todos os desenhos persistidos sem transformar warning em bloqueio."""
+    findings = []
+    directory = draw_directory(root)
+    if not directory.is_dir():
+        return findings
+    for path in sorted(directory.glob("*.json")):
+        if path.name == "index.json":
+            continue
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+            continue
+        if isinstance(payload, dict):
+            findings.extend(analyze_draw_contract(payload, path.relative_to(root).as_posix()))
+    return findings
 
 
 def validate_hierarchy_parent(root: Path, payload: dict[str, Any]) -> list[str]:
@@ -484,6 +810,13 @@ def create_draw(root: Path, payload: dict[str, Any]) -> Path:
     violations = validate_draw_payload(logical_payload)
     if violations:
         raise ValueError("Desenho inválido: " + "; ".join(violations))
+    structural_analysis = analyze_draw_structure(root, logical_payload)
+    if structural_analysis["isolated_nodes"]:
+        isolated = ", ".join(
+            f"id={node['id']} label={node['label']!r}"
+            for node in structural_analysis["isolated_nodes"]
+        )
+        raise ValueError(f"Desenho inválido: nó(s) sem conexão: {isolated}")
     ensure_draw_workspace(root)
     hierarchy_violations = validate_hierarchy_parent(root, logical_payload)
     if hierarchy_violations:

@@ -47,6 +47,8 @@ stdd draw serve
 8. Para começar do zero, use `Novo desenho`, informe o título e adicione o primeiro bloco. Um canvas sem nós é válido. As mudanças ficam pendentes até o usuário pressionar `Salvar alterações`.
 9. Para iniciar uma feature a partir de um desenho, informe ao Create Tests Agent o ID do JSON; ele deve ler `.stdd/draws/<draw-id>.json` diretamente e interpretar a lógica do desenho.
 
+Antes de persistir um desenho, `stdd draw create` exige que todo nó tenha pelo menos uma conexão por edge, em qualquer direção. `draw_ref`, `flows.steps` e vínculos hierárquicos não substituem uma edge. A análise de repetição de títulos, fluxos, subfluxos e estruturas semelhantes é somente warning: nunca bloqueia a criação e não deve ser tratada como prova de geração por script.
+
 Não escreva HTML, CSS ou JavaScript para um desenho individual. O layout e os componentes pertencem ao viewer React Flow empacotado pelo STDD.
 
 ## Modelo de dados

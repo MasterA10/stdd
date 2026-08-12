@@ -170,6 +170,29 @@ def test_static_analysis_blocks_hardcoded_secret_without_external_adapter(tmp_pa
     assert report["quality_findings"][0]["kind"] == "hardcoded_secret"
 
 
+def test_static_analysis_warns_for_level_two_nodes_without_code_refs(tmp_path: Path):
+    """Inclui o contrato de rastreabilidade do nível 2 no relatório estático.
+    O warning é produzido pelo núcleo mesmo sem adapter externo e não bloqueia o gate.
+    """
+    draws = tmp_path / ".stdd" / "draws"
+    draws.mkdir(parents=True)
+    payload = {
+        "id": "journey-contract",
+        "title": "Jornada",
+        "kind": "system",
+        "hierarchy": {"level": 2, "role": "journey", "root_draw_ref": "root"},
+        "nodes": [{"id": 1, "label": "Tela"}],
+        "edges": [],
+    }
+    (draws / "journey-contract.json").write_text(json.dumps(payload), encoding="utf-8")
+
+    report = run_static_analysis(tmp_path, "execution-draw-contract", {}, [])
+
+    assert report["status"] == "unavailable"
+    assert report["quality_findings"][0]["kind"] == "draw.level2_missing_code_ref"
+    assert report["quality_findings"][0]["severity"] == "warning"
+
+
 def test_static_analysis_writes_kpi_snapshot_next_to_adapter_directory(tmp_path: Path):
     """Persiste indicadores agregados e detalhes sem misturar com os Draws.
     Reúne um relatório mínimo e confirma a estrutura consumida pelo viewer lateral.
