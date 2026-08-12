@@ -253,8 +253,50 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "e3edc83d84534eac9690ff2da0cf18d7",
+      "timestamp": "2026-08-12T13:27:12.434693+00:00",
+      "description": "Especifica agrupamento hierarquico dos desenhos por nivel",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 230,
+        "lines_deleted": 86,
+        "files_changed": 11
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "1d8649884eb541a981790954666f7815",
+      "timestamp": "2026-08-12T13:27:19.210500+00:00",
+      "description": "Implementa navegacao de desenhos por niveis e subfluxos",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 12,
-  "last_run_id": "d11f25e3f1034a5682e126c56845e500"
+  "run_count": 14,
+  "last_run_id": "1d8649884eb541a981790954666f7815"
 }

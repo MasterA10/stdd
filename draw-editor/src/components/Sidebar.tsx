@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import type { Contract, NodeData, EdgeData, Group, FlowPath, FlowStep, RunRecord, StaticAnalysisKpiReport } from '../types';
+import type { Contract, DrawIndexEntry, NodeData, EdgeData, Group, FlowPath, FlowStep, RunRecord, StaticAnalysisKpiReport } from '../types';
 import { Plus, Trash2, FolderPlus, List, Info, ChevronRight, Activity, Settings, BarChart3 } from 'lucide-react';
 
 interface SidebarProps {
@@ -14,7 +14,7 @@ interface SidebarProps {
   onSelectFlow: (flowId: number | null) => void;
   onOpenImportExport: (mode: 'import' | 'export') => void;
   // Drawings support
-  drawingsIndex: any[];
+  drawingsIndex: DrawIndexEntry[];
   currentDrawingId: string;
   onLoadDrawing: (id: string) => void;
   onNewDrawing: () => void;
@@ -97,6 +97,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const filteredDrawings = drawingsIndex.filter((draw) =>
     `${draw.title} ${draw.subtitle} ${draw.kind}`.toLowerCase().includes(drawingSearchQuery.toLowerCase())
   );
+  const drawingsByLevel = filteredDrawings.reduce<Record<string, DrawIndexEntry[]>>((levels, draw) => {
+    const level = draw.hierarchy?.level ? String(draw.hierarchy.level) : 'unassigned';
+    levels[level] = [...(levels[level] || []), draw];
+    return levels;
+  }, {});
+  const hierarchyChildren = filteredDrawings.reduce<Map<string, DrawIndexEntry[]>>((children, draw) => {
+    const parentId = draw.hierarchy?.parent_draw_ref;
+    if (!parentId) return children;
+    children.set(parentId, [...(children.get(parentId) || []), draw]);
+    return children;
+  }, new Map());
+  const drawingById = new Map(drawingsIndex.map((draw) => [draw.id, draw]));
+  const levelGroups = Object.entries(drawingsByLevel).sort(([left], [right]) => {
+    if (left === 'unassigned') return 1;
+    if (right === 'unassigned') return -1;
+    return Number(left) - Number(right);
+  });
 
   const isZeroLineRun = (run: RunRecord) =>
     Boolean(run.checkpoint) ||
@@ -411,7 +428,78 @@ export const Sidebar: React.FC<SidebarProps> = ({
               />
             </div>
 
-            <div className="draw-list" style={{ display: 'grid', gap: '8px', overflowY: 'auto', maxHeight: '420px', padding: '2px' }}>
+            <div className="draw-hierarchy-card">
+              <div className="draw-hierarchy-heading">
+                <div>
+                  <span className="eyebrow">Navegação</span>
+                  <h3>Navegação por nível</h3>
+                </div>
+                <span className="draw-hierarchy-count">{filteredDrawings.length} fluxos</span>
+              </div>
+              <p className="draw-hierarchy-help">
+                Encontre um fluxo pelo nível e abra seus subfluxos a partir do desenho pai.
+              </p>
+              {levelGroups.length === 0 ? (
+                <p className="no-items-hint">Nenhum fluxo para agrupar.</p>
+              ) : (
+                <div className="draw-level-groups">
+                  {levelGroups.map(([level, drawings]) => (
+                    <details key={level} className="draw-level-group" open={level === '1' || level === 'unassigned'}>
+                      <summary>
+                        <span>{level === 'unassigned' ? 'Sem nível' : `Nível ${level}`}</span>
+                        <small>{drawings.length} {drawings.length === 1 ? 'fluxo' : 'fluxos'}</small>
+                      </summary>
+                      <div className="draw-level-items">
+                        {drawings.map((draw) => {
+                          const parent = draw.hierarchy?.parent_draw_ref
+                            ? drawingById.get(draw.hierarchy.parent_draw_ref)
+                            : undefined;
+                          const children = hierarchyChildren.get(draw.id) || [];
+                          return (
+                            <div key={draw.id} className="draw-level-item">
+                              <button
+                                className={`draw-level-link ${currentDrawingId === draw.id ? 'active' : ''}`}
+                                onClick={() => onLoadDrawing(draw.id)}
+                              >
+                                <span className="draw-level-link-title">{draw.title}</span>
+                                <span className="draw-level-link-meta">
+                                  {parent ? `Subfluxo de ${parent.title}` : draw.kind || 'desenho'}
+                                </span>
+                              </button>
+                              {children.length > 0 && (
+                                <div className="draw-subflow-links">
+                                  <span className="draw-subflow-label">{children.length} subfluxo{children.length === 1 ? '' : 's'}</span>
+                                  {children.map((child) => (
+                                    <button
+                                      key={child.id}
+                                      className={`draw-subflow-link ${currentDrawingId === child.id ? 'active' : ''}`}
+                                      onClick={() => onLoadDrawing(child.id)}
+                                    >
+                                      <ChevronRight size={12} />
+                                      <span>{child.title}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </details>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="drawings-all-card">
+              <div className="drawings-all-heading">
+                <div>
+                  <span className="eyebrow">Catálogo completo</span>
+                  <h3>Todos os desenhos</h3>
+                </div>
+                <span className="draw-hierarchy-count">{filteredDrawings.length}</span>
+              </div>
+              <div className="draw-list" style={{ display: 'grid', gap: '8px', overflowY: 'auto', maxHeight: '420px', padding: '2px' }}>
               {filteredDrawings.length === 0 ? (
                 <p className="no-items-hint" style={{ textAlign: 'center', padding: '20px', color: 'var(--muted)', fontSize: '11px' }}>
                   Nenhum desenho encontrado.
@@ -445,6 +533,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </button>
                 ))
               )}
+              </div>
             </div>
           </div>
         )}

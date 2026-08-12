@@ -12,7 +12,7 @@ import {
 import type { Connection, Edge, EdgeChange, Node, EdgeTypes } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import type { Contract, NodeData, EdgeData, RunRecord, TraceabilityFacts, StaticAnalysisKpiReport } from './types';
+import type { Contract, DrawIndexEntry, NodeData, EdgeData, RunRecord, TraceabilityFacts, StaticAnalysisKpiReport } from './types';
 import { CustomNode } from './components/CustomNode';
 import { LoopEdge } from './components/LoopEdge';
 import { Sidebar } from './components/Sidebar';
@@ -66,7 +66,7 @@ const checkBackendAvailable = async (): Promise<string | null> => {
 export const App: React.FC = () => {
   // --- Drawings & Storage States ---
   const [contract, setContract] = useState<Contract>(typedDefaultContract);
-  const [drawingsIndex, setDrawingsIndex] = useState<any[]>([]);
+  const [drawingsIndex, setDrawingsIndex] = useState<DrawIndexEntry[]>([]);
   const [runs, setRuns] = useState<RunRecord[]>([]);
   const [storageMode, setStorageMode] = useState<'backend' | 'local'>('local');
   const [navigation, setNavigation] = useState<string[]>([]);
@@ -166,6 +166,53 @@ export const App: React.FC = () => {
     setPresentationPositionsState(positions);
   };
 
+  const enrichDrawingsWithHierarchy = async (
+    indexData: DrawIndexEntry[],
+    mode: 'backend' | 'local'
+  ): Promise<DrawIndexEntry[]> => {
+    const origins = mode === 'backend'
+      ? [getApiOrigin(), ...getApiOrigins()]
+      : getApiOrigins();
+    const uniqueOrigins = [...new Set(origins)];
+
+    return Promise.all(indexData.map(async (entry) => {
+      let document: Partial<Contract> | null = null;
+
+      if (mode === 'local') {
+        const saved = localStorage.getItem(`stdd-draw:${entry.id}`);
+        if (saved) {
+          try {
+            document = JSON.parse(saved) as Partial<Contract>;
+          } catch (_) {
+            document = null;
+          }
+        }
+      }
+
+      if (!document) {
+        for (const origin of uniqueOrigins) {
+          try {
+            const response = await fetch(`${origin}/.stdd/draws/${encodeURIComponent(entry.id)}.json`, { cache: 'no-store' });
+            if (!response.ok) continue;
+            document = await response.json() as Partial<Contract>;
+            break;
+          } catch (_) {
+            // A lista continua utilizável mesmo quando um desenho não responde.
+          }
+        }
+      }
+
+      if (!document && entry.id === typedDefaultContract.id) {
+        document = typedDefaultContract;
+      }
+
+      return {
+        ...entry,
+        hierarchy: document?.hierarchy || entry.hierarchy
+      };
+    }));
+  };
+
   useEffect(() => {
     const snapshot = JSON.stringify(contract);
     if (lastContractSnapshotRef.current === null) {
@@ -251,7 +298,7 @@ export const App: React.FC = () => {
       setStorageMode(mode);
 
       // 2. Load index
-      let indexData: any[] = [];
+      let indexData: DrawIndexEntry[] = [];
       if (backendOrigin) {
         try {
           const origin = getApiOrigin();
@@ -291,7 +338,9 @@ export const App: React.FC = () => {
         indexData = initialIndex;
       }
 
-      setDrawingsIndex(indexData);
+      const enrichedIndex = await enrichDrawingsWithHierarchy(indexData, mode);
+      setDrawingsIndex(enrichedIndex);
+      indexData = enrichedIndex;
 
       // 4. Determine initial drawing to load
       const searchParams = new URLSearchParams(window.location.search);
@@ -308,13 +357,14 @@ export const App: React.FC = () => {
 
   // --- Fetching Drawings Index ---
   const loadDrawingsIndex = async () => {
+    let indexData: DrawIndexEntry[] = [];
     if (storageMode === 'backend') {
       try {
         const origin = getApiOrigin();
         const response = await fetch(`${origin}/.stdd/draws/index.json`, { cache: 'no-store' });
         if (response.ok) {
           const data = await response.json();
-          setDrawingsIndex(data.draws || []);
+          indexData = data.draws || [];
         }
       } catch (_) {}
     } else {
@@ -322,16 +372,18 @@ export const App: React.FC = () => {
       if (savedIndex) {
         try {
           const data = JSON.parse(savedIndex);
-          setDrawingsIndex(data.draws || []);
+          indexData = data.draws || [];
         } catch (_) {}
       }
     }
+    const enrichedIndex = await enrichDrawingsWithHierarchy(indexData, storageMode);
+    setDrawingsIndex(enrichedIndex);
   };
 
   // --- Load individual Drawing ---
   const loadDrawingById = async (
     id: string,
-    opts?: { resetNavigation?: boolean; indexData?: any[]; mode?: 'backend' | 'local' }
+    opts?: { resetNavigation?: boolean; indexData?: DrawIndexEntry[]; mode?: 'backend' | 'local' }
   ) => {
     const activeMode = opts?.mode || storageMode;
 
@@ -496,7 +548,8 @@ export const App: React.FC = () => {
         updated_at: timestamp,
         node_count: contractToSave.nodes.length,
         edge_count: contractToSave.edges.length,
-        subdraw_count: contractToSave.nodes.filter((n) => !!n.draw_ref).length
+        subdraw_count: contractToSave.nodes.filter((n) => !!n.draw_ref).length,
+        hierarchy: contractToSave.hierarchy
       };
 
       if (existingIdx >= 0) {

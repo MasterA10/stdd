@@ -14,6 +14,31 @@ def test_empty_draw_editor_exposes_block_creation_action():
     assert "if (isEmptyDrawing) setActiveTab('info')" in sidebar
 
 
+def test_drawings_index_enriches_entries_with_hierarchy_metadata():
+    """Carrega a hierarquia real de cada desenho para a navegação.
+    Confirma que o índice visual conhece nível, pai e raiz do fluxo.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+
+    assert "enrichDrawingsWithHierarchy" in app
+    assert "hierarchy: document?.hierarchy" in app
+    assert "setDrawingsIndex(enrichedIndex)" in app
+
+
+def test_drawings_sidebar_keeps_all_flows_and_groups_them_by_level():
+    """Preserva a lista completa e oferece navegação por níveis.
+    Confirma que níveis recolhíveis expõem pais e subfluxos relacionados.
+    """
+    sidebar = (EDITOR_ROOT / "src/components/Sidebar.tsx").read_text(encoding="utf-8")
+
+    assert "drawingsByLevel" in sidebar
+    assert "Navegação por nível" in sidebar
+    assert "Todos os desenhos" in sidebar
+    assert "Nível ${level}" in sidebar
+    assert "subflux" in sidebar.lower()
+    assert "parent_draw_ref" in sidebar
+
+
 def test_draw_editor_removes_floating_canvas_hint():
     """Remove a dica flutuante do canto inferior esquerdo do viewer.
     Confirma que JSX e CSS não mantêm o componente de dica antigo.

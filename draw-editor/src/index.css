@@ -597,6 +597,181 @@ body,
   color: var(--danger);
 }
 
+/* Hierarchical drawing navigation */
+.draw-hierarchy-card,
+.drawings-all-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.draw-hierarchy-heading,
+.drawings-all-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.draw-hierarchy-heading h3,
+.drawings-all-heading h3 {
+  margin: 3px 0 0;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 850;
+  letter-spacing: -.01em;
+}
+
+.draw-hierarchy-count {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.draw-hierarchy-help {
+  margin: 8px 0 12px;
+  color: var(--muted);
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+.draw-level-groups {
+  display: grid;
+  gap: 7px;
+}
+
+.draw-level-group {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--canvas);
+}
+
+.draw-level-group summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 10px;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 850;
+  cursor: pointer;
+  list-style: none;
+}
+
+.draw-level-group summary::-webkit-details-marker {
+  display: none;
+}
+
+.draw-level-group summary::before {
+  content: '›';
+  color: var(--accent);
+  font-size: 17px;
+  line-height: 10px;
+  transform: rotate(0deg);
+  transition: transform .15s ease;
+}
+
+.draw-level-group[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.draw-level-group summary small {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.draw-level-items {
+  display: grid;
+  gap: 6px;
+  padding: 0 7px 7px;
+}
+
+.draw-level-item {
+  display: grid;
+  gap: 4px;
+}
+
+.draw-level-link,
+.draw-subflow-link {
+  width: 100%;
+  border: 1px solid transparent;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .15s ease, background .15s ease;
+}
+
+.draw-level-link {
+  display: grid;
+  gap: 3px;
+  padding: 8px 9px;
+  border-radius: 9px;
+}
+
+.draw-level-link:hover,
+.draw-subflow-link:hover,
+.draw-level-link.active,
+.draw-subflow-link.active {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+.draw-level-link-title {
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.draw-level-link-meta {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 9.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.draw-subflow-links {
+  display: grid;
+  gap: 2px;
+  margin-left: 13px;
+  padding: 2px 0 2px 8px;
+  border-left: 1px solid var(--line);
+}
+
+.draw-subflow-label {
+  padding: 1px 5px 2px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.draw-subflow-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 6px;
+  border-radius: 7px;
+  font-size: 10px;
+}
+
+.drawings-all-card {
+  display: grid;
+  gap: 10px;
+}
+
 /* Flow Path Selection Panel */
 .flow-path-selector-grid {
   display: grid;

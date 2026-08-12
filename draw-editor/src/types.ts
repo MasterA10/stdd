@@ -106,6 +106,27 @@ export interface FlowPath {
   steps: FlowStep[];
 }
 
+export interface DrawHierarchy {
+  level?: number;
+  role?: string;
+  parent_draw_ref?: string | null;
+  parent_node_id?: number | null;
+  root_draw_ref?: string | null;
+}
+
+export interface DrawIndexEntry {
+  id: string;
+  file?: string;
+  title: string;
+  subtitle?: string;
+  kind?: string;
+  updated_at?: string;
+  node_count?: number;
+  edge_count?: number;
+  subdraw_count?: number;
+  hierarchy?: DrawHierarchy;
+}
+
 export interface Contract {
   version: number;
   id: string;
@@ -117,6 +138,7 @@ export interface Contract {
   nodes: NodeData[];
   edges: EdgeData[];
   flows?: FlowPath[];
+  hierarchy?: DrawHierarchy;
   tradeoffs?: any[];
 }
 
