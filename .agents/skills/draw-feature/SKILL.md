@@ -45,7 +45,7 @@ stdd draw serve
 
 7. Para editar manualmente, interaja diretamente com o canvas: selecione e mova blocos, altere os controles embutidos ou arraste a porta roxa de saída até o destino. O botão `Conectar blocos` mantém o fluxo alternativo por dois cliques. Toda exclusão pede confirmação.
 8. Para começar do zero, use `Novo desenho`, informe o título e adicione o primeiro bloco. Um canvas sem nós é válido. As mudanças ficam pendentes até o usuário pressionar `Salvar alterações`.
-9. Para iniciar uma feature a partir de um desenho, informe ao Feature Agent o ID do JSON; ele deve ler `.stdd/draws/<draw-id>.json` diretamente e interpretar a lógica do desenho.
+9. Para iniciar uma feature a partir de um desenho, informe ao Create Tests Agent o ID do JSON; ele deve ler `.stdd/draws/<draw-id>.json` diretamente e interpretar a lógica do desenho.
 
 Não escreva HTML, CSS ou JavaScript para um desenho individual. O layout e os componentes pertencem ao viewer React Flow empacotado pelo STDD.
 

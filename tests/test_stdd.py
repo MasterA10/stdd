@@ -20,19 +20,21 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert first.exit_code == 0
     assert second.exit_code == 0
     assert (tmp_path / ".stdd/config.json").exists()
-    assert (tmp_path / ".agents/skills/feature/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/create-tests/SKILL.md").exists()
+    assert not (tmp_path / ".agents/skills/feature").exists()
     assert (tmp_path / ".agents/skills/implement/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/setup/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/static-analysis/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-feature/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-improve/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-answer/SKILL.md").exists()
-    assert (tmp_path / ".agents/skills/draw-system/SKILL.md").exists()
-    assert (tmp_path / ".agents/skills/draw-system/agents/openai.yaml").exists()
+    for level in range(1, 5):
+        assert (tmp_path / ".agents/skills" / f"draw-system-level-{level}" / "SKILL.md").exists()
+        assert (tmp_path / ".agents/skills" / f"draw-system-level-{level}" / "agents/openai.yaml").exists()
     assert (tmp_path / ".agents/skills/draw-improve/agents/openai.yaml").exists()
     assert (tmp_path / "AGENTS.md").exists()
     assert "stdd test" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
-    assert "testes" in (tmp_path / ".agents/skills/feature/SKILL.md").read_text().lower()
+    assert "testes" in (tmp_path / ".agents/skills/create-tests/SKILL.md").read_text().lower()
     for source in agent_templates():
         installed = tmp_path / ".agents" / "skills" / source.parent.name / "SKILL.md"
         assert installed.read_text(encoding="utf-8") == source.read_text(encoding="utf-8")
@@ -43,12 +45,12 @@ def test_init_always_synchronizes_existing_agent_skills(tmp_path: Path):
     Confirma que uma versão antiga recebe o template atual sem opção adicional.
     """
     init_project(tmp_path)
-    skill = tmp_path / ".agents/skills/draw-system/SKILL.md"
+    skill = tmp_path / ".agents/skills/draw-system-level-3/SKILL.md"
     skill.write_text("versao antiga", encoding="utf-8")
 
     init_project(tmp_path)
 
-    assert skill.read_text(encoding="utf-8") == Path("src/stdd/templates/agents/draw-system/SKILL.md").read_text(encoding="utf-8")
+    assert skill.read_text(encoding="utf-8") == Path("src/stdd/templates/agents/draw-system-level-3/SKILL.md").read_text(encoding="utf-8")
 
 
 def test_init_defers_language_specific_test_runner_to_setup(tmp_path: Path):
@@ -84,7 +86,7 @@ def test_init_accepts_project_directory_argument(tmp_path: Path, monkeypatch):
 
     assert result.exit_code == 0
     assert (tmp_path / "my-project/.stdd/config.json").exists()
-    assert (tmp_path / "my-project/.agents/skills/feature/SKILL.md").exists()
+    assert (tmp_path / "my-project/.agents/skills/create-tests/SKILL.md").exists()
     assert not (tmp_path / ".stdd").exists()
 
 
@@ -108,7 +110,7 @@ def test_init_keeps_framework_artifacts_in_stdd_and_agent_skills_in_agents(tmp_p
     init_project(tmp_path)
 
     assert {path.name for path in tmp_path.iterdir()} == {".stdd", ".agents", ".gitignore", "AGENTS.md"}
-    assert (tmp_path / ".agents/skills/feature/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/create-tests/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/implement/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/setup/SKILL.md").exists()
     assert not (tmp_path / ".agents/config.json").exists()
@@ -184,11 +186,11 @@ def test_init_preserves_existing_gitignore_and_does_not_duplicate_rules(tmp_path
 
 def test_agents_are_loaded_from_markdown_templates():
     """Carrega as skills dos agentes a partir dos templates de arquivos SKILL.md.
-    Chama agent_templates e valida a presença dos títulos dos agentes feature, implement e setup.
+    Chama agent_templates e valida a presença dos títulos dos agentes create-tests, implement e setup.
     """
     templates = {template.parent.name: template for template in agent_templates()}
-    assert set(templates) == {"draw-answer", "draw-feature", "draw-improve", "draw-system", "feature", "implement", "setup", "static-analysis"}
-    assert "# Feature Agent" in templates["feature"].read_text()
+    assert set(templates) == {"create-tests", "draw-answer", "draw-feature", "draw-improve", "draw-system-level-1", "draw-system-level-2", "draw-system-level-3", "draw-system-level-4", "implement", "setup", "static-analysis"}
+    assert "# Create Tests Agent" in templates["create-tests"].read_text()
     assert "# Implement Agent" in templates["implement"].read_text()
     assert "# Setup Agent" in templates["setup"].read_text()
     assert "complexidade ciclomática" in templates["static-analysis"].read_text()
@@ -204,11 +206,21 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "*.pyc" in templates["static-analysis"].read_text()
     assert "stdd draw create" in templates["draw-feature"].read_text()
     assert "stdd log" in templates["draw-feature"].read_text()
-    assert "stdd log" in templates["draw-system"].read_text()
+    for level in range(1, 5):
+        assert "stdd log" in templates[f"draw-system-level-{level}"].read_text()
 
-    draw_system_content = templates["draw-system"].read_text().lower()
-    for required in ("nível 1", "nível 2", "nível 3", "nível 4", "parent_draw_ref", "parent_node_id", "root_draw_ref", "não implementada", "sem órfãos", "code_refs", "source_dependencies", "símbolo qualificado", "jornadas do usuário", "administrador", "permissões", "nó que mais se relaciona", "todo fluxo e subfluxo", "todos os níveis", "frontend/interface"):
-        assert required in draw_system_content
+    level_one = templates["draw-system-level-1"].read_text().lower()
+    for required in ("nível 1", "parent_draw_ref", "parent_node_id", "root_draw_ref", "jornadas do usuário", "sem fluxos órfãos", "code_refs"):
+        assert required in level_one
+    level_two = templates["draw-system-level-2"].read_text().lower()
+    for required in ("nível 2", "jornadas", "administrador", "permissões", "frontend/interface", "não implementado", "draw_ref"):
+        assert required in level_two
+    level_three = templates["draw-system-level-3"].read_text().lower()
+    for required in ("nível 3", "dois lotes", "mais lotes", "ponta a ponta", "tudo o que é possível fazer", "chat", "marketplace", "code_refs", "source_dependencies", "no mínimo 150 caracteres", "description", "label", "edge.description"):
+        assert required in level_three
+    level_four = templates["draw-system-level-4"].read_text().lower()
+    for required in ("nível 4", "sob demanda", "qualified_name", "rpc", "procedure", "sql", "arquivo", "model"):
+        assert required in level_four
 
     for required in ("supabase", "rpc", "back-end", "external_logic", "technologies", "sql_procedure", "sql_function", "localização da regra", "todos os níveis", "frontend/interface", "frontend agnóstico", "frontend.dead_reference", "static_analysis.exceptions", "stdd:ignore"):
         assert required in templates["static-analysis"].read_text().lower()
@@ -233,26 +245,46 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "valores antes/depois" in implement_content
 
 
-def test_draw_system_splits_level_three_into_two_detailed_phases():
-    """Mantém o nível 3 em dois lotes variáveis e deixa o nível 4 sob demanda.
-    Lê o template publicado e impede o retorno à fase única ou ao desenho padronizado.
+def test_draw_system_level_three_splits_complete_detailed_screen_flows_into_phases():
+    """Mantém o nível 3 em lotes completos, detalhando a tela por inteiro.
+    Lê a skill publicada e impede fluxo estático, fase única ou desenho padronizado.
     """
-    content = Path("src/stdd/templates/agents/draw-system/SKILL.md").read_text(encoding="utf-8").lower()
+    content = Path("src/stdd/templates/agents/draw-system-level-3/SKILL.md").read_text(encoding="utf-8").lower()
 
     for required in (
-        "execução em três fases",
-        "primeiro lote",
-        "primeira metade do nível 3",
-        "segundo lote",
-        "segunda metade do nível 3",
+        "dois lotes",
+        "mais lotes",
+        "lotes completos",
+        "ponta a ponta",
+        "tudo o que é possível fazer",
+        "chat",
+        "marketplace",
+        "tela dinâmica",
         "quantidade fixa de nós",
         "quatro nós por padrão",
-        "sob demanda",
-        "não iniciar o nível 4 automaticamente",
+        "pare e solicite confirmação",
     ):
         assert required in content
 
-    assert "fase 3 — codebase / baixo nível" not in content
+    assert "não trate uma tela dinâmica como sequência estática" in content
+
+
+def test_draw_system_levels_keep_then_compatible_with_one_branch_family():
+    """Mantém então como consequência certa sem permitir misturar se e ou.
+    Lê cada template publicado e exige a convenção em todos os quatro níveis.
+    """
+    for level in range(1, 5):
+        content = Path(f"src/stdd/templates/agents/draw-system-level-{level}/SKILL.md").read_text(encoding="utf-8").lower()
+        for required in (
+            "convenção lógica de conexões",
+            "consequência certa",
+            "pode coexistir",
+            "nunca misture `se` com `ou`",
+            "pelo menos outro `se` correspondente",
+            "nunca misture `ou` com `se`",
+            "continuação inevitável",
+        ):
+            assert required in content, f"nível {level} não define {required}"
 
 
 def test_implement_skill_triages_draw_diffs_before_declaring_no_change():
@@ -285,7 +317,7 @@ def test_draw_improve_skill_is_incremental_and_hands_off_through_feature():
         "já está bom",
         "um ciclo",
         "revisão",
-        "$feature",
+        "$create-tests",
         "$implement",
         "estado vermelho",
         "stdd draw diff",
@@ -367,9 +399,9 @@ def test_draw_skills_preserve_system_hierarchy_and_terminal_unimplemented_paths(
     """Alinha os agentes de desenho à árvore de arquitetura, jornada e implementação.
     Confirma que pai, filho e folhas ainda não implementadas são tratados sem órfãos.
     """
-    for name in ("draw-feature", "draw-improve", "draw-system"):
+    for name in ("draw-feature", "draw-improve", "draw-system-level-1", "draw-system-level-2", "draw-system-level-3", "draw-system-level-4"):
         content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
-        for required in ("nível 1", "nível 2", "nível 3", "parent_draw_ref", "draw_ref", "órfãos", "não implementada"):
+        for required in ("parent_draw_ref", "draw_ref", "órfãos"):
             assert required in content, f"{name} não define {required}"
 
 
@@ -377,7 +409,7 @@ def test_feature_and_implement_skills_honor_draw_system_boundaries():
     """Impede que testes ou produção ignorem a árvore de desenhos do sistema.
     Confirma leitura de pais, filhos, referências e folhas não implementadas.
     """
-    for name in ("feature", "implement", "setup", "static-analysis"):
+    for name in ("create-tests", "implement", "setup", "static-analysis"):
         content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         for required in ("draw-system", "parent_draw_ref", "parent_node_id", "root_draw_ref", "fluxo órfão"):
             assert required in content, f"{name} não define {required}"
@@ -387,7 +419,7 @@ def test_traceability_skills_cover_rpc_and_sql_implementations():
     """Cobre implementações RPC e SQL na checagem de símbolos.
     Mantém modelos como dependências opcionais, nunca como implementação principal.
     """
-    for name in ("draw-system", "setup", "static-analysis"):
+    for name in ("draw-system-level-4", "setup", "static-analysis"):
         content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         for required in ("rpc", "procedure", "sql", "arquivo", "model"):
             assert required in content, f"{name} não define {required}"
@@ -398,7 +430,7 @@ def test_setup_reports_missing_system_draw_without_creating_it():
     Confirma que a verificação procura uma raiz, recomenda Draw System e não cria/edita o desenho.
     """
     content = Path("src/stdd/templates/agents/setup/SKILL.md").read_text(encoding="utf-8").lower()
-    for required in (".stdd/draws/", "kind: \"system\"", "hierarchy.level: 1", "$draw-system", "não houver uma raiz de sistema", "não cria", "não deve editar o draw"):
+    for required in (".stdd/draws/", "kind: \"system\"", "hierarchy.level: 1", "$draw-system-level-1", "não houver uma raiz de sistema", "não cria", "não deve editar o draw"):
         assert required in content
 
 
@@ -416,12 +448,12 @@ def test_agent_skills_are_self_contained_and_do_not_reference_internal_plan():
 
 
 def test_delivery_agents_define_complete_production_test_contract():
-    """Exige que setup, feature e implement cubram testes funcionais e não funcionais.
+    """Exige que setup, create-tests e implement cubram testes funcionais e não funcionais.
     Valida contratos para IA real, banco, desempenho, segurança, isolamento e pentest.
     """
     templates = {template.parent.name: template.read_text(encoding="utf-8").lower() for template in agent_templates()}
 
-    for name in ("setup", "feature", "implement"):
+    for name in ("setup", "create-tests", "implement"):
         content = templates[name]
         for required in ("teste live", "pgtap", "performance", "segurança", "isolamento", "pentest", "not_executed"):
             assert required in content, f"{name} não define {required}"
@@ -451,7 +483,7 @@ def test_readme_documents_codex_skill_invocation():
     """
     readme = Path("README.md").read_text(encoding="utf-8")
 
-    for command in ("$setup", "$feature", "$draw-feature", "$draw-improve", "$draw-answer", "$draw-system", "$static-analysis", "$implement"):
+    for command in ("$setup", "$create-tests", "$draw-feature", "$draw-improve", "$draw-answer", "$draw-system-level-1", "$draw-system-level-2", "$draw-system-level-3", "$draw-system-level-4", "$static-analysis", "$implement"):
         assert command in readme
     assert ".agents/skills/<skill>/SKILL.md" in readme
 
@@ -460,7 +492,7 @@ def test_feature_skill_uses_tests_and_draw_json_without_markdown_copies():
     """Mantém testes e desenhos como fontes diretas da especificação da feature.
     Impede que a skill volte a criar request.md ou scenarios.md como cópias intermediárias.
     """
-    content = (Path("src/stdd/templates/agents/feature/SKILL.md")).read_text(encoding="utf-8")
+    content = (Path("src/stdd/templates/agents/create-tests/SKILL.md")).read_text(encoding="utf-8")
 
     assert ".stdd/draws/<draw-id>.json" in content
     assert "request.md" not in content
@@ -489,13 +521,13 @@ def test_agent_skills_require_approval_for_expensive_or_mutating_setup():
 
 def test_init_does_not_create_feature_or_implementation_commands():
     """Garante que a CLI pública do STDD expõe unicamente init e test.
-    Invoca stdd --help e assegura que feature e implement não constam na lista de comandos.
+    Invoca stdd --help e assegura que create-tests e implement não constam na lista de comandos.
     """
     result = runner.invoke(app, ["--help"])
     assert result.exit_code == 0
     assert "init" in result.stdout
     assert "test" in result.stdout
-    assert "feature" not in result.stdout
+    assert "create-tests" not in result.stdout
     assert "implement" not in result.stdout
 
 

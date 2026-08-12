@@ -1,0 +1,4 @@
+interface:
+  display_name: "Draw System · Nível 1"
+  short_description: "Modela somente a arquitetura macro do sistema."
+  default_prompt: "Use $draw-system-level-1 para mapear a arquitetura macro do sistema."

@@ -66,7 +66,7 @@
     },
     {
       "id": 6,
-      "label": "$feature",
+      "label": "$create-tests",
       "group": 3,
       "description": "Transforma jornadas e desenhos em testes executáveis vermelhos, sem alterar código de produção; trata folhas não implementadas como escopo ausente."
     },
@@ -300,11 +300,11 @@
       "id": 2,
       "label": "Feature isolada",
       "title": "Do fluxo ao teste",
-      "summary": "Uma mudança menor pode usar draw-feature e seguir para feature.",
+      "summary": "Uma mudança menor pode usar draw-feature e seguir para create-tests.",
       "steps": [
         {
           "node": 1,
-          "text": "recebe feature"
+          "text": "recebe pedido"
         },
         {
           "node": 4,
@@ -343,7 +343,7 @@
   ],
   "tradeoffs": [
     "Os agentes são skills instaláveis; Codex, Claude e Gemini são integrações hospedeiras, não responsabilidades de negócio diferentes.",
-    "setup, static-analysis, feature e implement podem atuar sobre a codebase; draw-system, draw-feature e draw-improve alteram somente JSONs de desenho.",
+    "setup, static-analysis, create-tests e implement podem atuar sobre a codebase; draw-system, draw-feature e draw-improve alteram somente JSONs de desenho.",
     "stdd test e stdd log permanecem como mecanismos do núcleo, garantindo que nenhum agente declare conclusão sem evidência."
   ],
   "notes": [

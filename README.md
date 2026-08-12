@@ -53,7 +53,7 @@ stdd init meu-projeto --integration claude --integration gemini
 stdd init meu-projeto --all-integrations
 ```
 
-O `stdd init` sempre sincroniza as skills já instaladas com os templates desta versão, adicionando agentes novos e atualizando instruções existentes. Se o comando ainda não reconhecer `draw-system`, reinstale o CLI a partir deste checkout com `uv tool install --force --editable .` e execute o init novamente.
+O `stdd init` sempre sincroniza as skills já instaladas com os templates desta versão, adicionando agentes novos e atualizando instruções existentes. Se o comando ainda não reconhecer `draw-system-level-1` até `draw-system-level-4`, reinstale o CLI a partir deste checkout com `uv tool install --force --editable .` e execute o init novamente.
 
 Para substituir as skills de um projeto já existente pela versão mais recente publicada na `main`:
 
@@ -85,11 +85,14 @@ Depois de inicializar o projeto, abra o Codex dentro do repositório. As skills 
 
 ```text
 $setup Detecte a stack deste repositório e configure os runners sem instalar dependências.
-$feature Quero implementar autenticação por sessão; transforme o pedido em uma feature testável.
+$create-tests Quero implementar autenticação por sessão; transforme o pedido em uma feature testável.
 $draw-feature Desenhe o fluxo de autenticação, incluindo falhas e subfluxos.
 $draw-improve Revise o desenho atual e acrescente somente o próximo detalhe arquitetural relevante.
 $draw-answer Investigue e responda perguntas do Draw marcadas explicitamente com @stdd.
-$draw-system Desenhe o sistema completo em arquitetura, jornadas do usuário por papel (incluindo cliente e administrador) e níveis de implementação.
+$draw-system-level-1 Desenhe somente a arquitetura macro do sistema.
+$draw-system-level-2 Desenhe jornadas, telas e navegação por papel a partir da arquitetura existente.
+$draw-system-level-3 Detalhe o comportamento completo de uma tela ou nó, em lotes aprovados.
+$draw-system-level-4 Rastreie sob demanda uma decisão até a codebase real.
 $static-analysis Analise dependências, complexidade, funções longas e segredos hardcoded.
 $implement Execute a implementação aprovada e rode os gates do STDD.
 ```
@@ -98,7 +101,7 @@ Também é possível chamar a skill sem instrução adicional quando o objetivo 
 
 ```text
 $setup
-$feature
+$create-tests
 $draw-improve
 $draw-answer
 $implement
@@ -108,18 +111,21 @@ O agente deve ler o `SKILL.md` correspondente antes de agir. A skill define o co
 
 ```text
 $setup
-$feature Descreva aqui o que o produto precisa fazer.
-$draw-system Modele a arquitetura, as jornadas do usuário por papel — separando cliente, administrador e permissões — e os subfluxos de implementação.
+$create-tests Descreva aqui o que o produto precisa fazer.
+$draw-system-level-1 Modele a arquitetura macro do sistema.
+$draw-system-level-2 Modele as jornadas por papel — separando cliente, administrador e permissões.
+$draw-system-level-3 Modele de ponta a ponta o comportamento das telas que exigem regras, validações ou autorização.
+$draw-system-level-4 Abra somente o recorte de codebase que exija rastreabilidade técnica.
 $draw-feature Mostre a arquitetura e os trade-offs dessa feature.
 $draw-improve Evolua o desenho em um ciclo curto e pare para minha revisão.
 $implement Execute somente depois da aprovação.
 ```
 
-`$draw-improve` trabalha sobre um JSON existente em `.stdd/draws/`. Cada chamada faz no máximo um incremento pequeno e encerra para revisão; se a arquitetura já estiver suficiente, a resposta correta pode ser `Já está bom`. Quando o desenho estiver aprovado, `$feature` transforma sua lógica em testes. Mesmo que o próximo pedido seja apenas `$implement`, o agente deve passar primeiro pela etapa de feature e confirmar os testes vermelhos antes de alterar produção.
+`$draw-improve` trabalha sobre um JSON existente em `.stdd/draws/`. Cada chamada faz no máximo um incremento pequeno e encerra para revisão; se a arquitetura já estiver suficiente, a resposta correta pode ser `Já está bom`. Quando o desenho estiver aprovado, `$create-tests` transforma sua lógica em testes. Mesmo que o próximo pedido seja apenas `$implement`, o agente deve passar primeiro pela etapa de create-tests e confirmar os testes vermelhos antes de alterar produção.
 
 Perguntas de um Draw só devem ser respondidas automaticamente pelo `$draw-answer` quando o `prompt` contiver `@stdd` e `answer` estiver ausente, `null` ou vazio. O agente executa `stdd draw questions`, que já busca todas as perguntas nos JSONs e retorna JSON, consulta a codebase e os símbolos associados; se houver evidência, grava a resposta, marca os símbolos relevantes e remove o marcador. Se não houver evidência suficiente, mantém a pergunta aberta e associa ao próprio nó o arquivo e o símbolo relevante em `code_refs`. Sem `@stdd`, a pergunta pertence ao usuário ou a um revisor humano; respostas já preenchidas, inclusive `false` e `0`, não geram nova ação. O `$draw-improve` preserva essa responsabilidade separada e não responde perguntas.
 
-`$draw-system` cria uma árvore sem fluxos órfãos: nível 1 contém somente arquitetura macro, nível 2 acompanha as jornadas e a navegação do cliente, nível 3 detalha a implementação e nível 4 liga a codebase quando necessário. Cada filho declara seu pai e cada pai aponta para o filho com `draw_ref`; caminhos ainda não implementados terminam no próprio nó, sem continuação fictícia.
+As skills `$draw-system-level-1` a `$draw-system-level-4` criam uma árvore sem fluxos órfãos: nível 1 contém somente arquitetura macro, nível 2 acompanha jornadas e navegação por papel, nível 3 detalha de ponta a ponta o comportamento de cada tela em dois ou mais lotes aprovados e nível 4 liga a codebase sob demanda. Cada filho declara seu pai e cada pai aponta para o filho com `draw_ref`; caminhos ainda não implementados terminam no próprio nó, sem continuação fictícia.
 
 Para Claude e Gemini, as mesmas skills são instaladas em `.claude/skills/` e `.gemini/skills/`; a forma exata de chamada pode ser o comando de skill adotado pelo agente, mas os nomes e contratos permanecem iguais.
 

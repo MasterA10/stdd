@@ -88,14 +88,14 @@ stdd draw create --data-json '<JSON_COMPLETO_ATUALIZADO>'
 11. Validar o desenho gerado, abrir com `stdd draw serve` quando a revisão visual for útil e registrar o trabalho como implementação do desenho.
 12. Informar o incremento, as mudanças encontradas no diff salvo, as perguntas e sugestões, o que ficou deliberadamente fora e pedir revisão. Encerrar o ciclo.
 
-## Handoff para feature e implementação
+## Handoff para create-tests e implementação
 
 O desenho não autoriza alteração direta de produção.
 
-- Se o usuário disser apenas `$feature`, resolver o desenho pelo contexto e entregar seu ID ao Feature Agent. O Feature Agent deve ler `.stdd/draws/<draw-id>.json`, criar os testes executáveis e confirmar o estado vermelho pelo motivo esperado. Não exigir que o usuário repita a descrição já presente no desenho.
-- Se o usuário disser `$implement` ou pedir para implementar o desenho, executar primeiro o contrato de `$feature`. Somente depois de existirem testes adequados em estado vermelho, seguir o contrato do Implement Agent para obter verde.
-- Não pular a etapa de feature, não criar produção antes dos testes e não tratar desenho aprovado como teste aprovado.
-- Se o desenho for ambíguo a ponto de produzir contratos incompatíveis, pedir a menor decisão necessária antes da feature.
+- Se o usuário disser apenas `$create-tests`, resolver o desenho pelo contexto e entregar seu ID ao Create Tests Agent. O Create Tests Agent deve ler `.stdd/draws/<draw-id>.json`, criar os testes executáveis e confirmar o estado vermelho pelo motivo esperado. Não exigir que o usuário repita a descrição já presente no desenho.
+- Se o usuário disser `$implement` ou pedir para implementar o desenho, executar primeiro o contrato de `$create-tests`. Somente depois de existirem testes adequados em estado vermelho, seguir o contrato do Implement Agent para obter verde.
+- Não pular a etapa de create-tests, não criar produção antes dos testes e não tratar desenho aprovado como teste aprovado.
+- Se o desenho for ambíguo a ponto de produzir contratos incompatíveis, pedir a menor decisão necessária antes de create-tests.
 
 ## Encerramento de cada ciclo
 
@@ -107,7 +107,7 @@ Informar:
 - risco, caso de uso ou decisão esclarecida;
 - detalhes deliberadamente não adicionados;
 - comando ou URL para revisão visual;
-- próxima opção: revisar manualmente, chamar `$draw-improve` novamente, seguir com `$feature` ou iniciar `$implement` pela etapa de feature.
+- próxima opção: revisar manualmente, chamar `$draw-improve` novamente, seguir com `$create-tests` ou iniciar `$implement` pela etapa de create-tests.
 
 Quando houver alteração, registrar somente o tipo correspondente:
 

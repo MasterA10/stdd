@@ -1,0 +1,155 @@
+{
+  "version": 1,
+  "date": "2026-08-12",
+  "runs": [
+    {
+      "run_id": "20737717ef2f4cbda5a97c40f52f7112",
+      "timestamp": "2026-08-12T03:17:43.563635+00:00",
+      "description": "Divide Draw System em quatro skills por nível",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 43,
+        "lines_deleted": 29,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "264722bffe304da3917f1483e94d46f6",
+      "timestamp": "2026-08-12T03:24:53.963207+00:00",
+      "description": "Define convenção lógica de conexões do Draw System",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 18,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "2cf18f2bfe024950b10c18be5a904522",
+      "timestamp": "2026-08-12T03:31:24.744284+00:00",
+      "description": "Recupera detalhes completos do Draw System nas quatro fases",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "03522ae9905a4b9dacf0e4c4607ea3f6",
+      "timestamp": "2026-08-12T03:36:31.943435+00:00",
+      "description": "Exige descrições de 150 caracteres nos nós do nível 3",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 1,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "00da568f052a4fe4b5d129e7a3d26b34",
+      "timestamp": "2026-08-12T03:41:16.267450+00:00",
+      "description": "Renomeia o agente feature para create-tests",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 15,
+        "lines_deleted": 15,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 4,
+        "lines_deleted": 4,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "ebb03e8bea0d40829427b6bf1ca04877",
+      "timestamp": "2026-08-12T03:41:55.481105+00:00",
+      "description": "Finaliza a renomeação do agente para create-tests",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 1,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "f5eb5426abaa4bc4a180124f29c47659",
+      "timestamp": "2026-08-12T03:42:39.390592+00:00",
+      "description": "Confirma a migração do agente para create-tests",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    }
+  ],
+  "run_count": 7,
+  "last_run_id": "f5eb5426abaa4bc4a180124f29c47659"
+}

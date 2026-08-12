@@ -11,7 +11,7 @@ O setup deve preservar a hierarquia dos desenhos existentes. Não reclassificar 
 
 Se validar desenhos como parte do diagnóstico, exigir que cada descendente tenha `parent_draw_ref`, `parent_node_id` e `root_draw_ref`, que o pai possua o `draw_ref` correspondente e que folhas não implementadas permaneçam terminais. Um `draw_ref` quebrado ou fluxo órfão é inconsistência a relatar, não motivo para alterar o desenho automaticamente.
 
-Depois de detectar a stack, verificar `.stdd/draws/` procurando ao menos um desenho de sistema com `kind: "system"` e `hierarchy.level: 1`. Se não houver uma raiz de sistema, informar que a documentação arquitetural ainda não existe e recomendar uma chamada separada a `$draw-system`. O `setup` não cria, edita, completa ou substitui desenhos; ele somente configura a stack, os runners, o contrato e a análise estática. A criação da arquitetura, das jornadas do usuário — incluindo cliente e administrador — e dos níveis de implementação pertence exclusivamente ao `$draw-system`.
+Depois de detectar a stack, verificar `.stdd/draws/` procurando ao menos um desenho de sistema com `kind: "system"` e `hierarchy.level: 1`. Se não houver uma raiz de sistema, informar que a documentação arquitetural ainda não existe e recomendar uma chamada separada a `$draw-system-level-1`. O `setup` não cria, edita, completa ou substitui desenhos; ele somente configura a stack, os runners, o contrato e a análise estática. A criação da arquitetura, das jornadas do usuário — incluindo cliente e administrador — e dos níveis de implementação pertence exclusivamente às skills `$draw-system-level-1`, `$draw-system-level-2`, `$draw-system-level-3` e `$draw-system-level-4`.
 
 ## Instalação do CLI
 

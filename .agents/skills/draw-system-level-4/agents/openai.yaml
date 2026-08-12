@@ -1,0 +1,4 @@
+interface:
+  display_name: "Draw System · Nível 4"
+  short_description: "Rastreia a implementação técnica na codebase."
+  default_prompt: "Use $draw-system-level-4 para rastrear uma decisão até a codebase."

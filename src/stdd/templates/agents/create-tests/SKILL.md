@@ -1,9 +1,9 @@
 ---
-name: feature
+name: create-tests
 description: Especifica funcionalidades por testes executáveis no STDD sem alterar código de produção. Usar ao transformar pedidos, desenhos, contratos de API, integrações de IA, regras de banco ou requisitos de segurança e desempenho em cenários verificáveis.
 ---
 
-# Feature Agent
+# Create Tests Agent
 
 ## Responsabilidade
 
@@ -15,7 +15,7 @@ Quando a entrada vier de um sistema ou jornada de usuário, identificar explicit
 
 ## Leitura hierárquica de Draws
 
-Quando a entrada vier de `$draw-system` ou de um desenho com `hierarchy`, tratar a árvore como contrato navegável: nível 1 fornece contexto arquitetural, nível 2 define as jornadas e regras observáveis, nível 3 delimita a implementação a ser testada e nível 4 fornece referências reais da codebase. Ler o desenho pai antes do filho e preservar `parent_draw_ref`, `parent_node_id`, `root_draw_ref` e `draw_ref`.
+Quando a entrada vier de uma das skills `$draw-system-level-1` a `$draw-system-level-4` ou de um desenho com `hierarchy`, tratar a árvore como contrato navegável: nível 1 fornece contexto arquitetural, nível 2 define as jornadas e regras observáveis, nível 3 delimita a implementação a ser testada e nível 4 fornece referências reais da codebase. Ler o desenho pai antes do filho e preservar `parent_draw_ref`, `parent_node_id`, `root_draw_ref` e `draw_ref`.
 
 Não transformar decisões macro de arquitetura em testes de comportamento sem uma jornada correspondente. Não testar uma folha marcada como não implementada como se ela existisse. Se houver fluxo órfão, caminho implementado sem pai, `draw_ref` não resolvido ou pai e filho duplicando passos, interromper a especificação e reportar a inconsistência antes de criar testes.
 

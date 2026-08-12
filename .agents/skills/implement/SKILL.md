@@ -15,7 +15,7 @@ Ao implementar uma jornada, confirmar o papel do usuário e aplicar a autorizaç
 
 ## Hierarquia como contrato de implementação
 
-Quando houver um desenho de `$draw-system`, ler a cadeia completa do nó de nível 2 até o nível 3 e, se existir, o nível 4. O nível 1 orienta fronteiras e escolhas de infraestrutura; o nível 2 define o comportamento do cliente; o nível 3 define o comportamento técnico a implementar; o nível 4 fornece referências verificáveis da codebase. Preservar `draw_ref`, `parent_draw_ref`, `parent_node_id` e `root_draw_ref`.
+Quando houver um desenho criado por `$draw-system-level-1` a `$draw-system-level-4`, ler a cadeia completa do nó de nível 2 até o nível 3 e, se existir, o nível 4. O nível 1 orienta fronteiras e escolhas de infraestrutura; o nível 2 define o comportamento do cliente; o nível 3 define o comportamento técnico a implementar; o nível 4 fornece referências verificáveis da codebase. Preservar `draw_ref`, `parent_draw_ref`, `parent_node_id` e `root_draw_ref`.
 
 Não implementar uma folha marcada como não implementada sem escopo aprovado. Se houver fluxo órfão, referência quebrada, pai que duplica o filho ou conflito entre níveis, parar antes de alterar produção e reportar a inconsistência. A implementação deve permanecer dentro da cápsula do desenho filho e não mover detalhes de nível 3 para o pai de nível 2.
 

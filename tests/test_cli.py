@@ -41,7 +41,8 @@ def test_init_can_install_skills_for_all_supported_agents(tmp_path: Path):
         assert (tmp_path / directory / "skills" / "setup" / "SKILL.md").exists()
         assert (tmp_path / directory / "skills" / "draw-answer" / "SKILL.md").exists()
         assert (tmp_path / directory / "skills" / "draw-improve" / "SKILL.md").exists()
-        assert (tmp_path / directory / "skills" / "draw-system" / "SKILL.md").exists()
+        for level in range(1, 5):
+            assert (tmp_path / directory / "skills" / f"draw-system-level-{level}" / "SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-improve/agents/openai.yaml").exists()
     assert (tmp_path / ".agents/skills/draw-answer/agents/openai.yaml").exists()
 
