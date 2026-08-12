@@ -103,8 +103,7 @@ Este projeto usa o STDD para especificação, implementação, testes e evidênc
 - Execute `stdd test` antes de declarar uma tarefa concluída e trate falhas como bloqueios.
 - Preserve o contrato existente, os testes aprovados e os arquivos protegidos.
 - Use `.stdd/` para configuração, desenhos, execuções e evidências; não registre segredos nos logs.
-- Ao detectar frontend, siga a skill `static-analysis`: escolha um adapter conforme a stack, valide links, rotas, assets e interações somente com fatos comprováveis e registre limitações como `unavailable`.
-- Use `static_analysis.frontend` para ativar, deixar como aviso ou desativar as regras frontend; exceções devem indicar regra, alvo, motivo e validade, nunca mascarar falhas do adapter ou segredos.
+- A análise de código deve permanecer separada da análise dos Draws/JSONs; preserve símbolos, referências e métricas gerais quando a stack oferecer essa capacidade.
 - Antes de qualquer commit ou push na branch `main`, confirme que o diff inclui as fontes, templates, skills, assets empacotados, README e testes necessários para o comando de instalação do README reproduzir a versão publicada.
 - Depois de alterar o framework, valide a instalação equivalente com `uv tool install --force --editable .` e confirme que `stdd init` instala as skills atuais; não publique somente uma parte da alteração.
 - Ao relatar o resultado, informe status, arquivos alterados, testes executados, evidências e limitações.
@@ -168,16 +167,6 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list
                         "adapter_command": None,
                         "contract_version": "1",
                         "allow_marked_test_credentials": True,
-                        "frontend": {
-                            "enabled": False,
-                            "mode": "blocking",
-                            "rules": {
-                                "missing_destination": True,
-                                "dead_reference": True,
-                                "interactive_without_action": True,
-                                "decorative_semantics": True,
-                            },
-                        },
                         "exceptions": [],
                         "quality": {
                             "functions": {
@@ -240,21 +229,14 @@ def ensure_static_analysis_defaults(config_path: Path) -> list[Path]:
     if not isinstance(static_config, dict):
         return []
     changed = False
+    if "frontend" in static_config:
+        del static_config["frontend"]
+        changed = True
     defaults = {
         "enabled": True,
         "adapter_command": None,
         "contract_version": "1",
         "allow_marked_test_credentials": True,
-        "frontend": {
-            "enabled": False,
-            "mode": "blocking",
-            "rules": {
-                "missing_destination": True,
-                "dead_reference": True,
-                "interactive_without_action": True,
-                "decorative_semantics": True,
-            },
-        },
         "exceptions": [],
     }
     for key, value in defaults.items():

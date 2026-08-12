@@ -17,13 +17,10 @@ from .core import (
 from .draw import analyze_draw_contract, analyze_draw_structure, create_draw, find_addressed_questions, logical_draw_payload, read_draw_index, serve_draw
 from .traceability import associate_node_reference, associate_node_references
 from .setup import (
-    FRONTEND_ANALYSIS_MODES,
     SUPPORTED_INTEGRATIONS,
     available_integrations,
-    configure_frontend_analysis,
     configure_project,
     ensure_stack_gitignore,
-    has_frontend_surface,
 )
 
 app = typer.Typer(help="STDD: CLI de suporte ao desenvolvimento orientado por testes.")
@@ -37,7 +34,6 @@ def init(
     integration: List[str] = typer.Option(None, "--integration", help="Agente a integrar: codex, claude ou gemini; pode repetir."),
     all_integrations: bool = typer.Option(False, "--all-integrations", help="Instala as skills para Codex, Claude e Gemini."),
     interactive: bool = typer.Option(False, "--interactive", help="Abre a seleção numérica de integrações e setup."),
-    frontend_analysis: Optional[str] = typer.Option(None, "--frontend-analysis", help="Gate frontend: blocking, warning ou disabled."),
 ) -> None:
     """Inicializa a estrutura do STDD e instala as skills dos agentes.
     Cria o diretório-alvo quando necessário, depois cria .stdd/ e .agents/skills.
@@ -56,9 +52,6 @@ def init(
     if invalid:
         typer.echo(f"Erro: integrações desconhecidas: {', '.join(invalid)}", err=True)
         raise typer.Exit(1)
-    if frontend_analysis is not None and frontend_analysis not in FRONTEND_ANALYSIS_MODES:
-        typer.echo("Erro: --frontend-analysis deve ser blocking, warning ou disabled.", err=True)
-        raise typer.Exit(1)
     created = init_project(target, integrations=requested)
     typer.echo(f"Projeto inicializado em {target}. {len(created)} itens criados.")
     if interactive or sys.stdin.isatty():
@@ -67,10 +60,6 @@ def init(
             stack = configure_project(target)
             ensure_stack_gitignore(target, stack["languages"])
             typer.echo(f"Stack: {', '.join(stack['languages']) or 'não detectada'}")
-            if frontend_analysis is None and has_frontend_surface(target, stack):
-                frontend_analysis = choose_frontend_analysis()
-    if frontend_analysis is not None:
-        configure_frontend_analysis(target, frontend_analysis)
     unavailable = [name for name, found in available_integrations().items() if name in requested and not found]
     if unavailable:
         typer.echo(f"Aviso: agente(s) não encontrado(s) no PATH: {', '.join(unavailable)}.", err=True)
@@ -96,20 +85,9 @@ def choose_integrations() -> tuple[str, ...]:
     return selected
 
 
-def choose_frontend_analysis() -> str:
-    """Pergunta a política do gate frontend após evidência local da superfície."""
-    typer.echo("Escolha a política de análise estática frontend:")
-    typer.echo("  1. blocking (bloqueia achados comprovados)")
-    typer.echo("  2. warning (relata sem bloquear)")
-    typer.echo("  3. disabled (desativa somente o frontend)")
-    choice = typer.prompt("Análise frontend", default="1")
-    return {"1": "blocking", "2": "warning", "3": "disabled"}.get(choice.strip(), "blocking")
-
-
 @app.command()
 def setup(
     project: Path = typer.Argument(Path("."), help="Diretório do projeto a configurar; por padrão, o diretório atual."),
-    frontend_analysis: Optional[str] = typer.Option(None, "--frontend-analysis", help="Gate frontend: blocking, warning ou disabled."),
 ) -> None:
     """Detecta a stack e gera runners e regras de ambiente específicos do projeto.
     Não instala dependências nem executa testes, permitindo revisão antes de ações externas.
@@ -121,14 +99,9 @@ def setup(
     target.mkdir(parents=True, exist_ok=True)
     if not (target / ".stdd" / "config.json").exists():
         init_project(target)
-    if frontend_analysis is not None and frontend_analysis not in FRONTEND_ANALYSIS_MODES:
-        typer.echo("Erro: --frontend-analysis deve ser blocking, warning ou disabled.", err=True)
-        raise typer.Exit(1)
     ensure_gitignore(target)
     stack = configure_project(target)
     ensure_stack_gitignore(target, stack["languages"])
-    if frontend_analysis is not None:
-        configure_frontend_analysis(target, frontend_analysis)
     typer.echo(json.dumps({"stack": stack, "integrations": available_integrations()}, ensure_ascii=False, indent=2))
 
 

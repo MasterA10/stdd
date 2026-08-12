@@ -7,7 +7,7 @@ const IGNORED = new Set(['.git', '.stdd', 'node_modules', 'vendor', 'dist', 'bui
 const EXTENSIONS = new Set(['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs']);
 const result = {
   contract_version: '1', status: 'passed',
-  capabilities: { symbols: true, dependencies: true, complexity: true, structural_metrics: true, changes: false, frontend: false },
+  capabilities: { symbols: true, dependencies: true, complexity: true, structural_metrics: true, changes: false },
   symbols: [], dependencies: [], technologies: [], external_logic: [], complexity: [], structural_metrics: [], quality_findings: [], changes: [], warnings: [], errors: []
 };
 
@@ -41,7 +41,7 @@ function walkDirs(dir, depth) {
   return dirs;
 }
 const ts = findTypeScript();
-if (!ts) { result.status = 'unavailable'; result.capabilities = { symbols: false, dependencies: false, complexity: false, structural_metrics: false, changes: false, frontend: false }; result.warnings.push('typescript_parser_unavailable'); process.stdout.write(JSON.stringify(result) + '\n'); process.exit(0); }
+if (!ts) { result.status = 'unavailable'; result.capabilities = { symbols: false, dependencies: false, complexity: false, structural_metrics: false, changes: false }; result.warnings.push('typescript_parser_unavailable'); process.stdout.write(JSON.stringify(result) + '\n'); process.exit(0); }
 
 function files(dir) {
   const found = [];
@@ -124,5 +124,5 @@ for (const item of parsed) {
 }
 const seen = new Set();
 for (const key of ['symbols','dependencies','complexity','structural_metrics','quality_findings']) { result[key] = result[key].filter(item => { const k=JSON.stringify(item); if (seen.has(`${key}:${k}`)) return false; seen.add(`${key}:${k}`); return true; }).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))); }
-if (parsed.some(item => /\.tsx?$/.test(item.file))) { result.technologies.push({ name:'typescript', kind:'language', evidence:[{file:'package.json',source:'manifest'}] }); result.warnings.push('frontend_rules_unavailable: JSX/TSX symbols are collected, but route/asset/interaction checks require a framework-specific resolver'); }
+if (parsed.some(item => /\.tsx?$/.test(item.file))) result.technologies.push({ name:'typescript', kind:'language', evidence:[{file:'package.json',source:'manifest'}] });
 process.stdout.write(JSON.stringify(result) + '\n');

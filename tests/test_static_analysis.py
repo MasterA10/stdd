@@ -259,163 +259,6 @@ def test_secret_scanner_reports_env_key_without_code_reference(tmp_path: Path):
     }]
 
 
-def test_frontend_static_finding_blocks_only_when_frontend_policy_is_enabled(tmp_path: Path):
-    """Aplica o gate frontend somente quando a política foi habilitada.
-    Usa um finding estático de referência morta e compara disabled com blocking.
-    """
-    result = {
-        "contract_version": "1",
-        "status": "passed",
-        "capabilities": {"frontend": True},
-        "symbols": [],
-        "dependencies": [],
-        "complexity": [],
-        "structural_metrics": [],
-        "quality_findings": [{
-            "domain": "frontend",
-            "rule": "frontend.dead_reference",
-            "kind": "frontend_dead_reference",
-            "severity": "blocking",
-            "file": "src/App.tsx",
-            "line": 12,
-            "value": "/missing",
-            "limit": 0,
-            "evidence": "literal destination does not exist",
-        }],
-        "changes": [],
-        "warnings": [],
-        "errors": [],
-    }
-
-    disabled = run_static_analysis(
-        tmp_path,
-        "frontend-disabled",
-        {"static_analysis": {"adapter_command": _adapter_command(result)}},
-        [],
-    )
-    assert disabled["status"] == "passed"
-    assert disabled["quality_findings"] == []
-
-    blocking = run_static_analysis(
-        tmp_path,
-        "frontend-blocking",
-        {"static_analysis": {
-            "frontend": {"enabled": True},
-            "adapter_command": _adapter_command(result),
-        }},
-        [],
-    )
-    assert blocking["status"] == "blocked"
-    assert blocking["quality_findings"][0]["rule"] == "frontend.dead_reference"
-
-
-def test_frontend_warning_mode_downgrades_static_findings(tmp_path: Path):
-    """Permite revisar findings frontend sem interromper a suíte.
-    Mantém a evidência e converte somente a severidade bloqueante em aviso.
-    """
-    result = {
-        "contract_version": "1",
-        "status": "passed",
-        "capabilities": {"frontend": True},
-        "symbols": [], "dependencies": [], "complexity": [], "structural_metrics": [],
-        "quality_findings": [{
-            "domain": "frontend",
-            "rule": "frontend.interactive_without_action",
-            "kind": "frontend_interactive_without_action",
-            "severity": "blocking",
-            "file": "src/Menu.vue",
-            "line": 8,
-        }],
-        "changes": [], "warnings": [], "errors": [],
-    }
-    report = run_static_analysis(
-        tmp_path,
-        "frontend-warning",
-        {"static_analysis": {
-            "frontend": {"enabled": True, "mode": "warning"},
-            "adapter_command": _adapter_command(result),
-        }},
-        [],
-    )
-
-    assert report["status"] == "passed"
-    assert report["quality_findings"][0]["severity"] == "warning"
-    assert report["quality_findings"][0]["policy"] == "frontend_warning_mode"
-
-
-def test_static_analysis_exception_downgrades_and_records_frontend_finding(tmp_path: Path):
-    """Aceita uma exceção temporária sem apagar a evidência do finding.
-    Aponta a exceção para um arquivo e confirma motivo operacional no relatório.
-    """
-    result = {
-        "contract_version": "1", "status": "passed", "capabilities": {"frontend": True},
-        "symbols": [], "dependencies": [], "complexity": [], "structural_metrics": [],
-        "quality_findings": [{
-            "domain": "frontend", "rule": "frontend.dead_reference",
-            "kind": "frontend_dead_reference", "severity": "blocking",
-            "file": "src/Legacy.tsx", "line": 10,
-        }],
-        "changes": [], "warnings": [], "errors": [],
-    }
-    report = run_static_analysis(
-        tmp_path,
-        "frontend-exception",
-        {"static_analysis": {
-            "frontend": {"enabled": True},
-            "exceptions": [{
-                "rule": "frontend.dead_reference",
-                "file": "src/Legacy.tsx",
-                "action": "warning",
-                "reason": "Destino controlado por CMS.",
-                "expires": "2099-01-01",
-            }],
-            "adapter_command": _adapter_command(result),
-        }},
-        [],
-    )
-
-    assert report["status"] == "passed"
-    assert report["quality_findings"][0]["severity"] == "warning"
-    assert report["quality_findings"][0]["exception_applied"] == "exception-1"
-    assert report["applied_exceptions"][0]["action"] == "warning"
-
-
-def test_static_analysis_ignore_exception_removes_active_finding_but_keeps_evidence(tmp_path: Path):
-    """Remove um finding explicitamente ignorado dos indicadores ativos.
-    Mantém a identidade da exceção aplicada para auditoria do projeto.
-    """
-    result = {
-        "contract_version": "1", "status": "passed", "capabilities": {"frontend": True},
-        "symbols": [], "dependencies": [], "complexity": [], "structural_metrics": [],
-        "quality_findings": [{
-            "domain": "frontend", "rule": "frontend.missing_destination",
-            "kind": "frontend_missing_destination", "severity": "blocking",
-            "file": "src/ExternalLink.js", "line": 4,
-        }],
-        "changes": [], "warnings": [], "errors": [],
-    }
-    report = run_static_analysis(
-        tmp_path,
-        "frontend-ignore",
-        {"static_analysis": {
-            "frontend": {"enabled": True},
-            "exceptions": [{
-                "rule": "frontend.missing_destination",
-                "lines": [4, 4],
-                "action": "ignore",
-                "reason": "Destino fornecido por integração externa.",
-                "expires": "2099-01-01",
-            }],
-            "adapter_command": _adapter_command(result),
-        }},
-        [],
-    )
-
-    assert report["status"] == "passed"
-    assert report["quality_findings"] == []
-    assert report["applied_exceptions"][0]["action"] == "ignore"
-
-
 def test_expired_static_analysis_exception_blocks(tmp_path: Path):
     """Bloqueia exceções vencidas em vez de permitir dívida silenciosa.
     Usa uma data passada e confirma o finding específico de expiração.
@@ -425,7 +268,7 @@ def test_expired_static_analysis_exception_blocks(tmp_path: Path):
         "expired-exception",
         {"static_analysis": {
             "exceptions": [{
-                "rule": "frontend.dead_reference", "file": "src/Legacy.tsx",
+                "rule": "long_function", "file": "src/service.py",
                 "action": "warning", "reason": "Revisar compatibilidade.", "expires": "2020-01-01",
             }],
             "adapter_command": None,
@@ -444,7 +287,7 @@ def test_static_analysis_rejects_invalid_exception_policy(tmp_path: Path):
     report = run_static_analysis(
         tmp_path,
         "invalid-exception",
-        {"static_analysis": {"exceptions": [{"rule": "frontend.dead_reference", "action": "ignore"}]}},
+        {"static_analysis": {"exceptions": [{"rule": "long_function", "action": "ignore"}]}},
         [],
     )
 

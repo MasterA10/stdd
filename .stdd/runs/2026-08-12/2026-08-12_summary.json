@@ -295,8 +295,50 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "ae39e7a5fa6c4aa0b06b25bde5c5e917",
+      "timestamp": "2026-08-12T13:56:33.780322+00:00",
+      "description": "Atualiza testes para aposentar analise de frontend",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 62,
+        "lines_deleted": 357,
+        "files_changed": 8
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "39207fdf8f7e47018386b64fb072712b",
+      "timestamp": "2026-08-12T13:56:37.284673+00:00",
+      "description": "Remove prompt e politica de analise estatica de frontend",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 14,
-  "last_run_id": "1d8649884eb541a981790954666f7815"
+  "run_count": 16,
+  "last_run_id": "39207fdf8f7e47018386b64fb072712b"
 }

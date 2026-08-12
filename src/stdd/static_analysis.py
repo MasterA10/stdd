@@ -51,14 +51,7 @@ SECRET_SCAN_EXTENSIONS = {
 SECRET_PLACEHOLDERS = {"test", "testing", "example", "dummy", "placeholder", "changeme", "change-me"}
 TEST_FIXTURE_MARKERS = {"test", "fixture", "mock", "fake", "dummy", "example", "placeholder", "invalid"}
 TEST_CREDENTIAL_ALLOW_MARKER = "stdd:allow-credential"
-FRONTEND_RULE_PREFIX = "frontend."
-FRONTEND_PROTECTED_KINDS = {"hardcoded_secret", "hardcoded_env_value"}
-FRONTEND_RULES = {
-    "missing_destination",
-    "dead_reference",
-    "interactive_without_action",
-    "decorative_semantics",
-}
+SECRET_PROTECTED_KINDS = {"hardcoded_secret", "hardcoded_env_value"}
 EXCEPTION_ACTIONS = {"warning", "ignore"}
 
 
@@ -331,29 +324,7 @@ def validate_static_analysis_result(result: Any) -> list[str]:
 
 def validate_static_analysis_policy(static_config: dict[str, Any]) -> list[str]:
     """Valida as políticas locais que o núcleo aplica aos achados do adapter."""
-    return [
-        *_validate_frontend_policy(static_config.get("frontend", {})),
-        *_validate_exceptions(static_config.get("exceptions", [])),
-    ]
-
-
-def _validate_frontend_policy(frontend: Any) -> list[str]:
-    """Valida o interruptor e as regras específicas da superfície frontend."""
-    violations: list[str] = []
-    if frontend is None:
-        frontend = {}
-    if not isinstance(frontend, dict):
-        violations.append("static_analysis.frontend deve ser um objeto")
-    else:
-        if not isinstance(frontend.get("enabled", False), bool):
-            violations.append("static_analysis.frontend.enabled deve ser booleano")
-        if frontend.get("mode", "blocking") not in {"blocking", "warning"}:
-            violations.append("static_analysis.frontend.mode deve ser blocking ou warning")
-        rules = frontend.get("rules", {})
-        if not isinstance(rules, dict) or any(not isinstance(value, bool) for value in rules.values()):
-            violations.append("static_analysis.frontend.rules deve ser um objeto de valores booleanos")
-
-    return violations
+    return _validate_exceptions(static_config.get("exceptions", []))
 
 
 def _validate_exceptions(exceptions: Any) -> list[str]:
@@ -432,19 +403,6 @@ def _finding_rule(finding: dict[str, Any]) -> str:
     return str(value)
 
 
-def _is_frontend_finding(finding: dict[str, Any]) -> bool:
-    """Reconhece achados frontend sem exigir que adapters antigos conheçam domain."""
-    return finding.get("domain") == "frontend" or _finding_rule(finding).startswith(FRONTEND_RULE_PREFIX)
-
-
-def _frontend_rule_enabled(finding: dict[str, Any], frontend: dict[str, Any]) -> bool:
-    """Aplica a chave curta ou completa da regra frontend."""
-    rules = frontend.get("rules", {})
-    rule = _finding_rule(finding)
-    short_rule = rule.removeprefix(FRONTEND_RULE_PREFIX)
-    return rules.get(rule, rules.get(short_rule, True)) is not False
-
-
 def _finding_line(finding: dict[str, Any]) -> int | None:
     """Obtém a linha do finding em formatos aceitos pelo contrato."""
     if isinstance(finding.get("line"), int):
@@ -461,7 +419,7 @@ def _exception_matches(exception: dict[str, Any], finding: dict[str, Any]) -> bo
     """Confere regra e alvo de uma exceção sem usar curingas implícitos."""
     exception_rule = str(exception.get("rule", ""))
     finding_rule = _finding_rule(finding)
-    if exception_rule not in {finding_rule, finding_rule.removeprefix(FRONTEND_RULE_PREFIX)}:
+    if exception_rule != finding_rule:
         return False
     if "file" in exception:
         return finding.get("file") == exception["file"]
@@ -492,14 +450,11 @@ def apply_static_analysis_policy(
     findings: list[dict[str, Any]],
     static_config: dict[str, Any],
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    """Aplica frontend, exceções e expiração antes do quality gate.
+    """Aplica exceções e expiração antes do quality gate.
 
     Exceções mantêm evidência em ``applied_exceptions`` e nunca se aplicam aos
     achados de segredo protegidos pelo scanner interno.
     """
-    frontend = static_config.get("frontend", {})
-    if not isinstance(frontend, dict):
-        frontend = {}
     exceptions = static_config.get("exceptions", [])
     if not isinstance(exceptions, list):
         exceptions = []
@@ -515,15 +470,8 @@ def apply_static_analysis_policy(
         if not isinstance(original, dict):
             continue
         finding = dict(original)
-        if _is_frontend_finding(finding):
-            if frontend.get("enabled", False) is not True or not _frontend_rule_enabled(finding, frontend):
-                continue
-            if frontend.get("mode", "blocking") == "warning" and finding.get("severity") == "blocking":
-                finding["severity"] = "warning"
-                finding["policy"] = "frontend_warning_mode"
-
         matched = None
-        if finding.get("kind") not in FRONTEND_PROTECTED_KINDS:
+        if finding.get("kind") not in SECRET_PROTECTED_KINDS:
             matched = next(
                 (exception for exception in exceptions if date.fromisoformat(exception["expires"]) >= date.today() and _exception_matches(exception, finding)),
                 None,
@@ -575,7 +523,7 @@ def _apply_quality_gate(
     if not blocking_findings:
         return result
     result["status"] = "blocked"
-    if any(finding.get("kind") in FRONTEND_PROTECTED_KINDS for finding in blocking_findings):
+    if any(finding.get("kind") in SECRET_PROTECTED_KINDS for finding in blocking_findings):
         result["reason"] = "hardcoded_secret"
         message = f"{len(blocking_findings)} segredo(s) hardcoded detectado(s)"
     else:

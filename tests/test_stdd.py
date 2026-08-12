@@ -63,17 +63,14 @@ def test_init_defers_language_specific_test_runner_to_setup(tmp_path: Path):
     assert config["testing"]["profile"] == "mvp"
 
 
-def test_init_creates_frontend_policy_and_exception_controls(tmp_path: Path):
-    """Inicializa controles frontend sem presumir parser ou adapter.
-    Confirma defaults seguros, regras habilitadas e lista de exceções vazia.
+def test_init_creates_static_analysis_without_frontend_policy(tmp_path: Path):
+    """Inicializa análise geral sem criar um gate frontend.
+    Confirma defaults de segurança e exceções sem política específica de interface.
     """
     init_project(tmp_path)
 
     config = json.loads((tmp_path / ".stdd/config.json").read_text())
-    frontend = config["static_analysis"]["frontend"]
-    assert frontend["enabled"] is False
-    assert frontend["mode"] == "blocking"
-    assert frontend["rules"]["dead_reference"] is True
+    assert "frontend" not in config["static_analysis"]
     assert config["static_analysis"]["exceptions"] == []
 
 
@@ -222,7 +219,7 @@ def test_agents_are_loaded_from_markdown_templates():
     for required in ("nível 4", "sob demanda", "qualified_name", "rpc", "procedure", "sql", "arquivo", "model"):
         assert required in level_four
 
-    for required in ("supabase", "rpc", "back-end", "external_logic", "technologies", "sql_procedure", "sql_function", "localização da regra", "todos os níveis", "frontend/interface", "frontend agnóstico", "frontend.dead_reference", "static_analysis.exceptions", "stdd:ignore", "draw.level2_missing_code_ref", "draw.level3_min_nodes", "draw.level3_short_description", "menos de quatro nós", "menos de 80 caracteres", "nunca bloqueiam"):
+    for required in ("supabase", "rpc", "back-end", "external_logic", "technologies", "sql_procedure", "sql_function", "localização da regra", "todos os níveis", "frontend/interface", "static_analysis.exceptions", "stdd:ignore", "draw.level2_missing_code_ref", "draw.level3_min_nodes", "draw.level3_short_description", "menos de quatro nós", "menos de 80 caracteres", "nunca bloqueiam"):
         assert required in templates["static-analysis"].read_text().lower()
 
     setup_content = templates["setup"].read_text()
@@ -235,8 +232,7 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "<project_root>/.stdd/adapters/" in setup_content
     assert "não depender de serviço externo" in setup_content
     assert "personalizado para a linguagem e para a codebase" in setup_content
-    assert "frontend em qualquer stack" in setup_content.lower()
-    assert "frontend-analysis blocking|warning|disabled" in setup_content
+    assert "frontend-analysis" not in setup_content
     assert "static_analysis.exceptions" in setup_content
 
     implement_content = templates["implement"].read_text()

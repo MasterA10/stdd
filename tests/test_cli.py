@@ -59,44 +59,50 @@ def test_init_interactive_selects_multiple_agent_integrations(tmp_path: Path):
     assert "Selecione" in result.stdout
 
 
-def test_init_configures_frontend_analysis_policy_without_creating_adapter(tmp_path: Path):
-    """Permite escolher o gate frontend durante a inicialização automatizada.
-    Confirma que o modo é salvo sem inventar uma ferramenta de análise local.
-    """
-    result = runner.invoke(app, ["init", str(tmp_path), "--frontend-analysis", "warning"])
-
-    assert result.exit_code == 0
-    config = json.loads((tmp_path / ".stdd/config.json").read_text())
-    assert config["static_analysis"]["frontend"]["enabled"] is True
-    assert config["static_analysis"]["frontend"]["mode"] == "warning"
-    assert config["static_analysis"]["adapter_command"] is None
-
-
-def test_setup_can_disable_only_frontend_analysis(tmp_path: Path):
-    """Desativa somente a política frontend e preserva o restante da análise.
-    Usa um documento HTML local para confirmar que setup aceita a opção explícita.
-    """
-    (tmp_path / "index.html").write_text("<a href='/home'>home</a>")
-
-    result = runner.invoke(app, ["setup", str(tmp_path), "--frontend-analysis", "disabled"])
-
-    assert result.exit_code == 0
-    config = json.loads((tmp_path / ".stdd/config.json").read_text())
-    assert config["static_analysis"]["frontend"]["enabled"] is False
-
-
-def test_init_interactive_asks_frontend_policy_when_surface_is_detected(tmp_path: Path):
-    """Pergunta a política frontend somente após detectar arquivos da superfície.
-    Escolhe warning no fluxo interativo e confirma a configuração persistida.
+def test_init_interactive_does_not_ask_frontend_analysis_policy(tmp_path: Path):
+    """Inicializa projetos frontend sem abrir um gate específico.
+    Confirma que o setup termina após a escolha de executar a detecção da stack.
     """
     (tmp_path / "index.html").write_text("<button>menu</button>")
 
-    result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="1\ny\n2\n")
+    result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="1\ny\n")
 
     assert result.exit_code == 0
-    assert "política de análise estática frontend" in result.stdout
+    assert "política de análise estática frontend" not in result.stdout
     config = json.loads((tmp_path / ".stdd/config.json").read_text())
-    assert config["static_analysis"]["frontend"]["mode"] == "warning"
+    assert "frontend" not in config["static_analysis"]
+
+
+def test_init_rejects_removed_frontend_analysis_option(tmp_path: Path):
+    """Rejeita a opção frontend aposentada pelo CLI.
+    Confirma que a análise geral continua sendo configurada sem esse gate.
+    """
+    result = runner.invoke(app, ["init", str(tmp_path), "--frontend-analysis", "warning"])
+
+    assert result.exit_code != 0
+    assert "frontend-analysis" in result.output
+
+
+def test_init_removes_legacy_frontend_policy_without_losing_other_static_config(tmp_path: Path):
+    """Migra a política frontend antiga durante a inicialização.
+    Preserva adapter e quality enquanto remove somente a configuração aposentada.
+    """
+    init_result = runner.invoke(app, ["init", str(tmp_path)])
+    assert init_result.exit_code == 0
+    config_path = tmp_path / ".stdd/config.json"
+    config = json.loads(config_path.read_text())
+    config["static_analysis"]["frontend"] = {"enabled": True, "mode": "warning"}
+    config["static_analysis"]["adapter_command"] = ["python", "adapter.py"]
+    config["static_analysis"]["quality"] = {"functions": {"max_lines": {"warning": 40, "blocking": 100}}}
+    config_path.write_text(json.dumps(config), encoding="utf-8")
+
+    result = runner.invoke(app, ["init", str(tmp_path)])
+
+    assert result.exit_code == 0
+    migrated = json.loads(config_path.read_text())
+    assert "frontend" not in migrated["static_analysis"]
+    assert migrated["static_analysis"]["adapter_command"] == ["python", "adapter.py"]
+    assert migrated["static_analysis"]["quality"]["functions"]["max_lines"]["warning"] == 40
 
 
 def test_setup_detects_stack_without_assuming_python(tmp_path: Path):

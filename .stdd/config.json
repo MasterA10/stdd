@@ -41,16 +41,6 @@
         }
       }
     },
-    "frontend": {
-      "enabled": false,
-      "mode": "blocking",
-      "rules": {
-        "missing_destination": true,
-        "dead_reference": true,
-        "interactive_without_action": true,
-        "decorative_semantics": true
-      }
-    },
     "exceptions": [
       {
         "rule": "deep_nesting",
