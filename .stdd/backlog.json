@@ -1,0 +1,3719 @@
+{
+  "version": 1,
+  "kind": "backlog",
+  "generated_at": "2026-08-13T19:02:12.354797+00:00",
+  "system": {
+    "root_draw_ids": [
+      "stdd-system-architecture"
+    ]
+  },
+  "checklists": [
+    {
+      "id": "stdd-system-architecture",
+      "draw_id": "stdd-system-architecture",
+      "title": "Arquitetura do sistema de especificação STDD",
+      "hierarchy": {
+        "level": 1,
+        "role": "architecture",
+        "parent_draw_ref": null,
+        "parent_node_id": null,
+        "root_draw_ref": "stdd-system-architecture"
+      },
+      "parent_checklist_id": null,
+      "parent_node_id": null,
+      "items": [
+        {
+          "id": "item:stdd-system-architecture:node:1",
+          "node_id": 1,
+          "label": "Agente de código",
+          "description": "Consumidor das skills instaladas, responsável por especificar, desenhar, implementar e relatar o trabalho.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:stdd-system-architecture:node:2",
+          "node_id": 2,
+          "label": "CLI stdd",
+          "description": "Interface operacional para init, setup, test, log e draw.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:stdd-system-architecture:node:3",
+          "node_id": 3,
+          "label": "Núcleo de execução",
+          "description": "Coordena inicialização, runners, contratos, análise estática, rastreabilidade e registro de execuções.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:stdd-system-architecture:node:4",
+          "node_id": 4,
+          "label": "Contrato e testes do framework",
+          "description": "Suítes pytest e regras de contrato que protegem o comportamento do próprio STDD.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:stdd-system-architecture:node:5",
+          "node_id": 5,
+          "label": ".stdd/config.json",
+          "description": "Configuração de runners, stack detectada, contrato e adapter de análise estática.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:stdd-system-architecture:node:6",
+          "node_id": 6,
+          "label": ".stdd/runs e facts",
+          "description": "Estado versionável de execuções, snapshots, KPIs de análise e fatos de rastreabilidade.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:stdd-system-architecture:node:7",
+          "node_id": 7,
+          "label": ".stdd/draws",
+          "description": "Fonte de verdade JSON dos desenhos, com índice e relações hierárquicas.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:stdd-system-architecture:node:8",
+          "node_id": 8,
+          "label": "Jornadas do usuário do STDD",
+          "description": "Entrada para o desenho de nível 2: como agente e desenvolvedor usam o sistema.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": "stdd-user-journeys"
+        },
+        {
+          "id": "item:stdd-system-architecture:node:9",
+          "node_id": 9,
+          "label": "Draw Server e viewer embutido",
+          "description": "Servidor HTTP local que entrega o viewer React Flow empacotado e a API de desenhos.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:stdd-system-architecture:node:10",
+          "node_id": 10,
+          "label": "Codebase Python e pytest",
+          "description": "Runtime Python >= 3.11, Typer, setuptools e pytest; sem banco ou serviço externo obrigatório.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:stdd-system-architecture:node:11",
+          "node_id": 11,
+          "label": "Agentes STDD e integrações",
+          "description": "Skills especializadas que conduzem o ciclo de especificação, desenho, análise e implementação; instaladas nas integrações Codex, Claude e Gemini.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": "stdd-agent-journeys"
+        }
+      ]
+    },
+    {
+      "id": "stdd-agent-journeys",
+      "draw_id": "stdd-agent-journeys",
+      "title": "Agentes e responsabilidades do STDD",
+      "hierarchy": {
+        "level": 2,
+        "role": "journey",
+        "parent_draw_ref": "stdd-system-architecture",
+        "parent_node_id": 11,
+        "root_draw_ref": "stdd-system-architecture"
+      },
+      "parent_checklist_id": "stdd-system-architecture",
+      "parent_node_id": 11,
+      "items": [
+        {
+          "id": "item:stdd-agent-journeys:node:1",
+          "node_id": 1,
+          "label": "Pedido do usuário",
+          "description": "Intenção, problema, mudança arquitetural ou necessidade de documentação recebida pelo agente hospedeiro.",
+          "status": "done",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-agent-journeys:node:1",
+          "task": {
+            "id": "task:stdd-agent-journeys:node:1",
+            "draw_id": "stdd-agent-journeys",
+            "backlog_id": "stdd-agent-journeys",
+            "parent_task_id": null,
+            "draw_title": "Agentes e responsabilidades do STDD",
+            "node_id": 1,
+            "level": 2,
+            "label": "Pedido do usuário",
+            "description": "Intenção, problema, mudança arquitetural ou necessidade de documentação recebida pelo agente hospedeiro.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "done",
+            "branch": {
+              "id": "stdd-agent-journeys:branch:1",
+              "position": 1,
+              "terminal": false,
+              "terminal_node_id": 13,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-agent-journeys:branch:1",
+                "position": 1,
+                "terminal": false,
+                "terminal_node_id": 13,
+                "terminal_reason": "flow-end"
+              },
+              {
+                "id": "stdd-agent-journeys:branch:2",
+                "position": 1,
+                "terminal": false,
+                "terminal_node_id": 9,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-agent-journeys:node:2",
+          "node_id": 2,
+          "label": "$setup",
+          "description": "Descobre a stack, runners, bancos, provedores e configura o STDD sem inventar capacidades. Encaminha para $draw-system quando falta uma raiz de sistema.",
+          "status": "done",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-agent-journeys:node:2",
+          "task": {
+            "id": "task:stdd-agent-journeys:node:2",
+            "draw_id": "stdd-agent-journeys",
+            "backlog_id": "stdd-agent-journeys",
+            "parent_task_id": null,
+            "draw_title": "Agentes e responsabilidades do STDD",
+            "node_id": 2,
+            "level": 2,
+            "label": "$setup",
+            "description": "Descobre a stack, runners, bancos, provedores e configura o STDD sem inventar capacidades. Encaminha para $draw-system quando falta uma raiz de sistema.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "done",
+            "branch": {
+              "id": "stdd-agent-journeys:branch:1",
+              "position": 2,
+              "terminal": false,
+              "terminal_node_id": 13,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-agent-journeys:branch:1",
+                "position": 2,
+                "terminal": false,
+                "terminal_node_id": 13,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-agent-journeys:node:3",
+          "node_id": 3,
+          "label": "$draw-system",
+          "description": "Modela o sistema completo em arquitetura, jornadas, implementação e codebase quando necessário; mantém a árvore hierárquica sem órfãos.",
+          "status": "done",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-agent-journeys:node:3",
+          "task": {
+            "id": "task:stdd-agent-journeys:node:3",
+            "draw_id": "stdd-agent-journeys",
+            "backlog_id": "stdd-agent-journeys",
+            "parent_task_id": null,
+            "draw_title": "Agentes e responsabilidades do STDD",
+            "node_id": 3,
+            "level": 2,
+            "label": "$draw-system",
+            "description": "Modela o sistema completo em arquitetura, jornadas, implementação e codebase quando necessário; mantém a árvore hierárquica sem órfãos.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "done",
+            "branch": {
+              "id": "stdd-agent-journeys:branch:1",
+              "position": 3,
+              "terminal": false,
+              "terminal_node_id": 13,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-agent-journeys:branch:1",
+                "position": 3,
+                "terminal": false,
+                "terminal_node_id": 13,
+                "terminal_reason": "flow-end"
+              },
+              {
+                "id": "stdd-agent-journeys:branch:3",
+                "position": 2,
+                "terminal": false,
+                "terminal_node_id": 6,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-agent-journeys:node:4",
+          "node_id": 4,
+          "label": "$draw-feature",
+          "description": "Desenha uma feature, fluxo, decisão ou trade-off como JSON navegável, respeitando a árvore do sistema quando existir.",
+          "status": "done",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-agent-journeys:node:4",
+          "task": {
+            "id": "task:stdd-agent-journeys:node:4",
+            "draw_id": "stdd-agent-journeys",
+            "backlog_id": "stdd-agent-journeys",
+            "parent_task_id": null,
+            "draw_title": "Agentes e responsabilidades do STDD",
+            "node_id": 4,
+            "level": 2,
+            "label": "$draw-feature",
+            "description": "Desenha uma feature, fluxo, decisão ou trade-off como JSON navegável, respeitando a árvore do sistema quando existir.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "done",
+            "branch": {
+              "id": "stdd-agent-journeys:branch:2",
+              "position": 2,
+              "terminal": false,
+              "terminal_node_id": 9,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-agent-journeys:branch:2",
+                "position": 2,
+                "terminal": false,
+                "terminal_node_id": 9,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-agent-journeys:node:5",
+          "node_id": 5,
+          "label": "$draw-improve",
+          "description": "Revisa um Draw existente e acrescenta apenas o próximo detalhe arquitetural relevante, preservando intenção, escopo e vínculos.",
+          "status": "done",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-agent-journeys:node:5",
+          "task": {
+            "id": "task:stdd-agent-journeys:node:5",
+            "draw_id": "stdd-agent-journeys",
+            "backlog_id": "stdd-agent-journeys",
+            "parent_task_id": null,
+            "draw_title": "Agentes e responsabilidades do STDD",
+            "node_id": 5,
+            "level": 2,
+            "label": "$draw-improve",
+            "description": "Revisa um Draw existente e acrescenta apenas o próximo detalhe arquitetural relevante, preservando intenção, escopo e vínculos.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "done",
+            "branch": {
+              "id": "stdd-agent-journeys:branch:3",
+              "position": 1,
+              "terminal": false,
+              "terminal_node_id": 6,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-agent-journeys:branch:3",
+                "position": 1,
+                "terminal": false,
+                "terminal_node_id": 6,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-agent-journeys:node:6",
+          "node_id": 6,
+          "label": "$create-tests",
+          "description": "Transforma jornadas e desenhos em testes executáveis vermelhos, sem alterar código de produção; trata folhas não implementadas como escopo ausente.",
+          "status": "done",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-agent-journeys:node:6",
+          "task": {
+            "id": "task:stdd-agent-journeys:node:6",
+            "draw_id": "stdd-agent-journeys",
+            "backlog_id": "stdd-agent-journeys",
+            "parent_task_id": null,
+            "draw_title": "Agentes e responsabilidades do STDD",
+            "node_id": 6,
+            "level": 2,
+            "label": "$create-tests",
+            "description": "Transforma jornadas e desenhos em testes executáveis vermelhos, sem alterar código de produção; trata folhas não implementadas como escopo ausente.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "done",
+            "branch": {
+              "id": "stdd-agent-journeys:branch:1",
+              "position": 4,
+              "terminal": false,
+              "terminal_node_id": 13,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-agent-journeys:branch:1",
+                "position": 4,
+                "terminal": false,
+                "terminal_node_id": 13,
+                "terminal_reason": "flow-end"
+              },
+              {
+                "id": "stdd-agent-journeys:branch:2",
+                "position": 3,
+                "terminal": false,
+                "terminal_node_id": 9,
+                "terminal_reason": "flow-end"
+              },
+              {
+                "id": "stdd-agent-journeys:branch:3",
+                "position": 3,
+                "terminal": true,
+                "terminal_node_id": 6,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-agent-journeys:node:7",
+          "node_id": 7,
+          "label": "$implement",
+          "description": "Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural.",
+          "status": "done",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-agent-journeys:node:7",
+          "task": {
+            "id": "task:stdd-agent-journeys:node:7",
+            "draw_id": "stdd-agent-journeys",
+            "backlog_id": "stdd-agent-journeys",
+            "parent_task_id": null,
+            "draw_title": "Agentes e responsabilidades do STDD",
+            "node_id": 7,
+            "level": 2,
+            "label": "$implement",
+            "description": "Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "done",
+            "branch": {
+              "id": "stdd-agent-journeys:branch:1",
+              "position": 5,
+              "terminal": false,
+              "terminal_node_id": 13,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-agent-journeys:branch:1",
+                "position": 5,
+                "terminal": false,
+                "terminal_node_id": 13,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-agent-journeys:node:8",
+          "node_id": 8,
+          "label": "$static-analysis",
+          "description": "Implementa ou conecta adapters agnósticos e produz fatos determinísticos sobre símbolos, dependências, complexidade, estrutura e alterações.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:stdd-agent-journeys:node:9",
+          "node_id": 9,
+          "label": "stdd test e stdd log",
+          "description": "Não são agentes: são gates e evidências operacionais que verificam e registram o trabalho conduzido pelas skills.",
+          "status": "done",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-agent-journeys:node:9",
+          "task": {
+            "id": "task:stdd-agent-journeys:node:9",
+            "draw_id": "stdd-agent-journeys",
+            "backlog_id": "stdd-agent-journeys",
+            "parent_task_id": null,
+            "draw_title": "Agentes e responsabilidades do STDD",
+            "node_id": 9,
+            "level": 2,
+            "label": "stdd test e stdd log",
+            "description": "Não são agentes: são gates e evidências operacionais que verificam e registram o trabalho conduzido pelas skills.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "done",
+            "branch": {
+              "id": "stdd-agent-journeys:branch:1",
+              "position": 6,
+              "terminal": false,
+              "terminal_node_id": 13,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-agent-journeys:branch:1",
+                "position": 6,
+                "terminal": false,
+                "terminal_node_id": 13,
+                "terminal_reason": "flow-end"
+              },
+              {
+                "id": "stdd-agent-journeys:branch:2",
+                "position": 4,
+                "terminal": true,
+                "terminal_node_id": 9,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-agent-journeys:node:10",
+          "node_id": 10,
+          "label": "Codex",
+          "description": "Integração de agente que instala as skills em .agents/skills/.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:stdd-agent-journeys:node:11",
+          "node_id": 11,
+          "label": "Claude",
+          "description": "Integração de agente que instala as skills em .claude/skills/.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:stdd-agent-journeys:node:12",
+          "node_id": 12,
+          "label": "Gemini",
+          "description": "Integração de agente que instala as skills em .gemini/skills/.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:stdd-agent-journeys:node:13",
+          "node_id": 13,
+          "label": "Entrega documentada",
+          "description": "Estado final esperado: comportamento especificado, implementado quando aplicável, verificado, desenhado e registrado.",
+          "status": "done",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-agent-journeys:node:13",
+          "task": {
+            "id": "task:stdd-agent-journeys:node:13",
+            "draw_id": "stdd-agent-journeys",
+            "backlog_id": "stdd-agent-journeys",
+            "parent_task_id": null,
+            "draw_title": "Agentes e responsabilidades do STDD",
+            "node_id": 13,
+            "level": 2,
+            "label": "Entrega documentada",
+            "description": "Estado final esperado: comportamento especificado, implementado quando aplicável, verificado, desenhado e registrado.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "done",
+            "branch": {
+              "id": "stdd-agent-journeys:branch:1",
+              "position": 7,
+              "terminal": true,
+              "terminal_node_id": 13,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-agent-journeys:branch:1",
+                "position": 7,
+                "terminal": true,
+                "terminal_node_id": 13,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "stdd-user-journeys",
+      "draw_id": "stdd-user-journeys",
+      "title": "Jornadas de uso do STDD",
+      "hierarchy": {
+        "level": 2,
+        "role": "journey",
+        "parent_draw_ref": "stdd-system-architecture",
+        "parent_node_id": 8,
+        "root_draw_ref": "stdd-system-architecture"
+      },
+      "parent_checklist_id": "stdd-system-architecture",
+      "parent_node_id": 8,
+      "items": [
+        {
+          "id": "item:stdd-user-journeys:node:1",
+          "node_id": 1,
+          "label": "Entrada: projeto e pedido",
+          "description": "O usuário abre o agente em um projeto e descreve o que precisa ser especificado ou alterado.",
+          "status": "done",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-user-journeys:node:1",
+          "task": {
+            "id": "task:stdd-user-journeys:node:1",
+            "draw_id": "stdd-user-journeys",
+            "backlog_id": "stdd-user-journeys",
+            "parent_task_id": null,
+            "draw_title": "Jornadas de uso do STDD",
+            "node_id": 1,
+            "level": 2,
+            "label": "Entrada: projeto e pedido",
+            "description": "O usuário abre o agente em um projeto e descreve o que precisa ser especificado ou alterado.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "done",
+            "branch": {
+              "id": "stdd-user-journeys:branch:1",
+              "position": 1,
+              "terminal": false,
+              "terminal_node_id": 6,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-user-journeys:branch:1",
+                "position": 1,
+                "terminal": false,
+                "terminal_node_id": 6,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-user-journeys:node:2",
+          "node_id": 2,
+          "label": "Inicializar e instalar skills",
+          "description": "O agente prepara .stdd/, instruções e skills para o projeto.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": "stdd-journey-init"
+        },
+        {
+          "id": "item:stdd-user-journeys:node:3",
+          "node_id": 3,
+          "label": "Especificar e desenhar",
+          "description": "O pedido vira feature testável ou árvore Draw; o desenho registra caminhos implementados e folhas ausentes.",
+          "status": "done",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-user-journeys:node:3",
+          "task": {
+            "id": "task:stdd-user-journeys:node:3",
+            "draw_id": "stdd-user-journeys",
+            "backlog_id": "stdd-user-journeys",
+            "parent_task_id": null,
+            "draw_title": "Jornadas de uso do STDD",
+            "node_id": 3,
+            "level": 2,
+            "label": "Especificar e desenhar",
+            "description": "O pedido vira feature testável ou árvore Draw; o desenho registra caminhos implementados e folhas ausentes.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "done",
+            "branch": {
+              "id": "stdd-user-journeys:branch:1",
+              "position": 2,
+              "terminal": false,
+              "terminal_node_id": 6,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-user-journeys:branch:1",
+                "position": 2,
+                "terminal": false,
+                "terminal_node_id": 6,
+                "terminal_reason": "flow-end"
+              },
+              {
+                "id": "stdd-user-journeys:branch:2",
+                "position": 3,
+                "terminal": true,
+                "terminal_node_id": 3,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-user-journeys:node:4",
+          "node_id": 4,
+          "label": "Executar gates",
+          "description": "O agente executa testes, contrato e análise estática antes de declarar conclusão.",
+          "status": "done",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": "stdd-journey-test",
+          "task_id": "task:stdd-user-journeys:node:4",
+          "task": {
+            "id": "task:stdd-user-journeys:node:4",
+            "draw_id": "stdd-user-journeys",
+            "backlog_id": "stdd-user-journeys",
+            "parent_task_id": null,
+            "draw_title": "Jornadas de uso do STDD",
+            "node_id": 4,
+            "level": 2,
+            "label": "Executar gates",
+            "description": "O agente executa testes, contrato e análise estática antes de declarar conclusão.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": "stdd-journey-test",
+            "status": "done",
+            "branch": {
+              "id": "stdd-user-journeys:branch:1",
+              "position": 3,
+              "terminal": false,
+              "terminal_node_id": 6,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-user-journeys:branch:1",
+                "position": 3,
+                "terminal": false,
+                "terminal_node_id": 6,
+                "terminal_reason": "flow-end"
+              },
+              {
+                "id": "stdd-user-journeys:branch:2",
+                "position": 1,
+                "terminal": false,
+                "terminal_node_id": 3,
+                "terminal_reason": "flow-end"
+              }
+            ],
+            "child_backlog_id": "stdd-journey-test",
+            "child_task_ids": [
+              "task:stdd-journey-test:node:1",
+              "task:stdd-journey-test:node:2",
+              "task:stdd-journey-test:node:3",
+              "task:stdd-journey-test:node:4"
+            ],
+            "child_branch_ids": [
+              "stdd-journey-test:branch:1"
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-user-journeys:node:5",
+          "node_id": 5,
+          "label": "Registrar evidência",
+          "description": "O trabalho concluído recebe log com tipo e diff incremental.",
+          "status": "done",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": "stdd-journey-log",
+          "task_id": "task:stdd-user-journeys:node:5",
+          "task": {
+            "id": "task:stdd-user-journeys:node:5",
+            "draw_id": "stdd-user-journeys",
+            "backlog_id": "stdd-user-journeys",
+            "parent_task_id": null,
+            "draw_title": "Jornadas de uso do STDD",
+            "node_id": 5,
+            "level": 2,
+            "label": "Registrar evidência",
+            "description": "O trabalho concluído recebe log com tipo e diff incremental.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": "stdd-journey-log",
+            "status": "done",
+            "branch": {
+              "id": "stdd-user-journeys:branch:1",
+              "position": 4,
+              "terminal": false,
+              "terminal_node_id": 6,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-user-journeys:branch:1",
+                "position": 4,
+                "terminal": false,
+                "terminal_node_id": 6,
+                "terminal_reason": "flow-end"
+              }
+            ],
+            "child_backlog_id": "stdd-journey-log",
+            "child_task_ids": [
+              "task:stdd-journey-log:node:1",
+              "task:stdd-journey-log:node:2",
+              "task:stdd-journey-log:node:3",
+              "task:stdd-journey-log:node:4"
+            ],
+            "child_branch_ids": [
+              "stdd-journey-log:branch:1"
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-user-journeys:node:6",
+          "node_id": 6,
+          "label": "Revisar no Draw",
+          "description": "O usuário abre o viewer local, navega pela árvore e revisa decisões, perguntas e trade-offs.",
+          "status": "done",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": "stdd-journey-draw",
+          "task_id": "task:stdd-user-journeys:node:6",
+          "task": {
+            "id": "task:stdd-user-journeys:node:6",
+            "draw_id": "stdd-user-journeys",
+            "backlog_id": "stdd-user-journeys",
+            "parent_task_id": null,
+            "draw_title": "Jornadas de uso do STDD",
+            "node_id": 6,
+            "level": 2,
+            "label": "Revisar no Draw",
+            "description": "O usuário abre o viewer local, navega pela árvore e revisa decisões, perguntas e trade-offs.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": "stdd-journey-draw",
+            "status": "done",
+            "branch": {
+              "id": "stdd-user-journeys:branch:1",
+              "position": 5,
+              "terminal": true,
+              "terminal_node_id": 6,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-user-journeys:branch:1",
+                "position": 5,
+                "terminal": true,
+                "terminal_node_id": 6,
+                "terminal_reason": "flow-end"
+              }
+            ],
+            "child_backlog_id": "stdd-journey-draw",
+            "child_task_ids": [
+              "task:stdd-journey-draw:node:1",
+              "task:stdd-journey-draw:node:2",
+              "task:stdd-journey-draw:node:3",
+              "task:stdd-journey-draw:node:4",
+              "task:stdd-journey-draw:node:5"
+            ],
+            "child_branch_ids": [
+              "stdd-journey-draw:branch:1"
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-user-journeys:node:7",
+          "node_id": 7,
+          "label": "Bloqueado ou pendente",
+          "description": "Falha de teste, símbolo não resolvido ou decisão em aberto permanece visível e impede uma conclusão falsa.",
+          "status": "done",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-user-journeys:node:7",
+          "task": {
+            "id": "task:stdd-user-journeys:node:7",
+            "draw_id": "stdd-user-journeys",
+            "backlog_id": "stdd-user-journeys",
+            "parent_task_id": null,
+            "draw_title": "Jornadas de uso do STDD",
+            "node_id": 7,
+            "level": 2,
+            "label": "Bloqueado ou pendente",
+            "description": "Falha de teste, símbolo não resolvido ou decisão em aberto permanece visível e impede uma conclusão falsa.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "done",
+            "branch": {
+              "id": "stdd-user-journeys:branch:2",
+              "position": 2,
+              "terminal": false,
+              "terminal_node_id": 3,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-user-journeys:branch:2",
+                "position": 2,
+                "terminal": false,
+                "terminal_node_id": 3,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-user-journeys:node:8",
+          "node_id": 8,
+          "label": "Entrega rastreável",
+          "description": "A mudança termina com fontes, testes, desenho e evidências coerentes no repositório.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        }
+      ]
+    },
+    {
+      "id": "stdd-journey-draw",
+      "draw_id": "stdd-journey-draw",
+      "title": "Implementação da jornada de documentação visual",
+      "hierarchy": {
+        "level": 3,
+        "role": "implementation",
+        "parent_draw_ref": "stdd-user-journeys",
+        "parent_node_id": 6,
+        "root_draw_ref": "stdd-system-architecture"
+      },
+      "parent_checklist_id": "stdd-user-journeys",
+      "parent_node_id": 6,
+      "items": [
+        {
+          "id": "item:stdd-journey-draw:node:1",
+          "node_id": 1,
+          "label": "Receber JSON lógico",
+          "description": "O comando draw create recebe o payload sem layout, cores ou HTML.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [
+            {
+              "symbol": "stdd.cli.draw_create",
+              "identity": "64fd878f20627d43",
+              "source_dependencies": [
+                "stdd.draw.create_draw"
+              ]
+            }
+          ],
+          "symbols": [
+            "stdd.cli.draw_create"
+          ],
+          "source_dependencies": [
+            "stdd.draw.create_draw"
+          ],
+          "traceability": [
+            {
+              "symbol": "stdd.cli.draw_create",
+              "identity": "64fd878f20627d43",
+              "status": "drift",
+              "file": "src/stdd/cli.py",
+              "kind": "function",
+              "source": "python_ast"
+            }
+          ],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-journey-draw:node:1",
+          "task": {
+            "id": "task:stdd-journey-draw:node:1",
+            "draw_id": "stdd-journey-draw",
+            "backlog_id": "stdd-journey-draw",
+            "parent_task_id": "task:stdd-user-journeys:node:6",
+            "draw_title": "Implementação da jornada de documentação visual",
+            "node_id": 1,
+            "level": 3,
+            "label": "Receber JSON lógico",
+            "description": "O comando draw create recebe o payload sem layout, cores ou HTML.",
+            "questions": [],
+            "code_refs": [
+              {
+                "symbol": "stdd.cli.draw_create",
+                "identity": "64fd878f20627d43",
+                "source_dependencies": [
+                  "stdd.draw.create_draw"
+                ]
+              }
+            ],
+            "symbols": [
+              "stdd.cli.draw_create"
+            ],
+            "source_dependencies": [
+              "stdd.draw.create_draw"
+            ],
+            "traceability": [
+              {
+                "symbol": "stdd.cli.draw_create",
+                "identity": "64fd878f20627d43",
+                "status": "drift",
+                "file": "src/stdd/cli.py",
+                "kind": "function",
+                "source": "python_ast"
+              }
+            ],
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-journey-draw:branch:1",
+              "position": 1,
+              "terminal": false,
+              "terminal_node_id": 5,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-journey-draw:branch:1",
+                "position": 1,
+                "terminal": false,
+                "terminal_node_id": 5,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-journey-draw:node:2",
+          "node_id": 2,
+          "label": "Validar contrato e hierarquia",
+          "description": "Confere IDs, relações, fluxos, perguntas e pai explícito antes de persistir.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-journey-draw:node:2",
+          "task": {
+            "id": "task:stdd-journey-draw:node:2",
+            "draw_id": "stdd-journey-draw",
+            "backlog_id": "stdd-journey-draw",
+            "parent_task_id": "task:stdd-user-journeys:node:6",
+            "draw_title": "Implementação da jornada de documentação visual",
+            "node_id": 2,
+            "level": 3,
+            "label": "Validar contrato e hierarquia",
+            "description": "Confere IDs, relações, fluxos, perguntas e pai explícito antes de persistir.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-journey-draw:branch:1",
+              "position": 2,
+              "terminal": false,
+              "terminal_node_id": 5,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-journey-draw:branch:1",
+                "position": 2,
+                "terminal": false,
+                "terminal_node_id": 5,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-journey-draw:node:3",
+          "node_id": 3,
+          "label": "Persistir desenho e índice",
+          "description": "Grava o JSON em .stdd/draws e atualiza o índice.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [
+            {
+              "symbol": "stdd.draw.create_draw",
+              "identity": "8a42d3855073c490",
+              "source_dependencies": [
+                "stdd.draw.validate_draw_payload",
+                "stdd.draw.validate_hierarchy_parent"
+              ]
+            }
+          ],
+          "symbols": [
+            "stdd.draw.create_draw"
+          ],
+          "source_dependencies": [
+            "stdd.draw.validate_draw_payload",
+            "stdd.draw.validate_hierarchy_parent"
+          ],
+          "traceability": [
+            {
+              "symbol": "stdd.draw.create_draw",
+              "identity": "8a42d3855073c490",
+              "status": "drift",
+              "file": "src/stdd/draw.py",
+              "kind": "function",
+              "source": "python_ast"
+            }
+          ],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-journey-draw:node:3",
+          "task": {
+            "id": "task:stdd-journey-draw:node:3",
+            "draw_id": "stdd-journey-draw",
+            "backlog_id": "stdd-journey-draw",
+            "parent_task_id": "task:stdd-user-journeys:node:6",
+            "draw_title": "Implementação da jornada de documentação visual",
+            "node_id": 3,
+            "level": 3,
+            "label": "Persistir desenho e índice",
+            "description": "Grava o JSON em .stdd/draws e atualiza o índice.",
+            "questions": [],
+            "code_refs": [
+              {
+                "symbol": "stdd.draw.create_draw",
+                "identity": "8a42d3855073c490",
+                "source_dependencies": [
+                  "stdd.draw.validate_draw_payload",
+                  "stdd.draw.validate_hierarchy_parent"
+                ]
+              }
+            ],
+            "symbols": [
+              "stdd.draw.create_draw"
+            ],
+            "source_dependencies": [
+              "stdd.draw.validate_draw_payload",
+              "stdd.draw.validate_hierarchy_parent"
+            ],
+            "traceability": [
+              {
+                "symbol": "stdd.draw.create_draw",
+                "identity": "8a42d3855073c490",
+                "status": "drift",
+                "file": "src/stdd/draw.py",
+                "kind": "function",
+                "source": "python_ast"
+              }
+            ],
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-journey-draw:branch:1",
+              "position": 3,
+              "terminal": false,
+              "terminal_node_id": 5,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-journey-draw:branch:1",
+                "position": 3,
+                "terminal": false,
+                "terminal_node_id": 5,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-journey-draw:node:4",
+          "node_id": 4,
+          "label": "Servir viewer e API local",
+          "description": "O servidor embutido entrega o viewer e endpoints GET/PUT dos desenhos.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [
+            {
+              "symbol": "stdd.cli.draw_serve",
+              "identity": "6fc36dddf6301a84",
+              "source_dependencies": [
+                "stdd.draw.serve_draw"
+              ]
+            },
+            {
+              "symbol": "stdd.draw.serve_draw",
+              "identity": "324880b0e1533bd3",
+              "source_dependencies": [
+                "stdd.draw.create_draw"
+              ]
+            }
+          ],
+          "symbols": [
+            "stdd.cli.draw_serve",
+            "stdd.draw.serve_draw"
+          ],
+          "source_dependencies": [
+            "stdd.draw.create_draw",
+            "stdd.draw.serve_draw"
+          ],
+          "traceability": [
+            {
+              "symbol": "stdd.cli.draw_serve",
+              "identity": "6fc36dddf6301a84",
+              "status": "drift",
+              "file": "src/stdd/cli.py",
+              "kind": "function",
+              "source": "python_ast"
+            },
+            {
+              "symbol": "stdd.draw.serve_draw",
+              "identity": "324880b0e1533bd3",
+              "status": "drift",
+              "file": "src/stdd/draw.py",
+              "kind": "function",
+              "source": "python_ast"
+            }
+          ],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-journey-draw:node:4",
+          "task": {
+            "id": "task:stdd-journey-draw:node:4",
+            "draw_id": "stdd-journey-draw",
+            "backlog_id": "stdd-journey-draw",
+            "parent_task_id": "task:stdd-user-journeys:node:6",
+            "draw_title": "Implementação da jornada de documentação visual",
+            "node_id": 4,
+            "level": 3,
+            "label": "Servir viewer e API local",
+            "description": "O servidor embutido entrega o viewer e endpoints GET/PUT dos desenhos.",
+            "questions": [],
+            "code_refs": [
+              {
+                "symbol": "stdd.cli.draw_serve",
+                "identity": "6fc36dddf6301a84",
+                "source_dependencies": [
+                  "stdd.draw.serve_draw"
+                ]
+              },
+              {
+                "symbol": "stdd.draw.serve_draw",
+                "identity": "324880b0e1533bd3",
+                "source_dependencies": [
+                  "stdd.draw.create_draw"
+                ]
+              }
+            ],
+            "symbols": [
+              "stdd.cli.draw_serve",
+              "stdd.draw.serve_draw"
+            ],
+            "source_dependencies": [
+              "stdd.draw.create_draw",
+              "stdd.draw.serve_draw"
+            ],
+            "traceability": [
+              {
+                "symbol": "stdd.cli.draw_serve",
+                "identity": "6fc36dddf6301a84",
+                "status": "drift",
+                "file": "src/stdd/cli.py",
+                "kind": "function",
+                "source": "python_ast"
+              },
+              {
+                "symbol": "stdd.draw.serve_draw",
+                "identity": "324880b0e1533bd3",
+                "status": "drift",
+                "file": "src/stdd/draw.py",
+                "kind": "function",
+                "source": "python_ast"
+              }
+            ],
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-journey-draw:branch:1",
+              "position": 4,
+              "terminal": false,
+              "terminal_node_id": 5,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-journey-draw:branch:1",
+                "position": 4,
+                "terminal": false,
+                "terminal_node_id": 5,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-journey-draw:node:5",
+          "node_id": 5,
+          "label": "Árvore navegável",
+          "description": "O usuário navega da arquitetura às jornadas e implementações, mantendo perguntas e trade-offs visíveis.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-journey-draw:node:5",
+          "task": {
+            "id": "task:stdd-journey-draw:node:5",
+            "draw_id": "stdd-journey-draw",
+            "backlog_id": "stdd-journey-draw",
+            "parent_task_id": "task:stdd-user-journeys:node:6",
+            "draw_title": "Implementação da jornada de documentação visual",
+            "node_id": 5,
+            "level": 3,
+            "label": "Árvore navegável",
+            "description": "O usuário navega da arquitetura às jornadas e implementações, mantendo perguntas e trade-offs visíveis.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-journey-draw:branch:1",
+              "position": 5,
+              "terminal": true,
+              "terminal_node_id": 5,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-journey-draw:branch:1",
+                "position": 5,
+                "terminal": true,
+                "terminal_node_id": 5,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "stdd-journey-init",
+      "draw_id": "stdd-journey-init",
+      "title": "Implementação da jornada de inicialização",
+      "hierarchy": {
+        "level": 3,
+        "role": "implementation",
+        "parent_draw_ref": "stdd-user-journeys",
+        "parent_node_id": 2,
+        "root_draw_ref": "stdd-system-architecture"
+      },
+      "parent_checklist_id": "stdd-user-journeys",
+      "parent_node_id": 2,
+      "items": [
+        {
+          "id": "item:stdd-journey-init:node:1",
+          "node_id": 1,
+          "label": "Receber destino e integrações",
+          "description": "A CLI valida o diretório e a seleção Codex, Claude ou Gemini.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:stdd-journey-init:node:2",
+          "node_id": 2,
+          "label": "Criar configuração e estado",
+          "description": "Cria .stdd/config.json, runs, features, draws e regras de gitignore.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:stdd-journey-init:node:3",
+          "node_id": 3,
+          "label": "Instalar skills e instruções",
+          "description": "Copia templates atuais e atualiza AGENTS.md, CLAUDE.md ou GEMINI.md.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:stdd-journey-init:node:4",
+          "node_id": 4,
+          "label": "Projeto pronto",
+          "description": "O agente pode usar as skills no projeto inicializado.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [
+            {
+              "symbol": "stdd.core.init_project",
+              "identity": "0b657e84450a304e",
+              "source_dependencies": [
+                "stdd.draw.ensure_draw_workspace",
+                "stdd.core.ensure_gitignore",
+                "stdd.core.ensure_agent_instructions"
+              ]
+            }
+          ],
+          "symbols": [
+            "stdd.core.init_project"
+          ],
+          "source_dependencies": [
+            "stdd.core.ensure_agent_instructions",
+            "stdd.core.ensure_gitignore",
+            "stdd.draw.ensure_draw_workspace"
+          ],
+          "traceability": [
+            {
+              "symbol": "stdd.core.init_project",
+              "identity": "0b657e84450a304e",
+              "status": "drift",
+              "file": "src/stdd/core.py",
+              "kind": "function",
+              "source": "python_ast"
+            }
+          ],
+          "child_checklist_id": null
+        }
+      ]
+    },
+    {
+      "id": "stdd-journey-log",
+      "draw_id": "stdd-journey-log",
+      "title": "Implementação da jornada de evidência",
+      "hierarchy": {
+        "level": 3,
+        "role": "implementation",
+        "parent_draw_ref": "stdd-user-journeys",
+        "parent_node_id": 5,
+        "root_draw_ref": "stdd-system-architecture"
+      },
+      "parent_checklist_id": "stdd-user-journeys",
+      "parent_node_id": 5,
+      "items": [
+        {
+          "id": "item:stdd-journey-log:node:1",
+          "node_id": 1,
+          "label": "Receber descrição e tipo",
+          "description": "Aceita descrição curta e tipo implementacao, teste, bug ou refactor.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-journey-log:node:1",
+          "task": {
+            "id": "task:stdd-journey-log:node:1",
+            "draw_id": "stdd-journey-log",
+            "backlog_id": "stdd-journey-log",
+            "parent_task_id": "task:stdd-user-journeys:node:5",
+            "draw_title": "Implementação da jornada de evidência",
+            "node_id": 1,
+            "level": 3,
+            "label": "Receber descrição e tipo",
+            "description": "Aceita descrição curta e tipo implementacao, teste, bug ou refactor.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-journey-log:branch:1",
+              "position": 1,
+              "terminal": false,
+              "terminal_node_id": 4,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-journey-log:branch:1",
+                "position": 1,
+                "terminal": false,
+                "terminal_node_id": 4,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-journey-log:node:2",
+          "node_id": 2,
+          "label": "Coletar diff e snapshot",
+          "description": "Compara o estado atual com o checkpoint e salva resumo e snapshot em .stdd/runs.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-journey-log:node:2",
+          "task": {
+            "id": "task:stdd-journey-log:node:2",
+            "draw_id": "stdd-journey-log",
+            "backlog_id": "stdd-journey-log",
+            "parent_task_id": "task:stdd-user-journeys:node:5",
+            "draw_title": "Implementação da jornada de evidência",
+            "node_id": 2,
+            "level": 3,
+            "label": "Coletar diff e snapshot",
+            "description": "Compara o estado atual com o checkpoint e salva resumo e snapshot em .stdd/runs.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-journey-log:branch:1",
+              "position": 2,
+              "terminal": false,
+              "terminal_node_id": 4,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-journey-log:branch:1",
+                "position": 2,
+                "terminal": false,
+                "terminal_node_id": 4,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-journey-log:node:3",
+          "node_id": 3,
+          "label": "Registrar execução",
+          "description": "Persiste o registro sem incluir segredos e marca retrabalho quando aplicável.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-journey-log:node:3",
+          "task": {
+            "id": "task:stdd-journey-log:node:3",
+            "draw_id": "stdd-journey-log",
+            "backlog_id": "stdd-journey-log",
+            "parent_task_id": "task:stdd-user-journeys:node:5",
+            "draw_title": "Implementação da jornada de evidência",
+            "node_id": 3,
+            "level": 3,
+            "label": "Registrar execução",
+            "description": "Persiste o registro sem incluir segredos e marca retrabalho quando aplicável.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-journey-log:branch:1",
+              "position": 3,
+              "terminal": false,
+              "terminal_node_id": 4,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-journey-log:branch:1",
+                "position": 3,
+                "terminal": false,
+                "terminal_node_id": 4,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-journey-log:node:4",
+          "node_id": 4,
+          "label": "Evidência disponível",
+          "description": "O usuário pode revisar o log e o diff no painel de runs.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-journey-log:node:4",
+          "task": {
+            "id": "task:stdd-journey-log:node:4",
+            "draw_id": "stdd-journey-log",
+            "backlog_id": "stdd-journey-log",
+            "parent_task_id": "task:stdd-user-journeys:node:5",
+            "draw_title": "Implementação da jornada de evidência",
+            "node_id": 4,
+            "level": 3,
+            "label": "Evidência disponível",
+            "description": "O usuário pode revisar o log e o diff no painel de runs.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-journey-log:branch:1",
+              "position": 4,
+              "terminal": true,
+              "terminal_node_id": 4,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-journey-log:branch:1",
+                "position": 4,
+                "terminal": true,
+                "terminal_node_id": 4,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "stdd-journey-test",
+      "draw_id": "stdd-journey-test",
+      "title": "Implementação da jornada de verificação",
+      "hierarchy": {
+        "level": 3,
+        "role": "implementation",
+        "parent_draw_ref": "stdd-user-journeys",
+        "parent_node_id": 4,
+        "root_draw_ref": "stdd-system-architecture"
+      },
+      "parent_checklist_id": "stdd-user-journeys",
+      "parent_node_id": 4,
+      "items": [
+        {
+          "id": "item:stdd-journey-test:node:1",
+          "node_id": 1,
+          "label": "Ler perfil e suítes",
+          "description": "A execução seleciona suítes, exclusões, perfil e aprovações.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-journey-test:node:1",
+          "task": {
+            "id": "task:stdd-journey-test:node:1",
+            "draw_id": "stdd-journey-test",
+            "backlog_id": "stdd-journey-test",
+            "parent_task_id": "task:stdd-user-journeys:node:4",
+            "draw_title": "Implementação da jornada de verificação",
+            "node_id": 1,
+            "level": 3,
+            "label": "Ler perfil e suítes",
+            "description": "A execução seleciona suítes, exclusões, perfil e aprovações.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-journey-test:branch:1",
+              "position": 1,
+              "terminal": false,
+              "terminal_node_id": 4,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-journey-test:branch:1",
+                "position": 1,
+                "terminal": false,
+                "terminal_node_id": 4,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-journey-test:node:2",
+          "node_id": 2,
+          "label": "Executar runners e contrato",
+          "description": "Subprocessos, contrato e ações aprovadas são executados com captura de resultado.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-journey-test:node:2",
+          "task": {
+            "id": "task:stdd-journey-test:node:2",
+            "draw_id": "stdd-journey-test",
+            "backlog_id": "stdd-journey-test",
+            "parent_task_id": "task:stdd-user-journeys:node:4",
+            "draw_title": "Implementação da jornada de verificação",
+            "node_id": 2,
+            "level": 3,
+            "label": "Executar runners e contrato",
+            "description": "Subprocessos, contrato e ações aprovadas são executados com captura de resultado.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-journey-test:branch:1",
+              "position": 2,
+              "terminal": false,
+              "terminal_node_id": 4,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-journey-test:branch:1",
+                "position": 2,
+                "terminal": false,
+                "terminal_node_id": 4,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-journey-test:node:3",
+          "node_id": 3,
+          "label": "Analisar estática e rastreabilidade",
+          "description": "O adapter gera símbolos, dependências e métricas; fatos de rastreabilidade são atualizados.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [
+            {
+              "symbol": "stdd.core.run_tests",
+              "identity": "5d8bef5f73daedc0",
+              "source_dependencies": [
+                "stdd.static_analysis.run_static_analysis",
+                "stdd.traceability.refresh_traceability"
+              ]
+            }
+          ],
+          "symbols": [
+            "stdd.core.run_tests"
+          ],
+          "source_dependencies": [
+            "stdd.static_analysis.run_static_analysis",
+            "stdd.traceability.refresh_traceability"
+          ],
+          "traceability": [
+            {
+              "symbol": "stdd.core.run_tests",
+              "identity": "5d8bef5f73daedc0",
+              "status": "drift",
+              "file": "src/stdd/core.py",
+              "kind": "function",
+              "source": "python_ast"
+            }
+          ],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-journey-test:node:3",
+          "task": {
+            "id": "task:stdd-journey-test:node:3",
+            "draw_id": "stdd-journey-test",
+            "backlog_id": "stdd-journey-test",
+            "parent_task_id": "task:stdd-user-journeys:node:4",
+            "draw_title": "Implementação da jornada de verificação",
+            "node_id": 3,
+            "level": 3,
+            "label": "Analisar estática e rastreabilidade",
+            "description": "O adapter gera símbolos, dependências e métricas; fatos de rastreabilidade são atualizados.",
+            "questions": [],
+            "code_refs": [
+              {
+                "symbol": "stdd.core.run_tests",
+                "identity": "5d8bef5f73daedc0",
+                "source_dependencies": [
+                  "stdd.static_analysis.run_static_analysis",
+                  "stdd.traceability.refresh_traceability"
+                ]
+              }
+            ],
+            "symbols": [
+              "stdd.core.run_tests"
+            ],
+            "source_dependencies": [
+              "stdd.static_analysis.run_static_analysis",
+              "stdd.traceability.refresh_traceability"
+            ],
+            "traceability": [
+              {
+                "symbol": "stdd.core.run_tests",
+                "identity": "5d8bef5f73daedc0",
+                "status": "drift",
+                "file": "src/stdd/core.py",
+                "kind": "function",
+                "source": "python_ast"
+              }
+            ],
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-journey-test:branch:1",
+              "position": 3,
+              "terminal": false,
+              "terminal_node_id": 4,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-journey-test:branch:1",
+                "position": 3,
+                "terminal": false,
+                "terminal_node_id": 4,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-journey-test:node:4",
+          "node_id": 4,
+          "label": "Gate aprovado",
+          "description": "Todos os gates passam e a execução pode ser registrada.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-journey-test:node:4",
+          "task": {
+            "id": "task:stdd-journey-test:node:4",
+            "draw_id": "stdd-journey-test",
+            "backlog_id": "stdd-journey-test",
+            "parent_task_id": "task:stdd-user-journeys:node:4",
+            "draw_title": "Implementação da jornada de verificação",
+            "node_id": 4,
+            "level": 3,
+            "label": "Gate aprovado",
+            "description": "Todos os gates passam e a execução pode ser registrada.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-journey-test:branch:1",
+              "position": 4,
+              "terminal": true,
+              "terminal_node_id": 4,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-journey-test:branch:1",
+                "position": 4,
+                "terminal": true,
+                "terminal_node_id": 4,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
+        },
+        {
+          "id": "item:stdd-journey-test:node:5",
+          "node_id": 5,
+          "label": "Gate bloqueado",
+          "description": "Falha de teste, contrato, análise ou segurança retorna status bloqueado.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        }
+      ]
+    },
+    {
+      "id": "demo-inicial",
+      "draw_id": "demo-inicial",
+      "title": "Exemplo inicial do STDD",
+      "hierarchy": {},
+      "parent_checklist_id": null,
+      "parent_node_id": null,
+      "items": [
+        {
+          "id": "item:demo-inicial:node:1",
+          "node_id": 1,
+          "label": "Escolher plano",
+          "description": "Cliente seleciona a opção de assinatura.",
+          "status": "pending",
+          "questions": [
+            {
+              "id": 1,
+              "type": "choice",
+              "prompt": "Qual plano foi escolhido?",
+              "options": [
+                {
+                  "id": 1,
+                  "label": "Básico"
+                },
+                {
+                  "id": 2,
+                  "label": "Pro"
+                },
+                {
+                  "id": 3,
+                  "label": "Empresarial"
+                }
+              ],
+              "answer": 2
+            },
+            {
+              "id": 2,
+              "type": "boolean",
+              "prompt": "Precisa de aprovação manual?",
+              "answer": false
+            },
+            {
+              "id": 3,
+              "type": "open",
+              "prompt": "Qual observação falta confirmar?",
+              "answer": null
+            }
+          ],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:demo-inicial:node:2",
+          "node_id": 2,
+          "label": "Validar pagamento",
+          "description": "Confere dados e disponibilidade do meio de pagamento.",
+          "status": "pending",
+          "questions": [
+            {
+              "id": 1,
+              "type": "open",
+              "prompt": "Qual observação deve acompanhar a validação?",
+              "answer": "Usar tokenização e registrar a chave idempotente."
+            }
+          ],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:demo-inicial:node:3",
+          "node_id": 3,
+          "label": "Aprovar assinatura",
+          "description": "Ativa a assinatura e registra a confirmação.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:demo-inicial:node:4",
+          "node_id": 4,
+          "label": "Revisar dados",
+          "description": "Corrige dados antes de tentar novamente.",
+          "status": "pending",
+          "questions": [
+            {
+              "id": 1,
+              "type": "boolean",
+              "prompt": "Os dados foram corrigidos?",
+              "answer": null
+            }
+          ],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        }
+      ]
+    },
+    {
+      "id": "demo-perguntas-respostas",
+      "draw_id": "demo-perguntas-respostas",
+      "title": "Demonstração: perguntas, respostas e loop",
+      "hierarchy": {},
+      "parent_checklist_id": null,
+      "parent_node_id": null,
+      "items": [
+        {
+          "id": "item:demo-perguntas-respostas:node:1",
+          "node_id": 1,
+          "label": "Escolher plano",
+          "description": "Cliente seleciona a opção de assinatura.",
+          "status": "pending",
+          "questions": [
+            {
+              "id": 1,
+              "type": "choice",
+              "prompt": "Qual plano foi escolhido?",
+              "options": [
+                {
+                  "id": 1,
+                  "label": "Básico"
+                },
+                {
+                  "id": 2,
+                  "label": "Pro"
+                },
+                {
+                  "id": 3,
+                  "label": "Empresarial"
+                }
+              ],
+              "answer": 2
+            },
+            {
+              "id": 2,
+              "type": "boolean",
+              "prompt": "Precisa de aprovação manual?",
+              "answer": false
+            },
+            {
+              "id": 3,
+              "type": "open",
+              "prompt": "Qual observação falta confirmar?",
+              "answer": null
+            }
+          ],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:demo-perguntas-respostas:node:2",
+          "node_id": 2,
+          "label": "Validar pagamento",
+          "description": "Confere dados e disponibilidade do meio de pagamento.",
+          "status": "pending",
+          "questions": [
+            {
+              "id": 1,
+              "type": "open",
+              "prompt": "Qual observação deve acompanhar a validação?",
+              "answer": "Usar tokenização e registrar a chave idempotente."
+            }
+          ],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:demo-perguntas-respostas:node:3",
+          "node_id": 3,
+          "label": "Aprovar assinatura",
+          "description": "Ativa a assinatura e registra a confirmação.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:demo-perguntas-respostas:node:4",
+          "node_id": 4,
+          "label": "Revisar dados",
+          "description": "Corrige dados antes de tentar novamente.",
+          "status": "pending",
+          "questions": [
+            {
+              "id": 1,
+              "type": "boolean",
+              "prompt": "Os dados foram corrigidos?",
+              "answer": null
+            }
+          ],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        }
+      ]
+    }
+  ],
+  "backlogs": [
+    {
+      "id": "backlog:stdd-agent-journeys",
+      "draw_id": "stdd-agent-journeys",
+      "title": "Agentes e responsabilidades do STDD",
+      "parent_task_id": null,
+      "task_ids": [
+        "task:stdd-agent-journeys:node:1",
+        "task:stdd-agent-journeys:node:2",
+        "task:stdd-agent-journeys:node:3",
+        "task:stdd-agent-journeys:node:6",
+        "task:stdd-agent-journeys:node:7",
+        "task:stdd-agent-journeys:node:9",
+        "task:stdd-agent-journeys:node:13",
+        "task:stdd-agent-journeys:node:4",
+        "task:stdd-agent-journeys:node:5"
+      ]
+    },
+    {
+      "id": "backlog:stdd-user-journeys",
+      "draw_id": "stdd-user-journeys",
+      "title": "Jornadas de uso do STDD",
+      "parent_task_id": null,
+      "task_ids": [
+        "task:stdd-user-journeys:node:1",
+        "task:stdd-user-journeys:node:3",
+        "task:stdd-user-journeys:node:4",
+        "task:stdd-user-journeys:node:5",
+        "task:stdd-user-journeys:node:6",
+        "task:stdd-user-journeys:node:7"
+      ]
+    },
+    {
+      "id": "backlog:stdd-journey-draw",
+      "draw_id": "stdd-journey-draw",
+      "title": "Implementação da jornada de documentação visual",
+      "parent_task_id": "task:stdd-user-journeys:node:6",
+      "task_ids": [
+        "task:stdd-journey-draw:node:1",
+        "task:stdd-journey-draw:node:2",
+        "task:stdd-journey-draw:node:3",
+        "task:stdd-journey-draw:node:4",
+        "task:stdd-journey-draw:node:5"
+      ]
+    },
+    {
+      "id": "backlog:stdd-journey-log",
+      "draw_id": "stdd-journey-log",
+      "title": "Implementação da jornada de evidência",
+      "parent_task_id": "task:stdd-user-journeys:node:5",
+      "task_ids": [
+        "task:stdd-journey-log:node:1",
+        "task:stdd-journey-log:node:2",
+        "task:stdd-journey-log:node:3",
+        "task:stdd-journey-log:node:4"
+      ]
+    },
+    {
+      "id": "backlog:stdd-journey-test",
+      "draw_id": "stdd-journey-test",
+      "title": "Implementação da jornada de verificação",
+      "parent_task_id": "task:stdd-user-journeys:node:4",
+      "task_ids": [
+        "task:stdd-journey-test:node:1",
+        "task:stdd-journey-test:node:2",
+        "task:stdd-journey-test:node:3",
+        "task:stdd-journey-test:node:4"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task:stdd-agent-journeys:node:1",
+      "draw_id": "stdd-agent-journeys",
+      "backlog_id": "stdd-agent-journeys",
+      "parent_task_id": null,
+      "draw_title": "Agentes e responsabilidades do STDD",
+      "node_id": 1,
+      "level": 2,
+      "label": "Pedido do usuário",
+      "description": "Intenção, problema, mudança arquitetural ou necessidade de documentação recebida pelo agente hospedeiro.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "done",
+      "branch": {
+        "id": "stdd-agent-journeys:branch:1",
+        "position": 1,
+        "terminal": false,
+        "terminal_node_id": 13,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-agent-journeys:branch:1",
+          "position": 1,
+          "terminal": false,
+          "terminal_node_id": 13,
+          "terminal_reason": "flow-end"
+        },
+        {
+          "id": "stdd-agent-journeys:branch:2",
+          "position": 1,
+          "terminal": false,
+          "terminal_node_id": 9,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-agent-journeys:node:2",
+      "draw_id": "stdd-agent-journeys",
+      "backlog_id": "stdd-agent-journeys",
+      "parent_task_id": null,
+      "draw_title": "Agentes e responsabilidades do STDD",
+      "node_id": 2,
+      "level": 2,
+      "label": "$setup",
+      "description": "Descobre a stack, runners, bancos, provedores e configura o STDD sem inventar capacidades. Encaminha para $draw-system quando falta uma raiz de sistema.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "done",
+      "branch": {
+        "id": "stdd-agent-journeys:branch:1",
+        "position": 2,
+        "terminal": false,
+        "terminal_node_id": 13,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-agent-journeys:branch:1",
+          "position": 2,
+          "terminal": false,
+          "terminal_node_id": 13,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-agent-journeys:node:3",
+      "draw_id": "stdd-agent-journeys",
+      "backlog_id": "stdd-agent-journeys",
+      "parent_task_id": null,
+      "draw_title": "Agentes e responsabilidades do STDD",
+      "node_id": 3,
+      "level": 2,
+      "label": "$draw-system",
+      "description": "Modela o sistema completo em arquitetura, jornadas, implementação e codebase quando necessário; mantém a árvore hierárquica sem órfãos.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "done",
+      "branch": {
+        "id": "stdd-agent-journeys:branch:1",
+        "position": 3,
+        "terminal": false,
+        "terminal_node_id": 13,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-agent-journeys:branch:1",
+          "position": 3,
+          "terminal": false,
+          "terminal_node_id": 13,
+          "terminal_reason": "flow-end"
+        },
+        {
+          "id": "stdd-agent-journeys:branch:3",
+          "position": 2,
+          "terminal": false,
+          "terminal_node_id": 6,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-agent-journeys:node:6",
+      "draw_id": "stdd-agent-journeys",
+      "backlog_id": "stdd-agent-journeys",
+      "parent_task_id": null,
+      "draw_title": "Agentes e responsabilidades do STDD",
+      "node_id": 6,
+      "level": 2,
+      "label": "$create-tests",
+      "description": "Transforma jornadas e desenhos em testes executáveis vermelhos, sem alterar código de produção; trata folhas não implementadas como escopo ausente.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "done",
+      "branch": {
+        "id": "stdd-agent-journeys:branch:1",
+        "position": 4,
+        "terminal": false,
+        "terminal_node_id": 13,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-agent-journeys:branch:1",
+          "position": 4,
+          "terminal": false,
+          "terminal_node_id": 13,
+          "terminal_reason": "flow-end"
+        },
+        {
+          "id": "stdd-agent-journeys:branch:2",
+          "position": 3,
+          "terminal": false,
+          "terminal_node_id": 9,
+          "terminal_reason": "flow-end"
+        },
+        {
+          "id": "stdd-agent-journeys:branch:3",
+          "position": 3,
+          "terminal": true,
+          "terminal_node_id": 6,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-agent-journeys:node:7",
+      "draw_id": "stdd-agent-journeys",
+      "backlog_id": "stdd-agent-journeys",
+      "parent_task_id": null,
+      "draw_title": "Agentes e responsabilidades do STDD",
+      "node_id": 7,
+      "level": 2,
+      "label": "$implement",
+      "description": "Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "done",
+      "branch": {
+        "id": "stdd-agent-journeys:branch:1",
+        "position": 5,
+        "terminal": false,
+        "terminal_node_id": 13,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-agent-journeys:branch:1",
+          "position": 5,
+          "terminal": false,
+          "terminal_node_id": 13,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-agent-journeys:node:9",
+      "draw_id": "stdd-agent-journeys",
+      "backlog_id": "stdd-agent-journeys",
+      "parent_task_id": null,
+      "draw_title": "Agentes e responsabilidades do STDD",
+      "node_id": 9,
+      "level": 2,
+      "label": "stdd test e stdd log",
+      "description": "Não são agentes: são gates e evidências operacionais que verificam e registram o trabalho conduzido pelas skills.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "done",
+      "branch": {
+        "id": "stdd-agent-journeys:branch:1",
+        "position": 6,
+        "terminal": false,
+        "terminal_node_id": 13,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-agent-journeys:branch:1",
+          "position": 6,
+          "terminal": false,
+          "terminal_node_id": 13,
+          "terminal_reason": "flow-end"
+        },
+        {
+          "id": "stdd-agent-journeys:branch:2",
+          "position": 4,
+          "terminal": true,
+          "terminal_node_id": 9,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-agent-journeys:node:13",
+      "draw_id": "stdd-agent-journeys",
+      "backlog_id": "stdd-agent-journeys",
+      "parent_task_id": null,
+      "draw_title": "Agentes e responsabilidades do STDD",
+      "node_id": 13,
+      "level": 2,
+      "label": "Entrega documentada",
+      "description": "Estado final esperado: comportamento especificado, implementado quando aplicável, verificado, desenhado e registrado.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "done",
+      "branch": {
+        "id": "stdd-agent-journeys:branch:1",
+        "position": 7,
+        "terminal": true,
+        "terminal_node_id": 13,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-agent-journeys:branch:1",
+          "position": 7,
+          "terminal": true,
+          "terminal_node_id": 13,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-agent-journeys:node:4",
+      "draw_id": "stdd-agent-journeys",
+      "backlog_id": "stdd-agent-journeys",
+      "parent_task_id": null,
+      "draw_title": "Agentes e responsabilidades do STDD",
+      "node_id": 4,
+      "level": 2,
+      "label": "$draw-feature",
+      "description": "Desenha uma feature, fluxo, decisão ou trade-off como JSON navegável, respeitando a árvore do sistema quando existir.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "done",
+      "branch": {
+        "id": "stdd-agent-journeys:branch:2",
+        "position": 2,
+        "terminal": false,
+        "terminal_node_id": 9,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-agent-journeys:branch:2",
+          "position": 2,
+          "terminal": false,
+          "terminal_node_id": 9,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-agent-journeys:node:5",
+      "draw_id": "stdd-agent-journeys",
+      "backlog_id": "stdd-agent-journeys",
+      "parent_task_id": null,
+      "draw_title": "Agentes e responsabilidades do STDD",
+      "node_id": 5,
+      "level": 2,
+      "label": "$draw-improve",
+      "description": "Revisa um Draw existente e acrescenta apenas o próximo detalhe arquitetural relevante, preservando intenção, escopo e vínculos.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "done",
+      "branch": {
+        "id": "stdd-agent-journeys:branch:3",
+        "position": 1,
+        "terminal": false,
+        "terminal_node_id": 6,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-agent-journeys:branch:3",
+          "position": 1,
+          "terminal": false,
+          "terminal_node_id": 6,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-user-journeys:node:1",
+      "draw_id": "stdd-user-journeys",
+      "backlog_id": "stdd-user-journeys",
+      "parent_task_id": null,
+      "draw_title": "Jornadas de uso do STDD",
+      "node_id": 1,
+      "level": 2,
+      "label": "Entrada: projeto e pedido",
+      "description": "O usuário abre o agente em um projeto e descreve o que precisa ser especificado ou alterado.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "done",
+      "branch": {
+        "id": "stdd-user-journeys:branch:1",
+        "position": 1,
+        "terminal": false,
+        "terminal_node_id": 6,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-user-journeys:branch:1",
+          "position": 1,
+          "terminal": false,
+          "terminal_node_id": 6,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-user-journeys:node:3",
+      "draw_id": "stdd-user-journeys",
+      "backlog_id": "stdd-user-journeys",
+      "parent_task_id": null,
+      "draw_title": "Jornadas de uso do STDD",
+      "node_id": 3,
+      "level": 2,
+      "label": "Especificar e desenhar",
+      "description": "O pedido vira feature testável ou árvore Draw; o desenho registra caminhos implementados e folhas ausentes.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "done",
+      "branch": {
+        "id": "stdd-user-journeys:branch:1",
+        "position": 2,
+        "terminal": false,
+        "terminal_node_id": 6,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-user-journeys:branch:1",
+          "position": 2,
+          "terminal": false,
+          "terminal_node_id": 6,
+          "terminal_reason": "flow-end"
+        },
+        {
+          "id": "stdd-user-journeys:branch:2",
+          "position": 3,
+          "terminal": true,
+          "terminal_node_id": 3,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-user-journeys:node:4",
+      "draw_id": "stdd-user-journeys",
+      "backlog_id": "stdd-user-journeys",
+      "parent_task_id": null,
+      "draw_title": "Jornadas de uso do STDD",
+      "node_id": 4,
+      "level": 2,
+      "label": "Executar gates",
+      "description": "O agente executa testes, contrato e análise estática antes de declarar conclusão.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": "stdd-journey-test",
+      "status": "done",
+      "branch": {
+        "id": "stdd-user-journeys:branch:1",
+        "position": 3,
+        "terminal": false,
+        "terminal_node_id": 6,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-user-journeys:branch:1",
+          "position": 3,
+          "terminal": false,
+          "terminal_node_id": 6,
+          "terminal_reason": "flow-end"
+        },
+        {
+          "id": "stdd-user-journeys:branch:2",
+          "position": 1,
+          "terminal": false,
+          "terminal_node_id": 3,
+          "terminal_reason": "flow-end"
+        }
+      ],
+      "child_backlog_id": "stdd-journey-test",
+      "child_task_ids": [
+        "task:stdd-journey-test:node:1",
+        "task:stdd-journey-test:node:2",
+        "task:stdd-journey-test:node:3",
+        "task:stdd-journey-test:node:4"
+      ],
+      "child_branch_ids": [
+        "stdd-journey-test:branch:1"
+      ]
+    },
+    {
+      "id": "task:stdd-journey-test:node:1",
+      "draw_id": "stdd-journey-test",
+      "backlog_id": "stdd-journey-test",
+      "parent_task_id": "task:stdd-user-journeys:node:4",
+      "draw_title": "Implementação da jornada de verificação",
+      "node_id": 1,
+      "level": 3,
+      "label": "Ler perfil e suítes",
+      "description": "A execução seleciona suítes, exclusões, perfil e aprovações.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-journey-test:branch:1",
+        "position": 1,
+        "terminal": false,
+        "terminal_node_id": 4,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-journey-test:branch:1",
+          "position": 1,
+          "terminal": false,
+          "terminal_node_id": 4,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-journey-test:node:2",
+      "draw_id": "stdd-journey-test",
+      "backlog_id": "stdd-journey-test",
+      "parent_task_id": "task:stdd-user-journeys:node:4",
+      "draw_title": "Implementação da jornada de verificação",
+      "node_id": 2,
+      "level": 3,
+      "label": "Executar runners e contrato",
+      "description": "Subprocessos, contrato e ações aprovadas são executados com captura de resultado.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-journey-test:branch:1",
+        "position": 2,
+        "terminal": false,
+        "terminal_node_id": 4,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-journey-test:branch:1",
+          "position": 2,
+          "terminal": false,
+          "terminal_node_id": 4,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-journey-test:node:3",
+      "draw_id": "stdd-journey-test",
+      "backlog_id": "stdd-journey-test",
+      "parent_task_id": "task:stdd-user-journeys:node:4",
+      "draw_title": "Implementação da jornada de verificação",
+      "node_id": 3,
+      "level": 3,
+      "label": "Analisar estática e rastreabilidade",
+      "description": "O adapter gera símbolos, dependências e métricas; fatos de rastreabilidade são atualizados.",
+      "questions": [],
+      "code_refs": [
+        {
+          "symbol": "stdd.core.run_tests",
+          "identity": "5d8bef5f73daedc0",
+          "source_dependencies": [
+            "stdd.static_analysis.run_static_analysis",
+            "stdd.traceability.refresh_traceability"
+          ]
+        }
+      ],
+      "symbols": [
+        "stdd.core.run_tests"
+      ],
+      "source_dependencies": [
+        "stdd.static_analysis.run_static_analysis",
+        "stdd.traceability.refresh_traceability"
+      ],
+      "traceability": [
+        {
+          "symbol": "stdd.core.run_tests",
+          "identity": "5d8bef5f73daedc0",
+          "status": "drift",
+          "file": "src/stdd/core.py",
+          "kind": "function",
+          "source": "python_ast"
+        }
+      ],
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-journey-test:branch:1",
+        "position": 3,
+        "terminal": false,
+        "terminal_node_id": 4,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-journey-test:branch:1",
+          "position": 3,
+          "terminal": false,
+          "terminal_node_id": 4,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-journey-test:node:4",
+      "draw_id": "stdd-journey-test",
+      "backlog_id": "stdd-journey-test",
+      "parent_task_id": "task:stdd-user-journeys:node:4",
+      "draw_title": "Implementação da jornada de verificação",
+      "node_id": 4,
+      "level": 3,
+      "label": "Gate aprovado",
+      "description": "Todos os gates passam e a execução pode ser registrada.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-journey-test:branch:1",
+        "position": 4,
+        "terminal": true,
+        "terminal_node_id": 4,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-journey-test:branch:1",
+          "position": 4,
+          "terminal": true,
+          "terminal_node_id": 4,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-user-journeys:node:5",
+      "draw_id": "stdd-user-journeys",
+      "backlog_id": "stdd-user-journeys",
+      "parent_task_id": null,
+      "draw_title": "Jornadas de uso do STDD",
+      "node_id": 5,
+      "level": 2,
+      "label": "Registrar evidência",
+      "description": "O trabalho concluído recebe log com tipo e diff incremental.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": "stdd-journey-log",
+      "status": "done",
+      "branch": {
+        "id": "stdd-user-journeys:branch:1",
+        "position": 4,
+        "terminal": false,
+        "terminal_node_id": 6,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-user-journeys:branch:1",
+          "position": 4,
+          "terminal": false,
+          "terminal_node_id": 6,
+          "terminal_reason": "flow-end"
+        }
+      ],
+      "child_backlog_id": "stdd-journey-log",
+      "child_task_ids": [
+        "task:stdd-journey-log:node:1",
+        "task:stdd-journey-log:node:2",
+        "task:stdd-journey-log:node:3",
+        "task:stdd-journey-log:node:4"
+      ],
+      "child_branch_ids": [
+        "stdd-journey-log:branch:1"
+      ]
+    },
+    {
+      "id": "task:stdd-journey-log:node:1",
+      "draw_id": "stdd-journey-log",
+      "backlog_id": "stdd-journey-log",
+      "parent_task_id": "task:stdd-user-journeys:node:5",
+      "draw_title": "Implementação da jornada de evidência",
+      "node_id": 1,
+      "level": 3,
+      "label": "Receber descrição e tipo",
+      "description": "Aceita descrição curta e tipo implementacao, teste, bug ou refactor.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-journey-log:branch:1",
+        "position": 1,
+        "terminal": false,
+        "terminal_node_id": 4,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-journey-log:branch:1",
+          "position": 1,
+          "terminal": false,
+          "terminal_node_id": 4,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-journey-log:node:2",
+      "draw_id": "stdd-journey-log",
+      "backlog_id": "stdd-journey-log",
+      "parent_task_id": "task:stdd-user-journeys:node:5",
+      "draw_title": "Implementação da jornada de evidência",
+      "node_id": 2,
+      "level": 3,
+      "label": "Coletar diff e snapshot",
+      "description": "Compara o estado atual com o checkpoint e salva resumo e snapshot em .stdd/runs.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-journey-log:branch:1",
+        "position": 2,
+        "terminal": false,
+        "terminal_node_id": 4,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-journey-log:branch:1",
+          "position": 2,
+          "terminal": false,
+          "terminal_node_id": 4,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-journey-log:node:3",
+      "draw_id": "stdd-journey-log",
+      "backlog_id": "stdd-journey-log",
+      "parent_task_id": "task:stdd-user-journeys:node:5",
+      "draw_title": "Implementação da jornada de evidência",
+      "node_id": 3,
+      "level": 3,
+      "label": "Registrar execução",
+      "description": "Persiste o registro sem incluir segredos e marca retrabalho quando aplicável.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-journey-log:branch:1",
+        "position": 3,
+        "terminal": false,
+        "terminal_node_id": 4,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-journey-log:branch:1",
+          "position": 3,
+          "terminal": false,
+          "terminal_node_id": 4,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-journey-log:node:4",
+      "draw_id": "stdd-journey-log",
+      "backlog_id": "stdd-journey-log",
+      "parent_task_id": "task:stdd-user-journeys:node:5",
+      "draw_title": "Implementação da jornada de evidência",
+      "node_id": 4,
+      "level": 3,
+      "label": "Evidência disponível",
+      "description": "O usuário pode revisar o log e o diff no painel de runs.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-journey-log:branch:1",
+        "position": 4,
+        "terminal": true,
+        "terminal_node_id": 4,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-journey-log:branch:1",
+          "position": 4,
+          "terminal": true,
+          "terminal_node_id": 4,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-user-journeys:node:6",
+      "draw_id": "stdd-user-journeys",
+      "backlog_id": "stdd-user-journeys",
+      "parent_task_id": null,
+      "draw_title": "Jornadas de uso do STDD",
+      "node_id": 6,
+      "level": 2,
+      "label": "Revisar no Draw",
+      "description": "O usuário abre o viewer local, navega pela árvore e revisa decisões, perguntas e trade-offs.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": "stdd-journey-draw",
+      "status": "done",
+      "branch": {
+        "id": "stdd-user-journeys:branch:1",
+        "position": 5,
+        "terminal": true,
+        "terminal_node_id": 6,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-user-journeys:branch:1",
+          "position": 5,
+          "terminal": true,
+          "terminal_node_id": 6,
+          "terminal_reason": "flow-end"
+        }
+      ],
+      "child_backlog_id": "stdd-journey-draw",
+      "child_task_ids": [
+        "task:stdd-journey-draw:node:1",
+        "task:stdd-journey-draw:node:2",
+        "task:stdd-journey-draw:node:3",
+        "task:stdd-journey-draw:node:4",
+        "task:stdd-journey-draw:node:5"
+      ],
+      "child_branch_ids": [
+        "stdd-journey-draw:branch:1"
+      ]
+    },
+    {
+      "id": "task:stdd-journey-draw:node:1",
+      "draw_id": "stdd-journey-draw",
+      "backlog_id": "stdd-journey-draw",
+      "parent_task_id": "task:stdd-user-journeys:node:6",
+      "draw_title": "Implementação da jornada de documentação visual",
+      "node_id": 1,
+      "level": 3,
+      "label": "Receber JSON lógico",
+      "description": "O comando draw create recebe o payload sem layout, cores ou HTML.",
+      "questions": [],
+      "code_refs": [
+        {
+          "symbol": "stdd.cli.draw_create",
+          "identity": "64fd878f20627d43",
+          "source_dependencies": [
+            "stdd.draw.create_draw"
+          ]
+        }
+      ],
+      "symbols": [
+        "stdd.cli.draw_create"
+      ],
+      "source_dependencies": [
+        "stdd.draw.create_draw"
+      ],
+      "traceability": [
+        {
+          "symbol": "stdd.cli.draw_create",
+          "identity": "64fd878f20627d43",
+          "status": "drift",
+          "file": "src/stdd/cli.py",
+          "kind": "function",
+          "source": "python_ast"
+        }
+      ],
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-journey-draw:branch:1",
+        "position": 1,
+        "terminal": false,
+        "terminal_node_id": 5,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-journey-draw:branch:1",
+          "position": 1,
+          "terminal": false,
+          "terminal_node_id": 5,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-journey-draw:node:2",
+      "draw_id": "stdd-journey-draw",
+      "backlog_id": "stdd-journey-draw",
+      "parent_task_id": "task:stdd-user-journeys:node:6",
+      "draw_title": "Implementação da jornada de documentação visual",
+      "node_id": 2,
+      "level": 3,
+      "label": "Validar contrato e hierarquia",
+      "description": "Confere IDs, relações, fluxos, perguntas e pai explícito antes de persistir.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-journey-draw:branch:1",
+        "position": 2,
+        "terminal": false,
+        "terminal_node_id": 5,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-journey-draw:branch:1",
+          "position": 2,
+          "terminal": false,
+          "terminal_node_id": 5,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-journey-draw:node:3",
+      "draw_id": "stdd-journey-draw",
+      "backlog_id": "stdd-journey-draw",
+      "parent_task_id": "task:stdd-user-journeys:node:6",
+      "draw_title": "Implementação da jornada de documentação visual",
+      "node_id": 3,
+      "level": 3,
+      "label": "Persistir desenho e índice",
+      "description": "Grava o JSON em .stdd/draws e atualiza o índice.",
+      "questions": [],
+      "code_refs": [
+        {
+          "symbol": "stdd.draw.create_draw",
+          "identity": "8a42d3855073c490",
+          "source_dependencies": [
+            "stdd.draw.validate_draw_payload",
+            "stdd.draw.validate_hierarchy_parent"
+          ]
+        }
+      ],
+      "symbols": [
+        "stdd.draw.create_draw"
+      ],
+      "source_dependencies": [
+        "stdd.draw.validate_draw_payload",
+        "stdd.draw.validate_hierarchy_parent"
+      ],
+      "traceability": [
+        {
+          "symbol": "stdd.draw.create_draw",
+          "identity": "8a42d3855073c490",
+          "status": "drift",
+          "file": "src/stdd/draw.py",
+          "kind": "function",
+          "source": "python_ast"
+        }
+      ],
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-journey-draw:branch:1",
+        "position": 3,
+        "terminal": false,
+        "terminal_node_id": 5,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-journey-draw:branch:1",
+          "position": 3,
+          "terminal": false,
+          "terminal_node_id": 5,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-journey-draw:node:4",
+      "draw_id": "stdd-journey-draw",
+      "backlog_id": "stdd-journey-draw",
+      "parent_task_id": "task:stdd-user-journeys:node:6",
+      "draw_title": "Implementação da jornada de documentação visual",
+      "node_id": 4,
+      "level": 3,
+      "label": "Servir viewer e API local",
+      "description": "O servidor embutido entrega o viewer e endpoints GET/PUT dos desenhos.",
+      "questions": [],
+      "code_refs": [
+        {
+          "symbol": "stdd.cli.draw_serve",
+          "identity": "6fc36dddf6301a84",
+          "source_dependencies": [
+            "stdd.draw.serve_draw"
+          ]
+        },
+        {
+          "symbol": "stdd.draw.serve_draw",
+          "identity": "324880b0e1533bd3",
+          "source_dependencies": [
+            "stdd.draw.create_draw"
+          ]
+        }
+      ],
+      "symbols": [
+        "stdd.cli.draw_serve",
+        "stdd.draw.serve_draw"
+      ],
+      "source_dependencies": [
+        "stdd.draw.create_draw",
+        "stdd.draw.serve_draw"
+      ],
+      "traceability": [
+        {
+          "symbol": "stdd.cli.draw_serve",
+          "identity": "6fc36dddf6301a84",
+          "status": "drift",
+          "file": "src/stdd/cli.py",
+          "kind": "function",
+          "source": "python_ast"
+        },
+        {
+          "symbol": "stdd.draw.serve_draw",
+          "identity": "324880b0e1533bd3",
+          "status": "drift",
+          "file": "src/stdd/draw.py",
+          "kind": "function",
+          "source": "python_ast"
+        }
+      ],
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-journey-draw:branch:1",
+        "position": 4,
+        "terminal": false,
+        "terminal_node_id": 5,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-journey-draw:branch:1",
+          "position": 4,
+          "terminal": false,
+          "terminal_node_id": 5,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-journey-draw:node:5",
+      "draw_id": "stdd-journey-draw",
+      "backlog_id": "stdd-journey-draw",
+      "parent_task_id": "task:stdd-user-journeys:node:6",
+      "draw_title": "Implementação da jornada de documentação visual",
+      "node_id": 5,
+      "level": 3,
+      "label": "Árvore navegável",
+      "description": "O usuário navega da arquitetura às jornadas e implementações, mantendo perguntas e trade-offs visíveis.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-journey-draw:branch:1",
+        "position": 5,
+        "terminal": true,
+        "terminal_node_id": 5,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-journey-draw:branch:1",
+          "position": 5,
+          "terminal": true,
+          "terminal_node_id": 5,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-user-journeys:node:7",
+      "draw_id": "stdd-user-journeys",
+      "backlog_id": "stdd-user-journeys",
+      "parent_task_id": null,
+      "draw_title": "Jornadas de uso do STDD",
+      "node_id": 7,
+      "level": 2,
+      "label": "Bloqueado ou pendente",
+      "description": "Falha de teste, símbolo não resolvido ou decisão em aberto permanece visível e impede uma conclusão falsa.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "child_checklist_id": null,
+      "status": "done",
+      "branch": {
+        "id": "stdd-user-journeys:branch:2",
+        "position": 2,
+        "terminal": false,
+        "terminal_node_id": 3,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-user-journeys:branch:2",
+          "position": 2,
+          "terminal": false,
+          "terminal_node_id": 3,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    }
+  ],
+  "execution": {
+    "current_task_id": null,
+    "current_backlog_id": null,
+    "current_branch_id": "stdd-user-journeys:branch:2",
+    "branch_position": 2,
+    "completed_branches": [
+      "stdd-agent-journeys:branch:1",
+      "stdd-agent-journeys:branch:2",
+      "stdd-agent-journeys:branch:3"
+    ],
+    "branches": [
+      {
+        "id": "stdd-agent-journeys:branch:1",
+        "draw_id": "stdd-agent-journeys",
+        "backlog_id": "stdd-agent-journeys",
+        "flow_id": 1,
+        "task_ids": [
+          "task:stdd-agent-journeys:node:1",
+          "task:stdd-agent-journeys:node:2",
+          "task:stdd-agent-journeys:node:3",
+          "task:stdd-agent-journeys:node:6",
+          "task:stdd-agent-journeys:node:7",
+          "task:stdd-agent-journeys:node:9",
+          "task:stdd-agent-journeys:node:13"
+        ],
+        "node_ids": [
+          1,
+          2,
+          3,
+          6,
+          7,
+          9,
+          13
+        ],
+        "edges": [],
+        "terminal_node_id": 13,
+        "terminal_reason": "flow-end",
+        "scope": "root",
+        "completed": true
+      },
+      {
+        "id": "stdd-agent-journeys:branch:2",
+        "draw_id": "stdd-agent-journeys",
+        "backlog_id": "stdd-agent-journeys",
+        "flow_id": 2,
+        "task_ids": [
+          "task:stdd-agent-journeys:node:1",
+          "task:stdd-agent-journeys:node:4",
+          "task:stdd-agent-journeys:node:6",
+          "task:stdd-agent-journeys:node:9"
+        ],
+        "node_ids": [
+          1,
+          4,
+          6,
+          9
+        ],
+        "edges": [],
+        "terminal_node_id": 9,
+        "terminal_reason": "flow-end",
+        "scope": "root",
+        "completed": true
+      },
+      {
+        "id": "stdd-agent-journeys:branch:3",
+        "draw_id": "stdd-agent-journeys",
+        "backlog_id": "stdd-agent-journeys",
+        "flow_id": 3,
+        "task_ids": [
+          "task:stdd-agent-journeys:node:5",
+          "task:stdd-agent-journeys:node:3",
+          "task:stdd-agent-journeys:node:6"
+        ],
+        "node_ids": [
+          5,
+          3,
+          6
+        ],
+        "edges": [],
+        "terminal_node_id": 6,
+        "terminal_reason": "flow-end",
+        "scope": "root",
+        "completed": true
+      },
+      {
+        "id": "stdd-journey-test:branch:1",
+        "draw_id": "stdd-journey-test",
+        "backlog_id": "stdd-journey-test",
+        "parent_task_id": "task:stdd-user-journeys:node:4",
+        "flow_id": 1,
+        "task_ids": [
+          "task:stdd-journey-test:node:1",
+          "task:stdd-journey-test:node:2",
+          "task:stdd-journey-test:node:3",
+          "task:stdd-journey-test:node:4"
+        ],
+        "node_ids": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "edges": [],
+        "terminal_node_id": 4,
+        "terminal_reason": "flow-end",
+        "scope": "nested",
+        "completed": false
+      },
+      {
+        "id": "stdd-journey-log:branch:1",
+        "draw_id": "stdd-journey-log",
+        "backlog_id": "stdd-journey-log",
+        "parent_task_id": "task:stdd-user-journeys:node:5",
+        "flow_id": 1,
+        "task_ids": [
+          "task:stdd-journey-log:node:1",
+          "task:stdd-journey-log:node:2",
+          "task:stdd-journey-log:node:3",
+          "task:stdd-journey-log:node:4"
+        ],
+        "node_ids": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "edges": [],
+        "terminal_node_id": 4,
+        "terminal_reason": "flow-end",
+        "scope": "nested",
+        "completed": false
+      },
+      {
+        "id": "stdd-journey-draw:branch:1",
+        "draw_id": "stdd-journey-draw",
+        "backlog_id": "stdd-journey-draw",
+        "parent_task_id": "task:stdd-user-journeys:node:6",
+        "flow_id": 1,
+        "task_ids": [
+          "task:stdd-journey-draw:node:1",
+          "task:stdd-journey-draw:node:2",
+          "task:stdd-journey-draw:node:3",
+          "task:stdd-journey-draw:node:4",
+          "task:stdd-journey-draw:node:5"
+        ],
+        "node_ids": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "edges": [],
+        "terminal_node_id": 5,
+        "terminal_reason": "flow-end",
+        "scope": "nested",
+        "completed": false
+      },
+      {
+        "id": "stdd-user-journeys:branch:1",
+        "draw_id": "stdd-user-journeys",
+        "backlog_id": "stdd-user-journeys",
+        "flow_id": 1,
+        "task_ids": [
+          "task:stdd-user-journeys:node:1",
+          "task:stdd-user-journeys:node:3",
+          "task:stdd-user-journeys:node:4",
+          "task:stdd-journey-test:node:1",
+          "task:stdd-journey-test:node:2",
+          "task:stdd-journey-test:node:3",
+          "task:stdd-journey-test:node:4",
+          "task:stdd-user-journeys:node:5",
+          "task:stdd-journey-log:node:1",
+          "task:stdd-journey-log:node:2",
+          "task:stdd-journey-log:node:3",
+          "task:stdd-journey-log:node:4",
+          "task:stdd-user-journeys:node:6",
+          "task:stdd-journey-draw:node:1",
+          "task:stdd-journey-draw:node:2",
+          "task:stdd-journey-draw:node:3",
+          "task:stdd-journey-draw:node:4",
+          "task:stdd-journey-draw:node:5"
+        ],
+        "node_ids": [
+          1,
+          3,
+          4,
+          5,
+          6
+        ],
+        "edges": [],
+        "terminal_node_id": 6,
+        "terminal_reason": "flow-end",
+        "scope": "root",
+        "completed": false
+      },
+      {
+        "id": "stdd-user-journeys:branch:2",
+        "draw_id": "stdd-user-journeys",
+        "backlog_id": "stdd-user-journeys",
+        "flow_id": 2,
+        "task_ids": [
+          "task:stdd-user-journeys:node:4",
+          "task:stdd-journey-test:node:1",
+          "task:stdd-journey-test:node:2",
+          "task:stdd-journey-test:node:3",
+          "task:stdd-journey-test:node:4",
+          "task:stdd-user-journeys:node:7",
+          "task:stdd-user-journeys:node:3"
+        ],
+        "node_ids": [
+          4,
+          7,
+          3
+        ],
+        "edges": [],
+        "terminal_node_id": 3,
+        "terminal_reason": "flow-end",
+        "scope": "root",
+        "completed": false
+      }
+    ]
+  }
+}

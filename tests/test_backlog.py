@@ -73,6 +73,39 @@ def _create_hierarchical_fixture(root: Path) -> None:
     )
 
 
+def _create_nested_hierarchical_fixture(root: Path) -> None:
+    """Cria uma jornada com subfluxo associado a um nó pai.
+    O filho possui duas etapas internas que devem entrar no backlog.
+    """
+    _create_hierarchical_fixture(root)
+    parent_path = root / ".stdd" / "draws" / "jornada.json"
+    parent = json.loads(parent_path.read_text(encoding="utf-8"))
+    parent["nodes"][0]["draw_ref"] = "subjornada"
+    parent_path.write_text(json.dumps(parent), encoding="utf-8")
+    create_draw(
+        root,
+        {
+            "id": "subjornada",
+            "title": "Subjornada interna",
+            "kind": "flow",
+            "hierarchy": {
+                "level": 3,
+                "role": "implementation",
+                "parent_draw_ref": "jornada",
+                "parent_node_id": 1,
+                "root_draw_ref": "sistema",
+            },
+            "groups": [],
+            "nodes": [
+                {"id": 1, "label": "Preparar interno", "description": "Prepara o subfluxo."},
+                {"id": 2, "label": "Concluir interno", "description": "Conclui o subfluxo."},
+            ],
+            "edges": [{"id": 1, "from": 1, "to": 2, "kind": "flow", "condition": 1}],
+            "flows": [],
+        },
+    )
+
+
 def test_build_backlog_copies_level_two_questions_symbols_and_branches(tmp_path: Path):
     """Gera tasks de nós de nível 2 com seus dados estruturados.
     Deriva duas branches, preserva perguntas e encerra self-loop como terminal.
@@ -115,6 +148,38 @@ def test_backlog_keeps_shared_steps_in_every_branch_and_tracks_all_occurrences(t
         "jornada:branch:2",
     ]
     assert backlog["tasks"][2]["branches"][0]["terminal"] is True
+
+
+def test_backlog_starts_child_backlog_after_parent_node(tmp_path: Path):
+    """Inclui o nó pai e as tasks do subfluxo na sequência operacional.
+    Só continua a branch principal depois de concluir o backlog interno.
+    """
+    _create_nested_hierarchical_fixture(tmp_path)
+    generate_backlog(tmp_path)
+
+    first = next_backlog_task(tmp_path)
+    assert first["task"]["id"] == "task:jornada:node:1"
+    assert first["task"]["child_backlog_id"] == "subjornada"
+    assert first["task"]["child_task_ids"] == [
+        "task:subjornada:node:1",
+        "task:subjornada:node:2",
+    ]
+    complete_backlog_task(tmp_path, first["task"]["id"])
+
+    internal = next_backlog_task(tmp_path)
+    assert internal["task"]["id"] == "task:subjornada:node:1"
+    assert internal["task"]["parent_task_id"] == "task:jornada:node:1"
+    assert read_backlog(tmp_path)["execution"]["current_backlog_id"] == "subjornada"
+    complete_backlog_task(tmp_path, internal["task"]["id"])
+
+    internal_last = next_backlog_task(tmp_path)
+    assert internal_last["task"]["id"] == "task:subjornada:node:2"
+    complete_backlog_task(tmp_path, internal_last["task"]["id"])
+    assert next_backlog_task(tmp_path)["task"]["id"] == "task:jornada:node:2"
+
+    saved = read_backlog(tmp_path)
+    assert saved["backlogs"][1]["id"] == "backlog:subjornada"
+    assert saved["backlogs"][1]["parent_task_id"] == "task:jornada:node:1"
 
 
 def test_backlog_preserves_shared_steps_in_explicit_flow_paths(tmp_path: Path):

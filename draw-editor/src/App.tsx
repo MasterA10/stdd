@@ -152,7 +152,7 @@ export const App: React.FC = () => {
       const task = previous.tasks.find((item) => item.id === current) || previous.tasks.find((item) => item.status !== 'done');
       if (!task) return previous;
       const tasks = previous.tasks.map((item) => item.id === task.id ? { ...item, status: 'in_progress' as const } : item);
-      return { ...previous, tasks, execution: { ...previous.execution, current_task_id: task.id, current_branch_id: task.branch?.id, branch_position: task.branch?.position } };
+      return { ...previous, tasks, execution: { ...previous.execution, current_task_id: task.id, current_backlog_id: task.backlog_id, current_branch_id: task.branch?.id, branch_position: task.branch?.position } };
     });
   };
 
@@ -167,7 +167,7 @@ export const App: React.FC = () => {
     }
     updateLocalBacklog((previous) => {
       if (previous.execution.current_task_id !== taskId) return previous;
-      return { ...previous, tasks: previous.tasks.map((item) => item.id === taskId ? { ...item, status: 'done' as const } : item), execution: { ...previous.execution, current_task_id: null } };
+      return { ...previous, tasks: previous.tasks.map((item) => item.id === taskId ? { ...item, status: 'done' as const } : item), execution: { ...previous.execution, current_task_id: null, current_backlog_id: null } };
     });
   };
 

@@ -160,6 +160,8 @@ export interface RunRecord {
 export interface BacklogTask {
   id: string;
   draw_id: string;
+  backlog_id?: string;
+  parent_task_id?: string | null;
   draw_title?: string;
   node_id: number;
   level?: number;
@@ -172,6 +174,9 @@ export interface BacklogTask {
   source_dependencies?: string[];
   traceability?: Array<{ symbol: string; status?: string; file?: string }>;
   child_checklist_id?: string;
+  child_backlog_id?: string;
+  child_task_ids?: string[];
+  child_branch_ids?: string[];
   branch?: { id: string; position: number; terminal?: boolean; terminal_node_id?: number; terminal_reason?: string };
   branches?: Array<{ id: string; position: number; terminal?: boolean; terminal_node_id?: number; terminal_reason?: string }>;
 }
@@ -182,12 +187,14 @@ export interface BacklogDocument {
   generated_at?: string;
   system?: { root_draw_ids?: string[] };
   checklists?: Array<{ id: string; title?: string; items?: Array<{ id: string; status: string }> }>;
+  backlogs?: Array<{ id: string; draw_id: string; title?: string; parent_task_id?: string | null; task_ids?: string[] }>;
   tasks: BacklogTask[];
   execution: {
     current_task_id?: string | null;
+    current_backlog_id?: string | null;
     current_branch_id?: string | null;
     branch_position?: number | null;
     completed_branches?: string[];
-    branches?: Array<{ id: string; completed?: boolean; terminal_reason?: string; task_ids?: string[]; node_ids?: number[]; edges?: EdgeData[]; flow_id?: number | null }>;
+    branches?: Array<{ id: string; completed?: boolean; terminal_reason?: string; task_ids?: string[]; node_ids?: number[]; edges?: EdgeData[]; flow_id?: number | null; backlog_id?: string; parent_task_id?: string; scope?: string }>;
   };
 }

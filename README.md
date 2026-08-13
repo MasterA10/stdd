@@ -175,7 +175,7 @@ Cada execução de `stdd test` também atualiza `.stdd/adapters/static-analysis-
 
 ## Executar o backlog
 
-O backlog é derivado dos Draws e fica consolidado em `.stdd/backlog.json`. Cada task operacional corresponde a um nó de nível 2 e inclui perguntas, respostas, símbolos associados, arquivos e dependências.
+O backlog é derivado dos Draws e fica consolidado em `.stdd/backlog.json`. Cada task operacional corresponde a um nó de nível 2 ou a uma etapa de subfluxo associado e inclui perguntas, respostas, símbolos associados, arquivos e dependências. A task pai mantém `draw_ref`, `child_backlog_id` e a relação com as tasks internas.
 
 Gere ou atualize o documento agregado:
 
@@ -189,7 +189,7 @@ Consulte todas as tasks ainda não concluídas:
 stdd backlog missing
 ```
 
-O ciclo interativo entrega uma task por vez, percorre cada ramificação até seu terminal e depois avança para a próxima. Uma etapa compartilhada por mais de um caminho continua sendo uma única task operacional, mas aparece em todas as branches e só deixa os caminhos dependentes concluídos quando seu status foi concluído:
+O ciclo interativo entrega uma task por vez, percorre cada ramificação até seu terminal e depois avança para a próxima. Uma etapa compartilhada por mais de um caminho continua sendo uma única task operacional, mas aparece em todas as branches e só deixa os caminhos dependentes concluídos quando seu status foi concluído. Quando o nó possui `draw_ref`, ele permanece no backlog pai e abre um backlog interno com as tasks do subfluxo antes da continuação da branch:
 
 ```bash
 stdd backlog task
