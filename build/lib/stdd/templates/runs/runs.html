@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="stdd-runs-viewer" content="read-only">
+  <title>STDD Runs</title>
+  <style>
+    :root { --ink:#192238; --muted:#737d92; --paper:#f5f7fb; --card:#fff; --line:#e2e7f0; --accent:#5b66d6; --green:#279c76; --orange:#d88935; --red:#cf5360; --shadow:0 18px 50px rgba(34,43,72,.10); }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; color:var(--ink); background:radial-gradient(circle at 85% 4%,#e9e6ff,transparent 30%),var(--paper); font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+    button,input { font:inherit; }
+    .app { display:grid; grid-template-columns:280px minmax(0,1fr); min-height:100vh; }
+    aside { padding:25px 17px; border-right:1px solid var(--line); background:rgba(255,255,255,.88); backdrop-filter:blur(15px); }
+    .brand { display:flex; align-items:center; gap:10px; }.mark { display:grid; place-items:center; width:35px; height:35px; border-radius:12px; color:white; background:linear-gradient(135deg,#6976e9,#bf62ad); font-weight:900; box-shadow:0 9px 22px rgba(91,102,214,.25); }
+    .eyebrow { margin:0 0 3px; color:#626bc9; font-size:10px; font-weight:900; letter-spacing:.16em; text-transform:uppercase; } h1,h2,h3,p { margin-top:0; } h1 { margin-bottom:0; font-size:21px; letter-spacing:-.04em; } h2 { margin-bottom:5px; font-size:24px; letter-spacing:-.04em; } h3 { margin-bottom:8px; font-size:13px; } .muted { color:var(--muted); font-size:12px; line-height:1.5; }
+    .copy { margin:18px 2px; }.search { width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:11px; outline:none; background:#fff; }.search:focus { border-color:#8790e4; box-shadow:0 0 0 3px rgba(91,102,214,.1); }
+    .days { display:grid; gap:8px; margin-top:12px; }.day { width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:12px; color:var(--ink); background:#fff; text-align:left; cursor:pointer; transition:.18s; }.day:hover,.day.active { border-color:#8c94e1; box-shadow:0 8px 20px rgba(91,102,214,.12); transform:translateY(-1px); }.day strong,.day small { display:block; }.day small { margin-top:4px; color:var(--muted); font-size:10px; }.status { margin-top:15px; padding:10px 11px; border:1px solid var(--line); border-radius:10px; color:var(--muted); background:#fafbfe; font-size:11px; }
+    main { max-width:1240px; width:100%; margin:0 auto; padding:35px clamp(22px,4vw,58px) 55px; }.topbar { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; }.readonly { padding:7px 10px; border-radius:999px; color:#287f65; background:#e6f7f0; font-size:10px; font-weight:850; letter-spacing:.06em; text-transform:uppercase; white-space:nowrap; }
+    .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:25px 0; }.metric { padding:16px; border:1px solid var(--line); border-radius:15px; background:rgba(255,255,255,.83); box-shadow:var(--shadow); }.metric span { display:block; color:var(--muted); font-size:10px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }.metric strong { display:block; margin-top:7px; font-size:24px; letter-spacing:-.04em; }
+    .panel { margin-top:15px; padding:20px; border:1px solid var(--line); border-radius:17px; background:rgba(255,255,255,.88); box-shadow:var(--shadow); }.panel-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }.runs { display:grid; gap:9px; margin-top:13px; }.run { padding:13px; border:1px solid var(--line); border-radius:12px; background:#fff; cursor:pointer; }.run:hover,.run.active { border-color:#8c94e1; background:#fafaff; }.run-title { display:flex; justify-content:space-between; gap:12px; font-weight:800; }.run-meta { margin-top:6px; color:var(--muted); font-size:11px; }.tag { display:inline-block; margin:7px 5px 0 0; padding:4px 7px; border-radius:999px; color:#5964c7; background:#eef0ff; font-size:10px; font-weight:750; }
+    .files { display:grid; gap:10px; }.file { padding:12px; border:1px solid var(--line); border-radius:11px; background:#fff; }.file-head { display:flex; justify-content:space-between; gap:12px; font-size:12px; font-weight:800; }.file-stats { color:var(--muted); font-size:10px; white-space:nowrap; }.diff { overflow:auto; margin:10px 0 0; padding:12px; border-radius:9px; color:#d9e2f0; background:#1c2435; font:11px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace; white-space:pre; }.empty { padding:35px 10px; color:var(--muted); text-align:center; }.error { color:var(--red); }
+    @media (max-width:900px) { .app { grid-template-columns:220px minmax(0,1fr); } .metrics { grid-template-columns:repeat(2,1fr); } }.hidden { display:none; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand"><div class="mark">R</div><div><p class="eyebrow">STDD · Runs</p><h1>Execuções</h1></div></div>
+      <p class="muted copy">Consulte o histórico de trabalho, métricas e diffs registrados pelo framework.</p>
+      <input id="search" class="search" aria-label="Buscar dia" placeholder="Buscar dia...">
+      <div id="days" class="days"></div>
+      <div id="status" class="status">Carregando índice...</div>
+    </aside>
+    <main>
+      <div class="topbar"><div><p class="eyebrow">Relatório operacional</p><h2 id="title">Nenhuma execução selecionada</h2><p id="subtitle" class="muted">Selecione um dia para consultar os detalhes.</p></div><div class="readonly">Somente leitura</div></div>
+      <section id="metrics" class="metrics"></section>
+      <section class="panel"><div class="panel-head"><h3>Runs do dia</h3><span id="day-label" class="muted"></span></div><div id="runs" class="runs"><div class="empty">Nenhum dia selecionado.</div></div></section>
+      <section class="panel"><div class="panel-head"><h3>Arquivos e diffs</h3><span id="run-label" class="muted"></span></div><div id="files" class="files"><div class="empty">Selecione uma run para ver os arquivos alterados.</div></div></section>
+    </main>
+  </div>
+  <script>
+    (() => {
+      const $ = id => document.getElementById(id);
+      const state = { index: [], day: null, summary: null, snapshot: null, selectedRun: null, query: '' };
+      const text = (value, fallback = '') => String(value ?? fallback);
+      const formatDate = value => { const date = new Date(value); return Number.isNaN(date.getTime()) ? text(value) : date.toLocaleString('pt-BR'); };
+      const formatNumber = value => new Intl.NumberFormat('pt-BR').format(Number(value || 0));
+      const runById = id => (state.summary?.runs || []).find(run => run.run_id === id);
+      function renderDays() {
+        const query = state.query.toLowerCase(); $('days').replaceChildren(...state.index.filter(day => text(day.date).includes(query)).map(day => { const button = document.createElement('button'); button.className = `day${state.day?.date === day.date ? ' active' : ''}`; button.innerHTML = `<strong>${text(day.date)}</strong><small>${formatNumber(day.run_count)} run(s)</small>`; button.onclick = () => loadDay(day); return button; }));
+        if (!$('days').children.length) $('days').innerHTML = '<div class="empty">Nenhum dia encontrado.</div>';
+      }
+      function renderMetrics(run) {
+        const stats = run?.diff_stats || {}; const metrics = [['Runs do dia', state.summary?.run_count || 0], ['Arquivos alterados', stats.files_changed || 0], ['Linhas adicionadas', stats.lines_added || 0], ['Linhas removidas', stats.lines_deleted || 0]];
+        $('metrics').replaceChildren(...metrics.map(([label, value]) => { const card = document.createElement('div'); card.className = 'metric'; card.innerHTML = `<span>${label}</span><strong>${formatNumber(value)}</strong>`; return card; }));
+      }
+      function renderRuns() {
+        const runs = state.summary?.runs || []; $('runs').replaceChildren(...runs.map(run => { const button = document.createElement('article'); button.className = `run${state.selectedRun === run.run_id ? ' active' : ''}`; button.innerHTML = `<div class="run-title"><span>${text(run.description)}</span><span class="muted">${formatDate(run.timestamp)}</span></div><div class="run-meta">${text(run.run_id)}</div>${(run.work_types || []).map(type => `<span class="tag">${text(type)}</span>`).join('')}`; button.onclick = () => { state.selectedRun = run.run_id; renderRuns(); renderFiles(); }; return button; }));
+        if (!runs.length) $('runs').innerHTML = '<div class="empty">Nenhuma run registrada neste dia.</div>';
+      }
+      function renderFiles() {
+        const snapshotRun = (state.snapshot?.runs || []).find(run => run.run_id === state.selectedRun); const files = snapshotRun?.files || []; $('run-label').textContent = state.selectedRun ? text(state.selectedRun) : ''; $('files').replaceChildren(...files.map(file => { const item = document.createElement('article'); item.className = 'file'; item.innerHTML = `<div class="file-head"><span>${text(file.path)}</span><span class="file-stats">+${formatNumber(file.lines_added)} / −${formatNumber(file.lines_deleted)}</span></div><pre class="diff"></pre>`; item.querySelector('.diff').textContent = text(file.diff, 'Sem diff textual.'); return item; }));
+        if (!files.length) $('files').innerHTML = '<div class="empty">Esta run não possui arquivos alterados.</div>';
+      }
+      async function loadDay(day) {
+        state.day = day; state.selectedRun = null; renderDays(); $('status').textContent = `Carregando ${day.date}...`;
+        try { const [summaryResponse, snapshotResponse] = await Promise.all([fetch(`runs/${day.summary}`), fetch(`runs/${day.snapshot}`)]); if (!summaryResponse.ok || !snapshotResponse.ok) throw new Error('relatório não encontrado'); state.summary = await summaryResponse.json(); state.snapshot = await snapshotResponse.json(); const last = state.summary.runs.at(-1); state.selectedRun = last?.run_id || null; $('title').textContent = `Execuções de ${day.date}`; $('subtitle').textContent = `${formatNumber(state.summary.run_count)} registro(s) acumulado(s) no Summary`; $('day-label').textContent = day.date; $('status').textContent = 'Relatório carregado'; renderMetrics(last); renderRuns(); renderFiles(); } catch (error) { $('status').textContent = `Erro: ${error.message}`; $('status').className = 'status error'; }
+      }
+      async function loadIndex() { try { const response = await fetch('runs/index.json'); if (!response.ok) throw new Error('índice não encontrado'); const data = await response.json(); state.index = Array.isArray(data.days) ? data.days : []; renderDays(); $('status').textContent = `${formatNumber(state.index.length)} dia(s) disponível(is)`; if (state.index[0]) loadDay(state.index[0]); } catch (error) { $('status').textContent = `Erro: ${error.message}`; $('status').className = 'status error'; } }
+      $('search').addEventListener('input', event => { state.query = event.target.value; renderDays(); });
+      loadIndex();
+    })();
+  </script>
+</body>
+</html>

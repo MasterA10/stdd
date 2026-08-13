@@ -94,6 +94,7 @@ $draw-system-level-2 Desenhe jornadas, telas e navegação por papel a partir da
 $draw-system-level-3 Detalhe o comportamento completo de uma tela ou nó, em lotes aprovados.
 $draw-system-level-4 Rastreie sob demanda uma decisão até a codebase real.
 $static-analysis Analise dependências, complexidade, funções longas e segredos hardcoded.
+$miss-agent Execute as tasks pendentes do backlog até não haver mais tasks.
 $implement Execute a implementação aprovada e rode os gates do STDD.
 ```
 
@@ -104,6 +105,7 @@ $setup
 $create-tests
 $draw-improve
 $draw-answer
+$miss-agent
 $implement
 ```
 
@@ -125,7 +127,7 @@ $implement Execute somente depois da aprovação.
 
 Perguntas de um Draw só devem ser respondidas automaticamente pelo `$draw-answer` quando o `prompt` contiver `@stdd` e `answer` estiver ausente, `null` ou vazio. O agente executa `stdd draw questions`, que já busca todas as perguntas nos JSONs e retorna JSON, consulta a codebase e os símbolos associados; se houver evidência, grava a resposta, marca os símbolos relevantes e remove o marcador. Se não houver evidência suficiente, mantém a pergunta aberta e associa ao próprio nó o arquivo e o símbolo relevante em `code_refs`. Sem `@stdd`, a pergunta pertence ao usuário ou a um revisor humano; respostas já preenchidas, inclusive `false` e `0`, não geram nova ação. O `$draw-improve` preserva essa responsabilidade separada e não responde perguntas.
 
-As skills `$draw-system-level-1` a `$draw-system-level-4` criam uma árvore sem fluxos órfãos: nível 1 contém somente arquitetura macro, nível 2 acompanha jornadas e navegação por papel, nível 3 detalha de ponta a ponta as ações possíveis de cada tela em dois ou mais lotes aprovados e nível 4 liga a codebase sob demanda. No nível 2, cada nó deve ter ao menos um `code_refs`; `stdd draw create` e `stdd test` avisam sobre a ausência com `draw.level2_missing_code_ref`, sem bloquear. No nível 3, cada ação comprovada da tela inicia um nó próprio conectado ao comportamento de caso de uso; a tela não é substituída por um fluxo genérico. A análise estática avisa quando um subfluxo de nível 3 tem menos de quatro nós ou quando alguma descrição tem menos de 80 caracteres; esses avisos nunca bloqueiam. Cada filho declara seu pai e cada pai aponta para o filho com `draw_ref`; caminhos ainda não implementados terminam no próprio nó, sem continuação fictícia.
+As skills `$draw-system-level-1` a `$draw-system-level-4` criam uma árvore sem fluxos órfãos: nível 1 contém somente arquitetura macro, nível 2 acompanha jornadas e navegação por papel, nível 3 detalha de ponta a ponta as ações possíveis de cada tela em dois ou mais lotes aprovados e nível 4 liga a codebase sob demanda. No nível 2, cada nó deve ter ao menos um `code_refs`; `stdd draw create` informa a lacuna e `stdd test` bloqueia com `draw.level2_missing_code_ref`. O mesmo gate bloqueia `draw.level3_missing_code_ref`, `draw.level4_missing_code_ref` e `draw.empty_node_symbol`; duplicação de símbolo continua sendo warning. No nível 3, cada ação comprovada da tela inicia um nó próprio conectado ao comportamento de caso de uso; a tela não é substituída por um fluxo genérico. A análise estática avisa quando um subfluxo de nível 3 tem menos de quatro nós ou quando alguma descrição tem menos de 80 caracteres; esses avisos continuam informativos. Cada filho declara seu pai e cada pai aponta para o filho com `draw_ref`; caminhos ainda não implementados terminam no próprio nó, sem continuação fictícia.
 
 Para Claude e Gemini, as mesmas skills são instaladas em `.claude/skills/` e `.gemini/skills/`; a forma exata de chamada pode ser o comando de skill adotado pelo agente, mas os nomes e contratos permanecem iguais.
 
@@ -171,6 +173,31 @@ Logs sem linhas adicionadas ou removidas no código são mantidos como checkpoin
 
 Cada execução de `stdd test` também atualiza `.stdd/adapters/static-analysis-kpis.json` com os indicadores agregados e os detalhes dos símbolos, dependências, métricas, arquivos e achados de qualidade. O Draw Server expõe esse JSON e o viewer o apresenta na aba lateral `Análise`, ao lado de `Desenhos`; os Draws continuam separados em `.stdd/draws/` e os facts de rastreabilidade em `.stdd/facts/`.
 
+## Executar o backlog
+
+O backlog é derivado dos Draws e fica consolidado em `.stdd/backlog.json`. Cada task operacional corresponde a um nó de nível 2 e inclui perguntas, respostas, símbolos associados, arquivos e dependências.
+
+Gere ou atualize o documento agregado:
+
+```bash
+stdd backlog generate
+```
+
+Consulte todas as tasks ainda não concluídas:
+
+```bash
+stdd backlog missing
+```
+
+O ciclo interativo entrega uma task por vez, percorre cada ramificação até seu terminal e depois avança para a próxima:
+
+```bash
+stdd backlog task
+stdd backlog complete <task-id>
+```
+
+`backlog task` deve ser repetido até retornar `backlog-empty`. O `$miss-agent` e o `$implement` executam esse ciclo: leem uma task, implementam, testam, concluem pelo ID e solicitam a próxima. Self-loops são terminais; ciclos diferentes de self-loop são bloqueados para evitar execução infinita. A aba `Backlog` do viewer mostra a task atual, perguntas, respostas e símbolos quando o Draw Server está ativo.
+
 ## Executar testes
 
 ```bash
@@ -178,6 +205,7 @@ stdd test
 ```
 
 Esse é o alias global. Ele executa as suítes configuradas, análise estática, contrato e runners da stack. Suítes que exigem aprovação explícita aparecem como `not_executed` quando não autorizadas.
+Se `.stdd/backlog.json` existir, o alias também executa o gate do backlog e bloqueia enquanto houver task sem `backlog complete`; a saída do terminal mostra somente status e contagens, mantendo os detalhes no relatório estruturado.
 
 Opções úteis:
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Draw System · Nível 3"
+  short_description: "Detalha regras e comportamento de uma jornada."
+  default_prompt: "Use $draw-system-level-3 para detalhar o comportamento de uma jornada."

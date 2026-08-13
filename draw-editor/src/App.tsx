@@ -12,7 +12,7 @@ import {
 import type { Connection, Edge, EdgeChange, Node, EdgeTypes } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import type { Contract, DrawIndexEntry, NodeData, EdgeData, RunRecord, TraceabilityFacts, StaticAnalysisKpiReport } from './types';
+import type { BacklogDocument, Contract, DrawIndexEntry, NodeData, EdgeData, RunRecord, TraceabilityFacts, StaticAnalysisKpiReport } from './types';
 import { CustomNode } from './components/CustomNode';
 import { LoopEdge } from './components/LoopEdge';
 import { Sidebar } from './components/Sidebar';
@@ -68,6 +68,7 @@ export const App: React.FC = () => {
   const [contract, setContract] = useState<Contract>(typedDefaultContract);
   const [drawingsIndex, setDrawingsIndex] = useState<DrawIndexEntry[]>([]);
   const [runs, setRuns] = useState<RunRecord[]>([]);
+  const [backlog, setBacklog] = useState<BacklogDocument | null>(null);
   const [storageMode, setStorageMode] = useState<'backend' | 'local'>('local');
   const [navigation, setNavigation] = useState<string[]>([]);
   
@@ -106,6 +107,69 @@ export const App: React.FC = () => {
   // --- React Flow Node & Edge States ---
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<NodeData>>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+
+  const loadBacklog = useCallback(async () => {
+    const origins = [...new Set([getApiOrigin(), ...getApiOrigins()])];
+    for (const origin of origins) {
+      try {
+        const response = await fetch(`${origin}/.stdd/backlog.json`, { cache: 'no-store' });
+        if (response.ok) {
+          setBacklog(await response.json() as BacklogDocument);
+          return;
+        }
+      } catch (_) {}
+    }
+    try {
+      const saved = localStorage.getItem('stdd-backlog');
+      setBacklog(saved ? JSON.parse(saved) as BacklogDocument : null);
+    } catch (_) {
+      setBacklog(null);
+    }
+  }, []);
+
+  useEffect(() => { loadBacklog(); }, [loadBacklog, storageMode]);
+
+  const updateLocalBacklog = (updater: (previous: BacklogDocument) => BacklogDocument) => {
+    setBacklog((previous) => {
+      if (!previous) return previous;
+      const next = updater(previous);
+      localStorage.setItem('stdd-backlog', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const claimBacklogTask = async () => {
+    if (storageMode === 'backend') {
+      try {
+        const response = await fetch(`${getApiOrigin()}/__stdd/api/backlog/task`, { method: 'POST' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        await loadBacklog();
+        return;
+      } catch (error: any) { alert(`Erro ao reservar task: ${error.message}`); return; }
+    }
+    updateLocalBacklog((previous) => {
+      const current = previous.execution.current_task_id;
+      const task = previous.tasks.find((item) => item.id === current) || previous.tasks.find((item) => item.status !== 'done');
+      if (!task) return previous;
+      const tasks = previous.tasks.map((item) => item.id === task.id ? { ...item, status: 'in_progress' as const } : item);
+      return { ...previous, tasks, execution: { ...previous.execution, current_task_id: task.id, current_branch_id: task.branch?.id, branch_position: task.branch?.position } };
+    });
+  };
+
+  const completeBacklogTask = async (taskId: string) => {
+    if (storageMode === 'backend') {
+      try {
+        const response = await fetch(`${getApiOrigin()}/__stdd/api/backlog/tasks/${encodeURIComponent(taskId)}/complete`, { method: 'POST' });
+        if (!response.ok) { const result = await response.json().catch(() => ({})); throw new Error(result.error || `HTTP ${response.status}`); }
+        await loadBacklog();
+        return;
+      } catch (error: any) { alert(`Erro ao concluir task: ${error.message}`); return; }
+    }
+    updateLocalBacklog((previous) => {
+      if (previous.execution.current_task_id !== taskId) return previous;
+      return { ...previous, tasks: previous.tasks.map((item) => item.id === taskId ? { ...item, status: 'done' as const } : item), execution: { ...previous.execution, current_task_id: null } };
+    });
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -1429,6 +1493,9 @@ export const App: React.FC = () => {
           storageMode={storageMode}
           runs={runs}
           staticAnalysisKpis={staticAnalysisKpis}
+          backlog={backlog}
+          onClaimBacklogTask={claimBacklogTask}
+          onCompleteBacklogTask={completeBacklogTask}
         />
 
         {/* Canvas Area */}

@@ -490,3 +490,30 @@ def test_code_references_modal_displays_file_path_under_symbol():
     assert ".code-reference-file-subtext" in styles
     assert "code-reference-symbol-wrapper" in modal
 
+
+def test_sidebar_exposes_backlog_tasks_with_questions_and_symbols():
+    """Exibe a task atual no viewer com seu contexto rastreável.
+    Confirma que a aba Backlog mostra perguntas, respostas e símbolos associados.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    sidebar = (EDITOR_ROOT / "src/components/Sidebar.tsx").read_text(encoding="utf-8")
+    panel = (EDITOR_ROOT / "src/components/BacklogPanel.tsx").read_text(encoding="utf-8")
+
+    assert "backlog={backlog}" in app
+    assert "__stdd/api/backlog/task" in app
+    assert "__stdd/api/backlog/tasks/" in app
+    assert "activeTab === 'backlog'" in sidebar
+    assert "Perguntas e respostas" in panel
+    assert "Símbolos associados" in panel
+    assert "Concluir task" in panel
+
+
+def test_editor_loads_the_persisted_backlog_from_the_draw_server():
+    """Carrega o backlog agregado junto com os Draws do projeto.
+    Confirma a rota JSON e o fallback local usado quando o servidor não está disponível.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+
+    assert "/.stdd/backlog.json" in app
+    assert "stdd-backlog" in app
+    assert "BacklogDocument" in app

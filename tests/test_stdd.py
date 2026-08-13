@@ -28,6 +28,7 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert (tmp_path / ".agents/skills/draw-feature/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-improve/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-answer/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/miss-agent/SKILL.md").exists()
     for level in range(1, 5):
         assert (tmp_path / ".agents/skills" / f"draw-system-level-{level}" / "SKILL.md").exists()
         assert (tmp_path / ".agents/skills" / f"draw-system-level-{level}" / "agents/openai.yaml").exists()
@@ -186,7 +187,7 @@ def test_agents_are_loaded_from_markdown_templates():
     Chama agent_templates e valida a presença dos títulos dos agentes create-tests, implement e setup.
     """
     templates = {template.parent.name: template for template in agent_templates()}
-    assert set(templates) == {"create-tests", "draw-answer", "draw-feature", "draw-improve", "draw-system-level-1", "draw-system-level-2", "draw-system-level-3", "draw-system-level-4", "implement", "setup", "static-analysis"}
+    assert set(templates) == {"create-tests", "draw-answer", "draw-feature", "draw-improve", "draw-system-level-1", "draw-system-level-2", "draw-system-level-3", "draw-system-level-4", "implement", "miss-agent", "setup", "static-analysis"}
     assert "# Create Tests Agent" in templates["create-tests"].read_text()
     assert "# Implement Agent" in templates["implement"].read_text()
     assert "# Setup Agent" in templates["setup"].read_text()
@@ -210,7 +211,7 @@ def test_agents_are_loaded_from_markdown_templates():
     for required in ("nível 1", "parent_draw_ref", "parent_node_id", "root_draw_ref", "jornadas do usuário", "sem fluxos órfãos", "code_refs"):
         assert required in level_one
     level_two = templates["draw-system-level-2"].read_text().lower()
-    for required in ("nível 2", "jornadas", "administrador", "permissões", "frontend/interface", "não implementado", "draw_ref", "draw.level2_missing_code_ref", "nunca bloqueia"):
+    for required in ("nível 2", "jornadas", "administrador", "permissões", "frontend/interface", "não implementado", "draw_ref", "draw.level2_missing_code_ref", "bloqueia cada nó"):
         assert required in level_two
     level_three = templates["draw-system-level-3"].read_text().lower()
     for required in ("nível 3", "dois lotes", "mais lotes", "ponta a ponta", "tudo o que é possível fazer", "chat", "marketplace", "code_refs", "source_dependencies", "no mínimo quatro nós", "no mínimo 80 caracteres", "warning", "draw.level3_min_nodes", "draw.level3_short_description", "description", "label", "edge.description", "obrigatoriedade de leitura do símbolo", "leitura prévia"):
@@ -219,7 +220,7 @@ def test_agents_are_loaded_from_markdown_templates():
     for required in ("nível 4", "sob demanda", "qualified_name", "rpc", "procedure", "sql", "arquivo", "model"):
         assert required in level_four
 
-    for required in ("supabase", "rpc", "back-end", "external_logic", "technologies", "sql_procedure", "sql_function", "localização da regra", "todos os níveis", "frontend/interface", "static_analysis.exceptions", "stdd:ignore", "draw.level2_missing_code_ref", "draw.level3_min_nodes", "draw.level3_short_description", "menos de quatro nós", "menos de 80 caracteres", "nunca bloqueiam"):
+    for required in ("supabase", "rpc", "back-end", "external_logic", "technologies", "sql_procedure", "sql_function", "localização da regra", "todos os níveis", "frontend/interface", "static_analysis.exceptions", "stdd:ignore", "draw.level2_missing_code_ref", "draw.level3_min_nodes", "draw.level3_short_description", "menos de quatro nós", "menos de 80 caracteres", "somente `stdd test` aplica o bloqueio"):
         assert required in templates["static-analysis"].read_text().lower()
 
     setup_content = templates["setup"].read_text()

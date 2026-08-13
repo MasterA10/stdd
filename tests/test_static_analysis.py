@@ -1,4 +1,5 @@
 import json
+import runpy
 from pathlib import Path
 import sys
 
@@ -172,7 +173,7 @@ def test_static_analysis_blocks_hardcoded_secret_without_external_adapter(tmp_pa
 
 def test_static_analysis_warns_for_level_two_nodes_without_code_refs(tmp_path: Path):
     """Inclui o contrato de rastreabilidade do nível 2 no relatório estático.
-    O warning é produzido pelo núcleo mesmo sem adapter externo e não bloqueia o gate.
+    O achado é produzido pelo núcleo mesmo sem adapter externo e bloqueia o gate.
     """
     draws = tmp_path / ".stdd" / "draws"
     draws.mkdir(parents=True)
@@ -188,14 +189,81 @@ def test_static_analysis_warns_for_level_two_nodes_without_code_refs(tmp_path: P
 
     report = run_static_analysis(tmp_path, "execution-draw-contract", {}, [])
 
-    assert report["status"] == "unavailable"
+    assert report["status"] == "blocked"
     assert report["quality_findings"][0]["kind"] == "draw.level2_missing_code_ref"
-    assert report["quality_findings"][0]["severity"] == "warning"
+    assert report["quality_findings"][0]["severity"] == "blocking"
+
+
+def test_stdd_test_blocks_frontend_flow_without_symbols(tmp_path: Path):
+    """Bloqueia o gate global quando uma jornada frontend não possui símbolos.
+    Executa uma suíte válida e confirma que o Draw inválido impede o sucesso silencioso.
+    """
+    draws = tmp_path / ".stdd" / "draws"
+    draws.mkdir(parents=True)
+    payload = {
+        "id": "frontend-sem-simbolos",
+        "title": "Jornada sem símbolos",
+        "kind": "system",
+        "hierarchy": {"level": 2, "role": "journey", "root_draw_ref": "root"},
+        "nodes": [{"id": 1, "label": "Tela sem referência"}],
+        "edges": [],
+    }
+    (draws / "frontend-sem-simbolos.json").write_text(json.dumps(payload), encoding="utf-8")
+    (tmp_path / ".stdd" / "config.json").write_text(json.dumps({
+        "test_commands": [{"name": "unit", "command": [sys.executable, "-c", "print('unit')"]}],
+        "static_analysis": {"enabled": True, "adapter_command": None},
+    }), encoding="utf-8")
+
+    process, report = run_tests(tmp_path)
+
+    assert process.returncode != 0
+    assert report["status"] == "blocked"
+    assert report["static_analysis"]["status"] == "blocked"
+    finding = report["static_analysis"]["quality_findings"][0]
+    assert finding["kind"] == "draw.level2_missing_code_ref"
+    assert finding["severity"] == "blocking"
+
+
+def test_static_adapter_keeps_tsx_filename_when_extracting_symbols(tmp_path: Path, monkeypatch):
+    """Extrai símbolos de uma classe TSX sem remover parte do nome do arquivo.
+    Executa o dispatcher e o adapter TypeScript com ErroImportacaoView.tsx.
+    """
+    adapters = tmp_path / ".stdd" / "adapters"
+    adapters.mkdir(parents=True)
+    dispatcher = adapters / "static_adapter.py"
+    dispatcher.write_text(Path("src/stdd/templates/adapters/static_adapter.py").read_text(encoding="utf-8"), encoding="utf-8")
+    (adapters / "js_ts_static_adapter.js").write_text(Path("src/stdd/templates/adapters/js_ts_static_adapter.js").read_text(encoding="utf-8"), encoding="utf-8")
+    source = tmp_path / "src" / "views" / "ErroImportacaoView.tsx"
+    source.parent.mkdir(parents=True)
+    source.write_text(
+        "import React from 'react';\n"
+        "export class ErroImportacaoView extends React.Component {\n"
+        "  render() { return <div>Erro</div>; }\n"
+        "}\n",
+        encoding="utf-8",
+    )
+    adapter_module = runpy.run_path("src/stdd/templates/adapters/static_adapter.py")
+    assert adapter_module["module_from_path"](tmp_path, source) == "views.ErroImportacaoView"
+    monkeypatch.setenv("NODE_PATH", str(Path("draw-editor/node_modules").resolve()))
+
+    report = run_static_analysis(
+        tmp_path,
+        "execution-tsx-symbol",
+        {"static_analysis": {"adapter_command": [sys.executable, str(dispatcher)]}},
+        ["src/views/ErroImportacaoView.tsx"],
+    )
+
+    assert report["status"] == "passed"
+    assert any(
+        symbol["file"] == "src/views/ErroImportacaoView.tsx"
+        and symbol["qualified_name"] == "ErroImportacaoView"
+        for symbol in report["symbols"]
+    )
 
 
 def test_static_analysis_includes_draw_node_symbol_warnings(tmp_path: Path):
-    """Inclui avisos de símbolos de nós vazios e duplicados no relatório de análise estática.
-    Executa a análise em um workspace sintético e confirma a detecção de draw.empty_node_symbol e draw.duplicate_node_symbol.
+    """Inclui achados de símbolos de nós vazios e duplicados no relatório estático.
+    Executa a análise e confirma bloqueio para ausência e aviso para duplicação.
     """
     draws = tmp_path / ".stdd" / "draws"
     draws.mkdir(parents=True)
@@ -220,7 +288,11 @@ def test_static_analysis_includes_draw_node_symbol_warnings(tmp_path: Path):
     kinds = [finding["kind"] for finding in report["quality_findings"]]
     assert "draw.empty_node_symbol" in kinds
     assert "draw.duplicate_node_symbol" in kinds
-    assert all(f["severity"] == "warning" for f in report["quality_findings"])
+    assert report["status"] == "blocked"
+    assert {f["kind"]: f["severity"] for f in report["quality_findings"]} == {
+        "draw.empty_node_symbol": "blocking",
+        "draw.duplicate_node_symbol": "warning",
+    }
 
 
 

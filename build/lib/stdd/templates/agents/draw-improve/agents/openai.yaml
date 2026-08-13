@@ -1,0 +1,4 @@
+interface:
+  display_name: "Draw Improve"
+  short_description: "Evolui desenhos de arquitetura em ciclos curtos"
+  default_prompt: "Use $draw-improve para revisar e evoluir incrementalmente o desenho atual."

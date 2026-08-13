@@ -31,7 +31,7 @@ Para cada tela, registre:
 - dados e estados que o papel consegue observar;
 - `code_refs` dos componentes frontend/interface reais, como React, Vue, HTML, templates, views, `.tsx` e `.jsx`, quando a análise estática os comprovar.
 
-Todo nó de um desenho com `hierarchy.level: 2` deve possuir pelo menos um `code_refs`. A análise estática e o comando `stdd draw create` emitem `draw.level2_missing_code_ref` como warning para cada nó sem referência; esse aviso é informativo e nunca bloqueia a criação ou o `stdd test`. Se o símbolo ainda não puder ser resolvido, registrar a associação como pendente ou criar uma pergunta, sem inventar arquivo ou componente.
+Todo nó de um desenho com `hierarchy.level: 2` deve possuir pelo menos um `code_refs`. A análise estática e o comando `stdd draw create` emitem `draw.level2_missing_code_ref`; a criação visual continua possível, mas `stdd test` bloqueia cada nó sem referência. Se o símbolo ainda não puder ser resolvido, registrar a associação como pendente ou criar uma pergunta, sem inventar arquivo ou componente.
 
 ### Exemplo de exaustividade
 

@@ -156,3 +156,37 @@ export interface RunRecord {
     [key: string]: any;
   };
 }
+
+export interface BacklogTask {
+  id: string;
+  draw_id: string;
+  draw_title?: string;
+  node_id: number;
+  level?: number;
+  label: string;
+  description?: string;
+  status: 'pending' | 'in_progress' | 'done';
+  questions?: Question[];
+  code_refs?: CodeReference[];
+  symbols?: string[];
+  source_dependencies?: string[];
+  traceability?: Array<{ symbol: string; status?: string; file?: string }>;
+  child_checklist_id?: string;
+  branch?: { id: string; position: number; terminal?: boolean; terminal_node_id?: number; terminal_reason?: string };
+}
+
+export interface BacklogDocument {
+  version: number;
+  kind: 'backlog';
+  generated_at?: string;
+  system?: { root_draw_ids?: string[] };
+  checklists?: Array<{ id: string; title?: string; items?: Array<{ id: string; status: string }> }>;
+  tasks: BacklogTask[];
+  execution: {
+    current_task_id?: string | null;
+    current_branch_id?: string | null;
+    branch_position?: number | null;
+    completed_branches?: string[];
+    branches?: Array<{ id: string; completed?: boolean; terminal_reason?: string }>;
+  };
+}

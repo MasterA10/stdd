@@ -380,7 +380,7 @@ def test_structural_analysis_warns_for_near_duplicate_at_threshold(tmp_path: Pat
 
 def test_level_two_contract_warns_for_nodes_without_code_refs(tmp_path: Path):
     """Identifica nós de jornada sem rastreabilidade de interface.
-    Mantém o finding como warning e não impede que o desenho seja criado.
+    Mantém a criação visual possível, mas classifica a lacuna como bloqueante no teste.
     """
     payload = draw_payload("journey-without-refs")
     payload["hierarchy"] = {"level": 2, "role": "journey", "root_draw_ref": "journey-without-refs"}
@@ -391,12 +391,12 @@ def test_level_two_contract_warns_for_nodes_without_code_refs(tmp_path: Path):
     assert len(findings) == 1
     assert findings[0]["kind"] == "draw.level2_missing_code_ref"
     assert findings[0]["node_id"] == 2
-    assert findings[0]["severity"] == "warning"
+    assert findings[0]["severity"] == "blocking"
 
 
 def test_draw_contract_warns_for_empty_or_unnamed_node_symbols():
-    """Gera warning quando nós contêm símbolos vazios ou genéricos sem referenciar a função real.
-    Inspeciona os achados de analyze_draw_contract e confirma o tipo e evidência do aviso.
+    """Gera achado bloqueante quando nós contêm símbolos vazios ou genéricos.
+    Inspeciona os achados de analyze_draw_contract e confirma o tipo e a evidência.
     """
     payload = draw_payload("draw-empty-symbols")
     payload["nodes"][0]["code_refs"] = [{"symbol": ""}]
@@ -433,7 +433,7 @@ def test_draw_contract_warns_for_duplicate_node_symbols():
 
 def test_draw_contract_warns_for_level3_and_level4_missing_code_refs():
     """Exige referências de código também para níveis 3 (implementação) e 4 (codebase).
-    Analisa desenhos de níveis 3 e 4 sem code_refs e confirma a geração dos avisos.
+    Analisa desenhos de níveis 3 e 4 sem code_refs e confirma a geração dos bloqueios.
     """
     payload3 = draw_payload("level3-missing")
     payload3["hierarchy"] = {"level": 3, "role": "implementation", "parent_draw_ref": "p", "parent_node_id": 1, "root_draw_ref": "r"}

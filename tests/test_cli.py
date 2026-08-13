@@ -329,6 +329,39 @@ def test_test_reports_static_analysis_unavailable_without_adapter(tmp_path: Path
     assert "[static-analysis]" in process.stdout
 
 
+def test_test_compacts_static_analysis_output_but_preserves_structured_report(tmp_path: Path):
+    """Resume a saída textual sem perder o relatório estruturado da análise.
+    Emite muitos símbolos no adapter e confirma que o terminal não recebe o dump completo.
+    """
+    (tmp_path / ".stdd").mkdir()
+    adapter_result = {
+        "contract_version": "1",
+        "status": "passed",
+        "capabilities": {"symbols": True},
+        "symbols": [{"qualified_name": f"module.Symbol{index}"} for index in range(300)],
+        "dependencies": [],
+        "complexity": [],
+        "structural_metrics": [],
+        "quality_findings": [],
+        "changes": [],
+        "warnings": [],
+        "errors": [],
+    }
+    adapter_code = "import json; print(json.dumps(" + repr(adapter_result) + "))"
+    config = {
+        "test_commands": [{"name": "unit", "command": [sys.executable, "-c", "print('unit')"]}],
+        "static_analysis": {"adapter_command": [sys.executable, "-c", adapter_code]},
+    }
+    (tmp_path / ".stdd/config.json").write_text(json.dumps(config))
+
+    process, report = run_tests(tmp_path)
+
+    assert process.returncode == 0
+    assert len(report["static_analysis"]["symbols"]) == 300
+    assert "module.Symbol299" not in process.stdout
+    assert '"symbols": 300' in process.stdout
+
+
 def test_test_executes_fake_static_analysis_adapter(tmp_path: Path):
     """Executa um adaptador fake e incorpora seu relatório factual ao resultado do teste.
     Configura um comando Python que retorna dependências e complexidade em JSON válido.

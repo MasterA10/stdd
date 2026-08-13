@@ -30,6 +30,17 @@ def rel(root: Path, path: Path):
     return path.relative_to(root).as_posix()
 
 
+def module_from_path(root: Path, path: Path) -> str:
+    relative = path.relative_to(root).as_posix()
+    without_extension = os.path.splitext(relative)[0]
+    module_parts = list(Path(without_extension).parts)
+    if "src" in module_parts:
+        module_parts = module_parts[module_parts.index("src") + 1 :]
+    if module_parts and module_parts[-1] == "__init__":
+        module_parts.pop()
+    return ".".join(module_parts)
+
+
 def quality_config(root: Path):
     try:
         data = json.loads((root / ".stdd" / "config.json").read_text(encoding="utf-8"))
@@ -69,10 +80,7 @@ def py_adapter(root: Path, result: dict):
         except (OSError, UnicodeDecodeError, SyntaxError) as exc:
             result["warnings"].append(f"python_parse_unavailable:{relative}:{exc.__class__.__name__}")
             continue
-        module_parts = list(path.with_suffix("").relative_to(root).parts)
-        if "src" in module_parts:
-            module_parts = module_parts[module_parts.index("src") + 1 :]
-        module = ".".join(module_parts)
+        module = module_from_path(root, path)
         parsed.append((path, relative, module, text, tree))
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):

@@ -156,8 +156,92 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "86c74001fd764973b660d874531278cc",
+      "timestamp": "2026-08-13T18:07:23.145090+00:00",
+      "description": "Bloqueia Draws sem símbolos no gate de testes",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 967,
+        "lines_deleted": 41,
+        "files_changed": 15
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "def76f39b8b24d108bb318ac6e04c5cb",
+      "timestamp": "2026-08-13T18:07:23.146193+00:00",
+      "description": "Adiciona regressões para Draws sem símbolos e arquivos TSX",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 967,
+        "lines_deleted": 41,
+        "files_changed": 15
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "2d7154a42d294829a767a3a9ab67ee66",
+      "timestamp": "2026-08-13T18:16:05.897230+00:00",
+      "description": "Implementa backlog hierárquico, comandos e gate no stdd test",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 5126,
+        "lines_deleted": 16,
+        "files_changed": 22
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "cd5f5eb693d649d492c4156433c953be",
+      "timestamp": "2026-08-13T18:16:06.672919+00:00",
+      "description": "Adiciona testes de branches, conclusão e saída compacta",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 7,
-  "last_run_id": "a424e1866ff8474b8e868368fbba01f9"
+  "run_count": 11,
+  "last_run_id": "cd5f5eb693d649d492c4156433c953be"
 }

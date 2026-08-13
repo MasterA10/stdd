@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import type { Contract, DrawIndexEntry, NodeData, EdgeData, Group, FlowPath, FlowStep, RunRecord, StaticAnalysisKpiReport } from '../types';
+import type { BacklogDocument, Contract, DrawIndexEntry, NodeData, EdgeData, Group, FlowPath, FlowStep, RunRecord, StaticAnalysisKpiReport } from '../types';
+import { BacklogPanel } from './BacklogPanel';
 import { Plus, Trash2, FolderPlus, List, Info, ChevronRight, Activity, Settings, BarChart3 } from 'lucide-react';
 
 interface SidebarProps {
@@ -21,6 +22,9 @@ interface SidebarProps {
   storageMode: 'backend' | 'local';
   runs: RunRecord[];
   staticAnalysisKpis: StaticAnalysisKpiReport | null;
+  backlog: BacklogDocument | null;
+  onClaimBacklogTask: () => void;
+  onCompleteBacklogTask: (taskId: string) => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -40,7 +44,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onNewDrawing,
   storageMode,
   runs,
-  staticAnalysisKpis
+  staticAnalysisKpis,
+  backlog,
+  onClaimBacklogTask,
+  onCompleteBacklogTask
 }) => {
   const formatRunDate = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -56,7 +63,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }).format(date);
   };
 
-  const [activeTab, setActiveTab] = useState<'drawings' | 'analysis' | 'runs' | 'info' | 'blocks' | 'groups' | 'flows'>('drawings');
+  const [activeTab, setActiveTab] = useState<'drawings' | 'analysis' | 'runs' | 'backlog' | 'info' | 'blocks' | 'groups' | 'flows'>('drawings');
   const [drawingSearchQuery, setDrawingSearchQuery] = useState('');
   const [showZeroLineRuns, setShowZeroLineRuns] = useState(true);
 
@@ -351,6 +358,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <span>Análise</span>
         </button>
         <button
+          className={`sidebar-tab-btn ${activeTab === 'backlog' ? 'active' : ''}`}
+          onClick={() => setActiveTab('backlog')}
+          title="Tasks pendentes por jornada"
+        >
+          <List size={14} />
+          <span>Backlog</span>
+        </button>
+        <button
           className={`sidebar-tab-btn ${activeTab === 'info' ? 'active' : ''}`}
           onClick={() => setActiveTab('info')}
         >
@@ -381,6 +396,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       <div className="sidebar-content">
+        {activeTab === 'backlog' && (
+          <BacklogPanel backlog={backlog} onClaimTask={onClaimBacklogTask} onCompleteTask={onCompleteBacklogTask} />
+        )}
+
         {/* Tab 0: Drawings list */}
         {activeTab === 'drawings' && (
           <div className="sidebar-pane">
