@@ -1006,6 +1006,8 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
             self.send_response(status)
             self.send_header("Content-Type", content_type)
             self.send_header("Content-Length", str(len(content)))
+            if content_type.startswith("text/html"):
+                self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
             self.end_headers()
             self.wfile.write(content)
 
@@ -1036,12 +1038,18 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
             Nunca transforma a raiz do projeto em um servidor de arquivos.
             """
             path = urlparse(self.path).path
-            if path in {"/", "/.stdd/draw.html"}:
+            if path in {"/", "/.stdd/draw.html", "/draw.html", "/index.html"}:
                 self._send_file(DRAW_ASSETS / "index.html")
                 return
-            if path.startswith("/assets/") or path in {"/icons.svg", "/favicon.svg"}:
-                asset_name = unquote(path.lstrip("/"))
-                self._send_file(DRAW_ASSETS / asset_name)
+            if path in {"/favicon.svg", "/favicon.ico"}:
+                self._send_file(DRAW_ASSETS / "favicon.svg")
+                return
+            if path == "/icons.svg":
+                self._send_file(DRAW_ASSETS / "icons.svg")
+                return
+            if path.startswith("/assets/"):
+                asset_name = unquote(path[len("/assets/"):])
+                self._send_file(DRAW_ASSETS / "assets" / asset_name)
                 return
             if path == "/.stdd/draws/index.json":
                 try:

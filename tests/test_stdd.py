@@ -213,7 +213,7 @@ def test_agents_are_loaded_from_markdown_templates():
     for required in ("nível 2", "jornadas", "administrador", "permissões", "frontend/interface", "não implementado", "draw_ref", "draw.level2_missing_code_ref", "nunca bloqueia"):
         assert required in level_two
     level_three = templates["draw-system-level-3"].read_text().lower()
-    for required in ("nível 3", "dois lotes", "mais lotes", "ponta a ponta", "tudo o que é possível fazer", "chat", "marketplace", "code_refs", "source_dependencies", "no mínimo quatro nós", "no mínimo 80 caracteres", "warning", "draw.level3_min_nodes", "draw.level3_short_description", "description", "label", "edge.description"):
+    for required in ("nível 3", "dois lotes", "mais lotes", "ponta a ponta", "tudo o que é possível fazer", "chat", "marketplace", "code_refs", "source_dependencies", "no mínimo quatro nós", "no mínimo 80 caracteres", "warning", "draw.level3_min_nodes", "draw.level3_short_description", "description", "label", "edge.description", "obrigatoriedade de leitura do símbolo", "leitura prévia"):
         assert required in level_three
     level_four = templates["draw-system-level-4"].read_text().lower()
     for required in ("nível 4", "sob demanda", "qualified_name", "rpc", "procedure", "sql", "arquivo", "model"):

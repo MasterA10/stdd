@@ -89,8 +89,53 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "d975d48377404bd482e6512fdd4a4c41",
+      "timestamp": "2026-08-13T13:35:51.810044+00:00",
+      "description": "melhora roteamento de assets e desabilita cache no index.html do servidor draw",
+      "work_types": [
+        "bug",
+        "refactor",
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 12,
+        "lines_deleted": 4,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "dfa4ad353e114555952d7415c9060038",
+      "timestamp": "2026-08-13T13:37:14.926872+00:00",
+      "description": "adiciona regra de leitura obrigatória de símbolos no nível 3 das skills",
+      "work_types": [
+        "teste",
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 1,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 4,
-  "last_run_id": "783a453bdb0b4cb9a252cacd81edc565"
+  "run_count": 6,
+  "last_run_id": "dfa4ad353e114555952d7415c9060038"
 }

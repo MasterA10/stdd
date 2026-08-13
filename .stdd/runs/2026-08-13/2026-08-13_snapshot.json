@@ -101,10 +101,36 @@
         }
       ],
       "draws": []
+    },
+    {
+      "run_id": "d975d48377404bd482e6512fdd4a4c41",
+      "timestamp": "2026-08-13T13:35:51.810044+00:00",
+      "files": [
+        {
+          "path": "src/stdd/draw.py",
+          "lines_added": 12,
+          "lines_deleted": 4,
+          "diff": "--- a/src/stdd/draw.py\n+++ b/src/stdd/draw.py\n@@ -1006,6 +1006,8 @@\n             self.send_response(status)\n             self.send_header(\"Content-Type\", content_type)\n             self.send_header(\"Content-Length\", str(len(content)))\n+            if content_type.startswith(\"text/html\"):\n+                self.send_header(\"Cache-Control\", \"no-cache, no-store, must-revalidate\")\n             self.end_headers()\n             self.wfile.write(content)\n \n@@ -1036,12 +1038,18 @@\n             Nunca transforma a raiz do projeto em um servidor de arquivos.\n             \"\"\"\n             path = urlparse(self.path).path\n-            if path in {\"/\", \"/.stdd/draw.html\"}:\n+            if path in {\"/\", \"/.stdd/draw.html\", \"/draw.html\", \"/index.html\"}:\n                 self._send_file(DRAW_ASSETS / \"index.html\")\n                 return\n-            if path.startswith(\"/assets/\") or path in {\"/icons.svg\", \"/favicon.svg\"}:\n-                asset_name = unquote(path.lstrip(\"/\"))\n-                self._send_file(DRAW_ASSETS / asset_name)\n+            if path in {\"/favicon.svg\", \"/favicon.ico\"}:\n+                self._send_file(DRAW_ASSETS / \"favicon.svg\")\n+                return\n+            if path == \"/icons.svg\":\n+                self._send_file(DRAW_ASSETS / \"icons.svg\")\n+                return\n+            if path.startswith(\"/assets/\"):\n+                asset_name = unquote(path[len(\"/assets/\"):])\n+                self._send_file(DRAW_ASSETS / \"assets\" / asset_name)\n                 return\n             if path == \"/.stdd/draws/index.json\":\n                 try:"
+        }
+      ],
+      "draws": []
+    },
+    {
+      "run_id": "dfa4ad353e114555952d7415c9060038",
+      "timestamp": "2026-08-13T13:37:14.926872+00:00",
+      "files": [
+        {
+          "path": "tests/test_stdd.py",
+          "lines_added": 1,
+          "lines_deleted": 1,
+          "diff": "--- a/tests/test_stdd.py\n+++ b/tests/test_stdd.py\n@@ -213,7 +213,7 @@\n     for required in (\"nível 2\", \"jornadas\", \"administrador\", \"permissões\", \"frontend/interface\", \"não implementado\", \"draw_ref\", \"draw.level2_missing_code_ref\", \"nunca bloqueia\"):\n         assert required in level_two\n     level_three = templates[\"draw-system-level-3\"].read_text().lower()\n-    for required in (\"nível 3\", \"dois lotes\", \"mais lotes\", \"ponta a ponta\", \"tudo o que é possível fazer\", \"chat\", \"marketplace\", \"code_refs\", \"source_dependencies\", \"no mínimo quatro nós\", \"no mínimo 80 caracteres\", \"warning\", \"draw.level3_min_nodes\", \"draw.level3_short_description\", \"description\", \"label\", \"edge.description\"):\n+    for required in (\"nível 3\", \"dois lotes\", \"mais lotes\", \"ponta a ponta\", \"tudo o que é possível fazer\", \"chat\", \"marketplace\", \"code_refs\", \"source_dependencies\", \"no mínimo quatro nós\", \"no mínimo 80 caracteres\", \"warning\", \"draw.level3_min_nodes\", \"draw.level3_short_description\", \"description\", \"label\", \"edge.description\", \"obrigatoriedade de leitura do símbolo\", \"leitura prévia\"):\n         assert required in level_three\n     level_four = templates[\"draw-system-level-4\"].read_text().lower()\n     for required in (\"nível 4\", \"sob demanda\", \"qualified_name\", \"rpc\", \"procedure\", \"sql\", \"arquivo\", \"model\"):"
+        }
+      ],
+      "draws": []
     }
   ],
-  "run_count": 4,
-  "last_run_id": "783a453bdb0b4cb9a252cacd81edc565",
+  "run_count": 6,
+  "last_run_id": "dfa4ad353e114555952d7415c9060038",
   "workspace_snapshot": {
     "draw-editor/bin/serve.js": [
       "#!/usr/bin/env node",
@@ -7689,6 +7715,8 @@
       "            self.send_response(status)",
       "            self.send_header(\"Content-Type\", content_type)",
       "            self.send_header(\"Content-Length\", str(len(content)))",
+      "            if content_type.startswith(\"text/html\"):",
+      "                self.send_header(\"Cache-Control\", \"no-cache, no-store, must-revalidate\")",
       "            self.end_headers()",
       "            self.wfile.write(content)",
       "",
@@ -7719,12 +7747,18 @@
       "            Nunca transforma a raiz do projeto em um servidor de arquivos.",
       "            \"\"\"",
       "            path = urlparse(self.path).path",
-      "            if path in {\"/\", \"/.stdd/draw.html\"}:",
+      "            if path in {\"/\", \"/.stdd/draw.html\", \"/draw.html\", \"/index.html\"}:",
       "                self._send_file(DRAW_ASSETS / \"index.html\")",
       "                return",
-      "            if path.startswith(\"/assets/\") or path in {\"/icons.svg\", \"/favicon.svg\"}:",
-      "                asset_name = unquote(path.lstrip(\"/\"))",
-      "                self._send_file(DRAW_ASSETS / asset_name)",
+      "            if path in {\"/favicon.svg\", \"/favicon.ico\"}:",
+      "                self._send_file(DRAW_ASSETS / \"favicon.svg\")",
+      "                return",
+      "            if path == \"/icons.svg\":",
+      "                self._send_file(DRAW_ASSETS / \"icons.svg\")",
+      "                return",
+      "            if path.startswith(\"/assets/\"):",
+      "                asset_name = unquote(path[len(\"/assets/\"):])",
+      "                self._send_file(DRAW_ASSETS / \"assets\" / asset_name)",
       "                return",
       "            if path == \"/.stdd/draws/index.json\":",
       "                try:",
@@ -12779,7 +12813,7 @@
       "    for required in (\"nível 2\", \"jornadas\", \"administrador\", \"permissões\", \"frontend/interface\", \"não implementado\", \"draw_ref\", \"draw.level2_missing_code_ref\", \"nunca bloqueia\"):",
       "        assert required in level_two",
       "    level_three = templates[\"draw-system-level-3\"].read_text().lower()",
-      "    for required in (\"nível 3\", \"dois lotes\", \"mais lotes\", \"ponta a ponta\", \"tudo o que é possível fazer\", \"chat\", \"marketplace\", \"code_refs\", \"source_dependencies\", \"no mínimo quatro nós\", \"no mínimo 80 caracteres\", \"warning\", \"draw.level3_min_nodes\", \"draw.level3_short_description\", \"description\", \"label\", \"edge.description\"):",
+      "    for required in (\"nível 3\", \"dois lotes\", \"mais lotes\", \"ponta a ponta\", \"tudo o que é possível fazer\", \"chat\", \"marketplace\", \"code_refs\", \"source_dependencies\", \"no mínimo quatro nós\", \"no mínimo 80 caracteres\", \"warning\", \"draw.level3_min_nodes\", \"draw.level3_short_description\", \"description\", \"label\", \"edge.description\", \"obrigatoriedade de leitura do símbolo\", \"leitura prévia\"):",
       "        assert required in level_three",
       "    level_four = templates[\"draw-system-level-4\"].read_text().lower()",
       "    for required in (\"nível 4\", \"sob demanda\", \"qualified_name\", \"rpc\", \"procedure\", \"sql\", \"arquivo\", \"model\"):",

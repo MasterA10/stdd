@@ -56,7 +56,7 @@ Crie caminhos separados para cliente, administrador, vendedor, operador, suporte
 
 ## Telas que precisam de nível 3
 
-Avalie cada nó. A maioria das telas deve apontar para um subfluxo de nível 3 quando possuir regra de negócio, decisão, autorização, validação ou detalhe de implementação relevante. Aponte no próprio nó com `draw_ref` para `$draw-system-level-3`.
+Avalie cada nó. A maioria das telas deve apontar para um subfluxo de nível 3 quando possuir regra de negócio, decisão, autorização, validação ou detalhe de implementação relevante. Aponte no próprio nó com `draw_ref` para `$draw-system-level-3`. O sucesso da criação do subfluxo de nível 3 dependerá obrigatoriamente da leitura prévia do símbolo e referência desse nó na codebase; nenhum fluxo de nível 3 pode ser gerado sem ler a implementação correspondente.
 
 Uma tela de transição, loading, confirmação ou encaminhamento que apenas conecta estados e não tem lógica própria pode permanecer sem `draw_ref`. Essa exceção não pode esconder uma tela com comportamento real.
 

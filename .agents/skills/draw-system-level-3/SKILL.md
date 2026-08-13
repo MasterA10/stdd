@@ -11,6 +11,17 @@ Ser a ponte entre a View do nível 2 e a codebase do nível 4. Cada subfluxo cor
 
 Use esta skill somente depois de ler o nível 2, sua raiz e os descendentes relevantes. Não refaça a navegação global do nível 2, não transforme o nível 3 em lista de nomes técnicos e não abra nível 4 automaticamente.
 
+## Obrigatoriedade de leitura do símbolo na codebase
+
+O sucesso desta etapa depende obrigatoriamente da leitura do símbolo associado ao nó do nível 2 e da sua referência na codebase.
+
+- **Nenhum fluxo pode ser criado sem a leitura prévia do símbolo correspondente da implementação.**
+- Para explicar o fluxo de um nó vindo do nível 2 e criar o subfluxo de nível 3 para ele, o agente deve obrigatoriamente ler o símbolo e a referência dele no código-fonte.
+- Não é para implementar ou criar nenhum fluxo sem reler a implementação do símbolo correspondente.
+- Caso a referência ou o símbolo do nó do nível 2 ainda esteja pendente, utilize a análise estática e a busca no repositório para localizar a função, classe, handler ou service correspondente na codebase e faça sua leitura completa antes de desenhar o subfluxo.
+- O detalhamento das regras de negócio, pré-condições, autorizações, validações, ramificações e saídas do nível 3 deve ser extraído diretamente da leitura do código do símbolo.
+
+
 ## Hierarquia e encapsulamento
 
 Para cada tela, crie um desenho filho com `hierarchy.level: 3`, `role: "implementation"`, `parent_draw_ref` igual ao desenho de jornada, `parent_node_id` igual ao nó da tela e `root_draw_ref` igual à arquitetura. Na mesma alteração, preencha o `draw_ref` no nó pai. Toda cadeia deve resolver em `.stdd/draws/`; não criar fluxos órfãos, referências inexistentes, pais duplicados ou continuidades inventadas.
@@ -109,7 +120,7 @@ Use `groups` para fronteiras, `flows` para caminhos temporais e `code_refs` nos 
 
 Para cada lote:
 
-1. Ler pai, jornada, raiz, divisão de lotes e descendentes necessários.
+1. Ler pai, jornada, raiz, divisão de lotes, descendentes necessários e realizar a leitura prévia e obrigatória do símbolo associado a cada nó na codebase.
 2. Criar cada JSON separadamente com IDs estáveis usando `stdd draw create --data-json '<JSON>'`.
 3. Validar nós, arestas, fluxos, condições, grupos, `draw_ref`, pais, raiz, terminais e os critérios estáticos de quatro nós e 80 caracteres.
 4. Revisar no viewer com `stdd draw serve`.
