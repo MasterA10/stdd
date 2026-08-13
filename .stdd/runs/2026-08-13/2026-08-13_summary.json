@@ -240,8 +240,50 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "3e9ef23139424d1a8a8fed92c16e6e54",
+      "timestamp": "2026-08-13T18:48:41.521854+00:00",
+      "description": "Preserva todas as opções e ocorrências do backlog por branch",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 143,
+        "lines_deleted": 42,
+        "files_changed": 6
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "e93598e73cb644c188e2c7dbc6180b3f",
+      "timestamp": "2026-08-13T18:48:41.520924+00:00",
+      "description": "Cobre caminhos compartilhados e conclusão de todas as branches",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 143,
+        "lines_deleted": 42,
+        "files_changed": 6
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 11,
-  "last_run_id": "cd5f5eb693d649d492c4156433c953be"
+  "run_count": 13,
+  "last_run_id": "e93598e73cb644c188e2c7dbc6180b3f"
 }

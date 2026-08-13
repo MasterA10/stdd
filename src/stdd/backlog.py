@@ -197,11 +197,23 @@ def _existing_state(root: Path) -> dict[str, Any]:
     return document if isinstance(document, dict) else {}
 
 
+def _branch_occurrence(draw_id: str, branch: dict[str, Any], position: int, node_id: Any) -> dict[str, Any]:
+    """Descreve uma ocorrência de nó dentro de uma branch específica."""
+    return {
+        "id": f"{draw_id}:branch:{branch['id']}",
+        "position": position,
+        "terminal": node_id == branch.get("terminal_node_id"),
+        "terminal_node_id": branch.get("terminal_node_id"),
+        "terminal_reason": branch.get("terminal_reason"),
+    }
+
+
 def _task_for_node(root: Path, document: dict[str, Any], node: dict[str, Any], branch: dict[str, Any], position: int, checklist_ids: set[str]) -> dict[str, Any]:
     draw_id = str(document["id"])
     node_id = node["id"]
     symbols, dependencies, code_refs = _reference_symbols(node)
     item_id = f"task:{draw_id}:node:{node_id}"
+    occurrence = _branch_occurrence(draw_id, branch, position, node_id)
     return {
         "id": item_id,
         "draw_id": draw_id,
@@ -217,14 +229,29 @@ def _task_for_node(root: Path, document: dict[str, Any], node: dict[str, Any], b
         "traceability": _traceability(root, draw_id, node_id, symbols),
         "child_checklist_id": next((ref for ref in node.get("draw_ref", []) if ref in checklist_ids), node.get("draw_ref")) if isinstance(node.get("draw_ref"), list) else node.get("draw_ref"),
         "status": "pending",
-        "branch": {
-            "id": f"{draw_id}:branch:{branch['id']}",
-            "position": position,
-            "terminal": node_id == branch.get("terminal_node_id"),
-            "terminal_node_id": branch.get("terminal_node_id"),
-            "terminal_reason": branch.get("terminal_reason"),
-        },
+        "branch": occurrence,
+        "branches": [occurrence],
     }
+
+
+def _refresh_branch_completion(payload: dict[str, Any]) -> None:
+    """Recalcula todas as branches a partir do status das suas tasks."""
+    tasks_by_id = {
+        task.get("id"): task
+        for task in payload.get("tasks", [])
+        if isinstance(task, dict) and isinstance(task.get("id"), str)
+    }
+    completed_branches = []
+    execution = payload.get("execution", {})
+    for branch in execution.get("branches", []):
+        task_ids = branch.get("task_ids", [])
+        branch["completed"] = bool(task_ids) and all(
+            tasks_by_id.get(task_id, {}).get("status") == "done"
+            for task_id in task_ids
+        )
+        if branch["completed"]:
+            completed_branches.append(branch["id"])
+    execution["completed_branches"] = completed_branches
 
 
 def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]:
@@ -235,6 +262,7 @@ def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]
     checklist_ids = {str(document["id"]) for document in documents}
     checklists = []
     tasks = []
+    tasks_by_id: dict[str, dict[str, Any]] = {}
     execution_branches = []
     for document in documents:
         draw_id = str(document["id"])
@@ -243,28 +271,38 @@ def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]
         items = [_checklist_item(root, document, node, checklist_ids) for node in nodes_by_id.values()]
         items_by_node = {item["node_id"]: item for item in items}
         branches = _branches_for_draw(document) if hierarchy.get("level") == 2 else []
-        seen: set[Any] = set()
         for branch in branches:
             branch_task_ids = []
+            branch_node_ids = []
             for position, node_id in enumerate(branch["node_ids"], start=1):
-                if node_id in seen or node_id not in nodes_by_id:
+                if node_id not in nodes_by_id:
                     continue
-                seen.add(node_id)
-                task = _task_for_node(root, document, nodes_by_id[node_id], branch, position, checklist_ids)
-                previous_task = previous_tasks.get(task["id"])
-                if previous_task and previous_task.get("status") in VALID_TASK_STATUSES:
-                    task["status"] = previous_task["status"]
-                tasks.append(task)
-                items_by_node[node_id].update({"task_id": task["id"], "status": task["status"], "task": task})
-                branch_task_ids.append(task["id"])
+                task_id = f"task:{draw_id}:node:{node_id}"
+                branch_task_ids.append(task_id)
+                branch_node_ids.append(node_id)
+                task = tasks_by_id.get(task_id)
+                if task is None:
+                    task = _task_for_node(root, document, nodes_by_id[node_id], branch, position, checklist_ids)
+                    previous_task = previous_tasks.get(task_id)
+                    if previous_task and previous_task.get("status") in VALID_TASK_STATUSES:
+                        task["status"] = previous_task["status"]
+                    tasks.append(task)
+                    tasks_by_id[task_id] = task
+                    items_by_node[node_id].update({"task_id": task_id, "status": task["status"], "task": task})
+                else:
+                    occurrence = _branch_occurrence(draw_id, branch, position, node_id)
+                    if not any(item.get("id") == occurrence["id"] for item in task.get("branches", [])):
+                        task.setdefault("branches", []).append(occurrence)
             branch_record = {
                 "id": f"{draw_id}:branch:{branch['id']}",
                 "draw_id": draw_id,
                 "flow_id": branch.get("flow_id"),
                 "task_ids": branch_task_ids,
+                "node_ids": branch_node_ids,
+                "edges": deepcopy(branch.get("edges", [])),
                 "terminal_node_id": branch.get("terminal_node_id"),
                 "terminal_reason": branch.get("terminal_reason"),
-                "completed": bool(branch_task_ids) and all(next(item["status"] for item in tasks if item["id"] == task_id) == "done" for task_id in branch_task_ids),
+                "completed": False,
             }
             execution_branches.append(branch_record)
         checklists.append({
@@ -292,10 +330,11 @@ def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]
             "current_task_id": current_task_id,
             "current_branch_id": previous_execution.get("current_branch_id"),
             "branch_position": previous_execution.get("branch_position"),
-            "completed_branches": [branch["id"] for branch in execution_branches if branch["completed"]],
+            "completed_branches": [],
             "branches": execution_branches,
         },
     }
+    _refresh_branch_completion(payload)
     return payload
 
 
@@ -448,10 +487,6 @@ def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
             if item.get("id") == task_id:
                 item["status"] = "done"
     execution["current_task_id"] = None
-    branch = next((item for item in execution.get("branches", []) if item.get("id") == task["branch"]["id"]), None)
-    if branch and all(next((item["status"] for item in payload["tasks"] if item["id"] == task_ref), "done") == "done" for task_ref in branch.get("task_ids", [])):
-        branch["completed"] = True
-        if branch["id"] not in execution.get("completed_branches", []):
-            execution.setdefault("completed_branches", []).append(branch["id"])
+    _refresh_branch_completion(payload)
     write_backlog(root, payload)
     return {"kind": "backlog-complete", "status": "done", "task": task, "remaining": sum(1 for item in payload["tasks"] if item.get("status") != "done")}

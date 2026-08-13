@@ -96,6 +96,70 @@ def test_build_backlog_copies_level_two_questions_symbols_and_branches(tmp_path:
     assert backlog["execution"]["branches"][1]["terminal_reason"] == "self-loop"
 
 
+def test_backlog_keeps_shared_steps_in_every_branch_and_tracks_all_occurrences(tmp_path: Path):
+    """Preserva prefixos compartilhados em cada caminho da jornada.
+    Mantém uma task por nó, mas registra a ocorrência em todas as branches.
+    """
+    _create_hierarchical_fixture(tmp_path)
+
+    backlog = build_backlog(tmp_path, generated_at="2026-08-13T12:00:00+00:00")
+
+    branches = backlog["execution"]["branches"]
+    assert [branch["task_ids"] for branch in branches] == [
+        ["task:jornada:node:1", "task:jornada:node:2"],
+        ["task:jornada:node:1", "task:jornada:node:3"],
+    ]
+    assert [branch["node_ids"] for branch in branches] == [[1, 2], [1, 3]]
+    assert [occurrence["id"] for occurrence in backlog["tasks"][0]["branches"]] == [
+        "jornada:branch:1",
+        "jornada:branch:2",
+    ]
+    assert backlog["tasks"][2]["branches"][0]["terminal"] is True
+
+
+def test_backlog_preserves_shared_steps_in_explicit_flow_paths(tmp_path: Path):
+    """Preserva todas as etapas quando as branches vêm de flows explícitos.
+    Não remove um nó compartilhado só porque ele já apareceu em outro flow.
+    """
+    _create_hierarchical_fixture(tmp_path)
+    draw_path = tmp_path / ".stdd" / "draws" / "jornada.json"
+    document = json.loads(draw_path.read_text(encoding="utf-8"))
+    document["flows"] = [
+        {"id": 1, "label": "sucesso", "steps": [{"node": 1}, {"node": 2}]},
+        {"id": 2, "label": "retry", "steps": [{"node": 1}, {"node": 3}]},
+    ]
+    draw_path.write_text(json.dumps(document), encoding="utf-8")
+
+    backlog = build_backlog(tmp_path, generated_at="2026-08-13T12:00:00+00:00")
+
+    assert [branch["node_ids"] for branch in backlog["execution"]["branches"]] == [[1, 2], [1, 3]]
+    assert [branch["flow_id"] for branch in backlog["execution"]["branches"]] == [1, 2]
+    assert backlog["tasks"][0]["branches"][1]["id"] == "jornada:branch:2"
+
+
+def test_backlog_marks_every_branch_complete_when_shared_terminal_is_done(tmp_path: Path):
+    """Conclui todos os caminhos que dependem da mesma etapa final.
+    Atualiza branches derivadas mesmo quando a task pertence à primeira branch.
+    """
+    _create_hierarchical_fixture(tmp_path)
+    draw_path = tmp_path / ".stdd" / "draws" / "jornada.json"
+    document = json.loads(draw_path.read_text(encoding="utf-8"))
+    document["flows"] = [
+        {"id": 1, "label": "sucesso", "steps": [{"node": 1}, {"node": 2}, {"node": 3}]},
+        {"id": 2, "label": "retry", "steps": [{"node": 1}, {"node": 3}]},
+    ]
+    draw_path.write_text(json.dumps(document), encoding="utf-8")
+    generate_backlog(tmp_path)
+
+    for _ in range(3):
+        response = next_backlog_task(tmp_path)
+        complete_backlog_task(tmp_path, response["task"]["id"])
+
+    saved = read_backlog(tmp_path)
+    assert len(saved["execution"]["completed_branches"]) == 2
+    assert all(branch["completed"] for branch in saved["execution"]["branches"])
+
+
 def test_backlog_task_and_complete_walk_one_branch_then_the_next(tmp_path: Path):
     """Entrega uma task por vez e alterna branches somente no terminal.
     Completa a jornada em ordem e confirma o retorno backlog-empty no fim.

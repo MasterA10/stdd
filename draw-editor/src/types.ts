@@ -173,6 +173,7 @@ export interface BacklogTask {
   traceability?: Array<{ symbol: string; status?: string; file?: string }>;
   child_checklist_id?: string;
   branch?: { id: string; position: number; terminal?: boolean; terminal_node_id?: number; terminal_reason?: string };
+  branches?: Array<{ id: string; position: number; terminal?: boolean; terminal_node_id?: number; terminal_reason?: string }>;
 }
 
 export interface BacklogDocument {
@@ -187,6 +188,6 @@ export interface BacklogDocument {
     current_branch_id?: string | null;
     branch_position?: number | null;
     completed_branches?: string[];
-    branches?: Array<{ id: string; completed?: boolean; terminal_reason?: string }>;
+    branches?: Array<{ id: string; completed?: boolean; terminal_reason?: string; task_ids?: string[]; node_ids?: number[]; edges?: EdgeData[]; flow_id?: number | null }>;
   };
 }

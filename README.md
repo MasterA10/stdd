@@ -189,7 +189,7 @@ Consulte todas as tasks ainda não concluídas:
 stdd backlog missing
 ```
 
-O ciclo interativo entrega uma task por vez, percorre cada ramificação até seu terminal e depois avança para a próxima:
+O ciclo interativo entrega uma task por vez, percorre cada ramificação até seu terminal e depois avança para a próxima. Uma etapa compartilhada por mais de um caminho continua sendo uma única task operacional, mas aparece em todas as branches e só deixa os caminhos dependentes concluídos quando seu status foi concluído:
 
 ```bash
 stdd backlog task

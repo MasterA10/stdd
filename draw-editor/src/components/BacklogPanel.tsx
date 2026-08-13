@@ -15,6 +15,7 @@ export const BacklogPanel: React.FC<BacklogPanelProps> = ({ backlog, onClaimTask
   const currentTask = backlog.tasks.find((task) => task.id === backlog.execution.current_task_id);
   const remaining = backlog.tasks.filter((task) => task.status !== 'done');
   const branch = currentTask?.branch;
+  const branchOccurrences = currentTask?.branches || (branch ? [branch] : []);
   const referenceStatus = (task: BacklogTask) => {
     const statuses = (task.traceability || []).map((reference) => reference.status);
     if (statuses.includes('unresolved')) return 'não encontrado';
@@ -29,7 +30,7 @@ export const BacklogPanel: React.FC<BacklogPanelProps> = ({ backlog, onClaimTask
         <article className="backlog-current-task">
           <div className="backlog-task-heading"><span className="eyebrow">Task atual</span><span className="backlog-status in_progress">em andamento</span></div>
           <h4>{currentTask.label}</h4><code className="backlog-task-id">{currentTask.id}</code><p>{currentTask.description || 'Sem descrição.'}</p>
-          <div className="backlog-branch-meta">Branch {branch?.id} · posição {branch?.position}{branch?.terminal ? ' · terminal' : ''}</div>
+          <div className="backlog-branch-meta">Branch {branch?.id} · posição {branch?.position}{branch?.terminal ? ' · terminal' : ''}{branchOccurrences.length > 1 ? ` · presente em ${branchOccurrences.length} caminhos` : ''}</div>
           <div className="backlog-detail-section"><strong>Perguntas e respostas</strong>{(currentTask.questions || []).length === 0 ? <span>Nenhuma pergunta.</span> : (currentTask.questions || []).map((question) => <div className="backlog-question" key={question.id}><span>{question.prompt}</span><code>{question.answer === null || question.answer === '' ? 'sem resposta' : String(question.answer)}</code></div>)}</div>
           <div className="backlog-detail-section"><strong>Símbolos associados</strong>{(currentTask.symbols || []).length === 0 ? <span>Nenhum símbolo associado.</span> : (currentTask.symbols || []).map((symbol) => <div className="backlog-symbol" key={symbol}><code>{symbol}</code><small>{referenceStatus(currentTask)}</small></div>)}</div>
           {(currentTask.source_dependencies || []).length > 0 && <div className="backlog-detail-section"><strong>Dependências</strong>{currentTask.source_dependencies?.map((dependency) => <code key={dependency}>{dependency}</code>)}</div>}
