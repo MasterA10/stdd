@@ -565,7 +565,7 @@ def _extract_node_symbols(node: dict[str, Any]) -> list[str]:
     symbols = []
     for ref in references:
         if isinstance(ref, dict):
-            sym = ref.get("symbol")
+            sym = ref.get("symbol") or ref.get("qualified_name")
             if isinstance(sym, str) and not _is_empty_or_unnamed_symbol(sym):
                 symbols.append(sym.strip())
     return symbols
@@ -616,7 +616,7 @@ def analyze_draw_contract(payload: dict[str, Any], source: str = "(novo desenho)
         if isinstance(references, list):
             for ref in references:
                 if isinstance(ref, dict):
-                    sym = ref.get("symbol")
+                    sym = ref.get("symbol") or ref.get("qualified_name")
                     if _is_empty_or_unnamed_symbol(sym):
                         display_sym = repr(sym) if sym is not None else "ausente"
                         findings.append({

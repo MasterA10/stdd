@@ -20,8 +20,8 @@
       "kind": "system",
       "updated_at": "2026-08-04T23:19:11.279865+00:00",
       "node_count": 11,
-      "edge_count": 10,
-      "subdraw_count": 1
+      "edge_count": 11,
+      "subdraw_count": 2
     },
     {
       "id": "demo-perguntas-respostas",

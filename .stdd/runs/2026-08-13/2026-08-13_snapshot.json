@@ -76,10 +76,35 @@
         }
       ],
       "draws": []
+    },
+    {
+      "run_id": "783a453bdb0b4cb9a252cacd81edc565",
+      "timestamp": "2026-08-13T13:30:30.754735+00:00",
+      "files": [
+        {
+          "path": "src/stdd/draw.py",
+          "lines_added": 2,
+          "lines_deleted": 2,
+          "diff": "--- a/src/stdd/draw.py\n+++ b/src/stdd/draw.py\n@@ -565,7 +565,7 @@\n     symbols = []\n     for ref in references:\n         if isinstance(ref, dict):\n-            sym = ref.get(\"symbol\")\n+            sym = ref.get(\"symbol\") or ref.get(\"qualified_name\")\n             if isinstance(sym, str) and not _is_empty_or_unnamed_symbol(sym):\n                 symbols.append(sym.strip())\n     return symbols\n@@ -616,7 +616,7 @@\n         if isinstance(references, list):\n             for ref in references:\n                 if isinstance(ref, dict):\n-                    sym = ref.get(\"symbol\")\n+                    sym = ref.get(\"symbol\") or ref.get(\"qualified_name\")\n                     if _is_empty_or_unnamed_symbol(sym):\n                         display_sym = repr(sym) if sym is not None else \"ausente\"\n                         findings.append({"
+        },
+        {
+          "path": "src/stdd/traceability.py",
+          "lines_added": 1,
+          "lines_deleted": 1,
+          "diff": "--- a/src/stdd/traceability.py\n+++ b/src/stdd/traceability.py\n@@ -96,7 +96,7 @@\n     explicit_symbols: set[str] = set()\n     declared_dependencies: set[str] = set()\n     for reference in node.get(\"code_refs\", []):\n-        symbol_name = reference.get(\"symbol\") if isinstance(reference, dict) else None\n+        symbol_name = (reference.get(\"symbol\") or reference.get(\"qualified_name\")) if isinstance(reference, dict) else None\n         if not isinstance(symbol_name, str) or not symbol_name:\n             continue\n         explicit_symbols.add(symbol_name)"
+        },
+        {
+          "path": "tests/test_traceability.py",
+          "lines_added": 32,
+          "lines_deleted": 0,
+          "diff": "--- a/tests/test_traceability.py\n+++ b/tests/test_traceability.py\n@@ -312,3 +312,35 @@\n     references = {node[\"id\"]: node.get(\"code_refs\", [{}])[0].get(\"symbol\") for node in saved[\"nodes\"]}\n     assert references[7] == \"checkout.authorize\"\n     assert references[9] == \"checkout.capture\"\n+\n+\n+def test_build_traceability_report_accepts_qualified_name_fallback(tmp_path):\n+    \"\"\"Aceita qualified_name em code_refs quando o campo symbol não for explicitamente declarado.\n+    Processa um nó com qualified_name em code_refs e resolve o símbolo correspondente.\n+    \"\"\"\n+    node = {\n+        \"id\": 1,\n+        \"code_refs\": [\n+            {\n+                \"file\": \"src/checkout.py\",\n+                \"qualified_name\": \"checkout.authorize\",\n+            }\n+        ],\n+    }\n+    facts = {\n+        \"symbols\": [\n+            {\n+                \"qualified_name\": \"checkout.authorize\",\n+                \"file\": \"src/checkout.py\",\n+                \"kind\": \"function\",\n+                \"identity\": \"123\",\n+            }\n+        ],\n+        \"dependencies\": [],\n+    }\n+\n+    report = build_traceability_report(tmp_path, node, facts)\n+\n+    assert len(report[\"references\"]) == 1\n+    assert report[\"references\"][0][\"symbol\"] == \"checkout.authorize\"\n+    assert report[\"references\"][0][\"status\"] == \"resolved\""
+        }
+      ],
+      "draws": []
     }
   ],
-  "run_count": 3,
-  "last_run_id": "1afa99e28215495d97175090d9d5d535",
+  "run_count": 4,
+  "last_run_id": "783a453bdb0b4cb9a252cacd81edc565",
   "workspace_snapshot": {
     "draw-editor/bin/serve.js": [
       "#!/usr/bin/env node",
@@ -7223,7 +7248,7 @@
       "    symbols = []",
       "    for ref in references:",
       "        if isinstance(ref, dict):",
-      "            sym = ref.get(\"symbol\")",
+      "            sym = ref.get(\"symbol\") or ref.get(\"qualified_name\")",
       "            if isinstance(sym, str) and not _is_empty_or_unnamed_symbol(sym):",
       "                symbols.append(sym.strip())",
       "    return symbols",
@@ -7274,7 +7299,7 @@
       "        if isinstance(references, list):",
       "            for ref in references:",
       "                if isinstance(ref, dict):",
-      "                    sym = ref.get(\"symbol\")",
+      "                    sym = ref.get(\"symbol\") or ref.get(\"qualified_name\")",
       "                    if _is_empty_or_unnamed_symbol(sym):",
       "                        display_sym = repr(sym) if sym is not None else \"ausente\"",
       "                        findings.append({",
@@ -9766,7 +9791,7 @@
       "    explicit_symbols: set[str] = set()",
       "    declared_dependencies: set[str] = set()",
       "    for reference in node.get(\"code_refs\", []):",
-      "        symbol_name = reference.get(\"symbol\") if isinstance(reference, dict) else None",
+      "        symbol_name = (reference.get(\"symbol\") or reference.get(\"qualified_name\")) if isinstance(reference, dict) else None",
       "        if not isinstance(symbol_name, str) or not symbol_name:",
       "            continue",
       "        explicit_symbols.add(symbol_name)",
@@ -13405,7 +13430,39 @@
       "    saved = json.loads((tmp_path / \".stdd/draws/checkout.json\").read_text(encoding=\"utf-8\"))",
       "    references = {node[\"id\"]: node.get(\"code_refs\", [{}])[0].get(\"symbol\") for node in saved[\"nodes\"]}",
       "    assert references[7] == \"checkout.authorize\"",
-      "    assert references[9] == \"checkout.capture\""
+      "    assert references[9] == \"checkout.capture\"",
+      "",
+      "",
+      "def test_build_traceability_report_accepts_qualified_name_fallback(tmp_path):",
+      "    \"\"\"Aceita qualified_name em code_refs quando o campo symbol não for explicitamente declarado.",
+      "    Processa um nó com qualified_name em code_refs e resolve o símbolo correspondente.",
+      "    \"\"\"",
+      "    node = {",
+      "        \"id\": 1,",
+      "        \"code_refs\": [",
+      "            {",
+      "                \"file\": \"src/checkout.py\",",
+      "                \"qualified_name\": \"checkout.authorize\",",
+      "            }",
+      "        ],",
+      "    }",
+      "    facts = {",
+      "        \"symbols\": [",
+      "            {",
+      "                \"qualified_name\": \"checkout.authorize\",",
+      "                \"file\": \"src/checkout.py\",",
+      "                \"kind\": \"function\",",
+      "                \"identity\": \"123\",",
+      "            }",
+      "        ],",
+      "        \"dependencies\": [],",
+      "    }",
+      "",
+      "    report = build_traceability_report(tmp_path, node, facts)",
+      "",
+      "    assert len(report[\"references\"]) == 1",
+      "    assert report[\"references\"][0][\"symbol\"] == \"checkout.authorize\"",
+      "    assert report[\"references\"][0][\"status\"] == \"resolved\""
     ]
   },
   "draws_snapshot": {

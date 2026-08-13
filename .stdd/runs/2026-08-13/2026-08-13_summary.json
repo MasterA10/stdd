@@ -67,8 +67,30 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "783a453bdb0b4cb9a252cacd81edc565",
+      "timestamp": "2026-08-13T13:30:30.754735+00:00",
+      "description": "adiciona suporte a qualified_name como fallback transparente para symbol em code_refs",
+      "work_types": [
+        "implementacao",
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 35,
+        "lines_deleted": 3,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 3,
-  "last_run_id": "1afa99e28215495d97175090d9d5d535"
+  "run_count": 4,
+  "last_run_id": "783a453bdb0b4cb9a252cacd81edc565"
 }

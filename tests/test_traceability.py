@@ -312,3 +312,35 @@ def test_cli_associate_reference_accepts_batch_contract(tmp_path, monkeypatch):
     references = {node["id"]: node.get("code_refs", [{}])[0].get("symbol") for node in saved["nodes"]}
     assert references[7] == "checkout.authorize"
     assert references[9] == "checkout.capture"
+
+
+def test_build_traceability_report_accepts_qualified_name_fallback(tmp_path):
+    """Aceita qualified_name em code_refs quando o campo symbol não for explicitamente declarado.
+    Processa um nó com qualified_name em code_refs e resolve o símbolo correspondente.
+    """
+    node = {
+        "id": 1,
+        "code_refs": [
+            {
+                "file": "src/checkout.py",
+                "qualified_name": "checkout.authorize",
+            }
+        ],
+    }
+    facts = {
+        "symbols": [
+            {
+                "qualified_name": "checkout.authorize",
+                "file": "src/checkout.py",
+                "kind": "function",
+                "identity": "123",
+            }
+        ],
+        "dependencies": [],
+    }
+
+    report = build_traceability_report(tmp_path, node, facts)
+
+    assert len(report["references"]) == 1
+    assert report["references"][0]["symbol"] == "checkout.authorize"
+    assert report["references"][0]["status"] == "resolved"

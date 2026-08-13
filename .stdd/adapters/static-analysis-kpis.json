@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-08-13T13:17:12.607348+00:00",
+  "generated_at": "2026-08-13T13:33:40.089974+00:00",
   "status": "passed",
   "reason": null,
   "adapter_command": [
@@ -28,7 +28,7 @@
     {
       "id": "symbols",
       "label": "Símbolos",
-      "value": 395,
+      "value": 396,
       "unit": "símbolos"
     },
     {
@@ -73,9 +73,9 @@
     }
   ],
   "summary": {
-    "symbols": 395,
+    "symbols": 396,
     "dependencies": 496,
-    "complexity": 391,
+    "complexity": 392,
     "structural_metrics": 36,
     "files": [
       ".stdd/draws/stdd-agent-journeys.json",
@@ -3222,6 +3222,17 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_traceability.py",
+        "line": 317,
+        "lines": 30,
+        "max_depth": 0,
+        "parameters": 1,
+        "qualified_name": "tests.test_traceability.test_build_traceability_report_accepts_qualified_name_fallback",
+        "source": "python_ast",
+        "symbol_id": "tests/test_traceability.py:tests.test_traceability.test_build_traceability_report_accepts_qualified_name_fallback"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "tests/test_traceability.py",
         "line": 32,
         "lines": 10,
         "max_depth": 0,
@@ -5985,9 +5996,9 @@
       {
         "classes": 0,
         "file": "tests/test_traceability.py",
-        "functions": 11,
+        "functions": 12,
         "imports": 5,
-        "lines": 314,
+        "lines": 346,
         "source": "python_ast"
       },
       {
@@ -7978,6 +7989,16 @@
         "qualified_name": "tests.test_draw_editor.test_focus_view_connects_incoming_arrows_to_the_left_back_of_nodes",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_focus_view_connects_incoming_arrows_to_the_left_back_of_nodes"
+      },
+      {
+        "end_line": 346,
+        "file": "tests/test_traceability.py",
+        "kind": "function",
+        "line": 317,
+        "name": "test_build_traceability_report_accepts_qualified_name_fallback",
+        "qualified_name": "tests.test_traceability.test_build_traceability_report_accepts_qualified_name_fallback",
+        "source": "python_ast",
+        "symbol_id": "tests/test_traceability.py:tests.test_traceability.test_build_traceability_report_accepts_qualified_name_fallback"
       },
       {
         "end_line": 349,

@@ -96,7 +96,7 @@ def build_traceability_report(root: Path, node: dict[str, Any], facts: dict[str,
     explicit_symbols: set[str] = set()
     declared_dependencies: set[str] = set()
     for reference in node.get("code_refs", []):
-        symbol_name = reference.get("symbol") if isinstance(reference, dict) else None
+        symbol_name = (reference.get("symbol") or reference.get("qualified_name")) if isinstance(reference, dict) else None
         if not isinstance(symbol_name, str) or not symbol_name:
             continue
         explicit_symbols.add(symbol_name)
