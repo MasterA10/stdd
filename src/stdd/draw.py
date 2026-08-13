@@ -31,6 +31,26 @@ LEGACY_DRAW_VIEWER = Path(".stdd") / "draw.html"
 PRESENTATION_KEYS = {"color", "colors", "position", "style", "styles", "layout", "viewport", "theme", "x", "y", "width", "height"}
 DRAW_ANALYSIS_SIMILARITY_THRESHOLD = 0.85
 DRAW_LEVEL2_CODE_REF_RULE = "draw.level2_missing_code_ref"
+DRAW_LEVEL3_CODE_REF_RULE = "draw.level3_missing_code_ref"
+DRAW_LEVEL4_CODE_REF_RULE = "draw.level4_missing_code_ref"
+DRAW_EMPTY_NODE_SYMBOL_RULE = "draw.empty_node_symbol"
+DRAW_DUPLICATE_NODE_SYMBOL_RULE = "draw.duplicate_node_symbol"
+UNNAMED_SYMBOL_PATTERNS = {
+    "",
+    "unnamed",
+    "anonymous",
+    "(sem nome)",
+    "sem nome",
+    "sem_nome",
+    "none",
+    "null",
+    "undefined",
+    "<unnamed>",
+    "placeholder",
+    "todo",
+    "tbd",
+}
+
 
 
 def _is_numeric_id(value: Any) -> bool:
@@ -529,36 +549,116 @@ def analyze_draw_structure(root: Path, payload: dict[str, Any]) -> dict[str, Any
     }
 
 
-def _has_code_reference(node: dict[str, Any]) -> bool:
-    """Confere se o nó possui ao menos uma referência estrutural não vazia."""
+def _is_empty_or_unnamed_symbol(symbol: Any) -> bool:
+    """Verifica se o símbolo do nó está ausente, vazio ou possui um nome genérico sem referência a uma função."""
+    if not isinstance(symbol, str):
+        return True
+    cleaned = symbol.strip().lower()
+    return not cleaned or cleaned in UNNAMED_SYMBOL_PATTERNS
+
+
+def _extract_node_symbols(node: dict[str, Any]) -> list[str]:
+    """Extrai nomes de símbolos válidos (não vazios e não genéricos) de um nó."""
     references = node.get("code_refs")
-    return isinstance(references, list) and any(isinstance(reference, dict) and reference for reference in references)
+    if not isinstance(references, list):
+        return []
+    symbols = []
+    for ref in references:
+        if isinstance(ref, dict):
+            sym = ref.get("symbol")
+            if isinstance(sym, str) and not _is_empty_or_unnamed_symbol(sym):
+                symbols.append(sym.strip())
+    return symbols
+
+
+def _has_code_reference(node: dict[str, Any]) -> bool:
+    """Confere se o nó possui ao menos uma referência estrutural válida."""
+    return bool(_extract_node_symbols(node))
 
 
 def analyze_draw_contract(payload: dict[str, Any], source: str = "(novo desenho)") -> list[dict[str, Any]]:
-    """Produz warnings de contratos estáticos específicos da hierarquia Draw."""
-    hierarchy = payload.get("hierarchy")
-    if not isinstance(hierarchy, dict) or hierarchy.get("level") != 2:
-        return []
+    """Produz warnings de contratos estáticos específicos da hierarquia Draw e da qualidade dos símbolos dos nós."""
     draw_id = str(payload.get("id", "(novo desenho)"))
-    findings = []
+    findings: list[dict[str, Any]] = []
+
+    hierarchy = payload.get("hierarchy")
+    level = hierarchy.get("level") if isinstance(hierarchy, dict) else None
+
+    if level in (2, 3, 4):
+        rule_map = {
+            2: DRAW_LEVEL2_CODE_REF_RULE,
+            3: DRAW_LEVEL3_CODE_REF_RULE,
+            4: DRAW_LEVEL4_CODE_REF_RULE,
+        }
+        rule_name = rule_map[level]
+        for node in payload.get("nodes", []):
+            if not isinstance(node, dict) or _has_code_reference(node):
+                continue
+            node_id = node.get("id")
+            findings.append({
+                "kind": rule_name,
+                "rule": rule_name,
+                "severity": "warning",
+                "file": source,
+                "draw_id": draw_id,
+                "node_id": node_id,
+                "value": 0,
+                "limit": 1,
+                "evidence": f"nó {node_id!r} não possui code_refs",
+                "source": "builtin_draw_contract",
+            })
+
     for node in payload.get("nodes", []):
-        if not isinstance(node, dict) or _has_code_reference(node):
+        if not isinstance(node, dict):
             continue
         node_id = node.get("id")
-        findings.append({
-            "kind": DRAW_LEVEL2_CODE_REF_RULE,
-            "rule": DRAW_LEVEL2_CODE_REF_RULE,
-            "severity": "warning",
-            "file": source,
-            "draw_id": draw_id,
-            "node_id": node_id,
-            "value": 0,
-            "limit": 1,
-            "evidence": f"nó {node_id!r} não possui code_refs",
-            "source": "builtin_draw_contract",
-        })
+        references = node.get("code_refs")
+        if isinstance(references, list):
+            for ref in references:
+                if isinstance(ref, dict):
+                    sym = ref.get("symbol")
+                    if _is_empty_or_unnamed_symbol(sym):
+                        display_sym = repr(sym) if sym is not None else "ausente"
+                        findings.append({
+                            "kind": DRAW_EMPTY_NODE_SYMBOL_RULE,
+                            "rule": DRAW_EMPTY_NODE_SYMBOL_RULE,
+                            "severity": "warning",
+                            "file": source,
+                            "draw_id": draw_id,
+                            "node_id": node_id,
+                            "value": 0,
+                            "limit": 1,
+                            "evidence": f"nó {node_id!r} possui símbolo sem nome ou vazio em code_refs: {display_sym}",
+                            "source": "builtin_draw_contract",
+                        })
+
+    symbol_node_map: dict[str, list[Any]] = {}
+    for node in payload.get("nodes", []):
+        if not isinstance(node, dict):
+            continue
+        node_id = node.get("id")
+        valid_symbols = set(_extract_node_symbols(node))
+        for sym in valid_symbols:
+            symbol_node_map.setdefault(sym, []).append(node_id)
+
+    for sym, node_ids in sorted(symbol_node_map.items()):
+        if len(node_ids) > 4:
+            findings.append({
+                "kind": DRAW_DUPLICATE_NODE_SYMBOL_RULE,
+                "rule": DRAW_DUPLICATE_NODE_SYMBOL_RULE,
+                "severity": "warning",
+                "file": source,
+                "draw_id": draw_id,
+                "symbol": sym,
+                "node_ids": node_ids,
+                "value": len(node_ids),
+                "limit": 4,
+                "evidence": f"símbolo {sym!r} aparece mais de 4 vezes ({len(node_ids)} ocorrências) nos nós {node_ids}",
+                "source": "builtin_draw_contract",
+            })
+
     return findings
+
 
 
 def scan_draw_contracts(root: Path) -> list[dict[str, Any]]:

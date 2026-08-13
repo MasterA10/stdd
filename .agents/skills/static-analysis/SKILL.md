@@ -15,7 +15,7 @@ Ao produzir fatos para um desenho filho, preservar seu pai e a raiz. Reportar re
 
 Ao analisar os desenhos em `.stdd/draws/`, aplicar uma verificação específica aos documentos com `hierarchy.level: 3`, isto é, aos filhos dos desenhos de jornada de nível 2. Emitir apenas warnings quando o subfluxo tiver menos de quatro nós (`draw.level3_min_nodes`) ou quando qualquer nó tiver `description` ausente, não textual ou com menos de 80 caracteres (`draw.level3_short_description`). O finding deve apontar o arquivo, o ID do nó quando aplicável, o valor observado, o limite e a evidência. Esses achados são informativos e nunca bloqueiam `stdd draw create` ou `stdd test`; não criar nós decorativos nem aprovar lacunas sem evidência.
 
-Para documentos com `hierarchy.level: 2`, emitir `draw.level2_missing_code_ref` como warning para cada nó sem pelo menos um `code_refs` não vazio. O finding deve apontar o arquivo do desenho, o ID do nó, o valor observado, o limite e a evidência. O mesmo warning deve aparecer durante `stdd draw create`; nenhum desses avisos altera o exit code ou bloqueia o `stdd test`.
+Para documentos com `hierarchy.level: 2`, `3` ou `4`, emitir `draw.level2_missing_code_ref`, `draw.level3_missing_code_ref` ou `draw.level4_missing_code_ref` como warning para cada nó sem pelo menos um `code_refs` com símbolo válido. Além disso, emitir `draw.empty_node_symbol` quando um nó contiver símbolo ausente, vazio ou genérico (ex: `unnamed`, `(sem nome)`, `placeholder`) e `draw.duplicate_node_symbol` quando o mesmo símbolo for reutilizado mais de 4 vezes no mesmo desenho. O finding deve apontar o arquivo do desenho, os nós afetados, o valor observado, o limite (4) e a evidência. Esses avisos aparecem durante `stdd draw create` e `stdd test`; nenhum desses avisos altera o exit code ou bloqueia o `stdd test`.
 
 Esta skill orienta a criação de um adaptador específico para a stack do projeto. O adaptador implementa o contrato do STDD; ele não altera o fluxo geral do framework, não inventa fatos e não substitui os gates determinísticos. Quando houver rastreabilidade de autorização, preservar como dependências os símbolos reais de middleware, policies, guards, handlers ou casos de uso; não inferir que cliente e administrador têm as mesmas permissões.
 
@@ -224,31 +224,6 @@ Classifique símbolos criados, removidos, alterados, movidos, assinaturas altera
 
 O relatório factual deve permanecer separado de qualquer explicação ou sugestão produzida por IA.
 
-## Frontend agnóstico de stack
-
-Quando a codebase possuir superfície frontend, o adapter deve analisar a stack real sem presumir React ou Next. O contrato e as regras são comuns; o parser, a resolução de rotas e a descoberta de assets são específicos da linguagem, framework ou bundler detectado.
-
-Detecte, quando houver evidência local:
-
-- HTML/DOM e templates server-side;
-- CSS, Sass, Less e referências estáticas a assets;
-- JavaScript e TypeScript;
-- JSX/TSX, Vue, Svelte, Angular e outros templates de componentes;
-- roteadores, páginas, layouts, actions de formulário, bundlers e monorepos.
-
-Prefira parser AST, compiler API ou ferramenta oficial já disponível no projeto. Use regex somente para fatos simples e explicitamente limitados; nunca trate uma busca textual como prova de que uma rota ou interação existe.
-
-As regras frontend devem retornar achados em `quality_findings` com `domain: "frontend"`, `rule`, `file`, posição e evidência:
-
-- `frontend.missing_destination`: link, formulário ou navegação sem destino;
-- `frontend.dead_reference`: rota, asset ou arquivo local estático inexistente;
-- `frontend.interactive_without_action`: elemento interativo sem handler, destino ou ação comprovável;
-- `frontend.decorative_semantics`: elemento visual marcado como interativo sem semântica ou ação correspondente.
-
-Ausência comprovada pode ser `blocking`. Rotas dinâmicas, código gerado, componentes externos e referências que o parser não consegue resolver devem ser `warning` ou `unresolved`, nunca aprovação falsa. Elementos decorativos sem `role`, `tabIndex` ou ação não devem ser classificados como interação quebrada.
-
-O adapter deve testar a própria stack antes de ser habilitado. As fixtures devem cobrir links e formulários, referências de assets, handlers, roteamento, elementos decorativos, valores dinâmicos, arquivos ignorados e parser indisponível. Em stacks híbridas, usar módulos específicos por linguagem atrás de um dispatcher local, mantendo o mesmo contrato JSON.
-
 ## Exceções controladas
 
 O projeto pode aceitar um achado específico sem desligar a análise inteira. Configure `static_analysis.exceptions` em `.stdd/config.json`:
@@ -256,16 +231,12 @@ O projeto pode aceitar um achado específico sem desligar a análise inteira. Co
 ```json
 {
   "static_analysis": {
-    "frontend": {
-      "enabled": true,
-      "mode": "blocking"
-    },
     "exceptions": [
       {
-        "rule": "frontend.dead_reference",
-        "file": "src/components/LegacyMenu.tsx",
+        "rule": "long_function",
+        "file": "src/services/legacy.py",
         "action": "warning",
-        "reason": "Destino fornecido por CMS externo.",
+        "reason": "Refatoração planejada para o próximo ciclo.",
         "expires": "2027-01-01"
       }
     ]

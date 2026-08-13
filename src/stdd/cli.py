@@ -201,11 +201,21 @@ def draw_create(
                 f"({warning['right']['label']}): {warning['evidence']} ({similarity})."
             )
     for warning in contract_warnings:
+        node_str = f" nó={warning['node_id']}" if warning.get("node_id") is not None else ""
         typer.echo(
-            f"Aviso: [{warning['kind']}] {warning['file']} nó={warning['node_id']}: "
+            f"Aviso: [{warning['kind']}] {warning['file']}{node_str}: "
             f"{warning['evidence']} (mínimo {warning['limit']}); nenhum warning bloqueia a criação."
         )
     typer.echo(f"Desenho gravado em {created}")
+
+
+@app.command("create")
+def app_create(
+    data_json: str = typer.Option(..., "--data-json", help="Payload JSON inline do desenho."),
+) -> None:
+    """Valida e grava somente o JSON de um desenho em .stdd/draws."""
+    draw_create(data_json=data_json)
+
 
 
 @draw_app.command("list")

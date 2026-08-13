@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-08-12T13:56:02.065128+00:00",
+  "generated_at": "2026-08-13T13:17:12.607348+00:00",
   "status": "passed",
   "reason": null,
   "adapter_command": [
@@ -28,7 +28,7 @@
     {
       "id": "symbols",
       "label": "Símbolos",
-      "value": 387,
+      "value": 395,
       "unit": "símbolos"
     },
     {
@@ -40,13 +40,13 @@
     {
       "id": "files",
       "label": "Arquivos analisados",
-      "value": 38,
+      "value": 42,
       "unit": "arquivos"
     },
     {
       "id": "quality_findings",
       "label": "Achados de qualidade",
-      "value": 92,
+      "value": 108,
       "unit": "achados",
       "status": "warning"
     },
@@ -73,12 +73,16 @@
     }
   ],
   "summary": {
-    "symbols": 387,
+    "symbols": 395,
     "dependencies": 496,
-    "complexity": 383,
+    "complexity": 391,
     "structural_metrics": 36,
     "files": [
       ".stdd/draws/stdd-agent-journeys.json",
+      ".stdd/draws/stdd-journey-draw.json",
+      ".stdd/draws/stdd-journey-init.json",
+      ".stdd/draws/stdd-journey-log.json",
+      ".stdd/draws/stdd-journey-test.json",
       ".stdd/draws/stdd-user-journeys.json",
       "draw-editor/bin/serve.js",
       "draw-editor/src/App.tsx",
@@ -117,17 +121,18 @@
       "tests/test_stdd.py",
       "tests/test_traceability.py"
     ],
-    "quality_findings": 92,
+    "quality_findings": 108,
     "severity": {
       "blocking": 0,
-      "warning": 92
+      "warning": 108
     },
     "findings_by_kind": {
       "deep_nesting": 4,
       "draw.level2_missing_code_ref": 21,
+      "draw.level3_missing_code_ref": 13,
       "hardcoded_secret": 5,
-      "high_complexity": 29,
-      "long_function": 30,
+      "high_complexity": 30,
+      "long_function": 32,
       "too_many_parameters": 3
     },
     "applied_exceptions": 14,
@@ -576,6 +581,16 @@
       },
       {
         "evidence": "high_complexity:17",
+        "file": "src/stdd/draw.py",
+        "kind": "high_complexity",
+        "limit": 10,
+        "severity": "warning",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.analyze_draw_contract",
+        "value": 17
+      },
+      {
+        "evidence": "high_complexity:17",
         "file": "src/stdd/static_analysis.py",
         "kind": "high_complexity",
         "limit": 10,
@@ -669,6 +684,16 @@
         "symbol_id": "src/stdd/draw.py:stdd.draw.create_server",
         "value": 200,
         "exception_applied": "exception-4"
+      },
+      {
+        "evidence": "long_function:41",
+        "file": "src/stdd/cli.py",
+        "kind": "long_function",
+        "limit": 40,
+        "severity": "warning",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_create",
+        "value": 41
       },
       {
         "evidence": "long_function:42",
@@ -819,6 +844,16 @@
         "source": "python_ast",
         "symbol_id": "src/stdd/draw.py:stdd.draw.do_GET",
         "value": 80
+      },
+      {
+        "evidence": "long_function:82",
+        "file": "src/stdd/draw.py",
+        "kind": "long_function",
+        "limit": 40,
+        "severity": "warning",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.analyze_draw_contract",
+        "value": 82
       },
       {
         "evidence": "long_function:82",
@@ -1127,6 +1162,162 @@
         "source": "builtin_draw_contract"
       },
       {
+        "kind": "draw.level3_missing_code_ref",
+        "rule": "draw.level3_missing_code_ref",
+        "severity": "warning",
+        "file": ".stdd/draws/stdd-journey-draw.json",
+        "draw_id": "stdd-journey-draw",
+        "node_id": 2,
+        "value": 0,
+        "limit": 1,
+        "evidence": "nó 2 não possui code_refs",
+        "source": "builtin_draw_contract"
+      },
+      {
+        "kind": "draw.level3_missing_code_ref",
+        "rule": "draw.level3_missing_code_ref",
+        "severity": "warning",
+        "file": ".stdd/draws/stdd-journey-draw.json",
+        "draw_id": "stdd-journey-draw",
+        "node_id": 5,
+        "value": 0,
+        "limit": 1,
+        "evidence": "nó 5 não possui code_refs",
+        "source": "builtin_draw_contract"
+      },
+      {
+        "kind": "draw.level3_missing_code_ref",
+        "rule": "draw.level3_missing_code_ref",
+        "severity": "warning",
+        "file": ".stdd/draws/stdd-journey-init.json",
+        "draw_id": "stdd-journey-init",
+        "node_id": 1,
+        "value": 0,
+        "limit": 1,
+        "evidence": "nó 1 não possui code_refs",
+        "source": "builtin_draw_contract"
+      },
+      {
+        "kind": "draw.level3_missing_code_ref",
+        "rule": "draw.level3_missing_code_ref",
+        "severity": "warning",
+        "file": ".stdd/draws/stdd-journey-init.json",
+        "draw_id": "stdd-journey-init",
+        "node_id": 2,
+        "value": 0,
+        "limit": 1,
+        "evidence": "nó 2 não possui code_refs",
+        "source": "builtin_draw_contract"
+      },
+      {
+        "kind": "draw.level3_missing_code_ref",
+        "rule": "draw.level3_missing_code_ref",
+        "severity": "warning",
+        "file": ".stdd/draws/stdd-journey-init.json",
+        "draw_id": "stdd-journey-init",
+        "node_id": 3,
+        "value": 0,
+        "limit": 1,
+        "evidence": "nó 3 não possui code_refs",
+        "source": "builtin_draw_contract"
+      },
+      {
+        "kind": "draw.level3_missing_code_ref",
+        "rule": "draw.level3_missing_code_ref",
+        "severity": "warning",
+        "file": ".stdd/draws/stdd-journey-log.json",
+        "draw_id": "stdd-journey-log",
+        "node_id": 1,
+        "value": 0,
+        "limit": 1,
+        "evidence": "nó 1 não possui code_refs",
+        "source": "builtin_draw_contract"
+      },
+      {
+        "kind": "draw.level3_missing_code_ref",
+        "rule": "draw.level3_missing_code_ref",
+        "severity": "warning",
+        "file": ".stdd/draws/stdd-journey-log.json",
+        "draw_id": "stdd-journey-log",
+        "node_id": 2,
+        "value": 0,
+        "limit": 1,
+        "evidence": "nó 2 não possui code_refs",
+        "source": "builtin_draw_contract"
+      },
+      {
+        "kind": "draw.level3_missing_code_ref",
+        "rule": "draw.level3_missing_code_ref",
+        "severity": "warning",
+        "file": ".stdd/draws/stdd-journey-log.json",
+        "draw_id": "stdd-journey-log",
+        "node_id": 3,
+        "value": 0,
+        "limit": 1,
+        "evidence": "nó 3 não possui code_refs",
+        "source": "builtin_draw_contract"
+      },
+      {
+        "kind": "draw.level3_missing_code_ref",
+        "rule": "draw.level3_missing_code_ref",
+        "severity": "warning",
+        "file": ".stdd/draws/stdd-journey-log.json",
+        "draw_id": "stdd-journey-log",
+        "node_id": 4,
+        "value": 0,
+        "limit": 1,
+        "evidence": "nó 4 não possui code_refs",
+        "source": "builtin_draw_contract"
+      },
+      {
+        "kind": "draw.level3_missing_code_ref",
+        "rule": "draw.level3_missing_code_ref",
+        "severity": "warning",
+        "file": ".stdd/draws/stdd-journey-test.json",
+        "draw_id": "stdd-journey-test",
+        "node_id": 1,
+        "value": 0,
+        "limit": 1,
+        "evidence": "nó 1 não possui code_refs",
+        "source": "builtin_draw_contract"
+      },
+      {
+        "kind": "draw.level3_missing_code_ref",
+        "rule": "draw.level3_missing_code_ref",
+        "severity": "warning",
+        "file": ".stdd/draws/stdd-journey-test.json",
+        "draw_id": "stdd-journey-test",
+        "node_id": 2,
+        "value": 0,
+        "limit": 1,
+        "evidence": "nó 2 não possui code_refs",
+        "source": "builtin_draw_contract"
+      },
+      {
+        "kind": "draw.level3_missing_code_ref",
+        "rule": "draw.level3_missing_code_ref",
+        "severity": "warning",
+        "file": ".stdd/draws/stdd-journey-test.json",
+        "draw_id": "stdd-journey-test",
+        "node_id": 4,
+        "value": 0,
+        "limit": 1,
+        "evidence": "nó 4 não possui code_refs",
+        "source": "builtin_draw_contract"
+      },
+      {
+        "kind": "draw.level3_missing_code_ref",
+        "rule": "draw.level3_missing_code_ref",
+        "severity": "warning",
+        "file": ".stdd/draws/stdd-journey-test.json",
+        "draw_id": "stdd-journey-test",
+        "node_id": 5,
+        "value": 0,
+        "limit": 1,
+        "evidence": "nó 5 não possui code_refs",
+        "source": "builtin_draw_contract"
+      },
+      {
         "kind": "draw.level2_missing_code_ref",
         "rule": "draw.level2_missing_code_ref",
         "severity": "warning",
@@ -1303,6 +1494,17 @@
       },
       {
         "cyclomatic": 1,
+        "file": "src/stdd/cli.py",
+        "line": 213,
+        "lines": 5,
+        "max_depth": 0,
+        "parameters": 1,
+        "qualified_name": "stdd.cli.app_create",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.app_create"
+      },
+      {
+        "cyclomatic": 1,
         "file": "src/stdd/core.py",
         "line": 272,
         "lines": 6,
@@ -1370,106 +1572,7 @@
       {
         "cyclomatic": 1,
         "file": "src/stdd/draw.py",
-        "line": 1026,
-        "lines": 6,
-        "max_depth": 0,
-        "parameters": 1,
-        "qualified_name": "stdd.draw.end_headers",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.end_headers"
-      },
-      {
-        "cyclomatic": 1,
-        "file": "src/stdd/draw.py",
-        "line": 1098,
-        "lines": 8,
-        "max_depth": 0,
-        "parameters": 2,
-        "qualified_name": "stdd.draw.start_server_for_test",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.start_server_for_test"
-      },
-      {
-        "cyclomatic": 1,
-        "file": "src/stdd/draw.py",
-        "line": 36,
-        "lines": 5,
-        "max_depth": 0,
-        "parameters": 1,
-        "qualified_name": "stdd.draw._is_numeric_id",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._is_numeric_id"
-      },
-      {
-        "cyclomatic": 1,
-        "file": "src/stdd/draw.py",
-        "line": 360,
-        "lines": 3,
-        "max_depth": 0,
-        "parameters": 1,
-        "qualified_name": "stdd.draw._analysis_fingerprint",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_fingerprint"
-      },
-      {
-        "cyclomatic": 1,
-        "file": "src/stdd/draw.py",
-        "line": 385,
-        "lines": 9,
-        "max_depth": 0,
-        "parameters": 4,
-        "qualified_name": "stdd.draw._analysis_entity",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_entity"
-      },
-      {
-        "cyclomatic": 1,
-        "file": "src/stdd/draw.py",
-        "line": 43,
-        "lines": 5,
-        "max_depth": 0,
-        "parameters": 1,
-        "qualified_name": "stdd.draw._is_draw_id",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._is_draw_id"
-      },
-      {
-        "cyclomatic": 1,
-        "file": "src/stdd/draw.py",
-        "line": 68,
-        "lines": 5,
-        "max_depth": 0,
-        "parameters": 1,
-        "qualified_name": "stdd.draw.draw_directory",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.draw_directory"
-      },
-      {
-        "cyclomatic": 1,
-        "file": "src/stdd/draw.py",
-        "line": 75,
-        "lines": 3,
-        "max_depth": 0,
-        "parameters": 1,
-        "qualified_name": "stdd.draw.facts_directory",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.facts_directory"
-      },
-      {
-        "cyclomatic": 1,
-        "file": "src/stdd/draw.py",
-        "line": 796,
-        "lines": 7,
-        "max_depth": 0,
-        "parameters": 2,
-        "qualified_name": "stdd.draw._atomic_write",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._atomic_write"
-      },
-      {
-        "cyclomatic": 1,
-        "file": "src/stdd/draw.py",
-        "line": 80,
+        "line": 100,
         "lines": 5,
         "max_depth": 0,
         "parameters": 1,
@@ -1480,29 +1583,7 @@
       {
         "cyclomatic": 1,
         "file": "src/stdd/draw.py",
-        "line": 896,
-        "lines": 2,
-        "max_depth": 0,
-        "parameters": 3,
-        "qualified_name": "stdd.draw.__init__",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.__init__"
-      },
-      {
-        "cyclomatic": 1,
-        "file": "src/stdd/draw.py",
-        "line": 899,
-        "lines": 2,
-        "max_depth": 0,
-        "parameters": 3,
-        "qualified_name": "stdd.draw.log_message",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.log_message"
-      },
-      {
-        "cyclomatic": 1,
-        "file": "src/stdd/draw.py",
-        "line": 902,
+        "line": 1002,
         "lines": 9,
         "max_depth": 0,
         "parameters": 4,
@@ -1513,13 +1594,145 @@
       {
         "cyclomatic": 1,
         "file": "src/stdd/draw.py",
-        "line": 927,
+        "line": 1027,
         "lines": 6,
         "max_depth": 0,
         "parameters": 3,
         "qualified_name": "stdd.draw._send_json_error",
         "source": "python_ast",
         "symbol_id": "src/stdd/draw.py:stdd.draw._send_json_error"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "src/stdd/draw.py",
+        "line": 1126,
+        "lines": 6,
+        "max_depth": 0,
+        "parameters": 1,
+        "qualified_name": "stdd.draw.end_headers",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.end_headers"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "src/stdd/draw.py",
+        "line": 1198,
+        "lines": 8,
+        "max_depth": 0,
+        "parameters": 2,
+        "qualified_name": "stdd.draw.start_server_for_test",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.start_server_for_test"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "src/stdd/draw.py",
+        "line": 380,
+        "lines": 3,
+        "max_depth": 0,
+        "parameters": 1,
+        "qualified_name": "stdd.draw._analysis_fingerprint",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_fingerprint"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "src/stdd/draw.py",
+        "line": 405,
+        "lines": 9,
+        "max_depth": 0,
+        "parameters": 4,
+        "qualified_name": "stdd.draw._analysis_entity",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_entity"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "src/stdd/draw.py",
+        "line": 56,
+        "lines": 5,
+        "max_depth": 0,
+        "parameters": 1,
+        "qualified_name": "stdd.draw._is_numeric_id",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._is_numeric_id"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "src/stdd/draw.py",
+        "line": 574,
+        "lines": 3,
+        "max_depth": 0,
+        "parameters": 1,
+        "qualified_name": "stdd.draw._has_code_reference",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._has_code_reference"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "src/stdd/draw.py",
+        "line": 63,
+        "lines": 5,
+        "max_depth": 0,
+        "parameters": 1,
+        "qualified_name": "stdd.draw._is_draw_id",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._is_draw_id"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "src/stdd/draw.py",
+        "line": 88,
+        "lines": 5,
+        "max_depth": 0,
+        "parameters": 1,
+        "qualified_name": "stdd.draw.draw_directory",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.draw_directory"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "src/stdd/draw.py",
+        "line": 896,
+        "lines": 7,
+        "max_depth": 0,
+        "parameters": 2,
+        "qualified_name": "stdd.draw._atomic_write",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._atomic_write"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "src/stdd/draw.py",
+        "line": 95,
+        "lines": 3,
+        "max_depth": 0,
+        "parameters": 1,
+        "qualified_name": "stdd.draw.facts_directory",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.facts_directory"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "src/stdd/draw.py",
+        "line": 996,
+        "lines": 2,
+        "max_depth": 0,
+        "parameters": 3,
+        "qualified_name": "stdd.draw.__init__",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.__init__"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "src/stdd/draw.py",
+        "line": 999,
+        "lines": 2,
+        "max_depth": 0,
+        "parameters": 3,
+        "qualified_name": "stdd.draw.log_message",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.log_message"
       },
       {
         "cyclomatic": 1,
@@ -2063,7 +2276,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw.py",
-        "line": 397,
+        "line": 450,
         "lines": 31,
         "max_depth": 0,
         "parameters": 2,
@@ -2074,7 +2287,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw.py",
-        "line": 430,
+        "line": 483,
         "lines": 10,
         "max_depth": 0,
         "parameters": 1,
@@ -2085,7 +2298,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw.py",
-        "line": 487,
+        "line": 540,
         "lines": 20,
         "max_depth": 0,
         "parameters": 2,
@@ -2096,35 +2309,13 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw.py",
-        "line": 569,
+        "line": 622,
         "lines": 15,
         "max_depth": 0,
         "parameters": 2,
         "qualified_name": "tests.test_draw.test_draw_cli_accepts_inline_json_and_updates_existing_draw",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_cli_accepts_inline_json_and_updates_existing_draw"
-      },
-      {
-        "cyclomatic": 1,
-        "file": "tests/test_draw.py",
-        "line": 586,
-        "lines": 18,
-        "max_depth": 0,
-        "parameters": 0,
-        "qualified_name": "tests.test_draw.test_draw_html_fetches_index_and_only_selected_json",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_fetches_index_and_only_selected_json"
-      },
-      {
-        "cyclomatic": 1,
-        "file": "tests/test_draw.py",
-        "line": 606,
-        "lines": 27,
-        "max_depth": 0,
-        "parameters": 0,
-        "qualified_name": "tests.test_draw.test_draw_html_uses_react_flow_at_the_renderer_boundary",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_uses_react_flow_at_the_renderer_boundary"
       },
       {
         "cyclomatic": 1,
@@ -2140,7 +2331,40 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw.py",
-        "line": 635,
+        "line": 639,
+        "lines": 15,
+        "max_depth": 0,
+        "parameters": 2,
+        "qualified_name": "tests.test_draw.test_stdd_create_top_level_command_creates_draw_and_reports_symbol_warnings",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_stdd_create_top_level_command_creates_draw_and_reports_symbol_warnings"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "tests/test_draw.py",
+        "line": 657,
+        "lines": 18,
+        "max_depth": 0,
+        "parameters": 0,
+        "qualified_name": "tests.test_draw.test_draw_html_fetches_index_and_only_selected_json",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_fetches_index_and_only_selected_json"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "tests/test_draw.py",
+        "line": 677,
+        "lines": 27,
+        "max_depth": 0,
+        "parameters": 0,
+        "qualified_name": "tests.test_draw.test_draw_html_uses_react_flow_at_the_renderer_boundary",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_uses_react_flow_at_the_renderer_boundary"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "tests/test_draw.py",
+        "line": 706,
         "lines": 29,
         "max_depth": 0,
         "parameters": 0,
@@ -2151,7 +2375,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw.py",
-        "line": 666,
+        "line": 737,
         "lines": 12,
         "max_depth": 0,
         "parameters": 0,
@@ -2162,7 +2386,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw.py",
-        "line": 695,
+        "line": 766,
         "lines": 89,
         "max_depth": 0,
         "parameters": 0,
@@ -2184,7 +2408,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw.py",
-        "line": 786,
+        "line": 857,
         "lines": 16,
         "max_depth": 0,
         "parameters": 0,
@@ -2195,7 +2419,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw.py",
-        "line": 804,
+        "line": 875,
         "lines": 17,
         "max_depth": 0,
         "parameters": 0,
@@ -2668,7 +2892,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_static_analysis.py",
-        "line": 196,
+        "line": 227,
         "lines": 26,
         "max_depth": 0,
         "parameters": 1,
@@ -2679,7 +2903,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_static_analysis.py",
-        "line": 224,
+        "line": 255,
         "lines": 15,
         "max_depth": 0,
         "parameters": 1,
@@ -2690,7 +2914,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_static_analysis.py",
-        "line": 241,
+        "line": 272,
         "lines": 19,
         "max_depth": 0,
         "parameters": 1,
@@ -2701,7 +2925,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_static_analysis.py",
-        "line": 262,
+        "line": 293,
         "lines": 19,
         "max_depth": 0,
         "parameters": 1,
@@ -2712,7 +2936,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_static_analysis.py",
-        "line": 283,
+        "line": 314,
         "lines": 13,
         "max_depth": 0,
         "parameters": 1,
@@ -2723,7 +2947,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_static_analysis.py",
-        "line": 298,
+        "line": 329,
         "lines": 21,
         "max_depth": 0,
         "parameters": 1,
@@ -3031,7 +3255,7 @@
       {
         "cyclomatic": 10,
         "file": "src/stdd/draw.py",
-        "line": 303,
+        "line": 323,
         "lines": 29,
         "max_depth": 1,
         "parameters": 2,
@@ -3042,7 +3266,7 @@
       {
         "cyclomatic": 10,
         "file": "src/stdd/draw.py",
-        "line": 636,
+        "line": 736,
         "lines": 29,
         "max_depth": 1,
         "parameters": 3,
@@ -3086,7 +3310,7 @@
       {
         "cyclomatic": 11,
         "file": "src/stdd/draw.py",
-        "line": 582,
+        "line": 682,
         "lines": 33,
         "max_depth": 1,
         "parameters": 2,
@@ -3097,7 +3321,7 @@
       {
         "cyclomatic": 11,
         "file": "src/stdd/draw.py",
-        "line": 805,
+        "line": 905,
         "lines": 51,
         "max_depth": 1,
         "parameters": 2,
@@ -3119,7 +3343,7 @@
       {
         "cyclomatic": 12,
         "file": "src/stdd/draw.py",
-        "line": 667,
+        "line": 767,
         "lines": 34,
         "max_depth": 1,
         "parameters": 1,
@@ -3239,6 +3463,17 @@
       },
       {
         "cyclomatic": 17,
+        "file": "src/stdd/draw.py",
+        "line": 579,
+        "lines": 82,
+        "max_depth": 1,
+        "parameters": 2,
+        "qualified_name": "stdd.draw.analyze_draw_contract",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.analyze_draw_contract"
+      },
+      {
+        "cyclomatic": 17,
         "file": "src/stdd/static_analysis.py",
         "line": 621,
         "lines": 71,
@@ -3273,7 +3508,7 @@
       {
         "cyclomatic": 19,
         "file": "src/stdd/draw.py",
-        "line": 934,
+        "line": 1034,
         "lines": 80,
         "max_depth": 1,
         "parameters": 1,
@@ -3328,7 +3563,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/cli.py",
-        "line": 229,
+        "line": 239,
         "lines": 8,
         "max_depth": 1,
         "parameters": 0,
@@ -3339,7 +3574,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/cli.py",
-        "line": 298,
+        "line": 308,
         "lines": 11,
         "max_depth": 1,
         "parameters": 1,
@@ -3372,7 +3607,18 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/draw.py",
-        "line": 1033,
+        "line": 1012,
+        "lines": 14,
+        "max_depth": 1,
+        "parameters": 2,
+        "qualified_name": "stdd.draw._send_file",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._send_file"
+      },
+      {
+        "cyclomatic": 2,
+        "file": "src/stdd/draw.py",
+        "line": 1133,
         "lines": 12,
         "max_depth": 1,
         "parameters": 1,
@@ -3383,7 +3629,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/draw.py",
-        "line": 1083,
+        "line": 1183,
         "lines": 13,
         "max_depth": 1,
         "parameters": 3,
@@ -3394,7 +3640,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/draw.py",
-        "line": 269,
+        "line": 289,
         "lines": 7,
         "max_depth": 0,
         "parameters": 1,
@@ -3405,24 +3651,13 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/draw.py",
-        "line": 532,
-        "lines": 4,
-        "max_depth": 0,
-        "parameters": 1,
-        "qualified_name": "stdd.draw._has_code_reference",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._has_code_reference"
-      },
-      {
-        "cyclomatic": 2,
-        "file": "src/stdd/draw.py",
-        "line": 912,
-        "lines": 14,
+        "line": 552,
+        "lines": 6,
         "max_depth": 1,
-        "parameters": 2,
-        "qualified_name": "stdd.draw._send_file",
+        "parameters": 1,
+        "qualified_name": "stdd.draw._is_empty_or_unnamed_symbol",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._send_file"
+        "symbol_id": "src/stdd/draw.py:stdd.draw._is_empty_or_unnamed_symbol"
       },
       {
         "cyclomatic": 2,
@@ -3757,28 +3992,6 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_draw.py",
-        "line": 442,
-        "lines": 24,
-        "max_depth": 1,
-        "parameters": 1,
-        "qualified_name": "tests.test_draw.test_draw_server_rejects_legacy_edge_keys_before_starting",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_server_rejects_legacy_edge_keys_before_starting"
-      },
-      {
-        "cyclomatic": 2,
-        "file": "tests/test_draw.py",
-        "line": 468,
-        "lines": 17,
-        "max_depth": 1,
-        "parameters": 1,
-        "qualified_name": "tests.test_draw.test_draw_server_rejects_index_reference_to_missing_draw",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_server_rejects_index_reference_to_missing_draw"
-      },
-      {
-        "cyclomatic": 2,
-        "file": "tests/test_draw.py",
         "line": 49,
         "lines": 12,
         "max_depth": 0,
@@ -3790,7 +4003,29 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_draw.py",
-        "line": 509,
+        "line": 495,
+        "lines": 24,
+        "max_depth": 1,
+        "parameters": 1,
+        "qualified_name": "tests.test_draw.test_draw_server_rejects_legacy_edge_keys_before_starting",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_server_rejects_legacy_edge_keys_before_starting"
+      },
+      {
+        "cyclomatic": 2,
+        "file": "tests/test_draw.py",
+        "line": 521,
+        "lines": 17,
+        "max_depth": 1,
+        "parameters": 1,
+        "qualified_name": "tests.test_draw.test_draw_server_rejects_index_reference_to_missing_draw",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_server_rejects_index_reference_to_missing_draw"
+      },
+      {
+        "cyclomatic": 2,
+        "file": "tests/test_draw.py",
+        "line": 562,
         "lines": 43,
         "max_depth": 1,
         "parameters": 1,
@@ -3801,7 +4036,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_draw.py",
-        "line": 554,
+        "line": 607,
         "lines": 13,
         "max_depth": 1,
         "parameters": 1,
@@ -3812,7 +4047,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_draw.py",
-        "line": 823,
+        "line": 894,
         "lines": 23,
         "max_depth": 1,
         "parameters": 1,
@@ -3823,7 +4058,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_draw.py",
-        "line": 848,
+        "line": 919,
         "lines": 29,
         "max_depth": 1,
         "parameters": 1,
@@ -3834,7 +4069,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_draw.py",
-        "line": 879,
+        "line": 950,
         "lines": 18,
         "max_depth": 1,
         "parameters": 1,
@@ -3845,7 +4080,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_draw.py",
-        "line": 899,
+        "line": 970,
         "lines": 36,
         "max_depth": 1,
         "parameters": 1,
@@ -4098,7 +4333,7 @@
       {
         "cyclomatic": 3,
         "file": "src/stdd/draw.py",
-        "line": 1015,
+        "line": 1115,
         "lines": 10,
         "max_depth": 1,
         "parameters": 1,
@@ -4109,7 +4344,7 @@
       {
         "cyclomatic": 3,
         "file": "src/stdd/draw.py",
-        "line": 260,
+        "line": 280,
         "lines": 7,
         "max_depth": 1,
         "parameters": 1,
@@ -4120,7 +4355,7 @@
       {
         "cyclomatic": 3,
         "file": "src/stdd/draw.py",
-        "line": 278,
+        "line": 298,
         "lines": 11,
         "max_depth": 1,
         "parameters": 1,
@@ -4131,7 +4366,7 @@
       {
         "cyclomatic": 3,
         "file": "src/stdd/draw.py",
-        "line": 291,
+        "line": 311,
         "lines": 10,
         "max_depth": 1,
         "parameters": 2,
@@ -4142,7 +4377,7 @@
       {
         "cyclomatic": 3,
         "file": "src/stdd/draw.py",
-        "line": 396,
+        "line": 416,
         "lines": 8,
         "max_depth": 1,
         "parameters": 2,
@@ -4153,7 +4388,7 @@
       {
         "cyclomatic": 3,
         "file": "src/stdd/draw.py",
-        "line": 406,
+        "line": 426,
         "lines": 10,
         "max_depth": 1,
         "parameters": 3,
@@ -4394,6 +4629,17 @@
       },
       {
         "cyclomatic": 3,
+        "file": "tests/test_draw.py",
+        "line": 434,
+        "lines": 13,
+        "max_depth": 0,
+        "parameters": 0,
+        "qualified_name": "tests.test_draw.test_draw_contract_warns_for_level3_and_level4_missing_code_refs",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_contract_warns_for_level3_and_level4_missing_code_refs"
+      },
+      {
+        "cyclomatic": 3,
         "file": "tests/test_multilanguage_static_analysis.py",
         "line": 30,
         "lines": 17,
@@ -4402,6 +4648,17 @@
         "qualified_name": "tests.test_multilanguage_static_analysis.test_static_dispatcher_reports_python_symbols_and_contract",
         "source": "python_ast",
         "symbol_id": "tests/test_multilanguage_static_analysis.py:tests.test_multilanguage_static_analysis.test_static_dispatcher_reports_python_symbols_and_contract"
+      },
+      {
+        "cyclomatic": 3,
+        "file": "tests/test_static_analysis.py",
+        "line": 196,
+        "lines": 28,
+        "max_depth": 0,
+        "parameters": 1,
+        "qualified_name": "tests.test_static_analysis.test_static_analysis_includes_draw_node_symbol_warnings",
+        "source": "python_ast",
+        "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_static_analysis_includes_draw_node_symbol_warnings"
       },
       {
         "cyclomatic": 3,
@@ -4494,7 +4751,7 @@
       {
         "cyclomatic": 31,
         "file": "src/stdd/draw.py",
-        "line": 881,
+        "line": 981,
         "lines": 200,
         "max_depth": 1,
         "parameters": 3,
@@ -4549,7 +4806,7 @@
       {
         "cyclomatic": 4,
         "file": "src/stdd/cli.py",
-        "line": 212,
+        "line": 222,
         "lines": 14,
         "max_depth": 1,
         "parameters": 0,
@@ -4560,7 +4817,7 @@
       {
         "cyclomatic": 4,
         "file": "src/stdd/cli.py",
-        "line": 275,
+        "line": 285,
         "lines": 20,
         "max_depth": 1,
         "parameters": 5,
@@ -4582,18 +4839,7 @@
       {
         "cyclomatic": 4,
         "file": "src/stdd/draw.py",
-        "line": 538,
-        "lines": 24,
-        "max_depth": 1,
-        "parameters": 2,
-        "qualified_name": "stdd.draw.analyze_draw_contract",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.analyze_draw_contract"
-      },
-      {
-        "cyclomatic": 4,
-        "file": "src/stdd/draw.py",
-        "line": 746,
+        "line": 846,
         "lines": 14,
         "max_depth": 1,
         "parameters": 1,
@@ -4768,6 +5014,17 @@
       },
       {
         "cyclomatic": 4,
+        "file": "tests/test_draw.py",
+        "line": 397,
+        "lines": 14,
+        "max_depth": 0,
+        "parameters": 0,
+        "qualified_name": "tests.test_draw.test_draw_contract_warns_for_empty_or_unnamed_node_symbols",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_contract_warns_for_empty_or_unnamed_node_symbols"
+      },
+      {
+        "cyclomatic": 4,
         "file": "tests/test_stdd.py",
         "line": 389,
         "lines": 11,
@@ -4790,17 +5047,6 @@
       },
       {
         "cyclomatic": 5,
-        "file": "src/stdd/cli.py",
-        "line": 169,
-        "lines": 40,
-        "max_depth": 1,
-        "parameters": 1,
-        "qualified_name": "stdd.cli.draw_create",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_create"
-      },
-      {
-        "cyclomatic": 5,
         "file": "src/stdd/core.py",
         "line": 471,
         "lines": 17,
@@ -4813,7 +5059,7 @@
       {
         "cyclomatic": 5,
         "file": "src/stdd/draw.py",
-        "line": 334,
+        "line": 354,
         "lines": 24,
         "max_depth": 0,
         "parameters": 1,
@@ -4824,13 +5070,24 @@
       {
         "cyclomatic": 5,
         "file": "src/stdd/draw.py",
-        "line": 436,
+        "line": 456,
         "lines": 24,
         "max_depth": 1,
         "parameters": 6,
         "qualified_name": "stdd.draw._analysis_warning",
         "source": "python_ast",
         "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_warning"
+      },
+      {
+        "cyclomatic": 5,
+        "file": "src/stdd/draw.py",
+        "line": 560,
+        "lines": 12,
+        "max_depth": 1,
+        "parameters": 1,
+        "qualified_name": "stdd.draw._extract_node_symbols",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._extract_node_symbols"
       },
       {
         "cyclomatic": 5,
@@ -4889,6 +5146,17 @@
       },
       {
         "cyclomatic": 5,
+        "file": "tests/test_draw.py",
+        "line": 413,
+        "lines": 19,
+        "max_depth": 0,
+        "parameters": 0,
+        "qualified_name": "tests.test_draw.test_draw_contract_warns_for_duplicate_node_symbols",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_contract_warns_for_duplicate_node_symbols"
+      },
+      {
+        "cyclomatic": 5,
         "file": "tests/test_stdd.py",
         "line": 454,
         "lines": 12,
@@ -4923,7 +5191,18 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/cli.py",
-        "line": 240,
+        "line": 169,
+        "lines": 41,
+        "max_depth": 1,
+        "parameters": 1,
+        "qualified_name": "stdd.cli.draw_create",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_create"
+      },
+      {
+        "cyclomatic": 6,
+        "file": "src/stdd/cli.py",
+        "line": 250,
         "lines": 32,
         "max_depth": 1,
         "parameters": 1,
@@ -4978,7 +5257,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/draw.py",
-        "line": 1046,
+        "line": 1146,
         "lines": 33,
         "max_depth": 1,
         "parameters": 1,
@@ -4989,7 +5268,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/draw.py",
-        "line": 365,
+        "line": 385,
         "lines": 18,
         "max_depth": 1,
         "parameters": 1,
@@ -5000,7 +5279,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/draw.py",
-        "line": 502,
+        "line": 522,
         "lines": 28,
         "max_depth": 1,
         "parameters": 2,
@@ -5011,7 +5290,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/draw.py",
-        "line": 564,
+        "line": 664,
         "lines": 16,
         "max_depth": 1,
         "parameters": 1,
@@ -5022,7 +5301,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/draw.py",
-        "line": 617,
+        "line": 717,
         "lines": 17,
         "max_depth": 0,
         "parameters": 4,
@@ -5033,7 +5312,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/draw.py",
-        "line": 703,
+        "line": 803,
         "lines": 23,
         "max_depth": 1,
         "parameters": 2,
@@ -5044,7 +5323,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/draw.py",
-        "line": 728,
+        "line": 828,
         "lines": 16,
         "max_depth": 1,
         "parameters": 1,
@@ -5055,7 +5334,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/draw.py",
-        "line": 858,
+        "line": 958,
         "lines": 21,
         "max_depth": 1,
         "parameters": 2,
@@ -5176,7 +5455,7 @@
       {
         "cyclomatic": 64,
         "file": "src/stdd/draw.py",
-        "line": 87,
+        "line": 107,
         "lines": 171,
         "max_depth": 1,
         "parameters": 1,
@@ -5253,7 +5532,7 @@
       {
         "cyclomatic": 7,
         "file": "src/stdd/draw.py",
-        "line": 481,
+        "line": 501,
         "lines": 19,
         "max_depth": 1,
         "parameters": 2,
@@ -5286,7 +5565,7 @@
       {
         "cyclomatic": 7,
         "file": "tests/test_draw.py",
-        "line": 680,
+        "line": 751,
         "lines": 13,
         "max_depth": 0,
         "parameters": 0,
@@ -5308,7 +5587,7 @@
       {
         "cyclomatic": 8,
         "file": "src/stdd/draw.py",
-        "line": 462,
+        "line": 482,
         "lines": 17,
         "max_depth": 1,
         "parameters": 2,
@@ -5319,7 +5598,7 @@
       {
         "cyclomatic": 8,
         "file": "src/stdd/draw.py",
-        "line": 50,
+        "line": 70,
         "lines": 16,
         "max_depth": 1,
         "parameters": 1,
@@ -5407,7 +5686,7 @@
       {
         "cyclomatic": 9,
         "file": "src/stdd/draw.py",
-        "line": 418,
+        "line": 438,
         "lines": 16,
         "max_depth": 1,
         "parameters": 1,
@@ -5418,7 +5697,7 @@
       {
         "cyclomatic": 9,
         "file": "src/stdd/draw.py",
-        "line": 762,
+        "line": 862,
         "lines": 32,
         "max_depth": 1,
         "parameters": 1,
@@ -5586,9 +5865,9 @@
       {
         "classes": 0,
         "file": "src/stdd/cli.py",
-        "functions": 11,
+        "functions": 12,
         "imports": 9,
-        "lines": 317,
+        "lines": 327,
         "source": "python_ast"
       },
       {
@@ -5666,9 +5945,9 @@
       {
         "classes": 0,
         "file": "tests/test_draw.py",
-        "functions": 42,
+        "functions": 46,
         "imports": 6,
-        "lines": 934,
+        "lines": 1005,
         "source": "python_ast"
       },
       {
@@ -5690,9 +5969,9 @@
       {
         "classes": 0,
         "file": "tests/test_static_analysis.py",
-        "functions": 17,
+        "functions": 18,
         "imports": 5,
-        "lines": 318,
+        "lines": 349,
         "source": "python_ast"
       },
       {
@@ -5714,9 +5993,9 @@
       {
         "classes": 1,
         "file": "src/stdd/draw.py",
-        "functions": 50,
+        "functions": 52,
         "imports": 13,
-        "lines": 1105,
+        "lines": 1205,
         "source": "python_ast"
       },
       {
@@ -5740,44 +6019,64 @@
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_init_rejects_file_as_project_directory"
       },
       {
-        "end_line": 1013,
+        "end_line": 1000,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 934,
-        "name": "do_GET",
-        "qualified_name": "stdd.draw.do_GET",
+        "line": 999,
+        "name": "log_message",
+        "qualified_name": "stdd.draw.log_message",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.do_GET"
+        "symbol_id": "src/stdd/draw.py:stdd.draw.log_message"
       },
       {
-        "end_line": 1024,
-        "file": "src/stdd/draw.py",
+        "end_line": 1005,
+        "file": "tests/test_draw.py",
         "kind": "function",
-        "line": 1015,
-        "name": "_allow_local_origin",
-        "qualified_name": "stdd.draw._allow_local_origin",
+        "line": 970,
+        "name": "test_draw_server_saves_edited_json_and_rejects_mismatched_id",
+        "qualified_name": "tests.test_draw.test_draw_server_saves_edited_json_and_rejects_mismatched_id",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._allow_local_origin"
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_server_saves_edited_json_and_rejects_mismatched_id"
       },
       {
-        "end_line": 1031,
+        "end_line": 1010,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 1026,
-        "name": "end_headers",
-        "qualified_name": "stdd.draw.end_headers",
+        "line": 1002,
+        "name": "_send_bytes",
+        "qualified_name": "stdd.draw._send_bytes",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.end_headers"
+        "symbol_id": "src/stdd/draw.py:stdd.draw._send_bytes"
       },
       {
-        "end_line": 1044,
+        "end_line": 1025,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 1033,
-        "name": "do_OPTIONS",
-        "qualified_name": "stdd.draw.do_OPTIONS",
+        "line": 1012,
+        "name": "_send_file",
+        "qualified_name": "stdd.draw._send_file",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.do_OPTIONS"
+        "symbol_id": "src/stdd/draw.py:stdd.draw._send_file"
+      },
+      {
+        "end_line": 1032,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 1027,
+        "name": "_send_json_error",
+        "qualified_name": "stdd.draw._send_json_error",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._send_json_error"
+      },
+      {
+        "end_line": 104,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 100,
+        "name": "draw_index_path",
+        "qualified_name": "stdd.draw.draw_index_path",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.draw_index_path"
       },
       {
         "end_line": 105,
@@ -5822,26 +6121,6 @@
         "symbol_id": "src/stdd/templates/adapters/js_ts_static_adapter.js:function:walk"
       },
       {
-        "end_line": 1078,
-        "file": "src/stdd/draw.py",
-        "kind": "class",
-        "line": 893,
-        "name": "ProjectHandler",
-        "qualified_name": "stdd.draw.ProjectHandler",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.ProjectHandler"
-      },
-      {
-        "end_line": 1078,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 1046,
-        "name": "do_PUT",
-        "qualified_name": "stdd.draw.do_PUT",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.do_PUT"
-      },
-      {
         "end_line": 108,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
@@ -5850,16 +6129,6 @@
         "qualified_name": "tests.test_draw_editor.test_loop_edges_use_distinct_lanes_when_returning_to_the_same_node",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_loop_edges_use_distinct_lanes_when_returning_to_the_same_node"
-      },
-      {
-        "end_line": 1080,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 881,
-        "name": "create_server",
-        "qualified_name": "stdd.draw.create_server",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.create_server"
       },
       {
         "end_line": 109,
@@ -5883,26 +6152,6 @@
         "symbol_id": "src/stdd/templates/adapters/js_ts_static_adapter.js:function:visitFile"
       },
       {
-        "end_line": 1095,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 1083,
-        "name": "serve_draw",
-        "qualified_name": "stdd.draw.serve_draw",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.serve_draw"
-      },
-      {
-        "end_line": 1105,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 1098,
-        "name": "start_server_for_test",
-        "qualified_name": "stdd.draw.start_server_for_test",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.start_server_for_test"
-      },
-      {
         "end_line": 111,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -5911,6 +6160,16 @@
         "qualified_name": "tests.test_draw.test_create_draw_preserves_optional_questions_and_answers",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_preserves_optional_questions_and_answers"
+      },
+      {
+        "end_line": 1113,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 1034,
+        "name": "do_GET",
+        "qualified_name": "stdd.draw.do_GET",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.do_GET"
       },
       {
         "end_line": 1115,
@@ -5934,6 +6193,26 @@
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_static_analysis_can_disable_marked_test_credential_exceptions"
       },
       {
+        "end_line": 1124,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 1115,
+        "name": "_allow_local_origin",
+        "qualified_name": "stdd.draw._allow_local_origin",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._allow_local_origin"
+      },
+      {
+        "end_line": 1131,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 1126,
+        "name": "end_headers",
+        "qualified_name": "stdd.draw.end_headers",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.end_headers"
+      },
+      {
         "end_line": 114,
         "file": "src/stdd/setup.py",
         "kind": "function",
@@ -5952,6 +6231,16 @@
         "qualified_name": "stdd.templates.adapters.static_adapter.py_adapter",
         "source": "python_ast",
         "symbol_id": "src/stdd/templates/adapters/static_adapter.py:stdd.templates.adapters.static_adapter.py_adapter"
+      },
+      {
+        "end_line": 1144,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 1133,
+        "name": "do_OPTIONS",
+        "qualified_name": "stdd.draw.do_OPTIONS",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.do_OPTIONS"
       },
       {
         "end_line": 116,
@@ -5975,6 +6264,46 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_same_level_back_edges_enter_from_the_bottom_when_the_lane_is_below"
       },
       {
+        "end_line": 1178,
+        "file": "src/stdd/draw.py",
+        "kind": "class",
+        "line": 993,
+        "name": "ProjectHandler",
+        "qualified_name": "stdd.draw.ProjectHandler",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.ProjectHandler"
+      },
+      {
+        "end_line": 1178,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 1146,
+        "name": "do_PUT",
+        "qualified_name": "stdd.draw.do_PUT",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.do_PUT"
+      },
+      {
+        "end_line": 1180,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 981,
+        "name": "create_server",
+        "qualified_name": "stdd.draw.create_server",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.create_server"
+      },
+      {
+        "end_line": 1195,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 1183,
+        "name": "serve_draw",
+        "qualified_name": "stdd.draw.serve_draw",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.serve_draw"
+      },
+      {
         "end_line": 120,
         "file": "src/stdd/static_analysis.py",
         "kind": "function",
@@ -5994,6 +6323,16 @@
         "signature": "function calls(node)",
         "source": "typescript_compiler_api",
         "symbol_id": "src/stdd/templates/adapters/js_ts_static_adapter.js:function:calls"
+      },
+      {
+        "end_line": 1205,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 1198,
+        "name": "start_server_for_test",
+        "qualified_name": "stdd.draw.start_server_for_test",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.start_server_for_test"
       },
       {
         "end_line": 121,
@@ -6645,7 +6984,7 @@
         "symbol_id": "src/stdd/setup.py:stdd.setup._matching_names"
       },
       {
-        "end_line": 208,
+        "end_line": 209,
         "file": "src/stdd/cli.py",
         "kind": "function",
         "line": 169,
@@ -6705,6 +7044,16 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_accepts_descriptive_draw_id_and_numeric_internal_ids"
       },
       {
+        "end_line": 217,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 213,
+        "name": "app_create",
+        "qualified_name": "stdd.cli.app_create",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.app_create"
+      },
+      {
         "end_line": 22,
         "file": "draw-editor/src/components/CustomNode.tsx",
         "kind": "function",
@@ -6736,16 +7085,6 @@
         "symbol_id": "src/stdd/setup.py:stdd.setup._package_manager_command"
       },
       {
-        "end_line": 221,
-        "file": "tests/test_static_analysis.py",
-        "kind": "function",
-        "line": 196,
-        "name": "test_static_analysis_writes_kpi_snapshot_next_to_adapter_directory",
-        "qualified_name": "tests.test_static_analysis.test_static_analysis_writes_kpi_snapshot_next_to_adapter_directory",
-        "source": "python_ast",
-        "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_static_analysis_writes_kpi_snapshot_next_to_adapter_directory"
-      },
-      {
         "end_line": 223,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
@@ -6756,14 +7095,14 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_does_not_update_local_index_for_an_unchanged_drawing"
       },
       {
-        "end_line": 225,
-        "file": "src/stdd/cli.py",
+        "end_line": 223,
+        "file": "tests/test_static_analysis.py",
         "kind": "function",
-        "line": 212,
-        "name": "draw_list",
-        "qualified_name": "stdd.cli.draw_list",
+        "line": 196,
+        "name": "test_static_analysis_includes_draw_node_symbol_warnings",
+        "qualified_name": "tests.test_static_analysis.test_static_analysis_includes_draw_node_symbol_warnings",
         "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_list"
+        "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_static_analysis_includes_draw_node_symbol_warnings"
       },
       {
         "end_line": 225,
@@ -6806,14 +7145,14 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_global_test_alias_continues_after_suite_failure"
       },
       {
-        "end_line": 236,
+        "end_line": 235,
         "file": "src/stdd/cli.py",
         "kind": "function",
-        "line": 229,
-        "name": "draw_questions",
-        "qualified_name": "stdd.cli.draw_questions",
+        "line": 222,
+        "name": "draw_list",
+        "qualified_name": "stdd.cli.draw_list",
         "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_questions"
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_list"
       },
       {
         "end_line": 236,
@@ -6836,16 +7175,6 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_retries_subdraw_in_backend_before_showing_local_storage_error"
       },
       {
-        "end_line": 238,
-        "file": "tests/test_static_analysis.py",
-        "kind": "function",
-        "line": 224,
-        "name": "test_secret_scanner_detects_env_value_copied_into_source_without_leaking_value",
-        "qualified_name": "tests.test_static_analysis.test_secret_scanner_detects_env_value_copied_into_source_without_leaking_value",
-        "source": "python_ast",
-        "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_secret_scanner_detects_env_value_copied_into_source_without_leaking_value"
-      },
-      {
         "end_line": 241,
         "file": "tests/test_stdd.py",
         "kind": "function",
@@ -6854,6 +7183,16 @@
         "qualified_name": "tests.test_stdd.test_agents_are_loaded_from_markdown_templates",
         "source": "python_ast",
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_agents_are_loaded_from_markdown_templates"
+      },
+      {
+        "end_line": 246,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 239,
+        "name": "draw_questions",
+        "qualified_name": "stdd.cli.draw_questions",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_questions"
       },
       {
         "end_line": 246,
@@ -6926,6 +7265,16 @@
         "symbol_id": "src/stdd/setup.py:stdd.setup._project_php_files"
       },
       {
+        "end_line": 252,
+        "file": "tests/test_static_analysis.py",
+        "kind": "function",
+        "line": 227,
+        "name": "test_static_analysis_writes_kpi_snapshot_next_to_adapter_directory",
+        "qualified_name": "tests.test_static_analysis.test_static_analysis_writes_kpi_snapshot_next_to_adapter_directory",
+        "source": "python_ast",
+        "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_static_analysis_writes_kpi_snapshot_next_to_adapter_directory"
+      },
+      {
         "end_line": 254,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
@@ -6955,26 +7304,6 @@
         "signature": "(visible) => !visible",
         "source": "typescript_compiler_api",
         "symbol_id": "draw-editor/src/components/FocusDetailModal.tsx:function:<anonymous>"
-      },
-      {
-        "end_line": 257,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 87,
-        "name": "validate_draw_payload",
-        "qualified_name": "stdd.draw.validate_draw_payload",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.validate_draw_payload"
-      },
-      {
-        "end_line": 259,
-        "file": "tests/test_static_analysis.py",
-        "kind": "function",
-        "line": 241,
-        "name": "test_secret_scanner_reports_env_key_without_code_reference",
-        "qualified_name": "tests.test_static_analysis.test_secret_scanner_reports_env_key_without_code_reference",
-        "source": "python_ast",
-        "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_secret_scanner_reports_env_key_without_code_reference"
       },
       {
         "end_line": 26,
@@ -7038,16 +7367,6 @@
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis._is_obvious_test_fixture"
       },
       {
-        "end_line": 266,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 260,
-        "name": "_analysis_text",
-        "qualified_name": "stdd.draw._analysis_text",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_text"
-      },
-      {
         "end_line": 267,
         "file": "src/stdd/setup.py",
         "kind": "function",
@@ -7089,6 +7408,16 @@
         "symbol_id": "src/stdd/core.py:stdd.core.ensure_gitignore"
       },
       {
+        "end_line": 269,
+        "file": "tests/test_static_analysis.py",
+        "kind": "function",
+        "line": 255,
+        "name": "test_secret_scanner_detects_env_value_copied_into_source_without_leaking_value",
+        "qualified_name": "tests.test_static_analysis.test_secret_scanner_detects_env_value_copied_into_source_without_leaking_value",
+        "source": "python_ast",
+        "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_secret_scanner_detects_env_value_copied_into_source_without_leaking_value"
+      },
+      {
         "end_line": 27,
         "file": "src/stdd/traceability.py",
         "kind": "function",
@@ -7107,16 +7436,6 @@
         "qualified_name": "tests.test_multilanguage_static_analysis.test_setup_discovers_nested_javascript_project",
         "source": "python_ast",
         "symbol_id": "tests/test_multilanguage_static_analysis.py:tests.test_multilanguage_static_analysis.test_setup_discovers_nested_javascript_project"
-      },
-      {
-        "end_line": 271,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 240,
-        "name": "draw_diff",
-        "qualified_name": "stdd.cli.draw_diff",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_diff"
       },
       {
         "end_line": 271,
@@ -7139,16 +7458,6 @@
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_draw_system_level_three_splits_complete_detailed_screen_flows_into_phases"
       },
       {
-        "end_line": 275,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 269,
-        "name": "_analysis_group_labels",
-        "qualified_name": "stdd.draw._analysis_group_labels",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_group_labels"
-      },
-      {
         "end_line": 277,
         "file": "src/stdd/core.py",
         "kind": "function",
@@ -7157,6 +7466,16 @@
         "qualified_name": "stdd.core.agent_templates",
         "source": "python_ast",
         "symbol_id": "src/stdd/core.py:stdd.core.agent_templates"
+      },
+      {
+        "end_line": 277,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 107,
+        "name": "validate_draw_payload",
+        "qualified_name": "stdd.draw.validate_draw_payload",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.validate_draw_payload"
       },
       {
         "end_line": 279,
@@ -7189,14 +7508,14 @@
         "symbol_id": "src/stdd/contract.py:stdd.contract.python_files"
       },
       {
-        "end_line": 280,
-        "file": "tests/test_static_analysis.py",
+        "end_line": 281,
+        "file": "src/stdd/cli.py",
         "kind": "function",
-        "line": 262,
-        "name": "test_expired_static_analysis_exception_blocks",
-        "qualified_name": "tests.test_static_analysis.test_expired_static_analysis_exception_blocks",
+        "line": 250,
+        "name": "draw_diff",
+        "qualified_name": "stdd.cli.draw_diff",
         "source": "python_ast",
-        "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_expired_static_analysis_exception_blocks"
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_diff"
       },
       {
         "end_line": 283,
@@ -7207,6 +7526,16 @@
         "qualified_name": "tests.test_draw.test_create_draw_requires_fixed_selectable_edge_conditions",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_requires_fixed_selectable_edge_conditions"
+      },
+      {
+        "end_line": 286,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 280,
+        "name": "_analysis_text",
+        "qualified_name": "stdd.draw._analysis_text",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_text"
       },
       {
         "end_line": 286,
@@ -7229,14 +7558,14 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_global_alias_can_explicitly_run_approved_suite"
       },
       {
-        "end_line": 288,
-        "file": "src/stdd/draw.py",
+        "end_line": 290,
+        "file": "tests/test_static_analysis.py",
         "kind": "function",
-        "line": 278,
-        "name": "_analysis_node_tokens",
-        "qualified_name": "stdd.draw._analysis_node_tokens",
+        "line": 272,
+        "name": "test_secret_scanner_reports_env_key_without_code_reference",
+        "qualified_name": "tests.test_static_analysis.test_secret_scanner_reports_env_key_without_code_reference",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_node_tokens"
+        "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_secret_scanner_reports_env_key_without_code_reference"
       },
       {
         "end_line": 291,
@@ -7289,24 +7618,14 @@
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis._is_safe_environment_value"
       },
       {
-        "end_line": 294,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 275,
-        "name": "draw_associate_reference",
-        "qualified_name": "stdd.cli.draw_associate_reference",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_associate_reference"
-      },
-      {
         "end_line": 295,
-        "file": "tests/test_static_analysis.py",
+        "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 283,
-        "name": "test_static_analysis_rejects_invalid_exception_policy",
-        "qualified_name": "tests.test_static_analysis.test_static_analysis_rejects_invalid_exception_policy",
+        "line": 289,
+        "name": "_analysis_group_labels",
+        "qualified_name": "stdd.draw._analysis_group_labels",
         "source": "python_ast",
-        "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_static_analysis_rejects_invalid_exception_policy"
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_group_labels"
       },
       {
         "end_line": 299,
@@ -7350,16 +7669,6 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_test_command_returns_execution_report"
       },
       {
-        "end_line": 300,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 291,
-        "name": "_analysis_edge_tokens",
-        "qualified_name": "stdd.draw._analysis_edge_tokens",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_edge_tokens"
-      },
-      {
         "end_line": 302,
         "file": "src/stdd/setup.py",
         "kind": "function",
@@ -7380,14 +7689,24 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_space_creates_an_instant_block_without_interrupting_text_fields"
       },
       {
-        "end_line": 308,
+        "end_line": 304,
         "file": "src/stdd/cli.py",
         "kind": "function",
-        "line": 298,
-        "name": "draw_serve",
-        "qualified_name": "stdd.cli.draw_serve",
+        "line": 285,
+        "name": "draw_associate_reference",
+        "qualified_name": "stdd.cli.draw_associate_reference",
         "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_serve"
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_associate_reference"
+      },
+      {
+        "end_line": 308,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 298,
+        "name": "_analysis_node_tokens",
+        "qualified_name": "stdd.draw._analysis_node_tokens",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_node_tokens"
       },
       {
         "end_line": 309,
@@ -7430,6 +7749,16 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.draw_payload"
       },
       {
+        "end_line": 311,
+        "file": "tests/test_static_analysis.py",
+        "kind": "function",
+        "line": 293,
+        "name": "test_expired_static_analysis_exception_blocks",
+        "qualified_name": "tests.test_static_analysis.test_expired_static_analysis_exception_blocks",
+        "source": "python_ast",
+        "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_expired_static_analysis_exception_blocks"
+      },
+      {
         "end_line": 312,
         "file": "src/stdd/core.py",
         "kind": "function",
@@ -7461,13 +7790,13 @@
       },
       {
         "end_line": 318,
-        "file": "tests/test_static_analysis.py",
+        "file": "src/stdd/cli.py",
         "kind": "function",
-        "line": 298,
-        "name": "test_static_analysis_exceptions_do_not_release_hardcoded_secrets",
-        "qualified_name": "tests.test_static_analysis.test_static_analysis_exceptions_do_not_release_hardcoded_secrets",
+        "line": 308,
+        "name": "draw_serve",
+        "qualified_name": "stdd.cli.draw_serve",
         "source": "python_ast",
-        "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_static_analysis_exceptions_do_not_release_hardcoded_secrets"
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_serve"
       },
       {
         "end_line": 319,
@@ -7511,6 +7840,16 @@
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_secret_scanner_detects_hardcoded_password_without_leaking_value"
       },
       {
+        "end_line": 320,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 311,
+        "name": "_analysis_edge_tokens",
+        "qualified_name": "stdd.draw._analysis_edge_tokens",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_edge_tokens"
+      },
+      {
         "end_line": 321,
         "file": "src/stdd/setup.py",
         "kind": "function",
@@ -7541,6 +7880,16 @@
         "symbol_id": "src/stdd/setup.py:stdd.setup._python_executable"
       },
       {
+        "end_line": 326,
+        "file": "tests/test_static_analysis.py",
+        "kind": "function",
+        "line": 314,
+        "name": "test_static_analysis_rejects_invalid_exception_policy",
+        "qualified_name": "tests.test_static_analysis.test_static_analysis_rejects_invalid_exception_policy",
+        "source": "python_ast",
+        "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_static_analysis_rejects_invalid_exception_policy"
+      },
+      {
         "end_line": 327,
         "file": "src/stdd/static_analysis.py",
         "kind": "function",
@@ -7569,16 +7918,6 @@
         "qualified_name": "tests.test_cli.test_test_reports_static_analysis_unavailable_without_adapter",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_test_reports_static_analysis_unavailable_without_adapter"
-      },
-      {
-        "end_line": 331,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 303,
-        "name": "_analysis_flow_signature",
-        "qualified_name": "stdd.draw._analysis_flow_signature",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_flow_signature"
       },
       {
         "end_line": 332,
@@ -7651,6 +7990,26 @@
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis._validate_exception"
       },
       {
+        "end_line": 349,
+        "file": "tests/test_static_analysis.py",
+        "kind": "function",
+        "line": 329,
+        "name": "test_static_analysis_exceptions_do_not_release_hardcoded_secrets",
+        "qualified_name": "tests.test_static_analysis.test_static_analysis_exceptions_do_not_release_hardcoded_secrets",
+        "source": "python_ast",
+        "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_static_analysis_exceptions_do_not_release_hardcoded_secrets"
+      },
+      {
+        "end_line": 351,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 323,
+        "name": "_analysis_flow_signature",
+        "qualified_name": "stdd.draw._analysis_flow_signature",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_flow_signature"
+      },
+      {
         "end_line": 351,
         "file": "tests/test_stdd.py",
         "kind": "function",
@@ -7682,16 +8041,6 @@
         "symbol_id": "draw-editor/src/layout.ts:function:layoutGraph"
       },
       {
-        "end_line": 357,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 334,
-        "name": "_analysis_draw_signature",
-        "qualified_name": "stdd.draw._analysis_draw_signature",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_draw_signature"
-      },
-      {
         "end_line": 361,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -7700,16 +8049,6 @@
         "qualified_name": "tests.test_draw.test_draw_create_warns_for_duplicate_structure_against_existing_draw",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_create_warns_for_duplicate_structure_against_existing_draw"
-      },
-      {
-        "end_line": 362,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 360,
-        "name": "_analysis_fingerprint",
-        "qualified_name": "stdd.draw._analysis_fingerprint",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_fingerprint"
       },
       {
         "end_line": 364,
@@ -7783,6 +8122,16 @@
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_draw_answer_owns_question_discovery_and_codebase_traceability"
       },
       {
+        "end_line": 377,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 354,
+        "name": "_analysis_draw_signature",
+        "qualified_name": "stdd.draw._analysis_draw_signature",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_draw_signature"
+      },
+      {
         "end_line": 378,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -7796,11 +8145,11 @@
         "end_line": 382,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 365,
-        "name": "_analysis_documents",
-        "qualified_name": "stdd.draw._analysis_documents",
+        "line": 380,
+        "name": "_analysis_fingerprint",
+        "qualified_name": "stdd.draw._analysis_fingerprint",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_documents"
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_fingerprint"
       },
       {
         "end_line": 382,
@@ -7841,16 +8190,6 @@
         "qualified_name": "tests.test_draw_editor.test_drawings_sidebar_keeps_all_flows_and_groups_them_by_level",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_drawings_sidebar_keeps_all_flows_and_groups_them_by_level"
-      },
-      {
-        "end_line": 393,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 385,
-        "name": "_analysis_entity",
-        "qualified_name": "stdd.draw._analysis_entity",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_entity"
       },
       {
         "end_line": 394,
@@ -7894,16 +8233,6 @@
       },
       {
         "end_line": 40,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 36,
-        "name": "_is_numeric_id",
-        "qualified_name": "stdd.draw._is_numeric_id",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._is_numeric_id"
-      },
-      {
-        "end_line": 40,
         "file": "tests/test_stdd.py",
         "kind": "function",
         "line": 13,
@@ -7913,14 +8242,14 @@
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_init_is_idempotent_and_installs_codex_agents"
       },
       {
-        "end_line": 403,
+        "end_line": 402,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 396,
-        "name": "_analysis_entities",
-        "qualified_name": "stdd.draw._analysis_entities",
+        "line": 385,
+        "name": "_analysis_documents",
+        "qualified_name": "stdd.draw._analysis_documents",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_entities"
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_documents"
       },
       {
         "end_line": 403,
@@ -7953,14 +8282,24 @@
         "symbol_id": "tests/test_traceability.py:tests.test_traceability.test_refresh_traceability_ignores_macos_appledouble_files"
       },
       {
-        "end_line": 415,
+        "end_line": 410,
+        "file": "tests/test_draw.py",
+        "kind": "function",
+        "line": 397,
+        "name": "test_draw_contract_warns_for_empty_or_unnamed_node_symbols",
+        "qualified_name": "tests.test_draw.test_draw_contract_warns_for_empty_or_unnamed_node_symbols",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_contract_warns_for_empty_or_unnamed_node_symbols"
+      },
+      {
+        "end_line": 413,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 406,
-        "name": "_analysis_subflow_entities",
-        "qualified_name": "stdd.draw._analysis_subflow_entities",
+        "line": 405,
+        "name": "_analysis_entity",
+        "qualified_name": "stdd.draw._analysis_entity",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_subflow_entities"
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_entity"
       },
       {
         "end_line": 415,
@@ -7995,6 +8334,16 @@
       },
       {
         "end_line": 423,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 416,
+        "name": "_analysis_entities",
+        "qualified_name": "stdd.draw._analysis_entities",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_entities"
+      },
+      {
+        "end_line": 423,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
         "line": 397,
@@ -8012,16 +8361,6 @@
         "qualified_name": "tests.test_cli.test_test_blocks_blocking_long_function_quality_finding",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_test_blocks_blocking_long_function_quality_finding"
-      },
-      {
-        "end_line": 427,
-        "file": "tests/test_draw.py",
-        "kind": "function",
-        "line": 397,
-        "name": "test_draw_create_reports_level_two_code_ref_warning_without_blocking",
-        "qualified_name": "tests.test_draw.test_draw_create_reports_level_two_code_ref_warning_without_blocking",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_create_reports_level_two_code_ref_warning_without_blocking"
       },
       {
         "end_line": 429,
@@ -8044,14 +8383,24 @@
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_traceability_skills_cover_rpc_and_sql_implementations"
       },
       {
-        "end_line": 433,
+        "end_line": 431,
+        "file": "tests/test_draw.py",
+        "kind": "function",
+        "line": 413,
+        "name": "test_draw_contract_warns_for_duplicate_node_symbols",
+        "qualified_name": "tests.test_draw.test_draw_contract_warns_for_duplicate_node_symbols",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_contract_warns_for_duplicate_node_symbols"
+      },
+      {
+        "end_line": 435,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 418,
-        "name": "_analysis_isolated_nodes",
-        "qualified_name": "stdd.draw._analysis_isolated_nodes",
+        "line": 426,
+        "name": "_analysis_subflow_entities",
+        "qualified_name": "stdd.draw._analysis_subflow_entities",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_isolated_nodes"
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_subflow_entities"
       },
       {
         "end_line": 437,
@@ -8072,16 +8421,6 @@
         "qualified_name": "tests.test_stdd.test_setup_reports_missing_system_draw_without_creating_it",
         "source": "python_ast",
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_setup_reports_missing_system_draw_without_creating_it"
-      },
-      {
-        "end_line": 439,
-        "file": "tests/test_draw.py",
-        "kind": "function",
-        "line": 430,
-        "name": "test_create_draw_accepts_subdraw_reference_and_counts_it",
-        "qualified_name": "tests.test_draw.test_create_draw_accepts_subdraw_reference_and_counts_it",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_accepts_subdraw_reference_and_counts_it"
       },
       {
         "end_line": 442,
@@ -8115,6 +8454,16 @@
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis._expired_exception_finding"
       },
       {
+        "end_line": 446,
+        "file": "tests/test_draw.py",
+        "kind": "function",
+        "line": 434,
+        "name": "test_draw_contract_warns_for_level3_and_level4_missing_code_refs",
+        "qualified_name": "tests.test_draw.test_draw_contract_warns_for_level3_and_level4_missing_code_refs",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_contract_warns_for_level3_and_level4_missing_code_refs"
+      },
+      {
         "end_line": 447,
         "file": "src/stdd/core.py",
         "kind": "function",
@@ -8145,6 +8494,16 @@
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_agent_skills_are_self_contained_and_do_not_reference_internal_plan"
       },
       {
+        "end_line": 453,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 438,
+        "name": "_analysis_isolated_nodes",
+        "qualified_name": "stdd.draw._analysis_isolated_nodes",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_isolated_nodes"
+      },
+      {
         "end_line": 456,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
@@ -8153,16 +8512,6 @@
         "qualified_name": "tests.test_draw_editor.test_double_click_changes_group_and_canvas_click_exits_editing",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_double_click_changes_group_and_canvas_click_exits_editing"
-      },
-      {
-        "end_line": 459,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 436,
-        "name": "_analysis_warning",
-        "qualified_name": "stdd.draw._analysis_warning",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_warning"
       },
       {
         "end_line": 459,
@@ -8217,16 +8566,6 @@
       },
       {
         "end_line": 465,
-        "file": "tests/test_draw.py",
-        "kind": "function",
-        "line": 442,
-        "name": "test_draw_server_rejects_legacy_edge_keys_before_starting",
-        "qualified_name": "tests.test_draw.test_draw_server_rejects_legacy_edge_keys_before_starting",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_server_rejects_legacy_edge_keys_before_starting"
-      },
-      {
-        "end_line": 465,
         "file": "tests/test_stdd.py",
         "kind": "function",
         "line": 454,
@@ -8244,16 +8583,6 @@
         "qualified_name": "stdd.core.get_workspace_snapshot",
         "source": "python_ast",
         "symbol_id": "src/stdd/core.py:stdd.core.get_workspace_snapshot"
-      },
-      {
-        "end_line": 47,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 43,
-        "name": "_is_draw_id",
-        "qualified_name": "stdd.draw._is_draw_id",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._is_draw_id"
       },
       {
         "end_line": 47,
@@ -8287,16 +8616,6 @@
       },
       {
         "end_line": 478,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 462,
-        "name": "_analysis_entity_pairs",
-        "qualified_name": "stdd.draw._analysis_entity_pairs",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_entity_pairs"
-      },
-      {
-        "end_line": 478,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
         "line": 473,
@@ -8304,6 +8623,26 @@
         "qualified_name": "tests.test_draw_editor.test_runs_are_filtered_to_current_day",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_runs_are_filtered_to_current_day"
+      },
+      {
+        "end_line": 479,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 456,
+        "name": "_analysis_warning",
+        "qualified_name": "stdd.draw._analysis_warning",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_warning"
+      },
+      {
+        "end_line": 480,
+        "file": "tests/test_draw.py",
+        "kind": "function",
+        "line": 450,
+        "name": "test_draw_create_reports_level_two_code_ref_warning_without_blocking",
+        "qualified_name": "tests.test_draw.test_draw_create_reports_level_two_code_ref_warning_without_blocking",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_create_reports_level_two_code_ref_warning_without_blocking"
       },
       {
         "end_line": 481,
@@ -8327,16 +8666,6 @@
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_readme_documents_remote_install_and_interactive_integrations"
       },
       {
-        "end_line": 484,
-        "file": "tests/test_draw.py",
-        "kind": "function",
-        "line": 468,
-        "name": "test_draw_server_rejects_index_reference_to_missing_draw",
-        "qualified_name": "tests.test_draw.test_draw_server_rejects_index_reference_to_missing_draw",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_server_rejects_index_reference_to_missing_draw"
-      },
-      {
         "end_line": 487,
         "file": "src/stdd/core.py",
         "kind": "function",
@@ -8355,6 +8684,16 @@
         "qualified_name": "tests.test_cli.test_log_command_creates_incremental_summary_and_snapshot_in_date_subfolder",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_command_creates_incremental_summary_and_snapshot_in_date_subfolder"
+      },
+      {
+        "end_line": 492,
+        "file": "tests/test_draw.py",
+        "kind": "function",
+        "line": 483,
+        "name": "test_create_draw_accepts_subdraw_reference_and_counts_it",
+        "qualified_name": "tests.test_draw.test_create_draw_accepts_subdraw_reference_and_counts_it",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_accepts_subdraw_reference_and_counts_it"
       },
       {
         "end_line": 492,
@@ -8377,14 +8716,14 @@
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis.apply_static_analysis_policy"
       },
       {
-        "end_line": 499,
+        "end_line": 498,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 481,
-        "name": "_analysis_compare_entities",
-        "qualified_name": "stdd.draw._analysis_compare_entities",
+        "line": 482,
+        "name": "_analysis_entity_pairs",
+        "qualified_name": "stdd.draw._analysis_entity_pairs",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_compare_entities"
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_entity_pairs"
       },
       {
         "end_line": 50,
@@ -8437,16 +8776,6 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_ignores_invalid_utf8_appledouble_snapshot"
       },
       {
-        "end_line": 506,
-        "file": "tests/test_draw.py",
-        "kind": "function",
-        "line": 487,
-        "name": "test_draw_cli_reports_invalid_workspace_before_starting_viewer",
-        "qualified_name": "tests.test_draw.test_draw_cli_reports_invalid_workspace_before_starting_viewer",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_cli_reports_invalid_workspace_before_starting_viewer"
-      },
-      {
         "end_line": 51,
         "file": "src/stdd/models.py",
         "kind": "class",
@@ -8477,6 +8806,26 @@
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_setup_skill_defines_global_alias_and_database_lifecycle"
       },
       {
+        "end_line": 518,
+        "file": "tests/test_draw.py",
+        "kind": "function",
+        "line": 495,
+        "name": "test_draw_server_rejects_legacy_edge_keys_before_starting",
+        "qualified_name": "tests.test_draw.test_draw_server_rejects_legacy_edge_keys_before_starting",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_server_rejects_legacy_edge_keys_before_starting"
+      },
+      {
+        "end_line": 519,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 501,
+        "name": "_analysis_compare_entities",
+        "qualified_name": "stdd.draw._analysis_compare_entities",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_compare_entities"
+      },
+      {
         "end_line": 523,
         "file": "tests/test_cli.py",
         "kind": "function",
@@ -8495,16 +8844,6 @@
         "qualified_name": "tests.test_stdd.test_agent_skills_require_approval_for_expensive_or_mutating_setup",
         "source": "python_ast",
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_agent_skills_require_approval_for_expensive_or_mutating_setup"
-      },
-      {
-        "end_line": 529,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 502,
-        "name": "analyze_draw_structure",
-        "qualified_name": "stdd.draw.analyze_draw_structure",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.analyze_draw_structure"
       },
       {
         "end_line": 53,
@@ -8528,16 +8867,6 @@
       },
       {
         "end_line": 535,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 532,
-        "name": "_has_code_reference",
-        "qualified_name": "stdd.draw._has_code_reference",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._has_code_reference"
-      },
-      {
-        "end_line": 535,
         "file": "tests/test_stdd.py",
         "kind": "function",
         "line": 526,
@@ -8545,6 +8874,16 @@
         "qualified_name": "tests.test_stdd.test_init_does_not_create_feature_or_implementation_commands",
         "source": "python_ast",
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_init_does_not_create_feature_or_implementation_commands"
+      },
+      {
+        "end_line": 537,
+        "file": "tests/test_draw.py",
+        "kind": "function",
+        "line": 521,
+        "name": "test_draw_server_rejects_index_reference_to_missing_draw",
+        "qualified_name": "tests.test_draw.test_draw_server_rejects_index_reference_to_missing_draw",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_server_rejects_index_reference_to_missing_draw"
       },
       {
         "end_line": 544,
@@ -8567,6 +8906,16 @@
         "symbol_id": "src/stdd/core.py:stdd.core.get_incremental_draw_diff"
       },
       {
+        "end_line": 549,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 522,
+        "name": "analyze_draw_structure",
+        "qualified_name": "stdd.draw.analyze_draw_structure",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.analyze_draw_structure"
+      },
+      {
         "end_line": 55,
         "file": "src/stdd/templates/adapters/static_adapter.py",
         "kind": "function",
@@ -8575,16 +8924,6 @@
         "qualified_name": "stdd.templates.adapters.static_adapter.severity",
         "source": "python_ast",
         "symbol_id": "src/stdd/templates/adapters/static_adapter.py:stdd.templates.adapters.static_adapter.severity"
-      },
-      {
-        "end_line": 551,
-        "file": "tests/test_draw.py",
-        "kind": "function",
-        "line": 509,
-        "name": "test_create_draw_enforces_hierarchical_parent_and_child_link",
-        "qualified_name": "tests.test_draw.test_create_draw_enforces_hierarchical_parent_and_child_link",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_enforces_hierarchical_parent_and_child_link"
       },
       {
         "end_line": 551,
@@ -8607,24 +8946,24 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_accumulates_runs_in_one_summary_and_snapshot_per_day"
       },
       {
-        "end_line": 561,
+        "end_line": 557,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 538,
-        "name": "analyze_draw_contract",
-        "qualified_name": "stdd.draw.analyze_draw_contract",
+        "line": 552,
+        "name": "_is_empty_or_unnamed_symbol",
+        "qualified_name": "stdd.draw._is_empty_or_unnamed_symbol",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.analyze_draw_contract"
+        "symbol_id": "src/stdd/draw.py:stdd.draw._is_empty_or_unnamed_symbol"
       },
       {
-        "end_line": 566,
+        "end_line": 559,
         "file": "tests/test_draw.py",
         "kind": "function",
-        "line": 554,
-        "name": "test_create_draw_rejects_unsafe_subdraw_reference",
-        "qualified_name": "tests.test_draw.test_create_draw_rejects_unsafe_subdraw_reference",
+        "line": 540,
+        "name": "test_draw_cli_reports_invalid_workspace_before_starting_viewer",
+        "qualified_name": "tests.test_draw.test_draw_cli_reports_invalid_workspace_before_starting_viewer",
         "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_rejects_unsafe_subdraw_reference"
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_cli_reports_invalid_workspace_before_starting_viewer"
       },
       {
         "end_line": 57,
@@ -8637,14 +8976,24 @@
         "symbol_id": "src/stdd/contract.py:stdd.contract.check_python_function_descriptions"
       },
       {
-        "end_line": 579,
+        "end_line": 571,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 564,
-        "name": "scan_draw_contracts",
-        "qualified_name": "stdd.draw.scan_draw_contracts",
+        "line": 560,
+        "name": "_extract_node_symbols",
+        "qualified_name": "stdd.draw._extract_node_symbols",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.scan_draw_contracts"
+        "symbol_id": "src/stdd/draw.py:stdd.draw._extract_node_symbols"
+      },
+      {
+        "end_line": 576,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 574,
+        "name": "_has_code_reference",
+        "qualified_name": "stdd.draw._has_code_reference",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._has_code_reference"
       },
       {
         "end_line": 58,
@@ -8701,16 +9050,6 @@
         "symbol_id": "draw-editor/src/layout.ts:function:layoutCurvedGraph"
       },
       {
-        "end_line": 583,
-        "file": "tests/test_draw.py",
-        "kind": "function",
-        "line": 569,
-        "name": "test_draw_cli_accepts_inline_json_and_updates_existing_draw",
-        "qualified_name": "tests.test_draw.test_draw_cli_accepts_inline_json_and_updates_existing_draw",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_cli_accepts_inline_json_and_updates_existing_draw"
-      },
-      {
         "end_line": 59,
         "file": "src/stdd/templates/adapters/js_ts_static_adapter.js",
         "kind": "function",
@@ -8740,6 +9079,16 @@
         "qualified_name": "tests.test_cli.test_init_interactive_selects_multiple_agent_integrations",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_init_interactive_selects_multiple_agent_integrations"
+      },
+      {
+        "end_line": 60,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 56,
+        "name": "_is_numeric_id",
+        "qualified_name": "stdd.draw._is_numeric_id",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._is_numeric_id"
       },
       {
         "end_line": 60,
@@ -8783,16 +9132,6 @@
         "symbol_id": "src/stdd/core.py:stdd.core.get_incremental_diff_stats"
       },
       {
-        "end_line": 603,
-        "file": "tests/test_draw.py",
-        "kind": "function",
-        "line": 586,
-        "name": "test_draw_html_fetches_index_and_only_selected_json",
-        "qualified_name": "tests.test_draw.test_draw_html_fetches_index_and_only_selected_json",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_fetches_index_and_only_selected_json"
-      },
-      {
         "end_line": 604,
         "file": "tests/test_cli.py",
         "kind": "function",
@@ -8801,6 +9140,16 @@
         "qualified_name": "tests.test_cli.test_log_marks_large_incremental_change_as_refactor",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_marks_large_incremental_change_as_refactor"
+      },
+      {
+        "end_line": 604,
+        "file": "tests/test_draw.py",
+        "kind": "function",
+        "line": 562,
+        "name": "test_create_draw_enforces_hierarchical_parent_and_child_link",
+        "qualified_name": "tests.test_draw.test_create_draw_enforces_hierarchical_parent_and_child_link",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_enforces_hierarchical_parent_and_child_link"
       },
       {
         "end_line": 61,
@@ -8834,16 +9183,6 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_does_not_classify_medium_replacement_as_refactor"
       },
       {
-        "end_line": 614,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 582,
-        "name": "validate_hierarchy_parent",
-        "qualified_name": "stdd.draw.validate_hierarchy_parent",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.validate_hierarchy_parent"
-      },
-      {
         "end_line": 618,
         "file": "src/stdd/static_analysis.py",
         "kind": "function",
@@ -8852,6 +9191,16 @@
         "qualified_name": "stdd.static_analysis.run_static_analysis",
         "source": "python_ast",
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis.run_static_analysis"
+      },
+      {
+        "end_line": 619,
+        "file": "tests/test_draw.py",
+        "kind": "function",
+        "line": 607,
+        "name": "test_create_draw_rejects_unsafe_subdraw_reference",
+        "qualified_name": "tests.test_draw.test_create_draw_rejects_unsafe_subdraw_reference",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_rejects_unsafe_subdraw_reference"
       },
       {
         "end_line": 62,
@@ -8948,26 +9297,6 @@
         "symbol_id": "src/stdd/core.py:stdd.core.get_previous_workspace_snapshot"
       },
       {
-        "end_line": 632,
-        "file": "tests/test_draw.py",
-        "kind": "function",
-        "line": 606,
-        "name": "test_draw_html_uses_react_flow_at_the_renderer_boundary",
-        "qualified_name": "tests.test_draw.test_draw_html_uses_react_flow_at_the_renderer_boundary",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_uses_react_flow_at_the_renderer_boundary"
-      },
-      {
-        "end_line": 633,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 617,
-        "name": "_validate_index_metadata",
-        "qualified_name": "stdd.draw._validate_index_metadata",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._validate_index_metadata"
-      },
-      {
         "end_line": 635,
         "file": "tests/test_cli.py",
         "kind": "function",
@@ -8976,6 +9305,16 @@
         "qualified_name": "tests.test_cli.test_log_command_respects_custom_tracked_extensions",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_command_respects_custom_tracked_extensions"
+      },
+      {
+        "end_line": 636,
+        "file": "tests/test_draw.py",
+        "kind": "function",
+        "line": 622,
+        "name": "test_draw_cli_accepts_inline_json_and_updates_existing_draw",
+        "qualified_name": "tests.test_draw.test_draw_cli_accepts_inline_json_and_updates_existing_draw",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_cli_accepts_inline_json_and_updates_existing_draw"
       },
       {
         "end_line": 64,
@@ -8999,16 +9338,6 @@
         "symbol_id": "src/stdd/cli.py:stdd.cli.init"
       },
       {
-        "end_line": 65,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 50,
-        "name": "logical_draw_payload",
-        "qualified_name": "stdd.draw.logical_draw_payload",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.logical_draw_payload"
-      },
-      {
         "end_line": 652,
         "file": "src/stdd/core.py",
         "kind": "function",
@@ -9019,24 +9348,24 @@
         "symbol_id": "src/stdd/core.py:stdd.core.get_previous_draw_snapshot"
       },
       {
-        "end_line": 663,
+        "end_line": 653,
         "file": "tests/test_draw.py",
         "kind": "function",
-        "line": 635,
-        "name": "test_draw_html_supports_direct_editing_reorganization_and_condition_visuals",
-        "qualified_name": "tests.test_draw.test_draw_html_supports_direct_editing_reorganization_and_condition_visuals",
+        "line": 639,
+        "name": "test_stdd_create_top_level_command_creates_draw_and_reports_symbol_warnings",
+        "qualified_name": "tests.test_draw.test_stdd_create_top_level_command_creates_draw_and_reports_symbol_warnings",
         "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_supports_direct_editing_reorganization_and_condition_visuals"
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_stdd_create_top_level_command_creates_draw_and_reports_symbol_warnings"
       },
       {
-        "end_line": 664,
+        "end_line": 660,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 636,
-        "name": "_load_indexed_draw",
-        "qualified_name": "stdd.draw._load_indexed_draw",
+        "line": 579,
+        "name": "analyze_draw_contract",
+        "qualified_name": "stdd.draw.analyze_draw_contract",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._load_indexed_draw"
+        "symbol_id": "src/stdd/draw.py:stdd.draw.analyze_draw_contract"
       },
       {
         "end_line": 667,
@@ -9059,14 +9388,34 @@
         "symbol_id": "src/stdd/core.py:stdd.core.get_tracked_extensions"
       },
       {
-        "end_line": 677,
+        "end_line": 67,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 63,
+        "name": "_is_draw_id",
+        "qualified_name": "stdd.draw._is_draw_id",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._is_draw_id"
+      },
+      {
+        "end_line": 674,
         "file": "tests/test_draw.py",
         "kind": "function",
-        "line": 666,
-        "name": "test_draw_html_puts_condition_before_edge_message_and_reserves_label_space",
-        "qualified_name": "tests.test_draw.test_draw_html_puts_condition_before_edge_message_and_reserves_label_space",
+        "line": 657,
+        "name": "test_draw_html_fetches_index_and_only_selected_json",
+        "qualified_name": "tests.test_draw.test_draw_html_fetches_index_and_only_selected_json",
         "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_puts_condition_before_edge_message_and_reserves_label_space"
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_fetches_index_and_only_selected_json"
+      },
+      {
+        "end_line": 679,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 664,
+        "name": "scan_draw_contracts",
+        "qualified_name": "stdd.draw.scan_draw_contracts",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.scan_draw_contracts"
       },
       {
         "end_line": 683,
@@ -9099,26 +9448,6 @@
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis.write_static_analysis_kpis"
       },
       {
-        "end_line": 692,
-        "file": "tests/test_draw.py",
-        "kind": "function",
-        "line": 680,
-        "name": "test_demo_draw_contains_answered_questions_and_all_conditions",
-        "qualified_name": "tests.test_draw.test_demo_draw_contains_answered_questions_and_all_conditions",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_demo_draw_contains_answered_questions_and_all_conditions"
-      },
-      {
-        "end_line": 700,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 667,
-        "name": "validate_draw_workspace",
-        "qualified_name": "stdd.draw.validate_draw_workspace",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.validate_draw_workspace"
-      },
-      {
         "end_line": 701,
         "file": "tests/test_cli.py",
         "kind": "function",
@@ -9127,6 +9456,16 @@
         "qualified_name": "tests.test_cli.test_log_snapshot_includes_diffs_for_created_and_deleted_files",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_snapshot_includes_diffs_for_created_and_deleted_files"
+      },
+      {
+        "end_line": 703,
+        "file": "tests/test_draw.py",
+        "kind": "function",
+        "line": 677,
+        "name": "test_draw_html_uses_react_flow_at_the_renderer_boundary",
+        "qualified_name": "tests.test_draw.test_draw_html_uses_react_flow_at_the_renderer_boundary",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_uses_react_flow_at_the_renderer_boundary"
       },
       {
         "end_line": 71,
@@ -9149,14 +9488,14 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_command_requires_at_least_one_work_type"
       },
       {
-        "end_line": 72,
+        "end_line": 714,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 68,
-        "name": "draw_directory",
-        "qualified_name": "stdd.draw.draw_directory",
+        "line": 682,
+        "name": "validate_hierarchy_parent",
+        "qualified_name": "stdd.draw.validate_hierarchy_parent",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.draw_directory"
+        "symbol_id": "src/stdd/draw.py:stdd.draw.validate_hierarchy_parent"
       },
       {
         "end_line": 724,
@@ -9169,16 +9508,6 @@
         "symbol_id": "src/stdd/core.py:stdd.core.record_run_entry"
       },
       {
-        "end_line": 725,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 703,
-        "name": "ensure_draw_workspace",
-        "qualified_name": "stdd.draw.ensure_draw_workspace",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.ensure_draw_workspace"
-      },
-      {
         "end_line": 73,
         "file": "tests/test_cli.py",
         "kind": "function",
@@ -9187,6 +9516,26 @@
         "qualified_name": "tests.test_cli.test_init_interactive_does_not_ask_frontend_analysis_policy",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_init_interactive_does_not_ask_frontend_analysis_policy"
+      },
+      {
+        "end_line": 733,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 717,
+        "name": "_validate_index_metadata",
+        "qualified_name": "stdd.draw._validate_index_metadata",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._validate_index_metadata"
+      },
+      {
+        "end_line": 734,
+        "file": "tests/test_draw.py",
+        "kind": "function",
+        "line": 706,
+        "name": "test_draw_html_supports_direct_editing_reorganization_and_condition_visuals",
+        "qualified_name": "tests.test_draw.test_draw_html_supports_direct_editing_reorganization_and_condition_visuals",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_supports_direct_editing_reorganization_and_condition_visuals"
       },
       {
         "end_line": 74,
@@ -9229,24 +9578,14 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_draw_diff_command_reads_only_logged_draw_json_changes"
       },
       {
-        "end_line": 743,
-        "file": "src/stdd/draw.py",
+        "end_line": 748,
+        "file": "tests/test_draw.py",
         "kind": "function",
-        "line": 728,
-        "name": "ensure_example_draw",
-        "qualified_name": "stdd.draw.ensure_example_draw",
+        "line": 737,
+        "name": "test_draw_html_puts_condition_before_edge_message_and_reserves_label_space",
+        "qualified_name": "tests.test_draw.test_draw_html_puts_condition_before_edge_message_and_reserves_label_space",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.ensure_example_draw"
-      },
-      {
-        "end_line": 759,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 746,
-        "name": "read_draw_index",
-        "qualified_name": "stdd.draw.read_draw_index",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.read_draw_index"
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_puts_condition_before_edge_message_and_reserves_label_space"
       },
       {
         "end_line": 76,
@@ -9271,6 +9610,26 @@
         "symbol_id": "src/stdd/templates/adapters/js_ts_static_adapter.js:function:limits"
       },
       {
+        "end_line": 763,
+        "file": "tests/test_draw.py",
+        "kind": "function",
+        "line": 751,
+        "name": "test_demo_draw_contains_answered_questions_and_all_conditions",
+        "qualified_name": "tests.test_draw.test_demo_draw_contains_answered_questions_and_all_conditions",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_demo_draw_contains_answered_questions_and_all_conditions"
+      },
+      {
+        "end_line": 764,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 736,
+        "name": "_load_indexed_draw",
+        "qualified_name": "stdd.draw._load_indexed_draw",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._load_indexed_draw"
+      },
+      {
         "end_line": 766,
         "file": "tests/test_cli.py",
         "kind": "function",
@@ -9279,16 +9638,6 @@
         "qualified_name": "tests.test_cli.test_log_marks_draw_only_changes_as_zero_line_checkpoint",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_marks_draw_only_changes_as_zero_line_checkpoint"
-      },
-      {
-        "end_line": 77,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 75,
-        "name": "facts_directory",
-        "qualified_name": "stdd.draw.facts_directory",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.facts_directory"
       },
       {
         "end_line": 77,
@@ -9311,16 +9660,6 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_orthogonal_edges_route_around_obstacles_using_semantic_ports"
       },
       {
-        "end_line": 783,
-        "file": "tests/test_draw.py",
-        "kind": "function",
-        "line": 695,
-        "name": "test_draw_html_provides_visual_editor_pan_and_readable_long_flow_layout",
-        "qualified_name": "tests.test_draw.test_draw_html_provides_visual_editor_pan_and_readable_long_flow_layout",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_provides_visual_editor_pan_and_readable_long_flow_layout"
-      },
-      {
         "end_line": 79,
         "file": "tests/test_static_analysis.py",
         "kind": "function",
@@ -9329,16 +9668,6 @@
         "qualified_name": "tests.test_static_analysis.test_secret_scanner_warns_for_explicitly_allowed_test_credential",
         "source": "python_ast",
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_secret_scanner_warns_for_explicitly_allowed_test_credential"
-      },
-      {
-        "end_line": 793,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 762,
-        "name": "find_addressed_questions",
-        "qualified_name": "stdd.draw.find_addressed_questions",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.find_addressed_questions"
       },
       {
         "end_line": 80,
@@ -9362,24 +9691,14 @@
         "symbol_id": "src/stdd/traceability.py:stdd.traceability.associate_node_references"
       },
       {
-        "end_line": 801,
-        "file": "tests/test_draw.py",
-        "kind": "function",
-        "line": 786,
-        "name": "test_draw_html_connects_blocks_by_dragging_visible_ports",
-        "qualified_name": "tests.test_draw.test_draw_html_connects_blocks_by_dragging_visible_ports",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_connects_blocks_by_dragging_visible_ports"
-      },
-      {
-        "end_line": 802,
+        "end_line": 800,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 796,
-        "name": "_atomic_write",
-        "qualified_name": "stdd.draw._atomic_write",
+        "line": 767,
+        "name": "validate_draw_workspace",
+        "qualified_name": "stdd.draw.validate_draw_workspace",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._atomic_write"
+        "symbol_id": "src/stdd/draw.py:stdd.draw.validate_draw_workspace"
       },
       {
         "end_line": 81,
@@ -9392,14 +9711,14 @@
         "symbol_id": "src/stdd/core.py:stdd.core.stdd_dir"
       },
       {
-        "end_line": 820,
-        "file": "tests/test_draw.py",
+        "end_line": 825,
+        "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 804,
-        "name": "test_draw_readme_documents_local_server_and_visual_shortcuts",
-        "qualified_name": "tests.test_draw.test_draw_readme_documents_local_server_and_visual_shortcuts",
+        "line": 803,
+        "name": "ensure_draw_workspace",
+        "qualified_name": "stdd.draw.ensure_draw_workspace",
         "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_readme_documents_local_server_and_visual_shortcuts"
+        "symbol_id": "src/stdd/draw.py:stdd.draw.ensure_draw_workspace"
       },
       {
         "end_line": 83,
@@ -9412,24 +9731,14 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_init_rejects_removed_frontend_analysis_option"
       },
       {
-        "end_line": 84,
+        "end_line": 843,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 80,
-        "name": "draw_index_path",
-        "qualified_name": "stdd.draw.draw_index_path",
+        "line": 828,
+        "name": "ensure_example_draw",
+        "qualified_name": "stdd.draw.ensure_example_draw",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.draw_index_path"
-      },
-      {
-        "end_line": 845,
-        "file": "tests/test_draw.py",
-        "kind": "function",
-        "line": 823,
-        "name": "test_draw_server_serves_viewer_index_and_selected_json",
-        "qualified_name": "tests.test_draw.test_draw_server_serves_viewer_index_and_selected_json",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_server_serves_viewer_index_and_selected_json"
+        "symbol_id": "src/stdd/draw.py:stdd.draw.ensure_example_draw"
       },
       {
         "end_line": 85,
@@ -9453,14 +9762,34 @@
         "symbol_id": "src/stdd/cli.py:stdd.cli.choose_integrations"
       },
       {
-        "end_line": 855,
+        "end_line": 85,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 805,
-        "name": "create_draw",
-        "qualified_name": "stdd.draw.create_draw",
+        "line": 70,
+        "name": "logical_draw_payload",
+        "qualified_name": "stdd.draw.logical_draw_payload",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.create_draw"
+        "symbol_id": "src/stdd/draw.py:stdd.draw.logical_draw_payload"
+      },
+      {
+        "end_line": 854,
+        "file": "tests/test_draw.py",
+        "kind": "function",
+        "line": 766,
+        "name": "test_draw_html_provides_visual_editor_pan_and_readable_long_flow_layout",
+        "qualified_name": "tests.test_draw.test_draw_html_provides_visual_editor_pan_and_readable_long_flow_layout",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_provides_visual_editor_pan_and_readable_long_flow_layout"
+      },
+      {
+        "end_line": 859,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 846,
+        "name": "read_draw_index",
+        "qualified_name": "stdd.draw.read_draw_index",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.read_draw_index"
       },
       {
         "end_line": 87,
@@ -9483,24 +9812,14 @@
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_init_accepts_project_directory_argument"
       },
       {
-        "end_line": 876,
+        "end_line": 872,
         "file": "tests/test_draw.py",
         "kind": "function",
-        "line": 848,
-        "name": "test_draw_server_serves_run_index_and_summary_only",
-        "qualified_name": "tests.test_draw.test_draw_server_serves_run_index_and_summary_only",
+        "line": 857,
+        "name": "test_draw_html_connects_blocks_by_dragging_visible_ports",
+        "qualified_name": "tests.test_draw.test_draw_html_connects_blocks_by_dragging_visible_ports",
         "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_server_serves_run_index_and_summary_only"
-      },
-      {
-        "end_line": 878,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 858,
-        "name": "read_draw",
-        "qualified_name": "stdd.draw.read_draw",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.read_draw"
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_connects_blocks_by_dragging_visible_ports"
       },
       {
         "end_line": 88,
@@ -9514,24 +9833,24 @@
         "symbol_id": "src/stdd/templates/adapters/js_ts_static_adapter.js:function:visit"
       },
       {
-        "end_line": 896,
+        "end_line": 891,
         "file": "tests/test_draw.py",
         "kind": "function",
-        "line": 879,
-        "name": "test_draw_server_does_not_expose_project_files",
-        "qualified_name": "tests.test_draw.test_draw_server_does_not_expose_project_files",
+        "line": 875,
+        "name": "test_draw_readme_documents_local_server_and_visual_shortcuts",
+        "qualified_name": "tests.test_draw.test_draw_readme_documents_local_server_and_visual_shortcuts",
         "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_server_does_not_expose_project_files"
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_readme_documents_local_server_and_visual_shortcuts"
       },
       {
-        "end_line": 897,
+        "end_line": 893,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 896,
-        "name": "__init__",
-        "qualified_name": "stdd.draw.__init__",
+        "line": 862,
+        "name": "find_addressed_questions",
+        "qualified_name": "stdd.draw.find_addressed_questions",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.__init__"
+        "symbol_id": "src/stdd/draw.py:stdd.draw.find_addressed_questions"
       },
       {
         "end_line": 90,
@@ -9555,14 +9874,14 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_loop_edges_choose_a_clear_lane_and_keep_the_arrow_visible"
       },
       {
-        "end_line": 900,
+        "end_line": 902,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 899,
-        "name": "log_message",
-        "qualified_name": "stdd.draw.log_message",
+        "line": 896,
+        "name": "_atomic_write",
+        "qualified_name": "stdd.draw._atomic_write",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.log_message"
+        "symbol_id": "src/stdd/draw.py:stdd.draw._atomic_write"
       },
       {
         "end_line": 91,
@@ -9576,14 +9895,24 @@
         "symbol_id": "src/stdd/templates/adapters/js_ts_static_adapter.js:function:declarationName"
       },
       {
-        "end_line": 910,
+        "end_line": 916,
+        "file": "tests/test_draw.py",
+        "kind": "function",
+        "line": 894,
+        "name": "test_draw_server_serves_viewer_index_and_selected_json",
+        "qualified_name": "tests.test_draw.test_draw_server_serves_viewer_index_and_selected_json",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_server_serves_viewer_index_and_selected_json"
+      },
+      {
+        "end_line": 92,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 902,
-        "name": "_send_bytes",
-        "qualified_name": "stdd.draw._send_bytes",
+        "line": 88,
+        "name": "draw_directory",
+        "qualified_name": "stdd.draw.draw_directory",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._send_bytes"
+        "symbol_id": "src/stdd/draw.py:stdd.draw.draw_directory"
       },
       {
         "end_line": 92,
@@ -9594,16 +9923,6 @@
         "qualified_name": "tests.test_draw.test_create_draw_writes_only_json_and_light_index",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_writes_only_json_and_light_index"
-      },
-      {
-        "end_line": 925,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 912,
-        "name": "_send_file",
-        "qualified_name": "stdd.draw._send_file",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._send_file"
       },
       {
         "end_line": 93,
@@ -9626,24 +9945,64 @@
         "symbol_id": "tests/test_traceability.py:tests.test_traceability.test_traceability_maps_node_references_to_symbols_files_and_tests"
       },
       {
-        "end_line": 932,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 927,
-        "name": "_send_json_error",
-        "qualified_name": "stdd.draw._send_json_error",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._send_json_error"
-      },
-      {
-        "end_line": 934,
+        "end_line": 947,
         "file": "tests/test_draw.py",
         "kind": "function",
-        "line": 899,
-        "name": "test_draw_server_saves_edited_json_and_rejects_mismatched_id",
-        "qualified_name": "tests.test_draw.test_draw_server_saves_edited_json_and_rejects_mismatched_id",
+        "line": 919,
+        "name": "test_draw_server_serves_run_index_and_summary_only",
+        "qualified_name": "tests.test_draw.test_draw_server_serves_run_index_and_summary_only",
         "source": "python_ast",
-        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_server_saves_edited_json_and_rejects_mismatched_id"
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_server_serves_run_index_and_summary_only"
+      },
+      {
+        "end_line": 955,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 905,
+        "name": "create_draw",
+        "qualified_name": "stdd.draw.create_draw",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.create_draw"
+      },
+      {
+        "end_line": 967,
+        "file": "tests/test_draw.py",
+        "kind": "function",
+        "line": 950,
+        "name": "test_draw_server_does_not_expose_project_files",
+        "qualified_name": "tests.test_draw.test_draw_server_does_not_expose_project_files",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_server_does_not_expose_project_files"
+      },
+      {
+        "end_line": 97,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 95,
+        "name": "facts_directory",
+        "qualified_name": "stdd.draw.facts_directory",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.facts_directory"
+      },
+      {
+        "end_line": 978,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 958,
+        "name": "read_draw",
+        "qualified_name": "stdd.draw.read_draw",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.read_draw"
+      },
+      {
+        "end_line": 997,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 996,
+        "name": "__init__",
+        "qualified_name": "stdd.draw.__init__",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.__init__"
       }
     ],
     "dependencies": [

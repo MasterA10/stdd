@@ -193,6 +193,37 @@ def test_static_analysis_warns_for_level_two_nodes_without_code_refs(tmp_path: P
     assert report["quality_findings"][0]["severity"] == "warning"
 
 
+def test_static_analysis_includes_draw_node_symbol_warnings(tmp_path: Path):
+    """Inclui avisos de símbolos de nós vazios e duplicados no relatório de análise estática.
+    Executa a análise em um workspace sintético e confirma a detecção de draw.empty_node_symbol e draw.duplicate_node_symbol.
+    """
+    draws = tmp_path / ".stdd" / "draws"
+    draws.mkdir(parents=True)
+    payload = {
+        "version": 1,
+        "id": "symbol-warnings-draw",
+        "title": "Desenho com avisos de símbolos",
+        "nodes": [
+            {"id": 1, "label": "Passo 1", "code_refs": [{"symbol": ""}]},
+            {"id": 2, "label": "Passo 2", "code_refs": [{"symbol": "same_symbol"}]},
+            {"id": 3, "label": "Passo 3", "code_refs": [{"symbol": "same_symbol"}]},
+            {"id": 4, "label": "Passo 4", "code_refs": [{"symbol": "same_symbol"}]},
+            {"id": 5, "label": "Passo 5", "code_refs": [{"symbol": "same_symbol"}]},
+            {"id": 6, "label": "Passo 6", "code_refs": [{"symbol": "same_symbol"}]},
+        ],
+        "edges": [],
+    }
+    (draws / "symbol-warnings-draw.json").write_text(json.dumps(payload), encoding="utf-8")
+
+    report = run_static_analysis(tmp_path, "exec-symbols", {}, [])
+
+    kinds = [finding["kind"] for finding in report["quality_findings"]]
+    assert "draw.empty_node_symbol" in kinds
+    assert "draw.duplicate_node_symbol" in kinds
+    assert all(f["severity"] == "warning" for f in report["quality_findings"])
+
+
+
 def test_static_analysis_writes_kpi_snapshot_next_to_adapter_directory(tmp_path: Path):
     """Persiste indicadores agregados e detalhes sem misturar com os Draws.
     Reúne um relatório mínimo e confirma a estrutura consumida pelo viewer lateral.

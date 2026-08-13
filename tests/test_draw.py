@@ -394,6 +394,59 @@ def test_level_two_contract_warns_for_nodes_without_code_refs(tmp_path: Path):
     assert findings[0]["severity"] == "warning"
 
 
+def test_draw_contract_warns_for_empty_or_unnamed_node_symbols():
+    """Gera warning quando nós contêm símbolos vazios ou genéricos sem referenciar a função real.
+    Inspeciona os achados de analyze_draw_contract e confirma o tipo e evidência do aviso.
+    """
+    payload = draw_payload("draw-empty-symbols")
+    payload["nodes"][0]["code_refs"] = [{"symbol": ""}]
+    payload["nodes"][1]["code_refs"] = [{"symbol": "unnamed"}]
+
+    findings = analyze_draw_contract(payload, ".stdd/draws/draw-empty-symbols.json")
+
+    kinds = [finding["kind"] for finding in findings]
+    assert kinds.count("draw.empty_node_symbol") == 2
+    assert any("nó 1" in finding["evidence"] for finding in findings)
+    assert any("nó 2" in finding["evidence"] for finding in findings)
+
+
+def test_draw_contract_warns_for_duplicate_node_symbols():
+    """Gera warning quando o mesmo símbolo aparece mais de 4 vezes no mesmo fluxo.
+    Verifica que até 4 ocorrências não geram aviso e 5 ocorrências disparam o warning.
+    """
+    payload_4 = draw_payload("draw-4-symbols")
+    payload_4["nodes"] = [{"id": i, "label": f"Nó {i}", "code_refs": [{"symbol": "stdd.core.process"}]} for i in range(1, 5)]
+    findings_4 = analyze_draw_contract(payload_4, ".stdd/draws/draw-4-symbols.json")
+    assert not any(f["kind"] == "draw.duplicate_node_symbol" for f in findings_4)
+
+    payload_5 = draw_payload("draw-5-symbols")
+    payload_5["nodes"] = [{"id": i, "label": f"Nó {i}", "code_refs": [{"symbol": "stdd.core.process"}]} for i in range(1, 6)]
+    findings_5 = analyze_draw_contract(payload_5, ".stdd/draws/draw-5-symbols.json")
+    duplicate_findings = [f for f in findings_5 if f["kind"] == "draw.duplicate_node_symbol"]
+    assert len(duplicate_findings) == 1
+    assert duplicate_findings[0]["symbol"] == "stdd.core.process"
+    assert duplicate_findings[0]["node_ids"] == [1, 2, 3, 4, 5]
+    assert duplicate_findings[0]["value"] == 5
+    assert duplicate_findings[0]["limit"] == 4
+    assert duplicate_findings[0]["severity"] == "warning"
+
+
+def test_draw_contract_warns_for_level3_and_level4_missing_code_refs():
+    """Exige referências de código também para níveis 3 (implementação) e 4 (codebase).
+    Analisa desenhos de níveis 3 e 4 sem code_refs e confirma a geração dos avisos.
+    """
+    payload3 = draw_payload("level3-missing")
+    payload3["hierarchy"] = {"level": 3, "role": "implementation", "parent_draw_ref": "p", "parent_node_id": 1, "root_draw_ref": "r"}
+    findings3 = analyze_draw_contract(payload3, ".stdd/draws/level3-missing.json")
+    assert any(f["kind"] == "draw.level3_missing_code_ref" for f in findings3)
+
+    payload4 = draw_payload("level4-missing")
+    payload4["hierarchy"] = {"level": 4, "role": "codebase", "parent_draw_ref": "p", "parent_node_id": 1, "root_draw_ref": "r"}
+    findings4 = analyze_draw_contract(payload4, ".stdd/draws/level4-missing.json")
+    assert any(f["kind"] == "draw.level4_missing_code_ref" for f in findings4)
+
+
+
 def test_draw_create_reports_level_two_code_ref_warning_without_blocking(tmp_path: Path, monkeypatch):
     """Exibe a lacuna de code_ref no próprio comando de criação.
     Confirma exit code zero e persistência do desenho de jornada.
@@ -581,6 +634,24 @@ def test_draw_cli_accepts_inline_json_and_updates_existing_draw(tmp_path: Path, 
     listed = runner.invoke(app, ["draw", "list"])
     assert listed.exit_code == 0
     assert "checkout" in listed.stdout
+
+
+def test_stdd_create_top_level_command_creates_draw_and_reports_symbol_warnings(tmp_path: Path, monkeypatch):
+    """Executa o comando stdd create no nível raiz da CLI para criar um desenho.
+    Navega até o diretório temporário e verifica o salvamento do JSON e os avisos de símbolos.
+    """
+    monkeypatch.chdir(tmp_path)
+    payload = draw_payload("top-level-create")
+    payload["nodes"][0]["code_refs"] = [{"symbol": ""}]
+    payload["nodes"][1]["code_refs"] = [{"symbol": "unnamed"}]
+    data_json = json.dumps(payload, ensure_ascii=False)
+
+    result = runner.invoke(app, ["create", "--data-json", data_json])
+
+    assert result.exit_code == 0
+    assert "draw.empty_node_symbol" in result.stdout
+    assert (tmp_path / ".stdd/draws/top-level-create.json").exists()
+
 
 
 def test_draw_html_fetches_index_and_only_selected_json():

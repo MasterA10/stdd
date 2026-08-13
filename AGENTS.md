@@ -7,7 +7,7 @@ Este projeto usa o STDD para especificação, implementação, testes e evidênc
 - Execute `stdd test` antes de declarar uma tarefa concluída e trate falhas como bloqueios.
 - Preserve o contrato existente, os testes aprovados e os arquivos protegidos.
 - Use `.stdd/` para configuração, desenhos, execuções e evidências; não registre segredos nos logs.
-- Preserve a análise geral de código e a análise dos Draws/JSONs como capacidades separadas; a política específica de frontend foi aposentada.
+- A análise de código deve permanecer separada da análise dos Draws/JSONs; preserve símbolos, referências e métricas gerais quando a stack oferecer essa capacidade.
 - Antes de qualquer commit ou push na branch `main`, confirme que o diff inclui as fontes, templates, skills, assets empacotados, README e testes necessários para o comando de instalação do README reproduzir a versão publicada.
 - Depois de alterar o framework, valide a instalação equivalente com `uv tool install --force --editable .` e confirme que `stdd init` instala as skills atuais; não publique somente uma parte da alteração.
 - Ao relatar o resultado, informe status, arquivos alterados, testes executados, evidências e limitações.

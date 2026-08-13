@@ -2,6 +2,13 @@
   "version": 1,
   "days": [
     {
+      "date": "2026-08-13",
+      "summary": "2026-08-13/2026-08-13_summary.json",
+      "snapshot": "2026-08-13/2026-08-13_snapshot.json",
+      "run_count": 3,
+      "last_run_id": "1afa99e28215495d97175090d9d5d535"
+    },
+    {
       "date": "2026-08-12",
       "summary": "2026-08-12/2026-08-12_summary.json",
       "snapshot": "2026-08-12/2026-08-12_snapshot.json",
