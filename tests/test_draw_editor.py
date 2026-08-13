@@ -476,3 +476,17 @@ def test_runs_are_filtered_to_current_day():
     """
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
     assert "setHours(0, 0, 0, 0)" in app
+
+
+def test_code_references_modal_displays_file_path_under_symbol():
+    """Exibe o caminho do arquivo abaixo do nome do símbolo no modal de referências.
+    Verifica se CodeReferencesModal.tsx extrai a chave file de code_refs e aplica a classe de subtexto.
+    """
+    modal = (EDITOR_ROOT / "src/components/CodeReferencesModal.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    assert "const file = typeof reference.file === 'string'" in modal
+    assert "code-reference-file-subtext" in modal
+    assert ".code-reference-file-subtext" in styles
+    assert "code-reference-symbol-wrapper" in modal
+

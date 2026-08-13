@@ -134,8 +134,30 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "a424e1866ff8474b8e868368fbba01f9",
+      "timestamp": "2026-08-13T13:54:21.469193+00:00",
+      "description": "exibe o caminho do arquivo (chave file em code_refs) abaixo do nome do simbolo no frontend",
+      "work_types": [
+        "teste",
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 56,
+        "lines_deleted": 31,
+        "files_changed": 7
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 6,
-  "last_run_id": "dfa4ad353e114555952d7415c9060038"
+  "run_count": 7,
+  "last_run_id": "a424e1866ff8474b8e868368fbba01f9"
 }

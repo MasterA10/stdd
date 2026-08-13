@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-08-13T13:37:21.542176+00:00",
+  "generated_at": "2026-08-13T13:54:27.844881+00:00",
   "status": "passed",
   "reason": null,
   "adapter_command": [
@@ -28,7 +28,7 @@
     {
       "id": "symbols",
       "label": "Símbolos",
-      "value": 396,
+      "value": 397,
       "unit": "símbolos"
     },
     {
@@ -73,9 +73,9 @@
     }
   ],
   "summary": {
-    "symbols": 396,
+    "symbols": 397,
     "dependencies": 496,
-    "complexity": 392,
+    "complexity": 393,
     "structural_metrics": 36,
     "files": [
       ".stdd/draws/stdd-agent-journeys.json",
@@ -1429,7 +1429,7 @@
       {
         "cyclomatic": 1,
         "file": "draw-editor/src/components/CodeReferencesModal.tsx",
-        "line": 85,
+        "line": 95,
         "lines": 1,
         "max_depth": 0,
         "parameters": 1,
@@ -2745,6 +2745,17 @@
         "qualified_name": "tests.test_draw_editor.test_runs_are_filtered_to_current_day",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_runs_are_filtered_to_current_day"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "tests/test_draw_editor.py",
+        "line": 481,
+        "lines": 11,
+        "max_depth": 0,
+        "parameters": 0,
+        "qualified_name": "tests.test_draw_editor.test_code_references_modal_displays_file_path_under_symbol",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_code_references_modal_displays_file_path_under_symbol"
       },
       {
         "cyclomatic": 1,
@@ -5758,7 +5769,7 @@
         "file": "draw-editor/src/components/CodeReferencesModal.tsx",
         "functions": 1,
         "imports": 3,
-        "lines": 92,
+        "lines": 102,
         "source": "typescript_compiler_api"
       },
       {
@@ -5854,7 +5865,7 @@
         "file": "draw-editor/src/types.ts",
         "functions": 0,
         "imports": 0,
-        "lines": 158,
+        "lines": 159,
         "source": "typescript_compiler_api"
       },
       {
@@ -5964,9 +5975,9 @@
       {
         "classes": 0,
         "file": "tests/test_draw_editor.py",
-        "functions": 34,
+        "functions": 35,
         "imports": 1,
-        "lines": 478,
+        "lines": 492,
         "source": "python_ast"
       },
       {
@@ -8707,6 +8718,16 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_command_creates_incremental_summary_and_snapshot_in_date_subfolder"
       },
       {
+        "end_line": 491,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 481,
+        "name": "test_code_references_modal_displays_file_path_under_symbol",
+        "qualified_name": "tests.test_draw_editor.test_code_references_modal_displays_file_path_under_symbol",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_code_references_modal_displays_file_path_under_symbol"
+      },
+      {
         "end_line": 492,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -9763,17 +9784,6 @@
       },
       {
         "end_line": 85,
-        "file": "draw-editor/src/components/CodeReferencesModal.tsx",
-        "kind": "function",
-        "line": 85,
-        "name": "<anonymous>",
-        "qualified_name": "<anonymous>",
-        "signature": "(test) => <code key=",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/components/CodeReferencesModal.tsx:function:<anonymous>"
-      },
-      {
-        "end_line": 85,
         "file": "src/stdd/cli.py",
         "kind": "function",
         "line": 68,
@@ -9974,6 +9984,17 @@
         "qualified_name": "tests.test_draw.test_draw_server_serves_run_index_and_summary_only",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_server_serves_run_index_and_summary_only"
+      },
+      {
+        "end_line": 95,
+        "file": "draw-editor/src/components/CodeReferencesModal.tsx",
+        "kind": "function",
+        "line": 95,
+        "name": "<anonymous>",
+        "qualified_name": "<anonymous>",
+        "signature": "(test) => <code key=",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/components/CodeReferencesModal.tsx:function:<anonymous>"
       },
       {
         "end_line": 955,

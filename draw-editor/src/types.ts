@@ -27,6 +27,7 @@ export interface NodeData {
 
 export interface CodeReference {
   symbol: string;
+  file?: string;
   source_dependencies?: string[];
   identity?: string;
 }

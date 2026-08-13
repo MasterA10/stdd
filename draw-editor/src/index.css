@@ -1418,9 +1418,22 @@ body,
 
 .code-reference-card-heading {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 7px;
   color: #0284c7;
+}
+
+.code-reference-card-heading > svg {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.code-reference-symbol-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
 }
 
 .code-reference-symbol {
@@ -1428,6 +1441,21 @@ body,
   overflow-wrap: anywhere;
   color: var(--ink);
   font-size: 12px;
+}
+
+.code-reference-file-subtext {
+  font-size: 10px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+  line-height: 1.2;
+}
+
+.code-reference-file-subtext code {
+  font-size: 10px;
+  color: var(--muted);
+  font-family: var(--font-mono, monospace);
+  background: transparent;
+  padding: 0;
 }
 
 .code-reference-status {

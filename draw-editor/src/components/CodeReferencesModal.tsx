@@ -44,13 +44,23 @@ export const CodeReferencesModal: React.FC<CodeReferencesModalProps> = ({ node, 
             <div className="code-reference-list">
               {references.map((reference, index) => {
                 const symbol = typeof reference.symbol === 'string' ? reference.symbol : 'Símbolo sem nome';
+                const file = typeof reference.file === 'string' && reference.file.trim().length > 0 ? reference.file.trim() : null;
                 const resolvedReference = report?.references?.find((item) => item.symbol === symbol);
+                const resolvedFile = typeof resolvedReference?.file === 'string' && resolvedReference.file.trim().length > 0 ? resolvedReference.file.trim() : null;
+                const filePath = file || resolvedFile;
                 const status = resolvedReference?.status || (unresolved.has(symbol) ? 'unresolved' : facts ? 'pending' : 'not-analyzed');
                 return (
                   <article className="code-reference-card" key={`${symbol}-${index}`}>
                     <div className="code-reference-card-heading">
                       <Code2 size={15} />
-                      <code className="code-reference-symbol">{symbol}</code>
+                      <div className="code-reference-symbol-wrapper">
+                        <code className="code-reference-symbol">{symbol}</code>
+                        {filePath && (
+                          <div className="code-reference-file-subtext">
+                            <code>{filePath}</code>
+                          </div>
+                        )}
+                      </div>
                       <span className={`code-reference-status ${status}`}>
                         {status === 'resolved' ? 'resolvido' : status === 'unresolved' ? 'não encontrado' : 'aguardando análise'}
                       </span>
