@@ -202,6 +202,42 @@ def test_backlog_preserves_shared_steps_in_explicit_flow_paths(tmp_path: Path):
     assert backlog["tasks"][0]["branches"][1]["id"] == "jornada:branch:2"
 
 
+def test_backlog_includes_nodes_missing_from_explicit_flows_and_children(tmp_path: Path):
+    """Gera uma task para cada nó do fluxo e subfluxo.
+    Mantém a associação pai-filho quando flows.steps omite nós.
+    """
+    _create_nested_hierarchical_fixture(tmp_path)
+    journey_path = tmp_path / ".stdd" / "draws" / "jornada.json"
+    journey = json.loads(journey_path.read_text(encoding="utf-8"))
+    journey["flows"] = [
+        {"id": 1, "label": "sucesso", "steps": [{"node": 1}, {"node": 2}]},
+    ]
+    journey_path.write_text(json.dumps(journey), encoding="utf-8")
+    child_path = tmp_path / ".stdd" / "draws" / "subjornada.json"
+    child = json.loads(child_path.read_text(encoding="utf-8"))
+    child["flows"] = [{"id": 1, "label": "interno", "steps": [{"node": 1}]}]
+    child_path.write_text(json.dumps(child), encoding="utf-8")
+
+    backlog = build_backlog(tmp_path, generated_at="2026-08-13T12:00:00+00:00")
+
+    assert len(backlog["tasks"]) == 5
+    assert {task["id"] for task in backlog["tasks"]} == {
+        "task:jornada:node:1",
+        "task:jornada:node:2",
+        "task:jornada:node:3",
+        "task:subjornada:node:1",
+        "task:subjornada:node:2",
+    }
+    omitted_parent = next(task for task in backlog["tasks"] if task["id"] == "task:jornada:node:3")
+    omitted_child = next(task for task in backlog["tasks"] if task["id"] == "task:subjornada:node:2")
+    assert omitted_parent["branch"]["terminal_reason"] == "node-not-listed-in-flow"
+    assert omitted_child["parent_task_id"] == "task:jornada:node:1"
+    assert [backlog_item["task_ids"] for backlog_item in backlog["backlogs"]] == [
+        ["task:jornada:node:1", "task:jornada:node:2", "task:jornada:node:3"],
+        ["task:subjornada:node:1", "task:subjornada:node:2"],
+    ]
+
+
 def test_backlog_marks_every_branch_complete_when_shared_terminal_is_done(tmp_path: Path):
     """Conclui todos os caminhos que dependem da mesma etapa final.
     Atualiza branches derivadas mesmo quando a task pertence à primeira branch.

@@ -303,8 +303,50 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "5b7d39a5f9fa4e68aeb5179ac4c4de94",
+      "timestamp": "2026-08-13T21:46:09.247863+00:00",
+      "description": "Adiciona regressão para nós omitidos de flows explícitos",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 56,
+        "lines_deleted": 1,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "9fb9d9a2dbdd4b66ba26eec6af2e032a",
+      "timestamp": "2026-08-13T21:46:10.096340+00:00",
+      "description": "Corrige geração de tasks para incluir todos os nós e subfluxos",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 14,
-  "last_run_id": "cf053c7be3e848d791c508502cbad267"
+  "run_count": 16,
+  "last_run_id": "9fb9d9a2dbdd4b66ba26eec6af2e032a"
 }

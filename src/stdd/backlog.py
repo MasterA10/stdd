@@ -171,7 +171,7 @@ def _graph_branches(document: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def _branches_for_draw(document: dict[str, Any]) -> list[dict[str, Any]]:
-    """Prefere caminhos explícitos e usa o grafo como fallback."""
+    """Prefere caminhos explícitos e garante uma branch para cada nó."""
     flows = [flow for flow in document.get("flows", []) if isinstance(flow, dict) and flow.get("steps")]
     if not flows:
         return _graph_branches(document)
@@ -183,6 +183,25 @@ def _branches_for_draw(document: dict[str, Any]) -> list[dict[str, Any]]:
         terminal = node_ids[-1]
         reason = "self-loop" if _has_self_loop(document, terminal) else "flow-end"
         branches.append({"id": index, "node_ids": node_ids, "edges": [], "terminal_node_id": terminal, "terminal_reason": reason, "flow_id": flow.get("id")})
+    covered_node_ids = {
+        node_id
+        for branch in branches
+        for node_id in branch.get("node_ids", [])
+    }
+    next_branch_id = max((int(branch["id"]) for branch in branches), default=0) + 1
+    for node in document.get("nodes", []):
+        if not isinstance(node, dict) or node.get("id") in covered_node_ids:
+            continue
+        node_id = node.get("id")
+        branches.append({
+            "id": next_branch_id,
+            "node_ids": [node_id],
+            "edges": [],
+            "terminal_node_id": node_id,
+            "terminal_reason": "node-not-listed-in-flow",
+            "flow_id": None,
+        })
+        next_branch_id += 1
     return branches
 
 
