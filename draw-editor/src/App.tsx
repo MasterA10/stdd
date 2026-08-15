@@ -129,14 +129,14 @@ export const App: React.FC = () => {
 
   useEffect(() => { loadBacklog(); }, [loadBacklog, storageMode]);
 
-  const updateLocalBacklog = (updater: (previous: BacklogDocument) => BacklogDocument) => {
+  const updateLocalBacklog = useCallback((updater: (previous: BacklogDocument) => BacklogDocument) => {
     setBacklog((previous) => {
       if (!previous) return previous;
       const next = updater(previous);
       localStorage.setItem('stdd-backlog', JSON.stringify(next));
       return next;
     });
-  };
+  }, []);
 
   const claimBacklogTask = async () => {
     if (storageMode === 'backend') {
@@ -171,7 +171,7 @@ export const App: React.FC = () => {
     });
   };
 
-  const updateBacklogChecklist = async (taskId: string, phase: 'test' | 'implementation', checked: boolean) => {
+  const updateBacklogChecklist = useCallback(async (taskId: string, phase: 'test' | 'implementation', checked: boolean) => {
     if (storageMode === 'backend') {
       try {
         const response = await fetch(`${getApiOrigin()}/__stdd/api/backlog/checklist`, {
@@ -217,7 +217,7 @@ export const App: React.FC = () => {
         }
       };
     });
-  };
+  }, [loadBacklog, storageMode, updateLocalBacklog]);
 
   useEffect(() => {
     let cancelled = false;
@@ -800,6 +800,7 @@ export const App: React.FC = () => {
       const inPath = activeFlowId !== null && activeNodeIds.has(node.id);
       let isDimmed = activeFlowId !== null && !inPath;
       let isHighlighted = activeFlowId !== null && inPath;
+      const backlogTask = backlog?.tasks.find((task) => task.draw_id === contract.id && task.node_id === node.id);
 
       const matchesSearch = hasSearch && matchingNodeIds.has(node.id);
 
@@ -826,7 +827,12 @@ export const App: React.FC = () => {
         ...node,
         groupOptions: contract.groups,
         isHighlighted,
-        isDimmed
+        isDimmed,
+        backlogChecklist: backlogTask ? {
+          taskId: backlogTask.id,
+          test: backlogTask.checklist_state?.test === true,
+          implementation: backlogTask.checklist_state?.implementation === true
+        } : undefined
       };
     });
 
@@ -927,7 +933,7 @@ export const App: React.FC = () => {
     });
 
     setEdges(formattedEdges);
-  }, [contract, activeFlowId, presentationPositions, searchQuery, theme, selectedNodeId, isFocusMode, selectionRevision]);
+  }, [backlog, contract, activeFlowId, presentationPositions, searchQuery, theme, selectedNodeId, isFocusMode, selectionRevision]);
 
   // --- Callbacks on Canvas Actions ---
   const getOrderedSelectedNodeIds = useCallback(() => {
@@ -1320,6 +1326,13 @@ export const App: React.FC = () => {
     };
 
   }, []);
+
+  useEffect(() => {
+    window.updateBacklogChecklist = updateBacklogChecklist;
+    return () => {
+      delete window.updateBacklogChecklist;
+    };
+  }, [updateBacklogChecklist]);
 
   const handleExportJson = () => {
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(contract, null, 2));

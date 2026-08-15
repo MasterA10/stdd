@@ -169,6 +169,21 @@ def test_alt_click_also_changes_focus_inside_the_focus_canvas():
     assert "onNodeClick={onNodeClick}" in focus
 
 
+def test_backlog_checklists_are_editable_on_the_node_toolbar():
+    """Exibe os dois checks diretamente ao lado das ações do bloco.
+    Confirma que teste e implementação usam o estado do backlog e persistem pela ação compartilhada.
+    """
+    custom_node = (EDITOR_ROOT / "src/components/CustomNode.tsx").read_text(encoding="utf-8")
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+
+    assert 'className="node-check-action test nodrag nopan"' in custom_node
+    assert 'className={`node-check-action implementation' in custom_node
+    assert 'aria-label="Checklist de teste"' in custom_node
+    assert 'aria-label="Checklist de implementação"' in custom_node
+    assert "backlogChecklist: backlogTask ?" in app
+    assert "window.updateBacklogChecklist = updateBacklogChecklist" in app
+
+
 def test_keyboard_shortcuts_connect_and_duplicate_selected_blocks():
     """Mantém atalhos básicos para conexão, duplicação e desfazer.
     Confirma a origem ordenada e os comandos Z, X, C e Ctrl/Cmd+D/Z.

@@ -20,8 +20,8 @@ src/stdd.egg-info/top_level.txt
 src/stdd/draw_assets/favicon.svg
 src/stdd/draw_assets/icons.svg
 src/stdd/draw_assets/index.html
-src/stdd/draw_assets/assets/index-C_mIUSEm.js
-src/stdd/draw_assets/assets/index-BccnH6bC.css
+src/stdd/draw_assets/assets/index-D2X_X4gF.js
+src/stdd/draw_assets/assets/index-BRkMgLj4.css
 src/stdd/templates/adapters/js_ts_static_adapter.js
 src/stdd/templates/adapters/php_static_adapter.php
 src/stdd/templates/adapters/static_adapter.py

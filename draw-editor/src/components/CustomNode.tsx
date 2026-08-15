@@ -51,6 +51,7 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
   const unansweredQuestions = unansweredQuestionCount(data.questions);
   const answeredQuestions = totalQuestions - unansweredQuestions;
   const codeReferenceCount = Array.isArray(data.code_refs) ? data.code_refs.length : 0;
+  const backlogChecklist = data.backlogChecklist;
 
   const isHighlighted = data.isHighlighted;
   const isDimmed = data.isDimmed;
@@ -130,6 +131,13 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
     window.openCodeReferencesModal?.(data);
   };
 
+  const onToggleBacklogChecklist = (phase: 'test' | 'implementation', checked: boolean) => (e: React.SyntheticEvent) => {
+    e.stopPropagation();
+    if (backlogChecklist && window.updateBacklogChecklist) {
+      void window.updateBacklogChecklist(backlogChecklist.taskId, phase, checked);
+    }
+  };
+
   // Node visual styles
   const borderStyle = selected
     ? { borderColor: '#6366f1', borderWidth: '2.5px', boxShadow: '0 0 0 4px rgba(99, 102, 241, 0.15)' }
@@ -182,6 +190,41 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
           >
             <Eye size={12} />
           </button>
+          {backlogChecklist && (
+            <>
+              <label
+                className="node-check-action test nodrag nopan"
+                title="Marcar ou desmarcar checklist de teste"
+                onClick={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+              >
+                <input
+                  className="nodrag nopan"
+                  type="checkbox"
+                  checked={backlogChecklist.test}
+                  onChange={onToggleBacklogChecklist('test', !backlogChecklist.test)}
+                  aria-label="Checklist de teste"
+                />
+                <span>T</span>
+              </label>
+              <label
+                className={`node-check-action implementation nodrag nopan${backlogChecklist.test ? '' : ' locked'}`}
+                title={backlogChecklist.test ? 'Marcar ou desmarcar checklist de implementação' : 'Conclua o checklist de teste antes da implementação'}
+                onClick={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+              >
+                <input
+                  className="nodrag nopan"
+                  type="checkbox"
+                  checked={backlogChecklist.implementation}
+                  disabled={!backlogChecklist.test}
+                  onChange={onToggleBacklogChecklist('implementation', !backlogChecklist.implementation)}
+                  aria-label="Checklist de implementação"
+                />
+                <span>I</span>
+              </label>
+            </>
+          )}
         </div>
       )}
 
@@ -343,6 +386,7 @@ declare global {
     getGroupInfo?: (groupId: number) => any;
     currentDrawId?: string;
     updateNodeGroup?: (id: number, groupId?: number) => void;
+    updateBacklogChecklist?: (taskId: string, phase: 'test' | 'implementation', checked: boolean) => void;
     openSubdraw?: (id: string) => void;
     openDetailViewer?: (id: number) => void;
   }

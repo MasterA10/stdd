@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-08-15T18:09:01.328328+00:00",
+  "generated_at": "2026-08-15T18:21:10.682712+00:00",
   "status": "blocked",
   "reason": "quality_gate_blocked",
   "adapter_command": [
@@ -28,7 +28,7 @@
     {
       "id": "symbols",
       "label": "Símbolos",
-      "value": 488,
+      "value": 489,
       "unit": "símbolos"
     },
     {
@@ -73,9 +73,9 @@
     }
   ],
   "summary": {
-    "symbols": 488,
+    "symbols": 489,
     "dependencies": 524,
-    "complexity": 484,
+    "complexity": 485,
     "structural_metrics": 40,
     "files": [
       ".stdd/draws/stdd-agent-journeys.json",
@@ -1634,7 +1634,7 @@
       {
         "cyclomatic": 1,
         "file": "draw-editor/src/App.tsx",
-        "line": 1668,
+        "line": 1681,
         "lines": 3,
         "max_depth": 1,
         "parameters": 1,
@@ -2977,6 +2977,17 @@
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
         "line": 172,
+        "lines": 13,
+        "max_depth": 0,
+        "parameters": 0,
+        "qualified_name": "tests.test_draw_editor.test_backlog_checklists_are_editable_on_the_node_toolbar",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_backlog_checklists_are_editable_on_the_node_toolbar"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "tests/test_draw_editor.py",
+        "line": 187,
         "lines": 14,
         "max_depth": 0,
         "parameters": 0,
@@ -2987,7 +2998,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 188,
+        "line": 203,
         "lines": 13,
         "max_depth": 0,
         "parameters": 0,
@@ -2998,7 +3009,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 203,
+        "line": 218,
         "lines": 10,
         "max_depth": 0,
         "parameters": 0,
@@ -3009,7 +3020,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 215,
+        "line": 230,
         "lines": 9,
         "max_depth": 0,
         "parameters": 0,
@@ -3020,7 +3031,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 226,
+        "line": 241,
         "lines": 11,
         "max_depth": 0,
         "parameters": 0,
@@ -3031,7 +3042,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 239,
+        "line": 254,
         "lines": 16,
         "max_depth": 0,
         "parameters": 0,
@@ -3042,24 +3053,13 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 257,
+        "line": 272,
         "lines": 12,
         "max_depth": 0,
         "parameters": 0,
         "qualified_name": "tests.test_draw_editor.test_shift_selection_keeps_neighbors_visible_while_ctrl_focuses_one_block",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_shift_selection_keeps_neighbors_visible_while_ctrl_focuses_one_block"
-      },
-      {
-        "cyclomatic": 1,
-        "file": "tests/test_draw_editor.py",
-        "line": 271,
-        "lines": 9,
-        "max_depth": 0,
-        "parameters": 0,
-        "qualified_name": "tests.test_draw_editor.test_shift_click_appends_to_a_normal_first_selection",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_shift_click_appends_to_a_normal_first_selection"
       },
       {
         "cyclomatic": 1,
@@ -3075,7 +3075,18 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 282,
+        "line": 286,
+        "lines": 9,
+        "max_depth": 0,
+        "parameters": 0,
+        "qualified_name": "tests.test_draw_editor.test_shift_click_appends_to_a_normal_first_selection",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_shift_click_appends_to_a_normal_first_selection"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "tests/test_draw_editor.py",
+        "line": 297,
         "lines": 10,
         "max_depth": 0,
         "parameters": 0,
@@ -3086,7 +3097,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 294,
+        "line": 309,
         "lines": 10,
         "max_depth": 0,
         "parameters": 0,
@@ -3097,7 +3108,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 306,
+        "line": 321,
         "lines": 14,
         "max_depth": 0,
         "parameters": 0,
@@ -3108,7 +3119,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 322,
+        "line": 337,
         "lines": 13,
         "max_depth": 0,
         "parameters": 0,
@@ -3119,7 +3130,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 337,
+        "line": 352,
         "lines": 9,
         "max_depth": 0,
         "parameters": 0,
@@ -3130,7 +3141,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 348,
+        "line": 363,
         "lines": 22,
         "max_depth": 0,
         "parameters": 0,
@@ -3141,7 +3152,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 372,
+        "line": 387,
         "lines": 11,
         "max_depth": 0,
         "parameters": 0,
@@ -3152,7 +3163,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 385,
+        "line": 400,
         "lines": 10,
         "max_depth": 0,
         "parameters": 0,
@@ -3163,7 +3174,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 397,
+        "line": 412,
         "lines": 27,
         "max_depth": 0,
         "parameters": 0,
@@ -3185,7 +3196,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 426,
+        "line": 441,
         "lines": 18,
         "max_depth": 0,
         "parameters": 0,
@@ -3196,7 +3207,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 446,
+        "line": 461,
         "lines": 11,
         "max_depth": 0,
         "parameters": 0,
@@ -3207,7 +3218,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 459,
+        "line": 474,
         "lines": 12,
         "max_depth": 0,
         "parameters": 0,
@@ -3218,7 +3229,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 473,
+        "line": 488,
         "lines": 6,
         "max_depth": 0,
         "parameters": 0,
@@ -3229,7 +3240,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 481,
+        "line": 496,
         "lines": 11,
         "max_depth": 0,
         "parameters": 0,
@@ -3240,7 +3251,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 494,
+        "line": 509,
         "lines": 15,
         "max_depth": 0,
         "parameters": 0,
@@ -3251,24 +3262,13 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 511,
+        "line": 526,
         "lines": 9,
         "max_depth": 0,
         "parameters": 0,
         "qualified_name": "tests.test_draw_editor.test_editor_loads_the_persisted_backlog_from_the_draw_server",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_loads_the_persisted_backlog_from_the_draw_server"
-      },
-      {
-        "cyclomatic": 1,
-        "file": "tests/test_draw_editor.py",
-        "line": 522,
-        "lines": 15,
-        "max_depth": 0,
-        "parameters": 0,
-        "qualified_name": "tests.test_draw_editor.test_editor_allows_node_checklists_and_persists_them_through_backlog_api",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_allows_node_checklists_and_persists_them_through_backlog_api"
       },
       {
         "cyclomatic": 1,
@@ -3280,6 +3280,17 @@
         "qualified_name": "tests.test_draw_editor.test_flow_inputs_never_use_the_right_side_of_a_block",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_flow_inputs_never_use_the_right_side_of_a_block"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "tests/test_draw_editor.py",
+        "line": 537,
+        "lines": 15,
+        "max_depth": 0,
+        "parameters": 0,
+        "qualified_name": "tests.test_draw_editor.test_editor_allows_node_checklists_and_persists_them_through_backlog_api",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_allows_node_checklists_and_persists_them_through_backlog_api"
       },
       {
         "cyclomatic": 1,
@@ -4164,7 +4175,7 @@
       {
         "cyclomatic": 2,
         "file": "draw-editor/src/components/CustomNode.tsx",
-        "line": 263,
+        "line": 306,
         "lines": 6,
         "max_depth": 2,
         "parameters": 1,
@@ -6970,7 +6981,7 @@
         "file": "draw-editor/src/App.tsx",
         "functions": 1,
         "imports": 16,
-        "lines": 1673,
+        "lines": 1686,
         "source": "typescript_compiler_api"
       },
       {
@@ -7010,7 +7021,7 @@
         "file": "draw-editor/src/components/CustomNode.tsx",
         "functions": 5,
         "imports": 4,
-        "lines": 350,
+        "lines": 394,
         "source": "typescript_compiler_api"
       },
       {
@@ -7090,7 +7101,7 @@
         "file": "draw-editor/src/types.ts",
         "functions": 0,
         "imports": 0,
-        "lines": 225,
+        "lines": 230,
         "source": "typescript_compiler_api"
       },
       {
@@ -7224,9 +7235,9 @@
       {
         "classes": 0,
         "file": "tests/test_draw_editor.py",
-        "functions": 38,
+        "functions": 39,
         "imports": 1,
-        "lines": 536,
+        "lines": 551,
         "source": "python_ast"
       },
       {
@@ -8120,10 +8131,10 @@
         "symbol_id": "src/stdd/setup.py:stdd.setup.ensure_stack_gitignore"
       },
       {
-        "end_line": 1670,
+        "end_line": 1683,
         "file": "draw-editor/src/App.tsx",
         "kind": "function",
-        "line": 1668,
+        "line": 1681,
         "name": "<anonymous>",
         "qualified_name": "<anonymous>",
         "signature": "(",
@@ -8273,6 +8284,16 @@
         "symbol_id": "src/stdd/traceability.py:stdd.traceability.enrich_traceability"
       },
       {
+        "end_line": 184,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 172,
+        "name": "test_backlog_checklists_are_editable_on_the_node_toolbar",
+        "qualified_name": "tests.test_draw_editor.test_backlog_checklists_are_editable_on_the_node_toolbar",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_backlog_checklists_are_editable_on_the_node_toolbar"
+      },
+      {
         "end_line": 185,
         "file": "src/stdd/setup.py",
         "kind": "function",
@@ -8291,16 +8312,6 @@
         "qualified_name": "stdd.static_analysis._credential_finding",
         "source": "python_ast",
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis._credential_finding"
-      },
-      {
-        "end_line": 185,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 172,
-        "name": "test_keyboard_shortcuts_connect_and_duplicate_selected_blocks",
-        "qualified_name": "tests.test_draw_editor.test_keyboard_shortcuts_connect_and_duplicate_selected_blocks",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_keyboard_shortcuts_connect_and_duplicate_selected_blocks"
       },
       {
         "end_line": 187,
@@ -8418,11 +8429,11 @@
         "end_line": 200,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 188,
-        "name": "test_editor_persists_pending_layout_and_deletions_until_save",
-        "qualified_name": "tests.test_draw_editor.test_editor_persists_pending_layout_and_deletions_until_save",
+        "line": 187,
+        "name": "test_keyboard_shortcuts_connect_and_duplicate_selected_blocks",
+        "qualified_name": "tests.test_draw_editor.test_keyboard_shortcuts_connect_and_duplicate_selected_blocks",
         "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_persists_pending_layout_and_deletions_until_save"
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_keyboard_shortcuts_connect_and_duplicate_selected_blocks"
       },
       {
         "end_line": 201,
@@ -8495,16 +8506,6 @@
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_test_creates_test_phase_then_releases_same_task_for_implementation"
       },
       {
-        "end_line": 212,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 203,
-        "name": "test_editor_discovers_draw_server_when_running_on_another_local_origin",
-        "qualified_name": "tests.test_draw_editor.test_editor_discovers_draw_server_when_running_on_another_local_origin",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_discovers_draw_server_when_running_on_another_local_origin"
-      },
-      {
         "end_line": 214,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -8533,6 +8534,16 @@
         "qualified_name": "stdd.core.init_project",
         "source": "python_ast",
         "symbol_id": "src/stdd/core.py:stdd.core.init_project"
+      },
+      {
+        "end_line": 215,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 203,
+        "name": "test_editor_persists_pending_layout_and_deletions_until_save",
+        "qualified_name": "tests.test_draw_editor.test_editor_persists_pending_layout_and_deletions_until_save",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_persists_pending_layout_and_deletions_until_save"
       },
       {
         "end_line": 217,
@@ -8586,16 +8597,6 @@
         "symbol_id": "src/stdd/backlog.py:stdd.backlog._has_self_loop"
       },
       {
-        "end_line": 223,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 215,
-        "name": "test_editor_does_not_update_local_index_for_an_unchanged_drawing",
-        "qualified_name": "tests.test_draw_editor.test_editor_does_not_update_local_index_for_an_unchanged_drawing",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_does_not_update_local_index_for_an_unchanged_drawing"
-      },
-      {
         "end_line": 224,
         "file": "tests/test_static_analysis.py",
         "kind": "function",
@@ -8646,6 +8647,16 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_does_not_update_index_when_logical_payload_is_unchanged"
       },
       {
+        "end_line": 227,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 218,
+        "name": "test_editor_discovers_draw_server_when_running_on_another_local_origin",
+        "qualified_name": "tests.test_draw_editor.test_editor_discovers_draw_server_when_running_on_another_local_origin",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_discovers_draw_server_when_running_on_another_local_origin"
+      },
+      {
         "end_line": 23,
         "file": "src/stdd/backlog.py",
         "kind": "function",
@@ -8686,14 +8697,14 @@
         "symbol_id": "src/stdd/setup.py:stdd.setup._stack_evidence"
       },
       {
-        "end_line": 236,
+        "end_line": 238,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 226,
-        "name": "test_editor_retries_subdraw_in_backend_before_showing_local_storage_error",
-        "qualified_name": "tests.test_draw_editor.test_editor_retries_subdraw_in_backend_before_showing_local_storage_error",
+        "line": 230,
+        "name": "test_editor_does_not_update_local_index_for_an_unchanged_drawing",
+        "qualified_name": "tests.test_draw_editor.test_editor_does_not_update_local_index_for_an_unchanged_drawing",
         "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_retries_subdraw_in_backend_before_showing_local_storage_error"
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_does_not_update_local_index_for_an_unchanged_drawing"
       },
       {
         "end_line": 242,
@@ -8786,14 +8797,14 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_global_test_alias_continues_after_suite_failure"
       },
       {
-        "end_line": 254,
+        "end_line": 251,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 239,
-        "name": "test_reset_button_is_the_only_way_to_clear_local_positions",
-        "qualified_name": "tests.test_draw_editor.test_reset_button_is_the_only_way_to_clear_local_positions",
+        "line": 241,
+        "name": "test_editor_retries_subdraw_in_backend_before_showing_local_storage_error",
+        "qualified_name": "tests.test_draw_editor.test_editor_retries_subdraw_in_backend_before_showing_local_storage_error",
         "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_reset_button_is_the_only_way_to_clear_local_positions"
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_retries_subdraw_in_backend_before_showing_local_storage_error"
       },
       {
         "end_line": 255,
@@ -8909,17 +8920,6 @@
       },
       {
         "end_line": 268,
-        "file": "draw-editor/src/components/CustomNode.tsx",
-        "kind": "function",
-        "line": 263,
-        "name": "<anonymous>",
-        "qualified_name": "<anonymous>",
-        "signature": "(e) =>",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/components/CustomNode.tsx:function:<anonymous>"
-      },
-      {
-        "end_line": 268,
         "file": "tests/test_backlog.py",
         "kind": "function",
         "line": 253,
@@ -8929,14 +8929,14 @@
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_builds_test_before_implementation_checklists_and_context"
       },
       {
-        "end_line": 268,
+        "end_line": 269,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 257,
-        "name": "test_shift_selection_keeps_neighbors_visible_while_ctrl_focuses_one_block",
-        "qualified_name": "tests.test_draw_editor.test_shift_selection_keeps_neighbors_visible_while_ctrl_focuses_one_block",
+        "line": 254,
+        "name": "test_reset_button_is_the_only_way_to_clear_local_positions",
+        "qualified_name": "tests.test_draw_editor.test_reset_button_is_the_only_way_to_clear_local_positions",
         "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_shift_selection_keeps_neighbors_visible_while_ctrl_focuses_one_block"
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_reset_button_is_the_only_way_to_clear_local_positions"
       },
       {
         "end_line": 27,
@@ -9059,16 +9059,6 @@
         "symbol_id": "src/stdd/setup.py:stdd.setup._looks_like_wordpress"
       },
       {
-        "end_line": 279,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 271,
-        "name": "test_shift_click_appends_to_a_normal_first_selection",
-        "qualified_name": "tests.test_draw_editor.test_shift_click_appends_to_a_normal_first_selection",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_shift_click_appends_to_a_normal_first_selection"
-      },
-      {
         "end_line": 28,
         "file": "src/stdd/contract.py",
         "kind": "function",
@@ -9077,6 +9067,16 @@
         "qualified_name": "stdd.contract.python_files",
         "source": "python_ast",
         "symbol_id": "src/stdd/contract.py:stdd.contract.python_files"
+      },
+      {
+        "end_line": 283,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 272,
+        "name": "test_shift_selection_keeps_neighbors_visible_while_ctrl_focuses_one_block",
+        "qualified_name": "tests.test_draw_editor.test_shift_selection_keeps_neighbors_visible_while_ctrl_focuses_one_block",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_shift_selection_keeps_neighbors_visible_while_ctrl_focuses_one_block"
       },
       {
         "end_line": 285,
@@ -9117,16 +9117,6 @@
         "qualified_name": "tests.test_draw.test_create_draw_requires_descriptive_top_level_id",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_requires_descriptive_top_level_id"
-      },
-      {
-        "end_line": 291,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 282,
-        "name": "test_selected_blocks_have_an_explicit_visual_state",
-        "qualified_name": "tests.test_draw_editor.test_selected_blocks_have_an_explicit_visual_state",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_selected_blocks_have_an_explicit_visual_state"
       },
       {
         "end_line": 291,
@@ -9177,6 +9167,16 @@
         "qualified_name": "stdd.draw._analysis_group_labels",
         "source": "python_ast",
         "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_group_labels"
+      },
+      {
+        "end_line": 294,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 286,
+        "name": "test_shift_click_appends_to_a_normal_first_selection",
+        "qualified_name": "tests.test_draw_editor.test_shift_click_appends_to_a_normal_first_selection",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_shift_click_appends_to_a_normal_first_selection"
       },
       {
         "end_line": 295,
@@ -9260,16 +9260,6 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_global_alias_can_explicitly_run_approved_suite"
       },
       {
-        "end_line": 303,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 294,
-        "name": "test_space_creates_an_instant_block_without_interrupting_text_fields",
-        "qualified_name": "tests.test_draw_editor.test_space_creates_an_instant_block_without_interrupting_text_fields",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_space_creates_an_instant_block_without_interrupting_text_fields"
-      },
-      {
         "end_line": 304,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -9288,6 +9278,16 @@
         "qualified_name": "tests.test_backlog.test_backlog_parent_and_subtask_can_be_completed_independently",
         "source": "python_ast",
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_parent_and_subtask_can_be_completed_independently"
+      },
+      {
+        "end_line": 306,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 297,
+        "name": "test_selected_blocks_have_an_explicit_visual_state",
+        "qualified_name": "tests.test_draw_editor.test_selected_blocks_have_an_explicit_visual_state",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_selected_blocks_have_an_explicit_visual_state"
       },
       {
         "end_line": 307,
@@ -9360,6 +9360,17 @@
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_implement_skill_triages_draw_diffs_before_declaring_no_change"
       },
       {
+        "end_line": 311,
+        "file": "draw-editor/src/components/CustomNode.tsx",
+        "kind": "function",
+        "line": 306,
+        "name": "<anonymous>",
+        "qualified_name": "<anonymous>",
+        "signature": "(e) =>",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/components/CustomNode.tsx:function:<anonymous>"
+      },
+      {
         "end_line": 313,
         "file": "src/stdd/core.py",
         "kind": "function",
@@ -9380,6 +9391,16 @@
         "symbol_id": "tests/test_traceability.py:tests.test_traceability.test_cli_associate_reference_accepts_batch_contract"
       },
       {
+        "end_line": 318,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 309,
+        "name": "test_space_creates_an_instant_block_without_interrupting_text_fields",
+        "qualified_name": "tests.test_draw_editor.test_space_creates_an_instant_block_without_interrupting_text_fields",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_space_creates_an_instant_block_without_interrupting_text_fields"
+      },
+      {
         "end_line": 319,
         "file": "src/stdd/draw.py",
         "kind": "function",
@@ -9388,16 +9409,6 @@
         "qualified_name": "stdd.draw._analysis_edge_tokens",
         "source": "python_ast",
         "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_edge_tokens"
-      },
-      {
-        "end_line": 319,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 306,
-        "name": "test_v_opens_question_editor_from_the_block_and_footer_documents_it",
-        "qualified_name": "tests.test_draw_editor.test_v_opens_question_editor_from_the_block_and_footer_documents_it",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_v_opens_question_editor_from_the_block_and_footer_documents_it"
       },
       {
         "end_line": 32,
@@ -9544,11 +9555,11 @@
         "end_line": 334,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 322,
-        "name": "test_editor_uses_only_curved_edges_and_shows_shortcut_footer",
-        "qualified_name": "tests.test_draw_editor.test_editor_uses_only_curved_edges_and_shows_shortcut_footer",
+        "line": 321,
+        "name": "test_v_opens_question_editor_from_the_block_and_footer_documents_it",
+        "qualified_name": "tests.test_draw_editor.test_v_opens_question_editor_from_the_block_and_footer_documents_it",
         "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_uses_only_curved_edges_and_shows_shortcut_footer"
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_v_opens_question_editor_from_the_block_and_footer_documents_it"
       },
       {
         "end_line": 338,
@@ -9601,16 +9612,6 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_test_reports_static_analysis_unavailable_without_adapter"
       },
       {
-        "end_line": 345,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 337,
-        "name": "test_focus_view_connects_incoming_arrows_to_the_left_back_of_nodes",
-        "qualified_name": "tests.test_draw_editor.test_focus_view_connects_incoming_arrows_to_the_left_back_of_nodes",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_focus_view_connects_incoming_arrows_to_the_left_back_of_nodes"
-      },
-      {
         "end_line": 346,
         "file": "tests/test_traceability.py",
         "kind": "function",
@@ -9629,6 +9630,16 @@
         "qualified_name": "stdd.static_analysis._validate_exception",
         "source": "python_ast",
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis._validate_exception"
+      },
+      {
+        "end_line": 349,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 337,
+        "name": "test_editor_uses_only_curved_edges_and_shows_shortcut_footer",
+        "qualified_name": "tests.test_draw_editor.test_editor_uses_only_curved_edges_and_shows_shortcut_footer",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_uses_only_curved_edges_and_shows_shortcut_footer"
       },
       {
         "end_line": 350,
@@ -9712,6 +9723,16 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_rejects_isolated_node_without_writing"
       },
       {
+        "end_line": 360,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 352,
+        "name": "test_focus_view_connects_incoming_arrows_to_the_left_back_of_nodes",
+        "qualified_name": "tests.test_draw_editor.test_focus_view_connects_incoming_arrows_to_the_left_back_of_nodes",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_focus_view_connects_incoming_arrows_to_the_left_back_of_nodes"
+      },
+      {
         "end_line": 362,
         "file": "tests/test_static_analysis.py",
         "kind": "function",
@@ -9740,16 +9761,6 @@
         "qualified_name": "stdd.static_analysis._validate_exception_metadata",
         "source": "python_ast",
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis._validate_exception_metadata"
-      },
-      {
-        "end_line": 369,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 348,
-        "name": "test_focus_view_keeps_curves_except_for_mutual_orthogonal_loops",
-        "qualified_name": "tests.test_draw_editor.test_focus_view_keeps_curves_except_for_mutual_orthogonal_loops",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_focus_view_keeps_curves_except_for_mutual_orthogonal_loops"
       },
       {
         "end_line": 37,
@@ -9873,16 +9884,6 @@
         "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_fingerprint"
       },
       {
-        "end_line": 382,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 372,
-        "name": "test_logical_save_is_manual_but_positions_use_presentation_cache",
-        "qualified_name": "tests.test_draw_editor.test_logical_save_is_manual_but_positions_use_presentation_cache",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_logical_save_is_manual_but_positions_use_presentation_cache"
-      },
-      {
         "end_line": 383,
         "file": "tests/test_static_analysis.py",
         "kind": "function",
@@ -9891,6 +9892,16 @@
         "qualified_name": "tests.test_static_analysis.test_expired_static_analysis_exception_blocks",
         "source": "python_ast",
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_expired_static_analysis_exception_blocks"
+      },
+      {
+        "end_line": 384,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 363,
+        "name": "test_focus_view_keeps_curves_except_for_mutual_orthogonal_loops",
+        "qualified_name": "tests.test_draw_editor.test_focus_view_keeps_curves_except_for_mutual_orthogonal_loops",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_focus_view_keeps_curves_except_for_mutual_orthogonal_loops"
       },
       {
         "end_line": 387,
@@ -9943,16 +9954,6 @@
         "symbol_id": "src/stdd/cli.py:stdd.cli.draw_serve"
       },
       {
-        "end_line": 394,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 385,
-        "name": "test_manual_save_button_persists_the_logical_contract",
-        "qualified_name": "tests.test_draw_editor.test_manual_save_button_persists_the_logical_contract",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_manual_save_button_persists_the_logical_contract"
-      },
-      {
         "end_line": 397,
         "file": "src/stdd/static_analysis.py",
         "kind": "function",
@@ -9961,6 +9962,16 @@
         "qualified_name": "stdd.static_analysis._validate_exception_target",
         "source": "python_ast",
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis._validate_exception_target"
+      },
+      {
+        "end_line": 397,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 387,
+        "name": "test_logical_save_is_manual_but_positions_use_presentation_cache",
+        "qualified_name": "tests.test_draw_editor.test_logical_save_is_manual_but_positions_use_presentation_cache",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_logical_save_is_manual_but_positions_use_presentation_cache"
       },
       {
         "end_line": 398,
@@ -10011,6 +10022,16 @@
         "qualified_name": "tests.test_draw.test_draw_create_warns_for_duplicate_structure_against_existing_draw",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_create_warns_for_duplicate_structure_against_existing_draw"
+      },
+      {
+        "end_line": 409,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 400,
+        "name": "test_manual_save_button_persists_the_logical_contract",
+        "qualified_name": "tests.test_draw_editor.test_manual_save_button_persists_the_logical_contract",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_manual_save_button_persists_the_logical_contract"
       },
       {
         "end_line": 41,
@@ -10144,16 +10165,6 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_structural_analysis_warns_for_near_duplicate_at_threshold"
       },
       {
-        "end_line": 423,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 397,
-        "name": "test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal",
-        "qualified_name": "tests.test_draw_editor.test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal"
-      },
-      {
         "end_line": 429,
         "file": "src/stdd/static_analysis.py",
         "kind": "function",
@@ -10214,6 +10225,16 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_level_two_contract_warns_for_nodes_without_code_refs"
       },
       {
+        "end_line": 438,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 412,
+        "name": "test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal",
+        "qualified_name": "tests.test_draw_editor.test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal"
+      },
+      {
         "end_line": 439,
         "file": "tests/test_stdd.py",
         "kind": "function",
@@ -10233,16 +10254,6 @@
         "signature": "export function computeEdgeHandles(",
         "source": "typescript_compiler_api",
         "symbol_id": "draw-editor/src/layout.ts:function:computeEdgeHandles"
-      },
-      {
-        "end_line": 443,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 426,
-        "name": "test_blocks_use_groups_instead_of_structural_types",
-        "qualified_name": "tests.test_draw_editor.test_blocks_use_groups_instead_of_structural_types",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_blocks_use_groups_instead_of_structural_types"
       },
       {
         "end_line": 446,
@@ -10305,14 +10316,14 @@
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_task_and_complete_walk_one_branch_then_the_next"
       },
       {
-        "end_line": 456,
+        "end_line": 458,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 446,
-        "name": "test_double_click_changes_group_and_canvas_click_exits_editing",
-        "qualified_name": "tests.test_draw_editor.test_double_click_changes_group_and_canvas_click_exits_editing",
+        "line": 441,
+        "name": "test_blocks_use_groups_instead_of_structural_types",
+        "qualified_name": "tests.test_draw_editor.test_blocks_use_groups_instead_of_structural_types",
         "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_double_click_changes_group_and_canvas_click_exits_editing"
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_blocks_use_groups_instead_of_structural_types"
       },
       {
         "end_line": 46,
@@ -10376,14 +10387,14 @@
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_secret_scanner_ignores_environment_lookup_and_placeholders"
       },
       {
-        "end_line": 470,
+        "end_line": 471,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 459,
-        "name": "test_new_drawing_button_persists_a_new_json_document",
-        "qualified_name": "tests.test_draw_editor.test_new_drawing_button_persists_a_new_json_document",
+        "line": 461,
+        "name": "test_double_click_changes_group_and_canvas_click_exits_editing",
+        "qualified_name": "tests.test_draw_editor.test_double_click_changes_group_and_canvas_click_exits_editing",
         "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_new_drawing_button_persists_a_new_json_document"
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_double_click_changes_group_and_canvas_click_exits_editing"
       },
       {
         "end_line": 473,
@@ -10426,16 +10437,6 @@
         "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_warning"
       },
       {
-        "end_line": 478,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 473,
-        "name": "test_runs_are_filtered_to_current_day",
-        "qualified_name": "tests.test_draw_editor.test_runs_are_filtered_to_current_day",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_runs_are_filtered_to_current_day"
-      },
-      {
         "end_line": 481,
         "file": "draw-editor/src/layout.ts",
         "kind": "function",
@@ -10455,6 +10456,16 @@
         "qualified_name": "tests.test_stdd.test_readme_documents_remote_install_and_interactive_integrations",
         "source": "python_ast",
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_readme_documents_remote_install_and_interactive_integrations"
+      },
+      {
+        "end_line": 485,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 474,
+        "name": "test_new_drawing_button_persists_a_new_json_document",
+        "qualified_name": "tests.test_draw_editor.test_new_drawing_button_persists_a_new_json_document",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_new_drawing_button_persists_a_new_json_document"
       },
       {
         "end_line": 486,
@@ -10487,16 +10498,6 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_contract_warns_for_level3_and_level4_missing_code_refs"
       },
       {
-        "end_line": 491,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 481,
-        "name": "test_code_references_modal_displays_file_path_under_symbol",
-        "qualified_name": "tests.test_draw_editor.test_code_references_modal_displays_file_path_under_symbol",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_code_references_modal_displays_file_path_under_symbol"
-      },
-      {
         "end_line": 493,
         "file": "src/stdd/static_analysis.py",
         "kind": "function",
@@ -10505,6 +10506,16 @@
         "qualified_name": "stdd.static_analysis.apply_static_analysis_policy",
         "source": "python_ast",
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis.apply_static_analysis_policy"
+      },
+      {
+        "end_line": 493,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 488,
+        "name": "test_runs_are_filtered_to_current_day",
+        "qualified_name": "tests.test_draw_editor.test_runs_are_filtered_to_current_day",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_runs_are_filtered_to_current_day"
       },
       {
         "end_line": 493,
@@ -10577,6 +10588,16 @@
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis.build_analysis_request"
       },
       {
+        "end_line": 506,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 496,
+        "name": "test_code_references_modal_displays_file_path_under_symbol",
+        "qualified_name": "tests.test_draw_editor.test_code_references_modal_displays_file_path_under_symbol",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_code_references_modal_displays_file_path_under_symbol"
+      },
+      {
         "end_line": 508,
         "file": "tests/test_cli.py",
         "kind": "function",
@@ -10585,16 +10606,6 @@
         "qualified_name": "tests.test_cli.test_contract_allows_production_function_without_docstring",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_contract_allows_production_function_without_docstring"
-      },
-      {
-        "end_line": 508,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 494,
-        "name": "test_sidebar_exposes_backlog_tasks_with_questions_and_symbols",
-        "qualified_name": "tests.test_draw_editor.test_sidebar_exposes_backlog_tasks_with_questions_and_symbols",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_sidebar_exposes_backlog_tasks_with_questions_and_symbols"
       },
       {
         "end_line": 51,
@@ -10657,16 +10668,6 @@
         "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_compare_entities"
       },
       {
-        "end_line": 519,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 511,
-        "name": "test_editor_loads_the_persisted_backlog_from_the_draw_server",
-        "qualified_name": "tests.test_draw_editor.test_editor_loads_the_persisted_backlog_from_the_draw_server",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_loads_the_persisted_backlog_from_the_draw_server"
-      },
-      {
         "end_line": 520,
         "file": "src/stdd/backlog.py",
         "kind": "function",
@@ -10675,6 +10676,16 @@
         "qualified_name": "stdd.backlog._build_checklist",
         "source": "python_ast",
         "symbol_id": "src/stdd/backlog.py:stdd.backlog._build_checklist"
+      },
+      {
+        "end_line": 523,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 509,
+        "name": "test_sidebar_exposes_backlog_tasks_with_questions_and_symbols",
+        "qualified_name": "tests.test_draw_editor.test_sidebar_exposes_backlog_tasks_with_questions_and_symbols",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_sidebar_exposes_backlog_tasks_with_questions_and_symbols"
       },
       {
         "end_line": 524,
@@ -10717,6 +10728,16 @@
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis._apply_quality_gate"
       },
       {
+        "end_line": 534,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 526,
+        "name": "test_editor_loads_the_persisted_backlog_from_the_draw_server",
+        "qualified_name": "tests.test_draw_editor.test_editor_loads_the_persisted_backlog_from_the_draw_server",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_loads_the_persisted_backlog_from_the_draw_server"
+      },
+      {
         "end_line": 536,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -10725,16 +10746,6 @@
         "qualified_name": "tests.test_draw.test_create_draw_accepts_subdraw_reference_and_counts_it",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_accepts_subdraw_reference_and_counts_it"
-      },
-      {
-        "end_line": 536,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 522,
-        "name": "test_editor_allows_node_checklists_and_persists_them_through_backlog_api",
-        "qualified_name": "tests.test_draw_editor.test_editor_allows_node_checklists_and_persists_them_through_backlog_api",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_allows_node_checklists_and_persists_them_through_backlog_api"
       },
       {
         "end_line": 536,
@@ -10805,6 +10816,16 @@
         "qualified_name": "stdd.backlog._refresh_test_statuses",
         "source": "python_ast",
         "symbol_id": "src/stdd/backlog.py:stdd.backlog._refresh_test_statuses"
+      },
+      {
+        "end_line": 551,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 537,
+        "name": "test_editor_allows_node_checklists_and_persists_them_through_backlog_api",
+        "qualified_name": "tests.test_draw_editor.test_editor_allows_node_checklists_and_persists_them_through_backlog_api",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_allows_node_checklists_and_persists_them_through_backlog_api"
       },
       {
         "end_line": 552,

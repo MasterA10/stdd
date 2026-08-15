@@ -22,6 +22,11 @@ export interface NodeData {
   background?: string;
   text?: string;
   draw_ref?: string;
+  backlogChecklist?: {
+    taskId: string;
+    test: boolean;
+    implementation: boolean;
+  };
   [key: string]: any;
 }
 

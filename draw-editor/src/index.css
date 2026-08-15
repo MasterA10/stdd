@@ -1125,6 +1125,52 @@ body,
   color: var(--accent-strong);
 }
 
+.node-check-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 28px;
+  height: 24px;
+  padding: 0 5px 0 3px;
+  border: 2px solid var(--paper);
+  border-radius: 999px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+  user-select: none;
+  transition: transform .15s, opacity .15s;
+}
+
+.node-check-action:hover {
+  transform: translateY(-1px);
+}
+
+.node-check-action.test {
+  color: #0369a1;
+}
+
+.node-check-action.implementation {
+  color: #047857;
+}
+
+.node-check-action.locked {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+.node-check-action input {
+  width: 12px;
+  height: 12px;
+  margin: 0;
+  accent-color: currentColor;
+  cursor: inherit;
+}
+
 .question-counts-pill {
   display: flex;
   align-items: center;
