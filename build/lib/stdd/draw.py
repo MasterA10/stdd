@@ -880,9 +880,11 @@ def find_addressed_questions(root: Path) -> list[dict[str, Any]]:
                 if isinstance(prompt, str) and re.search(r"@stdd", prompt, re.IGNORECASE) and unanswered:
                     questions.append({
                         "draw_id": draw_id,
+                        "draw_title": document.get("title", draw_id),
                         "draw_file": f".stdd/draws/{draw_id}.json",
                         "node_id": node.get("id"),
                         "node_label": node.get("label", ""),
+                        "node_code_refs": deepcopy(node.get("code_refs", [])),
                         "question_id": question.get("id"),
                         "type": question.get("type"),
                         "question": prompt,
@@ -890,6 +892,63 @@ def find_addressed_questions(root: Path) -> list[dict[str, Any]]:
                         "answer": answer,
                     })
     return questions
+
+
+def format_draw_answers(questions: list[dict[str, Any]]) -> str:
+    """Apresenta perguntas do Draw Answer agrupadas em uma leitura humana.
+    Inclui o nó, cada símbolo associado, arquivos e limitações sem imprimir JSON bruto.
+    """
+    if not questions:
+        return "Nenhuma pergunta @stdd pendente."
+
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    for question in questions:
+        draw_id = str(question.get("draw_id", "desenho desconhecido"))
+        grouped.setdefault(draw_id, []).append(question)
+
+    lines = ["Perguntas do Draw Answer", ""]
+    for draw_id, draw_questions in grouped.items():
+        draw_title = draw_questions[0].get("draw_title") or draw_id
+        lines.extend([f"Draw: {draw_title} ({draw_id})", ""])
+        for index, question in enumerate(draw_questions):
+            prompt = str(question.get("prompt") or question.get("question") or "").strip()
+            prompt = re.sub(r"@stdd\s*", "", prompt, count=1, flags=re.IGNORECASE).strip()
+            node_label = question.get("node_label") or "Nó sem nome"
+            node_id = question.get("node_id")
+            question_id = question.get("question_id")
+            lines.extend([
+                f"Pergunta: {prompt}",
+                f"ID da pergunta: {question_id}",
+                f"Nó: {node_label} (id {node_id})",
+            ])
+
+            references = question.get("node_code_refs")
+            references = references if isinstance(references, list) else []
+            valid_references = []
+            for reference in references:
+                if not isinstance(reference, dict):
+                    continue
+                symbol = reference.get("qualified_name") or reference.get("symbol")
+                if not isinstance(symbol, str) or not symbol.strip():
+                    continue
+                valid_references.append((symbol.strip(), reference.get("file")))
+            if valid_references:
+                for symbol, file in valid_references:
+                    lines.append(f"Símbolo associado ao nó: {symbol}")
+                    if isinstance(file, str) and file.strip():
+                        lines.append(f"Arquivo: {file.strip()}")
+                lines.append("Evidências: referência(s) registrada(s) no próprio nó.")
+                lines.append("Limitações: nenhuma limitação relevante encontrada.")
+            else:
+                lines.append("Símbolo associado ao nó: não comprovado")
+                lines.append("Evidências: o nó ainda não possui um símbolo válido em code_refs.")
+                lines.append("Limitações: a associação precisa ser investigada antes de concluir a resposta.")
+            lines.append("Status: aguardando investigação do Draw Answer.")
+            if index < len(draw_questions) - 1:
+                lines.append("")
+        lines.append("")
+
+    return "\n".join(lines).rstrip()
 
 
 def _atomic_write(path: Path, content: str) -> None:
@@ -1171,13 +1230,31 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
 
         def do_POST(self) -> None:
             """Reserva ou conclui uma task do backlog pelo servidor local."""
-            from .backlog import complete_backlog_task, next_backlog_task
+            from .backlog import complete_backlog_task, next_backlog_task, update_backlog_checklist
 
             path = urlparse(self.path).path
             if path == "/__stdd/api/backlog/task":
                 try:
                     self._send_json(next_backlog_task(root))
                 except (OSError, ValueError) as error:
+                    self._send_json({"status": "blocked", "error": str(error)}, 400)
+                return
+            if path == "/__stdd/api/backlog/checklist":
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                    if length <= 0 or length > 100_000:
+                        raise ValueError("payload de checklist inválido")
+                    body = json.loads(self.rfile.read(length).decode("utf-8"))
+                    if not isinstance(body, dict):
+                        raise ValueError("payload de checklist deve ser um objeto")
+                    result = update_backlog_checklist(
+                        root,
+                        body.get("task_id"),
+                        body.get("phase"),
+                        body.get("checked"),
+                    )
+                    self._send_json(result)
+                except (OSError, ValueError, UnicodeDecodeError, json.JSONDecodeError) as error:
                     self._send_json({"status": "blocked", "error": str(error)}, 400)
                 return
             prefix = "/__stdd/api/backlog/tasks/"

@@ -29,6 +29,12 @@ Não implementar uma folha marcada como não implementada sem escopo aprovado. S
 6. Revisar a consistência dos desenhos associados antes de alterar produção.
 7. Tratar capacidade ausente como `unavailable`; não inventar cobertura.
 
+## Ordem do backlog
+
+Antes de executar `stdd backlog task`, verificar se a resposta é `kind: "backlog-test-required"`. Nesse caso, não alterar produção: executar ou retomar `stdd backlog test`, criar os testes do nó de nível 2 e de todos os seus subfluxos ou marcar manualmente o fluxo já existente no viewer. `test_ref` e análise estática são evidências complementares, não uma pré-condição para o checklist. Só depois a mesma task pode ser implementada e concluída.
+
+Quando a resposta trouxer `parent_task`, `subtask` e `subtasks`, preservar o pai como contexto e concluir pai e subtasks por seus próprios IDs. O checklist de implementação só pode ser marcado depois que `phase_checklists.test` do nó e dos subfluxos estiver concluído.
+
 ### Uso da análise estática para refatoração segura
 
 Quando houver relatório de `static_analysis`, o agente deve usá-lo como evidência de risco, não como ordem automática de reescrita. Para cada `quality_finding` relevante:

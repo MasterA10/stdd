@@ -47,6 +47,22 @@ def test_init_can_install_skills_for_all_supported_agents(tmp_path: Path):
     assert (tmp_path / ".agents/skills/draw-answer/agents/openai.yaml").exists()
 
 
+def test_draw_answer_skill_requires_structured_human_output_with_node_symbol():
+    """Define a resposta do Draw Answer como uma saída humana e rastreável.
+    Exige que o contrato mostre o símbolo associado ao próprio nó e as evidências.
+    """
+    skill = Path("src/stdd/templates/agents/draw-answer/SKILL.md").read_text(encoding="utf-8")
+
+    assert "## Formato obrigatório da resposta" in skill
+    assert "### Resposta" in skill
+    assert "### Nó e símbolo associado" in skill
+    assert "### Evidências" in skill
+    assert "### Limitações" in skill
+    assert "linguagem natural" in skill
+    assert "não despeje o JSON bruto" in skill
+    assert "símbolo associado ao nó" in skill
+
+
 def test_init_interactive_selects_multiple_agent_integrations(tmp_path: Path):
     """Permite escolher várias integrações por números durante a inicialização.
     Simula a seleção de Claude e Gemini e confirma que o setup também pode ser aceito no mesmo fluxo.

@@ -427,7 +427,13 @@ def run_tests(
         errors.append("[static-analysis] " + _compact_output("; ".join(static_report["errors"])))
     output.append("[backlog] " + json.dumps({key: value for key, value in backlog_report.items() if key != "remaining_task_ids"}, ensure_ascii=False))
     if backlog_report["status"] == "blocked":
-        errors.append(f"[backlog] tasks pendentes: {backlog_report['remaining']}")
+        if backlog_report.get("missing_tests", 0):
+            errors.append(
+                f"[backlog] testes pendentes: {backlog_report['missing_tests']}"
+                + (f"; tasks pendentes: {backlog_report['remaining']}" if backlog_report.get("remaining") else "")
+            )
+        else:
+            errors.append(f"[backlog] tasks pendentes: {backlog_report['remaining']}")
     for suite in suites:
         skip_reason = get_suite_skip_reason(suite, active_profile, include_suites, excluded, approve_actions)
         if skip_reason:

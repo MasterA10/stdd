@@ -1946,6 +1946,15 @@ body,
 .backlog-status { padding: 3px 7px; border-radius: 99px; background: var(--accent-light); color: var(--accent-strong); font-size: 9px; font-weight: 800; }
 .backlog-detail-section { display: grid; gap: 6px; padding-top: 8px; border-top: 1px solid var(--line); }
 .backlog-detail-section strong { font-size: 10px; text-transform: uppercase; color: var(--muted); }
+.backlog-parent-context { display: grid; gap: 3px; padding: 7px 8px; border-radius: 9px; background: var(--paper-muted); font-size: 10px; }
+.backlog-parent-context strong { color: var(--muted); font-size: 9px; text-transform: uppercase; }
+.backlog-parent-context code { overflow-wrap: anywhere; color: var(--accent-strong); font-size: 8px; }
+.backlog-checklist-item { display: flex; align-items: center; gap: 7px; min-height: 24px; font-size: 10px; }
+.backlog-checklist-item input { accent-color: var(--accent); }
+.backlog-checklist-item span { flex: 1; }
+.backlog-checklist-item small { color: var(--warning, #b7791f); font-size: 8px; }
+.backlog-phase-checklists { gap: 5px; }
+.backlog-node-checklists strong { display: block; margin: 9px 0 4px; color: var(--muted); font-size: 10px; text-transform: uppercase; }
 .backlog-question { display: grid; gap: 3px; padding: 7px 8px; border-radius: 9px; background: var(--paper-muted); font-size: 10px; }
 .backlog-question code { color: var(--accent-strong); font-size: 9px; }
 .backlog-symbol { padding: 5px 0; }

@@ -14,8 +14,17 @@ from .core import (
     record_run_entry,
     run_tests,
 )
-from .backlog import complete_backlog_task, generate_backlog, missing_backlog, next_backlog_task
-from .draw import analyze_draw_contract, analyze_draw_structure, create_draw, find_addressed_questions, logical_draw_payload, read_draw_index, serve_draw
+from .backlog import complete_backlog_task, generate_backlog, missing_backlog, next_backlog_task, next_backlog_test
+from .draw import (
+    analyze_draw_contract,
+    analyze_draw_structure,
+    create_draw,
+    find_addressed_questions,
+    format_draw_answers,
+    logical_draw_payload,
+    read_draw_index,
+    serve_draw,
+)
 from .traceability import associate_node_reference, associate_node_references
 from .setup import (
     SUPPORTED_INTEGRATIONS,
@@ -198,6 +207,16 @@ def backlog_task() -> None:
         raise typer.Exit(1)
 
 
+@backlog_app.command("test")
+def backlog_test() -> None:
+    """Entrega uma task incremental para criação dos testes do nó e subfluxos."""
+    try:
+        typer.echo(json.dumps(next_backlog_test(project_root()), ensure_ascii=False, indent=2))
+    except (OSError, ValueError) as error:
+        typer.echo(f"Erro: {error}", err=True)
+        raise typer.Exit(1)
+
+
 @backlog_app.command("complete")
 def backlog_complete(task_id: str = typer.Argument(..., help="ID da task atualmente em andamento.")) -> None:
     """Conclui a task atual e avança o cursor da jornada."""
@@ -287,6 +306,19 @@ def draw_questions() -> None:
         typer.echo(f"Erro: {error}", err=True)
         raise typer.Exit(1)
     typer.echo(json.dumps(questions, ensure_ascii=False, indent=2))
+
+
+@draw_app.command("answer")
+def draw_answer() -> None:
+    """Entrega perguntas pendentes em linguagem humana, agrupadas por Draw e nó.
+    Mostra símbolos associados, arquivos, evidências e limitações sem despejar JSON.
+    """
+    try:
+        questions = find_addressed_questions(project_root())
+    except (OSError, ValueError, RuntimeError) as error:
+        typer.echo(f"Erro: {error}", err=True)
+        raise typer.Exit(1)
+    typer.echo(format_draw_answers(questions))
 
 
 @draw_app.command("diff")

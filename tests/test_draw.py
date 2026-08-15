@@ -135,6 +135,50 @@ def test_draw_questions_finds_only_open_stdd_questions(tmp_path: Path, monkeypat
     assert find_addressed_questions(tmp_path)[0]["prompt"] == "@stdd Onde está o handler?"
 
 
+def test_draw_answer_outputs_human_context_grouped_with_node_symbol(tmp_path: Path, monkeypatch):
+    """Apresenta perguntas pendentes em formato humano e rastreável.
+    Inclui o símbolo e o arquivo associados ao nó sem despejar o JSON bruto.
+    """
+    payload = draw_payload("resposta-organizada")
+    payload["nodes"][0]["code_refs"] = [
+        {"qualified_name": "CheckoutService.create", "symbol": "create", "file": "src/checkout.py"}
+    ]
+    payload["nodes"][0]["questions"] = [
+        {"id": 1, "type": "open", "prompt": "@stdd Onde está o handler?", "answer": None}
+    ]
+    create_draw(tmp_path, payload)
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(app, ["draw", "answer"])
+
+    assert result.exit_code == 0
+    assert "Draw: Checkout" in result.stdout
+    assert "Nó: Carrinho (id 1)" in result.stdout
+    assert "Pergunta: Onde está o handler?" in result.stdout
+    assert "Símbolo associado ao nó: CheckoutService.create" in result.stdout
+    assert "Arquivo: src/checkout.py" in result.stdout
+    assert "{" not in result.stdout
+    assert "@stdd" not in result.stdout
+
+
+def test_draw_answer_reports_when_node_symbol_is_not_proven(tmp_path: Path, monkeypatch):
+    """Explicita a ausência de rastreabilidade sem inventar um símbolo.
+    Mantém a pergunta legível e registra a limitação no relatório humano.
+    """
+    payload = draw_payload("resposta-sem-simbolo")
+    payload["nodes"][0]["questions"] = [
+        {"id": 1, "type": "open", "prompt": "@stdd Qual é o handler?", "answer": None}
+    ]
+    create_draw(tmp_path, payload)
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(app, ["draw", "answer"])
+
+    assert result.exit_code == 0
+    assert "Símbolo associado ao nó: não comprovado" in result.stdout
+    assert "a associação precisa ser investigada" in result.stdout
+
+
 def test_create_draw_rejects_invalid_question_contract(tmp_path: Path):
     """Bloqueia tipos, opções, respostas e IDs inválidos de perguntas.
     Tenta quatro contratos incorretos e garante que nenhum desenho inválido seja gravado.

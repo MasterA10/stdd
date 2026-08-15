@@ -25,6 +25,7 @@ interface SidebarProps {
   backlog: BacklogDocument | null;
   onClaimBacklogTask: () => void;
   onCompleteBacklogTask: (taskId: string) => void;
+  onUpdateBacklogChecklist: (taskId: string, phase: 'test' | 'implementation', checked: boolean) => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -47,7 +48,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   staticAnalysisKpis,
   backlog,
   onClaimBacklogTask,
-  onCompleteBacklogTask
+  onCompleteBacklogTask,
+  onUpdateBacklogChecklist
 }) => {
   const formatRunDate = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -126,6 +128,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
     Boolean(run.checkpoint) ||
     (Number(run.diff_stats?.lines_added || 0) === 0 && Number(run.diff_stats?.lines_deleted || 0) === 0);
   const visibleRuns = showZeroLineRuns ? runs : runs.filter((run) => !isZeroLineRun(run));
+  const selectedNodeTask = selectedNode
+    ? backlog?.tasks.find((task) => task.draw_id === currentDrawingId && task.node_id === selectedNode.id)
+    : undefined;
+  const selectedChecklistTaskIds = selectedNodeTask
+    ? new Set([selectedNodeTask.id, ...(selectedNodeTask.child_task_ids || [])])
+    : new Set<string>();
+  const selectedTestChecklist = (backlog?.phase_checklists?.test || []).filter((item) => selectedChecklistTaskIds.has(item.task_id));
+  const selectedImplementationChecklist = (backlog?.phase_checklists?.implementation || []).filter((item) => selectedChecklistTaskIds.has(item.task_id));
   const runTotals = visibleRuns.reduce((totals, run) => {
     const added = Number(run.diff_stats?.lines_added || 0);
     const removed = Number(run.diff_stats?.lines_deleted || 0);
@@ -397,7 +407,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       <div className="sidebar-content">
         {activeTab === 'backlog' && (
-          <BacklogPanel backlog={backlog} onClaimTask={onClaimBacklogTask} onCompleteTask={onCompleteBacklogTask} />
+          <BacklogPanel backlog={backlog} onClaimTask={onClaimBacklogTask} onCompleteTask={onCompleteBacklogTask} onUpdateChecklist={onUpdateBacklogChecklist} />
         )}
 
         {/* Tab 0: Drawings list */}
@@ -877,6 +887,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </button>
                   </form>
                 </div>
+                {selectedNodeTask && (
+                  <div className="node-questions-sub-editor backlog-node-checklists">
+                    <h4>Checklist do backlog</h4>
+                    <strong>Testes</strong>
+                    {selectedTestChecklist.length === 0 ? <span>Nenhum teste associado.</span> : selectedTestChecklist.map((item) => (
+                      <label className="backlog-checklist-item" key={item.id}>
+                        <input
+                          type="checkbox"
+                          checked={item.checked}
+                          onChange={(event) => onUpdateBacklogChecklist(item.task_id, 'test', event.target.checked)}
+                        />
+                        <span>{item.label}</span>
+                        {item.evidence_status !== 'done' && <small>marcação manual</small>}
+                      </label>
+                    ))}
+                    <strong>Implementação</strong>
+                    {selectedImplementationChecklist.length === 0 ? <span>Nenhuma implementação associada.</span> : selectedImplementationChecklist.map((item) => (
+                      <label className="backlog-checklist-item" key={item.id}>
+                        <input
+                          type="checkbox"
+                          checked={item.checked}
+                          onChange={(event) => onUpdateBacklogChecklist(item.task_id, 'implementation', event.target.checked)}
+                        />
+                        <span>{item.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
               </div>
             ) : selectedEdge ? (
               <div className="editor-card selected-item-card">

@@ -517,3 +517,20 @@ def test_editor_loads_the_persisted_backlog_from_the_draw_server():
     assert "/.stdd/backlog.json" in app
     assert "stdd-backlog" in app
     assert "BacklogDocument" in app
+
+
+def test_editor_allows_node_checklists_and_persists_them_through_backlog_api():
+    """Exibe os checklists de teste e implementação no nó selecionado.
+    Usa a API central e mantém o bloqueio visual quando falta evidência do teste.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    sidebar = (EDITOR_ROOT / "src/components/Sidebar.tsx").read_text(encoding="utf-8")
+    panel = (EDITOR_ROOT / "src/components/BacklogPanel.tsx").read_text(encoding="utf-8")
+    types = (EDITOR_ROOT / "src/types.ts").read_text(encoding="utf-8")
+
+    assert "/__stdd/api/backlog/checklist" in app
+    assert "phase_checklists" in types
+    assert "Checklist do backlog" in sidebar
+    assert "Checklist de teste" in panel
+    assert "Checklist de implementação" in panel
+    assert "marcação manual" in sidebar

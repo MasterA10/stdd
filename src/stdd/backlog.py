@@ -13,6 +13,9 @@ from .draw import draw_directory, facts_directory, read_draw, read_draw_index
 
 BACKLOG_VERSION = 1
 VALID_TASK_STATUSES = {"pending", "in_progress", "done"}
+VALID_TEST_STATUSES = {"missing", "in_progress", "done"}
+VALID_EXECUTION_PHASES = {None, "test", "implementation"}
+VALID_CHECKLIST_PHASES = {"test", "implementation"}
 
 
 def backlog_path(root: Path) -> Path:
@@ -72,6 +75,96 @@ def _reference_symbols(node: dict[str, Any]) -> tuple[list[str], list[str], list
             dependencies.update(item.strip() for item in source_dependencies if isinstance(item, str) and item.strip())
         references.append(deepcopy(reference))
     return sorted(symbols), sorted(dependencies), references
+
+
+def _normalize_test_ref(node: dict[str, Any]) -> tuple[dict[str, Any] | None, str | None]:
+    """Normaliza test_ref/test_refs para um arquivo e funções de teste.
+    Aceita os dois formatos públicos, mas rejeita cobertura espalhada por arquivos.
+    """
+    raw_refs: list[Any] = []
+    if "test_ref" in node:
+        raw_refs.append(node.get("test_ref"))
+    if "test_refs" in node:
+        raw_value = node.get("test_refs")
+        if not isinstance(raw_value, list):
+            return None, "test_refs deve ser uma lista"
+        raw_refs.extend(raw_value)
+    if not raw_refs:
+        return None, "test_ref ausente"
+
+    files: set[str] = set()
+    symbols: set[str] = set()
+    for reference in raw_refs:
+        if not isinstance(reference, dict):
+            return None, "cada referência de teste deve ser um objeto"
+        file = reference.get("file")
+        if not isinstance(file, str) or not file.strip():
+            return None, "referência de teste precisa de file"
+        files.add(file.strip())
+        raw_symbols = reference.get("symbols")
+        if not isinstance(raw_symbols, list):
+            return None, "referência de teste precisa de symbols como lista"
+        symbols.update(symbol.strip() for symbol in raw_symbols if isinstance(symbol, str) and symbol.strip())
+    if len(files) != 1:
+        return None, "a cobertura de teste deve usar um único arquivo"
+    if not symbols:
+        return None, "referência de teste precisa de ao menos uma função em symbols"
+    return {"file": next(iter(files)), "symbols": sorted(symbols)}, None
+
+
+def _static_test_symbols(root: Path) -> list[dict[str, Any]] | None:
+    """Lê o inventário de símbolos produzido pela análise estática atual."""
+    path = root / ".stdd" / "adapters" / "static-analysis-kpis.json"
+    if not path.exists():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        return None
+    details = payload.get("details") if isinstance(payload, dict) else None
+    symbols = details.get("symbols") if isinstance(details, dict) else None
+    return symbols if isinstance(symbols, list) else None
+
+
+def _test_reference_status(root: Path, test_ref: dict[str, Any] | None, error: str | None = None) -> dict[str, Any]:
+    """Comprova arquivo e funções de teste sem afirmar cobertura não analisada."""
+    if error or test_ref is None:
+        return {"status": "missing", "file": test_ref.get("file") if test_ref else None, "symbols": test_ref.get("symbols", []) if test_ref else [], "reason": error or "test_ref ausente"}
+    file_value = test_ref["file"]
+    file_path = Path(file_value)
+    if file_path.is_absolute() or ".." in file_path.parts:
+        return {"status": "missing", **deepcopy(test_ref), "reason": "arquivo de teste precisa ser relativo ao projeto"}
+    if not (root / file_path).is_file():
+        return {"status": "missing", **deepcopy(test_ref), "reason": "arquivo de teste não existe"}
+    available = _static_test_symbols(root)
+    if available is None:
+        return {"status": "missing", **deepcopy(test_ref), "reason": "análise estática de testes não disponível"}
+    available_symbols = {
+        (item.get("qualified_name"), item.get("file"))
+        for item in available
+        if isinstance(item, dict)
+    }
+    missing = [symbol for symbol in test_ref["symbols"] if (symbol, file_value) not in available_symbols]
+    if missing:
+        return {"status": "missing", **deepcopy(test_ref), "missing_symbols": missing, "reason": "função(ões) de teste não encontrada(s) na análise estática"}
+    return {"status": "done", **deepcopy(test_ref), "missing_symbols": [], "reason": "arquivo e funções comprovados"}
+
+
+def _default_checklist_state(task: dict[str, Any]) -> dict[str, bool]:
+    """Cria os estados de checklist para backlogs antigos ou tasks novas."""
+    return {
+        "test": task.get("test_status") == "done",
+        "implementation": task.get("status") == "done",
+    }
+
+
+def _valid_checklist_state(value: Any) -> dict[str, bool] | None:
+    """Aceita somente os dois marcadores booleanos persistidos pelo viewer."""
+    if not isinstance(value, dict):
+        return None
+    if not isinstance(value.get("test"), bool) or not isinstance(value.get("implementation"), bool):
+        return None
+    return {"test": value["test"], "implementation": value["implementation"]}
 
 
 def _traceability(root: Path, draw_id: str, node_id: Any, symbols: list[str]) -> list[dict[str, Any]]:
@@ -227,12 +320,15 @@ def _branch_occurrence(draw_id: str, branch: dict[str, Any], position: int, node
     }
 
 
-def _task_for_node(root: Path, document: dict[str, Any], node: dict[str, Any], branch: dict[str, Any], position: int, checklist_ids: set[str], parent_task_id: str | None = None) -> dict[str, Any]:
+def _task_for_node(root: Path, document: dict[str, Any], node: dict[str, Any], branch: dict[str, Any], position: int, checklist_ids: set[str], parent_task_id: str | None = None, test_owner_task_id: str | None = None) -> dict[str, Any]:
     draw_id = str(document["id"])
     node_id = node["id"]
     symbols, dependencies, code_refs = _reference_symbols(node)
+    level = document.get("_hierarchy", {}).get("level")
     item_id = f"task:{draw_id}:node:{node_id}"
     occurrence = _branch_occurrence(draw_id, branch, position, node_id)
+    test_ref, test_ref_error = _normalize_test_ref(node) if level == 2 else (None, None)
+    owner_id = item_id if level == 2 else test_owner_task_id
     return {
         "id": item_id,
         "draw_id": draw_id,
@@ -240,7 +336,7 @@ def _task_for_node(root: Path, document: dict[str, Any], node: dict[str, Any], b
         "parent_task_id": parent_task_id,
         "draw_title": document.get("title", draw_id),
         "node_id": node_id,
-        "level": document.get("_hierarchy", {}).get("level"),
+        "level": level,
         "label": node.get("label", ""),
         "description": node.get("description", ""),
         "questions": deepcopy(node.get("questions", [])) if isinstance(node.get("questions", []), list) else [],
@@ -248,6 +344,12 @@ def _task_for_node(root: Path, document: dict[str, Any], node: dict[str, Any], b
         "symbols": symbols,
         "source_dependencies": dependencies,
         "traceability": _traceability(root, draw_id, node_id, symbols),
+        "test_ref": test_ref,
+        "test_ref_error": test_ref_error,
+        "test_owner_task_id": owner_id,
+        "test_status": "missing" if owner_id else "not-required",
+        "test_evidence": _test_reference_status(root, test_ref, test_ref_error) if level == 2 else {"status": "not-required", "reason": "coberto pela task de nível 2"},
+        "checklist_state": {"test": False, "implementation": False},
         "child_checklist_id": next((ref for ref in node.get("draw_ref", []) if ref in checklist_ids), node.get("draw_ref")) if isinstance(node.get("draw_ref"), list) else node.get("draw_ref"),
         "status": "pending",
         "branch": occurrence,
@@ -301,7 +403,16 @@ def _append_child_backlog(root: Path, parent_task: dict[str, Any], parent_node: 
             tasks_by_id = context["tasks_by_id"]
             child_task = tasks_by_id.get(task_id)
             if child_task is None:
-                child_task = _task_for_node(root, child_document, child_node, child_branch, position, context["checklist_ids"], parent_task["id"])
+                child_task = _task_for_node(
+                    root,
+                    child_document,
+                    child_node,
+                    child_branch,
+                    position,
+                    context["checklist_ids"],
+                    parent_task["id"],
+                    parent_task.get("test_owner_task_id"),
+                )
                 previous_task = context["previous_tasks"].get(task_id)
                 if previous_task and previous_task.get("status") in VALID_TASK_STATUSES:
                     child_task["status"] = previous_task["status"]
@@ -409,6 +520,66 @@ def _build_checklist(root: Path, document: dict[str, Any], checklist_ids: set[st
     }
 
 
+def _refresh_test_statuses(root: Path, tasks: list[dict[str, Any]]) -> None:
+    """Atualiza a evidência do teste do nível 2 e propaga-a aos subfluxos."""
+    owners = {
+        task["id"]: task
+        for task in tasks
+        if task.get("level") == 2
+    }
+    for task in owners.values():
+        reference, error = _normalize_test_ref(task)
+        error = task.get("test_ref_error") or error
+        evidence = _test_reference_status(root, reference, error)
+        task["test_ref"] = reference
+        task["test_ref_error"] = error
+        task["test_status"] = evidence["status"]
+        task["test_evidence"] = evidence
+    for task in tasks:
+        owner_id = task.get("test_owner_task_id")
+        if task.get("level") == 2 or not owner_id:
+            continue
+        owner = owners.get(owner_id)
+        if owner is None:
+            task["test_status"] = "missing"
+            task["test_evidence"] = {"status": "missing", "reason": "task proprietária de teste não encontrada"}
+            continue
+        task["test_ref"] = deepcopy(owner.get("test_ref"))
+        task["test_status"] = owner.get("test_status", "missing")
+        task["test_evidence"] = deepcopy(owner.get("test_evidence", {}))
+
+
+def _refresh_checklist_states(tasks: list[dict[str, Any]], previous_tasks: dict[str, dict[str, Any]]) -> None:
+    """Preserva marcações manuais e inicializa o estado dos subfluxos."""
+    owners = {task["id"]: task for task in tasks if task.get("level") == 2}
+    for task in tasks:
+        previous = previous_tasks.get(task.get("id"), {})
+        state = _valid_checklist_state(previous.get("checklist_state"))
+        if state is None:
+            state = _default_checklist_state(task)
+            owner = owners.get(task.get("test_owner_task_id"))
+            if task.get("level") != 2 and owner is not None:
+                state["test"] = _valid_checklist_state(owner.get("checklist_state")) is not None and owner["checklist_state"]["test"]
+        task["checklist_state"] = state
+
+
+def _phase_checklists(tasks: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
+    """Materializa os dois checklists centrais a partir das tasks atuais."""
+    result = {"test": [], "implementation": []}
+    for task in tasks:
+        state = task.get("checklist_state", {})
+        base = {
+            "task_id": task["id"],
+            "draw_id": task.get("draw_id"),
+            "node_id": task.get("node_id"),
+            "label": task.get("label", ""),
+            "parent_task_id": task.get("parent_task_id"),
+        }
+        result["test"].append({"id": f"check:test:{task['id']}", **base, "checked": bool(state.get("test")), "evidence_status": task.get("test_evidence", {}).get("status")})
+        result["implementation"].append({"id": f"check:implementation:{task['id']}", **base, "checked": bool(state.get("implementation")), "status": task.get("status")})
+    return result
+
+
 def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]:
     """Constrói o backlog único, preservando progresso e cursor anteriores."""
     documents = _draw_documents(root)
@@ -431,10 +602,13 @@ def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]
     }
 
     checklists = [_build_checklist(root, document, checklist_ids, context) for document in documents]
+    _refresh_test_statuses(root, tasks)
+    _refresh_checklist_states(tasks, previous_tasks)
     previous_execution = previous.get("execution", {}) if isinstance(previous.get("execution", {}), dict) else {}
+    current_phase = previous_execution.get("current_phase")
     valid_task_ids = {task["id"] for task in tasks}
     current_task_id = previous_execution.get("current_task_id") if previous_execution.get("current_task_id") in valid_task_ids else None
-    if current_task_id and next((task for task in tasks if task["id"] == current_task_id), {}).get("status") == "done":
+    if current_task_id and current_phase != "test" and next((task for task in tasks if task["id"] == current_task_id), {}).get("status") == "done":
         current_task_id = None
     current_task = next((task for task in tasks if task["id"] == current_task_id), None)
     for checklist in checklists:
@@ -462,6 +636,7 @@ def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]
         "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "system": {"root_draw_ids": [str(document["id"]) for document in documents if document.get("_hierarchy", {}).get("level") == 1]},
         "checklists": checklists,
+        "phase_checklists": _phase_checklists(tasks),
         "backlogs": backlogs,
         "tasks": tasks,
         "execution": {
@@ -469,6 +644,9 @@ def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]
             "current_backlog_id": current_task.get("backlog_id") if current_task else None,
             "current_branch_id": previous_execution.get("current_branch_id"),
             "branch_position": previous_execution.get("branch_position"),
+            "current_phase": current_phase,
+            "current_parent_task_id": previous_execution.get("current_parent_task_id"),
+            "current_subtask_id": previous_execution.get("current_subtask_id"),
             "completed_branches": [],
             "branches": execution_branches,
         },
@@ -494,8 +672,35 @@ def validate_backlog(payload: Any) -> list[str]:
                 violations.append(f"tasks[{index}] precisa de id")
             elif task.get("status") not in VALID_TASK_STATUSES:
                 violations.append(f"tasks[{index}].status inválido")
+            if isinstance(task, dict):
+                test_status = task.get("test_status")
+                if test_status is not None and test_status not in VALID_TEST_STATUSES | {"not-required"}:
+                    violations.append(f"tasks[{index}].test_status inválido")
+                test_ref = task.get("test_ref")
+                if test_ref is not None:
+                    if not isinstance(test_ref, dict):
+                        violations.append(f"tasks[{index}].test_ref deve ser um objeto")
+                    else:
+                        if not isinstance(test_ref.get("file"), str) or not test_ref["file"].strip():
+                            violations.append(f"tasks[{index}].test_ref.file é obrigatório")
+                        symbols = test_ref.get("symbols")
+                        if not isinstance(symbols, list) or not all(isinstance(symbol, str) and symbol.strip() for symbol in symbols):
+                            violations.append(f"tasks[{index}].test_ref.symbols deve ser uma lista de nomes")
+                checklist_state = task.get("checklist_state")
+                if checklist_state is not None and _valid_checklist_state(checklist_state) is None:
+                    violations.append(f"tasks[{index}].checklist_state inválido")
     if not isinstance(payload.get("execution"), dict):
         violations.append("execution deve ser um objeto")
+    elif payload["execution"].get("current_phase") not in VALID_EXECUTION_PHASES:
+        violations.append("execution.current_phase inválido")
+    phase_checklists = payload.get("phase_checklists")
+    if phase_checklists is not None:
+        if not isinstance(phase_checklists, dict):
+            violations.append("phase_checklists deve ser um objeto")
+        else:
+            for phase in VALID_CHECKLIST_PHASES:
+                if not isinstance(phase_checklists.get(phase), list):
+                    violations.append(f"phase_checklists.{phase} deve ser uma lista")
     return violations
 
 
@@ -535,6 +740,8 @@ def check_backlog(root: Path) -> dict[str, Any]:
             "total": 0,
             "done": 0,
             "remaining": 0,
+            "missing_tests": 0,
+            "missing_test_task_ids": [],
             "current_task_id": None,
         }
     try:
@@ -547,20 +754,29 @@ def check_backlog(root: Path) -> dict[str, Any]:
             "total": 0,
             "done": 0,
             "remaining": 0,
+            "missing_tests": 0,
+            "missing_test_task_ids": [],
             "current_task_id": None,
             "errors": [str(error)],
         }
     tasks = [task for task in payload.get("tasks", []) if isinstance(task, dict)]
     remaining = [task for task in tasks if task.get("status") != "done"]
+    missing_tests = [
+        task for task in tasks
+        if task.get("level") == 2 and not _test_scope_complete(payload, task)
+    ]
     execution = payload.get("execution", {}) if isinstance(payload.get("execution"), dict) else {}
+    blocked_by_tests = bool(missing_tests)
     return {
         "name": "backlog",
-        "status": "blocked" if remaining else "passed",
-        "reason": "tasks_pending" if remaining else "all_tasks_complete",
+        "status": "blocked" if remaining or blocked_by_tests else "passed",
+        "reason": "tasks_missing_tests" if blocked_by_tests else "tasks_pending" if remaining else "all_tasks_complete",
         "total": len(tasks),
         "done": len(tasks) - len(remaining),
         "remaining": len(remaining),
         "remaining_task_ids": [task.get("id") for task in remaining[:10]],
+        "missing_tests": len(missing_tests),
+        "missing_test_task_ids": [task.get("id") for task in missing_tests[:10]],
         "current_task_id": execution.get("current_task_id"),
     }
 
@@ -585,50 +801,256 @@ def missing_backlog(root: Path) -> dict[str, Any]:
     }
 
 
+def _clear_execution_cursor(execution: dict[str, Any]) -> None:
+    """Limpa a reserva atual sem apagar o histórico das branches."""
+    execution["current_task_id"] = None
+    execution["current_backlog_id"] = None
+    execution["current_branch_id"] = None
+    execution["branch_position"] = None
+    execution["current_phase"] = None
+    execution["current_parent_task_id"] = None
+    execution["current_subtask_id"] = None
+
+
+def _parent_task(tasks: list[dict[str, Any]], task: dict[str, Any]) -> dict[str, Any]:
+    """Encontra a task pai raiz que contextualiza uma subtask."""
+    by_id = {item.get("id"): item for item in tasks}
+    current = task
+    visited: set[str] = set()
+    while isinstance(current.get("parent_task_id"), str) and current["parent_task_id"] not in visited:
+        visited.add(current["id"])
+        parent = by_id.get(current["parent_task_id"])
+        if parent is None:
+            break
+        current = parent
+    return current
+
+
+def _task_context(payload: dict[str, Any], task: dict[str, Any], phase: str, kind: str, instruction: str | None = None) -> dict[str, Any]:
+    """Retorna a task atual com pai e subtasks para o agente manter contexto."""
+    tasks = payload.get("tasks", [])
+    parent = _parent_task(tasks, task)
+    descendants = [
+        item for item in tasks
+        if item.get("id") in parent.get("child_task_ids", [])
+    ]
+    subtask = task if task.get("id") != parent.get("id") else next(
+        (item for item in descendants if item.get("status") != "done"),
+        None,
+    )
+    response: dict[str, Any] = {
+        "kind": kind,
+        "phase": phase,
+        "task": task,
+        "parent_task": parent,
+        "subtask": subtask,
+        "subtasks": descendants,
+    }
+    if instruction is not None:
+        response["instruction"] = instruction
+    return response
+
+
+def _task_for_update(payload: dict[str, Any], task_id: str) -> dict[str, Any]:
+    """Obtém uma task do backlog ou retorna um erro acionável."""
+    task = next((item for item in payload.get("tasks", []) if item.get("id") == task_id), None)
+    if task is None:
+        raise ValueError("task-id não existe no backlog")
+    return task
+
+
+def _test_scope_tasks(payload: dict[str, Any], task: dict[str, Any]) -> list[dict[str, Any]]:
+    """Retorna o pai e todos os subfluxos cobertos pelo teste agregado."""
+    parent = _parent_task(payload.get("tasks", []), task)
+    return [parent] + [
+        item for item in payload.get("tasks", [])
+        if item.get("id") in parent.get("child_task_ids", [])
+    ]
+
+
+def _test_scope_complete(payload: dict[str, Any], task: dict[str, Any]) -> bool:
+    """Verifica evidência e marcação de teste para pai e todos os subfluxos."""
+    scope = _test_scope_tasks(payload, task)
+    return all(
+        item.get("checklist_state", {}).get("test") is True
+        for item in scope
+    )
+
+
+def _refresh_task_checklist_items(payload: dict[str, Any]) -> None:
+    """Sincroniza checklist, task status e branches depois de uma edição."""
+    payload["phase_checklists"] = _phase_checklists(payload.get("tasks", []))
+    for checklist in payload.get("checklists", []):
+        for item in checklist.get("items", []):
+            task = next((task for task in payload.get("tasks", []) if task.get("id") == item.get("task_id")), None)
+            if task is not None:
+                item["status"] = task.get("status", "pending")
+                item["task"] = task
+    _refresh_branch_completion(payload)
+
+
+def update_backlog_checklist(root: Path, task_id: str, phase: str, checked: bool) -> dict[str, Any]:
+    """Atualiza um checkbox do backlog pela API local do viewer."""
+    if phase not in VALID_CHECKLIST_PHASES:
+        raise ValueError("fase de checklist inválida")
+    if not isinstance(checked, bool):
+        raise ValueError("checked deve ser booleano")
+    payload = generate_backlog(root)
+    task = _task_for_update(payload, task_id)
+    state = task.setdefault("checklist_state", _default_checklist_state(task))
+    if phase == "implementation" and checked and not _test_scope_complete(payload, task):
+        raise ValueError("checklist de teste do nó e dos subfluxos ainda não foi concluído")
+    state[phase] = checked
+    if phase == "implementation":
+        task["status"] = "done" if checked else "pending"
+    elif not checked:
+        parent = _parent_task(payload.get("tasks", []), task)
+        scope_ids = {parent.get("id"), *parent.get("child_task_ids", [])}
+        for item in payload.get("tasks", []):
+            if item.get("id") in scope_ids:
+                item.setdefault("checklist_state", _default_checklist_state(item))["implementation"] = False
+                item["status"] = "pending"
+    _refresh_task_checklist_items(payload)
+    write_backlog(root, payload)
+    return {"kind": "backlog-checklist-updated", "phase": phase, "checked": checked, "task": task, "backlog": payload}
+
+
+def next_backlog_test(root: Path) -> dict[str, Any]:
+    """Entrega a próxima task de teste antes da implementação.
+    Mantém a reserva incremental e agrega os subfluxos na task de nível 2.
+    """
+    payload = generate_backlog(root)
+    execution = payload["execution"]
+    current_id = execution.get("current_task_id")
+    current = next((task for task in payload["tasks"] if task["id"] == current_id), None)
+    if execution.get("current_phase") == "test" and current is not None:
+        return {"kind": "backlog-test-task", "phase": "test", "task": current}
+    if execution.get("current_phase") == "implementation" and current is not None:
+        raise ValueError("a task atual já está na fase de implementação")
+    task = next(
+        (item for item in payload["tasks"] if item.get("level") == 2 and not _test_scope_complete(payload, item)),
+        None,
+    )
+    if task is None:
+        _clear_execution_cursor(execution)
+        write_backlog(root, payload)
+        return {"kind": "backlog-test-empty", "status": "complete", "remaining": 0}
+    task["test_status"] = "in_progress"
+    task["test_previous_status"] = task.get("status")
+    if task.get("status") == "pending":
+        task["status"] = "in_progress"
+    execution["current_task_id"] = task["id"]
+    execution["current_backlog_id"] = task.get("backlog_id")
+    execution["current_branch_id"] = task.get("branch", {}).get("id")
+    execution["branch_position"] = task.get("branch", {}).get("position")
+    execution["current_phase"] = "test"
+    execution["current_parent_task_id"] = _parent_task(payload["tasks"], task).get("id")
+    execution["current_subtask_id"] = task.get("id") if task.get("parent_task_id") else None
+    write_backlog(root, payload)
+    return _task_context(
+        payload,
+        task,
+        "test",
+        "backlog-test-task",
+        "Crie os testes do nó de nível 2 e de todos os seus subfluxos; não implemente produção.",
+    )
+
+
 def next_backlog_task(root: Path) -> dict[str, Any]:
     """Entrega e persiste a próxima task da ordem de branches."""
     payload = generate_backlog(root)
     execution = payload["execution"]
     current_id = execution.get("current_task_id")
+    current_phase = execution.get("current_phase")
     if current_id:
         current = next((task for task in payload["tasks"] if task["id"] == current_id), None)
+        if current_phase == "test" and current and not _test_scope_complete(payload, current):
+            response = _task_context(payload, current, "test", "backlog-test-required")
+            response.update({"status": "blocked", "reason": "test_in_progress"})
+            return response
+        if current_phase == "implementation" and current and current.get("status") == "in_progress":
+            return _task_context(payload, current, "implementation", "backlog-task")
         if current and current.get("status") == "in_progress":
-            return {"kind": "backlog-task", "task": current}
+            return _task_context(payload, current, "implementation", "backlog-task")
     task = next((item for item in payload["tasks"] if item.get("status") != "done"), None)
     if task is None:
-        execution["current_task_id"] = None
-        execution["current_backlog_id"] = None
+        _clear_execution_cursor(execution)
         write_backlog(root, payload)
         return {"kind": "backlog-empty", "status": "complete", "remaining": 0}
+    if task.get("level") == 2 and not _test_scope_complete(payload, task):
+        response = _task_context(payload, task, "test", "backlog-test-required")
+        response.update({"status": "blocked", "reason": "test_missing" if task.get("test_status") == "missing" else "test_not_complete"})
+        return response
     task["status"] = "in_progress"
     execution["current_task_id"] = task["id"]
     execution["current_backlog_id"] = task.get("backlog_id")
     execution["current_branch_id"] = task["branch"]["id"]
     execution["branch_position"] = task["branch"]["position"]
+    execution["current_phase"] = "implementation"
+    execution["current_parent_task_id"] = _parent_task(payload["tasks"], task).get("id")
+    execution["current_subtask_id"] = task.get("id") if task.get("parent_task_id") else None
     for checklist in payload["checklists"]:
         for item in checklist.get("items", []):
             if item.get("id") == task["id"]:
                 item["status"] = "in_progress"
     write_backlog(root, payload)
-    return {"kind": "backlog-task", "task": task}
+    return _task_context(payload, task, "implementation", "backlog-task")
 
 
 def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
     """Conclui somente a task atualmente reservada para o agente."""
-    payload = read_backlog(root)
+    payload = generate_backlog(root)
     execution = payload["execution"]
-    if execution.get("current_task_id") != task_id:
-        raise ValueError("task-id não corresponde à task atual")
+    current_id = execution.get("current_task_id")
+    current = next((item for item in payload["tasks"] if item["id"] == current_id), None)
+    requested = next((item for item in payload["tasks"] if item["id"] == task_id), None)
+    if requested is None:
+        raise ValueError("task-id não existe no backlog")
+    if current_id != task_id:
+        if current is None or requested.get("id") not in current.get("child_task_ids", []):
+            raise ValueError("task-id não corresponde à task atual ou a uma subtask do contexto atual")
+        if execution.get("current_phase") == "test":
+            requested.setdefault("checklist_state", _default_checklist_state(requested))["test"] = True
+        else:
+            if not _test_scope_complete(payload, current):
+                raise ValueError("teste do nó e dos subfluxos ainda não foi concluído")
+            requested["status"] = "done"
+            requested.setdefault("checklist_state", _default_checklist_state(requested))["implementation"] = True
+        _refresh_task_checklist_items(payload)
+        write_backlog(root, payload)
+        response = _task_context(payload, current, execution.get("current_phase") or "implementation", "backlog-subtask-complete")
+        response.update({"status": "test-done" if execution.get("current_phase") == "test" else "done", "completed_task_id": task_id})
+        return response
     task = next((item for item in payload["tasks"] if item["id"] == task_id), None)
-    if task is None or task.get("status") != "in_progress":
+    if task is None:
         raise ValueError("task atual não está em andamento")
+    if execution.get("current_phase") == "test":
+        previous_status = task.pop("test_previous_status", None)
+        task["test_status"] = "done"
+        for scope_task in _test_scope_tasks(payload, task):
+            scope_task.setdefault("checklist_state", _default_checklist_state(scope_task))["test"] = True
+        if previous_status == "pending":
+            task["status"] = "pending"
+        _clear_execution_cursor(execution)
+        _refresh_task_checklist_items(payload)
+        write_backlog(root, payload)
+        response = _task_context(payload, task, "test", "backlog-test-complete")
+        response.update({"status": "test-done", "remaining": sum(1 for item in payload["tasks"] if item.get("level") == 2 and not _test_scope_complete(payload, item))})
+        return response
+    if task.get("status") != "in_progress":
+        raise ValueError("task atual não está em andamento")
+    if task.get("level") == 2 and not _test_scope_complete(payload, task):
+        raise ValueError("teste da task ainda não foi comprovado")
     task["status"] = "done"
+    task.setdefault("checklist_state", _default_checklist_state(task))["implementation"] = True
     for checklist in payload["checklists"]:
         for item in checklist.get("items", []):
             if item.get("id") == task_id:
                 item["status"] = "done"
-    execution["current_task_id"] = None
-    execution["current_backlog_id"] = None
+    _clear_execution_cursor(execution)
     _refresh_branch_completion(payload)
+    _refresh_task_checklist_items(payload)
     write_backlog(root, payload)
-    return {"kind": "backlog-complete", "status": "done", "task": task, "remaining": sum(1 for item in payload["tasks"] if item.get("status") != "done")}
+    response = _task_context(payload, task, "implementation", "backlog-complete")
+    response.update({"status": "done", "remaining": sum(1 for item in payload["tasks"] if item.get("status") != "done")})
+    return response

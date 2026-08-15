@@ -1,0 +1,176 @@
+{
+  "version": 1,
+  "date": "2026-08-15",
+  "runs": [
+    {
+      "run_id": "4bc2350c14a14e2c8240b68ebc0a989b",
+      "timestamp": "2026-08-15T17:06:31.907887+00:00",
+      "description": "Organiza a saída do Draw Answer com símbolo do nó",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 142,
+        "lines_deleted": 1,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "b4d52332a22d4bbd940f1233596d3f1c",
+      "timestamp": "2026-08-15T17:31:53.700907+00:00",
+      "description": "Especifica o ciclo incremental de testes do backlog",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 997,
+        "lines_deleted": 95,
+        "files_changed": 10
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "c06948d70590413c85c1fefb48b905cc",
+      "timestamp": "2026-08-15T17:31:56.827802+00:00",
+      "description": "Implementa stdd backlog test e bloqueio da implementação sem evidência",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "641d6cf7fb48415f8318efceee6b1ea6",
+      "timestamp": "2026-08-15T17:54:43.615689+00:00",
+      "description": "Adiciona regressões para checklists e contexto pai-subtasks",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 801,
+        "lines_deleted": 115,
+        "files_changed": 17
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "ae68a0345e8344f18f4bb528b5c328d5",
+      "timestamp": "2026-08-15T17:54:47.156127+00:00",
+      "description": "Implementa checklists editáveis no backlog e contexto de subtasks",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "8da0d86f16d6413b9afa6eed3f829535",
+      "timestamp": "2026-08-15T18:04:57.258467+00:00",
+      "description": "Permite concluir checklists manualmente sem análise estática",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 60,
+        "lines_deleted": 102,
+        "files_changed": 13
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "0449e66323b1497fae27d79c1567888b",
+      "timestamp": "2026-08-15T18:05:00.950169+00:00",
+      "description": "Adiciona regressão para marcação manual sem análise estática",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "b946d416f04e4960bccc969bc8730106",
+      "timestamp": "2026-08-15T18:09:14.857525+00:00",
+      "description": "Documenta criação interativa de testes na skill create-tests",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    }
+  ],
+  "run_count": 8,
+  "last_run_id": "b946d416f04e4960bccc969bc8730106"
+}

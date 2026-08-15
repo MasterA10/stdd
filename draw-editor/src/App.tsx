@@ -171,6 +171,54 @@ export const App: React.FC = () => {
     });
   };
 
+  const updateBacklogChecklist = async (taskId: string, phase: 'test' | 'implementation', checked: boolean) => {
+    if (storageMode === 'backend') {
+      try {
+        const response = await fetch(`${getApiOrigin()}/__stdd/api/backlog/checklist`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ task_id: taskId, phase, checked })
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
+        await loadBacklog();
+        return;
+      } catch (error: any) { alert(`Erro ao atualizar checklist: ${error.message}`); return; }
+    }
+    updateLocalBacklog((previous) => {
+      const task = previous.tasks.find((item) => item.id === taskId);
+      if (!task) return previous;
+      const state = { test: Boolean(task.checklist_state?.test), implementation: Boolean(task.checklist_state?.implementation) };
+      if (phase === 'implementation' && checked) {
+        const parentId = task.parent_task_id || task.id;
+        const parent = previous.tasks.find((item) => item.id === parentId) || task;
+        const scopeIds = new Set([parent.id, ...(parent.child_task_ids || [])]);
+        const complete = previous.tasks.filter((item) => scopeIds.has(item.id)).every((item) => item.checklist_state?.test === true);
+        if (!complete) {
+          alert('O checklist de teste do nó e dos subfluxos ainda não foi concluído.');
+          return previous;
+        }
+      }
+      state[phase] = checked;
+      let tasks = previous.tasks.map((item) => item.id === taskId ? { ...item, checklist_state: state, status: phase === 'implementation' ? (checked ? 'done' as const : 'pending' as const) : item.status } : item);
+      if (phase === 'test' && !checked) {
+        const parentId = task.parent_task_id || task.id;
+        const parent = tasks.find((item) => item.id === parentId) || task;
+        const scopeIds = new Set([parent.id, ...(parent.child_task_ids || [])]);
+        tasks = tasks.map((item) => scopeIds.has(item.id) ? { ...item, checklist_state: { ...(item.checklist_state || { test: false, implementation: false }), implementation: false }, status: 'pending' as const } : item);
+      }
+      const phaseChecklists = previous.phase_checklists || { test: [], implementation: [] };
+      return {
+        ...previous,
+        tasks,
+        phase_checklists: {
+          test: (phaseChecklists.test || []).map((item) => ({ ...item, checked: tasks.find((taskItem) => taskItem.id === item.task_id)?.checklist_state?.test === true })),
+          implementation: (phaseChecklists.implementation || []).map((item) => ({ ...item, checked: tasks.find((taskItem) => taskItem.id === item.task_id)?.checklist_state?.implementation === true, status: tasks.find((taskItem) => taskItem.id === item.task_id)?.status }))
+        }
+      };
+    });
+  };
+
   useEffect(() => {
     let cancelled = false;
 
@@ -1496,6 +1544,7 @@ export const App: React.FC = () => {
           backlog={backlog}
           onClaimBacklogTask={claimBacklogTask}
           onCompleteBacklogTask={completeBacklogTask}
+          onUpdateBacklogChecklist={updateBacklogChecklist}
         />
 
         {/* Canvas Area */}

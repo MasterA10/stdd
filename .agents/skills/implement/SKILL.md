@@ -29,6 +29,12 @@ Não implementar uma folha marcada como não implementada sem escopo aprovado. S
 6. Revisar a consistência dos desenhos associados antes de alterar produção.
 7. Tratar capacidade ausente como `unavailable`; não inventar cobertura.
 
+## Ordem do backlog
+
+Antes de executar `stdd backlog task`, verificar se a resposta é `kind: "backlog-test-required"`. Nesse caso, não alterar produção: executar ou retomar `stdd backlog test`, criar os testes do nó de nível 2 e de todos os seus subfluxos ou marcar manualmente o fluxo já existente no viewer. `test_ref` e análise estática são evidências complementares, não uma pré-condição para o checklist. Só depois a mesma task pode ser implementada e concluída.
+
+Quando a resposta trouxer `parent_task`, `subtask` e `subtasks`, preservar o pai como contexto e concluir pai e subtasks por seus próprios IDs. O checklist de implementação só pode ser marcado depois que `phase_checklists.test` do nó e dos subfluxos estiver concluído.
+
 ### Uso da análise estática para refatoração segura
 
 Quando houver relatório de `static_analysis`, o agente deve usá-lo como evidência de risco, não como ordem automática de reescrita. Para cada `quality_finding` relevante:
@@ -80,6 +86,20 @@ Se um desenho referenciado possuir `questions`, ler as respostas persistidas com
 5. Manter fatos determinísticos separados de interpretação produzida por IA.
 6. Não gravar segredos, tokens, prompts privados ou respostas sensíveis.
 7. Não inserir comentários em funções de produção, exceto para decisão importante ou comportamento não óbvio.
+
+### Execução por backlog
+
+Quando houver um backlog gerado, o `$implement` deve executar o ciclo operacional até não haver mais tasks:
+
+1. executar `stdd backlog task`;
+2. encerrar com `backlog-empty` somente quando o comando indicar que não há tasks restantes;
+3. ler perguntas, respostas, símbolos, dependências e subfluxo da task;
+4. implementar somente a task retornada;
+5. executar os testes específicos e os gates aplicáveis;
+6. executar `stdd backlog complete <task-id>` com o ID exato recebido;
+7. repetir `stdd backlog task`.
+
+Uma task `in_progress` deve ser retomada antes de qualquer outra. Não concluir uma task fora de ordem nem fabricar símbolos, arquivos ou respostas. Se houver bloqueio, preservar a task sem executar `backlog complete` e relatar o motivo.
 
 ## Seleção proporcional de testes
 

@@ -169,6 +169,14 @@ stdd draw diff --run-id <run-id>
 
 Sem `--run-id`, o comando compara o estado atual com o último checkpoint salvo em `.stdd/runs/`; com `--run-id`, ele reexibe o diff histórico daquela interação. Em ambos os casos, considera apenas JSONs diretos de `.stdd/draws/`, exclui `index.json` e não consulta GitHub, `git diff` nem arquivos da codebase.
 
+Para entregar as perguntas pendentes do Draw Answer em uma leitura humana, agrupadas por desenho e nó, use:
+
+```bash
+stdd draw answer
+```
+
+A saída mostra a pergunta sem `@stdd`, o nó, o símbolo associado ao nó, o arquivo, as evidências e as limitações. O comando é somente leitura; `stdd draw questions` continua disponível para o JSON operacional consumido pela skill.
+
 Logs sem linhas adicionadas ou removidas no código são mantidos como checkpoints, com `checkpoint: true` no `*_summary.json`. O detalhamento dos JSONs alterados fica no `*_snapshot.json`; a aba `Runs` do Draw permite ocultar esses checkpoints de 0 linhas.
 
 Cada execução de `stdd test` também atualiza `.stdd/adapters/static-analysis-kpis.json` com os indicadores agregados e os detalhes dos símbolos, dependências, métricas, arquivos e achados de qualidade. O Draw Server expõe esse JSON e o viewer o apresenta na aba lateral `Análise`, ao lado de `Desenhos`; os Draws continuam separados em `.stdd/draws/` e os facts de rastreabilidade em `.stdd/facts/`.
@@ -196,7 +204,20 @@ stdd backlog task
 stdd backlog complete <task-id>
 ```
 
-`backlog task` deve ser repetido até retornar `backlog-empty`. O `$miss-agent` e o `$implement` executam esse ciclo: leem uma task, implementam, testam, concluem pelo ID e solicitam a próxima. Self-loops são terminais; ciclos diferentes de self-loop são bloqueados para evitar execução infinita. A aba `Backlog` do viewer mostra a task atual, perguntas, respostas e símbolos quando o Draw Server está ativo.
+Antes da implementação, crie incrementalmente o teste da jornada:
+
+```bash
+stdd backlog test
+stdd backlog complete <task-id>
+```
+
+Um nó de nível 2 pode declarar `test_ref` — ou `test_refs` compatíveis — com um único arquivo e as funções que cobrem o nó e todos os seus subfluxos. Quando essa referência existir, a análise estática será exibida como evidência complementar; ela não é obrigatória para marcar o checklist. `backlog test` entrega a task reservada para criar esses testes sem alterar produção, mas fluxos de sistemas já existentes também podem ser marcados manualmente no viewer.
+
+O backlog mantém dois checklists centrais em `phase_checklists`: `test` vem antes de `implementation`, e os itens são derivados das tasks e subfluxos. No Draw, ao selecionar um nó, a Sidebar permite marcar ou desmarcar esses itens. A marcação é persistida no `.stdd/backlog.json` pelo servidor local, sem validação obrigatória de análise estática; a implementação continua bloqueada enquanto o checklist de teste do nó e de seus subfluxos estiver pendente.
+
+Se `backlog task` for chamado antes da marcação do checklist de teste, ele retorna JSON com `kind: "backlog-test-required"`, `status: "blocked"` e a razão, sem reservar a implementação. O `$miss-agent` e o `$implement` devem atender essa resposta com a etapa de testes ou com a marcação manual do fluxo já existente. Self-loops são terminais; ciclos diferentes de self-loop são bloqueados para evitar execução infinita. A aba `Backlog` do viewer mostra a task atual, perguntas, respostas, símbolos e a evidência opcional do teste quando o Draw Server está ativo.
+
+Quando uma task possui subfluxo, `backlog task` e `backlog test` retornam a task atual, `parent_task`, a subtask atual e o resumo das demais subtasks. Pai e subtasks são independentes e devem ser concluídos pelos seus próprios IDs; a resposta mantém o contexto do pai enquanto avança pela primeira, segunda e demais subtasks.
 
 ## Executar testes
 
@@ -205,7 +226,7 @@ stdd test
 ```
 
 Esse é o alias global. Ele executa as suítes configuradas, análise estática, contrato e runners da stack. Suítes que exigem aprovação explícita aparecem como `not_executed` quando não autorizadas.
-Se `.stdd/backlog.json` existir, o alias também executa o gate do backlog e bloqueia enquanto houver task sem `backlog complete`; a saída do terminal mostra somente status e contagens, mantendo os detalhes no relatório estruturado.
+Se `.stdd/backlog.json` existir, o alias também executa o gate do backlog e bloqueia enquanto houver task sem `backlog complete` ou nó de nível 2 sem teste comprovado; a saída do terminal mostra somente status e contagens, mantendo os detalhes no relatório estruturado.
 
 Opções úteis:
 

@@ -122,6 +122,28 @@ Em PostgreSQL, considerar pgTAP para validar schema, constraints, índices, fun�
 
 Usar `stdd test` como alias global para confirmar que todas as suítes configuradas continuam executáveis. Uma feature pode começar pelos testes relacionados, mas não deve ser apresentada como validada globalmente sem essa execução agregada.
 
+## Criação interativa usando os comandos
+
+O comando entrega o contexto; a conversa define o comportamento. Em uma sessão de especificação, trabalhar em incrementos pequenos e confirmar cada cenário antes de gravá-lo:
+
+1. Atualizar o backlog com `stdd backlog generate` quando o Draw tiver mudado.
+2. Executar `stdd backlog test` e ler a task recebida, incluindo o nó pai, a subtask atual, as demais subtasks, perguntas, respostas e símbolos. Não escolher outra task por conta própria nem começar pela implementação.
+3. Apresentar ao usuário uma matriz curta do cenário atual: papel, pré-condições, entrada, resultado esperado, erro ou limite, efeito colateral e subfluxos cobertos. Perguntar somente as decisões que ainda estiverem abertas; não inventar regra, permissão, dado ou integração.
+4. Depois da confirmação, criar ou ajustar o teste executável correspondente e executar o runner focado. A falha inicial é esperada quando o comportamento ainda não existe, mas deve falhar pela razão confirmada; uma falha de ambiente, contrato ou cenário deve ser corrigida ou reportada antes de avançar.
+5. Mostrar o resultado e perguntar se o cenário está correto ou precisa de ajuste. Repetir os passos 3 e 4 para sucesso, erro, limites, segurança e cada subfluxo aplicável. Um arquivo de teste pode conter várias funções, mas cada função deve cobrir um comportamento observável e rastreável ao nó.
+6. Quando todos os cenários da task estiverem especificados e executados, registrar a evidência, associar `test_ref` ou `test_refs` quando for útil e executar `stdd backlog complete <task-id>` usando exatamente o ID retornado por `stdd backlog test`.
+7. Repetir `stdd backlog test` para a próxima task. Só depois de concluir a fase de testes usar `stdd backlog task`; se ele retornar `backlog-test-required`, voltar à fase de testes e não alterar produção.
+
+O fluxo interativo é incremental: não criar uma suíte inteira baseada em suposições antes de obter confirmação. `stdd backlog test` não é um prompt conversacional adicional; ele entrega uma unidade de trabalho, e o agente deve conduzir a confirmação dos cenários com o usuário antes de escrever cada grupo de testes. Ao final, executar `stdd test` e registrar separadamente `stdd log "Especifica testes interativamente para a task <task-id>" --type teste`.
+
+## Fase de testes do backlog
+
+Quando a task vier de `stdd backlog test`, trabalhar somente na especificação executável: criar ou ajustar os testes do nó de nível 2 e de todos os subfluxos que ele agrega. Não alterar código de produção nessa fase. `test_ref` ou `test_refs` podem ser associados ao nó quando houver uma referência técnica útil, mas não são obrigatórios para marcar o checklist. Depois de salvar o Draw, executar a análise estática quando disponível e executar `stdd backlog complete <task-id>`. A mesma task será liberada para implementação por `stdd backlog task`.
+
+O backlog também expõe `phase_checklists.test` e `phase_checklists.implementation`. O checklist de teste vem primeiro; a marcação manual é válida mesmo quando a análise estática estiver indisponível. `test_ref` e a análise continuam sendo evidências complementares, e o item pode ser desfeito no viewer para indicar que o teste deixou de estar concluído.
+
+Se `stdd backlog task` retornar `kind: "backlog-test-required"`, não implementar ainda: iniciar ou retomar `stdd backlog test` e manter a task sem conclusão até que a evidência seja comprovada.
+
 ## Clareza dos testes
 
 - Nomear cada teste pelo comportamento observável.

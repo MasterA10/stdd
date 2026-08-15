@@ -173,6 +173,11 @@ export interface BacklogTask {
   symbols?: string[];
   source_dependencies?: string[];
   traceability?: Array<{ symbol: string; status?: string; file?: string }>;
+  test_ref?: { file: string; symbols: string[] } | null;
+  test_status?: 'missing' | 'in_progress' | 'done' | 'not-required';
+  test_evidence?: { status?: string; file?: string | null; symbols?: string[]; missing_symbols?: string[]; reason?: string };
+  test_owner_task_id?: string | null;
+  checklist_state?: { test: boolean; implementation: boolean };
   child_checklist_id?: string;
   child_backlog_id?: string;
   child_task_ids?: string[];
@@ -187,6 +192,10 @@ export interface BacklogDocument {
   generated_at?: string;
   system?: { root_draw_ids?: string[] };
   checklists?: Array<{ id: string; title?: string; items?: Array<{ id: string; status: string }> }>;
+  phase_checklists?: {
+    test: BacklogChecklistItem[];
+    implementation: BacklogChecklistItem[];
+  };
   backlogs?: Array<{ id: string; draw_id: string; title?: string; parent_task_id?: string | null; task_ids?: string[] }>;
   tasks: BacklogTask[];
   execution: {
@@ -194,7 +203,22 @@ export interface BacklogDocument {
     current_backlog_id?: string | null;
     current_branch_id?: string | null;
     branch_position?: number | null;
+    current_phase?: 'test' | 'implementation' | null;
+    current_parent_task_id?: string | null;
+    current_subtask_id?: string | null;
     completed_branches?: string[];
     branches?: Array<{ id: string; completed?: boolean; terminal_reason?: string; task_ids?: string[]; node_ids?: number[]; edges?: EdgeData[]; flow_id?: number | null; backlog_id?: string; parent_task_id?: string; scope?: string }>;
   };
+}
+
+export interface BacklogChecklistItem {
+  id: string;
+  task_id: string;
+  draw_id?: string;
+  node_id?: number;
+  label: string;
+  parent_task_id?: string | null;
+  checked: boolean;
+  evidence_status?: string;
+  status?: string;
 }
