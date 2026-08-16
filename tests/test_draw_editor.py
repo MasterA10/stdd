@@ -806,6 +806,20 @@ def test_code_references_modal_displays_file_path_under_symbol():
     assert "code-reference-symbol-wrapper" in modal
 
 
+def test_code_references_modal_displays_declared_draw_test_references():
+    """Exibe testes declarados diretamente no nó do Draw.
+    Combina test_refs persistidos com os testes encontrados nos facts estáticos.
+    """
+    modal = (EDITOR_ROOT / "src/components/CodeReferencesModal.tsx").read_text(encoding="utf-8")
+    types = (EDITOR_ROOT / "src/types.ts").read_text(encoding="utf-8")
+
+    assert "node.test_ref" in modal
+    assert "node.test_refs" in modal
+    assert "const declaredTests = declaredTestReferences.flatMap" in modal
+    assert "const tests = Array.from(new Set([...asList(report?.tests), ...declaredTests]))" in modal
+    assert "test_refs?: Array<{ file: string; symbols: string[] }>" in types
+
+
 def test_sidebar_exposes_backlog_tasks_with_questions_and_symbols():
     """Exibe a task atual no viewer com seu contexto rastreável.
     Confirma que a aba Backlog mostra perguntas, respostas e símbolos associados.

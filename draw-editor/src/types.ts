@@ -40,6 +40,8 @@ export interface NodeData {
   group?: number;
   theme?: 'light' | 'dark' | 'black';
   description: string;
+  test_ref?: { file: string; symbols: string[] } | null;
+  test_refs?: Array<{ file: string; symbols: string[] }>;
   questions?: Question[];
   isHighlighted?: boolean;
   isDimmed?: boolean;

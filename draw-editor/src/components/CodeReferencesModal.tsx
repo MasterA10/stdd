@@ -16,7 +16,16 @@ export const CodeReferencesModal: React.FC<CodeReferencesModalProps> = ({ node, 
   const references = (Array.isArray(node.code_refs) ? node.code_refs : []) as CodeReference[];
   const report = facts?.nodes?.[String(node.id)];
   const files = asList(report?.files);
-  const tests = asList(report?.tests);
+  const declaredTestReferences = [
+    ...(node.test_ref ? [node.test_ref] : []),
+    ...(Array.isArray(node.test_refs) ? node.test_refs : [])
+  ];
+  const declaredTests = declaredTestReferences.flatMap((reference) => (
+    typeof reference.file === 'string'
+      ? asList(reference.symbols).map((symbol) => `${reference.file} · ${symbol}`)
+      : []
+  ));
+  const tests = Array.from(new Set([...asList(report?.tests), ...declaredTests]));
   const unresolved = new Set(asList(report?.unresolved));
 
   return (

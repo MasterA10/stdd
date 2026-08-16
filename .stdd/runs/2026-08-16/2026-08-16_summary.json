@@ -1723,8 +1723,92 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "16c7dd92967141ac9b1d54994b84b5d1",
+      "timestamp": "2026-08-16T02:45:24.476722+00:00",
+      "description": "Exibe test_refs declarados no modal de símbolos",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 56,
+        "lines_deleted": 16,
+        "files_changed": 6
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "e685f7be2d114c27a5d46b6ba6bf14f3",
+      "timestamp": "2026-08-16T02:45:27.107081+00:00",
+      "description": "Testa a combinação de testes declarados e fatos estáticos",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "7473a28c959c4ea486840b19be33be41",
+      "timestamp": "2026-08-16T02:48:28.403633+00:00",
+      "description": "Instrui as skills de testes e implementação a associar símbolos pela CLI",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d1f28a11102e4088a712acaa1f65f3d1",
+      "timestamp": "2026-08-16T02:48:31.020118+00:00",
+      "description": "Testa a exigência do comando associate-reference nas skills",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 82,
-  "last_run_id": "5e8e0cf9261c4a80943108d4863b3690"
+  "run_count": 86,
+  "last_run_id": "d1f28a11102e4088a712acaa1f65f3d1"
 }

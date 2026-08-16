@@ -255,6 +255,7 @@ def test_test_and_implement_skills_require_symbols_and_static_analysis_gate():
         assert "associar" in content and "símbolo" in content
         assert "code_refs" in content
         assert "stdd test" in content
+        assert "stdd draw associate-reference" in content
         assert "draw.level2_missing_code_ref" in content
         assert "draw.empty_node_symbol" in content
 
