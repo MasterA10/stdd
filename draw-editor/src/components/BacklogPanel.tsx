@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CheckCircle2, CircleDot, ListChecks, Play } from 'lucide-react';
 import type { BacklogDocument, BacklogTask } from '../types';
 
@@ -10,11 +10,32 @@ interface BacklogPanelProps {
 }
 
 export const BacklogPanel: React.FC<BacklogPanelProps> = ({ backlog, onClaimTask, onCompleteTask, onUpdateChecklist }) => {
+  const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   if (!backlog) {
     return <div className="runs-empty-sidebar backlog-empty"><ListChecks size={22} /><strong>Backlog ainda não gerado</strong><span>Execute <code>stdd backlog generate</code> para criar as tasks.</span></div>;
   }
   const currentTask = backlog.tasks.find((task) => task.id === backlog.execution.current_task_id);
   const remaining = backlog.tasks.filter((task) => task.status !== 'done');
+  const completedTasks = backlog.tasks.filter((task) => task.status === 'done');
+  const visibleTaskItems: Array<
+    | { type: 'task'; task: BacklogTask }
+    | { type: 'separator'; hiddenCompletedCount: number }
+  > = [];
+  let hiddenCompletedCount = 0;
+  backlog.tasks.forEach((task) => {
+    if (!showCompletedTasks && task.status === 'done') {
+      hiddenCompletedCount += 1;
+      return;
+    }
+    if (!showCompletedTasks && hiddenCompletedCount > 0) {
+      visibleTaskItems.push({ type: 'separator', hiddenCompletedCount });
+    }
+    visibleTaskItems.push({ type: 'task', task });
+    hiddenCompletedCount = 0;
+  });
+  if (!showCompletedTasks && hiddenCompletedCount > 0) {
+    visibleTaskItems.push({ type: 'separator', hiddenCompletedCount });
+  }
   const branch = currentTask?.branch;
   const branchOccurrences = currentTask?.branches || (branch ? [branch] : []);
   const parentTask = currentTask?.parent_task_id ? backlog.tasks.find((task) => task.id === currentTask.parent_task_id) : currentTask;
@@ -53,7 +74,31 @@ export const BacklogPanel: React.FC<BacklogPanelProps> = ({ backlog, onClaimTask
       ) : (
         <div className="runs-empty-sidebar backlog-empty"><CheckCircle2 size={22} /><strong>Backlog vazio</strong><span>Não há mais tasks pendentes nesta jornada.</span></div>
       )}
-      <div className="backlog-task-list"><span className="eyebrow">Tasks</span>{backlog.tasks.map((task) => <div className={`backlog-task-row ${task.status}`} key={task.id}><span>{task.label}</span><small>{task.status === 'done' ? 'concluída' : task.status === 'in_progress' ? 'em andamento' : 'pendente'}</small></div>)}</div>
+      <div className="backlog-task-list">
+        <div className="backlog-task-list-heading">
+          <span className="eyebrow">Tasks</span>
+          <button type="button" className="backlog-completed-toggle" onClick={() => setShowCompletedTasks((current) => !current)}>
+            {showCompletedTasks ? 'Ocultar concluídas' : `Mostrar concluídas (${completedTasks.length})`}
+          </button>
+        </div>
+        {visibleTaskItems.map((item, index) => item.type === 'separator' ? (
+          <button
+            type="button"
+            className="backlog-completed-divider"
+            key={`completed-divider-${index}`}
+            title={`${item.hiddenCompletedCount} task(s) concluída(s) oculta(s) neste intervalo`}
+            aria-label={`Mostrar ${item.hiddenCompletedCount} task(s) concluída(s) oculta(s) neste intervalo`}
+            onClick={() => setShowCompletedTasks(true)}
+          >
+            <span aria-hidden="true" />
+          </button>
+        ) : (
+          <div className={`backlog-task-row ${item.task.status}`} key={item.task.id}>
+            <span>{item.task.label}</span>
+            <small>{item.task.status === 'done' ? 'concluída' : item.task.status === 'in_progress' ? 'em andamento' : 'pendente'}</small>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

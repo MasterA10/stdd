@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import type { BacklogDocument, Contract, DrawIndexEntry, ImprovementIndexEntry, NodeData, EdgeData, Group, FlowPath, FlowStep, RunRecord, StaticAnalysisKpiReport } from '../types';
 import { BacklogPanel } from './BacklogPanel';
 import { Plus, Trash2, FolderPlus, List, Info, ChevronRight, Activity, Settings, BarChart3 } from 'lucide-react';
+import brandLogo from '../assets/stdd-flow-logo.svg';
 
 interface SidebarProps {
   contract: Contract;
@@ -11,7 +12,6 @@ interface SidebarProps {
   onUpdateContract: (updater: (prev: Contract) => Contract) => void;
   onSelectNode: (node: NodeData | null) => void;
   onSelectEdge: (edge: EdgeData | null) => void;
-  onTriggerAutoLayout: () => void;
   onSelectFlow: (flowId: number | null) => void;
   onOpenImportExport: (mode: 'import' | 'export') => void;
   // Drawings support
@@ -22,7 +22,6 @@ interface SidebarProps {
   improvementsIndex: ImprovementIndexEntry[];
   currentImprovementId: string | null;
   onLoadImprovement: (id: string) => void;
-  storageMode: 'backend' | 'local';
   runs: RunRecord[];
   staticAnalysisKpis: StaticAnalysisKpiReport | null;
   backlog: BacklogDocument | null;
@@ -30,6 +29,70 @@ interface SidebarProps {
   onCompleteBacklogTask: (taskId: string) => void;
   onUpdateBacklogChecklist: (taskId: string, phase: 'test' | 'implementation', checked: boolean) => void;
 }
+
+const ADDITION_WEIGHT = 1;
+const REMOVAL_WEIGHT = 2;
+
+const FINDING_KIND_LABELS: Record<string, string> = {
+  deep_nesting: 'Aninhamento profundo',
+  'draw.level2_missing_code_ref': 'Nós do nível 2 sem símbolo',
+  'draw.level3_missing_code_ref': 'Nós do nível 3 sem símbolo',
+  [['hardcoded', 'secret'].join('_')]: 'Segredo exposto no código',
+  high_complexity: 'Alta complexidade',
+  long_function: 'Função longa',
+  too_many_parameters: 'Muitos parâmetros'
+};
+
+const formatFindingKind = (kind: string): string => FINDING_KIND_LABELS[kind] || kind.replaceAll('_', ' ');
+
+const formatStackItem = (item: string): string => {
+  if (item === 'draw-editor:javascript') return 'Editor visual (JavaScript)';
+  if (item === 'pytest') return 'Pytest';
+  return item;
+};
+
+const detailFile = (detail: Record<string, any>): string => String(detail.file || detail.source_file || 'Arquivo não informado');
+
+const detailLine = (detail: Record<string, any>): string => {
+  const line = detail.line ?? detail.start_line;
+  return typeof line === 'number' ? `:${line}` : '';
+};
+
+const detailTitle = (detail: Record<string, any>): string => {
+  if (typeof detail.kind === 'string') return formatFindingKind(detail.kind);
+  if (typeof detail.qualified_name === 'string') return detail.qualified_name;
+  if (typeof detail.name === 'string') return detail.name;
+  if (typeof detail.target === 'string') return `Dependência: ${detail.target}`;
+  return 'Referência encontrada';
+};
+
+const detailDescription = (detail: Record<string, any>): string => {
+  if (typeof detail.evidence === 'string') return detail.evidence;
+  if (typeof detail.symbol_id === 'string') return detail.symbol_id;
+  if (typeof detail.resolution === 'string') return `Resolução: ${detail.resolution}`;
+  return 'A análise encontrou uma referência neste arquivo.';
+};
+
+const groupDetailsByFile = (details: Array<Record<string, any>>) => {
+  const groups = new Map<string, { file: string; count: number; lines: string[] }>();
+  details.forEach((detail) => {
+    const file = detailFile(detail);
+    const group = groups.get(file) || { file, count: 0, lines: [] };
+    group.count += 1;
+    const line = detailLine(detail);
+    if (line && !group.lines.includes(line.slice(1))) group.lines.push(line.slice(1));
+    groups.set(file, group);
+  });
+  return Array.from(groups.values()).sort((a, b) => b.count - a.count || a.file.localeCompare(b.file));
+};
+
+const calculateWeightedRunScore = (linesAdded: number, linesRemoved: number): number => {
+  const added = Math.max(0, Number(linesAdded) || 0);
+  const removed = Math.max(0, Number(linesRemoved) || 0);
+  const weightedChanges = added * ADDITION_WEIGHT + removed * REMOVAL_WEIGHT;
+  if (weightedChanges === 0) return 50;
+  return Math.round((added * ADDITION_WEIGHT * 100) / weightedChanges);
+};
 
 export const Sidebar: React.FC<SidebarProps> = ({
   contract,
@@ -39,7 +102,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onUpdateContract,
   onSelectNode,
   onSelectEdge,
-  onTriggerAutoLayout,
   onSelectFlow,
   onOpenImportExport,
   drawingsIndex,
@@ -49,7 +111,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   improvementsIndex,
   currentImprovementId,
   onLoadImprovement,
-  storageMode,
   runs,
   staticAnalysisKpis,
   backlog,
@@ -73,7 +134,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const [activeTab, setActiveTab] = useState<'drawings' | 'analysis' | 'runs' | 'backlog' | 'info' | 'blocks' | 'groups' | 'flows'>('drawings');
   const [drawingSearchQuery, setDrawingSearchQuery] = useState('');
-  const [showZeroLineRuns, setShowZeroLineRuns] = useState(true);
+  const [showZeroLineRuns, setShowZeroLineRuns] = useState(false);
+  const [showAllRuns, setShowAllRuns] = useState(false);
+  const [selectedIndicatorId, setSelectedIndicatorId] = useState<string | null>(null);
+  const [showAnalysisSummary, setShowAnalysisSummary] = useState(false);
 
   // Selected Node State
   const [newQuestionPrompt, setNewQuestionPrompt] = useState('');
@@ -136,7 +200,42 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const isZeroLineRun = (run: RunRecord) =>
     Boolean(run.checkpoint) ||
     (Number(run.diff_stats?.lines_added || 0) === 0 && Number(run.diff_stats?.lines_deleted || 0) === 0);
-  const visibleRuns = showZeroLineRuns ? runs : runs.filter((run) => !isZeroLineRun(run));
+  const isRunFromToday = (run: RunRecord) => {
+    const runDate = new Date(run.timestamp);
+    const today = new Date();
+    return !Number.isNaN(runDate.getTime()) &&
+      runDate.getFullYear() === today.getFullYear() &&
+      runDate.getMonth() === today.getMonth() &&
+      runDate.getDate() === today.getDate();
+  };
+  const periodRuns = showAllRuns ? runs : runs.filter(isRunFromToday);
+  const visibleRuns = showZeroLineRuns ? periodRuns : periodRuns.filter((run) => !isZeroLineRun(run));
+
+  const analysisIndicators = (staticAnalysisKpis?.indicators || []).slice().sort((a, b) => {
+    return (a.id || '').localeCompare(b.id || '');
+  });
+
+  const analysisFindings = Object.entries(staticAnalysisKpis?.summary?.findings_by_kind || {});
+
+  const detailsForIndicator = (indicatorId: string): Array<Record<string, any>> => {
+    const details = staticAnalysisKpis?.details;
+    const qualityFindings = details?.quality_findings || [];
+    if (indicatorId.startsWith('finding:')) {
+      const findingKind = indicatorId.slice('finding:'.length);
+      return qualityFindings.filter((item) => item.kind === findingKind);
+    }
+    if (indicatorId === 'quality_findings') return qualityFindings;
+    if (indicatorId === 'blocking_findings') return qualityFindings.filter((item) => item.severity === 'blocking');
+    if (indicatorId === 'applied_exceptions') return qualityFindings.filter((item) => item.exception_applied);
+    if (indicatorId === 'expired_exceptions') return qualityFindings.filter((item) => item.kind === 'static_analysis.exception_expired');
+    if (indicatorId === 'symbols') return details?.symbols || [];
+    if (indicatorId === 'dependencies') return details?.dependencies || [];
+    if (indicatorId === 'files') return (staticAnalysisKpis?.summary?.files || []).map((file) => ({ file }));
+    return [];
+  };
+
+  const selectedIndicatorDetails = selectedIndicatorId ? detailsForIndicator(selectedIndicatorId) : [];
+  const selectedIndicatorFiles = groupDetailsByFile(selectedIndicatorDetails);
   const selectedNodeTask = selectedNode
     ? backlog?.tasks.find((task) => task.draw_id === currentDrawingId && task.node_id === selectedNode.id)
     : undefined;
@@ -153,9 +252,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
       removed: totals.removed + removed
     };
   }, { added: 0, removed: 0 });
+  const weightedRunTotals = visibleRuns.reduce((totals, run) => {
+    const added = Number(run.diff_stats?.lines_added || 0);
+    const removed = Number(run.diff_stats?.lines_deleted || 0);
+    const weightedRemoved = removed > added ? removed * 2 : removed;
+    return {
+      added: totals.added + added,
+      removed: totals.removed + weightedRemoved
+    };
+  }, { added: 0, removed: 0 });
   const runChangeTotal = runTotals.added + runTotals.removed;
   const addedPercentage = runChangeTotal > 0 ? (runTotals.added / runChangeTotal) * 100 : 0;
   const netLineBalance = runTotals.added - runTotals.removed;
+  const weightedRunScore = calculateWeightedRunScore(weightedRunTotals.added, weightedRunTotals.removed);
 
   const handleUpdateNode = (updated: Partial<NodeData>) => {
     if (!selectedNode) return;
@@ -345,7 +454,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <aside className="sidebar">
       {/* Brand Section */}
       <div className="brand">
-        <div className="brand-mark">ST</div>
+        <img className="brand-mark brand-logo" src={brandLogo} alt="STDD Flow" />
         <div>
           <h1 className="brand-title">STDD Flow</h1>
           <p className="brand-tagline">Architecture & Design Visualizer</p>
@@ -435,27 +544,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               Adicionar Bloco
             </button>
 
-            <div className="editor-card" style={{ padding: '12px 14px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <strong style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--muted)' }}>Conexão</strong>
-                <span className="doc-type-badge" style={{
-                  backgroundColor: storageMode === 'backend' ? 'var(--success)' : 'var(--warning)',
-                  color: '#fff',
-                  fontSize: '8px',
-                  fontWeight: 900,
-                  padding: '2px 6px',
-                  borderRadius: '99px'
-                }}>
-                  {storageMode === 'backend' ? 'BACKEND' : 'OFFLINE'}
-                </span>
-              </div>
-              <p style={{ fontSize: '11px', color: 'var(--muted)', margin: 0, lineHeight: '1.4' }}>
-                {storageMode === 'backend' 
-                  ? 'Conectado a http://127.0.0.1:8765. As alterações são salvas diretamente no repositório.'
-                  : 'Rodando offline. Os desenhos são salvos no armazenamento local do navegador (localStorage).'}
-              </p>
-            </div>
-
             <div className="editor-field" style={{ marginBottom: '8px' }}>
               <input
                 className="search-input"
@@ -478,7 +566,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 Encontre um fluxo pelo nível e abra seus subfluxos a partir do desenho pai.
               </p>
               {levelGroups.length === 0 ? (
-                <p className="no-items-hint">Nenhum fluxo para agrupar.</p>
+                <div className="draw-hierarchy-empty" role="status">
+                  <span className="draw-hierarchy-empty-icon" aria-hidden="true">
+                    <FolderPlus size={18} />
+                  </span>
+                  <strong>Nenhuma hierarquia disponível</strong>
+                  <p>Crie ou carregue um desenho para organizar os fluxos por nível.</p>
+                  <span className="draw-hierarchy-empty-hint">Os subfluxos aparecerão aqui automaticamente.</span>
+                </div>
               ) : (
                 <div className="draw-level-groups">
                   {levelGroups.map(([level, drawings]) => (
@@ -537,7 +632,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
                 <span className="draw-hierarchy-count">{filteredDrawings.length}</span>
               </div>
-              <div className="draw-list" style={{ display: 'grid', gap: '8px', overflowY: 'auto', maxHeight: '420px', padding: '2px' }}>
+              <div className="draw-list">
               {filteredDrawings.length === 0 ? (
                 <p className="no-items-hint" style={{ textAlign: 'center', padding: '20px', color: 'var(--muted)', fontSize: '11px' }}>
                   Nenhum desenho encontrado.
@@ -582,7 +677,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
                 <span className="draw-hierarchy-count">{filteredImprovements.length}</span>
               </div>
-              <div className="draw-list" style={{ display: 'grid', gap: '8px', overflowY: 'auto', maxHeight: '320px', padding: '2px' }}>
+              <div className="draw-list">
                 {filteredImprovements.length === 0 ? (
                   <p className="no-items-hint" style={{ textAlign: 'center', padding: '16px', color: 'var(--muted)', fontSize: '11px' }}>
                     Nenhuma sessão de melhoria criada.
@@ -614,8 +709,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="sidebar-pane static-analysis-pane">
             <div className="runs-sidebar-heading">
               <div>
-                <span className="eyebrow">Adapter local</span>
-                <h3>Indicadores estáticos</h3>
+                <span className="eyebrow">Visão estrutural</span>
+                <h3>Saúde do código</h3>
               </div>
               <span className={`static-analysis-status ${staticAnalysisKpis?.status || 'unavailable'}`}>
                 {staticAnalysisKpis?.status === 'passed' ? 'OK' : staticAnalysisKpis?.status === 'blocked' ? 'BLOQUEADO' : 'INDISPONÍVEL'}
@@ -625,42 +720,99 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="runs-empty-sidebar static-analysis-empty">
                 <BarChart3 size={22} />
                 <strong>Análise ainda não executada</strong>
-                <span>Execute <code>stdd test</code> para gerar os indicadores em <code>.stdd/adapters/</code>.</span>
+                <span>Execute <code>stdd test</code> para atualizar os indicadores da base.</span>
               </div>
             ) : (
               <>
-                <div className="static-analysis-kpi-grid">
-                  {(staticAnalysisKpis.indicators || []).map((indicator) => (
-                    <div className={`static-analysis-kpi-card ${indicator.status || ''}`} key={indicator.id}>
-                      <span>{indicator.label}</span>
+                <button
+                  type="button"
+                  className={`static-analysis-summary-toggle ${showAnalysisSummary ? 'open' : ''}`}
+                  onClick={() => setShowAnalysisSummary((current) => !current)}
+                  aria-expanded={showAnalysisSummary}
+                  aria-controls="static-analysis-kpi-grid"
+                >
+                  <ChevronRight className="static-analysis-summary-chevron" size={15} aria-hidden="true" />
+                  <span>
+                    <strong>Resumo da análise</strong>
+                    <small>{staticAnalysisKpis.summary?.symbols?.toLocaleString('pt-BR') || 0} símbolos encontrados</small>
+                  </span>
+                </button>
+                {showAnalysisSummary && <div className="static-analysis-kpi-grid" id="static-analysis-kpi-grid">
+                  {analysisIndicators.map((indicator) => (
+                    <div
+                      className={`static-analysis-kpi-card ${indicator.status || ''}`}
+                      key={indicator.id}
+                    >
+                      <span className="static-analysis-kpi-label">{indicator.label}</span>
                       <strong>{indicator.value.toLocaleString('pt-BR')}</strong>
                       <small>{indicator.unit || 'itens'}</small>
                     </div>
                   ))}
-                </div>
+                </div>}
+                {selectedIndicatorId && (
+                  <div className="editor-card static-analysis-occurrences">
+                    <div className="static-analysis-occurrences-heading">
+                      <div>
+                        <span className="eyebrow">Evidências da análise</span>
+                        <h4>{selectedIndicatorId?.startsWith('finding:')
+                          ? formatFindingKind(selectedIndicatorId.slice('finding:'.length))
+                          : analysisIndicators.find((indicator) => indicator.id === selectedIndicatorId)?.label || 'Indicador selecionado'}</h4>
+                      </div>
+                      <button type="button" className="static-analysis-close-details" onClick={() => setSelectedIndicatorId(null)}>Fechar</button>
+                    </div>
+                    {selectedIndicatorDetails.length === 0 ? (
+                      <p className="static-analysis-no-occurrences">Nenhuma ocorrência detalhada foi retornada para este indicador.</p>
+                    ) : (
+                      <>
+                        <div className="static-analysis-file-classification">
+                          <span className="eyebrow">Arquivos classificados por este indicador</span>
+                          {selectedIndicatorFiles.map((group) => (
+                            <div className="static-analysis-file-group" key={group.file}>
+                              <code>{group.file}</code>
+                              <strong>{group.count}</strong>
+                              {group.lines.length > 0 && <small>linhas {group.lines.slice(0, 5).join(', ')}</small>}
+                            </div>
+                          ))}
+                        </div>
+                        <div className="static-analysis-occurrence-list">
+                          {selectedIndicatorDetails.slice(0, 30).map((detail, index) => (
+                            <article className="static-analysis-occurrence" key={`${detailFile(detail)}-${detailLine(detail)}-${index}`}>
+                              <div className="static-analysis-occurrence-topline">
+                                <strong>{detailTitle(detail)}</strong>
+                                {detail.severity && <span className={`static-analysis-severity ${detail.severity}`}>{detail.severity === 'blocking' ? 'Bloqueante' : 'Atenção'}</span>}
+                              </div>
+                              <code>{detailFile(detail)}{detailLine(detail)}</code>
+                              <p>{detailDescription(detail)}</p>
+                            </article>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                    {selectedIndicatorDetails.length > 30 && <small className="static-analysis-occurrences-more">Mostrando 30 de {selectedIndicatorDetails.length} ocorrências.</small>}
+                  </div>
+                )}
                 <div className="editor-card static-analysis-detail-card">
-                  <span className="eyebrow">Stack detectada</span>
+                  <span className="eyebrow">Tecnologias encontradas</span>
                   <div className="static-analysis-tags">
-                    {(staticAnalysisKpis.stack?.languages || []).map((item) => <span key={`language-${item}`}>{item}</span>)}
-                    {(staticAnalysisKpis.stack?.frameworks || []).map((item) => <span key={`framework-${item}`}>{item}</span>)}
-                    {(staticAnalysisKpis.stack?.test_runners || []).map((item) => <span key={`runner-${item}`}>{item}</span>)}
+                    {(staticAnalysisKpis.stack?.languages || []).map((item) => <span key={`language-${item}`}>{formatStackItem(item)}</span>)}
+                    {(staticAnalysisKpis.stack?.frameworks || []).map((item) => <span key={`framework-${item}`}>{formatStackItem(item)}</span>)}
+                    {(staticAnalysisKpis.stack?.test_runners || []).map((item) => <span key={`runner-${item}`}>{formatStackItem(item)}</span>)}
                   </div>
                   <div className="static-analysis-breakdown">
-                    {Object.entries(staticAnalysisKpis.summary?.findings_by_kind || {}).map(([kind, count]) => (
-                      <div key={kind}><span>{kind}</span><strong>{count}</strong></div>
+                    {analysisFindings.map(([kind, count]) => (
+                      <button
+                        className={`static-analysis-finding-item ${selectedIndicatorId === `finding:${kind}` ? 'selected' : ''}`}
+                        key={kind}
+                        type="button"
+                        onClick={() => setSelectedIndicatorId((current) => current === `finding:${kind}` ? null : `finding:${kind}`)}
+                        aria-label={`Ver arquivos de ${formatFindingKind(kind)}`}
+                      >
+                        <ChevronRight className={`static-analysis-finding-toggle ${selectedIndicatorId === `finding:${kind}` ? 'open' : ''}`} size={14} aria-hidden="true" />
+                        <span>{formatFindingKind(kind)}</span>
+                        <strong>{count}</strong>
+                      </button>
                     ))}
                   </div>
-                </div>
-                <div className="editor-card static-analysis-detail-card">
-                  <span className="eyebrow">Arquivos afetados</span>
-                  {(staticAnalysisKpis.summary?.files || []).length === 0 ? (
-                    <p className="no-items-hint">Nenhum arquivo foi associado.</p>
-                  ) : (
-                    <ul className="static-analysis-file-list">
-                      {(staticAnalysisKpis.summary?.files || []).slice(0, 30).map((file) => <li key={file}><code>{file}</code></li>)}
-                    </ul>
-                  )}
-                  {(staticAnalysisKpis.summary?.files || []).length > 30 && <small>Mostrando 30 de {(staticAnalysisKpis.summary?.files || []).length} arquivos.</small>}
                 </div>
               </>
             )}
@@ -676,18 +828,41 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
               <span className="runs-total-badge">{visibleRuns.length}</span>
             </div>
-            <label className="runs-filter-toggle">
-              <input
-                type="checkbox"
-                checked={showZeroLineRuns}
-                onChange={(event) => setShowZeroLineRuns(event.target.checked)}
-              />
-              <span>Mostrar checkpoints (0 linhas)</span>
-            </label>
+            <div className="runs-filters">
+              <div className="runs-scope-toggle" role="group" aria-label="Período das alterações">
+                <button
+                  type="button"
+                  className={!showAllRuns ? 'active' : ''}
+                  onClick={() => setShowAllRuns(false)}
+                  aria-pressed={!showAllRuns}
+                >
+                  Hoje
+                </button>
+                <button
+                  type="button"
+                  className={showAllRuns ? 'active' : ''}
+                  onClick={() => setShowAllRuns(true)}
+                  aria-pressed={showAllRuns}
+                >
+                  Todas as alterações
+                </button>
+              </div>
+              <label className="runs-filter-toggle">
+                <input
+                  type="checkbox"
+                  checked={showZeroLineRuns}
+                  onChange={(event) => setShowZeroLineRuns(event.target.checked)}
+                />
+                <span>Mostrar checkpoints (0 linhas)</span>
+              </label>
+            </div>
             <div className="runs-total-card">
               <div className="runs-total-card-header">
-                <span className="eyebrow">Saldo acumulado</span>
-                <strong>{addedPercentage.toFixed(1).replace('.', ',')}% adicionadas</strong>
+                <span className="eyebrow">Eficiência</span>
+                <div className="runs-score-summary" title="O saldo usa as linhas reais. Na nota, remoções têm peso 2 e dobram novamente quando uma run remove mais do que adiciona.">
+                  <span>Nota ponderada</span>
+                  <strong>{weightedRunScore}<small>/100</small></strong>
+                </div>
               </div>
               <div className="runs-total-progress" aria-label={`${addedPercentage.toFixed(1)}% das linhas foram adicionadas`}>
                 <span style={{ width: `${addedPercentage}%` }} />
@@ -701,9 +876,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {visibleRuns.length === 0 ? (
               <div className="runs-empty-sidebar">
                 <Activity size={22} />
-                <strong>{runs.length === 0 ? 'Nenhum registro encontrado' : 'Nenhuma run visível'}</strong>
-                <span>{runs.length === 0
-                  ? 'As execuções aparecerão aqui quando o STDD registrar um summary.'
+                <strong>{periodRuns.length === 0 ? (showAllRuns ? 'Nenhum registro encontrado' : 'Nenhuma run hoje') : 'Nenhuma run visível'}</strong>
+                <span>{periodRuns.length === 0
+                  ? (showAllRuns ? 'As execuções aparecerão aqui quando o STDD registrar um summary.' : 'Alterne para todas as alterações para consultar o histórico completo.')
                   : 'Desative o filtro para mostrar os checkpoints de 0 linhas.'}</span>
               </div>
             ) : (
@@ -762,9 +937,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="editor-card action-card-group">
               <h3>Ações Rápidas</h3>
               <div className="action-button-grid">
-                <button className="quick-action-btn" onClick={onTriggerAutoLayout}>
-                  Auto-Organizar Layout (Sugiyama)
-                </button>
                 <button
                   className="quick-action-btn secondary"
                   onClick={() => onOpenImportExport('import')}

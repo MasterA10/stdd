@@ -64,8 +64,1457 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "c623242267434d7eb176f4d5ceb69c8e",
+      "timestamp": "2026-08-16T00:15:24.473527+00:00",
+      "description": "Refina aparência da sidebar, tipografia Fira Sans e tema preto",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 55,
+        "lines_deleted": 20,
+        "files_changed": 6
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "ebdd5f08eaca4456808dbee0b095d482",
+      "timestamp": "2026-08-16T00:22:41.084618+00:00",
+      "description": "Atualiza cor de destaque para vermelho e laranja",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 68,
+        "lines_deleted": 16,
+        "files_changed": 6
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "8658cb8ca9b649ee9e703a8dae2f69f8",
+      "timestamp": "2026-08-16T00:22:42.238329+00:00",
+      "description": "Corrige contraste dos botões de caminhos no tema escuro",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "243c1da94434426f9e29dd4d706751e9",
+      "timestamp": "2026-08-16T00:26:29.359305+00:00",
+      "description": "Substitui monograma da sidebar por logo SVG de fluxo",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 32,
+        "lines_deleted": 16,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "9c2ce0d6e4d047a9a318f5cec59922d8",
+      "timestamp": "2026-08-16T00:31:30.415251+00:00",
+      "description": "Expõe o botão Organizar fluxo na interface",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 53,
+        "lines_deleted": 27,
+        "files_changed": 6
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "8c8f61395ef649e381883e4e4e17f306",
+      "timestamp": "2026-08-16T00:31:31.617669+00:00",
+      "description": "Valida a ação Organizar fluxo e o build do viewer",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "df08e8b834e841df97b9b54b45a119b1",
+      "timestamp": "2026-08-16T00:35:23.604675+00:00",
+      "description": "Simplifica a rolagem das abas Runs e Desenhos",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 107,
+        "lines_deleted": 34,
+        "files_changed": 8
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "539a9f0dfdd747738b8bd49d2494c80a",
+      "timestamp": "2026-08-16T00:35:24.873877+00:00",
+      "description": "Valida a rolagem única da sidebar e o botão Organizar no topo",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "35f11302ef7346b4a4496fa0d9c1285b",
+      "timestamp": "2026-08-16T00:43:13.050848+00:00",
+      "description": "Adiciona histórico completo e nota ponderada às Runs",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 109,
+        "lines_deleted": 42,
+        "files_changed": 6
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d8ae5f059f244b46b36dc168fc0b1e1d",
+      "timestamp": "2026-08-16T00:43:14.436046+00:00",
+      "description": "Testa período das Runs e cálculo de pontuação ponderada",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d68da05075244cfdbaeaa214fd0c96f6",
+      "timestamp": "2026-08-16T00:45:08.170450+00:00",
+      "description": "Ajusta a barra das Runs para o gradiente verde amarelo laranja vermelho",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 31,
+        "lines_deleted": 16,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "c07b4f110fd74f9fb65024cf62728b1c",
+      "timestamp": "2026-08-16T00:45:09.531127+00:00",
+      "description": "Valida o novo gradiente visual da barra de Runs",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "503ff799bdc44bbe96c684505b933486",
+      "timestamp": "2026-08-16T00:46:06.933186+00:00",
+      "description": "Corrige a direção e o tom vinho da barra das Runs",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 31,
+        "lines_deleted": 16,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "41b72b207e6c4fd5a7c4ec727b6e04bf",
+      "timestamp": "2026-08-16T00:46:08.326270+00:00",
+      "description": "Valida a direção vinho laranja amarelo verde da barra",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "4b18a048390f41de86b2cec3f710ce90",
+      "timestamp": "2026-08-16T00:51:59.509841+00:00",
+      "description": "Define tema escuro, ícone de teste e descarte seguro de perguntas",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 83,
+        "lines_deleted": 21,
+        "files_changed": 6
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "9dbf657ed46543dfaecdbe450f2e1ebb",
+      "timestamp": "2026-08-16T00:52:00.955583+00:00",
+      "description": "Testa tema padrão, destaque do checklist e confirmação da modal",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "63fee9a98a0c4a59bd449fc4cb773ca5",
+      "timestamp": "2026-08-16T00:57:08.112078+00:00",
+      "description": "Melhora visual da aba de análise e rolagem temática",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 119,
+        "lines_deleted": 24,
+        "files_changed": 7
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "5251a2ac73974681b1b04a4482fd568b",
+      "timestamp": "2026-08-16T00:57:09.653837+00:00",
+      "description": "Testa rótulos claros e remoção de azul na análise",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "90a46e9af45046a194d65d6582edb696",
+      "timestamp": "2026-08-16T00:58:19.438700+00:00",
+      "description": "Define tema preto como padrão e remove detalhes locais da navegação",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 37,
+        "lines_deleted": 44,
+        "files_changed": 6
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "337decde421c45549583b22d80c13ebf",
+      "timestamp": "2026-08-16T00:58:20.993109+00:00",
+      "description": "Testa tema preto padrão e ausência de dados locais na barra",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "cee7162b674c476cba6486e766ed9973",
+      "timestamp": "2026-08-16T00:58:57.319562+00:00",
+      "description": "Corrige falso positivo do rótulo de achado sensível",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 31,
+        "lines_deleted": 16,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "2dbd36f61ad94662979079bedcb21cd3",
+      "timestamp": "2026-08-16T00:58:58.881520+00:00",
+      "description": "Valida a aba de análise após o scanner",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "eaa37eeffcfe457d8bd2656a7327a169",
+      "timestamp": "2026-08-16T01:05:58.018353+00:00",
+      "description": "Adiciona drag and drop e evidências aos indicadores",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 153,
+        "lines_deleted": 21,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "dd46815e2ee04afb99863f1b0e5b398a",
+      "timestamp": "2026-08-16T01:05:59.594203+00:00",
+      "description": "Testa indicadores rearranjáveis e referências de ocorrência",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "a48cbffd720f4d36a5fa35093a2abe0c",
+      "timestamp": "2026-08-16T01:11:01.806545+00:00",
+      "description": "Classifica arquivos pelos indicadores selecionados",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 87,
+        "lines_deleted": 28,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "bc6117ad3cec435aa0c0da0c5680994b",
+      "timestamp": "2026-08-16T01:11:03.575203+00:00",
+      "description": "Testa agrupamento de arquivos por indicador",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "c97dce1b451e4523af247be7cd4b40fa",
+      "timestamp": "2026-08-16T01:16:02.333531+00:00",
+      "description": "Transforma classes de achados em drag and drop",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 86,
+        "lines_deleted": 29,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "ef7afd46c12648d6be6ac0bf97092e60",
+      "timestamp": "2026-08-16T01:16:03.997866+00:00",
+      "description": "Testa arquivos agrupados dentro da classe do achado",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "ca9bf53962f641e0aa94747b64ed88bc",
+      "timestamp": "2026-08-16T01:16:46.086525+00:00",
+      "description": "Redireciona a home para o viewer Draw",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 28,
+        "lines_deleted": 2,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "2d37f6f431b0412ebee8146556a890d0",
+      "timestamp": "2026-08-16T01:16:47.794310+00:00",
+      "description": "Testa redirecionamento da rota raiz do Draw",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "1315cd90a03c42538bef3b9bbd0e9cdf",
+      "timestamp": "2026-08-16T01:17:27.469200+00:00",
+      "description": "Ajusta documentação do teste de redirecionamento",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 3,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "6a7a075ae531403bb9560843a064e8b9",
+      "timestamp": "2026-08-16T01:18:49.956598+00:00",
+      "description": "Mantém drag and drop apenas nos achados principais",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 32,
+        "lines_deleted": 37,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "03641217126749c6a853c94cd5a73aa1",
+      "timestamp": "2026-08-16T01:18:51.671917+00:00",
+      "description": "Testa remoção do arraste dos indicadores de resumo",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "4c939d149d3f453496b434aa01195765",
+      "timestamp": "2026-08-16T01:19:17.714435+00:00",
+      "description": "Destaca visualmente as classes principais de apontamento",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 30,
+        "lines_deleted": 15,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "2ec5e315b9104e7c901e4b98c59de6eb",
+      "timestamp": "2026-08-16T01:19:19.522517+00:00",
+      "description": "Testa destaque do drag and drop de achados",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "bc4797a7278c41fb83c778ef9f86d71c",
+      "timestamp": "2026-08-16T01:21:21.448478+00:00",
+      "description": "Reduz a hierarquia visual dos KPIs de análise",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 31,
+        "lines_deleted": 16,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "8d475966a4f9498f8e95f9fc8472a290",
+      "timestamp": "2026-08-16T01:21:23.229932+00:00",
+      "description": "Testa contraste entre KPIs e achados drag and drop",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "cc538092fbf84c7a92c0ea8cf6f0cfde",
+      "timestamp": "2026-08-16T01:23:41.366544+00:00",
+      "description": "Adiciona dropdown aos KPIs superiores",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 44,
+        "lines_deleted": 47,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "7ba61835a1124812ad91bdb11054e78e",
+      "timestamp": "2026-08-16T01:23:43.200330+00:00",
+      "description": "Testa abertura e recolhimento dos KPIs superiores",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "e8974b5da64a4f99a3273bb228fb5120",
+      "timestamp": "2026-08-16T01:26:23.124104+00:00",
+      "description": "Agrupa KPIs em um único dropdown de resumo",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 51,
+        "lines_deleted": 26,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "ee105ccf537b4bbfb254f99c50bfe902",
+      "timestamp": "2026-08-16T01:26:24.970231+00:00",
+      "description": "Testa dropdown único dos indicadores superiores",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "b9108e37ad1f4cffb7d311f89b8be9bc",
+      "timestamp": "2026-08-16T01:30:29.363897+00:00",
+      "description": "Adiciona alternância de tasks concluídas no backlog",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 67,
+        "lines_deleted": 17,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "a564d0d069e64e5b91306e8baa643128",
+      "timestamp": "2026-08-16T01:30:31.249688+00:00",
+      "description": "Testa filtro de tasks concluídas e divisor visual",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "997b2d6ecd414b00a74e951782db1ea2",
+      "timestamp": "2026-08-16T01:34:05.747965+00:00",
+      "description": "Corrige divisor entre tasks pendentes no backlog",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 66,
+        "lines_deleted": 24,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d673787a29be445ebc0cc01f3f1ca3bc",
+      "timestamp": "2026-08-16T01:34:07.666933+00:00",
+      "description": "Testa agrupamento visual de concluídas ocultas",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "f56fda608f214ae7907890f3e6536447",
+      "timestamp": "2026-08-16T01:36:17.992004+00:00",
+      "description": "Adiciona fixture JSON de sessão de melhoria para o frontend",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 36,
+        "lines_deleted": 17,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "f4ece8b1cede47978948614b39f5819e",
+      "timestamp": "2026-08-16T01:36:19.939436+00:00",
+      "description": "Exibe barras de concluídas ocultas nas bordas do backlog",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "7b3f7ee749944b75aa9d74fad17d56a1",
+      "timestamp": "2026-08-16T01:36:21.918535+00:00",
+      "description": "Valida fixture de improvements e marcadores do backlog",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "40787acabc544bd1a6536bbd29066278",
+      "timestamp": "2026-08-16T01:41:47.115340+00:00",
+      "description": "Reposiciona o editor de perguntas no topo do modal",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 141,
+        "lines_deleted": 55,
+        "files_changed": 9
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "15b6061f064b45c28f19a69edfb8aae2",
+      "timestamp": "2026-08-16T01:41:49.088749+00:00",
+      "description": "Permite respostas personalizadas em perguntas de escolha e booleanas",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d4080d38cbbb41f790f728e086d3a79d",
+      "timestamp": "2026-08-16T01:41:51.085900+00:00",
+      "description": "Testa respostas personalizadas e layout do modal de perguntas",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "b0b8fad3fac84370b9025ee2fafaf353",
+      "timestamp": "2026-08-16T01:47:52.486635+00:00",
+      "description": "Troca saldo acumulado por eficiência nas runs",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 48,
+        "lines_deleted": 19,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "e077af1b3c504475a3537e7f85a57059",
+      "timestamp": "2026-08-16T01:47:54.502416+00:00",
+      "description": "Dobra remoções da run na nota de eficiência quando excedem adições",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "1ba90e9baa0042028946599a6436e029",
+      "timestamp": "2026-08-16T01:47:56.537152+00:00",
+      "description": "Testa o peso extra por run na nota ponderada",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "41951b4676684183b04675ef9801d223",
+      "timestamp": "2026-08-16T01:53:21.424764+00:00",
+      "description": "Move sessões de melhoria para modal acionado pelo topo",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 85,
+        "lines_deleted": 25,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "ed4a1f44d9af4d74a9ab02cbfe1ce3b2",
+      "timestamp": "2026-08-16T01:53:23.510141+00:00",
+      "description": "Adiciona botão de perguntas com contador de pendências",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "600b22cda0b04964bd4b9fadd182d73d",
+      "timestamp": "2026-08-16T01:53:25.674178+00:00",
+      "description": "Testa abertura contextual do modal de melhoria",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d702f00167d1420fa972df29a1c1ccea",
+      "timestamp": "2026-08-16T01:55:11.053043+00:00",
+      "description": "Corrige rolagem dupla do modal de perguntas",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 35,
+        "lines_deleted": 15,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "4314734bf26e4b9d81f26181b417d9aa",
+      "timestamp": "2026-08-16T01:55:13.167296+00:00",
+      "description": "Testa rolagem única e cabeçalho fixo no modal",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "7ac0e08018f343b1a170ccd2e7a009f3",
+      "timestamp": "2026-08-16T01:57:30.171062+00:00",
+      "description": "Padroniza botões de ação com degradê vermelho-laranja",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 39,
+        "lines_deleted": 18,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "c67f98fc630745b89a9adbe3614709b9",
+      "timestamp": "2026-08-16T01:57:32.338091+00:00",
+      "description": "Desabilita checkpoints de runs por padrão",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "a7a40052d8de40aa9c28c4606d60ce4b",
+      "timestamp": "2026-08-16T01:57:34.513273+00:00",
+      "description": "Testa estilo dos CTAs e filtro inicial de checkpoints",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "811a8523362a4208b32343b67a114eed",
+      "timestamp": "2026-08-16T02:00:29.706800+00:00",
+      "description": "Indica visualmente perguntas sem resposta",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 50,
+        "lines_deleted": 20,
+        "files_changed": 6
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "c07288bfa611434da76b44f409e3e554",
+      "timestamp": "2026-08-16T02:00:31.934426+00:00",
+      "description": "Testa sinalização de perguntas pendentes nos modais",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "11e7ee240dfe436c8ee45950c2769242",
+      "timestamp": "2026-08-16T02:04:12.928491+00:00",
+      "description": "Restaura o botão Organizar durante sessões de melhoria",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 50,
+        "lines_deleted": 29,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "7f3d5d15a31b410eab324bbd71600c11",
+      "timestamp": "2026-08-16T02:04:15.160829+00:00",
+      "description": "Salva fluxo e respostas com ação única e explícita",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "ec75fd3b93404910b857cddad75190f1",
+      "timestamp": "2026-08-16T02:04:17.440432+00:00",
+      "description": "Testa salvar sessão e fluxo e botão Organizar contextual",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "652424b3aeee43458bf465da412e54c5",
+      "timestamp": "2026-08-16T02:07:27.983049+00:00",
+      "description": "Corrige o salvar de sessões de melhoria prontas",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 42,
+        "lines_deleted": 19,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 406,
+        "lines_deleted": 0,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "c4c962065bdc4e4a91e137aaa9bb3921",
+      "timestamp": "2026-08-16T02:07:30.309249+00:00",
+      "description": "Testa o estado ready sem pendências no editor",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 3,
-  "last_run_id": "cce04121dec94490a36ecbdf9f59f956"
+  "run_count": 72,
+  "last_run_id": "c4c962065bdc4e4a91e137aaa9bb3921"
 }

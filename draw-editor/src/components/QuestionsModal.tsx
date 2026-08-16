@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { NodeData, Question } from '../types';
 import { Plus, Trash2, X } from 'lucide-react';
+import { ConfirmModal } from './ConfirmModal';
 
 interface QuestionsModalProps {
   node: NodeData;
@@ -10,6 +11,8 @@ interface QuestionsModalProps {
 
 const emptyOptions = () => ['', ''];
 const CUSTOM_ANSWER_VALUE = 'custom';
+const isAnswered = (answer: Question['answer']) =>
+  answer !== null && !(typeof answer === 'string' && answer.trim() === '');
 
 /** Permite criar, editar, responder e remover perguntas de um bloco. */
 export const QuestionsModal: React.FC<QuestionsModalProps> = ({
@@ -21,6 +24,7 @@ export const QuestionsModal: React.FC<QuestionsModalProps> = ({
   const [prompt, setPrompt] = useState('');
   const [questionType, setQuestionType] = useState<Question['type']>('open');
   const [options, setOptions] = useState<string[]>(emptyOptions());
+  const [showDiscardDraftConfirm, setShowDiscardDraftConfirm] = useState(false);
 
   useEffect(() => {
     setQuestions(node.questions || []);
@@ -64,16 +68,33 @@ export const QuestionsModal: React.FC<QuestionsModalProps> = ({
     setOptions(options.map((option, optionIndex) => optionIndex === index ? value : option));
   };
 
+  const hasUnsavedQuestionDraft = prompt.trim().length > 0 || options.some((option) => option.trim().length > 0);
+  const requestClose = () => {
+    if (hasUnsavedQuestionDraft) {
+      setShowDiscardDraftConfirm(true);
+      return;
+    }
+    onClose();
+  };
+  const discardDraftAndClose = () => {
+    setShowDiscardDraftConfirm(false);
+    setPrompt('');
+    setQuestionType('open');
+    setOptions(emptyOptions());
+    onClose();
+  };
+
   return (
-    <div className="dialog-overlay">
-      <dialog className="app-dialog questions-dialog" open>
+    <>
+      <div className="dialog-overlay">
+        <dialog className="app-dialog questions-dialog" open onCancel={(event) => { event.preventDefault(); requestClose(); }}>
         <div className="dialog-content questions-modal-content">
           <div className="dialog-header">
             <div>
               <p className="eyebrow">STDD · Perguntas e observações</p>
               <h2>{node.label}</h2>
             </div>
-            <button className="close-btn" onClick={onClose} type="button">
+            <button className="close-btn" onClick={requestClose} type="button">
               <X size={18} />
             </button>
           </div>
@@ -87,12 +108,13 @@ export const QuestionsModal: React.FC<QuestionsModalProps> = ({
               </div>
             )}
             {questions.map((question) => (
-              <div key={question.id} className="question-card question-editor-card">
+              <div key={question.id} className={`question-card question-editor-card ${isAnswered(question.answer) ? 'answered' : 'unanswered'}`}>
                 <div className="question-card-header">
                   <div>
                     <span className="question-number">#{String(question.id).padStart(2, '0')}</span>
                     <strong>{question.type === 'open' ? 'Observação aberta' : question.type === 'boolean' ? 'Pergunta sim ou não' : 'Múltipla escolha'}</strong>
                   </div>
+                  {!isAnswered(question.answer) && <span className="question-unanswered-badge"><span aria-hidden="true" />Sem resposta</span>}
                   <button
                     className="question-del-btn"
                     onClick={() => commit(questions.filter((item) => item.id !== question.id))}
@@ -122,7 +144,7 @@ export const QuestionsModal: React.FC<QuestionsModalProps> = ({
                     <>
                       <select
                         className="question-answer-select"
-                        value={question.type === 'choice' && typeof question.answer === 'string'
+                        value={typeof question.answer === 'string'
                           ? CUSTOM_ANSWER_VALUE
                           : question.answer === null || question.answer === undefined ? '' : String(question.answer)}
                         onChange={(event) => {
@@ -130,9 +152,11 @@ export const QuestionsModal: React.FC<QuestionsModalProps> = ({
                           updateQuestion(question.id, {
                             answer: value === ''
                               ? null
-                              : question.type === 'boolean'
-                                ? value === 'true'
-                                : value === CUSTOM_ANSWER_VALUE ? '' : Number(value)
+                              : value === CUSTOM_ANSWER_VALUE
+                                ? ''
+                                : question.type === 'boolean'
+                                  ? value === 'true'
+                                  : Number(value)
                           });
                         }}
                       >
@@ -143,13 +167,13 @@ export const QuestionsModal: React.FC<QuestionsModalProps> = ({
                             {(question.options || []).map((option) => (
                               <option key={option.id} value={String(option.id)}>{option.label}</option>
                             ))}
-                            <option value={CUSTOM_ANSWER_VALUE}>Descreva a resposta...</option>
                           </>}
+                        <option value={CUSTOM_ANSWER_VALUE}>Outra resposta...</option>
                       </select>
-                      {question.type === 'choice' && typeof question.answer === 'string' && (
+                      {typeof question.answer === 'string' && (
                         <textarea
                           className="question-answer-textarea"
-                          placeholder="Descreva a resposta..."
+                          placeholder="Digite uma resposta personalizada..."
                           value={question.answer}
                           onChange={(event) => updateQuestion(question.id, { answer: event.target.value })}
                         />
@@ -161,7 +185,7 @@ export const QuestionsModal: React.FC<QuestionsModalProps> = ({
             ))}
           </div>
 
-          <form className="editor-card question-create-card" onSubmit={addQuestion}>
+          <form className="editor-card question-create-card question-create-card-top" onSubmit={addQuestion}>
             <h3>Adicionar pergunta ou observação</h3>
             <textarea
               className="question-create-prompt"
@@ -210,7 +234,18 @@ export const QuestionsModal: React.FC<QuestionsModalProps> = ({
             <button className="primary" onClick={onClose} type="button">Concluído</button>
           </div>
         </div>
-      </dialog>
-    </div>
+        </dialog>
+      </div>
+      <ConfirmModal
+        isOpen={showDiscardDraftConfirm}
+        title="Descartar pergunta?"
+        message="A pergunta e as respostas digitadas ainda não foram adicionadas. Deseja sair sem salvar?"
+        confirmLabel="Sair sem salvar"
+        cancelLabel="Continuar editando"
+        isDanger
+        onConfirm={discardDraftAndClose}
+        onCancel={() => setShowDiscardDraftConfirm(false)}
+      />
+    </>
   );
 };

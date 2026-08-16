@@ -1,4 +1,15 @@
 {
   "version": 1,
-  "improvements": []
+  "improvements": [
+    {
+      "id": "demo-improvement-navegacao",
+      "file": "demo-improvement-navegacao.json",
+      "title": "Melhoria da jornada de perguntas",
+      "draw_id": "demo-perguntas-respostas",
+      "status": "ready",
+      "answered_count": 10,
+      "question_count": 10,
+      "updated_at": "2026-08-16T02:08:03.529894+00:00"
+    }
+  ]
 }

@@ -45,6 +45,7 @@ def test_draw_editor_exposes_separate_improvement_sessions_and_answers():
     """
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
     sidebar = (EDITOR_ROOT / "src/components/Sidebar.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
     editor = (EDITOR_ROOT / "src/components/ImprovementEditor.tsx").read_text(encoding="utf-8")
 
     for required in (
@@ -57,9 +58,23 @@ def test_draw_editor_exposes_separate_improvement_sessions_and_answers():
         "performImprovementSave",
     ):
         assert required in app
+    assert "showImprovementModal" in app
+    assert "improvement-open-btn" in app
+    assert "pendingImprovementQuestions" in app
+    assert "Perguntas" in app
+    assert ".improvement-dialog {" in styles
+    assert ".improvement-dialog-overlay { z-index: 60; overflow: hidden; }" in styles
+    assert ".improvement-dialog .improvement-editor {" in styles
+    assert "scrollbar-gutter: stable;" in styles
     assert "Sessões de melhoria" in sidebar
     for required in ("perguntas respondidas", "Sim", "Não", "Ainda sem resposta", "applied", "separadamente do fluxo"):
         assert required in editor
+    assert "CUSTOM_ANSWER_VALUE" in editor
+    assert "Outra resposta..." in editor
+    assert "question-answer-textarea" in editor
+    assert "questionStateClass" in editor
+    assert "unanswered" in editor
+    assert "Sem resposta" in editor
 
 
 def test_draw_editor_removes_floating_canvas_hint():
@@ -293,14 +308,20 @@ def test_editor_retries_subdraw_in_backend_before_showing_local_storage_error():
     assert "Desenho não encontrado no armazenamento local." in app
 
 
-def test_reset_button_is_the_only_way_to_clear_local_positions():
-    """Mantém o reset visual exclusivamente no botão superior.
-    Remove o atalho Ctrl/Cmd+Shift+R e preserva a limpeza no handler de reset.
+def test_organize_button_clears_local_positions_without_changing_the_flow():
+    """Expõe a reorganização visual como uma ação explícita.
+    Limpa somente a apresentação local e mantém o contrato lógico intacto.
     """
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    sidebar = (EDITOR_ROOT / "src/components/Sidebar.tsx").read_text(encoding="utf-8")
     styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
 
     assert "modifier && event.shiftKey && key === 'r'" not in app
+    assert "const handleOrganize = () =>" in app
+    assert "onClick={handleOrganize}" in app
+    assert "Organizar fluxo" in app
+    assert "title=\"Limpar as posições locais e reorganizar o fluxo automaticamente\"" in app
+    assert "onOrganize" not in sidebar
     assert "localStorage.removeItem(presentationKey)" in app
     assert "setPresentationPositionsState({})" in app
     assert "const handleReset = async () =>" in app
@@ -309,6 +330,34 @@ def test_reset_button_is_the_only_way_to_clear_local_positions():
     assert ".react-flow__edge" in styles
     assert ".react-flow__nodes" in styles
     assert ".react-flow__node" in styles
+
+
+def test_runs_sidebar_uses_the_main_sidebar_scroll_only():
+    """Evita uma rolagem interna concorrente na aba de Runs.
+    A lista de execuções acompanha o único contêiner rolável da sidebar.
+    """
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+    runs_list = styles.split(".runs-sidebar-list", 1)[1].split(".run-sidebar-card", 1)[0]
+
+    assert ".sidebar-content {" in styles
+    assert "min-height: 0;" in styles
+    assert "overflow-y: auto;" in styles.split(".sidebar-content {", 1)[1].split("}", 1)[0]
+    assert "max-height" not in runs_list
+    assert "overflow" not in runs_list
+
+
+def test_drawings_sidebar_uses_the_main_sidebar_scroll_only():
+    """Evita listas internas concorrentes na aba de Desenhos.
+    Catálogo e sessões de melhoria crescem junto com a rolagem principal.
+    """
+    sidebar = (EDITOR_ROOT / "src/components/Sidebar.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    assert sidebar.count('className="draw-list"') == 2
+    assert "overflowY: 'auto'" not in sidebar
+    assert "maxHeight: '420px'" not in sidebar
+    assert "maxHeight: '320px'" not in sidebar
+    assert ".draw-list {" in styles
 
 
 def test_shift_selection_keeps_neighbors_visible_while_ctrl_focuses_one_block():
@@ -374,6 +423,118 @@ def test_v_opens_question_editor_from_the_block_and_footer_documents_it():
     assert "ClipboardList" in node
     assert "Adicionar opção" in modal
     assert "onUpdateQuestions" in modal
+    assert "hasUnsavedQuestionDraft" in modal
+    assert "requestClose" in modal
+    assert "Sair sem salvar" in modal
+    assert "Continuar editando" in modal
+    assert "onCancel={(event)" in modal
+    assert "CUSTOM_ANSWER_VALUE" in modal
+    assert "Outra resposta..." in modal
+    assert "question-create-card-top" in modal
+    assert "isAnswered(question.answer)" in modal
+    assert "unanswered" in modal
+    assert "Sem resposta" in modal
+
+
+def test_black_theme_is_default_and_test_checklist_uses_red_orange_accent():
+    """Inicia o viewer no tema preto e destaca o checklist de teste.
+    Mantém o ícone de teste distinguível do checklist de implementação.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    assert "useState<'light' | 'dark' | 'black'>('black')" in app
+    assert ".node-check-action.test {" in styles
+    assert "color: #f04f31;" in styles
+
+
+def test_dialog_content_inherits_theme_text_color_on_dark_backgrounds():
+    """Mantém textos dos diálogos legíveis nos temas escuros.
+    Confirma que o elemento nativo e seu conteúdo usam a cor do tema.
+    """
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    assert ".app-dialog {" in styles
+    assert "color: var(--ink);" in styles[styles.index(".app-dialog {"):]
+    assert ".app-dialog .dialog-content" in styles
+
+
+def test_static_analysis_sidebar_uses_clear_labels_and_one_theme_scroll():
+    """Organiza a aba de análise sem jargão local ou azul residual.
+    Mantém a rolagem no painel principal para evitar rolagens aninhadas.
+    """
+    sidebar = (EDITOR_ROOT / "src/components/Sidebar.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    assert "Visão estrutural" in sidebar
+    assert "Saúde do código" in sidebar
+    assert "Tecnologias encontradas" in sidebar
+    assert "formatFindingKind(kind)" in sidebar
+    assert "Adapter local" not in sidebar
+    assert "127.0.0.1" not in sidebar
+    assert "localStorage" not in sidebar
+    assert "background: var(--accent-light);" in styles
+    assert "#0284c7" not in styles
+    assert "#0369a1" not in styles
+    assert "#0ea5e9" not in styles
+    file_list_styles = styles[styles.index(".static-analysis-file-list {"):styles.index(".static-analysis-file-list li {")]
+    assert "overflow-y: auto" not in file_list_styles
+    assert "scrollbar-color: var(--line-strong) transparent;" in styles
+
+
+def test_static_analysis_indicators_support_dragging_and_occurrence_evidence():
+    """Permite reorganizar indicadores e consultar evidências reais.
+    Confirma arquivo, linha, severidade e evidência no detalhe selecionado.
+    """
+    sidebar = (EDITOR_ROOT / "src/components/Sidebar.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+    types = (EDITOR_ROOT / "src/types.ts").read_text(encoding="utf-8")
+
+    assert "draggable" not in sidebar
+    assert "onDragStart" not in sidebar
+    assert "onDrop" not in sidebar
+    assert "showAnalysisSummary" in sidebar
+    assert "static-analysis-summary-toggle" in sidebar
+    assert "Evidências da análise" in sidebar
+    assert "detailsForIndicator" in sidebar
+    assert "detail.file" in sidebar
+    assert "detail.line" in sidebar
+    assert "detail.evidence" in sidebar
+    assert "quality_findings?: Array<Record<string, any>>" in types
+    assert ".static-analysis-finding-toggle" in styles
+    assert "font-size: 18px;" in styles
+    assert ".static-analysis-occurrence" in styles
+
+
+def test_static_analysis_classifies_files_by_selected_indicator():
+    """Agrupa arquivos pela categoria do indicador selecionado.
+    Exibe contagem e linhas por arquivo antes da lista de ocorrências.
+    """
+    sidebar = (EDITOR_ROOT / "src/components/Sidebar.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    assert "groupDetailsByFile" in sidebar
+    assert "Arquivos classificados por este indicador" in sidebar
+    assert "selectedIndicatorFiles.map" in sidebar
+    assert "group.count" in sidebar
+    assert "group.lines" in sidebar
+    assert ".static-analysis-file-classification" in styles
+    assert ".static-analysis-file-group" in styles
+
+
+def test_static_analysis_breakdown_findings_are_the_file_drilldown_items():
+    """Usa cada classe de achado como item clicável e expansível.
+    Remove a lista genérica para que arquivos apareçam dentro da classe escolhida.
+    """
+    sidebar = (EDITOR_ROOT / "src/components/Sidebar.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    assert "className={`static-analysis-finding-item" in sidebar
+    assert "finding:${kind}" in sidebar
+    assert "current === `finding:${kind}` ? null" in sidebar
+    assert "aria-label={`Ver arquivos de" in sidebar
+    assert "Arquivos com apontamentos" not in sidebar
+    assert ".static-analysis-finding-item" in styles
 
 
 def test_editor_uses_only_curved_edges_and_shows_shortcut_footer():
@@ -433,7 +594,12 @@ def test_logical_save_is_manual_but_positions_use_presentation_cache():
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
 
     assert "const handleSave = () =>" in app
-    assert "onClick={currentImprovement ? performImprovementSave : handleSave}" in app
+    assert "const handleSaveAll = async () =>" in app
+    assert "const improvementNeedsSave = Boolean(currentImprovement && (" in app
+    assert "currentImprovement.status === 'draft'" in app
+    assert "onClick={improvementNeedsSave ? handleSaveAll : handleSave}" in app
+    assert "Salvar fluxo + respostas" in app
+    assert "onClick={handleOrganize}" in app
     assert "window.setTimeout" not in app
     assert "localStorage.setItem(presentationKey, JSON.stringify(parsed))" in app
     assert "setIsDirty(false);" in app.split("const onNodeDragStop", 1)[1].split("// --- Exposed", 1)[0]
@@ -457,6 +623,7 @@ def test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal():
     """
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
     sidebar = (EDITOR_ROOT / "src/components/Sidebar.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
 
     assert "RunRecord" in app
     assert "/.stdd/runs/index.json" in app
@@ -474,10 +641,30 @@ def test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal():
     assert "files_changed" in sidebar
     assert "const runTotals = visibleRuns.reduce" in sidebar
     assert "Mostrar checkpoints (0 linhas)" in sidebar
+    assert "useState(false)" in sidebar
     assert "addedPercentage" in sidebar
-    assert "Saldo acumulado" in sidebar
+    assert "Eficiência" in sidebar
+    assert "Saldo acumulado" not in sidebar
     assert "saldo final" in sidebar
-    assert "linear-gradient(90deg, #ef4444 0%, #f97316 50%, #22c55e 100%)" in (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+    assert "setRuns(records)" in app
+    assert "const [showAllRuns, setShowAllRuns]" in sidebar
+    assert "Todas as alterações" in sidebar
+    assert "const periodRuns = showAllRuns ? runs : runs.filter(isRunFromToday)" in sidebar
+    assert "calculateWeightedRunScore" in sidebar
+    assert "const weightedRunTotals = visibleRuns.reduce" in sidebar
+    assert "removed > added" in sidebar
+    assert "removed * 2" in sidebar
+    assert "calculateWeightedRunScore(weightedRunTotals.added, weightedRunTotals.removed)" in sidebar
+    assert "ADDITION_WEIGHT = 1" in sidebar
+    assert "REMOVAL_WEIGHT = 2" in sidebar
+    assert "return Math.round((added * ADDITION_WEIGHT * 100) / weightedChanges)" in sidebar
+    assert "if (weightedChanges === 0) return 50" in sidebar
+    assert "Nota ponderada" in sidebar
+    assert "linear-gradient(90deg, #7f1d3d 0%, #f97316 38%, #eab308 68%, #22c55e 100%)" in styles
+    assert "/* Primary actions share the same filled red-to-orange visual language. */" in styles
+    assert ".sidebar-submit-btn," in styles
+    assert ".icon-btn.success," in styles
+    assert ".question-add-option-btn { border-style: solid; }" in styles
 
 
 def test_blocks_use_groups_instead_of_structural_types():
@@ -527,12 +714,15 @@ def test_new_drawing_button_persists_a_new_json_document():
     assert "draw_directory(root) / f\"{draw_id}.json\"" in draw
 
 
-def test_runs_are_filtered_to_current_day():
-    """Filtra as runs para exibir apenas as ocorridas a partir das 00h do dia atual.
-    Garante que execuções de dias anteriores não sejam carregadas no menu lateral.
+def test_runs_load_history_for_period_selection_in_the_sidebar():
+    """Carrega o histórico completo para permitir alternância de período.
+    A sidebar decide entre as runs de hoje e todas as alterações.
     """
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
-    assert "setHours(0, 0, 0, 0)" in app
+    sidebar = (EDITOR_ROOT / "src/components/Sidebar.tsx").read_text(encoding="utf-8")
+    assert "setRuns(records)" in app
+    assert "const isRunFromToday = (run: RunRecord)" in sidebar
+    assert "const periodRuns = showAllRuns ? runs : runs.filter(isRunFromToday)" in sidebar
 
 
 def test_code_references_modal_displays_file_path_under_symbol():
@@ -591,3 +781,24 @@ def test_editor_allows_node_checklists_and_persists_them_through_backlog_api():
     assert "Checklist de teste" in panel
     assert "Checklist de implementação" in panel
     assert "marcação manual" in sidebar
+
+
+def test_backlog_can_hide_completed_tasks_with_a_visible_red_separator():
+    """Permite alternar a visibilidade das tasks concluídas.
+    Mantém divisores no início, entre pendentes e no fim da lista.
+    """
+    panel = (EDITOR_ROOT / "src/components/BacklogPanel.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    assert "showCompletedTasks" in panel
+    assert "visibleTaskItems" in panel
+    assert "hiddenCompletedCount" in panel
+    assert "hiddenCompletedCount > 0" in panel
+    assert "Mostrar concluídas" in panel
+    assert "Ocultar concluídas" in panel
+    assert "backlog-completed-divider" in panel
+    assert "completedTasks.length" in panel
+    assert "completed-divider-${index}" in panel
+    assert panel.count("visibleTaskItems.push({ type: 'separator', hiddenCompletedCount });") == 2
+    assert ".backlog-completed-divider" in styles
+    assert "background: var(--danger);" in styles

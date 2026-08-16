@@ -24,7 +24,7 @@ import { ConfirmModal } from './components/ConfirmModal';
 import { FocusDetailModal } from './components/FocusDetailModal';
 import { ImprovementEditor } from './components/ImprovementEditor';
 import { layoutCurvedGraph, computeEdgeHandles } from './layout';
-import { RotateCcw, Save, Download, Sun, Moon } from 'lucide-react';
+import { RotateCcw, Save, Download, Sun, Moon, Contrast, Sparkles, ClipboardList, X } from 'lucide-react';
 
 import defaultContract from '../contract.json';
 
@@ -51,6 +51,9 @@ const getApiOrigins = () => {
 };
 
 const getApiOrigin = () => detectedBackendOrigin || getApiOrigins()[0];
+
+const isImprovementAnswer = (answer: ImprovementSession['questions'][number]['answer']) =>
+  answer !== null && !(typeof answer === 'string' && answer.trim() === '');
 
 interface DrawSearchResult {
   drawId: string;
@@ -88,7 +91,7 @@ export const App: React.FC = () => {
   const [selectedEdgeId, setSelectedEdgeId] = useState<number | null>(null);
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [activeFlowId, setActiveFlowId] = useState<number | null>(null);
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setTheme] = useState<'light' | 'dark' | 'black'>('black');
   const [isDirty, setIsDirty] = useState(false);
   const [isImprovementDirty, setIsImprovementDirty] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -100,6 +103,7 @@ export const App: React.FC = () => {
 
   // --- Dialogs & Modals States ---
   const [questionsNode, setQuestionsNode] = useState<NodeData | null>(null);
+  const [showImprovementModal, setShowImprovementModal] = useState(false);
   const [codeReferencesNode, setCodeReferencesNode] = useState<NodeData | null>(null);
   const [traceabilityFacts, setTraceabilityFacts] = useState<TraceabilityFacts | null>(null);
   const [staticAnalysisKpis, setStaticAnalysisKpis] = useState<StaticAnalysisKpiReport | null>(null);
@@ -253,14 +257,8 @@ export const App: React.FC = () => {
         const records = summaries.flatMap((summary) => (
           Array.isArray(summary?.runs) ? summary.runs : []
         )) as RunRecord[];
-        const startOfToday = new Date();
-        startOfToday.setHours(0, 0, 0, 0);
-        const todayRecords = records.filter((run) => {
-          const runTime = new Date(run.timestamp).getTime();
-          return !Number.isNaN(runTime) && runTime >= startOfToday.getTime();
-        });
-        todayRecords.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-        if (!cancelled) setRuns(todayRecords);
+        records.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        if (!cancelled) setRuns(records);
       } catch (_) {
         if (!cancelled) setRuns([]);
       }
@@ -760,6 +758,7 @@ export const App: React.FC = () => {
       }
       if (!session) throw new Error('sessão não encontrada');
       setCurrentImprovement(session);
+      setShowImprovementModal(false);
       setIsDirty(false);
       setIsImprovementDirty(false);
       setSelectedNodeId(null);
@@ -876,10 +875,11 @@ export const App: React.FC = () => {
   };
 
   const performImprovementSave = async () => {
-    if (!currentImprovement || !isImprovementDirty || currentImprovement.status === 'applied') return;
+    if (!currentImprovement || currentImprovement.status === 'applied') return;
     const isAnswered = (answer: ImprovementSession['questions'][number]['answer']) =>
       answer !== null && !(typeof answer === 'string' && answer.trim() === '');
     const nextStatus: ImprovementSession['status'] = currentImprovement.questions.every((question) => isAnswered(question.answer)) ? 'ready' : 'draft';
+    if (!isImprovementDirty && nextStatus === currentImprovement.status) return;
     const payload: ImprovementSession = { ...currentImprovement, status: nextStatus };
 
     if (storageMode === 'backend') {
@@ -922,6 +922,11 @@ export const App: React.FC = () => {
     setCurrentImprovement(savedPayload);
     setImprovementsIndex(updatedIndex);
     setIsImprovementDirty(false);
+  };
+
+  const handleSaveAll = async () => {
+    await performSave(contract);
+    await performImprovementSave();
   };
 
   const handleImprovementAnswer = (questionId: number, answer: string | boolean | number | null) => {
@@ -1634,7 +1639,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleTriggerAutoLayout = () => {
+  const handleOrganize = () => {
     const presentationKey = `stdd-draw-presentation:${contract.id}`;
     localStorage.removeItem(presentationKey);
     presentationPositionsRef.current = {};
@@ -1729,6 +1734,15 @@ export const App: React.FC = () => {
     );
   };
 
+  const pendingImprovementQuestions = currentImprovement
+    ? currentImprovement.questions.filter((question) => !isImprovementAnswer(question.answer)).length
+    : 0;
+  const improvementNeedsSave = Boolean(currentImprovement && (
+    isImprovementDirty ||
+    pendingImprovementQuestions > 0 ||
+    currentImprovement.status === 'draft'
+  ));
+
   return (
     <div className={`app-container ${theme}-theme`}>
       {/* Top Header / Toolbar Overlay */}
@@ -1787,12 +1801,39 @@ export const App: React.FC = () => {
         </div>
 
         <div className="header-actions">
-          <button className="theme-toggle-btn" onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')} title="Alternar Tema">
-            {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+          <button
+            className="theme-toggle-btn"
+            onClick={() => setTheme((prev) => prev === 'light' ? 'dark' : prev === 'dark' ? 'black' : 'light')}
+            title={`Tema atual: ${theme === 'light' ? 'claro' : theme === 'dark' ? 'escuro' : 'preto'}. Clique para alternar.`}
+            aria-label="Alternar tema"
+          >
+            {theme === 'light' ? <Moon size={16} /> : theme === 'dark' ? <Contrast size={16} /> : <Sun size={16} />}
           </button>
-          <button className="icon-btn success" onClick={currentImprovement ? performImprovementSave : handleSave} title={currentImprovement ? 'Salvar respostas' : 'Salvar Desenho'}>
+          <button className="icon-btn success" onClick={improvementNeedsSave ? handleSaveAll : handleSave} title={improvementNeedsSave ? 'Salvar alterações do fluxo e respostas' : 'Salvar Desenho'}>
             <Save size={16} />
-            <span>{currentImprovement ? 'Salvar respostas' : 'Salvar'}</span>
+            <span>{improvementNeedsSave ? 'Salvar fluxo + respostas' : 'Salvar'}</span>
+          </button>
+          {currentImprovement && (
+            <button
+              className="improvement-open-btn"
+              type="button"
+              onClick={() => setShowImprovementModal(true)}
+              title={`Abrir perguntas da melhoria. ${pendingImprovementQuestions} pendente(s).`}
+              aria-label={`Abrir perguntas da melhoria. ${pendingImprovementQuestions} pendente(s).`}
+            >
+              <ClipboardList size={16} />
+              <span>Perguntas</span>
+              <strong>{pendingImprovementQuestions}</strong>
+            </button>
+          )}
+          <button
+            className="icon-btn organize"
+            onClick={handleOrganize}
+            title="Limpar as posições locais e reorganizar o fluxo automaticamente"
+            aria-label="Organizar fluxo"
+          >
+            <Sparkles size={16} />
+            <span>Organizar</span>
           </button>
           <button className="icon-btn" onClick={handleExportJson} title="Exportar Contrato JSON">
             <Download size={16} />
@@ -1816,7 +1857,6 @@ export const App: React.FC = () => {
           onUpdateContract={setContract}
           onSelectNode={(node) => setSelectedNodeId(node ? node.id : null)}
           onSelectEdge={(edge) => setSelectedEdgeId(edge ? edge.id : null)}
-          onTriggerAutoLayout={handleTriggerAutoLayout}
           onSelectFlow={setActiveFlowId}
           onOpenImportExport={setImportExportMode}
           // Drawings support
@@ -1827,7 +1867,6 @@ export const App: React.FC = () => {
           improvementsIndex={improvementsIndex}
           currentImprovementId={currentImprovement?.id || null}
           onLoadImprovement={(id) => loadImprovementById(id)}
-          storageMode={storageMode}
           runs={runs}
           staticAnalysisKpis={staticAnalysisKpis}
           backlog={backlog}
@@ -1838,12 +1877,9 @@ export const App: React.FC = () => {
 
         {/* Canvas Area */}
         <main className="workspace">
-          {currentImprovement ? (
-            <ImprovementEditor session={currentImprovement} onChange={handleImprovementAnswer} />
-          ) : (
-            <ReactFlowProvider>
-              <div className="react-flow-stage">
-                <ReactFlow
+          <ReactFlowProvider>
+            <div className="react-flow-stage">
+              <ReactFlow
                 nodes={nodes}
                 edges={edges}
                 onNodesChange={onNodesChange}
@@ -1871,9 +1907,8 @@ export const App: React.FC = () => {
                 <MiniMap zoomable pannable style={{ borderRadius: '14px', overflow: 'hidden' }} />
                 <Background gap={24} size={1} />
                 </ReactFlow>
-              </div>
-            </ReactFlowProvider>
-          )}
+            </div>
+          </ReactFlowProvider>
         </main>
       </div>
 
@@ -1896,6 +1931,29 @@ export const App: React.FC = () => {
           onClose={() => setQuestionsNode(null)}
           onUpdateQuestions={handleUpdateQuestions}
         />
+      )}
+
+      {currentImprovement && showImprovementModal && (
+        <div className="dialog-overlay improvement-dialog-overlay">
+          <dialog
+            className="app-dialog improvement-dialog"
+            open
+            onCancel={(event) => { event.preventDefault(); setShowImprovementModal(false); }}
+          >
+            <div className="improvement-dialog-topbar">
+              <span className="eyebrow">Perguntas da melhoria</span>
+              <button
+                className="close-btn"
+                type="button"
+                onClick={() => setShowImprovementModal(false)}
+                aria-label="Fechar perguntas da melhoria"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <ImprovementEditor session={currentImprovement} onChange={handleImprovementAnswer} />
+          </dialog>
+        </div>
       )}
 
       {codeReferencesNode && (

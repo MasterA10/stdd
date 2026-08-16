@@ -1,0 +1,128 @@
+{
+  "version": 1,
+  "id": "demo-improvement-navegacao",
+  "kind": "draw-improvement",
+  "title": "Melhoria da jornada de perguntas",
+  "draw_id": "demo-perguntas-respostas",
+  "status": "ready",
+  "questions": [
+    {
+      "id": 1,
+      "type": "choice",
+      "prompt": "Qual deve ser o primeiro foco da melhoria?",
+      "options": [
+        {
+          "id": 1,
+          "label": "Clareza da navegação"
+        },
+        {
+          "id": 2,
+          "label": "Velocidade de resposta"
+        },
+        {
+          "id": 3,
+          "label": "Rastreabilidade"
+        }
+      ],
+      "answer": 2
+    },
+    {
+      "id": 2,
+      "type": "boolean",
+      "prompt": "A pessoa deve poder revisar a resposta antes de concluir?",
+      "answer": true
+    },
+    {
+      "id": 3,
+      "type": "open",
+      "prompt": "Descreva o principal risco percebido nessa jornada.",
+      "answer": "A pessoa pode perder o contexto ao voltar para uma pergunta anterior."
+    },
+    {
+      "id": 4,
+      "type": "choice",
+      "prompt": "Como o sistema deve indicar uma etapa pendente?",
+      "options": [
+        {
+          "id": 1,
+          "label": "Indicador na navegação"
+        },
+        {
+          "id": 2,
+          "label": "Mensagem contextual"
+        },
+        {
+          "id": 3,
+          "label": "Ambos"
+        }
+      ],
+      "answer": 1
+    },
+    {
+      "id": 5,
+      "type": "boolean",
+      "prompt": "Uma resposta inválida deve impedir o avanço?",
+      "answer": true
+    },
+    {
+      "id": 6,
+      "type": "open",
+      "prompt": "Qual informação precisa permanecer visível durante a edição?",
+      "answer": "todas"
+    },
+    {
+      "id": 7,
+      "type": "choice",
+      "prompt": "Qual ação deve ficar disponível ao finalizar?",
+      "options": [
+        {
+          "id": 1,
+          "label": "Salvar e continuar"
+        },
+        {
+          "id": 2,
+          "label": "Salvar e revisar"
+        },
+        {
+          "id": 3,
+          "label": "Descartar alterações"
+        }
+      ],
+      "answer": 1
+    },
+    {
+      "id": 8,
+      "type": "boolean",
+      "prompt": "A jornada precisa funcionar sem conexão com o servidor?",
+      "answer": true
+    },
+    {
+      "id": 9,
+      "type": "open",
+      "prompt": "Que evidência deve ser registrada após a conclusão?",
+      "answer": "todas"
+    },
+    {
+      "id": 10,
+      "type": "choice",
+      "prompt": "Quem deve revisar a melhoria antes de aplicá-la?",
+      "options": [
+        {
+          "id": 1,
+          "label": "Pessoa autora"
+        },
+        {
+          "id": 2,
+          "label": "Responsável técnico"
+        },
+        {
+          "id": 3,
+          "label": "Equipe inteira"
+        }
+      ],
+      "answer": 1
+    }
+  ],
+  "created_at": "2026-08-16T12:00:00+00:00",
+  "updated_at": "2026-08-16T02:08:03.529894+00:00"
+}

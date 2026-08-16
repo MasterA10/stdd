@@ -24,6 +24,17 @@
       "subdraw_count": 2
     },
     {
+      "id": "cadastro-incorporado-whatsapp",
+      "file": "cadastro-incorporado-whatsapp.json",
+      "title": "Cadastro incorporado de WhatsApp",
+      "subtitle": "O caminho principal cria uma tentativa server-side por tenant, abre a jornada Meta, recebe code e reconcilia WABA e número antes de ativar a conexão.",
+      "kind": "flow",
+      "updated_at": "2026-08-16T02:04:39.544909+00:00",
+      "node_count": 14,
+      "edge_count": 17,
+      "subdraw_count": 0
+    },
+    {
       "id": "demo-perguntas-respostas",
       "file": "demo-perguntas-respostas.json",
       "title": "Demonstração: perguntas, respostas e loop",

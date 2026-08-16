@@ -20,7 +20,7 @@ import { computeEdgeHandles } from '../layout';
 interface FocusDetailModalProps {
   nodeId: number;
   contract: Contract;
-  theme: 'light' | 'dark';
+  theme: 'light' | 'dark' | 'black';
   onClose: () => void;
 }
 

@@ -92,8 +92,10 @@ def _validate_choice_question(prefix: str, question: dict[str, Any]) -> list[str
         if not isinstance(option.get("label"), str) or not option["label"].strip():
             violations.append(f"{option_prefix}.label é obrigatório")
     answer = question.get("answer")
-    if answer is not None and (not isinstance(answer, int) or isinstance(answer, bool) or answer not in option_ids):
-        violations.append(f"{prefix}.answer deve apontar para uma opção existente ou ser nulo")
+    is_selected_option = isinstance(answer, int) and not isinstance(answer, bool) and answer in option_ids
+    is_custom_answer = isinstance(answer, str) and bool(answer.strip())
+    if answer is not None and not (is_selected_option or is_custom_answer):
+        violations.append(f"{prefix}.answer deve apontar para uma opção existente ou conter uma resposta livre")
     return violations
 
 
@@ -106,7 +108,9 @@ def _validate_typed_question(prefix: str, question: dict[str, Any]) -> list[str]
         violations = [f"{prefix} {question_type} não deve declarar options"]
     else:
         violations = []
-    if question_type == "boolean" and answer is not None and not isinstance(answer, bool):
+    if question_type == "boolean" and answer is not None and not (
+        isinstance(answer, bool) or (isinstance(answer, str) and bool(answer.strip()))
+    ):
         violations.append(f"{prefix}.answer deve ser booleano ou nulo")
     if question_type == "open" and answer is not None and not isinstance(answer, str):
         violations.append(f"{prefix}.answer deve ser texto ou nulo")

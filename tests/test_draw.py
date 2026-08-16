@@ -1,6 +1,6 @@
 import errno
 import json
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, Request, build_opener, urlopen
 from pathlib import Path
 
 from typer.testing import CliRunner
@@ -170,6 +170,29 @@ def test_improvement_session_is_separate_and_becomes_ready_only_after_all_answer
     assert draw_path.read_bytes() == original_draw
 
 
+def test_improvement_accepts_custom_answers_for_choice_and_boolean(tmp_path: Path):
+    """Aceita respostas livres nas perguntas da sessão de melhoria.
+    Mantém a sessão pronta quando respostas personalizadas completam o formulário.
+    """
+    create_draw(tmp_path, draw_payload())
+    session = improvement_payload()
+    for question in session["questions"]:
+        question["answer"] = (
+            "Resposta booleana personalizada" if question["type"] == "boolean"
+            else "Resposta de escolha personalizada" if question["type"] == "choice"
+            else "Resposta aberta"
+        )
+    session["status"] = "ready"
+
+    output = create_improvement(tmp_path, session)
+
+    saved = read_improvement(tmp_path, "melhoria-checkout")
+    assert output.exists()
+    assert saved["status"] == "ready"
+    assert saved["questions"][0]["answer"] == "Resposta booleana personalizada"
+    assert saved["questions"][1]["answer"] == "Resposta de escolha personalizada"
+
+
 def test_applied_improvement_is_immutable_and_keeps_history(tmp_path: Path):
     """Marca uma sessão pronta uma única vez sem apagar perguntas ou respostas.
     A reaplicação é rejeitada para preservar o histórico operacional.
@@ -307,7 +330,7 @@ def test_create_draw_rejects_invalid_question_contract(tmp_path: Path):
     invalid_questions = [
         {"id": 1, "type": "unknown", "prompt": "Pergunta"},
         {"id": 1, "type": "choice", "prompt": "Pergunta", "options": [{"id": 1, "label": "Só uma"}]},
-        {"id": 1, "type": "boolean", "prompt": "Pergunta", "answer": "sim"},
+        {"id": 1, "type": "boolean", "prompt": "Pergunta", "answer": 42},
         {"id": 1, "type": "open", "prompt": "Pergunta", "answer": 42},
     ]
 
@@ -320,6 +343,23 @@ def test_create_draw_rejects_invalid_question_contract(tmp_path: Path):
             assert "question" in str(error) or "pergunta" in str(error)
         else:
             raise AssertionError("pergunta inválida deveria ser rejeitada")
+
+
+def test_question_contract_accepts_custom_answers_for_choice_and_boolean(tmp_path: Path):
+    """Aceita respostas livres além das opções declaradas.
+    Grava uma resposta personalizada em escolha e pergunta booleana.
+    """
+    payload = draw_payload("perguntas-com-resposta-personalizada")
+    payload["nodes"][0]["questions"] = [
+        {"id": 1, "type": "choice", "prompt": "Qual alternativa?", "options": [{"id": 1, "label": "A"}, {"id": 2, "label": "B"}], "answer": "Outra alternativa"},
+        {"id": 2, "type": "boolean", "prompt": "Existe outra possibilidade?", "answer": "Sim, mas depende do contexto"},
+    ]
+
+    saved = create_draw(tmp_path, payload)
+
+    questions = json.loads(saved.read_text(encoding="utf-8"))["nodes"][0]["questions"]
+    assert questions[0]["answer"] == "Outra alternativa"
+    assert questions[1]["answer"] == "Sim, mas depende do contexto"
 
 
 def test_create_draw_replaces_current_json_without_history(tmp_path: Path):
@@ -1126,6 +1166,29 @@ def test_draw_server_serves_viewer_index_and_selected_json(tmp_path: Path):
         assert "assets/" in viewer_html
         script_path = next(part.split('"', 1)[0] for part in viewer_html.split('src="') if part.startswith("/assets/") and ".js" in part)
         assert "react" in urlopen(f"{base_url}{script_path}").read().decode().lower()
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_draw_server_redirects_home_to_the_draw_viewer(tmp_path: Path):
+    """Redireciona a home vazia para a entrada oficial do Draw.
+    Mantém a rota do viewer explícita e evita uma segunda home sem conteúdo.
+    """
+    class NoRedirect(HTTPRedirectHandler):
+        def http_error_302(self, request, response, code, msg, headers):
+            """Impede o cliente de seguir a resposta durante a verificação.
+            Permite conferir diretamente o status e o cabeçalho Location.
+            """
+            return response
+
+    server, thread = start_server_for_test(tmp_path)
+    base_url = f"http://127.0.0.1:{server.server_address[1]}"
+    try:
+        response = build_opener(NoRedirect()).open(f"{base_url}/")
+        assert response.status == 302
+        assert response.headers["Location"] == "/.stdd/draw.html"
     finally:
         server.shutdown()
         server.server_close()

@@ -211,8 +211,10 @@ def validate_draw_payload(payload: Any) -> list[str]:
             elif question_type == "boolean":
                 if "options" in question:
                     violations.append(f"{prefix} boolean não deve declarar options")
-                if answer is not None and not isinstance(answer, bool):
-                    violations.append(f"{prefix}.answer deve ser booleano ou nulo")
+                if answer is not None and not (
+                    isinstance(answer, bool) or (isinstance(answer, str) and bool(answer.strip()))
+                ):
+                    violations.append(f"{prefix}.answer deve ser booleano ou conter uma resposta livre")
             elif question_type == "open":
                 if "options" in question:
                     violations.append(f"{prefix} open não deve declarar options")
@@ -1177,7 +1179,13 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
             Nunca transforma a raiz do projeto em um servidor de arquivos.
             """
             path = urlparse(self.path).path
-            if path in {"/", "/.stdd/draw.html", "/draw.html", "/index.html"}:
+            if path == "/":
+                self.send_response(302)
+                self.send_header("Location", "/.stdd/draw.html")
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+                return
+            if path in {"/.stdd/draw.html", "/draw.html", "/index.html"}:
                 self._send_file(DRAW_ASSETS / "index.html")
                 return
             if path in {"/favicon.svg", "/favicon.ico"}:
