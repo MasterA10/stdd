@@ -1513,8 +1513,176 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "fd6b5d7ba6f548f69090317f35c965c4",
+      "timestamp": "2026-08-16T02:12:11.146486+00:00",
+      "description": "Aplica preenchimento em escala de cinza nos nós escuros",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 66,
+        "lines_deleted": 18,
+        "files_changed": 8
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "f8679e4476e2433ca5a33584e2bd7b06",
+      "timestamp": "2026-08-16T02:12:13.432924+00:00",
+      "description": "Testa cores de grupos e tipografia dos nós em temas escuros",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "1093388b37bd4f67af412f109f23d58f",
+      "timestamp": "2026-08-16T02:13:51.266996+00:00",
+      "description": "Destaca o identificador de grupo nos temas escuros",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 37,
+        "lines_deleted": 16,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "38bd85ec866a404ba3dd190f3cad5146",
+      "timestamp": "2026-08-16T02:13:53.720501+00:00",
+      "description": "Testa o pill de grupo com fundo forte e texto branco",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "fafaaa753ab24ae688e49c38be5f0f76",
+      "timestamp": "2026-08-16T02:15:25.448711+00:00",
+      "description": "Atualiza cores dos indicadores de perguntas nos nós",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 43,
+        "lines_deleted": 15,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "5d5beaa03dcd4e2c88aaee076eed5c7a",
+      "timestamp": "2026-08-16T02:15:27.833581+00:00",
+      "description": "Testa estados respondido e sem resposta nos indicadores",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "ccdf06c6c68b4be2b20ea6402f955c8d",
+      "timestamp": "2026-08-16T02:16:37.077340+00:00",
+      "description": "Adapta o canvas do modo foco ao tema escuro",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 45,
+        "lines_deleted": 16,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "317a94e68af84bddae1dddff2e020d91",
+      "timestamp": "2026-08-16T02:16:39.486718+00:00",
+      "description": "Testa o fundo temático da visão de foco",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 72,
-  "last_run_id": "c4c962065bdc4e4a91e137aaa9bb3921"
+  "run_count": 80,
+  "last_run_id": "317a94e68af84bddae1dddff2e020d91"
 }

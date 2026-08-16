@@ -38,6 +38,7 @@ export interface NodeData {
   id: number;
   label: string;
   group?: number;
+  theme?: 'light' | 'dark' | 'black';
   description: string;
   questions?: Question[];
   isHighlighted?: boolean;

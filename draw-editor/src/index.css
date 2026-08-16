@@ -1594,11 +1594,12 @@ body:has(.improvement-dialog) { overflow: hidden; }
 }
 
 .question-count.answered {
-  background: var(--success);
+  background: linear-gradient(135deg, #ef4444 0%, #fb923c 100%);
 }
 
 .question-count.unanswered {
-  background: var(--danger);
+  background: #4b5563;
+  color: #fff;
 }
 
 /* Ports/Handles Customization */

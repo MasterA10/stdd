@@ -1052,6 +1052,7 @@ export const App: React.FC = () => {
       return {
         ...node,
         groupOptions: contract.groups,
+        theme,
         isHighlighted,
         isDimmed,
         backlogChecklist: backlogTask ? {

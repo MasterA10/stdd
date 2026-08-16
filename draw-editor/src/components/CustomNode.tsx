@@ -5,11 +5,17 @@ import type { NodeData, Question } from '../types';
 import { Trash2, ClipboardList, Eye, Code2 } from 'lucide-react';
 
 const FALLBACK_GROUP_COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f97316', '#ec4899', '#3b82f6'];
+const DARK_GROUP_FILLS = ['#242424', '#2d2d2d', '#363636', '#404040', '#4a4a4a', '#545454'];
 
 function groupColor(groupId?: number, color?: string) {
   if (color) return color;
   if (groupId === undefined) return '#94a3b8';
   return FALLBACK_GROUP_COLORS[Math.abs(groupId) % FALLBACK_GROUP_COLORS.length];
+}
+
+function darkGroupFill(groupId?: number) {
+  if (groupId === undefined) return '#1f1f1f';
+  return DARK_GROUP_FILLS[Math.abs(groupId) % DARK_GROUP_FILLS.length];
 }
 
 function withAlpha(hex: string, alpha: number) {
@@ -45,6 +51,7 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
 
   const groupInfo = data.group !== undefined && window.getGroupInfo ? window.getGroupInfo(data.group) : undefined;
   const accentColor = groupColor(data.group, groupInfo?.color);
+  const isDarkTheme = data.theme === 'dark' || data.theme === 'black';
   const groupOptions = Array.isArray(data.groupOptions) ? data.groupOptions : [];
 
   const totalQuestions = Array.isArray(data.questions) ? data.questions.length : 0;
@@ -146,10 +153,17 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
     : { borderColor: accentColor };
 
   const bgStyle = {
-    background: data.group !== undefined ? withTint(accentColor, 0.82) : '#f8fafc',
-    color: '#0f172a',
+    background: isDarkTheme
+      ? darkGroupFill(data.group)
+      : data.group !== undefined
+      ? withTint(accentColor, 0.82)
+      : '#f8fafc',
+    color: isDarkTheme ? '#f8fafc' : '#0f172a',
     opacity: isDimmed ? 0.08 : 1
   };
+  const groupPillStyle = isDarkTheme
+    ? { backgroundColor: accentColor, color: '#ffffff' }
+    : { backgroundColor: withAlpha(accentColor, 0.22), color: accentColor };
 
   return (
     <div
@@ -246,7 +260,7 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
             ))}
           </select>
         ) : (
-          <span className="node-group-pill" style={{ backgroundColor: withAlpha(accentColor, 0.22), color: accentColor }}>
+          <span className="node-group-pill" style={groupPillStyle}>
             {groupInfo?.label || 'Sem grupo'}
           </span>
         )}

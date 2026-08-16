@@ -448,6 +448,19 @@ def test_black_theme_is_default_and_test_checklist_uses_red_orange_accent():
     assert "color: #f04f31;" in styles
 
 
+def test_node_question_counts_use_answer_state_colors():
+    """Destaca respostas concluídas com a identidade vermelho-laranja.
+    Mantém perguntas sem resposta em cinza com texto branco legível.
+    """
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    assert ".question-count.answered" in styles
+    assert "background: linear-gradient(135deg, #ef4444 0%, #fb923c 100%);" in styles
+    assert ".question-count.unanswered" in styles
+    assert "background: #4b5563;" in styles
+    assert "color: #fff;" in styles
+
+
 def test_dialog_content_inherits_theme_text_color_on_dark_backgrounds():
     """Mantém textos dos diálogos legíveis nos temas escuros.
     Confirma que o elemento nativo e seu conteúdo usam a cor do tema.
@@ -587,6 +600,17 @@ def test_focus_view_keeps_curves_except_for_mutual_orthogonal_loops():
     assert "{label}" in loop
 
 
+def test_focus_view_canvas_follows_dark_theme_background():
+    """Mantém o canvas de foco escuro nos temas escuros.
+    Usa o canvas claro somente quando o tema selecionado é claro.
+    """
+    focus = (EDITOR_ROOT / "src/components/FocusDetailModal.tsx").read_text(encoding="utf-8")
+
+    assert "const focusCanvasBackground = theme === 'light'" in focus
+    assert "'var(--canvas, #0f172a)'" in focus
+    assert "background: focusCanvasBackground" in focus
+
+
 def test_logical_save_is_manual_but_positions_use_presentation_cache():
     """Separa o salvamento manual do contrato lógico do cache de posições.
     Confirma que o JSON só usa o botão Salvar e drag grava a apresentação.
@@ -685,6 +709,28 @@ def test_blocks_use_groups_instead_of_structural_types():
     assert "#8b5cf6" in node
     assert "withTint(accentColor, 0.82)" in node
     assert "color: newGroupColor" in sidebar
+
+
+def test_dark_nodes_use_grayscale_fills_and_keep_group_accent_on_border():
+    """Diferencia grupos no tema escuro sem colorir o preenchimento.
+    Mantém o tema claro e as cores de contorno dos grupos existentes.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    focus = (EDITOR_ROOT / "src/components/FocusDetailModal.tsx").read_text(encoding="utf-8")
+    node = (EDITOR_ROOT / "src/components/CustomNode.tsx").read_text(encoding="utf-8")
+
+    assert "const DARK_GROUP_FILLS" in node
+    assert "function darkGroupFill(groupId?: number)" in node
+    assert "const isDarkTheme = data.theme === 'dark' || data.theme === 'black';" in node
+    assert "background: isDarkTheme" in node
+    assert "darkGroupFill(data.group)" in node
+    assert "color: isDarkTheme ? '#f8fafc' : '#0f172a'" in node
+    assert "const groupPillStyle = isDarkTheme" in node
+    assert "backgroundColor: accentColor, color: '#ffffff'" in node
+    assert "style={groupPillStyle}" in node
+    assert "borderColor: accentColor" in node
+    assert "theme," in app
+    assert "theme" in focus.split("groupOptions: contract.groups", 1)[1].split("}", 1)[0]
 
 
 def test_double_click_changes_group_and_canvas_click_exits_editing():

@@ -41,6 +41,9 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<NodeData>>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [showLoops, setShowLoops] = useState(true);
+  const focusCanvasBackground = theme === 'light'
+    ? 'var(--canvas, #f8fafc)'
+    : 'var(--canvas, #0f172a)';
 
   useEffect(() => {
     const currentNode = contract.nodes.find((n) => n.id === nodeId);
@@ -81,7 +84,8 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
         position: { x, y },
         data: {
           ...n,
-          groupOptions: contract.groups
+          groupOptions: contract.groups,
+          theme
         }
       };
     };
@@ -272,7 +276,7 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
             border: '1.5px solid var(--line)',
             borderRadius: '16px',
             overflow: 'hidden',
-            background: 'var(--paper-light, #f8fafc)',
+            background: focusCanvasBackground,
             position: 'relative'
           }}>
             <ReactFlowProvider>
