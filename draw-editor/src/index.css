@@ -74,6 +74,112 @@ body,
   position: relative;
 }
 
+.improvement-editor {
+  width: min(920px, calc(100% - 56px));
+  max-height: calc(100% - 48px);
+  overflow-y: auto;
+  margin: 24px auto;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--panel);
+  box-shadow: var(--shadow-lg);
+}
+
+.improvement-editor-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.improvement-editor-header h2 {
+  margin: 4px 0 8px;
+  font-size: 22px;
+}
+
+.improvement-editor-header p {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.improvement-status {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: var(--accent-light);
+  color: var(--accent-strong);
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.improvement-status.applied {
+  background: rgba(16, 185, 129, .14);
+  color: var(--success);
+}
+
+.improvement-progress {
+  margin-bottom: 16px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.improvement-progress strong {
+  color: var(--ink);
+  font-size: 16px;
+}
+
+.improvement-question-list {
+  display: grid;
+  gap: 12px;
+}
+
+.improvement-question-card {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper);
+}
+
+.improvement-question-card label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.improvement-question-card p {
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.improvement-question-card select,
+.improvement-question-card textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  outline: none;
+  color: var(--ink);
+  background: var(--input-bg);
+  font: inherit;
+}
+
+.improvement-question-card textarea {
+  min-height: 86px;
+  resize: vertical;
+}
+
+.improvement-readonly {
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .shortcut-footer {
   min-height: 26px;
   flex: 0 0 26px;
@@ -151,6 +257,8 @@ body,
 .search-bar-container {
   flex: 0 1 360px;
   margin: 0 20px;
+  position: relative;
+  z-index: 20;
 }
 
 .search-input {
@@ -168,6 +276,68 @@ body,
 .search-input:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.search-results {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  max-height: min(62vh, 520px);
+  overflow-y: auto;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  box-shadow: var(--shadow-lg);
+}
+
+.search-results-empty {
+  padding: 14px 12px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.search-result {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+}
+
+.search-result:hover,
+.search-result:focus-visible {
+  outline: none;
+  background: var(--accent-light);
+}
+
+.search-result-title {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.search-result-flow,
+.search-result-association {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-result-association {
+  color: var(--accent-strong);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 .header-actions {

@@ -9,16 +9,24 @@ const PORT = 8765;
 const CWD = process.cwd();
 const DIST_DIR = path.join(__dirname, '..', 'dist');
 const DRAWS_DIR = path.join(CWD, '.stdd', 'draws');
+const IMPROVEMENTS_DIR = path.join(CWD, '.stdd', 'improvements');
 
 // Ensure the local draws directory exists in the target project workspace
 if (!fs.existsSync(DRAWS_DIR)) {
   fs.mkdirSync(DRAWS_DIR, { recursive: true });
+}
+if (!fs.existsSync(IMPROVEMENTS_DIR)) {
+  fs.mkdirSync(IMPROVEMENTS_DIR, { recursive: true });
 }
 
 // Ensure local index.json exists, if not initialize it as empty array
 const indexFile = path.join(DRAWS_DIR, 'index.json');
 if (!fs.existsSync(indexFile)) {
   fs.writeFileSync(indexFile, JSON.stringify([], null, 2));
+}
+const improvementsIndexFile = path.join(IMPROVEMENTS_DIR, 'index.json');
+if (!fs.existsSync(improvementsIndexFile)) {
+  fs.writeFileSync(improvementsIndexFile, JSON.stringify({ version: 1, improvements: [] }, null, 2));
 }
 
 const MIME_TYPES = {
@@ -61,6 +69,19 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  if (req.method === 'GET' && pathname === '/.stdd/improvements/index.json') {
+    fs.readFile(improvementsIndexFile, 'utf8', (err, data) => {
+      if (err) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Failed to read improvements index' }));
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(data);
+    });
+    return;
+  }
+
   // --- API Endpoint: Get Single Draw ---
   if (req.method === 'GET' && pathname.startsWith('/.stdd/draws/') && pathname.endsWith('.json')) {
     const filename = path.basename(pathname);
@@ -70,6 +91,21 @@ const server = http.createServer((req, res) => {
       if (err) {
         res.writeHead(404, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'Drawing file not found' }));
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(data);
+    });
+    return;
+  }
+
+  if (req.method === 'GET' && pathname.startsWith('/.stdd/improvements/') && pathname.endsWith('.json')) {
+    const filename = path.basename(pathname);
+    const filePath = path.join(IMPROVEMENTS_DIR, filename);
+    fs.readFile(filePath, 'utf8', (err, data) => {
+      if (err) {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Improvement file not found' }));
         return;
       }
       res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -120,6 +156,37 @@ const server = http.createServer((req, res) => {
       } catch (err) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'Invalid JSON payload' }));
+      }
+    });
+    return;
+  }
+
+  if (req.method === 'PUT' && pathname.startsWith('/__stdd/api/improvements/') && pathname.endsWith('.json')) {
+    const filename = path.basename(pathname);
+    const filePath = path.join(IMPROVEMENTS_DIR, filename);
+    const improvementId = filename.replace('.json', '');
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      try {
+        const payload = JSON.parse(body);
+        if (!payload || payload.id !== improvementId || payload.status === 'applied') {
+          throw new Error('invalid improvement payload');
+        }
+        const questions = Array.isArray(payload.questions) ? payload.questions : [];
+        const answered = questions.filter((question) => question.answer !== null && question.answer !== undefined && (typeof question.answer !== 'string' || question.answer.trim() !== '')).length;
+        const savedPayload = { ...payload, status: questions.length === 10 && answered === 10 ? 'ready' : 'draft', updated_at: new Date().toISOString() };
+        fs.writeFileSync(filePath, JSON.stringify(savedPayload, null, 2));
+        let indexData = { version: 1, improvements: [] };
+        try { indexData = JSON.parse(fs.readFileSync(improvementsIndexFile, 'utf8')); } catch (_) {}
+        indexData.improvements = (indexData.improvements || []).filter((item) => item.id !== improvementId);
+        indexData.improvements.push({ id: improvementId, file: filename, title: savedPayload.title || improvementId, draw_id: savedPayload.draw_id, status: savedPayload.status, answered_count: answered, question_count: questions.length, updated_at: savedPayload.updated_at });
+        fs.writeFileSync(improvementsIndexFile, JSON.stringify(indexData, null, 2));
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'saved', path: `.stdd/improvements/${filename}` }));
+      } catch (err) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Invalid improvement payload' }));
       }
     });
     return;

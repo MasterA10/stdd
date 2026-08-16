@@ -2,11 +2,18 @@
   "version": 1,
   "days": [
     {
+      "date": "2026-08-16",
+      "summary": "2026-08-16/2026-08-16_summary.json",
+      "snapshot": "2026-08-16/2026-08-16_snapshot.json",
+      "run_count": 3,
+      "last_run_id": "cce04121dec94490a36ecbdf9f59f956"
+    },
+    {
       "date": "2026-08-15",
       "summary": "2026-08-15/2026-08-15_summary.json",
       "snapshot": "2026-08-15/2026-08-15_snapshot.json",
-      "run_count": 9,
-      "last_run_id": "c92c26ca5bb4474eaa954c10f9c163bc"
+      "run_count": 18,
+      "last_run_id": "46df74ac875842cd99d2efaef2adfe46"
     },
     {
       "date": "2026-08-13",

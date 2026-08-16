@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import type { BacklogDocument, Contract, DrawIndexEntry, NodeData, EdgeData, Group, FlowPath, FlowStep, RunRecord, StaticAnalysisKpiReport } from '../types';
+import type { BacklogDocument, Contract, DrawIndexEntry, ImprovementIndexEntry, NodeData, EdgeData, Group, FlowPath, FlowStep, RunRecord, StaticAnalysisKpiReport } from '../types';
 import { BacklogPanel } from './BacklogPanel';
 import { Plus, Trash2, FolderPlus, List, Info, ChevronRight, Activity, Settings, BarChart3 } from 'lucide-react';
 
@@ -19,6 +19,9 @@ interface SidebarProps {
   currentDrawingId: string;
   onLoadDrawing: (id: string) => void;
   onNewDrawing: () => void;
+  improvementsIndex: ImprovementIndexEntry[];
+  currentImprovementId: string | null;
+  onLoadImprovement: (id: string) => void;
   storageMode: 'backend' | 'local';
   runs: RunRecord[];
   staticAnalysisKpis: StaticAnalysisKpiReport | null;
@@ -43,6 +46,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   currentDrawingId,
   onLoadDrawing,
   onNewDrawing,
+  improvementsIndex,
+  currentImprovementId,
+  onLoadImprovement,
   storageMode,
   runs,
   staticAnalysisKpis,
@@ -105,6 +111,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const filteredDrawings = drawingsIndex.filter((draw) =>
     `${draw.title} ${draw.subtitle} ${draw.kind}`.toLowerCase().includes(drawingSearchQuery.toLowerCase())
+  );
+  const filteredImprovements = improvementsIndex.filter((improvement) =>
+    `${improvement.title} ${improvement.draw_id} ${improvement.status}`.toLowerCase().includes(drawingSearchQuery.toLowerCase())
   );
   const drawingsByLevel = filteredDrawings.reduce<Record<string, DrawIndexEntry[]>>((levels, draw) => {
     const level = draw.hierarchy?.level ? String(draw.hierarchy.level) : 'unassigned';
@@ -562,6 +571,40 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </button>
                 ))
               )}
+              </div>
+            </div>
+
+            <div className="drawings-all-card improvement-sessions-card">
+              <div className="drawings-all-heading">
+                <div>
+                  <span className="eyebrow">Perguntas humanas</span>
+                  <h3>Sessões de melhoria</h3>
+                </div>
+                <span className="draw-hierarchy-count">{filteredImprovements.length}</span>
+              </div>
+              <div className="draw-list" style={{ display: 'grid', gap: '8px', overflowY: 'auto', maxHeight: '320px', padding: '2px' }}>
+                {filteredImprovements.length === 0 ? (
+                  <p className="no-items-hint" style={{ textAlign: 'center', padding: '16px', color: 'var(--muted)', fontSize: '11px' }}>
+                    Nenhuma sessão de melhoria criada.
+                  </p>
+                ) : filteredImprovements.map((improvement) => (
+                  <button
+                    key={improvement.id}
+                    className={`flow-path-select-btn ${currentImprovementId === improvement.id ? 'active' : ''}`}
+                    onClick={() => onLoadImprovement(improvement.id)}
+                    style={{ width: '100%', textAlign: 'left', padding: '12px 14px', display: 'block' }}
+                  >
+                    <strong style={{ display: 'block', fontSize: '13px', fontWeight: 800 }}>{improvement.title}</strong>
+                    <span style={{ display: 'block', fontSize: '10.5px', color: 'var(--muted)', marginTop: '4px', lineHeight: '1.3' }}>
+                      Draw: {improvement.draw_id}
+                    </span>
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '6px', fontSize: '9px', fontWeight: 800, color: 'var(--muted)' }}>
+                      <span>{improvement.answered_count}/{improvement.question_count} respostas</span>
+                      <span>•</span>
+                      <span>{improvement.status}</span>
+                    </div>
+                  </button>
+                ))}
               </div>
             </div>
           </div>

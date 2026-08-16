@@ -1,3 +1,4 @@
+import errno
 import json
 from urllib.request import Request, urlopen
 from pathlib import Path
@@ -6,6 +7,7 @@ from typer.testing import CliRunner
 
 from stdd.cli import app
 from stdd.draw import analyze_draw_contract, analyze_draw_structure, create_draw, create_server, find_addressed_questions, read_draw_index, start_server_for_test
+from stdd.improvements import create_improvement, list_ready_improvements, mark_improvement_applied, read_improvement
 
 
 runner = CliRunner()
@@ -40,6 +42,7 @@ def test_init_installs_draw_data_without_copying_viewer_code(tmp_path: Path, mon
 
     assert result.exit_code == 0
     assert (tmp_path / ".stdd/draws/index.json").exists()
+    assert (tmp_path / ".stdd/improvements/index.json").exists()
     assert not (tmp_path / ".stdd/draw.html").exists()
     index = json.loads((tmp_path / ".stdd/draws/index.json").read_text())
     assert [entry["id"] for entry in index["draws"]] == ["demo-inicial"]
@@ -111,11 +114,127 @@ def test_create_draw_preserves_optional_questions_and_answers(tmp_path: Path):
     assert saved["nodes"][0]["questions"][2]["answer"] == "Fraude"
 
 
+def improvement_payload(draw_id: str = "checkout", improvement_id: str = "melhoria-checkout") -> dict:
+    """Monta uma sessão com os dez tipos de decisão suportados pelo Draw Improve.
+    Mantém a fábrica alinhada ao contrato de exatamente dez perguntas.
+    """
+    questions = []
+    for question_id in range(1, 11):
+        if question_id % 3 == 1:
+            questions.append({"id": question_id, "type": "boolean", "prompt": f"Decisão {question_id}?", "answer": None})
+        elif question_id % 3 == 2:
+            questions.append({
+                "id": question_id,
+                "type": "choice",
+                "prompt": f"Qual alternativa {question_id}?",
+                "options": [{"id": 0, "label": "A"}, {"id": 1, "label": "B"}, {"id": 2, "label": "C"}, {"id": 3, "label": "D"}],
+                "answer": None,
+            })
+        else:
+            questions.append({"id": question_id, "type": "open", "prompt": f"Explique {question_id}.", "answer": None})
+    return {
+        "version": 1,
+        "id": improvement_id,
+        "kind": "draw-improvement",
+        "title": "Melhoria do checkout",
+        "draw_id": draw_id,
+        "status": "draft",
+        "questions": questions,
+    }
+
+
+def test_improvement_session_is_separate_and_becomes_ready_only_after_all_answers(tmp_path: Path):
+    """Mantém respostas fora do Draw e só entrega sessões totalmente respondidas.
+    Também preserva byte a byte o desenho associado durante o ciclo da UI.
+    """
+    draw_path = create_draw(tmp_path, draw_payload())
+    original_draw = draw_path.read_bytes()
+    session = improvement_payload()
+
+    output = create_improvement(tmp_path, session)
+    assert output == tmp_path / ".stdd/improvements/melhoria-checkout.json"
+    assert read_improvement(tmp_path, "melhoria-checkout")["status"] == "draft"
+    assert list_ready_improvements(tmp_path) == []
+    assert draw_path.read_bytes() == original_draw
+
+    for question in session["questions"]:
+        question["answer"] = False if question["type"] == "boolean" else 0 if question["type"] == "choice" else "Resposta registrada"
+    session["status"] = "ready"
+    create_improvement(tmp_path, session)
+
+    ready = list_ready_improvements(tmp_path)
+    assert len(ready) == 1
+    assert ready[0]["draw_id"] == "checkout"
+    assert ready[0]["questions"][0]["answer"] is False
+    assert ready[0]["questions"][1]["answer"] == 0
+    assert draw_path.read_bytes() == original_draw
+
+
+def test_applied_improvement_is_immutable_and_keeps_history(tmp_path: Path):
+    """Marca uma sessão pronta uma única vez sem apagar perguntas ou respostas.
+    A reaplicação é rejeitada para preservar o histórico operacional.
+    """
+    create_draw(tmp_path, draw_payload())
+    session = improvement_payload()
+    for question in session["questions"]:
+        question["answer"] = False if question["type"] == "boolean" else 1 if question["type"] == "choice" else "Resposta"
+    session["status"] = "ready"
+    create_improvement(tmp_path, session)
+
+    output = mark_improvement_applied(tmp_path, "melhoria-checkout")
+    saved = read_improvement(tmp_path, "melhoria-checkout")
+    assert output.exists()
+    assert saved["status"] == "applied"
+    assert saved["questions"][0]["answer"] is False
+    assert list_ready_improvements(tmp_path) == []
+
+    try:
+        mark_improvement_applied(tmp_path, "melhoria-checkout")
+    except ValueError as error:
+        assert "ready" in str(error)
+    else:
+        raise AssertionError("sessão aplicada não deveria ser reaplicada")
+
+
+def test_draw_improve_cli_creates_lists_and_marks_session(tmp_path: Path, monkeypatch):
+    """Expõe o ciclo da sessão sem transformar o comando em editor automático do Draw.
+    O agente continua responsável por consumir respostas e salvar o fluxo.
+    """
+    monkeypatch.chdir(tmp_path)
+    runner.invoke(app, ["init"], catch_exceptions=False)
+    session = improvement_payload("demo-inicial", "melhoria-cli")
+
+    created = runner.invoke(app, ["draw", "improve", "--create", "--data-json", json.dumps(session)])
+    assert created.exit_code == 0
+    assert "improvements/melhoria-cli.json" in created.stdout
+
+    pending = runner.invoke(app, ["draw", "improve", "--pending"])
+    assert pending.exit_code == 0
+    assert json.loads(pending.stdout) == []
+
+    for question in session["questions"]:
+        question["answer"] = False if question["type"] == "boolean" else 0 if question["type"] == "choice" else "Resposta"
+    session["status"] = "ready"
+    answered = runner.invoke(app, ["draw", "improve", "--create", "--data-json", json.dumps(session)])
+    assert answered.exit_code == 0
+
+    pending = runner.invoke(app, ["draw", "improve", "--pending"])
+    assert pending.exit_code == 0
+    assert json.loads(pending.stdout)[0]["id"] == "melhoria-cli"
+
+    applied = runner.invoke(app, ["draw", "improve", "--mark-applied", "--id", "melhoria-cli"])
+    assert applied.exit_code == 0
+    assert read_improvement(tmp_path, "melhoria-cli")["status"] == "applied"
+
+
 def test_draw_questions_finds_only_open_stdd_questions(tmp_path: Path, monkeypatch):
     """Localiza perguntas endereçadas sem reprocessar decisões existentes.
-    Confirma o filtro oficial usado pelo agente Draw Answer e sua saída JSON.
+    Confirma o filtro oficial usado pelo agente Draw Interaction e sua saída JSON.
     """
     payload = draw_payload("perguntas-agente")
+    payload["nodes"][0]["code_refs"] = [
+        {"qualified_name": "CheckoutService.create", "file": "src/checkout.py", "source_dependencies": ["CheckoutRepository"]}
+    ]
     payload["nodes"][0]["questions"] = [
         {"id": 1, "type": "open", "prompt": "@stdd Onde está o handler?", "answer": None},
         {"id": 2, "type": "open", "prompt": "@STDD Já respondida", "answer": "sim"},
@@ -132,6 +251,8 @@ def test_draw_questions_finds_only_open_stdd_questions(tmp_path: Path, monkeypat
     assert [(item["draw_id"], item["question_id"]) for item in found] == [("perguntas-agente", 1)]
     assert found[0]["question"] == "@stdd Onde está o handler?"
     assert found[0]["draw_file"] == ".stdd/draws/perguntas-agente.json"
+    assert found[0]["symbols"] == ["CheckoutService.create"]
+    assert found[0]["source_dependencies"] == ["CheckoutRepository"]
     assert find_addressed_questions(tmp_path)[0]["prompt"] == "@stdd Onde está o handler?"
 
 
@@ -603,6 +724,57 @@ def test_draw_cli_reports_invalid_workspace_before_starting_viewer(tmp_path: Pat
     assert "source/target" in result.stderr
 
 
+def test_draw_cli_can_replace_server_on_occupied_port(tmp_path: Path, monkeypatch):
+    """Confirma antes de encerrar o servidor que ocupa a porta solicitada.
+    Encerra o processo identificado e tenta iniciar novamente na mesma porta.
+    """
+    monkeypatch.chdir(tmp_path)
+    attempts = []
+
+    def fake_serve(root: Path, port: int):
+        """Simula a primeira tentativa falhando por porta ocupada.
+        Permite verificar a segunda tentativa após a confirmação do usuário.
+        """
+        attempts.append(port)
+        if len(attempts) == 1:
+            raise OSError(errno.EADDRINUSE, "porta ocupada")
+
+    killed = []
+    monkeypatch.setattr("stdd.cli.serve_draw", fake_serve)
+    monkeypatch.setattr("stdd.cli.listening_process_ids", lambda port: (4321,))
+    monkeypatch.setattr("stdd.cli.terminate_processes", lambda ids: killed.extend(ids))
+
+    result = runner.invoke(app, ["draw", "serve", "--port", "8765"], input="y\n")
+
+    assert result.exit_code == 0
+    assert attempts == [8765, 8765]
+    assert killed == [4321]
+
+
+def test_draw_cli_can_choose_another_port_when_port_is_occupied(tmp_path: Path, monkeypatch):
+    """Permite escolher outra porta quando o usuário não mata o servidor atual.
+    Reenvia a execução para a porta alternativa informada pelo usuário.
+    """
+    monkeypatch.chdir(tmp_path)
+    attempts = []
+
+    def fake_serve(root: Path, port: int):
+        """Simula a primeira tentativa falhando antes da troca de porta.
+        Mantém a porta alternativa observável pela asserção do teste.
+        """
+        attempts.append(port)
+        if len(attempts) == 1:
+            raise OSError(errno.EADDRINUSE, "porta ocupada")
+
+    monkeypatch.setattr("stdd.cli.serve_draw", fake_serve)
+    monkeypatch.setattr("stdd.cli.listening_process_ids", lambda port: (4321,))
+
+    result = runner.invoke(app, ["draw", "serve", "--port", "8765"], input="n\n8766\n")
+
+    assert result.exit_code == 0
+    assert attempts == [8765, 8766]
+
+
 def test_create_draw_enforces_hierarchical_parent_and_child_link(tmp_path: Path):
     """Aceita uma árvore de desenhos quando pai e filho apontam um para o outro.
     Rejeita um descendente cujo pai não existe ou não expõe a cápsula correspondente.
@@ -1043,6 +1215,36 @@ def test_draw_server_saves_edited_json_and_rejects_mismatched_id(tmp_path: Path)
             assert "400" in str(error)
         else:
             raise AssertionError("ID divergente deveria ser bloqueado")
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_draw_server_serves_and_saves_improvement_sessions_separately(tmp_path: Path):
+    """Permite responder uma sessão sem passar pelo endpoint de Draws.
+    O endpoint de melhoria não deve alterar o arquivo do fluxo associado.
+    """
+    draw_path = create_draw(tmp_path, draw_payload())
+    create_improvement(tmp_path, improvement_payload())
+    original_draw = draw_path.read_bytes()
+    server, thread = start_server_for_test(tmp_path)
+    base_url = f"http://127.0.0.1:{server.server_address[1]}"
+    try:
+        index = json.loads(urlopen(f"{base_url}/.stdd/improvements/index.json").read().decode())
+        assert index["improvements"][0]["draw_id"] == "checkout"
+        loaded = json.loads(urlopen(f"{base_url}/.stdd/improvements/melhoria-checkout.json").read().decode())
+        for question in loaded["questions"]:
+            question["answer"] = False if question["type"] == "boolean" else 0 if question["type"] == "choice" else "Resposta"
+        request = Request(
+            f"{base_url}/__stdd/api/improvements/melhoria-checkout.json",
+            data=json.dumps(loaded).encode(),
+            headers={"Content-Type": "application/json"},
+            method="PUT",
+        )
+        assert json.loads(urlopen(request).read())["status"] == "saved"
+        assert read_improvement(tmp_path, "melhoria-checkout")["status"] == "ready"
+        assert draw_path.read_bytes() == original_draw
     finally:
         server.shutdown()
         server.server_close()

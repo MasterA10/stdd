@@ -173,6 +173,94 @@
       gap: 8px;
     }
 
+    .improvement-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .improvement-heading {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .improvement-item {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #ded9ff;
+      border-radius: 13px;
+      color: var(--ink);
+      background: #fbfaff;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .improvement-item.active {
+      border-color: #8d82f3;
+      box-shadow: 0 0 0 3px rgba(91, 76, 240, .10);
+    }
+
+    .improvement-editor {
+      width: min(920px, calc(100% - 48px));
+      max-height: calc(100% - 120px);
+      overflow: auto;
+      margin: 72px auto 48px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, .96);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .improvement-progress {
+      margin-bottom: 22px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .improvement-question {
+      margin: 12px 0;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+    }
+
+    .improvement-question label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .improvement-question p {
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    .improvement-question select,
+    .improvement-question textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--ink);
+      background: #fff;
+      font: inherit;
+    }
+
+    .improvement-question textarea {
+      min-height: 84px;
+      resize: vertical;
+    }
+
     .new-draw {
       width: 100%;
       margin: 14px 0 4px;
@@ -1215,9 +1303,11 @@
     };
 
     // App Component
-    const App = () => {
+      const App = () => {
       const [index, setIndex] = useState([]);
+      const [improvementIndex, setImprovementIndex] = useState([]);
       const [current, setCurrent] = useState(null);
+      const [currentImprovement, setCurrentImprovement] = useState(null);
       const [nodes, setNodes, onNodesChange] = useNodesState([]);
       const [edges, setEdges, onEdgesChange] = useEdgesState([]);
       const [selectedNode, setSelectedNode] = useState(null);
@@ -1226,6 +1316,7 @@
       const [query, setQuery] = useState('');
       const [status, setStatus] = useState('Carregando índice...');
       const [dirty, setDirty] = useState(false);
+      const [improvementDirty, setImprovementDirty] = useState(false);
       const [isLibraryOpen, setIsLibraryOpen] = useState(true);
       const reactFlow = useReactFlow();
 
@@ -1261,11 +1352,23 @@
         setDirty(true);
       };
 
+      window.updateImprovementAnswer = (questionId, answer) => {
+        setCurrentImprovement(prev => prev ? {
+          ...prev,
+          questions: (prev.questions || []).map(question => question.id === questionId
+            ? { ...question, answer }
+            : question)
+        } : prev);
+        setImprovementDirty(true);
+      };
+
       const loadIndex = async (announce = true) => {
         try {
           const idx = await getJson('draws/index.json');
           setIndex(idx.draws || []);
-          if (announce) setStatus(idx.draws && idx.draws.length ? 'Índice carregado. Escolha um desenho.' : 'Nenhum desenho criado ainda.');
+          const improvements = await getJson('improvements/index.json');
+          setImprovementIndex(improvements.improvements || []);
+          if (announce) setStatus(idx.draws && idx.draws.length ? 'Índice carregado. Escolha um desenho ou uma melhoria.' : 'Nenhum desenho criado ainda.');
         } catch (err) {
           setStatus(`Não foi possível carregar o índice: ${err.message}`);
         }
@@ -1276,7 +1379,7 @@
       }, []);
 
       const loadDrawing = async (id, opts = {}) => {
-        if (dirty) {
+        if (dirty || improvementDirty) {
           const proceed = await askConfirm('Descartar alterações?', 'Existem alterações locais que ainda não foram salvas.');
           if (!proceed) return;
         }
@@ -1286,6 +1389,8 @@
           const data = await getJson(`draws/${encodeURIComponent(id)}.json`);
           window.currentDrawId = id;
           setCurrent(data);
+          setCurrentImprovement(null);
+          setImprovementDirty(false);
 
           // Get presentation positions if any
           const presentationKey = `stdd-draw-presentation:${id}`;
@@ -1319,6 +1424,32 @@
         }
       };
 
+      const loadImprovement = async (id) => {
+        if (dirty || improvementDirty) {
+          const proceed = await askConfirm('Descartar alterações?', 'Existem alterações locais que ainda não foram salvas.');
+          if (!proceed) return;
+        }
+        setStatus(`Carregando melhoria ${id}...`);
+        try {
+          const data = await getJson(`improvements/${encodeURIComponent(id)}.json`);
+          setCurrent(null);
+          setCurrentImprovement(data);
+          setNodes([]);
+          setEdges([]);
+          setDirty(false);
+          setImprovementDirty(false);
+          setIsLibraryOpen(false);
+          const answered = (data.questions || []).filter(question => question.answer !== null && question.answer !== undefined && (typeof question.answer !== 'string' || question.answer.trim())).length;
+          setStatus(`${answered}/${(data.questions || []).length} perguntas respondidas · ${data.status}`);
+          const url = new URL(window.location.href);
+          url.searchParams.delete('draw');
+          url.searchParams.set('improvement', id);
+          window.history.replaceState({}, '', url);
+        } catch (err) {
+          setStatus(`Não foi possível carregar a melhoria ${id}: ${err.message}`);
+        }
+      };
+
       // Load requested drawing on initial load
       useEffect(() => {
         if (index.length) {
@@ -1327,6 +1458,14 @@
           if (matched) loadDrawing(matched.id);
         }
       }, [index]);
+
+      useEffect(() => {
+        if (improvementIndex.length && !current) {
+          const requested = new URLSearchParams(window.location.search).get('improvement');
+          const matched = improvementIndex.find(item => String(item.id) === requested);
+          if (matched) loadImprovement(matched.id);
+        }
+      }, [improvementIndex]);
 
       window.openSubdraw = (id) => {
         if (!current) return;
@@ -1497,6 +1636,37 @@
         }
       };
 
+      const saveImprovement = async () => {
+        if (!currentImprovement || !improvementDirty || currentImprovement.status === 'applied') return;
+        setStatus('Salvando respostas da melhoria...');
+        try {
+          const endpoint = new URL(`/__stdd/api/improvements/${encodeURIComponent(currentImprovement.id)}.json`, apiOrigin());
+          const response = await fetch(endpoint, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(currentImprovement)
+          });
+          const responseText = await response.text();
+          let result = {};
+          if (responseText.trim()) {
+            try {
+              result = JSON.parse(responseText);
+            } catch (_) {
+              throw new Error(`resposta inválida do servidor (HTTP ${response.status})`);
+            }
+          }
+          if (!response.ok) throw new Error(result.error || `falha ao salvar (HTTP ${response.status})`);
+          const refreshed = await getJson(`improvements/${encodeURIComponent(currentImprovement.id)}.json`);
+          setCurrentImprovement(refreshed);
+          setImprovementDirty(false);
+          setStatus('Respostas da melhoria salvas separadamente do Draw.');
+          const improvements = await getJson('improvements/index.json');
+          setImprovementIndex(improvements.improvements || []);
+        } catch (err) {
+          setStatus(`Erro ao salvar melhoria: ${err.message}`);
+        }
+      };
+
       const newDraw = async () => {
         const values = await openFormDialog('Novo Desenho', 'Crie um novo desenho vazio no repositório.', [
           { name: 'title', label: 'Título', value: 'Novo desenho', required: true },
@@ -1518,10 +1688,12 @@
         };
 
         setCurrent(payload);
+        setCurrentImprovement(null);
         window.currentDrawId = newId;
         setNodes([]);
         setEdges([]);
         setDirty(true);
+        setImprovementDirty(false);
         setIsLibraryOpen(false);
         setStatus('Novo desenho criado. Adicione blocos.');
       };
@@ -1568,6 +1740,9 @@
       const filteredIndex = index.filter(item =>
         `${item.title} ${item.subtitle} ${item.kind}`.toLowerCase().includes(query.toLowerCase())
       );
+      const filteredImprovements = improvementIndex.filter(item =>
+        `${item.title} ${item.draw_id} ${item.status}`.toLowerCase().includes(query.toLowerCase())
+      );
       const questionsSummary = questionsDialog ? questionCounts(questionsDialog) : null;
 
       return React.createElement('div', { className: `app ${isLibraryOpen ? 'library-open' : ''}` },
@@ -1597,6 +1772,17 @@
               React.createElement('strong', null, item.title),
               React.createElement('small', null, `${item.kind} · ${item.node_count} blocos · ${item.edge_count} conexões`)
             ))
+          ),
+          React.createElement('div', { className: 'improvement-list' },
+            React.createElement('div', { className: 'improvement-heading' }, 'Sessões de melhoria'),
+            filteredImprovements.length ? filteredImprovements.map(item => React.createElement('button', {
+              key: item.id,
+              className: `improvement-item${currentImprovement?.id === item.id ? ' active' : ''}`,
+              onClick: () => loadImprovement(item.id)
+            },
+              React.createElement('strong', null, item.title),
+              React.createElement('small', null, `${item.draw_id} · ${item.answered_count}/${item.question_count} respostas · ${item.status}`)
+            )) : React.createElement('p', { className: 'muted' }, 'Nenhuma sessão criada.')
           )
         ),
 
@@ -1609,21 +1795,21 @@
               React.createElement('button', { disabled: navigation.length === 0, onClick: goBack }, '← Voltar')
             ),
             React.createElement('div', { className: 'title', onDoubleClick: editDrawMetadata },
-              current ? `${navigation.join(' › ') ? navigation.join(' › ') + ' › ' : ''}${current.title}` : 'Nenhum desenho carregado'
+              current ? `${navigation.join(' › ') ? navigation.join(' › ') + ' › ' : ''}${current.title}` : currentImprovement ? `Melhoria: ${currentImprovement.title}` : 'Nenhum desenho carregado'
             ),
             React.createElement('div', { className: 'tool-group' },
               React.createElement('button', { disabled: !current, onClick: addNode }, '＋ Adicionar bloco'),
               React.createElement('button', { className: 'reorganize', disabled: !current || !nodes.length, onClick: reorganize }, '✦ Reorganizar'),
-              React.createElement('button', { disabled: !selectedNode && !selectedEdge, className: 'danger', onClick: deleteSelection }, '⌫ Excluir'),
-              React.createElement('button', { disabled: !dirty, className: 'primary', onClick: saveDraw },
-                dirty && React.createElement('span', { className: 'dirty-dot' }),
+              React.createElement('button', { disabled: !current || (!selectedNode && !selectedEdge), className: 'danger', onClick: deleteSelection }, '⌫ Excluir'),
+              React.createElement('button', { disabled: currentImprovement ? !improvementDirty || currentImprovement.status === 'applied' : !dirty, className: 'primary', onClick: currentImprovement ? saveImprovement : saveDraw },
+                (currentImprovement ? improvementDirty : dirty) && React.createElement('span', { className: 'dirty-dot' }),
                 '✓ Salvar'
               )
             )
           ),
 
           // React Flow component
-          React.createElement('div', { className: 'react-flow-stage' },
+          current ? React.createElement('div', { className: 'react-flow-stage' },
             React.createElement(ReactFlow, {
               nodes: nodes,
               edges: edges,
@@ -1643,7 +1829,35 @@
               React.createElement(Controls, null),
               React.createElement(MiniMap, null)
             )
-          ),
+          ) : currentImprovement ? React.createElement('div', { className: 'improvement-editor' },
+            React.createElement('p', { className: 'eyebrow' }, 'STDD · Draw Improve'),
+            React.createElement('h2', null, currentImprovement.title),
+            React.createElement('p', { className: 'dialog-copy' }, `Sessão associada ao Draw ${currentImprovement.draw_id}. As respostas são salvas separadamente do fluxo.`),
+            React.createElement('div', { className: 'improvement-progress' }, `${(currentImprovement.questions || []).filter(question => question.answer !== null && question.answer !== undefined && (typeof question.answer !== 'string' || question.answer.trim())).length}/${(currentImprovement.questions || []).length} respondidas · ${currentImprovement.status}`),
+            (currentImprovement.questions || []).map(q => React.createElement('div', { key: q.id, className: 'improvement-question' },
+              React.createElement('label', null, `Pergunta ${q.id}`),
+              React.createElement('p', null, q.prompt),
+              q.type === 'open' ? React.createElement('textarea', {
+                disabled: currentImprovement.status === 'applied',
+                value: q.answer || '',
+                onChange: (e) => window.updateImprovementAnswer(q.id, e.target.value)
+              }) : React.createElement('select', {
+                disabled: currentImprovement.status === 'applied',
+                value: q.answer === null || q.answer === undefined ? '' : String(q.answer),
+                onChange: (e) => {
+                  const value = e.target.value;
+                  const answer = value === '' ? null : q.type === 'boolean' ? value === 'true' : Number(value);
+                  window.updateImprovementAnswer(q.id, answer);
+                }
+              },
+                React.createElement('option', { value: '' }, 'Ainda sem resposta'),
+                q.type === 'boolean' ? [
+                  React.createElement('option', { key: 'true', value: 'true' }, 'Sim'),
+                  React.createElement('option', { key: 'false', value: 'false' }, 'Não')
+                ] : (q.options || []).map((option, optionIndex) => React.createElement('option', { key: option.id, value: String(option.id) }, `${String.fromCharCode(65 + optionIndex)}. ${option.label}`))
+              )
+            ))
+          ) : React.createElement('div', { className: 'empty-state' }, 'Abra um desenho ou uma sessão de melhoria pela biblioteca.'),
 
           React.createElement('div', { className: 'canvas-hint' }, 'Arraste blocos e conecte suas portas laterais. Duplo clique no nome ou descrição edita diretamente.'),
           React.createElement('div', { className: 'status' }, status)

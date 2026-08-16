@@ -27,8 +27,8 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert (tmp_path / ".agents/skills/static-analysis/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-feature/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-improve/SKILL.md").exists()
-    assert (tmp_path / ".agents/skills/draw-answer/SKILL.md").exists()
-    assert (tmp_path / ".agents/skills/miss-agent/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/draw-interaction/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/missing/SKILL.md").exists()
     for level in range(1, 5):
         assert (tmp_path / ".agents/skills" / f"draw-system-level-{level}" / "SKILL.md").exists()
         assert (tmp_path / ".agents/skills" / f"draw-system-level-{level}" / "agents/openai.yaml").exists()
@@ -187,9 +187,13 @@ def test_agents_are_loaded_from_markdown_templates():
     Chama agent_templates e valida a presença dos títulos dos agentes create-tests, implement e setup.
     """
     templates = {template.parent.name: template for template in agent_templates()}
-    assert set(templates) == {"create-tests", "draw-answer", "draw-feature", "draw-improve", "draw-system-level-1", "draw-system-level-2", "draw-system-level-3", "draw-system-level-4", "implement", "miss-agent", "setup", "static-analysis"}
+    assert set(templates) == {"create-tests", "draw-interaction", "draw-feature", "draw-improve", "draw-system-level-1", "draw-system-level-2", "draw-system-level-3", "draw-system-level-4", "implement", "missing", "setup", "static-analysis"}
     assert "# Create Tests Agent" in templates["create-tests"].read_text()
     assert "# Implement Agent" in templates["implement"].read_text()
+    assert "# Missing Agent" in templates["missing"].read_text()
+    assert "lendo símbolos" in templates["missing"].read_text().lower()
+    assert "testes associados" in templates["missing"].read_text()
+    assert "corrija a produção" in templates["missing"].read_text()
     assert "# Setup Agent" in templates["setup"].read_text()
     assert "complexidade ciclomática" in templates["static-analysis"].read_text()
     assert "long_function" in templates["static-analysis"].read_text()
@@ -240,6 +244,19 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "Uso da análise estática para refatoração segura" in implement_content
     assert "101–150" in implement_content
     assert "valores antes/depois" in implement_content
+
+
+def test_test_and_implement_skills_require_symbols_and_static_analysis_gate():
+    """Exige rastreabilidade de símbolos nas skills de teste e implementação.
+    Confirma que ambas instruem o agente a executar `stdd test` antes de concluir.
+    """
+    for name in ("create-tests", "implement"):
+        content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
+        assert "associar" in content and "símbolo" in content
+        assert "code_refs" in content
+        assert "stdd test" in content
+        assert "draw.level2_missing_code_ref" in content
+        assert "draw.empty_node_symbol" in content
 
 
 def test_draw_system_level_three_splits_complete_detailed_screen_flows_into_phases():
@@ -318,6 +335,10 @@ def test_draw_improve_skill_is_incremental_and_hands_off_through_feature():
 
     for required in (
         ".stdd/draws/<draw-id>.json",
+        ".stdd/improvements/",
+        "exatamente dez perguntas",
+        "stdd draw improve --pending",
+        "status `applied`",
         "no máximo 3 novos nós",
         "já está bom",
         "um ciclo",
@@ -340,14 +361,14 @@ def test_draw_improve_skill_requires_global_consistency_groups_and_questions():
     content = Path("src/stdd/templates/agents/draw-improve/SKILL.md").read_text(encoding="utf-8").lower()
 
     for required in (
-        "revisão global obrigatória",
+        "revisão global",
         "todos os nós, relações, grupos, fluxos",
         "corrigir descrições vagas",
         "organizar os nós em grupos",
         "groups",
-        "pelo menos 5 perguntas arquiteturais",
-        "opções neutros",
-        "sugestão arquitetural separadamente na resposta",
+        "exatamente dez perguntas",
+        "opções neutras",
+        "não alterar `.stdd/draws/<draw-id>.json`",
     ):
         assert required in content
 
@@ -356,7 +377,7 @@ def test_draw_answer_owns_question_discovery_and_codebase_traceability():
     """Isola respostas endereçadas e exige evidência de símbolos reais.
     Confirma que a skill usa o localizador oficial e separa resposta de associação.
     """
-    content = Path("src/stdd/templates/agents/draw-answer/SKILL.md").read_text(encoding="utf-8").lower()
+    content = Path("src/stdd/templates/agents/draw-interaction/SKILL.md").read_text(encoding="utf-8").lower()
     for required in (
         "stdd draw questions",
         "somente sobre os itens json retornados",
@@ -372,7 +393,7 @@ def test_draw_answer_owns_question_discovery_and_codebase_traceability():
     ):
         assert required in content
     improve = Path("src/stdd/templates/agents/draw-improve/SKILL.md").read_text(encoding="utf-8").lower()
-    assert "draw-answer" in improve
+    assert "draw-interaction" in improve
     assert "não responde" in improve
 
 
@@ -387,14 +408,16 @@ def test_draw_feature_matches_always_interactive_viewer():
     assert "salvar alterações" in content
 
 
-def test_draw_skills_document_optional_questions_and_answer_history():
-    """Documenta perguntas opcionais como decisões persistentes do desenho.
-    Confirma suporte a escolha, sim ou não, resposta aberta e histórico respondido.
+def test_draw_skills_document_questions_and_answer_history():
+    """Documenta os tipos de pergunta e a persistência das respostas.
+    Garante que as skills compartilhadas exponham o contrato da interação.
     """
-    for name in ("draw-feature", "draw-improve", "draw-answer"):
+    for name in ("draw-feature", "draw-improve", "draw-interaction"):
         content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
-        required_items = ("questions", "choice", "boolean", "open", "answer", "histórico", "sem resposta")
-        if name == "draw-answer":
+        required_items = ("questions", "choice", "boolean", "open", "answer", "histórico")
+        if name == "draw-improve":
+            required_items += ("sem resposta", ".stdd/improvements/")
+        if name == "draw-interaction":
             required_items += ("@stdd", "`false` e `0`")
         for required in required_items:
             assert required in content, f"{name} não define {required}"
@@ -488,7 +511,7 @@ def test_readme_documents_codex_skill_invocation():
     """
     readme = Path("README.md").read_text(encoding="utf-8")
 
-    for command in ("$setup", "$create-tests", "$draw-feature", "$draw-improve", "$draw-answer", "$draw-system-level-1", "$draw-system-level-2", "$draw-system-level-3", "$draw-system-level-4", "$static-analysis", "$implement"):
+    for command in ("$setup", "$create-tests", "$draw-feature", "$draw-improve", "$draw-interaction", "$draw-system-level-1", "$draw-system-level-2", "$draw-system-level-3", "$draw-system-level-4", "$static-analysis", "$implement"):
         assert command in readme
     assert ".agents/skills/<skill>/SKILL.md" in readme
 

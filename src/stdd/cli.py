@@ -1,6 +1,10 @@
+import errno
 import json
+import os
+import signal
+import subprocess
 import sys
-from typing import List, Optional
+from typing import Iterable, List, Optional
 from pathlib import Path
 
 import typer
@@ -18,6 +22,7 @@ from .backlog import complete_backlog_task, generate_backlog, missing_backlog, n
 from .draw import (
     analyze_draw_contract,
     analyze_draw_structure,
+    collect_draw_symbols,
     create_draw,
     find_addressed_questions,
     format_draw_answers,
@@ -25,6 +30,7 @@ from .draw import (
     read_draw_index,
     serve_draw,
 )
+from .improvements import create_improvement, list_ready_improvements, mark_improvement_applied
 from .traceability import associate_node_reference, associate_node_references
 from .setup import (
     SUPPORTED_INTEGRATIONS,
@@ -297,9 +303,18 @@ def draw_list() -> None:
         typer.echo(f"{entry['id']}\t{entry.get('title', '')}\t{entry.get('node_count', 0)} nós\t{entry.get('edge_count', 0)} relações")
 
 
+@draw_app.command("symbols")
+def draw_symbols() -> None:
+    """Lista símbolos dos nós implementáveis sem executar testes ou análise completa."""
+    report = collect_draw_symbols(project_root())
+    typer.echo(json.dumps(report, ensure_ascii=False, indent=2))
+    if report["status"] != "passed":
+        raise typer.Exit(1)
+
+
 @draw_app.command("questions")
 def draw_questions() -> None:
-    """Localiza perguntas abertas marcadas com @stdd para o Draw Answer."""
+    """Localiza perguntas abertas marcadas com @stdd para o Draw Interaction."""
     try:
         questions = find_addressed_questions(project_root())
     except (OSError, ValueError, RuntimeError) as error:
@@ -356,6 +371,49 @@ def draw_diff(
         typer.echo(str(draw.get("diff", "")))
 
 
+@draw_app.command("improve")
+def draw_improve(
+    pending: bool = typer.Option(False, "--pending", help="Lista sessões completas aguardando aplicação."),
+    create: bool = typer.Option(False, "--create", help="Cria ou atualiza uma sessão separada do Draw."),
+    data_json: Optional[str] = typer.Option(None, "--data-json", help="Payload JSON da sessão de melhoria."),
+    mark_applied: bool = typer.Option(False, "--mark-applied", help="Marca uma sessão pronta como aplicada."),
+    improvement_id: Optional[str] = typer.Option(None, "--id", help="ID da sessão de melhoria."),
+) -> None:
+    """Coordena sessões de perguntas sem substituir o JSON do Draw associado.
+
+    O agente usa --pending para consumir somente sessões com as dez respostas
+    preenchidas. A alteração arquitetural continua sendo uma decisão do agente;
+    este comando apenas persiste a sessão e seu estado de ciclo.
+    """
+    selected = sum((pending, create, mark_applied))
+    if selected != 1:
+        typer.echo("Erro: use exatamente uma entre --pending, --create ou --mark-applied.", err=True)
+        raise typer.Exit(1)
+    root = project_root()
+    try:
+        if pending:
+            if data_json is not None or improvement_id is not None:
+                raise ValueError("--pending não aceita --data-json nem --id")
+            typer.echo(json.dumps(list_ready_improvements(root), ensure_ascii=False, indent=2))
+            return
+        if create:
+            if data_json is None or improvement_id is not None:
+                raise ValueError("--create exige --data-json e não aceita --id")
+            payload = json.loads(data_json)
+            output = create_improvement(root, payload)
+            typer.echo(f"Sessão de melhoria gravada em {output.relative_to(root)}")
+            return
+        if data_json is not None:
+            raise ValueError("--mark-applied não aceita --data-json")
+        if not improvement_id:
+            raise ValueError("--mark-applied exige --id")
+        output = mark_improvement_applied(root, improvement_id)
+        typer.echo(f"Sessão de melhoria aplicada em {output.relative_to(root)}")
+    except (json.JSONDecodeError, OSError, ValueError) as error:
+        typer.echo(f"Erro: {error}", err=True)
+        raise typer.Exit(1)
+
+
 @draw_app.command("associate-reference")
 def draw_associate_reference(
     draw_id: str = typer.Option(..., "--draw-id", help="ID do desenho que contém o nó."),
@@ -386,11 +444,69 @@ def draw_serve(
     """Serve o viewer Draw localmente para carregar JSONs por fetch.
     Vincula o servidor a 127.0.0.1 e mantém o processo ativo até interrupção.
     """
+    current_port = port
     try:
-        serve_draw(project_root(), port=port)
-    except (RuntimeError, ValueError) as error:
+        while True:
+            try:
+                serve_draw(project_root(), port=current_port)
+                return
+            except OSError as error:
+                if error.errno != errno.EADDRINUSE:
+                    raise
+                process_ids = listening_process_ids(current_port)
+                if process_ids and typer.confirm(
+                    f"A porta {current_port} já está em uso. Deseja encerrar o outro servidor e iniciar um novo?",
+                    default=False,
+                ):
+                    terminate_processes(process_ids)
+                    typer.echo(f"Servidor(es) encerrado(s) na porta {current_port}. Tentando iniciar novamente...")
+                    continue
+                current_port = ask_alternative_port(current_port)
+    except (RuntimeError, ValueError, OSError) as error:
         typer.echo(f"Erro: {error}", err=True)
         raise typer.Exit(1)
+
+
+def listening_process_ids(port: int) -> tuple[int, ...]:
+    """Obtém os processos que escutam TCP na porta informada, quando possível."""
+    try:
+        result = subprocess.run(
+            ["lsof", "-nP", f"-iTCP:{port}", "-sTCP:LISTEN", "-t"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return ()
+    process_ids = []
+    for value in result.stdout.splitlines():
+        try:
+            process_ids.append(int(value.strip()))
+        except ValueError:
+            continue
+    return tuple(dict.fromkeys(process_ids))
+
+
+def terminate_processes(process_ids: Iterable[int]) -> None:
+    """Solicita encerramento aos processos identificados pelo sistema operacional."""
+    for process_id in process_ids:
+        if process_id == os.getpid():
+            raise RuntimeError("o processo atual não pode ser encerrado")
+        try:
+            os.kill(process_id, signal.SIGTERM)
+        except ProcessLookupError:
+            continue
+        except PermissionError as error:
+            raise RuntimeError(f"sem permissão para encerrar o processo {process_id}") from error
+
+
+def ask_alternative_port(current_port: int) -> int:
+    """Solicita uma porta alternativa válida e diferente da porta ocupada."""
+    while True:
+        alternative = typer.prompt(f"Informe outra porta para o viewer (a atual é {current_port})", type=int)
+        if 1 <= alternative <= 65535 and alternative != current_port:
+            return alternative
+        typer.echo("Informe uma porta entre 1 e 65535, diferente da porta ocupada.", err=True)
 
 
 

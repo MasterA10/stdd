@@ -29,6 +29,14 @@ Não implementar uma folha marcada como não implementada sem escopo aprovado. S
 6. Revisar a consistência dos desenhos associados antes de alterar produção.
 7. Tratar capacidade ausente como `unavailable`; não inventar cobertura.
 
+## Associação obrigatória de símbolos
+
+Antes de implementar, localizar no Draw o nó e associar a ele o símbolo real que executa o comportamento. Todo nó implementado ou alterado deve ter, no próprio nó, pelo menos um `code_refs` com `symbol` ou `qualified_name` comprovado pela análise estática; usar `code_refs` de outro nó, `unnamed`, `placeholder` ou nome inventado é inválido. Atualizar também dependências e `test_ref`/`test_refs` quando esses fatos estiverem disponíveis.
+
+Ao finalizar, executar `stdd test` e ler os achados de análise estática. O comando bloqueia nós de níveis 2, 3 e 4 sem símbolo (`draw.level2_missing_code_ref`, `draw.level3_missing_code_ref`, `draw.level4_missing_code_ref` ou `draw.empty_node_symbol`). Não declarar sucesso enquanto houver um desses achados: corrigir a associação no nó mais relacionado e repetir o gate. Para uma funcionalidade planejada e não implementada, não inventar símbolo nem continuação; mantê-la terminal no grupo de não implementados e relatar a limitação.
+
+Para uma conferência rápida antes do gate final, executar `stdd draw symbols`. Ele lista somente os símbolos dos nós e as associações ausentes, sem executar as suítes do projeto, o contrato, o backlog ou o adapter de análise completa.
+
 ## Ordem do backlog
 
 Antes de executar `stdd backlog task`, verificar se a resposta é `kind: "backlog-test-required"`. Nesse caso, não alterar produção: executar ou retomar `stdd backlog test`, criar os testes do nó de nível 2 e de todos os seus subfluxos ou marcar manualmente o fluxo já existente no viewer. `test_ref` e análise estática são evidências complementares, não uma pré-condição para o checklist. Só depois a mesma task pode ser implementada e concluída.

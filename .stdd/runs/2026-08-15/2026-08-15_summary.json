@@ -190,8 +190,197 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "1a54c81e0a514619b92c44a4546cf29b",
+      "timestamp": "2026-08-15T23:27:16.949039+00:00",
+      "description": "Pergunta sobre servidor na porta ocupada",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 114,
+        "lines_deleted": 5,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "f4bb18eae7ac4772b3219872b3d88ed6",
+      "timestamp": "2026-08-15T23:27:17.939363+00:00",
+      "description": "Adiciona testes para conflito de porta",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "280c45df465c4733bc17338ef75763f8",
+      "timestamp": "2026-08-15T23:38:58.573934+00:00",
+      "description": "Renomeia Draw Answer para Draw Interaction",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 122,
+        "lines_deleted": 30,
+        "files_changed": 8
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "a6be20da1114420094700706b367dcb0",
+      "timestamp": "2026-08-15T23:38:59.588537+00:00",
+      "description": "Entrega símbolos associados nas perguntas do Draw",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "02c9d978b7b2407c9e8287578e63c86a",
+      "timestamp": "2026-08-15T23:40:30.536941+00:00",
+      "description": "Exibe achados de símbolos ausentes no gate do CLI",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 2,
+        "lines_deleted": 1,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "824c2484cdc142798d19fafdb2e8dc3d",
+      "timestamp": "2026-08-15T23:40:31.528271+00:00",
+      "description": "Documenta associação obrigatória de símbolos e cobre o gate",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "e446d07e07a647e2995d0a3ddb53b68a",
+      "timestamp": "2026-08-15T23:41:35.800946+00:00",
+      "description": "Aperfeiçoa o teste CLI do finding de símbolo ausente",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "adaa47378ee04d23bb0af98d137d299a",
+      "timestamp": "2026-08-15T23:47:42.312995+00:00",
+      "description": "Adiciona comando dedicado para listar símbolos dos Draws",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 105,
+        "lines_deleted": 0,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "46df74ac875842cd99d2efaef2adfe46",
+      "timestamp": "2026-08-15T23:47:43.301113+00:00",
+      "description": "Testa comando de símbolos sem executar suítes",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 9,
-  "last_run_id": "c92c26ca5bb4474eaa954c10f9c163bc"
+  "run_count": 18,
+  "last_run_id": "46df74ac875842cd99d2efaef2adfe46"
 }

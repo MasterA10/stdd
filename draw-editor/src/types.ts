@@ -11,6 +11,29 @@ export interface Question {
   answer: string | boolean | number | null;
 }
 
+export interface ImprovementSession {
+  version: number;
+  id: string;
+  kind: 'draw-improvement';
+  title: string;
+  draw_id: string;
+  status: 'draft' | 'ready' | 'applied';
+  questions: Question[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ImprovementIndexEntry {
+  id: string;
+  file?: string;
+  title: string;
+  draw_id: string;
+  status: ImprovementSession['status'];
+  answered_count: number;
+  question_count: number;
+  updated_at?: string;
+}
+
 export interface NodeData {
   id: number;
   label: string;

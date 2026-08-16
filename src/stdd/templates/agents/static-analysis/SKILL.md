@@ -21,6 +21,8 @@ Esta skill orienta a criação de um adaptador específico para a stack do proje
 
 ## Objetivo
 
+Para verificar exclusivamente a rastreabilidade dos Draws, use `stdd draw symbols`. O comando lista os símbolos associados e os nós sem símbolo, sem executar suítes de teste, contrato, backlog ou adapter; a análise estática completa continua integrada ao `stdd test`.
+
 Conectar um analisador local ao comando `stdd test` para que a execução produza, quando houver capacidade disponível:
 
 - símbolos e assinaturas;

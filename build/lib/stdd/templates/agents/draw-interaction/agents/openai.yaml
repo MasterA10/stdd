@@ -1,0 +1,4 @@
+interface:
+  display_name: "Draw Interaction"
+  short_description: "Interpreta perguntas e tarefas do Draw com evidências da codebase"
+  default_prompt: "Use $draw-interaction para investigar marcações do Draw; responda perguntas e execute tarefas na codebase."

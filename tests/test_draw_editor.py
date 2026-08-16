@@ -39,6 +39,29 @@ def test_drawings_sidebar_keeps_all_flows_and_groups_them_by_level():
     assert "parent_draw_ref" in sidebar
 
 
+def test_draw_editor_exposes_separate_improvement_sessions_and_answers():
+    """Mantém perguntas do Draw Improve separadas do editor de fluxos.
+    Verifica também a resposta dos três formatos aceitos pela sessão.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    sidebar = (EDITOR_ROOT / "src/components/Sidebar.tsx").read_text(encoding="utf-8")
+    editor = (EDITOR_ROOT / "src/components/ImprovementEditor.tsx").read_text(encoding="utf-8")
+
+    for required in (
+        "improvementsIndex",
+        "loadImprovementById",
+        "/.stdd/improvements/index.json",
+        "/.stdd/improvements/",
+        "/__stdd/api/improvements/",
+        "isImprovementDirty",
+        "performImprovementSave",
+    ):
+        assert required in app
+    assert "Sessões de melhoria" in sidebar
+    for required in ("perguntas respondidas", "Sim", "Não", "Ainda sem resposta", "applied", "separadamente do fluxo"):
+        assert required in editor
+
+
 def test_draw_editor_removes_floating_canvas_hint():
     """Remove a dica flutuante do canto inferior esquerdo do viewer.
     Confirma que JSX e CSS não mantêm o componente de dica antigo.
@@ -238,6 +261,25 @@ def test_editor_does_not_update_local_index_for_an_unchanged_drawing():
     assert "setIsDirty(false);\n            return;" in app
 
 
+def test_global_search_lists_draw_associations_without_diming_the_canvas():
+    """Busca em todos os Draws e navega para o nó associado.
+    A consulta deve produzir uma lista clicável, preservar o canvas e aplicar zoom no destino.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    assert "loadContractForSearch" in app
+    assert "drawingsIndex.map(async (entry)" in app
+    assert "searchResults.map((result)" in app
+    assert "focusSearchResult" in app
+    assert "fitView({" in app
+    assert "nodes: [{ id: String(request.nodeId) }]" in app
+    assert "Buscar em todos os fluxos..." in app
+    assert ".search-results" in styles
+    assert "const matchingNodeIds" not in app
+    assert "if (hasSearch)" not in app
+
+
 def test_editor_retries_subdraw_in_backend_before_showing_local_storage_error():
     """Evita falha no primeiro clique enquanto a detecção do backend termina.
     Confere no App.tsx a estratégia de tentativas nos origins do backend antes de reportar erro.
@@ -391,7 +433,7 @@ def test_logical_save_is_manual_but_positions_use_presentation_cache():
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
 
     assert "const handleSave = () =>" in app
-    assert "onClick={handleSave}" in app
+    assert "onClick={currentImprovement ? performImprovementSave : handleSave}" in app
     assert "window.setTimeout" not in app
     assert "localStorage.setItem(presentationKey, JSON.stringify(parsed))" in app
     assert "setIsDirty(false);" in app.split("const onNodeDragStop", 1)[1].split("// --- Exposed", 1)[0]

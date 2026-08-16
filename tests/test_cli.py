@@ -39,19 +39,19 @@ def test_init_can_install_skills_for_all_supported_agents(tmp_path: Path):
     assert result.exit_code == 0
     for directory in (".agents", ".claude", ".gemini"):
         assert (tmp_path / directory / "skills" / "setup" / "SKILL.md").exists()
-        assert (tmp_path / directory / "skills" / "draw-answer" / "SKILL.md").exists()
+        assert (tmp_path / directory / "skills" / "draw-interaction" / "SKILL.md").exists()
         assert (tmp_path / directory / "skills" / "draw-improve" / "SKILL.md").exists()
         for level in range(1, 5):
             assert (tmp_path / directory / "skills" / f"draw-system-level-{level}" / "SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-improve/agents/openai.yaml").exists()
-    assert (tmp_path / ".agents/skills/draw-answer/agents/openai.yaml").exists()
+    assert (tmp_path / ".agents/skills/draw-interaction/agents/openai.yaml").exists()
 
 
 def test_draw_answer_skill_requires_structured_human_output_with_node_symbol():
-    """Define a resposta do Draw Answer como uma saída humana e rastreável.
+    """Define a resposta do Draw Interaction como uma saída humana e rastreável.
     Exige que o contrato mostre o símbolo associado ao próprio nó e as evidências.
     """
-    skill = Path("src/stdd/templates/agents/draw-answer/SKILL.md").read_text(encoding="utf-8")
+    skill = Path("src/stdd/templates/agents/draw-interaction/SKILL.md").read_text(encoding="utf-8")
 
     assert "## Formato obrigatório da resposta" in skill
     assert "### Resposta" in skill
@@ -343,6 +343,68 @@ def test_test_reports_static_analysis_unavailable_without_adapter(tmp_path: Path
     assert report["static_analysis"]["status"] == "unavailable"
     assert report["static_analysis"]["reason"] == "adapter_not_configured"
     assert "[static-analysis]" in process.stdout
+
+
+def test_test_cli_blocks_draw_node_without_associated_symbol(tmp_path: Path, monkeypatch):
+    """Bloqueia o CLI quando um nó de jornada não possui símbolo associado.
+    Executa `stdd test` e confirma o finding determinístico da análise dos Draws.
+    """
+    monkeypatch.chdir(tmp_path)
+    draws = tmp_path / ".stdd" / "draws"
+    draws.mkdir(parents=True)
+    (draws / "journey.json").write_text(json.dumps({
+        "id": "journey",
+        "title": "Jornada sem símbolo",
+        "hierarchy": {"level": 2, "role": "journey", "root_draw_ref": "root"},
+        "nodes": [{"id": 1, "label": "Tela sem referência"}],
+        "edges": [],
+    }), encoding="utf-8")
+    (tmp_path / ".stdd" / "config.json").write_text(json.dumps({
+        "test_commands": [{"name": "unit", "command": [sys.executable, "-c", "print('unit')"]}],
+        "static_analysis": {"enabled": True, "adapter_command": None},
+    }), encoding="utf-8")
+
+    result = runner.invoke(app, ["test"])
+
+    assert result.exit_code != 0
+    assert "draw.level2_missing_code_ref" in result.output
+    assert '"node_id": 1' in result.output
+    assert "Resultado: blocked" in result.output
+
+
+def test_draw_symbols_lists_missing_nodes_without_running_test_suites(tmp_path: Path, monkeypatch):
+    """Lista símbolos e detecta nós sem associação no comando dedicado.
+    Configura uma suíte que deixaria marcador e confirma que ela não é executada.
+    """
+    monkeypatch.chdir(tmp_path)
+    draws = tmp_path / ".stdd" / "draws"
+    draws.mkdir(parents=True)
+    (draws / "journey.json").write_text(json.dumps({
+        "id": "journey",
+        "title": "Jornada com símbolos",
+        "hierarchy": {"level": 2, "role": "journey", "root_draw_ref": "root"},
+        "nodes": [
+            {"id": 1, "label": "Associado", "code_refs": [{"symbol": "journey.start"}]},
+            {"id": 2, "label": "Sem símbolo"},
+        ],
+        "edges": [],
+    }), encoding="utf-8")
+    (tmp_path / ".stdd" / "config.json").write_text(json.dumps({
+        "test_commands": [{
+            "name": "must-not-run",
+            "command": [sys.executable, "-c", "from pathlib import Path; Path('suite-ran').write_text('x')"],
+        }],
+    }), encoding="utf-8")
+
+    result = runner.invoke(app, ["draw", "symbols"])
+
+    report = json.loads(result.stdout)
+    assert result.exit_code == 1
+    assert report["status"] == "blocked"
+    assert report["summary"] == {"nodes": 2, "associated": 1, "missing": 1, "draws": 1}
+    assert report["draws"][0]["symbols"] == ["journey.start"]
+    assert report["draws"][1]["status"] == "missing"
+    assert not (tmp_path / "suite-ran").exists()
 
 
 def test_test_compacts_static_analysis_output_but_preserves_structured_report(tmp_path: Path):

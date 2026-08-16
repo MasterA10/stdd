@@ -1,116 +1,122 @@
 ---
 name: draw-improve
-description: Revisa e melhora incrementalmente desenhos existentes do STDD Draw, acrescentando apenas o detalhe arquitetural, caso de uso, risco ou trade-off mais relevante por ciclo. Usar ao invocar $draw-improve ou pedir para revisar, completar, evoluir ou avaliar uma arquitetura desenhada antes de transformá-la em feature ou implementação.
+description: Identifica lacunas arquiteturais em um Draw existente por meio de dez perguntas e aplica as respostas em um ciclo posterior, preservando o JSON do fluxo enquanto as perguntas estão abertas.
 ---
 
 # Draw Improve
 
 ## Responsabilidade
 
-Evoluir um desenho existente sem substituir a intenção do usuário nem explodir sua escala. Trabalhar em um ciclo curto, gravar um incremento coerente, apresentar o resultado para revisão e parar. Considerar `Já está bom` uma conclusão válida quando não existir lacuna arquitetural relevante.
+O `$draw-improve` trabalha em duas fases explícitas:
 
-Alterar somente o JSON lógico em `.stdd/draws/`. Não criar HTML individual, documentação Markdown paralela, código de produção ou testes durante a melhoria do desenho.
+1. **Perguntar:** revisar o Draw inteiro, criar exatamente dez perguntas arquiteturais em uma sessão separada de `.stdd/improvements/` e parar para a resposta humana. Nesta fase não alterar `.stdd/draws/<draw-id>.json`, não criar nós e não criar conexões.
+2. **Aplicar:** em uma nova invocação, localizar sessões completas com `stdd draw improve --pending`, ler as respostas, revisar novamente o Draw associado e aplicar somente o próximo incremento coerente. Depois de salvar o Draw, marcar a sessão como `applied`.
 
-## Revisão da hierarquia do sistema
+O ciclo só termina depois de apresentar o resultado e pedir revisão. `Já está bom` continua sendo uma conclusão válida quando não houver lacuna relevante, mas a fase de perguntas deve existir sempre que uma decisão arquitetural depender da pessoa. Uma nova invocação inicia um ciclo posterior; não repetir automaticamente o ciclo atual.
 
-Quando o desenho possuir `hierarchy`, revisar a árvore e não apenas o arquivo aberto. Confirmar que o nível 1 contém somente decisões macro de arquitetura, que o nível 2 representa as jornadas de cada usuário — cliente, administrador e outros papéis — com permissões e regras observáveis, que o nível 3 contém a implementação da jornada e que o nível 4 só aparece quando a codebase exigir rastreabilidade ou detalhe técnico.
+## Sessão de perguntas
 
-Todo descendente deve declarar `parent_draw_ref`, `parent_node_id` e `root_draw_ref`, enquanto o pai aponta para ele com `draw_ref`. Uma melhoria não pode criar fluxo órfão. Folhas não implementadas devem permanecer terminais, sem continuação inventada. Se o problema estiver entre dois níveis, corrigir a cápsula e o vínculo pai-filho preservando o escopo de cada desenho.
+Uma sessão é um JSON separado em `.stdd/improvements/<improvement-id>.json`, associado por `draw_id`. Ela não é um subdraw, não pertence à hierarquia arquitetural e nunca deve ser gravada dentro do JSON do fluxo. O campo `questions` guarda as respostas, e o status `applied` identifica o histórico imutável.
 
-## Resolver o desenho
+A sessão deve possuir exatamente dez perguntas. Cada pergunta usa um destes tipos:
 
-Resolver `<draw-id>` nesta ordem:
+- `boolean`: sim ou não;
+- `choice`: de duas a quatro opções neutras, exibidas como A, B, C ou D;
+- `open`: resposta curta em texto.
 
-1. ID informado explicitamente pelo usuário;
-2. desenho mencionado ou aberto no contexto atual;
-3. único JSON de desenho alterado na tarefa atual;
-4. único item disponível em `.stdd/draws/index.json`.
+Todas começam com `answer: null`, isto é, sem resposta. Não registrar recomendações, respostas presumidas ou perguntas para investigação da codebase. As perguntas devem ser específicas, independentes e capazes de alterar arquitetura, casos de uso, riscos, responsabilidades, conexões, grupos ou fluxos.
 
-Se houver mais de um candidato, perguntar qual desenho usar. Não escolher silenciosamente. Ler `.stdd/draws/<draw-id>.json` e abrir `draw_ref` somente quando o subfluxo for necessário para avaliar o ponto atual.
-
-## Análise arquitetural
-
-Verificar se o desenho separa jornadas de cliente e administrador quando seus objetivos, permissões, entradas, estados ou caminhos de recuperação forem diferentes. Se houver um usuário genérico escondendo papéis distintos, corrigir essa fronteira como o próximo incremento relevante; não inventar permissões sem registrar uma pergunta.
-
-Avaliar no nível de sistemas, domínios, atores, responsabilidades, decisões e fluxos. Procurar primeiro a maior lacuna entre:
-
-- caminho principal incompleto;
-- falha ou recuperação relevante ausente;
-- fronteira de responsabilidade ambígua;
-- dependência ou acoplamento arriscado;
-- decisão sem condição, consequência ou alternativa;
-- segurança, autorização ou isolamento arquiteturalmente relevante;
-- observabilidade necessária para operar o fluxo;
-- caso de uso importante não representado;
-- parte complexa que merece um único `draw_ref` (respeitando a hierarquia de funções: o fluxo pai mantém a cápsula abstrata e o subfluxo isola os passos detalhados internos, sem duplicar etapas no pai).
-- vínculo hierárquico ausente, `draw_ref` quebrado, pai que duplica o filho ou nível que mistura arquitetura, jornada e implementação;
-- caminho de jornada não implementado que continua para passos fictícios em vez de terminar explicitamente.
-
-### Revisão global obrigatória
-
-Cada ciclo deve revisar o desenho inteiro, não apenas os nós ou relações inseridos no ciclo anterior. Ler e avaliar todos os nós, relações, grupos, fluxos, `draw_ref`, perguntas e decisões respondidas. Corrigir descrições vagas, caminhos duplicados, responsabilidades sobrepostas, ramos que bypassam decisões, nós órfãos e inconsistências entre o fluxo principal e subfluxos. É permitido alterar nós e relações existentes quando a correção for necessária para deixar o desenho coerente; preservar IDs e significado sempre que não houver inconsistência objetiva.
-
-Organizar os nós em grupos arquiteturais coerentes. Criar ou ajustar `groups`, atribuir `group` a todos os nós quando o agrupamento trouxer clareza e verificar que os grupos não misturam responsabilidades sem justificativa. O resultado deve comunicar a arquitetura como um todo, e não apenas acumular detalhes.
-
-Quando uma decisão depender do usuário, adicionar uma pergunta opcional ao nó responsável em vez de adivinhar. Usar `questions` com `type` `choice`, `boolean` ou `open`; contar como pendente e sem resposta somente quando `answer` for `null` ou vazio. Manter perguntas respondidas no JSON para formar histórico e tratar respostas como decisões do usuário nas próximas rodadas.
-
-Perguntas endereçadas à investigação da codebase pertencem exclusivamente ao `$draw-answer`. O `draw-improve` não responde, não preenche `answer` e não remove marcadores `@stdd`; deve preservá-los para a skill dedicada.
-
-Não detalhar classes, funções, métodos, chamadas internas triviais, campos ou passos de implementação. Um bom desenho de alto nível pode permanecer pequeno. Ao criar um subfluxo (`draw_ref`), garanta separação estrita de escopo: o que está no subfluxo não deve ser duplicado no fluxo principal.
-
-## Contrato incremental
-
-Executar um ciclo por invocação. Por padrão, um ciclo pode adicionar no máximo 3 novos nós, 5 novas conexões, 1 subdesenho e deve criar ou refinar pelo menos 5 perguntas arquiteturais relevantes. Distribuir as perguntas pelos nós responsáveis, evitando perguntas genéricas duplicadas. Em toda pergunta `choice`, manter o enunciado e as opções neutros, sem inserir sugestões no JSON. Apresentar a sugestão arquitetural separadamente na resposta ao usuário, identificando a pergunta e a opção recomendada, sem registrar a resposta por conta própria. Alterações menores são preferíveis nos nós e relações, mas a revisão global pode corrigir qualquer elemento inconsistente. Se a melhoria coerente exigir mais de 3 nós, 5 relações ou 1 subdesenho, explicar a expansão e pedir aprovação antes de gravá-la.
-
-Preservar IDs e significado dos elementos existentes. Não remover, renomear ou redirecionar elementos do usuário sem corrigir uma inconsistência objetiva; quando isso ocorrer, declarar a correção no encerramento.
-
-Não repetir automaticamente outro ciclo. Depois de gravar a melhoria, parar para revisão do usuário. Uma nova invocação de `$draw-improve` inicia o próximo ciclo sobre o JSON já revisado.
-
-Se o desenho já comunicar responsabilidades, fluxo principal, falhas relevantes e trade-offs suficientes para a decisão atual, não alterar o arquivo. Responder `Já está bom` e apresentar os sinais que sustentam essa conclusão.
-
-## Fluxo de melhoria
-
-1. Conferir Git e preservar alterações existentes, sem usar o diff geral como fonte da melhoria.
-2. Executar `stdd draw diff`; sem `--run-id`, o comando compara o estado atual com o último snapshot salvo por `stdd log` e mostra somente alterações em `.stdd/draws/*.json`, excluindo `.stdd/draws/index.json`.
-3. Para um ponto específico, executar `stdd draw diff --run-id <run-id>`. Nunca usar GitHub, pull request, `git diff` ou o snapshot geral da codebase para decidir o que mudou no desenho.
-4. Ler o índice, o JSON escolhido e apenas os subdesenhos necessários.
-5. Transformar o diff de Draws em revisão: identificar o que mudou, verificar coerência com a arquitetura inteira, preservar perguntas marcadas com `@stdd` para o `$draw-answer`, fazer perguntas humanas permanecerem abertas e apresentar sugestões de correção separadas.
-6. Validar IDs numéricos internos, referências, condições, integridade das conexões e a árvore `hierarchy`/`draw_ref` sem órfãos.
-7. Identificar a maior lacuna arquitetural e escolher um único incremento.
-8. Atualizar o JSON preservando seu `id` descritivo e usando `condition`: `1` para `então`, `2` para `ou` e `3` para `se`.
-9. Manter posição, cor, dimensão, data e estilo fora do JSON.
-10. Gravar pelo contrato existente, preferencialmente com:
+Criar a sessão pelo contrato oficial:
 
 ```bash
-stdd draw create --data-json '<JSON_COMPLETO_ATUALIZADO>'
+stdd draw improve --create --data-json '<JSON_DA_SESSAO>'
 ```
 
-11. Validar o desenho gerado, abrir com `stdd draw serve` quando a revisão visual for útil e registrar o trabalho como implementação do desenho.
-12. Informar o incremento, as mudanças encontradas no diff salvo, as perguntas e sugestões, o que ficou deliberadamente fora e pedir revisão. Encerrar o ciclo.
+Depois, orientar a pessoa a abrir o viewer, responder as dez perguntas e salvar. A UI salva somente `.stdd/improvements/`; o Draw continua intacto.
 
-## Handoff para create-tests e implementação
+## Revisão da hierarquia e do Draw inteiro
+
+Em ambas as fases, ler o Draw completo e, quando houver `hierarchy`, revisar a árvore. Confirmar que o nível 1 contém decisões macro, o nível 2 representa jornadas por papel, o nível 3 contém a implementação da jornada e o nível 4 só aparece quando a codebase exigir rastreabilidade técnica.
+
+Todo descendente deve declarar `parent_draw_ref`, `parent_node_id` e `root_draw_ref`, enquanto o pai aponta para ele com `draw_ref`. Nunca criar fluxo órfão. Folhas não implementadas permanecem terminais e pertencem ao grupo específico de funcionalidades não implementadas.
+
+Na revisão global obrigatória, ler todos os nós, relações, grupos, fluxos, subdesenhos, perguntas e decisões respondidas; o objeto `groups` também faz parte da revisão. Procurar, nesta ordem, caminho principal incompleto, recuperação ausente, fronteira de responsabilidade ambígua, dependência arriscada, decisão sem condição, segurança ou autorização ausente, observabilidade necessária, caso de uso não representado e hierarquia incoerente.
+
+Organizar os nós em grupos arquiteturais coerentes e corrigir descrições vagas, duplicações, nós órfãos, relações inválidas, branches que bypassam decisões e inconsistências entre o fluxo principal e seus subfluxos.
+
+## Fase de aplicação
+
+Executar:
+
+```bash
+stdd draw improve --pending
+```
+
+Usar somente sessões `ready`, isto é, com as dez respostas válidas. Nunca aplicar uma sessão `draft` ou inferir resposta ausente. O comando entrega o `draw_id`, o arquivo da sessão, as perguntas e as respostas.
+
+Para cada sessão pronta:
+
+1. Ler o JSON atual do Draw pelo `draw_id`; não usar uma cópia antiga da sessão como fonte para substituir o Draw.
+2. Interpretar as respostas como decisões explícitas da pessoa.
+3. Fazer uma única melhoria coerente, podendo alterar nós, relações, grupos, flows ou um subdraw quando isso for consequência direta das respostas.
+4. Preservar IDs e significado existentes salvo quando houver inconsistência objetiva.
+5. Usar `condition: 1` para `então`, `condition: 2` para `ou` e `condition: 3` para `se`.
+6. Persistir o Draw completo com:
+
+   ```bash
+   stdd draw create --data-json '<JSON_COMPLETO_ATUALIZADO>'
+   ```
+
+7. Somente depois de o Draw ser salvo com sucesso, executar:
+
+   ```bash
+   stdd draw improve --mark-applied --id <improvement-id>
+   ```
+
+Uma sessão `applied` é histórica e imutável. Não reaplicá-la nem apagar suas perguntas e respostas.
+
+## Limites incrementais
+
+Na fase de aplicação, manter o contrato incremental: por padrão, no máximo 3 novos nós, 5 novas conexões e 1 subdesenho por ciclo. Se a resposta exigir uma expansão maior, explicar a expansão e pedir aprovação antes de gravar. Não repetir automaticamente outro ciclo.
+
+Na fase de perguntas, não alterar o Draw para cumprir esses limites: o único artefato criado é a sessão de dez perguntas.
+
+## Perguntas da codebase
+
+Perguntas marcadas com `@stdd` pertencem exclusivamente ao `$draw-interaction`. O `$draw-improve` não responde, não preenche `answer`, não implementa produção e não remove marcadores `@stdd`; deve preservá-los.
+
+## Fluxo operacional
+
+1. Conferir Git e preservar alterações existentes, sem usar o diff geral como fonte da decisão.
+2. Executar `stdd draw diff`; sem `--run-id`, comparar o estado atual com o último snapshot salvo por `stdd log` e considerar somente alterações em `.stdd/draws/*.json`.
+3. Resolver o Draw pelo ID explícito, contexto atual, único Draw alterado ou único item disponível no índice; se houver mais de um candidato, perguntar qual usar.
+4. Ler o índice, o Draw escolhido e apenas os subdesenhos necessários.
+5. Na primeira fase, gerar e salvar a sessão com `stdd draw improve --create`.
+6. Na fase posterior, executar `stdd draw improve --pending`, aplicar respostas e salvar o Draw.
+7. Validar IDs numéricos, referências, condições, conexões, `draw_ref` e a árvore hierárquica.
+8. Abrir `stdd draw serve` quando a revisão visual for útil.
+9. Registrar uma aplicação concluída como implementação:
+
+   ```bash
+   stdd log "Melhora incrementalmente o desenho <draw-id>" --impl
+   ```
+
+## Handoff
 
 O desenho não autoriza alteração direta de produção.
 
-- Se o usuário disser apenas `$create-tests`, resolver o desenho pelo contexto e entregar seu ID ao Create Tests Agent. O Create Tests Agent deve ler `.stdd/draws/<draw-id>.json`, criar os testes executáveis e confirmar o estado vermelho pelo motivo esperado. Não exigir que o usuário repita a descrição já presente no desenho.
-- Se o usuário disser `$implement` ou pedir para implementar o desenho, executar primeiro o contrato de `$create-tests`. Somente depois de existirem testes adequados em estado vermelho, seguir o contrato do Implement Agent para obter verde.
-- Não pular a etapa de create-tests, não criar produção antes dos testes e não tratar desenho aprovado como teste aprovado.
-- Se o desenho for ambíguo a ponto de produzir contratos incompatíveis, pedir a menor decisão necessária antes de create-tests.
+- `$create-tests` deve ler o Draw aprovado e criar testes executáveis em estado vermelho pelo motivo esperado.
+- `$implement` deve executar primeiro o contrato de `$create-tests` e somente depois alterar produção.
+- Não pular a etapa de testes nem tratar Draw aprovado como teste aprovado.
 
-## Encerramento de cada ciclo
+## Encerramento
 
 Informar:
 
-- desenho analisado;
+- Draw analisado e sessão de melhoria criada ou aplicada;
 - diagnóstico: `melhorado` ou `Já está bom`;
-- nós, relações ou subdesenhos adicionados/alterados;
-- risco, caso de uso ou decisão esclarecida;
-- detalhes deliberadamente não adicionados;
+- perguntas criadas, respostas consumidas e decisões resultantes;
+- nós, relações, grupos ou subdesenhos adicionados/alterados, quando houver aplicação;
+- o que ficou deliberadamente fora;
 - comando ou URL para revisão visual;
-- próxima opção: revisar manualmente, chamar `$draw-improve` novamente, seguir com `$create-tests` ou iniciar `$implement` pela etapa de create-tests.
-
-Quando houver alteração, registrar somente o tipo correspondente:
-
-```bash
-stdd log "Melhora incrementalmente o desenho <draw-id>" --impl
-```
+- próxima opção: responder a sessão, revisar manualmente, chamar `$draw-improve` novamente, seguir com `$create-tests` ou iniciar `$implement` pela etapa de create-tests.

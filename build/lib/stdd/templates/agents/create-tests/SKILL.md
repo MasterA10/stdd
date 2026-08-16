@@ -65,6 +65,14 @@ Não converter Draw em documentação duplicada. O JSON e os testes permanecem f
 6. Definir comportamento de sucesso, erros, limites, efeitos colaterais e riscos.
 7. Escolher as categorias de teste proporcionais ao risco.
 
+## Símbolos obrigatórios e gate do Draw
+
+Toda especificação de teste que tocar um nó de Draw deve preservar a rastreabilidade até um símbolo real. Para cada nó implementado ou alterado, consultar a análise estática, associar no próprio nó um `code_refs` com `symbol` ou `qualified_name` comprovado e manter o `test_ref`/`test_refs` do cenário quando existir. Nunca usar símbolo genérico, placeholder ou associação em um nó diferente só para satisfazer o contrato.
+
+Antes de concluir a especificação, executar `stdd test`. Esse comando verifica os Draws e bloqueia o resultado quando algum nó de nível 2, 3 ou 4 não possui símbolo associado (`draw.level2_missing_code_ref`, `draw.level3_missing_code_ref`, `draw.level4_missing_code_ref` ou `draw.empty_node_symbol`). Corrigir a associação no nó correto e repetir o comando antes de declarar a tarefa concluída. Para uma funcionalidade explicitamente não implementada, não inventar símbolo: mantê-la terminal no grupo próprio e reportar a pendência em vez de tratá-la como teste aprovado.
+
+Durante a investigação, usar `stdd draw symbols` para listar somente os símbolos e nós sem associação; esse comando não executa suítes, contrato, backlog ou adapter. Usar o `stdd test` completo somente como gate final.
+
 ## Contrato de testes
 
 Não limitar a estratégia a testes funcionais, mas também não criar uma suíte por obrigação. Avaliar o risco da superfície e selecionar uma cobertura proporcional, somente com categorias aplicáveis:

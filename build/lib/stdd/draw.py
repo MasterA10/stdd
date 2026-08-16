@@ -678,6 +678,66 @@ def scan_draw_contracts(root: Path) -> list[dict[str, Any]]:
     return findings
 
 
+def collect_draw_symbols(root: Path) -> dict[str, Any]:
+    """Lista símbolos declarados nos nós implementáveis sem executar suítes.
+    Mantém a verificação rápida do CLI separada da análise estática completa e do backlog.
+    """
+    entries: list[dict[str, Any]] = []
+    errors: list[dict[str, str]] = []
+    directory = draw_directory(root)
+    if not directory.is_dir():
+        return {
+            "status": "passed",
+            "draws": [],
+            "errors": [],
+            "summary": {"nodes": 0, "associated": 0, "missing": 0, "draws": 0},
+        }
+
+    draw_count = 0
+    for path in sorted(directory.glob("*.json")):
+        if path.name == "index.json":
+            continue
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+            errors.append({"file": path.relative_to(root).as_posix(), "reason": error.__class__.__name__})
+            continue
+        if not isinstance(payload, dict):
+            errors.append({"file": path.relative_to(root).as_posix(), "reason": "document_not_object"})
+            continue
+        hierarchy = payload.get("hierarchy")
+        level = hierarchy.get("level") if isinstance(hierarchy, dict) else None
+        if level not in (2, 3, 4):
+            continue
+        draw_count += 1
+        for node in payload.get("nodes", []):
+            if not isinstance(node, dict):
+                continue
+            symbols = _extract_node_symbols(node)
+            entries.append({
+                "draw_id": payload.get("id", path.stem),
+                "file": path.relative_to(root).as_posix(),
+                "level": level,
+                "node_id": node.get("id"),
+                "label": node.get("label", ""),
+                "status": "associated" if symbols else "missing",
+                "symbols": symbols,
+            })
+
+    missing = sum(item["status"] == "missing" for item in entries)
+    return {
+        "status": "blocked" if missing or errors else "passed",
+        "draws": entries,
+        "errors": errors,
+        "summary": {
+            "nodes": len(entries),
+            "associated": len(entries) - missing,
+            "missing": missing,
+            "draws": draw_count,
+        },
+    }
+
+
 def validate_hierarchy_parent(root: Path, payload: dict[str, Any]) -> list[str]:
     """Confere o vínculo pai-filho de um desenho hierárquico persistido.
     Exige que o pai exista, declare a mesma raiz e exponha a cápsula apontada pelo filho.
@@ -859,7 +919,7 @@ def read_draw_index(root: Path) -> dict[str, Any]:
 
 
 def find_addressed_questions(root: Path) -> list[dict[str, Any]]:
-    """Localiza perguntas abertas endereçadas ao Draw Answer nos desenhos.
+    """Localiza perguntas abertas endereçadas ao Draw Interaction nos desenhos.
     Usa o índice para descobrir os desenhos e retorna somente perguntas com @stdd.
     """
     questions: list[dict[str, Any]] = []
@@ -878,13 +938,31 @@ def find_addressed_questions(root: Path) -> list[dict[str, Any]]:
                 answer = question.get("answer")
                 unanswered = answer is None or (isinstance(answer, str) and not answer.strip())
                 if isinstance(prompt, str) and re.search(r"@stdd", prompt, re.IGNORECASE) and unanswered:
+                    node_code_refs = deepcopy(node.get("code_refs", []))
+                    symbols = []
+                    source_dependencies = []
+                    for reference in node_code_refs:
+                        if isinstance(reference, str):
+                            reference = {"symbol": reference}
+                        if not isinstance(reference, dict):
+                            continue
+                        symbol = reference.get("qualified_name") or reference.get("symbol")
+                        if isinstance(symbol, str) and symbol.strip():
+                            symbols.append(symbol.strip())
+                        dependencies = reference.get("source_dependencies", [])
+                        if isinstance(dependencies, list):
+                            source_dependencies.extend(
+                                item.strip() for item in dependencies if isinstance(item, str) and item.strip()
+                            )
                     questions.append({
                         "draw_id": draw_id,
                         "draw_title": document.get("title", draw_id),
                         "draw_file": f".stdd/draws/{draw_id}.json",
                         "node_id": node.get("id"),
                         "node_label": node.get("label", ""),
-                        "node_code_refs": deepcopy(node.get("code_refs", [])),
+                        "node_code_refs": node_code_refs,
+                        "symbols": list(dict.fromkeys(symbols)),
+                        "source_dependencies": list(dict.fromkeys(source_dependencies)),
                         "question_id": question.get("id"),
                         "type": question.get("type"),
                         "question": prompt,
@@ -895,7 +973,7 @@ def find_addressed_questions(root: Path) -> list[dict[str, Any]]:
 
 
 def format_draw_answers(questions: list[dict[str, Any]]) -> str:
-    """Apresenta perguntas do Draw Answer agrupadas em uma leitura humana.
+    """Apresenta perguntas do Draw Interaction agrupadas em uma leitura humana.
     Inclui o nó, cada símbolo associado, arquivos e limitações sem imprimir JSON bruto.
     """
     if not questions:
@@ -906,7 +984,7 @@ def format_draw_answers(questions: list[dict[str, Any]]) -> str:
         draw_id = str(question.get("draw_id", "desenho desconhecido"))
         grouped.setdefault(draw_id, []).append(question)
 
-    lines = ["Perguntas do Draw Answer", ""]
+    lines = ["Perguntas do Draw Interaction", ""]
     for draw_id, draw_questions in grouped.items():
         draw_title = draw_questions[0].get("draw_title") or draw_id
         lines.extend([f"Draw: {draw_title} ({draw_id})", ""])
@@ -943,7 +1021,7 @@ def format_draw_answers(questions: list[dict[str, Any]]) -> str:
                 lines.append("Símbolo associado ao nó: não comprovado")
                 lines.append("Evidências: o nó ainda não possui um símbolo válido em code_refs.")
                 lines.append("Limitações: a associação precisa ser investigada antes de concluir a resposta.")
-            lines.append("Status: aguardando investigação do Draw Answer.")
+            lines.append("Status: aguardando investigação do Draw Interaction.")
             if index < len(draw_questions) - 1:
                 lines.append("")
         lines.append("")
@@ -1047,6 +1125,9 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
     workspace_violations = validate_draw_workspace(root)
     if workspace_violations:
         raise ValueError("Workspace de desenhos inválido: " + "; ".join(workspace_violations))
+    from .improvements import ensure_improvement_workspace
+
+    ensure_improvement_workspace(root)
 
     class ProjectHandler(SimpleHTTPRequestHandler):
         """Serve somente o viewer empacotado e a API de desenhos locais."""
@@ -1112,6 +1193,16 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
             if path == "/.stdd/draws/index.json":
                 try:
                     body = json.dumps(read_draw_index(root), ensure_ascii=False).encode("utf-8")
+                except ValueError as error:
+                    self._send_json_error(500, str(error))
+                    return
+                self._send_bytes(body, "application/json; charset=utf-8")
+                return
+            if path == "/.stdd/improvements/index.json":
+                from .improvements import read_improvement_index
+
+                try:
+                    body = json.dumps(read_improvement_index(root), ensure_ascii=False).encode("utf-8")
                 except ValueError as error:
                     self._send_json_error(500, str(error))
                     return
@@ -1186,6 +1277,18 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                     return
                 self._send_bytes(body, "application/json; charset=utf-8")
                 return
+            improvements_prefix = "/.stdd/improvements/"
+            if path.startswith(improvements_prefix) and path.endswith(".json"):
+                from .improvements import read_improvement
+
+                improvement_id = unquote(path[len(improvements_prefix):-5])
+                try:
+                    body = json.dumps(read_improvement(root, improvement_id), ensure_ascii=False).encode("utf-8")
+                except ValueError:
+                    self._send_json_error(404, "sessão de melhoria não encontrada")
+                    return
+                self._send_bytes(body, "application/json; charset=utf-8")
+                return
             self.send_error(404, "endpoint inexistente")
 
         def _allow_local_origin(self) -> None:
@@ -1211,7 +1314,11 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
             Aceita somente o endpoint de desenhos e o método PUT necessário pelo viewer.
             """
             path = urlparse(self.path).path
-            if not (path.startswith("/__stdd/api/draws/") or path.startswith("/__stdd/api/backlog")):
+            if not (
+                path.startswith("/__stdd/api/draws/")
+                or path.startswith("/__stdd/api/improvements/")
+                or path.startswith("/__stdd/api/backlog")
+            ):
                 self.send_error(404, "endpoint inexistente")
                 return
             self.send_response(204)
@@ -1273,6 +1380,30 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
             Aceita somente o ID do desenho na rota e delega validação ao contrato canônico.
             """
             path = urlparse(self.path).path
+            improvement_prefix = "/__stdd/api/improvements/"
+            if path.startswith(improvement_prefix):
+                from .improvements import create_improvement
+
+                improvement_id = unquote(path[len(improvement_prefix):])
+                if improvement_id.endswith(".json"):
+                    improvement_id = improvement_id[:-5]
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                    if length <= 0 or length > 200_000:
+                        raise ValueError("payload deve ter entre 1 e 200000 bytes")
+                    payload = json.loads(self.rfile.read(length).decode("utf-8"))
+                    if not isinstance(payload, dict) or str(payload.get("id")) != improvement_id:
+                        raise ValueError("id da rota e do JSON devem ser iguais")
+                    output = create_improvement(root, payload)
+                    body = json.dumps({"status": "saved", "path": str(output.relative_to(root))}).encode("utf-8")
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.send_header("Content-Length", str(len(body)))
+                    self.end_headers()
+                    self.wfile.write(body)
+                except (OSError, ValueError, UnicodeDecodeError, json.JSONDecodeError) as error:
+                    self._send_json_error(400, str(error))
+                return
             prefix = "/__stdd/api/draws/"
             if not path.startswith(prefix):
                 self.send_error(404, "endpoint inexistente")

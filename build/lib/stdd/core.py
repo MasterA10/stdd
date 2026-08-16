@@ -12,6 +12,7 @@ from typing import Any
 from .backlog import check_backlog
 from .contract import check_contract
 from .draw import ensure_draw_workspace
+from .improvements import ensure_improvement_workspace
 from .models import REWORK_LINE_THRESHOLD, RunLogEntry
 from .runs import ensure_runs_workspace, update_runs_index
 from .static_analysis import run_static_analysis, write_static_analysis_kpis
@@ -192,6 +193,7 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list
     created.extend(ensure_static_analysis_defaults(config))
 
     created.extend(ensure_draw_workspace(root, include_example=True))
+    created.extend(ensure_improvement_workspace(root))
     created.extend(ensure_runs_workspace(root))
     created.extend(ensure_gitignore(root))
 
@@ -368,13 +370,23 @@ def _static_analysis_summary(report: dict[str, Any]) -> dict[str, Any]:
     """Resume o contrato estático sem imprimir símbolos e dependências inteiros."""
     findings = report.get("quality_findings", [])
     findings = findings if isinstance(findings, list) else []
+    blocking_findings = [
+        {
+            key: finding[key]
+            for key in ("kind", "file", "draw_id", "node_id", "symbol_id")
+            if key in finding
+        }
+        for finding in findings
+        if isinstance(finding, dict) and finding.get("severity") == "blocking"
+    ]
     return {
         "status": report.get("status"),
         "reason": report.get("reason"),
         "symbols": len(report.get("symbols", [])) if isinstance(report.get("symbols", []), list) else 0,
         "dependencies": len(report.get("dependencies", [])) if isinstance(report.get("dependencies", []), list) else 0,
         "quality_findings": len(findings),
-        "blocking_findings": sum(1 for finding in findings if isinstance(finding, dict) and finding.get("severity") == "blocking"),
+        "blocking_findings": len(blocking_findings),
+        "blocking_details": blocking_findings,
         "errors": len(report.get("errors", [])) if isinstance(report.get("errors", []), list) else 0,
     }
 

@@ -88,13 +88,13 @@ $setup Detecte a stack deste repositório e configure os runners sem instalar de
 $create-tests Quero implementar autenticação por sessão; transforme o pedido em uma feature testável.
 $draw-feature Desenhe o fluxo de autenticação, incluindo falhas e subfluxos.
 $draw-improve Revise o desenho atual e acrescente somente o próximo detalhe arquitetural relevante.
-$draw-answer Investigue e responda perguntas do Draw marcadas explicitamente com @stdd.
+$draw-interaction Investigue marcações do Draw; responda perguntas e execute tarefas na codebase.
 $draw-system-level-1 Desenhe somente a arquitetura macro do sistema.
 $draw-system-level-2 Desenhe jornadas, telas e navegação por papel a partir da arquitetura existente.
 $draw-system-level-3 Detalhe o comportamento completo de uma tela ou nó, em lotes aprovados.
 $draw-system-level-4 Rastreie sob demanda uma decisão até a codebase real.
 $static-analysis Analise dependências, complexidade, funções longas e segredos hardcoded.
-$miss-agent Execute as tasks pendentes do backlog até não haver mais tasks.
+$missing Execute as tasks pendentes do backlog até não haver mais tasks; leia símbolos e testes e corrija o comportamento marcado como ausente.
 $implement Execute a implementação aprovada e rode os gates do STDD.
 ```
 
@@ -104,8 +104,8 @@ Também é possível chamar a skill sem instrução adicional quando o objetivo 
 $setup
 $create-tests
 $draw-improve
-$draw-answer
-$miss-agent
+$draw-interaction
+$missing
 $implement
 ```
 
@@ -123,9 +123,9 @@ $draw-improve Evolua o desenho em um ciclo curto e pare para minha revisão.
 $implement Execute somente depois da aprovação.
 ```
 
-`$draw-improve` trabalha sobre um JSON existente em `.stdd/draws/`. Cada chamada faz no máximo um incremento pequeno e encerra para revisão; se a arquitetura já estiver suficiente, a resposta correta pode ser `Já está bom`. Quando o desenho estiver aprovado, `$create-tests` transforma sua lógica em testes. Mesmo que o próximo pedido seja apenas `$implement`, o agente deve passar primeiro pela etapa de create-tests e confirmar os testes vermelhos antes de alterar produção.
+`$draw-improve` trabalha em duas fases sobre um JSON existente em `.stdd/draws/`. A primeira revisa o Draw e cria exatamente dez perguntas em uma sessão separada de `.stdd/improvements/`, sem alterar o fluxo. Responda as perguntas no viewer e salve a sessão; em uma nova chamada, o agente executa `stdd draw improve --pending`, consome somente sessões completas e aplica um único incremento coerente no Draw. Depois de salvar o fluxo, a sessão recebe status `applied` e permanece imutável como histórico. Quando o desenho estiver aprovado, `$create-tests` transforma sua lógica em testes. Mesmo que o próximo pedido seja apenas `$implement`, o agente deve passar primeiro pela etapa de create-tests e confirmar os testes vermelhos antes de alterar produção.
 
-Perguntas de um Draw só devem ser respondidas automaticamente pelo `$draw-answer` quando o `prompt` contiver `@stdd` e `answer` estiver ausente, `null` ou vazio. O agente executa `stdd draw questions`, que já busca todas as perguntas nos JSONs e retorna JSON, consulta a codebase e os símbolos associados; se houver evidência, grava a resposta, marca os símbolos relevantes e remove o marcador. Se não houver evidência suficiente, mantém a pergunta aberta e associa ao próprio nó o arquivo e o símbolo relevante em `code_refs`. Sem `@stdd`, a pergunta pertence ao usuário ou a um revisor humano; respostas já preenchidas, inclusive `false` e `0`, não geram nova ação. O `$draw-improve` preserva essa responsabilidade separada e não responde perguntas.
+O `$draw-interaction` lê as marcações do Draw e identifica se cada uma é uma pergunta ou uma tarefa. Para perguntas com `@stdd` e `answer` ausente, executa `stdd draw questions`, consulta a codebase e os símbolos associados; se houver evidência, grava a resposta, marca os símbolos relevantes e remove o marcador. Para tarefas, consulta `stdd backlog missing`, lê os símbolos e testes e implementa o comportamento faltante na codebase, com regressão e gates quando necessário. Sem `@stdd`, a pergunta pertence ao usuário ou a um revisor humano; respostas já preenchidas, inclusive `false` e `0`, não geram nova ação. O `$draw-improve` preserva essa responsabilidade separada.
 
 As skills `$draw-system-level-1` a `$draw-system-level-4` criam uma árvore sem fluxos órfãos: nível 1 contém somente arquitetura macro, nível 2 acompanha jornadas e navegação por papel, nível 3 detalha de ponta a ponta as ações possíveis de cada tela em dois ou mais lotes aprovados e nível 4 liga a codebase sob demanda. No nível 2, cada nó deve ter ao menos um `code_refs`; `stdd draw create` informa a lacuna e `stdd test` bloqueia com `draw.level2_missing_code_ref`. O mesmo gate bloqueia `draw.level3_missing_code_ref`, `draw.level4_missing_code_ref` e `draw.empty_node_symbol`; duplicação de símbolo continua sendo warning. No nível 3, cada ação comprovada da tela inicia um nó próprio conectado ao comportamento de caso de uso; a tela não é substituída por um fluxo genérico. A análise estática avisa quando um subfluxo de nível 3 tem menos de quatro nós ou quando alguma descrição tem menos de 80 caracteres; esses avisos continuam informativos. Cada filho declara seu pai e cada pai aponta para o filho com `draw_ref`; caminhos ainda não implementados terminam no próprio nó, sem continuação fictícia.
 
@@ -169,13 +169,23 @@ stdd draw diff --run-id <run-id>
 
 Sem `--run-id`, o comando compara o estado atual com o último checkpoint salvo em `.stdd/runs/`; com `--run-id`, ele reexibe o diff histórico daquela interação. Em ambos os casos, considera apenas JSONs diretos de `.stdd/draws/`, exclui `index.json` e não consulta GitHub, `git diff` nem arquivos da codebase.
 
-Para entregar as perguntas pendentes do Draw Answer em uma leitura humana, agrupadas por desenho e nó, use:
+Para entregar as perguntas pendentes do Draw Interaction em uma leitura humana, agrupadas por desenho e nó, use:
 
 ```bash
 stdd draw answer
 ```
 
 A saída mostra a pergunta sem `@stdd`, o nó, o símbolo associado ao nó, o arquivo, as evidências e as limitações. O comando é somente leitura; `stdd draw questions` continua disponível para o JSON operacional consumido pela skill.
+
+Para criar, consultar e concluir uma sessão de perguntas do Draw Improve, use:
+
+```bash
+stdd draw improve --create --data-json '<JSON_DA_SESSAO>'
+stdd draw improve --pending
+stdd draw improve --mark-applied --id <improvement-id>
+```
+
+As sessões ficam em `.stdd/improvements/` e possuem índice próprio. O viewer mostra essas sessões separadamente dos desenhos; salvar respostas nunca sobrescreve `.stdd/draws/<draw-id>.json`.
 
 Logs sem linhas adicionadas ou removidas no código são mantidos como checkpoints, com `checkpoint: true` no `*_summary.json`. O detalhamento dos JSONs alterados fica no `*_snapshot.json`; a aba `Runs` do Draw permite ocultar esses checkpoints de 0 linhas.
 
@@ -215,11 +225,19 @@ Um nó de nível 2 pode declarar `test_ref` — ou `test_refs` compatíveis — 
 
 O backlog mantém dois checklists centrais em `phase_checklists`: `test` vem antes de `implementation`, e os itens são derivados das tasks e subfluxos. No Draw, ao selecionar um nó, a Sidebar permite marcar ou desmarcar esses itens. A marcação é persistida no `.stdd/backlog.json` pelo servidor local, sem validação obrigatória de análise estática; a implementação continua bloqueada enquanto o checklist de teste do nó e de seus subfluxos estiver pendente.
 
-Se `backlog task` for chamado antes da marcação do checklist de teste, ele retorna JSON com `kind: "backlog-test-required"`, `status: "blocked"` e a razão, sem reservar a implementação. O `$miss-agent` e o `$implement` devem atender essa resposta com a etapa de testes ou com a marcação manual do fluxo já existente. Self-loops são terminais; ciclos diferentes de self-loop são bloqueados para evitar execução infinita. A aba `Backlog` do viewer mostra a task atual, perguntas, respostas, símbolos e a evidência opcional do teste quando o Draw Server está ativo.
+Se `backlog task` for chamado antes da marcação do checklist de teste, ele retorna JSON com `kind: "backlog-test-required"`, `status: "blocked"` e a razão, sem reservar a implementação. O `$missing` e o `$implement` devem atender essa resposta com a etapa de testes ou com a marcação manual do fluxo já existente. Ao desmarcar a implementação, o `$missing` deve ler símbolos, dependências e testes, localizar o comportamento faltante e corrigi-lo antes de concluir a task. Self-loops são terminais; ciclos diferentes de self-loop são bloqueados para evitar execução infinita. A aba `Backlog` do viewer mostra a task atual, perguntas, respostas, símbolos e a evidência opcional do teste quando o Draw Server está ativo.
 
 Quando uma task possui subfluxo, `backlog task` e `backlog test` retornam a task atual, `parent_task`, a subtask atual e o resumo das demais subtasks. Pai e subtasks são independentes e devem ser concluídos pelos seus próprios IDs; a resposta mantém o contexto do pai enquanto avança pela primeira, segunda e demais subtasks.
 
 ## Executar testes
+
+Para conferir somente os símbolos associados aos nós dos Draws, sem executar os testes do sistema:
+
+```bash
+stdd draw symbols
+```
+
+O comando lista os símbolos por nó e termina com código diferente de zero quando encontra uma associação ausente em um Draw de nível 2, 3 ou 4.
 
 ```bash
 stdd test
@@ -227,6 +245,7 @@ stdd test
 
 Esse é o alias global. Ele executa as suítes configuradas, análise estática, contrato e runners da stack. Suítes que exigem aprovação explícita aparecem como `not_executed` quando não autorizadas.
 Se `.stdd/backlog.json` existir, o alias também executa o gate do backlog e bloqueia enquanto houver task sem `backlog complete` ou nó de nível 2 sem teste comprovado; a saída do terminal mostra somente status e contagens, mantendo os detalhes no relatório estruturado.
+Quando a análise encontrar um nó de nível 2, 3 ou 4 sem símbolo, a saída inclui o `kind`, o arquivo do Draw e o `node_id` do achado bloqueante (`draw.level*_missing_code_ref` ou `draw.empty_node_symbol`).
 
 Opções úteis:
 

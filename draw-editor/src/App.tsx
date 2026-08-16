@@ -12,7 +12,7 @@ import {
 import type { Connection, Edge, EdgeChange, Node, EdgeTypes } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import type { BacklogDocument, Contract, DrawIndexEntry, NodeData, EdgeData, RunRecord, TraceabilityFacts, StaticAnalysisKpiReport } from './types';
+import type { BacklogDocument, Contract, DrawIndexEntry, ImprovementIndexEntry, ImprovementSession, NodeData, EdgeData, RunRecord, TraceabilityFacts, StaticAnalysisKpiReport } from './types';
 import { CustomNode } from './components/CustomNode';
 import { LoopEdge } from './components/LoopEdge';
 import { Sidebar } from './components/Sidebar';
@@ -22,6 +22,7 @@ import { ImportExportModal } from './components/ImportExportModal';
 import { MetadataModal } from './components/MetadataModal';
 import { ConfirmModal } from './components/ConfirmModal';
 import { FocusDetailModal } from './components/FocusDetailModal';
+import { ImprovementEditor } from './components/ImprovementEditor';
 import { layoutCurvedGraph, computeEdgeHandles } from './layout';
 import { RotateCcw, Save, Download, Sun, Moon } from 'lucide-react';
 
@@ -51,6 +52,14 @@ const getApiOrigins = () => {
 
 const getApiOrigin = () => detectedBackendOrigin || getApiOrigins()[0];
 
+interface DrawSearchResult {
+  drawId: string;
+  drawTitle: string;
+  nodeId: number;
+  nodeLabel: string;
+  associations: string[];
+}
+
 const checkBackendAvailable = async (): Promise<string | null> => {
   for (const origin of getApiOrigins()) {
     try {
@@ -67,6 +76,8 @@ export const App: React.FC = () => {
   // --- Drawings & Storage States ---
   const [contract, setContract] = useState<Contract>(typedDefaultContract);
   const [drawingsIndex, setDrawingsIndex] = useState<DrawIndexEntry[]>([]);
+  const [improvementsIndex, setImprovementsIndex] = useState<ImprovementIndexEntry[]>([]);
+  const [currentImprovement, setCurrentImprovement] = useState<ImprovementSession | null>(null);
   const [runs, setRuns] = useState<RunRecord[]>([]);
   const [backlog, setBacklog] = useState<BacklogDocument | null>(null);
   const [storageMode, setStorageMode] = useState<'backend' | 'local'>('local');
@@ -79,8 +90,12 @@ export const App: React.FC = () => {
   const [activeFlowId, setActiveFlowId] = useState<number | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [isDirty, setIsDirty] = useState(false);
+  const [isImprovementDirty, setIsImprovementDirty] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<DrawSearchResult[]>([]);
+  const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [selectionRevision, setSelectionRevision] = useState(0);
+  const [reactFlowReady, setReactFlowReady] = useState(0);
   const [presentationPositionsState, setPresentationPositionsState] = useState<Record<string, { x: number; y: number }>>({});
 
   // --- Dialogs & Modals States ---
@@ -262,6 +277,9 @@ export const App: React.FC = () => {
   const lastContractSnapshotRef = useRef<string | null>(null);
   const skipHistoryRef = useRef(false);
   const presentationPositionsRef = useRef<Record<string, { x: number; y: number }>>({});
+  const searchRequestRef = useRef(0);
+  const pendingSearchFocusRef = useRef<{ drawId: string; nodeId: number } | null>(null);
+  const reactFlowInstanceRef = useRef<any>(null);
 
   const readPresentationPositions = (id: string) => {
     try {
@@ -454,10 +472,26 @@ export const App: React.FC = () => {
       setDrawingsIndex(enrichedIndex);
       indexData = enrichedIndex;
 
+      let improvementData: ImprovementIndexEntry[] = [];
+      if (mode === 'backend') {
+        try {
+          const response = await fetch(`${getApiOrigin()}/.stdd/improvements/index.json`, { cache: 'no-store' });
+          if (response.ok) improvementData = (await response.json()).improvements || [];
+        } catch (_) {}
+      } else {
+        try {
+          improvementData = JSON.parse(localStorage.getItem('stdd-improvements-index') || '{"improvements":[]}').improvements || [];
+        } catch (_) {}
+      }
+      setImprovementsIndex(improvementData);
+
       // 4. Determine initial drawing to load
       const searchParams = new URLSearchParams(window.location.search);
+      const requestedImprovement = searchParams.get('improvement');
       const requestedId = searchParams.get('draw');
-      if (requestedId && indexData.some((d) => d.id === requestedId)) {
+      if (requestedImprovement && improvementData.some((item) => item.id === requestedImprovement)) {
+        await loadImprovementById(requestedImprovement, mode);
+      } else if (requestedId && indexData.some((d) => d.id === requestedId)) {
         await loadDrawingById(requestedId, { resetNavigation: true, indexData, mode });
       } else if (indexData.length > 0) {
         await loadDrawingById(indexData[0].id, { resetNavigation: true, indexData, mode });
@@ -492,6 +526,121 @@ export const App: React.FC = () => {
     setDrawingsIndex(enrichedIndex);
   };
 
+  const loadImprovementsIndex = async () => {
+    let indexData: ImprovementIndexEntry[] = [];
+    if (storageMode === 'backend') {
+      try {
+        const response = await fetch(`${getApiOrigin()}/.stdd/improvements/index.json`, { cache: 'no-store' });
+        if (response.ok) indexData = (await response.json()).improvements || [];
+      } catch (_) {}
+    } else {
+      try {
+        indexData = JSON.parse(localStorage.getItem('stdd-improvements-index') || '{"improvements":[]}').improvements || [];
+      } catch (_) {}
+    }
+    setImprovementsIndex(indexData);
+  };
+
+  const loadContractForSearch = async (entry: DrawIndexEntry, mode: 'backend' | 'local'): Promise<Contract | null> => {
+    if (mode === 'local') {
+      const saved = localStorage.getItem(`stdd-draw:${entry.id}`);
+      if (saved) {
+        try {
+          return JSON.parse(saved) as Contract;
+        } catch (_) {
+          // Tenta a fonte HTTP abaixo quando o cache local estiver inválido.
+        }
+      }
+    }
+
+    const origins = mode === 'backend'
+      ? [getApiOrigin(), ...getApiOrigins()]
+      : getApiOrigins();
+    for (const origin of [...new Set(origins)]) {
+      try {
+        const response = await fetch(`${origin}/.stdd/draws/${encodeURIComponent(entry.id)}.json`, { cache: 'no-store' });
+        if (response.ok) return await response.json() as Contract;
+      } catch (_) {
+        // Um Draw indisponível não deve impedir a busca nos demais.
+      }
+    }
+
+    return entry.id === typedDefaultContract.id ? typedDefaultContract : null;
+  };
+
+  useEffect(() => {
+    const query = searchQuery.trim().toLocaleLowerCase();
+    if (!query || currentImprovement || drawingsIndex.length === 0) {
+      setSearchResults([]);
+      setIsSearchLoading(false);
+      return;
+    }
+
+    const requestId = searchRequestRef.current + 1;
+    searchRequestRef.current = requestId;
+    let cancelled = false;
+    setIsSearchLoading(true);
+
+    const searchDrawings = async () => {
+      const contracts = await Promise.all(drawingsIndex.map(async (entry) => ({
+        entry,
+        document: await loadContractForSearch(entry, storageMode)
+      })));
+      if (cancelled || requestId !== searchRequestRef.current) return;
+
+      const results: DrawSearchResult[] = [];
+      contracts.forEach(({ entry, document }) => {
+        if (!document) return;
+        document.nodes.forEach((node) => {
+          const references = Array.isArray(node.code_refs) ? node.code_refs : [];
+          const associations = [...new Set([
+            ...references.map((reference: any) => reference?.symbol || reference?.qualified_name || reference?.identity || ''),
+            ...(Array.isArray(node.symbols) ? node.symbols : [])
+          ].filter(Boolean).map(String))];
+          const searchable = [
+            entry.title,
+            entry.subtitle,
+            entry.kind,
+            entry.file,
+            document.title,
+            document.subtitle,
+            document.kind,
+            node.label,
+            node.description,
+            node.group === undefined ? '' : String(node.group),
+            ...associations,
+            ...references.flatMap((reference: any) => [
+              reference?.file,
+              ...(Array.isArray(reference?.source_dependencies) ? reference.source_dependencies : [])
+            ])
+          ].filter(Boolean).join(' ').toLocaleLowerCase();
+
+          if (searchable.includes(query)) {
+            results.push({
+              drawId: document.id || entry.id,
+              drawTitle: document.title || entry.title,
+              nodeId: node.id,
+              nodeLabel: node.label,
+              associations
+            });
+          }
+        });
+      });
+
+      setSearchResults(results);
+      setIsSearchLoading(false);
+    };
+
+    searchDrawings().catch(() => {
+      if (!cancelled && requestId === searchRequestRef.current) {
+        setSearchResults([]);
+        setIsSearchLoading(false);
+      }
+    });
+
+    return () => { cancelled = true; };
+  }, [currentImprovement, drawingsIndex, searchQuery, storageMode]);
+
   // --- Load individual Drawing ---
   const loadDrawingById = async (
     id: string,
@@ -499,7 +648,7 @@ export const App: React.FC = () => {
   ) => {
     const activeMode = opts?.mode || storageMode;
 
-    if (isDirty) {
+    if (isDirty || isImprovementDirty) {
       const proceed = await askConfirm(
         'Descartar alterações?',
         'Existem alterações não salvas no desenho atual. Deseja descartá-las?',
@@ -524,9 +673,11 @@ export const App: React.FC = () => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         setContract(data);
+        setCurrentImprovement(null);
         setPresentationPositionsForDrawing(id);
         window.currentDrawId = id;
         setIsDirty(false);
+        setIsImprovementDirty(false);
         setSelectedNodeId(null);
         setSelectedEdgeId(null);
       } catch (err: any) {
@@ -538,9 +689,11 @@ export const App: React.FC = () => {
         try {
           const data = JSON.parse(saved);
           setContract(data);
+          setCurrentImprovement(null);
           setPresentationPositionsForDrawing(id);
           window.currentDrawId = id;
           setIsDirty(false);
+          setIsImprovementDirty(false);
           setSelectedNodeId(null);
           setSelectedEdgeId(null);
         } catch (_) {
@@ -548,9 +701,11 @@ export const App: React.FC = () => {
         }
       } else if (id === typedDefaultContract.id) {
         setContract(typedDefaultContract);
+        setCurrentImprovement(null);
         setPresentationPositionsForDrawing(id);
         window.currentDrawId = id;
         setIsDirty(false);
+        setIsImprovementDirty(false);
         setSelectedNodeId(null);
         setSelectedEdgeId(null);
       } else {
@@ -565,9 +720,11 @@ export const App: React.FC = () => {
             detectedBackendOrigin = origin;
             setStorageMode('backend');
             setContract(data);
+            setCurrentImprovement(null);
             setPresentationPositionsForDrawing(id);
             window.currentDrawId = id;
             setIsDirty(false);
+            setIsImprovementDirty(false);
             setSelectedNodeId(null);
             setSelectedEdgeId(null);
             return;
@@ -577,6 +734,43 @@ export const App: React.FC = () => {
         }
         alert('Desenho não encontrado no armazenamento local.');
       }
+    }
+  };
+
+  const loadImprovementById = async (id: string, mode = storageMode) => {
+    if (isDirty || isImprovementDirty) {
+      const proceed = await askConfirm(
+        'Descartar alterações?',
+        'Existem respostas ou alterações não salvas. Deseja descartá-las?',
+        'Descartar',
+        true
+      );
+      if (!proceed) return;
+    }
+
+    try {
+      let session: ImprovementSession | null = null;
+      if (mode === 'backend') {
+        const response = await fetch(`${getApiOrigin()}/.stdd/improvements/${encodeURIComponent(id)}.json`, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        session = await response.json() as ImprovementSession;
+      } else {
+        const saved = localStorage.getItem(`stdd-improvement:${id}`);
+        if (saved) session = JSON.parse(saved) as ImprovementSession;
+      }
+      if (!session) throw new Error('sessão não encontrada');
+      setCurrentImprovement(session);
+      setIsDirty(false);
+      setIsImprovementDirty(false);
+      setSelectedNodeId(null);
+      setSelectedEdgeId(null);
+      setNavigation([]);
+      const url = new URL(window.location.href);
+      url.searchParams.delete('draw');
+      url.searchParams.set('improvement', id);
+      window.history.replaceState({}, '', url);
+    } catch (err: any) {
+      alert(`Erro ao carregar sessão de melhoria: ${err.message}`);
     }
   };
 
@@ -681,6 +875,63 @@ export const App: React.FC = () => {
     performSave(contract);
   };
 
+  const performImprovementSave = async () => {
+    if (!currentImprovement || !isImprovementDirty || currentImprovement.status === 'applied') return;
+    const isAnswered = (answer: ImprovementSession['questions'][number]['answer']) =>
+      answer !== null && !(typeof answer === 'string' && answer.trim() === '');
+    const nextStatus: ImprovementSession['status'] = currentImprovement.questions.every((question) => isAnswered(question.answer)) ? 'ready' : 'draft';
+    const payload: ImprovementSession = { ...currentImprovement, status: nextStatus };
+
+    if (storageMode === 'backend') {
+      try {
+        const response = await fetch(`${getApiOrigin()}/__stdd/api/improvements/${encodeURIComponent(payload.id)}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+          const result = await response.json().catch(() => ({}));
+          throw new Error(result.error || `HTTP ${response.status}`);
+        }
+        const refreshed = await fetch(`${getApiOrigin()}/.stdd/improvements/${encodeURIComponent(payload.id)}.json`, { cache: 'no-store' });
+        if (refreshed.ok) setCurrentImprovement(await refreshed.json() as ImprovementSession);
+        setIsImprovementDirty(false);
+        await loadImprovementsIndex();
+      } catch (err: any) {
+        alert(`Erro ao salvar sessão de melhoria: ${err.message}`);
+      }
+      return;
+    }
+
+    const timestamp = new Date().toISOString();
+    const savedPayload = { ...payload, updated_at: timestamp };
+    localStorage.setItem(`stdd-improvement:${payload.id}`, JSON.stringify(savedPayload));
+    const nextIndex: ImprovementIndexEntry = {
+      id: payload.id,
+      file: `${payload.id}.json`,
+      title: payload.title,
+      draw_id: payload.draw_id,
+      status: payload.status,
+      answered_count: payload.questions.filter((question) => isAnswered(question.answer)).length,
+      question_count: payload.questions.length,
+      updated_at: timestamp
+    };
+    const updatedIndex = [...improvementsIndex.filter((item) => item.id !== payload.id), nextIndex];
+    updatedIndex.sort((left, right) => left.title.localeCompare(right.title));
+    localStorage.setItem('stdd-improvements-index', JSON.stringify({ version: 1, improvements: updatedIndex }));
+    setCurrentImprovement(savedPayload);
+    setImprovementsIndex(updatedIndex);
+    setIsImprovementDirty(false);
+  };
+
+  const handleImprovementAnswer = (questionId: number, answer: string | boolean | number | null) => {
+    setCurrentImprovement((previous) => previous ? {
+      ...previous,
+      questions: previous.questions.map((question) => question.id === questionId ? { ...question, answer } : question)
+    } : previous);
+    setIsImprovementDirty(true);
+  };
+
   // --- New Drawing Creation ---
   const slugify = (text: string) => {
     return text
@@ -779,43 +1030,13 @@ export const App: React.FC = () => {
       });
     }
 
-    const hasSearch = searchQuery.trim() !== '';
-    const searchLower = searchQuery.toLowerCase();
-    
-    // Set of matching node IDs for search filtering
-    const matchingNodeIds = new Set<number>();
-    if (hasSearch) {
-      contract.nodes.forEach((node) => {
-        const matches =
-          node.label.toLowerCase().includes(searchLower) ||
-          node.description.toLowerCase().includes(searchLower) ||
-          (node.group !== undefined && String(node.group).includes(searchLower));
-        if (matches) {
-          matchingNodeIds.add(node.id);
-        }
-      });
-    }
-
     const filteredNodes = contract.nodes.map((node) => {
       const inPath = activeFlowId !== null && activeNodeIds.has(node.id);
       let isDimmed = activeFlowId !== null && !inPath;
       let isHighlighted = activeFlowId !== null && inPath;
       const backlogTask = backlog?.tasks.find((task) => task.draw_id === contract.id && task.node_id === node.id);
 
-      const matchesSearch = hasSearch && matchingNodeIds.has(node.id);
-
-      if (matchesSearch) {
-        isHighlighted = true;
-      }
-
-      // Priority overrides for dimming: Search overrides Selection, Selection overrides default
-      if (hasSearch) {
-        if (matchesSearch) {
-          isDimmed = false;
-        } else {
-          isDimmed = true;
-        }
-      } else if (hasSelection && !hasMultiSelection) {
+      if (hasSelection && !hasMultiSelection) {
         if (connectedNodeIds.has(node.id)) {
           isDimmed = false;
         } else {
@@ -858,14 +1079,7 @@ export const App: React.FC = () => {
         activeEdgeConnections.has(`${edge.from}->${edge.to}`);
       let isDimmed = activeFlowId !== null && !isHighlighted;
 
-      // Priority overrides for edge dimming
-      if (hasSearch) {
-        if (matchingNodeIds.has(edge.from) && matchingNodeIds.has(edge.to)) {
-          isDimmed = false;
-        } else {
-          isDimmed = true;
-        }
-      } else if (hasSelection && !hasMultiSelection) {
+      if (hasSelection && !hasMultiSelection) {
         if (edge.from === selectedNodeId || edge.to === selectedNodeId) {
           isDimmed = false;
         } else {
@@ -933,7 +1147,36 @@ export const App: React.FC = () => {
     });
 
     setEdges(formattedEdges);
-  }, [backlog, contract, activeFlowId, presentationPositions, searchQuery, theme, selectedNodeId, isFocusMode, selectionRevision]);
+  }, [backlog, contract, activeFlowId, presentationPositions, theme, selectedNodeId, isFocusMode, selectionRevision]);
+
+  useEffect(() => {
+    const request = pendingSearchFocusRef.current;
+    if (!request || request.drawId !== contract.id || !nodes.some((node) => Number(node.id) === request.nodeId)) return;
+
+    pendingSearchFocusRef.current = null;
+    selectionOrderRef.current = [request.nodeId];
+    setSelectedNodeId(request.nodeId);
+    setSelectedEdgeId(null);
+    setIsFocusMode(false);
+
+    requestAnimationFrame(() => {
+      reactFlowInstanceRef.current?.fitView({
+        nodes: [{ id: String(request.nodeId) }],
+        duration: 450,
+        padding: 0.35,
+        maxZoom: 1.6
+      });
+    });
+  }, [contract.id, nodes, reactFlowReady, selectionRevision]);
+
+  const focusSearchResult = async (result: DrawSearchResult) => {
+    pendingSearchFocusRef.current = { drawId: result.drawId, nodeId: result.nodeId };
+    setSelectionRevision((value) => value + 1);
+
+    if (contractRef.current.id !== result.drawId) {
+      await loadDrawingById(result.drawId, { resetNavigation: true });
+    }
+  };
 
   // --- Callbacks on Canvas Actions ---
   const getOrderedSelectedNodeIds = useCallback(() => {
@@ -1436,6 +1679,9 @@ export const App: React.FC = () => {
 
   // --- Render Breadcrumbs helper ---
   const renderBreadcrumbs = () => {
+    if (currentImprovement) {
+      return <span className="doc-title">Melhoria: {currentImprovement.title}</span>;
+    }
     if (navigation.length === 0) {
       return (
         <span 
@@ -1499,33 +1745,60 @@ export const App: React.FC = () => {
             </button>
           )}
           {renderBreadcrumbs()}
-          <span className="doc-type-badge">{contract.kind.toUpperCase()}</span>
-          {isDirty && <span className="dirty-dot-indicator" title="Alterações pendentes de salvamento" />}
+          <span className="doc-type-badge">{currentImprovement ? 'IMPROVEMENT' : contract.kind.toUpperCase()}</span>
+          {(isDirty || isImprovementDirty) && <span className="dirty-dot-indicator" title="Alterações pendentes de salvamento" />}
         </div>
 
         <div className="search-bar-container">
           <input
             className="search-input"
-            placeholder="Pesquisar blocos..."
+            placeholder={currentImprovement ? 'Pesquisar perguntas...' : 'Buscar em todos os fluxos...'}
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+          {!currentImprovement && searchQuery.trim() && (
+            <div className="search-results" role="listbox" aria-label="Resultados da busca nos fluxos">
+              {isSearchLoading ? (
+                <div className="search-results-empty">Buscando nos fluxos...</div>
+              ) : searchResults.length === 0 ? (
+                <div className="search-results-empty">Nenhuma associação encontrada.</div>
+              ) : (
+                searchResults.map((result) => (
+                  <button
+                    key={`${result.drawId}:${result.nodeId}`}
+                    type="button"
+                    className="search-result"
+                    role="option"
+                    onClick={() => focusSearchResult(result)}
+                  >
+                    <span className="search-result-title">{result.nodeLabel}</span>
+                    <span className="search-result-flow">{result.drawTitle} · nó {result.nodeId}</span>
+                    <span className="search-result-association">
+                      {result.associations.length > 0
+                        ? result.associations.join(', ')
+                        : 'sem símbolo associado'}
+                    </span>
+                  </button>
+                ))
+              )}
+            </div>
+          )}
         </div>
 
         <div className="header-actions">
           <button className="theme-toggle-btn" onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')} title="Alternar Tema">
             {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
           </button>
-          <button className="icon-btn success" onClick={handleSave} title="Salvar Desenho">
+          <button className="icon-btn success" onClick={currentImprovement ? performImprovementSave : handleSave} title={currentImprovement ? 'Salvar respostas' : 'Salvar Desenho'}>
             <Save size={16} />
-            <span>Salvar</span>
+            <span>{currentImprovement ? 'Salvar respostas' : 'Salvar'}</span>
           </button>
           <button className="icon-btn" onClick={handleExportJson} title="Exportar Contrato JSON">
             <Download size={16} />
             <span>Exportar</span>
           </button>
-          <button className="icon-btn danger" onClick={handleReset} title="Resetar Fluxo">
+          <button className="icon-btn danger" onClick={handleReset} disabled={Boolean(currentImprovement)} title="Resetar Fluxo">
             <RotateCcw size={16} />
             <span>Resetar</span>
           </button>
@@ -1551,6 +1824,9 @@ export const App: React.FC = () => {
           currentDrawingId={contract.id}
           onLoadDrawing={(id) => loadDrawingById(id, { resetNavigation: true })}
           onNewDrawing={() => setMetadataModalConfig({ isOpen: true, mode: 'create' })}
+          improvementsIndex={improvementsIndex}
+          currentImprovementId={currentImprovement?.id || null}
+          onLoadImprovement={(id) => loadImprovementById(id)}
           storageMode={storageMode}
           runs={runs}
           staticAnalysisKpis={staticAnalysisKpis}
@@ -1562,9 +1838,12 @@ export const App: React.FC = () => {
 
         {/* Canvas Area */}
         <main className="workspace">
-          <ReactFlowProvider>
-            <div className="react-flow-stage">
-              <ReactFlow
+          {currentImprovement ? (
+            <ImprovementEditor session={currentImprovement} onChange={handleImprovementAnswer} />
+          ) : (
+            <ReactFlowProvider>
+              <div className="react-flow-stage">
+                <ReactFlow
                 nodes={nodes}
                 edges={edges}
                 onNodesChange={onNodesChange}
@@ -1572,6 +1851,10 @@ export const App: React.FC = () => {
                 deleteKeyCode={null}
                 nodeTypes={nodeTypes}
                 edgeTypes={edgeTypes}
+                onInit={(instance) => {
+                  reactFlowInstanceRef.current = instance;
+                  setReactFlowReady((value) => value + 1);
+                }}
                 onNodeClick={onNodeClick}
                 onSelectionChange={onSelectionChange}
                 multiSelectionKeyCode={['Shift']}
@@ -1587,9 +1870,10 @@ export const App: React.FC = () => {
                 <Controls />
                 <MiniMap zoomable pannable style={{ borderRadius: '14px', overflow: 'hidden' }} />
                 <Background gap={24} size={1} />
-              </ReactFlow>
-            </div>
-          </ReactFlowProvider>
+                </ReactFlow>
+              </div>
+            </ReactFlowProvider>
+          )}
         </main>
       </div>
 
