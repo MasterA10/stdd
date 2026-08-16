@@ -39,6 +39,8 @@ const edgeTypes: EdgeTypes = {
 };
 
 const DEFAULT_CONDITION = 1;
+const THEN_EDGE_GRADIENT = 'url(#stdd-then-edge-gradient)';
+const THEN_EDGE_MARKER_COLOR = '#fb923c';
 
 const DEFAULT_DRAW_SERVER_ORIGIN = 'http://127.0.0.1:8765';
 let detectedBackendOrigin: string | null = null;
@@ -1098,10 +1100,10 @@ export const App: React.FC = () => {
       
       const visual =
         {
-          1: { color: theme === 'light' ? '#1e293b' : '#94a3b8', dash: undefined },
-          2: { color: '#d97706', dash: '8 6' },
-          3: { color: '#059669', dash: '3 6' }
-        }[condition] || { color: '#1e293b', dash: undefined };
+          1: { color: theme === 'light' ? '#1e293b' : '#94a3b8', edgeStroke: THEN_EDGE_GRADIENT, markerColor: THEN_EDGE_MARKER_COLOR, dash: undefined },
+          2: { color: '#22c55e', edgeStroke: '#22c55e', markerColor: '#22c55e', dash: '8 6' },
+          3: { color: '#059669', edgeStroke: '#059669', markerColor: '#059669', dash: '3 6' }
+        }[condition] || { color: '#1e293b', edgeStroke: '#1e293b', markerColor: '#1e293b', dash: undefined };
 
       const connectsSelection = hasSelection && !hasMultiSelection && (edge.from === selectedNodeId || edge.to === selectedNodeId);
 
@@ -1117,16 +1119,16 @@ export const App: React.FC = () => {
         label: `${
           { 1: 'então', 2: 'ou', 3: 'se' }[condition]
         }${edge.label ? ` - ${edge.label}` : ''}`,
-        data: edge,
+        data: { ...edge, labelColor: visual.color, markerColor: isHighlighted ? '#10b981' : visual.markerColor },
         style: {
-          stroke: isHighlighted ? '#10b981' : visual.color,
+          stroke: isHighlighted ? '#10b981' : visual.edgeStroke,
           strokeWidth: isHighlighted ? 3.5 : (connectsSelection ? 2.5 : 2),
           strokeDasharray: visual.dash,
           opacity: isDimmed ? 0.03 : 1
         },
         markerEnd: {
           type: MarkerType.ArrowClosed,
-          color: isHighlighted ? '#10b981' : visual.color,
+          color: isHighlighted ? '#10b981' : visual.markerColor,
           width: 28,
           height: 28
         },
@@ -1746,6 +1748,14 @@ export const App: React.FC = () => {
 
   return (
     <div className={`app-container ${theme}-theme`}>
+      <svg className="edge-gradient-definitions" aria-hidden="true">
+        <defs>
+          <linearGradient id="stdd-then-edge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#ef4444" />
+            <stop offset="100%" stopColor="#fb923c" />
+          </linearGradient>
+        </defs>
+      </svg>
       {/* Top Header / Toolbar Overlay */}
       <header className="top-toolbar">
         <div className="title-container" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

@@ -17,6 +17,9 @@ import { CustomNode } from './CustomNode';
 import { FocusLoopEdge } from './FocusLoopEdge';
 import { computeEdgeHandles } from '../layout';
 
+const THEN_EDGE_GRADIENT = 'url(#stdd-then-edge-gradient)';
+const THEN_EDGE_MARKER_COLOR = '#fb923c';
+
 interface FocusDetailModalProps {
   nodeId: number;
   contract: Contract;
@@ -119,10 +122,10 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
         const cond = Number(edge.condition) || DEFAULT_CONDITION;
         
         const visual = {
-          1: { color: theme === 'light' ? '#1e293b' : '#94a3b8', dash: undefined },
-          2: { color: '#d97706', dash: '8 6' },
-          3: { color: '#059669', dash: '3 6' }
-        }[cond] || { color: '#1e293b', dash: undefined };
+          1: { color: theme === 'light' ? '#1e293b' : '#94a3b8', edgeStroke: THEN_EDGE_GRADIENT, markerColor: THEN_EDGE_MARKER_COLOR, dash: undefined },
+          2: { color: '#22c55e', edgeStroke: '#22c55e', markerColor: '#22c55e', dash: '8 6' },
+          3: { color: '#059669', edgeStroke: '#059669', markerColor: '#059669', dash: '3 6' }
+        }[cond] || { color: '#1e293b', edgeStroke: '#1e293b', markerColor: '#1e293b', dash: undefined };
 
         const targetHandle = 'target-in-left';
         const route = computeEdgeHandles(edge, focusPositions, contract.nodes, contract.edges);
@@ -143,16 +146,16 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
           label: `${
             { 1: 'então', 2: 'ou', 3: 'se' }[cond]
           }${edge.label ? ` - ${edge.label}` : ''}`,
-          data: edge,
+          data: { ...edge, labelColor: visual.color, markerColor: visual.markerColor },
           animated: true,
           style: {
-            stroke: visual.color,
+            stroke: visual.edgeStroke,
             strokeWidth: 3, // thicker in focus view
             strokeDasharray: visual.dash
           },
           markerEnd: {
             type: MarkerType.ArrowClosed,
-            color: visual.color,
+            color: visual.markerColor,
             width: 24,
             height: 24
           },
@@ -175,10 +178,10 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
         const cond = Number(edge.condition) || DEFAULT_CONDITION;
         
         const visual = {
-          1: { color: theme === 'light' ? '#1e293b' : '#94a3b8', dash: undefined },
-          2: { color: '#d97706', dash: '8 6' },
-          3: { color: '#059669', dash: '3 6' }
-        }[cond] || { color: '#1e293b', dash: undefined };
+          1: { color: theme === 'light' ? '#1e293b' : '#94a3b8', edgeStroke: THEN_EDGE_GRADIENT, markerColor: THEN_EDGE_MARKER_COLOR, dash: undefined },
+          2: { color: '#22c55e', edgeStroke: '#22c55e', markerColor: '#22c55e', dash: '8 6' },
+          3: { color: '#059669', edgeStroke: '#059669', markerColor: '#059669', dash: '3 6' }
+        }[cond] || { color: '#1e293b', edgeStroke: '#1e293b', markerColor: '#1e293b', dash: undefined };
 
         const targetHandle = 'target-in-left';
         const route = computeEdgeHandles(edge, focusPositions, contract.nodes, contract.edges);
@@ -199,16 +202,16 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
           label: `${
             { 1: 'então', 2: 'ou', 3: 'se' }[cond]
           }${edge.label ? ` - ${edge.label}` : ''}`,
-          data: edge,
+          data: { ...edge, labelColor: visual.color, markerColor: visual.markerColor },
           animated: true,
           style: {
-            stroke: visual.color,
+            stroke: visual.edgeStroke,
             strokeWidth: 3,
             strokeDasharray: visual.dash
           },
           markerEnd: {
             type: MarkerType.ArrowClosed,
-            color: visual.color,
+            color: visual.markerColor,
             width: 24,
             height: 24
           },
@@ -244,6 +247,15 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
   };
 
   return (
+    <>
+      <svg className="edge-gradient-definitions" aria-hidden="true">
+        <defs>
+          <linearGradient id="stdd-then-edge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#ef4444" />
+            <stop offset="100%" stopColor="#fb923c" />
+          </linearGradient>
+        </defs>
+      </svg>
     <div className="dialog-overlay" style={{ background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(8px)' }}>
       <dialog className="app-dialog" open style={{ width: 'min(1300px, calc(100vw - 32px))', height: '85vh', maxHeight: '85vh' }}>
         <div className="dialog-content" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -311,5 +323,6 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
         </div>
       </dialog>
     </div>
+    </>
   );
 };

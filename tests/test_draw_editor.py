@@ -332,6 +332,28 @@ def test_organize_button_clears_local_positions_without_changing_the_flow():
     assert ".react-flow__node" in styles
 
 
+def test_edge_conditions_keep_labels_separate_from_connection_colors():
+    """Aplica degradê somente às conexões do então e verde ao ou.
+    Mantém a cor tipográfica dos rótulos separada da linha e da seta.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    focus = (EDITOR_ROOT / "src/components/FocusDetailModal.tsx").read_text(encoding="utf-8")
+    loop = (EDITOR_ROOT / "src/components/LoopEdge.tsx").read_text(encoding="utf-8")
+    focus_loop = (EDITOR_ROOT / "src/components/FocusLoopEdge.tsx").read_text(encoding="utf-8")
+
+    assert "const THEN_EDGE_GRADIENT = 'url(#stdd-then-edge-gradient)'" in app
+    assert "1: { color: theme === 'light' ? '#1e293b' : '#94a3b8', edgeStroke: THEN_EDGE_GRADIENT" in app
+    assert "2: { color: '#22c55e', edgeStroke: '#22c55e'" in app
+    assert "stroke: isHighlighted ? '#10b981' : visual.edgeStroke" in app
+    assert "fill: isHighlighted" in app
+    assert "<linearGradient id=\"stdd-then-edge-gradient\"" in app
+    assert "const THEN_EDGE_GRADIENT = 'url(#stdd-then-edge-gradient)'" in focus
+    assert "stroke: visual.edgeStroke" in focus
+    assert "color: visual.markerColor" in focus
+    assert "const edgeData = data as" in loop
+    assert "const edgeData = data as" in focus_loop
+
+
 def test_runs_sidebar_uses_the_main_sidebar_scroll_only():
     """Evita uma rolagem interna concorrente na aba de Runs.
     A lista de execuções acompanha o único contêiner rolável da sidebar.

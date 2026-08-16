@@ -12,7 +12,8 @@ export const LoopEdge: React.FC<EdgeProps> = ({
   targetY,
   label,
   style,
-  targetHandleId
+  targetHandleId,
+  data
 }) => {
   const nodes = useNodes();
   const edges = useEdges();
@@ -108,12 +109,14 @@ export const LoopEdge: React.FC<EdgeProps> = ({
 
   const labelX = (sourceX + targetX) / 2 + (edgeIndex - (loopCount - 1) / 2) * 92;
   const labelY = route.lane.y - 12;
-  const labelColor = style?.stroke || '#1e293b';
+  const edgeData = data as { labelColor?: string; markerColor?: string } | undefined;
+  const labelColor = edgeData?.labelColor || '#1e293b';
+  const arrowColor = edgeData?.markerColor || labelColor;
 
   return (
     <>
       <BaseEdge id={id} path={path} style={{ ...style, strokeWidth: 2 }} />
-      <path d={arrowPath} fill={labelColor} stroke={labelColor} strokeWidth="1" strokeLinejoin="round" />
+      <path d={arrowPath} fill={arrowColor} stroke={arrowColor} strokeWidth="1" strokeLinejoin="round" />
       {label && (
         <EdgeLabelRenderer>
           <div

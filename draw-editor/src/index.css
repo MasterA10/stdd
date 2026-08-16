@@ -1313,6 +1313,14 @@ body:has(.improvement-dialog) { overflow: hidden; }
   height: 100%;
 }
 
+.edge-gradient-definitions {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
 /* n8n Style Custom Node Design */
 .custom-flow-node {
   position: relative;

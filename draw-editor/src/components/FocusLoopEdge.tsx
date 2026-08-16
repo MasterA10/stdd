@@ -12,7 +12,8 @@ export const FocusLoopEdge: React.FC<EdgeProps> = ({
   targetHandleId,
   label,
   style,
-  markerEnd
+  markerEnd,
+  data
 }) => {
   const goesBelow = targetHandleId?.endsWith('bottom');
   const laneY = goesBelow
@@ -21,7 +22,8 @@ export const FocusLoopEdge: React.FC<EdgeProps> = ({
   const path = `M ${sourceX} ${sourceY} L ${sourceX} ${laneY} L ${targetX} ${laneY} L ${targetX} ${targetY}`;
   const labelX = (sourceX + targetX) / 2;
   const labelY = laneY - 12;
-  const labelColor = style?.stroke || '#1e293b';
+  const edgeData = data as { labelColor?: string } | undefined;
+  const labelColor = edgeData?.labelColor || '#1e293b';
 
   return (
     <>
