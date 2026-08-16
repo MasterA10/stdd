@@ -214,6 +214,8 @@ stdd backlog task
 stdd backlog complete <task-id>
 ```
 
+`stdd backlog task` mostra por padrão somente o contexto acionável em linguagem humana: task, fluxo, nó, uma decisão respondida e os símbolos associados. Para integrações que precisem do payload estruturado completo, use `stdd backlog task --json`.
+
 Antes da implementação, crie incrementalmente o teste da jornada:
 
 ```bash
@@ -225,9 +227,9 @@ Um nó de nível 2 pode declarar `test_ref` — ou `test_refs` compatíveis — 
 
 O backlog mantém dois checklists centrais em `phase_checklists`: `test` vem antes de `implementation`, e os itens são derivados das tasks e subfluxos. No Draw, ao selecionar um nó, a Sidebar permite marcar ou desmarcar esses itens. A marcação é persistida no `.stdd/backlog.json` pelo servidor local, sem validação obrigatória de análise estática; a implementação continua bloqueada enquanto o checklist de teste do nó e de seus subfluxos estiver pendente.
 
-Se `backlog task` for chamado antes da marcação do checklist de teste, ele retorna JSON com `kind: "backlog-test-required"`, `status: "blocked"` e a razão, sem reservar a implementação. O `$missing` e o `$implement` devem atender essa resposta com a etapa de testes ou com a marcação manual do fluxo já existente. Ao desmarcar a implementação, o `$missing` deve ler símbolos, dependências e testes, localizar o comportamento faltante e corrigi-lo antes de concluir a task. Self-loops são terminais; ciclos diferentes de self-loop são bloqueados para evitar execução infinita. A aba `Backlog` do viewer mostra a task atual, perguntas, respostas, símbolos e a evidência opcional do teste quando o Draw Server está ativo.
+Se `backlog task` for chamado antes da marcação do checklist de teste, ele mostra o bloqueio em linguagem humana; use `stdd backlog task --json` para obter `kind: "backlog-test-required"`, `status: "blocked"` e a razão sem reservar a implementação. O `$missing` e o `$implement` devem atender essa resposta com a etapa de testes ou com a marcação manual do fluxo já existente. Ao desmarcar a implementação, o `$missing` deve ler símbolos, dependências e testes, localizar o comportamento faltante e corrigi-lo antes de concluir a task. Self-loops são terminais; ciclos diferentes de self-loop são bloqueados para evitar execução infinita. A aba `Backlog` do viewer mostra a task atual, perguntas, respostas, símbolos e a evidência opcional do teste quando o Draw Server está ativo.
 
-Quando uma task possui subfluxo, `backlog task` e `backlog test` retornam a task atual, `parent_task`, a subtask atual e o resumo das demais subtasks. Pai e subtasks são independentes e devem ser concluídos pelos seus próprios IDs; a resposta mantém o contexto do pai enquanto avança pela primeira, segunda e demais subtasks.
+Quando uma task possui subfluxo, a saída humana mostra o contexto do pai e a task atual; use `backlog task --json` ou `backlog test` quando precisar de `parent_task`, da subtask atual e do resumo das demais subtasks. Pai e subtasks são independentes e devem ser concluídos pelos seus próprios IDs; a resposta mantém o contexto do pai enquanto avança pela primeira, segunda e demais subtasks.
 
 ## Executar testes
 

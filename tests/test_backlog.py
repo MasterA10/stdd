@@ -475,7 +475,7 @@ def test_backlog_complete_rejects_a_task_that_is_not_current(tmp_path: Path):
 
 def test_backlog_cli_generates_returns_missing_task_and_completes_by_id(tmp_path: Path, monkeypatch):
     """Expõe o ciclo operacional do backlog pela CLI.
-    Executa generate, task e complete e valida respostas JSON estruturadas.
+    Executa generate, task e complete e valida o modo JSON estruturado.
     """
     monkeypatch.chdir(tmp_path)
     init_project(tmp_path)
@@ -483,7 +483,7 @@ def test_backlog_cli_generates_returns_missing_task_and_completes_by_id(tmp_path
 
     generated = runner.invoke(app, ["backlog", "generate"])
     assert generated.exit_code == 0
-    task = runner.invoke(app, ["backlog", "task"])
+    task = runner.invoke(app, ["backlog", "task", "--json"])
     assert task.exit_code == 0
     task_payload = json.loads(task.stdout)
     assert task_payload["kind"] == "backlog-task"
@@ -503,7 +503,12 @@ def test_backlog_cli_exposes_test_phase_and_structured_missing_test(tmp_path: Pa
     _create_hierarchical_fixture(tmp_path)
     _remove_test_refs(tmp_path)
 
-    missing = runner.invoke(app, ["backlog", "task"])
+    human = runner.invoke(app, ["backlog", "task"])
+    assert human.exit_code == 0
+    assert "Teste necessário antes da implementação" in human.stdout
+    assert "test_missing" not in human.stdout
+
+    missing = runner.invoke(app, ["backlog", "task", "--json"])
     assert missing.exit_code == 0
     assert json.loads(missing.stdout)["kind"] == "backlog-test-required"
     testing = runner.invoke(app, ["backlog", "test"])
@@ -512,6 +517,26 @@ def test_backlog_cli_exposes_test_phase_and_structured_missing_test(tmp_path: Pa
     test_payload = json.loads(testing.stdout)
     assert test_payload["kind"] == "backlog-test-task"
     assert test_payload["phase"] == "test"
+
+
+def test_backlog_cli_task_has_a_concise_human_output(tmp_path: Path, monkeypatch):
+    """Exibe somente o contexto acionável da task no modo padrão.
+    Mantém uma decisão, os símbolos e o ID, sem alternativas ou payload duplicado.
+    """
+    monkeypatch.chdir(tmp_path)
+    init_project(tmp_path)
+    _create_hierarchical_fixture(tmp_path)
+
+    result = runner.invoke(app, ["backlog", "task"])
+
+    assert result.exit_code == 0
+    assert "Task: Iniciar" in result.stdout
+    assert "Fluxo: Jornada do usuário" in result.stdout
+    assert "ID: task:jornada:node:1" in result.stdout
+    assert "Símbolos: Audit.record, Journey.start" in result.stdout
+    assert "Qual entrada? → botão" in result.stdout
+    assert "Está autenticado?" not in result.stdout
+    assert "options" not in result.stdout
 
 
 def test_stdd_test_blocks_when_backlog_has_unchecked_implementation(tmp_path: Path):

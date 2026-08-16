@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-08-16T02:48:37.359176+00:00",
+  "generated_at": "2026-08-16T02:58:29.454677+00:00",
   "status": "blocked",
   "reason": "quality_gate_blocked",
   "adapter_command": [
@@ -28,7 +28,7 @@
     {
       "id": "symbols",
       "label": "Símbolos",
-      "value": 547,
+      "value": 552,
       "unit": "símbolos"
     },
     {
@@ -46,7 +46,7 @@
     {
       "id": "quality_findings",
       "label": "Achados de qualidade",
-      "value": 138,
+      "value": 139,
       "unit": "achados",
       "status": "blocked"
     },
@@ -73,9 +73,9 @@
     }
   ],
   "summary": {
-    "symbols": 547,
+    "symbols": 552,
     "dependencies": 549,
-    "complexity": 542,
+    "complexity": 547,
     "structural_metrics": 42,
     "files": [
       ".stdd/draws/stdd-agent-journeys.json",
@@ -127,17 +127,17 @@
       "tests/test_stdd.py",
       "tests/test_traceability.py"
     ],
-    "quality_findings": 138,
+    "quality_findings": 139,
     "severity": {
       "blocking": 37,
-      "warning": 101
+      "warning": 102
     },
     "findings_by_kind": {
       "deep_nesting": 4,
       "draw.level2_missing_code_ref": 21,
       "draw.level3_missing_code_ref": 13,
       "hardcoded_secret": 5,
-      "high_complexity": 46,
+      "high_complexity": 47,
       "long_function": 44,
       "too_many_parameters": 5
     },
@@ -684,6 +684,16 @@
         "severity": "warning",
         "source": "python_ast",
         "symbol_id": "src/stdd/backlog.py:stdd.backlog._graph_branches",
+        "value": 15
+      },
+      {
+        "evidence": "high_complexity:15",
+        "file": "src/stdd/cli.py",
+        "kind": "high_complexity",
+        "limit": 10,
+        "severity": "warning",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli._format_backlog_response",
         "value": 15
       },
       {
@@ -1891,7 +1901,7 @@
       {
         "cyclomatic": 1,
         "file": "src/stdd/cli.py",
-        "line": 281,
+        "line": 381,
         "lines": 5,
         "max_depth": 0,
         "parameters": 1,
@@ -2508,12 +2518,23 @@
         "cyclomatic": 1,
         "file": "tests/test_backlog.py",
         "line": 497,
-        "lines": 18,
+        "lines": 23,
         "max_depth": 0,
         "parameters": 2,
         "qualified_name": "tests.test_backlog.test_backlog_cli_exposes_test_phase_and_structured_missing_test",
         "source": "python_ast",
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_cli_exposes_test_phase_and_structured_missing_test"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "tests/test_backlog.py",
+        "line": 522,
+        "lines": 18,
+        "max_depth": 0,
+        "parameters": 2,
+        "qualified_name": "tests.test_backlog.test_backlog_cli_task_has_a_concise_human_output",
+        "source": "python_ast",
+        "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_cli_task_has_a_concise_human_output"
       },
       {
         "cyclomatic": 1,
@@ -4519,6 +4540,17 @@
       },
       {
         "cyclomatic": 15,
+        "file": "src/stdd/cli.py",
+        "line": 105,
+        "lines": 37,
+        "max_depth": 1,
+        "parameters": 1,
+        "qualified_name": "stdd.cli._format_backlog_response",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli._format_backlog_response"
+      },
+      {
+        "cyclomatic": 15,
         "file": "src/stdd/draw.py",
         "line": 923,
         "lines": 52,
@@ -4740,7 +4772,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/cli.py",
-        "line": 187,
+        "line": 282,
         "lines": 7,
         "max_depth": 1,
         "parameters": 0,
@@ -4751,7 +4783,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/cli.py",
-        "line": 197,
+        "line": 292,
         "lines": 7,
         "max_depth": 1,
         "parameters": 0,
@@ -4762,18 +4794,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/cli.py",
-        "line": 207,
-        "lines": 7,
-        "max_depth": 1,
-        "parameters": 0,
-        "qualified_name": "stdd.cli.backlog_task",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.backlog_task"
-      },
-      {
-        "cyclomatic": 2,
-        "file": "src/stdd/cli.py",
-        "line": 217,
+        "line": 317,
         "lines": 7,
         "max_depth": 1,
         "parameters": 0,
@@ -4784,7 +4805,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/cli.py",
-        "line": 227,
+        "line": 327,
         "lines": 7,
         "max_depth": 1,
         "parameters": 1,
@@ -4795,7 +4816,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/cli.py",
-        "line": 307,
+        "line": 407,
         "lines": 6,
         "max_depth": 1,
         "parameters": 0,
@@ -4806,7 +4827,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/cli.py",
-        "line": 316,
+        "line": 416,
         "lines": 8,
         "max_depth": 1,
         "parameters": 0,
@@ -4817,7 +4838,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/cli.py",
-        "line": 327,
+        "line": 427,
         "lines": 10,
         "max_depth": 1,
         "parameters": 0,
@@ -5763,7 +5784,7 @@
       {
         "cyclomatic": 3,
         "file": "src/stdd/cli.py",
-        "line": 107,
+        "line": 202,
         "lines": 17,
         "max_depth": 1,
         "parameters": 1,
@@ -5774,7 +5795,7 @@
       {
         "cyclomatic": 3,
         "file": "src/stdd/cli.py",
-        "line": 127,
+        "line": 222,
         "lines": 21,
         "max_depth": 1,
         "parameters": 4,
@@ -5785,7 +5806,18 @@
       {
         "cyclomatic": 3,
         "file": "src/stdd/cli.py",
-        "line": 503,
+        "line": 302,
+        "lines": 12,
+        "max_depth": 1,
+        "parameters": 1,
+        "qualified_name": "stdd.cli.backlog_task",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.backlog_task"
+      },
+      {
+        "cyclomatic": 3,
+        "file": "src/stdd/cli.py",
+        "line": 603,
         "lines": 7,
         "max_depth": 1,
         "parameters": 1,
@@ -6159,7 +6191,7 @@
       {
         "cyclomatic": 3,
         "file": "tests/test_backlog.py",
-        "line": 517,
+        "line": 542,
         "lines": 38,
         "max_depth": 1,
         "parameters": 1,
@@ -6445,7 +6477,7 @@
       {
         "cyclomatic": 4,
         "file": "src/stdd/cli.py",
-        "line": 290,
+        "line": 390,
         "lines": 14,
         "max_depth": 1,
         "parameters": 0,
@@ -6456,7 +6488,18 @@
       {
         "cyclomatic": 4,
         "file": "src/stdd/cli.py",
-        "line": 418,
+        "line": 49,
+        "lines": 7,
+        "max_depth": 1,
+        "parameters": 1,
+        "qualified_name": "stdd.cli._human_answer",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli._human_answer"
+      },
+      {
+        "cyclomatic": 4,
+        "file": "src/stdd/cli.py",
+        "line": 518,
         "lines": 20,
         "max_depth": 1,
         "parameters": 5,
@@ -6467,7 +6510,7 @@
       {
         "cyclomatic": 4,
         "file": "src/stdd/cli.py",
-        "line": 470,
+        "line": 570,
         "lines": 18,
         "max_depth": 1,
         "parameters": 1,
@@ -6808,7 +6851,18 @@
       {
         "cyclomatic": 5,
         "file": "src/stdd/cli.py",
-        "line": 490,
+        "line": 58,
+        "lines": 12,
+        "max_depth": 1,
+        "parameters": 1,
+        "qualified_name": "stdd.cli._first_answer",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli._first_answer"
+      },
+      {
+        "cyclomatic": 5,
+        "file": "src/stdd/cli.py",
+        "line": 590,
         "lines": 11,
         "max_depth": 1,
         "parameters": 1,
@@ -7072,7 +7126,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/cli.py",
-        "line": 237,
+        "line": 337,
         "lines": 41,
         "max_depth": 1,
         "parameters": 1,
@@ -7083,7 +7137,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/cli.py",
-        "line": 340,
+        "line": 440,
         "lines": 32,
         "max_depth": 1,
         "parameters": 1,
@@ -7094,7 +7148,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/cli.py",
-        "line": 441,
+        "line": 541,
         "lines": 27,
         "max_depth": 1,
         "parameters": 1,
@@ -7369,24 +7423,24 @@
       {
         "cyclomatic": 7,
         "file": "src/stdd/cli.py",
-        "line": 151,
-        "lines": 33,
-        "max_depth": 1,
-        "parameters": 6,
-        "qualified_name": "stdd.cli.log_work",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.log_work"
-      },
-      {
-        "cyclomatic": 7,
-        "file": "src/stdd/cli.py",
-        "line": 86,
+        "line": 181,
         "lines": 18,
         "max_depth": 1,
         "parameters": 0,
         "qualified_name": "stdd.cli.choose_integrations",
         "source": "python_ast",
         "symbol_id": "src/stdd/cli.py:stdd.cli.choose_integrations"
+      },
+      {
+        "cyclomatic": 7,
+        "file": "src/stdd/cli.py",
+        "line": 246,
+        "lines": 33,
+        "max_depth": 1,
+        "parameters": 6,
+        "qualified_name": "stdd.cli.log_work",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.log_work"
       },
       {
         "cyclomatic": 7,
@@ -7600,7 +7654,18 @@
       {
         "cyclomatic": 9,
         "file": "src/stdd/cli.py",
-        "line": 375,
+        "line": 145,
+        "lines": 34,
+        "max_depth": 1,
+        "parameters": 4,
+        "qualified_name": "stdd.cli.init",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.init"
+      },
+      {
+        "cyclomatic": 9,
+        "file": "src/stdd/cli.py",
+        "line": 475,
         "lines": 40,
         "max_depth": 1,
         "parameters": 5,
@@ -7611,13 +7676,13 @@
       {
         "cyclomatic": 9,
         "file": "src/stdd/cli.py",
-        "line": 50,
-        "lines": 34,
+        "line": 72,
+        "lines": 31,
         "max_depth": 1,
-        "parameters": 4,
-        "qualified_name": "stdd.cli.init",
+        "parameters": 1,
+        "qualified_name": "stdd.cli._compact_backlog_response",
         "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.init"
+        "symbol_id": "src/stdd/cli.py:stdd.cli._compact_backlog_response"
       },
       {
         "cyclomatic": 9,
@@ -7858,9 +7923,9 @@
       {
         "classes": 0,
         "file": "src/stdd/cli.py",
-        "functions": 23,
+        "functions": 27,
         "imports": 15,
-        "lines": 518,
+        "lines": 618,
         "source": "python_ast"
       },
       {
@@ -7938,9 +8003,9 @@
       {
         "classes": 0,
         "file": "tests/test_backlog.py",
-        "functions": 23,
+        "functions": 24,
         "imports": 8,
-        "lines": 554,
+        "lines": 579,
         "source": "python_ast"
       },
       {
@@ -8076,14 +8141,14 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_demo_draw_contains_answered_questions_and_all_conditions"
       },
       {
-        "end_line": 103,
+        "end_line": 102,
         "file": "src/stdd/cli.py",
         "kind": "function",
-        "line": 86,
-        "name": "choose_integrations",
-        "qualified_name": "stdd.cli.choose_integrations",
+        "line": 72,
+        "name": "_compact_backlog_response",
+        "qualified_name": "stdd.cli._compact_backlog_response",
         "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.choose_integrations"
+        "symbol_id": "src/stdd/cli.py:stdd.cli._compact_backlog_response"
       },
       {
         "end_line": 103,
@@ -8453,16 +8518,6 @@
       },
       {
         "end_line": 123,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 107,
-        "name": "setup",
-        "qualified_name": "stdd.cli.setup",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.setup"
-      },
-      {
-        "end_line": 123,
         "file": "src/stdd/models.py",
         "kind": "function",
         "line": 79,
@@ -8715,6 +8770,16 @@
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis._adapter_command"
       },
       {
+        "end_line": 141,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 105,
+        "name": "_format_backlog_response",
+        "qualified_name": "stdd.cli._format_backlog_response",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli._format_backlog_response"
+      },
+      {
         "end_line": 142,
         "file": "src/stdd/models.py",
         "kind": "function",
@@ -8793,16 +8858,6 @@
         "qualified_name": "stdd.draw.start_server_for_test",
         "source": "python_ast",
         "symbol_id": "src/stdd/draw.py:stdd.draw.start_server_for_test"
-      },
-      {
-        "end_line": 147,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 127,
-        "name": "test_all",
-        "qualified_name": "stdd.cli.test_all",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.test_all"
       },
       {
         "end_line": 147,
@@ -9119,6 +9174,16 @@
       },
       {
         "end_line": 178,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 145,
+        "name": "init",
+        "qualified_name": "stdd.cli.init",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.init"
+      },
+      {
+        "end_line": 178,
         "file": "tests/test_cli.py",
         "kind": "function",
         "line": 163,
@@ -9146,16 +9211,6 @@
         "qualified_name": "tests.test_stdd.test_init_preserves_existing_gitignore_and_does_not_duplicate_rules",
         "source": "python_ast",
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_init_preserves_existing_gitignore_and_does_not_duplicate_rules"
-      },
-      {
-        "end_line": 183,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 151,
-        "name": "log_work",
-        "qualified_name": "stdd.cli.log_work",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.log_work"
       },
       {
         "end_line": 183,
@@ -9271,16 +9326,6 @@
       },
       {
         "end_line": 193,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 187,
-        "name": "backlog_generate",
-        "qualified_name": "stdd.cli.backlog_generate",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.backlog_generate"
-      },
-      {
-        "end_line": 193,
         "file": "tests/test_draw.py",
         "kind": "function",
         "line": 173,
@@ -9330,6 +9375,16 @@
         "symbol_id": "src/stdd/backlog.py:stdd.backlog._child_checklist_id"
       },
       {
+        "end_line": 198,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 181,
+        "name": "choose_integrations",
+        "qualified_name": "stdd.cli.choose_integrations",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.choose_integrations"
+      },
+      {
         "end_line": 20,
         "file": "src/stdd/traceability.py",
         "kind": "function",
@@ -9358,16 +9413,6 @@
         "qualified_name": "stdd.setup._matching_names",
         "source": "python_ast",
         "symbol_id": "src/stdd/setup.py:stdd.setup._matching_names"
-      },
-      {
-        "end_line": 203,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 197,
-        "name": "backlog_missing",
-        "qualified_name": "stdd.cli.backlog_missing",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.backlog_missing"
       },
       {
         "end_line": 2036,
@@ -9421,16 +9466,6 @@
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_test_creates_test_phase_then_releases_same_task_for_implementation"
       },
       {
-        "end_line": 213,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 207,
-        "name": "backlog_task",
-        "qualified_name": "stdd.cli.backlog_task",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.backlog_task"
-      },
-      {
         "end_line": 215,
         "file": "src/stdd/backlog.py",
         "kind": "function",
@@ -9449,6 +9484,16 @@
         "qualified_name": "stdd.core.init_project",
         "source": "python_ast",
         "symbol_id": "src/stdd/core.py:stdd.core.init_project"
+      },
+      {
+        "end_line": 218,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 202,
+        "name": "setup",
+        "qualified_name": "stdd.cli.setup",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.setup"
       },
       {
         "end_line": 219,
@@ -9499,16 +9544,6 @@
         "qualified_name": "tests.test_draw_editor.test_backlog_checklists_are_editable_on_the_node_toolbar",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_backlog_checklists_are_editable_on_the_node_toolbar"
-      },
-      {
-        "end_line": 223,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 217,
-        "name": "backlog_test",
-        "qualified_name": "stdd.cli.backlog_test",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.backlog_test"
       },
       {
         "end_line": 224,
@@ -9582,16 +9617,6 @@
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis._scan_environment_values"
       },
       {
-        "end_line": 233,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 227,
-        "name": "backlog_complete",
-        "qualified_name": "stdd.cli.backlog_complete",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.backlog_complete"
-      },
-      {
         "end_line": 235,
         "file": "tests/test_backlog.py",
         "kind": "function",
@@ -9620,6 +9645,16 @@
         "qualified_name": "tests.test_draw_editor.test_keyboard_shortcuts_connect_and_duplicate_selected_blocks",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_keyboard_shortcuts_connect_and_duplicate_selected_blocks"
+      },
+      {
+        "end_line": 242,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 222,
+        "name": "test_all",
+        "qualified_name": "stdd.cli.test_all",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.test_all"
       },
       {
         "end_line": 245,
@@ -9946,16 +9981,6 @@
       },
       {
         "end_line": 277,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 237,
-        "name": "draw_create",
-        "qualified_name": "stdd.cli.draw_create",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_create"
-      },
-      {
-        "end_line": 277,
         "file": "tests/test_cli.py",
         "kind": "function",
         "line": 253,
@@ -9963,6 +9988,16 @@
         "qualified_name": "tests.test_cli.test_global_alias_respects_mvp_profile_and_approval_controls",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_global_alias_respects_mvp_profile_and_approval_controls"
+      },
+      {
+        "end_line": 278,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 246,
+        "name": "log_work",
+        "qualified_name": "stdd.cli.log_work",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.log_work"
       },
       {
         "end_line": 278,
@@ -10046,16 +10081,6 @@
         "symbol_id": "src/stdd/improvements.py:stdd.improvements.mark_improvement_applied"
       },
       {
-        "end_line": 285,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 281,
-        "name": "app_create",
-        "qualified_name": "stdd.cli.app_create",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.app_create"
-      },
-      {
         "end_line": 286,
         "file": "src/stdd/static_analysis.py",
         "kind": "function",
@@ -10074,6 +10099,16 @@
         "qualified_name": "stdd.draw._analysis_text",
         "source": "python_ast",
         "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_text"
+      },
+      {
+        "end_line": 288,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 282,
+        "name": "backlog_generate",
+        "qualified_name": "stdd.cli.backlog_generate",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.backlog_generate"
       },
       {
         "end_line": 288,
@@ -10166,6 +10201,16 @@
         "symbol_id": "src/stdd/backlog.py:stdd.backlog._branches_for_draw"
       },
       {
+        "end_line": 298,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 292,
+        "name": "backlog_missing",
+        "qualified_name": "stdd.cli.backlog_missing",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.backlog_missing"
+      },
+      {
         "end_line": 30,
         "file": "src/stdd/templates/adapters/js_ts_static_adapter.js",
         "kind": "function",
@@ -10215,16 +10260,6 @@
         "qualified_name": "tests.test_cli.test_global_alias_can_explicitly_run_approved_suite",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_global_alias_can_explicitly_run_approved_suite"
-      },
-      {
-        "end_line": 303,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 290,
-        "name": "draw_list",
-        "qualified_name": "stdd.cli.draw_list",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_list"
       },
       {
         "end_line": 305,
@@ -10307,14 +10342,14 @@
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_draw_system_levels_keep_then_compatible_with_one_branch_family"
       },
       {
-        "end_line": 312,
+        "end_line": 313,
         "file": "src/stdd/cli.py",
         "kind": "function",
-        "line": 307,
-        "name": "draw_symbols",
-        "qualified_name": "stdd.cli.draw_symbols",
+        "line": 302,
+        "name": "backlog_task",
+        "qualified_name": "stdd.cli.backlog_task",
         "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_symbols"
+        "symbol_id": "src/stdd/cli.py:stdd.cli.backlog_task"
       },
       {
         "end_line": 314,
@@ -10390,11 +10425,11 @@
         "end_line": 323,
         "file": "src/stdd/cli.py",
         "kind": "function",
-        "line": 316,
-        "name": "draw_questions",
-        "qualified_name": "stdd.cli.draw_questions",
+        "line": 317,
+        "name": "backlog_test",
+        "qualified_name": "stdd.cli.backlog_test",
         "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_questions"
+        "symbol_id": "src/stdd/cli.py:stdd.cli.backlog_test"
       },
       {
         "end_line": 323,
@@ -10518,14 +10553,14 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_organize_button_clears_local_positions_without_changing_the_flow"
       },
       {
-        "end_line": 336,
+        "end_line": 333,
         "file": "src/stdd/cli.py",
         "kind": "function",
         "line": 327,
-        "name": "draw_answer",
-        "qualified_name": "stdd.cli.draw_answer",
+        "name": "backlog_complete",
+        "qualified_name": "stdd.cli.backlog_complete",
         "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_answer"
+        "symbol_id": "src/stdd/cli.py:stdd.cli.backlog_complete"
       },
       {
         "end_line": 338,
@@ -10739,16 +10774,6 @@
         "symbol_id": "src/stdd/models.py:stdd.models.write"
       },
       {
-        "end_line": 371,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 340,
-        "name": "draw_diff",
-        "qualified_name": "stdd.cli.draw_diff",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_diff"
-      },
-      {
         "end_line": 372,
         "file": "tests/test_cli.py",
         "kind": "function",
@@ -10787,6 +10812,16 @@
         "qualified_name": "stdd.backlog._refresh_branch_completion",
         "source": "python_ast",
         "symbol_id": "src/stdd/backlog.py:stdd.backlog._refresh_branch_completion"
+      },
+      {
+        "end_line": 377,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 337,
+        "name": "draw_create",
+        "qualified_name": "stdd.cli.draw_create",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_create"
       },
       {
         "end_line": 378,
@@ -10848,6 +10883,16 @@
         "qualified_name": "tests.test_static_analysis.test_expired_static_analysis_exception_blocks",
         "source": "python_ast",
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_expired_static_analysis_exception_blocks"
+      },
+      {
+        "end_line": 385,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 381,
+        "name": "app_create",
+        "qualified_name": "stdd.cli.app_create",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.app_create"
       },
       {
         "end_line": 388,
@@ -10931,6 +10976,16 @@
       },
       {
         "end_line": 403,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 390,
+        "name": "draw_list",
+        "qualified_name": "stdd.cli.draw_list",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_list"
+      },
+      {
+        "end_line": 403,
         "file": "src/stdd/draw.py",
         "kind": "function",
         "line": 386,
@@ -11010,14 +11065,14 @@
         "symbol_id": "tests/test_traceability.py:tests.test_traceability.test_refresh_traceability_ignores_macos_appledouble_files"
       },
       {
-        "end_line": 414,
+        "end_line": 412,
         "file": "src/stdd/cli.py",
         "kind": "function",
-        "line": 375,
-        "name": "draw_improve",
-        "qualified_name": "stdd.cli.draw_improve",
+        "line": 407,
+        "name": "draw_symbols",
+        "qualified_name": "stdd.cli.draw_symbols",
         "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_improve"
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_symbols"
       },
       {
         "end_line": 414,
@@ -11091,6 +11146,16 @@
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_static_analysis_exceptions_do_not_release_hardcoded_secrets"
       },
       {
+        "end_line": 423,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 416,
+        "name": "draw_questions",
+        "qualified_name": "stdd.cli.draw_questions",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_questions"
+      },
+      {
         "end_line": 424,
         "file": "src/stdd/draw.py",
         "kind": "function",
@@ -11153,6 +11218,16 @@
       },
       {
         "end_line": 436,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 427,
+        "name": "draw_answer",
+        "qualified_name": "stdd.cli.draw_answer",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_answer"
+      },
+      {
+        "end_line": 436,
         "file": "src/stdd/draw.py",
         "kind": "function",
         "line": 427,
@@ -11170,16 +11245,6 @@
         "qualified_name": "tests.test_draw.test_create_draw_rejects_descriptive_ids_instead_of_labels",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_rejects_descriptive_ids_instead_of_labels"
-      },
-      {
-        "end_line": 437,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 418,
-        "name": "draw_associate_reference",
-        "qualified_name": "stdd.cli.draw_associate_reference",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_associate_reference"
       },
       {
         "end_line": 437,
@@ -11323,16 +11388,6 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_accepts_empty_canvas_for_visual_creation"
       },
       {
-        "end_line": 467,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 441,
-        "name": "draw_serve",
-        "qualified_name": "stdd.cli.draw_serve",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_serve"
-      },
-      {
         "end_line": 47,
         "file": "src/stdd/improvements.py",
         "kind": "function",
@@ -11371,6 +11426,16 @@
         "qualified_name": "tests.test_draw_editor.test_black_theme_is_default_and_test_checklist_uses_red_orange_accent",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_black_theme_is_default_and_test_checklist_uses_red_orange_accent"
+      },
+      {
+        "end_line": 471,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 440,
+        "name": "draw_diff",
+        "qualified_name": "stdd.cli.draw_diff",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_diff"
       },
       {
         "end_line": 473,
@@ -11443,16 +11508,6 @@
         "qualified_name": "tests.test_draw_editor.test_node_question_counts_use_answer_state_colors",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_node_question_counts_use_answer_state_colors"
-      },
-      {
-        "end_line": 487,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 470,
-        "name": "listening_process_ids",
-        "qualified_name": "stdd.cli.listening_process_ids",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.listening_process_ids"
       },
       {
         "end_line": 488,
@@ -11535,16 +11590,6 @@
         "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_entity_pairs"
       },
       {
-        "end_line": 500,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 490,
-        "name": "terminate_processes",
-        "qualified_name": "stdd.cli.terminate_processes",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.terminate_processes"
-      },
-      {
         "end_line": 501,
         "file": "src/stdd/core.py",
         "kind": "function",
@@ -11585,16 +11630,6 @@
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_readme_documents_remote_install_and_interactive_integrations"
       },
       {
-        "end_line": 509,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 503,
-        "name": "ask_alternative_port",
-        "qualified_name": "stdd.cli.ask_alternative_port",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.ask_alternative_port"
-      },
-      {
         "end_line": 51,
         "file": "src/stdd/models.py",
         "kind": "class",
@@ -11616,13 +11651,13 @@
       },
       {
         "end_line": 514,
-        "file": "tests/test_backlog.py",
+        "file": "src/stdd/cli.py",
         "kind": "function",
-        "line": 497,
-        "name": "test_backlog_cli_exposes_test_phase_and_structured_missing_test",
-        "qualified_name": "tests.test_backlog.test_backlog_cli_exposes_test_phase_and_structured_missing_test",
+        "line": 475,
+        "name": "draw_improve",
+        "qualified_name": "stdd.cli.draw_improve",
         "source": "python_ast",
-        "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_cli_exposes_test_phase_and_structured_missing_test"
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_improve"
       },
       {
         "end_line": 517,
@@ -11643,6 +11678,16 @@
         "qualified_name": "tests.test_stdd.test_readme_documents_codex_skill_invocation",
         "source": "python_ast",
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_readme_documents_codex_skill_invocation"
+      },
+      {
+        "end_line": 519,
+        "file": "tests/test_backlog.py",
+        "kind": "function",
+        "line": 497,
+        "name": "test_backlog_cli_exposes_test_phase_and_structured_missing_test",
+        "qualified_name": "tests.test_backlog.test_backlog_cli_exposes_test_phase_and_structured_missing_test",
+        "source": "python_ast",
+        "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_cli_exposes_test_phase_and_structured_missing_test"
       },
       {
         "end_line": 520,
@@ -11725,6 +11770,16 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_test_blocks_blocking_long_function_quality_finding"
       },
       {
+        "end_line": 537,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 518,
+        "name": "draw_associate_reference",
+        "qualified_name": "stdd.cli.draw_associate_reference",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_associate_reference"
+      },
+      {
         "end_line": 538,
         "file": "tests/test_stdd.py",
         "kind": "function",
@@ -11733,6 +11788,16 @@
         "qualified_name": "tests.test_stdd.test_setup_skill_defines_global_alias_and_database_lifecycle",
         "source": "python_ast",
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_setup_skill_defines_global_alias_and_database_lifecycle"
+      },
+      {
+        "end_line": 539,
+        "file": "tests/test_backlog.py",
+        "kind": "function",
+        "line": 522,
+        "name": "test_backlog_cli_task_has_a_concise_human_output",
+        "qualified_name": "tests.test_backlog.test_backlog_cli_task_has_a_concise_human_output",
+        "source": "python_ast",
+        "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_cli_task_has_a_concise_human_output"
       },
       {
         "end_line": 54,
@@ -11815,6 +11880,16 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_structural_analysis_warns_for_duplicate_flow_without_blocking"
       },
       {
+        "end_line": 55,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 49,
+        "name": "_human_answer",
+        "qualified_name": "stdd.cli._human_answer",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli._human_answer"
+      },
+      {
         "end_line": 550,
         "file": "src/stdd/draw.py",
         "kind": "function",
@@ -11823,16 +11898,6 @@
         "qualified_name": "stdd.draw.analyze_draw_structure",
         "source": "python_ast",
         "symbol_id": "src/stdd/draw.py:stdd.draw.analyze_draw_structure"
-      },
-      {
-        "end_line": 554,
-        "file": "tests/test_backlog.py",
-        "kind": "function",
-        "line": 517,
-        "name": "test_stdd_test_blocks_when_backlog_has_unchecked_implementation",
-        "qualified_name": "tests.test_backlog.test_stdd_test_blocks_when_backlog_has_unchecked_implementation",
-        "source": "python_ast",
-        "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_stdd_test_blocks_when_backlog_has_unchecked_implementation"
       },
       {
         "end_line": 556,
@@ -11905,6 +11970,16 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_create_warns_for_duplicate_structure_against_existing_draw"
       },
       {
+        "end_line": 567,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 541,
+        "name": "draw_serve",
+        "qualified_name": "stdd.cli.draw_serve",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_serve"
+      },
+      {
         "end_line": 57,
         "file": "src/stdd/backlog.py",
         "kind": "function",
@@ -11973,6 +12048,16 @@
         "qualified_name": "stdd.draw._has_code_reference",
         "source": "python_ast",
         "symbol_id": "src/stdd/draw.py:stdd.draw._has_code_reference"
+      },
+      {
+        "end_line": 579,
+        "file": "tests/test_backlog.py",
+        "kind": "function",
+        "line": 542,
+        "name": "test_stdd_test_blocks_when_backlog_has_unchecked_implementation",
+        "qualified_name": "tests.test_backlog.test_stdd_test_blocks_when_backlog_has_unchecked_implementation",
+        "source": "python_ast",
+        "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_stdd_test_blocks_when_backlog_has_unchecked_implementation"
       },
       {
         "end_line": 58,
@@ -12047,6 +12132,16 @@
         "qualified_name": "tests.test_draw.test_structural_analysis_warns_for_near_duplicate_at_threshold",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_structural_analysis_warns_for_near_duplicate_at_threshold"
+      },
+      {
+        "end_line": 587,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 570,
+        "name": "listening_process_ids",
+        "qualified_name": "stdd.cli.listening_process_ids",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.listening_process_ids"
       },
       {
         "end_line": 587,
@@ -12142,6 +12237,16 @@
       },
       {
         "end_line": 600,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 590,
+        "name": "terminate_processes",
+        "qualified_name": "stdd.cli.terminate_processes",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.terminate_processes"
+      },
+      {
+        "end_line": 600,
         "file": "src/stdd/core.py",
         "kind": "function",
         "line": 559,
@@ -12159,6 +12264,16 @@
         "qualified_name": "tests.test_cli.test_log_command_creates_incremental_summary_and_snapshot_in_date_subfolder",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_command_creates_incremental_summary_and_snapshot_in_date_subfolder"
+      },
+      {
+        "end_line": 609,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 603,
+        "name": "ask_alternative_port",
+        "qualified_name": "stdd.cli.ask_alternative_port",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.ask_alternative_port"
       },
       {
         "end_line": 61,
@@ -12495,6 +12610,16 @@
         "qualified_name": "tests.test_draw.test_draw_create_reports_level_two_code_ref_warning_without_blocking",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_create_reports_level_two_code_ref_warning_without_blocking"
+      },
+      {
+        "end_line": 69,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 58,
+        "name": "_first_answer",
+        "qualified_name": "stdd.cli._first_answer",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli._first_answer"
       },
       {
         "end_line": 69,
@@ -13068,16 +13193,6 @@
         "qualified_name": "stdd.backlog._parent_task",
         "source": "python_ast",
         "symbol_id": "src/stdd/backlog.py:stdd.backlog._parent_task"
-      },
-      {
-        "end_line": 83,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 50,
-        "name": "init",
-        "qualified_name": "stdd.cli.init",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.init"
       },
       {
         "end_line": 83,

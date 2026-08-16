@@ -43,6 +43,8 @@ Para uma conferência rápida antes do gate final, executar `stdd draw symbols`.
 
 Antes de executar `stdd backlog task`, verificar se a resposta é `kind: "backlog-test-required"`. Nesse caso, não alterar produção: executar ou retomar `stdd backlog test`, criar os testes do nó de nível 2 e de todos os seus subfluxos ou marcar manualmente o fluxo já existente no viewer. `test_ref` e análise estática são evidências complementares, não uma pré-condição para o checklist. Só depois a mesma task pode ser implementada e concluída.
 
+A saída padrão de `stdd backlog task` é resumida e humana. Quando for necessário consultar campos estruturados como `kind`, `parent_task`, `subtask` ou `subtasks`, repetir com `stdd backlog task --json`.
+
 Quando a resposta trouxer `parent_task`, `subtask` e `subtasks`, preservar o pai como contexto e concluir pai e subtasks por seus próprios IDs. O checklist de implementação só pode ser marcado depois que `phase_checklists.test` do nó e dos subfluxos estiver concluído.
 
 ### Uso da análise estática para refatoração segura

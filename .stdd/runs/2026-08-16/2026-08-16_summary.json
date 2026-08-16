@@ -1807,8 +1807,71 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "d565114c87ea441cab67a938d1684cd3",
+      "timestamp": "2026-08-16T02:57:53.994477+00:00",
+      "description": "Simplifica a saída humana de backlog task",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 132,
+        "lines_deleted": 7,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d77ea720098f483294f39447a1714492",
+      "timestamp": "2026-08-16T02:57:56.540969+00:00",
+      "description": "Testa saída resumida e modo JSON de backlog task",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "723410a2930d4f80ada46e0d960c8299",
+      "timestamp": "2026-08-16T02:58:40.769886+00:00",
+      "description": "Documenta os modos humano e JSON de backlog task",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 86,
-  "last_run_id": "d1f28a11102e4088a712acaa1f65f3d1"
+  "run_count": 89,
+  "last_run_id": "723410a2930d4f80ada46e0d960c8299"
 }

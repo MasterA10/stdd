@@ -46,6 +46,101 @@ backlog_app = typer.Typer(help="Gera e executa tasks derivadas dos Draws.")
 app.add_typer(backlog_app, name="backlog")
 
 
+def _human_answer(value: object) -> str:
+    """Converte uma resposta do Draw em uma linha curta e legível."""
+    if isinstance(value, bool):
+        return "sim" if value else "não"
+    if isinstance(value, (dict, list)):
+        return json.dumps(value, ensure_ascii=False, separators=(", ", ": "))
+    return str(value).strip()
+
+
+def _first_answer(questions: object) -> tuple[str, str] | None:
+    """Retorna somente a primeira decisão respondida, sem expor alternativas."""
+    if not isinstance(questions, list):
+        return None
+    for question in questions:
+        if not isinstance(question, dict) or "answer" not in question or question.get("answer") is None:
+            continue
+        prompt = str(question.get("prompt") or "Decisão registrada").strip()
+        answer = _human_answer(question["answer"])
+        if answer:
+            return prompt, answer
+    return None
+
+
+def _compact_backlog_response(response: dict[str, object]) -> dict[str, object]:
+    """Seleciona o contexto mínimo necessário para uma task do backlog."""
+    task = response.get("task") if isinstance(response.get("task"), dict) else {}
+    parent = response.get("parent_task") if isinstance(response.get("parent_task"), dict) else {}
+    compact: dict[str, object] = {
+        "kind": response.get("kind"),
+        "phase": response.get("phase"),
+        "status": response.get("status") or task.get("status"),
+        "task_id": task.get("id"),
+        "task": task.get("label"),
+        "draw": task.get("draw_title") or task.get("draw_id"),
+        "node_id": task.get("node_id"),
+        "description": task.get("description"),
+        "symbols": task.get("symbols") or [],
+    }
+    if parent.get("id") and parent.get("id") != task.get("id"):
+        compact["parent"] = parent.get("label")
+    decision = _first_answer(task.get("questions"))
+    if decision is not None:
+        compact["decision"] = {"question": decision[0], "answer": decision[1]}
+    reason_labels = {
+        "test_missing": "os testes da task ainda não foram comprovados",
+        "test_not_complete": "o checklist de testes ainda não foi concluído",
+        "test_in_progress": "a task está aguardando a conclusão dos testes",
+    }
+    if response.get("reason") is not None:
+        compact["reason"] = reason_labels.get(str(response["reason"]), response["reason"])
+    for key in ("instruction", "remaining", "completed_task_id"):
+        if response.get(key) is not None:
+            compact[key] = response[key]
+    return {key: value for key, value in compact.items() if value not in (None, "", [])}
+
+
+def _format_backlog_response(response: dict[str, object]) -> str:
+    """Renderiza uma task sem o ruído do payload completo do backlog."""
+    kind = response.get("kind")
+    if kind == "backlog-empty":
+        return "Backlog concluído. Não há tasks pendentes."
+
+    compact = _compact_backlog_response(response)
+    if kind == "backlog-test-required":
+        title = "Teste necessário antes da implementação"
+    elif kind == "backlog-test-task":
+        title = "Task de teste"
+    else:
+        title = "Task de implementação"
+
+    lines = [title]
+    if compact.get("task"):
+        lines.append(f"Task: {compact['task']}")
+    if compact.get("draw"):
+        lines.append(f"Fluxo: {compact['draw']}")
+    if compact.get("parent"):
+        lines.append(f"Contexto: {compact['parent']}")
+    if compact.get("node_id") is not None:
+        lines.append(f"Nó: {compact['node_id']}")
+    if compact.get("task_id"):
+        lines.append(f"ID: {compact['task_id']}")
+    if compact.get("description"):
+        lines.append(f"Descrição: {compact['description']}")
+    decision = compact.get("decision")
+    if isinstance(decision, dict):
+        lines.append(f"Decisão: {decision['question']} → {decision['answer']}")
+    symbols = compact.get("symbols")
+    lines.append("Símbolos: " + (", ".join(str(symbol) for symbol in symbols) if isinstance(symbols, list) and symbols else "nenhum associado"))
+    if compact.get("reason"):
+        lines.append(f"Bloqueio: {compact['reason']}")
+    if compact.get("instruction"):
+        lines.append(f"Próximo passo: {compact['instruction']}")
+    return "\n".join(lines)
+
+
 @app.command()
 def init(
     project: Path = typer.Argument(Path("."), help="Diretório do projeto a inicializar; por padrão, o diretório atual."),
@@ -204,10 +299,15 @@ def backlog_missing() -> None:
 
 
 @backlog_app.command("task")
-def backlog_task() -> None:
-    """Entrega uma única task e a reserva para o agente atual."""
+def backlog_task(
+    json_output: bool = typer.Option(False, "--json", help="Retorna o payload estruturado completo."),
+) -> None:
+    """Entrega uma única task e a reserva para o agente atual.
+    Por padrão, exibe apenas o contexto acionável em linguagem humana.
+    """
     try:
-        typer.echo(json.dumps(next_backlog_task(project_root()), ensure_ascii=False, indent=2))
+        response = next_backlog_task(project_root())
+        typer.echo(json.dumps(response, ensure_ascii=False, indent=2) if json_output else _format_backlog_response(response))
     except (OSError, ValueError) as error:
         typer.echo(f"Erro: {error}", err=True)
         raise typer.Exit(1)
