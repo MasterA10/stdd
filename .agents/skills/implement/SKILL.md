@@ -99,6 +99,26 @@ Se um desenho referenciado possuir `questions`, ler as respostas persistidas com
 6. Não gravar segredos, tokens, prompts privados ou respostas sensíveis.
 7. Não inserir comentários em funções de produção, exceto para decisão importante ou comportamento não óbvio.
 
+## Ciclo de Vida e Tasks do Backlog
+
+O desenvolvimento pelo backlog obedece fases bem definidas. O agente DEVE executar estritamente UMA task por vez e chamar `stdd backlog test` ou `stdd backlog task` ANTES de avançar. Ao receber uma task, o parser de contexto deve considerar não apenas o nó atual, mas também o nó de origem (nó anterior ou tela de entrada) e o tipo de conexão.
+
+### Bootstrap Task (primeira task de cada ciclo)
+Toda inicialização de fluxo de desenvolvimento DEVE iniciar com uma task padrão de infraestrutura que envolva:
+- Configurar variáveis de ambiente (`.env`), bibliotecas centrais e arquivos raiz.
+- Consolidar o `design.md` e a documentação visual.
+- Incluir no `AGENTS.md` as APIs externas a serem consumidas.
+
+### Task Final de Cada Nó L2 (Verificação & Associação)
+Ao concluir os subfluxos de um nó, o ciclo deve disparar uma task de encerramento contendo:
+1. Verificação funcional completa: telas não devem ser "vazios visuais"; elas devem persistir dados, validar inputs e disparar requisições reais.
+2. Associação explícita de arquivos, testes e views ao nó do fluxo correspondente (usando a linha de comando do Draw).
+
+### Task Final do Backlog Geral
+Ao final do backlog geral, realiza-se uma etapa final de qualidade:
+- Verificação end-to-end do MVP completo.
+- Caso falte alguma dependência ou o aplicativo não inicialize, aplicar as correções finais antes de concluir a entrega.
+
 ### Execução por backlog
 
 Quando houver um backlog gerado, o `$implement` deve executar o ciclo operacional até não haver mais tasks:

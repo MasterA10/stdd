@@ -826,7 +826,7 @@ def _parent_task(tasks: list[dict[str, Any]], task: dict[str, Any]) -> dict[str,
     return current
 
 
-def _task_context(payload: dict[str, Any], task: dict[str, Any], phase: str, kind: str, instruction: str | None = None) -> dict[str, Any]:
+def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], phase: str, kind: str, instruction: str | None = None) -> dict[str, Any]:
     """Retorna a task atual com pai e subtasks para o agente manter contexto."""
     tasks = payload.get("tasks", [])
     parent = _parent_task(tasks, task)
@@ -838,6 +838,31 @@ def _task_context(payload: dict[str, Any], task: dict[str, Any], phase: str, kin
         (item for item in descendants if item.get("status") != "done"),
         None,
     )
+    
+    origin_nodes = []
+    origin_edges = []
+    access_paths = []
+    
+    draw_id = task.get("backlog_id")
+    node_id = task.get("node_id")
+    
+    if draw_id and node_id:
+        try:
+            document = read_draw(root, draw_id)
+            nodes = {n.get("id"): n for n in document.get("nodes", [])}
+            for edge in document.get("edges", []):
+                if edge.get("to") == node_id:
+                    origin_edges.append(edge)
+                    from_id = edge.get("from")
+                    if from_id in nodes:
+                        from_node = nodes[from_id]
+                        origin_nodes.append(from_node)
+                        label = from_node.get("label") or str(from_id)
+                        condition = EDGE_CONDITIONS.get(edge.get("condition"), "então")
+                        access_paths.append(f"Nó {label} → {condition} → Nó atual")
+        except Exception:
+            pass
+
     response: dict[str, Any] = {
         "kind": kind,
         "phase": phase,
@@ -845,6 +870,9 @@ def _task_context(payload: dict[str, Any], task: dict[str, Any], phase: str, kin
         "parent_task": parent,
         "subtask": subtask,
         "subtasks": descendants,
+        "origin_nodes": origin_nodes,
+        "origin_edges": origin_edges,
+        "access_paths": access_paths,
     }
     if instruction is not None:
         response["instruction"] = instruction
@@ -947,8 +975,7 @@ def next_backlog_test(root: Path) -> dict[str, Any]:
     execution["current_parent_task_id"] = _parent_task(payload["tasks"], task).get("id")
     execution["current_subtask_id"] = task.get("id") if task.get("parent_task_id") else None
     write_backlog(root, payload)
-    return _task_context(
-        payload,
+    return _task_context(root, payload,
         task,
         "test",
         "backlog-test-task",
@@ -965,20 +992,20 @@ def next_backlog_task(root: Path) -> dict[str, Any]:
     if current_id:
         current = next((task for task in payload["tasks"] if task["id"] == current_id), None)
         if current_phase == "test" and current and not _test_scope_complete(payload, current):
-            response = _task_context(payload, current, "test", "backlog-test-required")
+            response = _task_context(root, payload, current, "test", "backlog-test-required")
             response.update({"status": "blocked", "reason": "test_in_progress"})
             return response
         if current_phase == "implementation" and current and current.get("status") == "in_progress":
-            return _task_context(payload, current, "implementation", "backlog-task")
+            return _task_context(root, payload, current, "implementation", "backlog-task")
         if current and current.get("status") == "in_progress":
-            return _task_context(payload, current, "implementation", "backlog-task")
+            return _task_context(root, payload, current, "implementation", "backlog-task")
     task = next((item for item in payload["tasks"] if item.get("status") != "done"), None)
     if task is None:
         _clear_execution_cursor(execution)
         write_backlog(root, payload)
         return {"kind": "backlog-empty", "status": "complete", "remaining": 0}
     if task.get("level") == 2 and not _test_scope_complete(payload, task):
-        response = _task_context(payload, task, "test", "backlog-test-required")
+        response = _task_context(root, payload, task, "test", "backlog-test-required")
         response.update({"status": "blocked", "reason": "test_missing" if task.get("test_status") == "missing" else "test_not_complete"})
         return response
     task["status"] = "in_progress"
@@ -994,7 +1021,7 @@ def next_backlog_task(root: Path) -> dict[str, Any]:
             if item.get("id") == task["id"]:
                 item["status"] = "in_progress"
     write_backlog(root, payload)
-    return _task_context(payload, task, "implementation", "backlog-task")
+    return _task_context(root, payload, task, "implementation", "backlog-task")
 
 
 def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
@@ -1018,7 +1045,7 @@ def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
             requested.setdefault("checklist_state", _default_checklist_state(requested))["implementation"] = True
         _refresh_task_checklist_items(payload)
         write_backlog(root, payload)
-        response = _task_context(payload, current, execution.get("current_phase") or "implementation", "backlog-subtask-complete")
+        response = _task_context(root, payload, current, execution.get("current_phase") or "implementation", "backlog-subtask-complete")
         response.update({"status": "test-done" if execution.get("current_phase") == "test" else "done", "completed_task_id": task_id})
         return response
     task = next((item for item in payload["tasks"] if item["id"] == task_id), None)
@@ -1034,7 +1061,7 @@ def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
         _clear_execution_cursor(execution)
         _refresh_task_checklist_items(payload)
         write_backlog(root, payload)
-        response = _task_context(payload, task, "test", "backlog-test-complete")
+        response = _task_context(root, payload, task, "test", "backlog-test-complete")
         response.update({"status": "test-done", "remaining": sum(1 for item in payload["tasks"] if item.get("level") == 2 and not _test_scope_complete(payload, item))})
         return response
     if task.get("status") != "in_progress":
@@ -1051,6 +1078,6 @@ def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
     _refresh_branch_completion(payload)
     _refresh_task_checklist_items(payload)
     write_backlog(root, payload)
-    response = _task_context(payload, task, "implementation", "backlog-complete")
+    response = _task_context(root, payload, task, "implementation", "backlog-complete")
     response.update({"status": "done", "remaining": sum(1 for item in payload["tasks"] if item.get("status") != "done")})
     return response

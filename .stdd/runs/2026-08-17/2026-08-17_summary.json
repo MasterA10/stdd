@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "date": "2026-08-17",
+  "runs": [
+    {
+      "run_id": "b0f616d27f404f0fa944c18c607afec5",
+      "timestamp": "2026-08-17T22:03:21.143460+00:00",
+      "description": "Atualiza as skills com novas diretrizes da Frente C",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 201,
+        "lines_deleted": 18,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "04c55f168ddf421ebdb7bddb6d0a2f6e",
+      "timestamp": "2026-08-17T22:04:42.986450+00:00",
+      "description": "Frente D1 - Contexto de navegação no backlog (origem e caminho de acesso)",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 171,
+        "lines_deleted": 25,
+        "files_changed": 7
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "908e387e446e46cab1b9a880671b67ed",
+      "timestamp": "2026-08-17T22:05:56.417292+00:00",
+      "description": "Implementação da Frente A do draw-editor (estilização de mentions, auto-resize, modal de descrição e layout)",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 34,
+        "lines_deleted": 2,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    }
+  ],
+  "run_count": 3,
+  "last_run_id": "908e387e446e46cab1b9a880671b67ed"
+}

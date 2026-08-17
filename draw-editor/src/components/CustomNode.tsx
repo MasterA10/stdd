@@ -3,6 +3,7 @@ import { Handle, Position } from '@xyflow/react';
 import type { NodeProps, Node } from '@xyflow/react';
 import type { NodeData, Question } from '../types';
 import { Trash2, ClipboardList, Eye, Code2 } from 'lucide-react';
+import { renderWithMentions } from '../utils';
 
 const FALLBACK_GROUP_COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f97316', '#ec4899', '#3b82f6'];
 const DARK_GROUP_FILLS = ['#242424', '#2d2d2d', '#363636', '#404040', '#4a4a4a', '#545454'];
@@ -299,13 +300,16 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
             onKeyDown={handleKeyDown}
           />
         ) : (
-          <p
+          <div
             className="node-body-desc"
-            onDoubleClick={(e) => handleDoubleClick('description', e)}
+            onDoubleClick={(e) => {
+              e.stopPropagation();
+              window.openNodeEditModal?.(data);
+            }}
             title="Dê duplo clique para editar descrição"
           >
-            {data.description || 'Nenhuma descrição adicionada.'}
-          </p>
+            {renderWithMentions(data.description || 'Nenhuma descrição adicionada.')}
+          </div>
         )}
       </div>
 
@@ -403,5 +407,6 @@ declare global {
     updateBacklogChecklist?: (taskId: string, phase: 'test' | 'implementation', checked: boolean) => void;
     openSubdraw?: (id: string) => void;
     openDetailViewer?: (id: number) => void;
+    openNodeEditModal?: (node: NodeData) => void;
   }
 }

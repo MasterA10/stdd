@@ -23,6 +23,7 @@ import { MetadataModal } from './components/MetadataModal';
 import { ConfirmModal } from './components/ConfirmModal';
 import { FocusDetailModal } from './components/FocusDetailModal';
 import { ImprovementEditor } from './components/ImprovementEditor';
+import { NodeEditModal } from './components/NodeEditModal';
 import { layoutCurvedGraph, computeEdgeHandles } from './layout';
 import { RotateCcw, Save, Download, Sun, Moon, Contrast, Sparkles, ClipboardList, X } from 'lucide-react';
 
@@ -124,6 +125,7 @@ export const App: React.FC = () => {
     isDanger?: boolean;
     resolve: (val: boolean) => void;
   } | null>(null);
+  const [editNodeData, setEditNodeData] = useState<NodeData | null>(null);
 
   // --- React Flow Node & Edge States ---
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<NodeData>>([]);
@@ -1514,6 +1516,10 @@ export const App: React.FC = () => {
 
   // --- Exposed Window Functions for Nodes ---
   useEffect(() => {
+    window.openNodeEditModal = (node: NodeData) => {
+      setEditNodeData(node);
+    };
+
     window.updateNodeField = (id: number, field: 'label' | 'description', value: string) => {
       setContract((prev) => ({
         ...prev,
@@ -1936,6 +1942,18 @@ export const App: React.FC = () => {
       </footer>
 
       {/* Modal Dialogs */}
+      {editNodeData && (
+        <NodeEditModal
+          node={editNodeData}
+          onClose={() => setEditNodeData(null)}
+          onSave={(id, label, description) => {
+            if (window.updateNodeField) {
+              window.updateNodeField(id, 'label', label);
+              window.updateNodeField(id, 'description', description);
+            }
+          }}
+        />
+      )}
       {questionsNode && (
         <QuestionsModal
           node={questionsNode}

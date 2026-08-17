@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import type { NodeData, Question } from '../types';
 import { Plus, Trash2, X } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
+import { MentionTextarea } from '../utils';
 
 interface QuestionsModalProps {
   node: NodeData;
@@ -124,10 +125,10 @@ export const QuestionsModal: React.FC<QuestionsModalProps> = ({
                     <Trash2 size={12} />
                   </button>
                 </div>
-                <input
+                <MentionTextarea
                   className="question-prompt-input"
                   value={question.prompt}
-                  onChange={(event) => updateQuestion(question.id, { prompt: event.target.value })}
+                  onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => updateQuestion(question.id, { prompt: event.target.value })}
                   aria-label={`Texto da pergunta ${question.id}`}
                 />
 
@@ -187,11 +188,11 @@ export const QuestionsModal: React.FC<QuestionsModalProps> = ({
 
           <form className="editor-card question-create-card question-create-card-top" onSubmit={addQuestion}>
             <h3>Adicionar pergunta ou observação</h3>
-            <textarea
+            <MentionTextarea
               className="question-create-prompt"
               placeholder="Ex: Qual risco ainda precisa ser validado?"
               value={prompt}
-              onChange={(event) => setPrompt(event.target.value)}
+              onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt(event.target.value)}
               required
             />
             <div className="dialog-fields">

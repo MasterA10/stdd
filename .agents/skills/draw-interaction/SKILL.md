@@ -7,7 +7,15 @@ description: Interpreta perguntas e tarefas marcadas nos Draws, respondendo com 
 
 ## Responsabilidade
 
-Investigar cada marcação endereçada a esta skill e decidir se ela representa uma pergunta ou uma tarefa. Uma pergunta pede uma resposta documentada; uma tarefa pede trabalho na codebase, como editar produção, corrigir testes, criar uma regressão ou atualizar uma integração. Não tratar uma tarefa como se fosse apenas uma pergunta.
+Investigar cada marcação endereçada a esta skill e decidir se ela representa uma pergunta ou uma tarefa. O **escopo desta skill é expandido**: ela não se restringe apenas a responder perguntas pontuais, mas inclui também a inserção de nós, criação de conexões de fluxo e a manipulação visual do desenho como parte de suas tarefas. Uma pergunta pede uma resposta documentada; uma tarefa pede trabalho na codebase (editar produção, corrigir testes, criar regressão) ou atualização/alteração no fluxo do próprio Draw. Não tratar uma tarefa como se fosse apenas uma pergunta.
+
+## Sistema de menções (@tags)
+
+As marcações nos Draws utilizam um sistema de tags com comportamentos específicos:
+- `@STDD`: indica uma pendência a ser resolvida pelo agente autônomo.
+- `@developer`: indica uma pendência que necessita intervenção humana.
+- `@OBS`: indica uma decisão arquitetural que o agente deve ler, incorporar ao contexto e, em seguida, remover a tag após processamento.
+- Quando a pergunta tiver resposta, a @tag é removida automaticamente pelo backend.
 
 ## Localização das marcações
 

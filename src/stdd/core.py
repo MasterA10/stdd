@@ -501,18 +501,49 @@ def run_tests(
     return process, result
 
 
+def _parse_gitignore_dirs(root: Path) -> set[str]:
+    """Lê o .gitignore e retorna os diretórios e arquivos para ignorar."""
+    gitignore_path = root / ".gitignore"
+    ignored_patterns = set()
+    if gitignore_path.exists():
+        try:
+            lines = gitignore_path.read_text(encoding="utf-8").splitlines()
+            for line in lines:
+                line = line.strip()
+                if line and not line.startswith("#") and not line.startswith("!"):
+                    ignored_patterns.add(line)
+        except Exception:
+            pass
+    return ignored_patterns
+
+
 def get_workspace_snapshot(root: Path) -> dict[str, list[str]]:
     """Mapeia os arquivos rastreados da codebase e seus conteúdos em linhas.
     Filtra extensões configuradas e exclui o estado operacional do STDD.
     """
     tracked_exts = get_tracked_extensions(root)
-    ignored = {".git", ".venv", "venv", "node_modules", *INTERNAL_STATE_DIRECTORIES, ".pytest_cache", "__pycache__"}
+    ignored_dirs = {".git", ".venv", "venv", "node_modules", *INTERNAL_STATE_DIRECTORIES, ".pytest_cache", "__pycache__"}
+    
+    gitignore_patterns = _parse_gitignore_dirs(root)
+    for pattern in gitignore_patterns:
+        if pattern.endswith("/"):
+            ignored_dirs.add(pattern[:-1].split("/")[-1])
+            
+    import fnmatch
+
     snapshot: dict[str, list[str]] = {}
     for path in sorted(root.rglob("*")):
+        ignored_by_file = False
+        for pattern in gitignore_patterns:
+            if not pattern.endswith("/") and fnmatch.fnmatch(path.name, pattern):
+                ignored_by_file = True
+                break
+
         if (
             path.is_file()
+            and not ignored_by_file
             and path.suffix.lower() in tracked_exts
-            and not ignored.intersection(path.parts)
+            and not ignored_dirs.intersection(path.parts)
         ):
             try:
                 rel_path = str(path.relative_to(root))

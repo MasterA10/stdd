@@ -96,7 +96,7 @@ def _compact_backlog_response(response: dict[str, object]) -> dict[str, object]:
     }
     if response.get("reason") is not None:
         compact["reason"] = reason_labels.get(str(response["reason"]), response["reason"])
-    for key in ("instruction", "remaining", "completed_task_id"):
+    for key in ("instruction", "remaining", "completed_task_id", "access_paths"):
         if response.get(key) is not None:
             compact[key] = response[key]
     return {key: value for key, value in compact.items() if value not in (None, "", [])}
@@ -138,7 +138,11 @@ def _format_backlog_response(response: dict[str, object]) -> str:
         lines.append(f"Bloqueio: {compact['reason']}")
     if compact.get("instruction"):
         lines.append(f"Próximo passo: {compact['instruction']}")
-    return "\n".join(lines)
+    access_paths = compact.get("access_paths")
+    if isinstance(access_paths, list):
+        for path in access_paths:
+            lines.append(f"Origem: {path.replace(' → Nó atual', '')}")
+    return "\\n".join(lines)
 
 
 @app.command()

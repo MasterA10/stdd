@@ -7,7 +7,7 @@ const NODE_WIDTH = 290;
 const NODE_HEIGHT = 160;
 const H_GAP = 240;    // Horizontal gap for breathing room
 const V_GAP = 150;    // Vertical gap for step placement
-const MAX_PER_COL = 4; // Max nodes stacked before shifting to sub-column
+const MAX_PER_COL = 5; // Max nodes stacked before shifting to sub-column
 
 function returnLaneFor(
   source: { x: number; y: number },
@@ -343,6 +343,22 @@ export function layoutGraph(
     }
   }
 
+  // Second pass of nudge for residual overlaps (40px safety margin)
+  for (let i = 0; i < nodeKeys.length; i++) {
+    for (let j = i + 1; j < nodeKeys.length; j++) {
+      const posA = calculatedPositions[nodeKeys[i]];
+      const posB = calculatedPositions[nodeKeys[j]];
+      if (!posA || !posB) continue;
+
+      const dx = Math.abs(posA.x - posB.x);
+      const dy = Math.abs(posA.y - posB.y);
+
+      if (dx < NODE_WIDTH + 40 && dy < NODE_HEIGHT + 40) {
+        posB.y = posA.y + NODE_HEIGHT + V_GAP;
+      }
+    }
+  }
+
   return nodes.map(n => {
     const customPos = presentationPositions?.[String(n.id)] || calculatedPositions[String(n.id)] || { x: 100, y: 100 };
     return {
@@ -561,6 +577,22 @@ export function layoutCurvedGraph(
       const dy = Math.abs(posA.y - posB.y);
 
       if (dx < NODE_WIDTH + 30 && dy < NODE_HEIGHT + 30) {
+        posB.y = posA.y + NODE_HEIGHT + V_GAP_CURVED;
+      }
+    }
+  }
+
+  // Second pass of nudge for residual overlaps (40px safety margin)
+  for (let i = 0; i < nodeKeys.length; i++) {
+    for (let j = i + 1; j < nodeKeys.length; j++) {
+      const posA = calculatedPositions[nodeKeys[i]];
+      const posB = calculatedPositions[nodeKeys[j]];
+      if (!posA || !posB) continue;
+
+      const dx = Math.abs(posA.x - posB.x);
+      const dy = Math.abs(posA.y - posB.y);
+
+      if (dx < NODE_WIDTH + 40 && dy < NODE_HEIGHT + 40) {
         posB.y = posA.y + NODE_HEIGHT + V_GAP_CURVED;
       }
     }

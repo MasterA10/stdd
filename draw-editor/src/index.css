@@ -2803,3 +2803,57 @@ summary:focus-visible {
 .quick-action-btn.secondary { color: #fff; }
 .quick-action-btn.secondary:hover { background: linear-gradient(135deg, #dc2626 0%, #f97316 100%); }
 .question-add-option-btn { border-style: solid; }
+
+.mention-tag {
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.question-prompt-input {
+  word-wrap: break-word; overflow-wrap: anywhere; resize: vertical; min-height: 36px;
+}
+
+.node-edit-dialog {
+  width: min(720px, calc(100vw - 32px));
+  max-height: min(600px, calc(100vh - 32px));
+}
+
+.node-edit-dialog textarea {
+  min-height: 200px;
+  resize: vertical;
+  width: 100%;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 12px 16px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: var(--canvas);
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.node-edit-dialog textarea:focus {
+  border-color: var(--accent);
+}
+
+.node-edit-dialog .dialog-fields input {
+  width: 100%;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 10px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: var(--canvas);
+  color: var(--ink);
+  outline: none;
+}
+
+.node-edit-dialog .dialog-fields input:focus {
+  border-color: var(--accent);
+}

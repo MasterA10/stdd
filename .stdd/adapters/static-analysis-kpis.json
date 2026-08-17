@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-08-16T02:58:29.454677+00:00",
+  "generated_at": "2026-08-17T22:05:40.365380+00:00",
   "status": "blocked",
   "reason": "quality_gate_blocked",
   "adapter_command": [
@@ -28,25 +28,25 @@
     {
       "id": "symbols",
       "label": "Símbolos",
-      "value": 552,
+      "value": 557,
       "unit": "símbolos"
     },
     {
       "id": "dependencies",
       "label": "Dependências",
-      "value": 549,
+      "value": 565,
       "unit": "relações"
     },
     {
       "id": "files",
       "label": "Arquivos analisados",
-      "value": 48,
+      "value": 52,
       "unit": "arquivos"
     },
     {
       "id": "quality_findings",
       "label": "Achados de qualidade",
-      "value": 139,
+      "value": 143,
       "unit": "achados",
       "status": "blocked"
     },
@@ -73,10 +73,10 @@
     }
   ],
   "summary": {
-    "symbols": 552,
-    "dependencies": 549,
-    "complexity": 547,
-    "structural_metrics": 42,
+    "symbols": 557,
+    "dependencies": 565,
+    "complexity": 552,
+    "structural_metrics": 46,
     "files": [
       ".stdd/draws/stdd-agent-journeys.json",
       ".stdd/draws/stdd-journey-draw.json",
@@ -97,11 +97,13 @@
       "draw-editor/src/components/ImprovementEditor.tsx",
       "draw-editor/src/components/LoopEdge.tsx",
       "draw-editor/src/components/MetadataModal.tsx",
+      "draw-editor/src/components/NodeEditModal.tsx",
       "draw-editor/src/components/QuestionsModal.tsx",
       "draw-editor/src/components/Sidebar.tsx",
       "draw-editor/src/layout.ts",
       "draw-editor/src/main.tsx",
       "draw-editor/src/types.ts",
+      "draw-editor/src/utils.tsx",
       "draw-editor/vite.config.ts",
       "src/stdd/__init__.py",
       "src/stdd/backlog.py",
@@ -125,21 +127,23 @@
       "tests/test_multilanguage_static_analysis.py",
       "tests/test_static_analysis.py",
       "tests/test_stdd.py",
-      "tests/test_traceability.py"
+      "tests/test_traceability.py",
+      "update_backlog.py",
+      "update_cli.py"
     ],
-    "quality_findings": 139,
+    "quality_findings": 143,
     "severity": {
       "blocking": 37,
-      "warning": 102
+      "warning": 106
     },
     "findings_by_kind": {
       "deep_nesting": 4,
       "draw.level2_missing_code_ref": 21,
       "draw.level3_missing_code_ref": 13,
       "hardcoded_secret": 5,
-      "high_complexity": 47,
-      "long_function": 44,
-      "too_many_parameters": 5
+      "high_complexity": 48,
+      "long_function": 46,
+      "too_many_parameters": 6
     },
     "applied_exceptions": 14,
     "expired_exceptions": 0
@@ -271,25 +275,25 @@
         "exception_applied": "exception-10"
       },
       {
-        "evidence": "139 linhas em layoutCurvedGraph",
+        "evidence": "155 linhas em layoutCurvedGraph",
         "file": "draw-editor/src/layout.ts",
         "kind": "long_function",
         "limit": 100,
         "severity": "warning",
         "source": "typescript_compiler_api",
         "symbol_id": "draw-editor/src/layout.ts:function:layoutCurvedGraph",
-        "value": 139,
+        "value": 155,
         "exception_applied": "exception-12"
       },
       {
-        "evidence": "179 linhas em layoutGraph",
+        "evidence": "195 linhas em layoutGraph",
         "file": "draw-editor/src/layout.ts",
         "kind": "long_function",
         "limit": 100,
         "severity": "warning",
         "source": "typescript_compiler_api",
         "symbol_id": "draw-editor/src/layout.ts:function:layoutGraph",
-        "value": 179,
+        "value": 195,
         "exception_applied": "exception-15"
       },
       {
@@ -455,26 +459,36 @@
         "exception_applied": "exception-9"
       },
       {
-        "evidence": "complexidade ciclomática 35",
+        "evidence": "complexidade ciclomática 41",
         "file": "draw-editor/src/layout.ts",
         "kind": "high_complexity",
         "limit": 25,
         "severity": "warning",
         "source": "typescript_compiler_api",
         "symbol_id": "draw-editor/src/layout.ts:function:layoutCurvedGraph",
-        "value": 35,
+        "value": 41,
         "exception_applied": "exception-11"
       },
       {
-        "evidence": "complexidade ciclomática 53",
+        "evidence": "complexidade ciclomática 59",
         "file": "draw-editor/src/layout.ts",
         "kind": "high_complexity",
         "limit": 25,
         "severity": "warning",
         "source": "typescript_compiler_api",
         "symbol_id": "draw-editor/src/layout.ts:function:layoutGraph",
-        "value": 53,
+        "value": 59,
         "exception_applied": "exception-13"
+      },
+      {
+        "evidence": "high_complexity:11",
+        "file": "src/stdd/backlog.py",
+        "kind": "high_complexity",
+        "limit": 10,
+        "severity": "warning",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/backlog.py:stdd.backlog._task_context",
+        "value": 11
       },
       {
         "evidence": "high_complexity:11",
@@ -504,16 +518,6 @@
         "severity": "warning",
         "source": "python_ast",
         "symbol_id": "src/stdd/core.py:stdd.core.init_project",
-        "value": 11
-      },
-      {
-        "evidence": "high_complexity:11",
-        "file": "src/stdd/draw.py",
-        "kind": "high_complexity",
-        "limit": 10,
-        "severity": "warning",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.create_draw",
         "value": 11
       },
       {
@@ -574,6 +578,16 @@
         "severity": "warning",
         "source": "python_ast",
         "symbol_id": "src/stdd/backlog.py:stdd.backlog.check_backlog",
+        "value": 12
+      },
+      {
+        "evidence": "high_complexity:12",
+        "file": "src/stdd/draw.py",
+        "kind": "high_complexity",
+        "limit": 10,
+        "severity": "warning",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.create_draw",
         "value": 12
       },
       {
@@ -688,16 +702,6 @@
       },
       {
         "evidence": "high_complexity:15",
-        "file": "src/stdd/cli.py",
-        "kind": "high_complexity",
-        "limit": 10,
-        "severity": "warning",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli._format_backlog_response",
-        "value": 15
-      },
-      {
-        "evidence": "high_complexity:15",
         "file": "src/stdd/draw.py",
         "kind": "high_complexity",
         "limit": 10,
@@ -715,6 +719,16 @@
         "source": "python_ast",
         "symbol_id": "src/stdd/backlog.py:stdd.backlog._append_child_backlog",
         "value": 16
+      },
+      {
+        "evidence": "high_complexity:17",
+        "file": "src/stdd/cli.py",
+        "kind": "high_complexity",
+        "limit": 10,
+        "severity": "warning",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli._format_backlog_response",
+        "value": 17
       },
       {
         "evidence": "high_complexity:17",
@@ -890,6 +904,16 @@
         "limit": 40,
         "severity": "warning",
         "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli._format_backlog_response",
+        "value": 41
+      },
+      {
+        "evidence": "long_function:41",
+        "file": "src/stdd/cli.py",
+        "kind": "long_function",
+        "limit": 40,
+        "severity": "warning",
+        "source": "python_ast",
         "symbol_id": "src/stdd/cli.py:stdd.cli.draw_create",
         "value": 41
       },
@@ -985,12 +1009,12 @@
       },
       {
         "evidence": "long_function:51",
-        "file": "src/stdd/draw.py",
+        "file": "src/stdd/backlog.py",
         "kind": "long_function",
         "limit": 40,
         "severity": "warning",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.create_draw",
+        "symbol_id": "src/stdd/backlog.py:stdd.backlog._task_context",
         "value": 51
       },
       {
@@ -1022,6 +1046,16 @@
         "source": "python_ast",
         "symbol_id": "src/stdd/draw.py:stdd.draw.find_addressed_questions",
         "value": 52
+      },
+      {
+        "evidence": "long_function:53",
+        "file": "src/stdd/draw.py",
+        "kind": "long_function",
+        "limit": 40,
+        "severity": "warning",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.create_draw",
+        "value": 53
       },
       {
         "evidence": "long_function:54",
@@ -1231,6 +1265,16 @@
         "severity": "warning",
         "source": "typescript_compiler_api",
         "symbol_id": "draw-editor/src/layout.ts:function:layoutGraph",
+        "value": 6
+      },
+      {
+        "evidence": "too_many_parameters:6",
+        "file": "src/stdd/backlog.py",
+        "kind": "too_many_parameters",
+        "limit": 5,
+        "severity": "warning",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/backlog.py:stdd.backlog._task_context",
         "value": 6
       },
       {
@@ -1736,7 +1780,7 @@
       {
         "cyclomatic": 1,
         "file": "draw-editor/src/App.tsx",
-        "line": 2034,
+        "line": 2052,
         "lines": 3,
         "max_depth": 1,
         "parameters": 1,
@@ -1812,8 +1856,19 @@
       },
       {
         "cyclomatic": 1,
+        "file": "draw-editor/src/components/NodeEditModal.tsx",
+        "line": 54,
+        "lines": 1,
+        "max_depth": 0,
+        "parameters": 1,
+        "qualified_name": "<anonymous>",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/components/NodeEditModal.tsx:function:<anonymous>"
+      },
+      {
+        "cyclomatic": 1,
         "file": "draw-editor/src/components/QuestionsModal.tsx",
-        "line": 247,
+        "line": 248,
         "lines": 1,
         "max_depth": 0,
         "parameters": 0,
@@ -1831,6 +1886,17 @@
         "qualified_name": "<anonymous>",
         "source": "typescript_compiler_api",
         "symbol_id": "draw-editor/src/components/Sidebar.tsx:function:<anonymous>"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "draw-editor/src/utils.tsx",
+        "line": 25,
+        "lines": 3,
+        "max_depth": 1,
+        "parameters": 0,
+        "qualified_name": "<anonymous>",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/utils.tsx:function:<anonymous>"
       },
       {
         "cyclomatic": 1,
@@ -1901,7 +1967,7 @@
       {
         "cyclomatic": 1,
         "file": "src/stdd/cli.py",
-        "line": 381,
+        "line": 385,
         "lines": 5,
         "max_depth": 0,
         "parameters": 1,
@@ -1934,7 +2000,7 @@
       {
         "cyclomatic": 1,
         "file": "src/stdd/core.py",
-        "line": 544,
+        "line": 575,
         "lines": 13,
         "max_depth": 0,
         "parameters": 3,
@@ -1945,7 +2011,7 @@
       {
         "cyclomatic": 1,
         "file": "src/stdd/core.py",
-        "line": 658,
+        "line": 689,
         "lines": 7,
         "max_depth": 0,
         "parameters": 1,
@@ -1978,7 +2044,18 @@
       {
         "cyclomatic": 1,
         "file": "src/stdd/draw.py",
-        "line": 1034,
+        "line": 100,
+        "lines": 5,
+        "max_depth": 0,
+        "parameters": 1,
+        "qualified_name": "stdd.draw.draw_index_path",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.draw_index_path"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "src/stdd/draw.py",
+        "line": 1035,
         "lines": 7,
         "max_depth": 0,
         "parameters": 2,
@@ -1989,7 +2066,7 @@
       {
         "cyclomatic": 1,
         "file": "src/stdd/draw.py",
-        "line": 1137,
+        "line": 1159,
         "lines": 2,
         "max_depth": 0,
         "parameters": 3,
@@ -2000,7 +2077,7 @@
       {
         "cyclomatic": 1,
         "file": "src/stdd/draw.py",
-        "line": 1140,
+        "line": 1162,
         "lines": 2,
         "max_depth": 0,
         "parameters": 3,
@@ -2011,7 +2088,7 @@
       {
         "cyclomatic": 1,
         "file": "src/stdd/draw.py",
-        "line": 1170,
+        "line": 1192,
         "lines": 6,
         "max_depth": 0,
         "parameters": 3,
@@ -2022,7 +2099,7 @@
       {
         "cyclomatic": 1,
         "file": "src/stdd/draw.py",
-        "line": 1313,
+        "line": 1335,
         "lines": 6,
         "max_depth": 0,
         "parameters": 1,
@@ -2033,7 +2110,7 @@
       {
         "cyclomatic": 1,
         "file": "src/stdd/draw.py",
-        "line": 1337,
+        "line": 1359,
         "lines": 8,
         "max_depth": 0,
         "parameters": 3,
@@ -2044,7 +2121,7 @@
       {
         "cyclomatic": 1,
         "file": "src/stdd/draw.py",
-        "line": 1462,
+        "line": 1484,
         "lines": 8,
         "max_depth": 0,
         "parameters": 2,
@@ -2055,7 +2132,7 @@
       {
         "cyclomatic": 1,
         "file": "src/stdd/draw.py",
-        "line": 381,
+        "line": 382,
         "lines": 3,
         "max_depth": 0,
         "parameters": 1,
@@ -2066,7 +2143,7 @@
       {
         "cyclomatic": 1,
         "file": "src/stdd/draw.py",
-        "line": 406,
+        "line": 407,
         "lines": 9,
         "max_depth": 0,
         "parameters": 4,
@@ -2088,7 +2165,7 @@
       {
         "cyclomatic": 1,
         "file": "src/stdd/draw.py",
-        "line": 575,
+        "line": 576,
         "lines": 3,
         "max_depth": 0,
         "parameters": 1,
@@ -2110,7 +2187,7 @@
       {
         "cyclomatic": 1,
         "file": "src/stdd/draw.py",
-        "line": 87,
+        "line": 88,
         "lines": 5,
         "max_depth": 0,
         "parameters": 1,
@@ -2121,24 +2198,13 @@
       {
         "cyclomatic": 1,
         "file": "src/stdd/draw.py",
-        "line": 94,
+        "line": 95,
         "lines": 3,
         "max_depth": 0,
         "parameters": 1,
         "qualified_name": "stdd.draw.facts_directory",
         "source": "python_ast",
         "symbol_id": "src/stdd/draw.py:stdd.draw.facts_directory"
-      },
-      {
-        "cyclomatic": 1,
-        "file": "src/stdd/draw.py",
-        "line": 99,
-        "lines": 5,
-        "max_depth": 0,
-        "parameters": 1,
-        "qualified_name": "stdd.draw.draw_index_path",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.draw_index_path"
       },
       {
         "cyclomatic": 1,
@@ -4222,7 +4288,7 @@
       {
         "cyclomatic": 10,
         "file": "src/stdd/draw.py",
-        "line": 324,
+        "line": 325,
         "lines": 29,
         "max_depth": 1,
         "parameters": 2,
@@ -4233,7 +4299,7 @@
       {
         "cyclomatic": 10,
         "file": "src/stdd/draw.py",
-        "line": 797,
+        "line": 798,
         "lines": 29,
         "max_depth": 1,
         "parameters": 3,
@@ -4276,6 +4342,17 @@
       },
       {
         "cyclomatic": 11,
+        "file": "src/stdd/backlog.py",
+        "line": 829,
+        "lines": 51,
+        "max_depth": 1,
+        "parameters": 6,
+        "qualified_name": "stdd.backlog._task_context",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/backlog.py:stdd.backlog._task_context"
+      },
+      {
+        "cyclomatic": 11,
         "file": "src/stdd/contract.py",
         "line": 31,
         "lines": 27,
@@ -4299,18 +4376,7 @@
       {
         "cyclomatic": 11,
         "file": "src/stdd/draw.py",
-        "line": 1043,
-        "lines": 51,
-        "max_depth": 1,
-        "parameters": 2,
-        "qualified_name": "stdd.draw.create_draw",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.create_draw"
-      },
-      {
-        "cyclomatic": 11,
-        "file": "src/stdd/draw.py",
-        "line": 1386,
+        "line": 1408,
         "lines": 57,
         "max_depth": 1,
         "parameters": 1,
@@ -4321,7 +4387,7 @@
       {
         "cyclomatic": 11,
         "file": "src/stdd/draw.py",
-        "line": 743,
+        "line": 744,
         "lines": 33,
         "max_depth": 1,
         "parameters": 2,
@@ -4376,7 +4442,18 @@
       {
         "cyclomatic": 12,
         "file": "src/stdd/draw.py",
-        "line": 828,
+        "line": 1063,
+        "lines": 53,
+        "max_depth": 1,
+        "parameters": 2,
+        "qualified_name": "stdd.draw.create_draw",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.create_draw"
+      },
+      {
+        "cyclomatic": 12,
+        "file": "src/stdd/draw.py",
+        "line": 829,
         "lines": 34,
         "max_depth": 1,
         "parameters": 1,
@@ -4409,7 +4486,7 @@
       {
         "cyclomatic": 13,
         "file": "src/stdd/draw.py",
-        "line": 683,
+        "line": 684,
         "lines": 58,
         "max_depth": 1,
         "parameters": 1,
@@ -4420,7 +4497,7 @@
       {
         "cyclomatic": 13,
         "file": "src/stdd/draw.py",
-        "line": 977,
+        "line": 978,
         "lines": 55,
         "max_depth": 1,
         "parameters": 1,
@@ -4519,7 +4596,7 @@
       {
         "cyclomatic": 14,
         "file": "src/stdd/backlog.py",
-        "line": 959,
+        "line": 986,
         "lines": 39,
         "max_depth": 1,
         "parameters": 1,
@@ -4540,19 +4617,8 @@
       },
       {
         "cyclomatic": 15,
-        "file": "src/stdd/cli.py",
-        "line": 105,
-        "lines": 37,
-        "max_depth": 1,
-        "parameters": 1,
-        "qualified_name": "stdd.cli._format_backlog_response",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli._format_backlog_response"
-      },
-      {
-        "cyclomatic": 15,
         "file": "src/stdd/draw.py",
-        "line": 923,
+        "line": 924,
         "lines": 52,
         "max_depth": 1,
         "parameters": 1,
@@ -4584,8 +4650,19 @@
       },
       {
         "cyclomatic": 17,
+        "file": "src/stdd/cli.py",
+        "line": 105,
+        "lines": 41,
+        "max_depth": 1,
+        "parameters": 1,
+        "qualified_name": "stdd.cli._format_backlog_response",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli._format_backlog_response"
+      },
+      {
+        "cyclomatic": 17,
         "file": "src/stdd/draw.py",
-        "line": 580,
+        "line": 581,
         "lines": 82,
         "max_depth": 1,
         "parameters": 2,
@@ -4629,7 +4706,7 @@
       {
         "cyclomatic": 2,
         "file": "draw-editor/src/components/CustomNode.tsx",
-        "line": 16,
+        "line": 17,
         "lines": 4,
         "max_depth": 1,
         "parameters": 1,
@@ -4640,7 +4717,7 @@
       {
         "cyclomatic": 2,
         "file": "draw-editor/src/components/CustomNode.tsx",
-        "line": 21,
+        "line": 22,
         "lines": 8,
         "max_depth": 1,
         "parameters": 2,
@@ -4651,7 +4728,7 @@
       {
         "cyclomatic": 2,
         "file": "draw-editor/src/components/CustomNode.tsx",
-        "line": 30,
+        "line": 31,
         "lines": 9,
         "max_depth": 2,
         "parameters": 2,
@@ -4662,7 +4739,7 @@
       {
         "cyclomatic": 2,
         "file": "draw-editor/src/components/CustomNode.tsx",
-        "line": 320,
+        "line": 324,
         "lines": 6,
         "max_depth": 2,
         "parameters": 1,
@@ -4750,7 +4827,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/backlog.py",
-        "line": 862,
+        "line": 890,
         "lines": 7,
         "max_depth": 0,
         "parameters": 2,
@@ -4761,7 +4838,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/backlog.py",
-        "line": 871,
+        "line": 899,
         "lines": 7,
         "max_depth": 0,
         "parameters": 2,
@@ -4772,7 +4849,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/cli.py",
-        "line": 282,
+        "line": 286,
         "lines": 7,
         "max_depth": 1,
         "parameters": 0,
@@ -4783,7 +4860,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/cli.py",
-        "line": 292,
+        "line": 296,
         "lines": 7,
         "max_depth": 1,
         "parameters": 0,
@@ -4794,7 +4871,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/cli.py",
-        "line": 317,
+        "line": 321,
         "lines": 7,
         "max_depth": 1,
         "parameters": 0,
@@ -4805,7 +4882,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/cli.py",
-        "line": 327,
+        "line": 331,
         "lines": 7,
         "max_depth": 1,
         "parameters": 1,
@@ -4816,7 +4893,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/cli.py",
-        "line": 407,
+        "line": 411,
         "lines": 6,
         "max_depth": 1,
         "parameters": 0,
@@ -4827,7 +4904,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/cli.py",
-        "line": 416,
+        "line": 420,
         "lines": 8,
         "max_depth": 1,
         "parameters": 0,
@@ -4838,7 +4915,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/cli.py",
-        "line": 427,
+        "line": 431,
         "lines": 10,
         "max_depth": 1,
         "parameters": 0,
@@ -4871,7 +4948,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/draw.py",
-        "line": 1143,
+        "line": 1165,
         "lines": 11,
         "max_depth": 1,
         "parameters": 4,
@@ -4882,7 +4959,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/draw.py",
-        "line": 1155,
+        "line": 1177,
         "lines": 14,
         "max_depth": 1,
         "parameters": 2,
@@ -4893,7 +4970,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/draw.py",
-        "line": 1320,
+        "line": 1342,
         "lines": 16,
         "max_depth": 1,
         "parameters": 1,
@@ -4904,7 +4981,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/draw.py",
-        "line": 1447,
+        "line": 1469,
         "lines": 13,
         "max_depth": 1,
         "parameters": 3,
@@ -4915,7 +4992,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/draw.py",
-        "line": 290,
+        "line": 291,
         "lines": 7,
         "max_depth": 0,
         "parameters": 1,
@@ -4926,7 +5003,7 @@
       {
         "cyclomatic": 2,
         "file": "src/stdd/draw.py",
-        "line": 553,
+        "line": 554,
         "lines": 6,
         "max_depth": 1,
         "parameters": 1,
@@ -5641,7 +5718,7 @@
       {
         "cyclomatic": 21,
         "file": "src/stdd/backlog.py",
-        "line": 1000,
+        "line": 1027,
         "lines": 57,
         "max_depth": 1,
         "parameters": 2,
@@ -5696,7 +5773,7 @@
       {
         "cyclomatic": 26,
         "file": "draw-editor/src/layout.ts",
-        "line": 358,
+        "line": 374,
         "lines": 85,
         "max_depth": 4,
         "parameters": 4,
@@ -5707,7 +5784,7 @@
       {
         "cyclomatic": 28,
         "file": "src/stdd/draw.py",
-        "line": 1177,
+        "line": 1199,
         "lines": 124,
         "max_depth": 1,
         "parameters": 1,
@@ -5751,13 +5828,24 @@
       {
         "cyclomatic": 3,
         "file": "draw-editor/src/components/CustomNode.tsx",
-        "line": 10,
+        "line": 11,
         "lines": 5,
         "max_depth": 1,
         "parameters": 2,
         "qualified_name": "groupColor",
         "source": "typescript_compiler_api",
         "symbol_id": "draw-editor/src/components/CustomNode.tsx:function:groupColor"
+      },
+      {
+        "cyclomatic": 3,
+        "file": "draw-editor/src/utils.tsx",
+        "line": 3,
+        "lines": 11,
+        "max_depth": 3,
+        "parameters": 1,
+        "qualified_name": "renderWithMentions",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/utils.tsx:function:renderWithMentions"
       },
       {
         "cyclomatic": 3,
@@ -5773,7 +5861,7 @@
       {
         "cyclomatic": 3,
         "file": "src/stdd/backlog.py",
-        "line": 854,
+        "line": 882,
         "lines": 6,
         "max_depth": 1,
         "parameters": 2,
@@ -5784,7 +5872,7 @@
       {
         "cyclomatic": 3,
         "file": "src/stdd/cli.py",
-        "line": 202,
+        "line": 206,
         "lines": 17,
         "max_depth": 1,
         "parameters": 1,
@@ -5795,7 +5883,7 @@
       {
         "cyclomatic": 3,
         "file": "src/stdd/cli.py",
-        "line": 222,
+        "line": 226,
         "lines": 21,
         "max_depth": 1,
         "parameters": 4,
@@ -5806,7 +5894,7 @@
       {
         "cyclomatic": 3,
         "file": "src/stdd/cli.py",
-        "line": 302,
+        "line": 306,
         "lines": 12,
         "max_depth": 1,
         "parameters": 1,
@@ -5817,7 +5905,7 @@
       {
         "cyclomatic": 3,
         "file": "src/stdd/cli.py",
-        "line": 603,
+        "line": 607,
         "lines": 7,
         "max_depth": 1,
         "parameters": 1,
@@ -5850,7 +5938,7 @@
       {
         "cyclomatic": 3,
         "file": "src/stdd/draw.py",
-        "line": 1302,
+        "line": 1324,
         "lines": 10,
         "max_depth": 1,
         "parameters": 1,
@@ -5861,7 +5949,7 @@
       {
         "cyclomatic": 3,
         "file": "src/stdd/draw.py",
-        "line": 281,
+        "line": 282,
         "lines": 7,
         "max_depth": 1,
         "parameters": 1,
@@ -5872,7 +5960,7 @@
       {
         "cyclomatic": 3,
         "file": "src/stdd/draw.py",
-        "line": 299,
+        "line": 300,
         "lines": 11,
         "max_depth": 1,
         "parameters": 1,
@@ -5883,7 +5971,7 @@
       {
         "cyclomatic": 3,
         "file": "src/stdd/draw.py",
-        "line": 312,
+        "line": 313,
         "lines": 10,
         "max_depth": 1,
         "parameters": 2,
@@ -5894,7 +5982,7 @@
       {
         "cyclomatic": 3,
         "file": "src/stdd/draw.py",
-        "line": 417,
+        "line": 418,
         "lines": 8,
         "max_depth": 1,
         "parameters": 2,
@@ -5905,7 +5993,7 @@
       {
         "cyclomatic": 3,
         "file": "src/stdd/draw.py",
-        "line": 427,
+        "line": 428,
         "lines": 10,
         "max_depth": 1,
         "parameters": 3,
@@ -6398,17 +6486,6 @@
         "symbol_id": "draw-editor/src/components/AvoidEdge.tsx:function:findGridPath"
       },
       {
-        "cyclomatic": 35,
-        "file": "draw-editor/src/layout.ts",
-        "line": 444,
-        "lines": 139,
-        "max_depth": 5,
-        "parameters": 3,
-        "qualified_name": "layoutCurvedGraph",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/layout.ts:function:layoutCurvedGraph"
-      },
-      {
         "cyclomatic": 4,
         "file": "draw-editor/src/components/ConfirmModal.tsx",
         "line": 15,
@@ -6433,7 +6510,7 @@
       {
         "cyclomatic": 4,
         "file": "draw-editor/src/layout.ts",
-        "line": 569,
+        "line": 601,
         "lines": 13,
         "max_depth": 1,
         "parameters": 1,
@@ -6477,7 +6554,7 @@
       {
         "cyclomatic": 4,
         "file": "src/stdd/cli.py",
-        "line": 390,
+        "line": 394,
         "lines": 14,
         "max_depth": 1,
         "parameters": 0,
@@ -6499,7 +6576,7 @@
       {
         "cyclomatic": 4,
         "file": "src/stdd/cli.py",
-        "line": 518,
+        "line": 522,
         "lines": 20,
         "max_depth": 1,
         "parameters": 5,
@@ -6510,7 +6587,7 @@
       {
         "cyclomatic": 4,
         "file": "src/stdd/cli.py",
-        "line": 570,
+        "line": 574,
         "lines": 18,
         "max_depth": 1,
         "parameters": 1,
@@ -6520,19 +6597,8 @@
       },
       {
         "cyclomatic": 4,
-        "file": "src/stdd/core.py",
-        "line": 504,
-        "lines": 19,
-        "max_depth": 1,
-        "parameters": 1,
-        "qualified_name": "stdd.core.get_workspace_snapshot",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/core.py:stdd.core.get_workspace_snapshot"
-      },
-      {
-        "cyclomatic": 4,
         "file": "src/stdd/draw.py",
-        "line": 907,
+        "line": 908,
         "lines": 14,
         "max_depth": 1,
         "parameters": 1,
@@ -6783,9 +6849,20 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_contract_warns_for_empty_or_unnamed_node_symbols"
       },
       {
+        "cyclomatic": 41,
+        "file": "draw-editor/src/layout.ts",
+        "line": 460,
+        "lines": 155,
+        "max_depth": 5,
+        "parameters": 3,
+        "qualified_name": "layoutCurvedGraph",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/layout.ts:function:layoutCurvedGraph"
+      },
+      {
         "cyclomatic": 5,
         "file": "draw-editor/src/components/CustomNode.tsx",
-        "line": 40,
+        "line": 41,
         "lines": 4,
         "max_depth": 1,
         "parameters": 1,
@@ -6829,18 +6906,7 @@
       {
         "cyclomatic": 5,
         "file": "src/stdd/backlog.py",
-        "line": 829,
-        "lines": 23,
-        "max_depth": 1,
-        "parameters": 5,
-        "qualified_name": "stdd.backlog._task_context",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/backlog.py:stdd.backlog._task_context"
-      },
-      {
-        "cyclomatic": 5,
-        "file": "src/stdd/backlog.py",
-        "line": 880,
+        "line": 908,
         "lines": 10,
         "max_depth": 1,
         "parameters": 1,
@@ -6862,7 +6928,7 @@
       {
         "cyclomatic": 5,
         "file": "src/stdd/cli.py",
-        "line": 590,
+        "line": 594,
         "lines": 11,
         "max_depth": 1,
         "parameters": 1,
@@ -6873,7 +6939,18 @@
       {
         "cyclomatic": 5,
         "file": "src/stdd/core.py",
-        "line": 525,
+        "line": 504,
+        "lines": 14,
+        "max_depth": 1,
+        "parameters": 1,
+        "qualified_name": "stdd.core._parse_gitignore_dirs",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/core.py:stdd.core._parse_gitignore_dirs"
+      },
+      {
+        "cyclomatic": 5,
+        "file": "src/stdd/core.py",
+        "line": 556,
         "lines": 17,
         "max_depth": 1,
         "parameters": 1,
@@ -6884,7 +6961,7 @@
       {
         "cyclomatic": 5,
         "file": "src/stdd/draw.py",
-        "line": 355,
+        "line": 356,
         "lines": 24,
         "max_depth": 0,
         "parameters": 1,
@@ -6895,7 +6972,7 @@
       {
         "cyclomatic": 5,
         "file": "src/stdd/draw.py",
-        "line": 457,
+        "line": 458,
         "lines": 24,
         "max_depth": 1,
         "parameters": 6,
@@ -6906,7 +6983,7 @@
       {
         "cyclomatic": 5,
         "file": "src/stdd/draw.py",
-        "line": 561,
+        "line": 562,
         "lines": 12,
         "max_depth": 1,
         "parameters": 1,
@@ -7069,20 +7146,9 @@
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_delivery_agents_define_complete_production_test_contract"
       },
       {
-        "cyclomatic": 53,
-        "file": "draw-editor/src/layout.ts",
-        "line": 177,
-        "lines": 179,
-        "max_depth": 6,
-        "parameters": 3,
-        "qualified_name": "layoutGraph",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/layout.ts:function:layoutGraph"
-      },
-      {
         "cyclomatic": 54,
         "file": "src/stdd/draw.py",
-        "line": 1119,
+        "line": 1141,
         "lines": 326,
         "max_depth": 1,
         "parameters": 3,
@@ -7091,9 +7157,20 @@
         "symbol_id": "src/stdd/draw.py:stdd.draw.create_server"
       },
       {
+        "cyclomatic": 59,
+        "file": "draw-editor/src/layout.ts",
+        "line": 177,
+        "lines": 195,
+        "max_depth": 6,
+        "parameters": 3,
+        "qualified_name": "layoutGraph",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/layout.ts:function:layoutGraph"
+      },
+      {
         "cyclomatic": 6,
         "file": "draw-editor/src/layout.ts",
-        "line": 467,
+        "line": 483,
         "lines": 15,
         "max_depth": 3,
         "parameters": 1,
@@ -7126,7 +7203,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/cli.py",
-        "line": 337,
+        "line": 341,
         "lines": 41,
         "max_depth": 1,
         "parameters": 1,
@@ -7137,7 +7214,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/cli.py",
-        "line": 440,
+        "line": 444,
         "lines": 32,
         "max_depth": 1,
         "parameters": 1,
@@ -7148,7 +7225,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/cli.py",
-        "line": 541,
+        "line": 545,
         "lines": 27,
         "max_depth": 1,
         "parameters": 1,
@@ -7192,7 +7269,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/core.py",
-        "line": 740,
+        "line": 771,
         "lines": 39,
         "max_depth": 1,
         "parameters": 3,
@@ -7203,7 +7280,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/draw.py",
-        "line": 1096,
+        "line": 1118,
         "lines": 21,
         "max_depth": 1,
         "parameters": 2,
@@ -7214,7 +7291,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/draw.py",
-        "line": 386,
+        "line": 387,
         "lines": 18,
         "max_depth": 1,
         "parameters": 1,
@@ -7225,7 +7302,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/draw.py",
-        "line": 523,
+        "line": 524,
         "lines": 28,
         "max_depth": 1,
         "parameters": 2,
@@ -7236,7 +7313,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/draw.py",
-        "line": 665,
+        "line": 666,
         "lines": 16,
         "max_depth": 1,
         "parameters": 1,
@@ -7247,7 +7324,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/draw.py",
-        "line": 778,
+        "line": 779,
         "lines": 17,
         "max_depth": 0,
         "parameters": 4,
@@ -7258,7 +7335,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/draw.py",
-        "line": 864,
+        "line": 865,
         "lines": 23,
         "max_depth": 1,
         "parameters": 2,
@@ -7269,7 +7346,7 @@
       {
         "cyclomatic": 6,
         "file": "src/stdd/draw.py",
-        "line": 889,
+        "line": 890,
         "lines": 16,
         "max_depth": 1,
         "parameters": 1,
@@ -7390,7 +7467,7 @@
       {
         "cyclomatic": 64,
         "file": "src/stdd/draw.py",
-        "line": 106,
+        "line": 107,
         "lines": 173,
         "max_depth": 1,
         "parameters": 1,
@@ -7423,7 +7500,7 @@
       {
         "cyclomatic": 7,
         "file": "src/stdd/cli.py",
-        "line": 181,
+        "line": 185,
         "lines": 18,
         "max_depth": 1,
         "parameters": 0,
@@ -7434,7 +7511,7 @@
       {
         "cyclomatic": 7,
         "file": "src/stdd/cli.py",
-        "line": 246,
+        "line": 250,
         "lines": 33,
         "max_depth": 1,
         "parameters": 6,
@@ -7467,7 +7544,7 @@
       {
         "cyclomatic": 7,
         "file": "src/stdd/core.py",
-        "line": 559,
+        "line": 590,
         "lines": 42,
         "max_depth": 1,
         "parameters": 1,
@@ -7478,7 +7555,7 @@
       {
         "cyclomatic": 7,
         "file": "src/stdd/core.py",
-        "line": 667,
+        "line": 698,
         "lines": 19,
         "max_depth": 1,
         "parameters": 1,
@@ -7489,7 +7566,7 @@
       {
         "cyclomatic": 7,
         "file": "src/stdd/core.py",
-        "line": 688,
+        "line": 719,
         "lines": 19,
         "max_depth": 1,
         "parameters": 1,
@@ -7500,7 +7577,18 @@
       {
         "cyclomatic": 7,
         "file": "src/stdd/draw.py",
-        "line": 502,
+        "line": 1044,
+        "lines": 17,
+        "max_depth": 1,
+        "parameters": 1,
+        "qualified_name": "stdd.draw._strip_answered_tags",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._strip_answered_tags"
+      },
+      {
+        "cyclomatic": 7,
+        "file": "src/stdd/draw.py",
+        "line": 503,
         "lines": 19,
         "max_depth": 1,
         "parameters": 2,
@@ -7555,8 +7643,8 @@
       {
         "cyclomatic": 8,
         "file": "src/stdd/backlog.py",
-        "line": 918,
-        "lines": 39,
+        "line": 946,
+        "lines": 38,
         "max_depth": 1,
         "parameters": 1,
         "qualified_name": "stdd.backlog.next_backlog_test",
@@ -7576,8 +7664,19 @@
       },
       {
         "cyclomatic": 8,
+        "file": "src/stdd/core.py",
+        "line": 520,
+        "lines": 34,
+        "max_depth": 1,
+        "parameters": 1,
+        "qualified_name": "stdd.core.get_workspace_snapshot",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/core.py:stdd.core.get_workspace_snapshot"
+      },
+      {
+        "cyclomatic": 8,
         "file": "src/stdd/draw.py",
-        "line": 483,
+        "line": 484,
         "lines": 17,
         "max_depth": 1,
         "parameters": 2,
@@ -7589,7 +7688,7 @@
         "cyclomatic": 8,
         "file": "src/stdd/draw.py",
         "line": 69,
-        "lines": 16,
+        "lines": 17,
         "max_depth": 1,
         "parameters": 1,
         "qualified_name": "stdd.draw.logical_draw_payload",
@@ -7643,7 +7742,7 @@
       {
         "cyclomatic": 9,
         "file": "src/stdd/backlog.py",
-        "line": 892,
+        "line": 920,
         "lines": 24,
         "max_depth": 1,
         "parameters": 4,
@@ -7654,7 +7753,7 @@
       {
         "cyclomatic": 9,
         "file": "src/stdd/cli.py",
-        "line": 145,
+        "line": 149,
         "lines": 34,
         "max_depth": 1,
         "parameters": 4,
@@ -7665,7 +7764,7 @@
       {
         "cyclomatic": 9,
         "file": "src/stdd/cli.py",
-        "line": 475,
+        "line": 479,
         "lines": 40,
         "max_depth": 1,
         "parameters": 5,
@@ -7698,7 +7797,7 @@
       {
         "cyclomatic": 9,
         "file": "src/stdd/core.py",
-        "line": 604,
+        "line": 635,
         "lines": 52,
         "max_depth": 1,
         "parameters": 1,
@@ -7709,7 +7808,7 @@
       {
         "cyclomatic": 9,
         "file": "src/stdd/core.py",
-        "line": 709,
+        "line": 740,
         "lines": 29,
         "max_depth": 1,
         "parameters": 2,
@@ -7720,7 +7819,7 @@
       {
         "cyclomatic": 9,
         "file": "src/stdd/draw.py",
-        "line": 1346,
+        "line": 1368,
         "lines": 39,
         "max_depth": 1,
         "parameters": 1,
@@ -7731,7 +7830,7 @@
       {
         "cyclomatic": 9,
         "file": "src/stdd/draw.py",
-        "line": 439,
+        "line": 440,
         "lines": 16,
         "max_depth": 1,
         "parameters": 1,
@@ -7764,8 +7863,8 @@
         "classes": 0,
         "file": "draw-editor/src/App.tsx",
         "functions": 1,
-        "imports": 17,
-        "lines": 2039,
+        "imports": 18,
+        "lines": 2057,
         "source": "typescript_compiler_api"
       },
       {
@@ -7804,8 +7903,8 @@
         "classes": 0,
         "file": "draw-editor/src/components/CustomNode.tsx",
         "functions": 6,
-        "imports": 4,
-        "lines": 408,
+        "imports": 5,
+        "lines": 413,
         "source": "typescript_compiler_api"
       },
       {
@@ -7858,10 +7957,18 @@
       },
       {
         "classes": 0,
+        "file": "draw-editor/src/components/NodeEditModal.tsx",
+        "functions": 1,
+        "imports": 3,
+        "lines": 69,
+        "source": "typescript_compiler_api"
+      },
+      {
+        "classes": 0,
         "file": "draw-editor/src/components/QuestionsModal.tsx",
         "functions": 1,
-        "imports": 4,
-        "lines": 252,
+        "imports": 5,
+        "lines": 253,
         "source": "typescript_compiler_api"
       },
       {
@@ -7877,7 +7984,7 @@
         "file": "draw-editor/src/layout.ts",
         "functions": 8,
         "imports": 2,
-        "lines": 583,
+        "lines": 615,
         "source": "typescript_compiler_api"
       },
       {
@@ -7894,6 +8001,14 @@
         "functions": 0,
         "imports": 0,
         "lines": 256,
+        "source": "typescript_compiler_api"
+      },
+      {
+        "classes": 0,
+        "file": "draw-editor/src/utils.tsx",
+        "functions": 2,
+        "imports": 1,
+        "lines": 69,
         "source": "typescript_compiler_api"
       },
       {
@@ -7917,7 +8032,7 @@
         "file": "src/stdd/backlog.py",
         "functions": 43,
         "imports": 7,
-        "lines": 1056,
+        "lines": 1083,
         "source": "python_ast"
       },
       {
@@ -7925,7 +8040,7 @@
         "file": "src/stdd/cli.py",
         "functions": 27,
         "imports": 15,
-        "lines": 618,
+        "lines": 622,
         "source": "python_ast"
       },
       {
@@ -7939,9 +8054,9 @@
       {
         "classes": 0,
         "file": "src/stdd/core.py",
-        "functions": 24,
-        "imports": 18,
-        "lines": 778,
+        "functions": 25,
+        "imports": 19,
+        "lines": 809,
         "source": "python_ast"
       },
       {
@@ -8065,11 +8180,27 @@
         "source": "python_ast"
       },
       {
+        "classes": 0,
+        "file": "update_backlog.py",
+        "functions": 0,
+        "imports": 2,
+        "lines": 72,
+        "source": "python_ast"
+      },
+      {
+        "classes": 0,
+        "file": "update_cli.py",
+        "functions": 0,
+        "imports": 1,
+        "lines": 29,
+        "source": "python_ast"
+      },
+      {
         "classes": 1,
         "file": "src/stdd/draw.py",
-        "functions": 56,
+        "functions": 57,
         "imports": 15,
-        "lines": 1469,
+        "lines": 1491,
         "source": "python_ast"
       },
       {
@@ -8151,20 +8282,20 @@
         "symbol_id": "src/stdd/cli.py:stdd.cli._compact_backlog_response"
       },
       {
-        "end_line": 103,
-        "file": "src/stdd/draw.py",
+        "end_line": 1024,
+        "file": "src/stdd/backlog.py",
         "kind": "function",
-        "line": 99,
-        "name": "draw_index_path",
-        "qualified_name": "stdd.draw.draw_index_path",
+        "line": 986,
+        "name": "next_backlog_task",
+        "qualified_name": "stdd.backlog.next_backlog_task",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.draw_index_path"
+        "symbol_id": "src/stdd/backlog.py:stdd.backlog.next_backlog_task"
       },
       {
-        "end_line": 1031,
+        "end_line": 1032,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 977,
+        "line": 978,
         "name": "format_draw_answers",
         "qualified_name": "stdd.draw.format_draw_answers",
         "source": "python_ast",
@@ -8182,24 +8313,34 @@
         "symbol_id": "draw-editor/src/components/CodeReferencesModal.tsx:function:<anonymous>"
       },
       {
-        "end_line": 1040,
+        "end_line": 104,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 1034,
+        "line": 100,
+        "name": "draw_index_path",
+        "qualified_name": "stdd.draw.draw_index_path",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.draw_index_path"
+      },
+      {
+        "end_line": 1041,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 1035,
         "name": "_atomic_write",
         "qualified_name": "stdd.draw._atomic_write",
         "source": "python_ast",
         "symbol_id": "src/stdd/draw.py:stdd.draw._atomic_write"
       },
       {
-        "end_line": 1056,
-        "file": "src/stdd/backlog.py",
+        "end_line": 1060,
+        "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 1000,
-        "name": "complete_backlog_task",
-        "qualified_name": "stdd.backlog.complete_backlog_task",
+        "line": 1044,
+        "name": "_strip_answered_tags",
+        "qualified_name": "stdd.draw._strip_answered_tags",
         "source": "python_ast",
-        "symbol_id": "src/stdd/backlog.py:stdd.backlog.complete_backlog_task"
+        "symbol_id": "src/stdd/draw.py:stdd.draw._strip_answered_tags"
       },
       {
         "end_line": 107,
@@ -8224,6 +8365,16 @@
         "symbol_id": "draw-editor/src/components/LoopEdge.tsx:function:<anonymous>"
       },
       {
+        "end_line": 1083,
+        "file": "src/stdd/backlog.py",
+        "kind": "function",
+        "line": 1027,
+        "name": "complete_backlog_task",
+        "qualified_name": "stdd.backlog.complete_backlog_task",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/backlog.py:stdd.backlog.complete_backlog_task"
+      },
+      {
         "end_line": 109,
         "file": "src/stdd/static_analysis.py",
         "kind": "function",
@@ -8245,16 +8396,6 @@
         "symbol_id": "src/stdd/templates/adapters/js_ts_static_adapter.js:function:visitFile"
       },
       {
-        "end_line": 1093,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 1043,
-        "name": "create_draw",
-        "qualified_name": "stdd.draw.create_draw",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.create_draw"
-      },
-      {
         "end_line": 1110,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -8265,14 +8406,14 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_provides_visual_editor_pan_and_readable_long_flow_layout"
       },
       {
-        "end_line": 1116,
+        "end_line": 1115,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 1096,
-        "name": "read_draw",
-        "qualified_name": "stdd.draw.read_draw",
+        "line": 1063,
+        "name": "create_draw",
+        "qualified_name": "stdd.draw.create_draw",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.read_draw"
+        "symbol_id": "src/stdd/draw.py:stdd.draw.create_draw"
       },
       {
         "end_line": 112,
@@ -8308,11 +8449,11 @@
         "end_line": 1138,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 1137,
-        "name": "__init__",
-        "qualified_name": "stdd.draw.__init__",
+        "line": 1118,
+        "name": "read_draw",
+        "qualified_name": "stdd.draw.read_draw",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.__init__"
+        "symbol_id": "src/stdd/draw.py:stdd.draw.read_draw"
       },
       {
         "end_line": 114,
@@ -8333,16 +8474,6 @@
         "qualified_name": "tests.test_draw.test_create_draw_preserves_optional_questions_and_answers",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_preserves_optional_questions_and_answers"
-      },
-      {
-        "end_line": 1141,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 1140,
-        "name": "log_message",
-        "qualified_name": "stdd.draw.log_message",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.log_message"
       },
       {
         "end_line": 1147,
@@ -8375,16 +8506,6 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_orthogonal_edges_route_around_obstacles_using_semantic_ports"
       },
       {
-        "end_line": 1153,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 1143,
-        "name": "_send_bytes",
-        "qualified_name": "stdd.draw._send_bytes",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._send_bytes"
-      },
-      {
         "end_line": 116,
         "file": "draw-editor/src/layout.ts",
         "kind": "function",
@@ -8396,14 +8517,24 @@
         "symbol_id": "draw-editor/src/layout.ts:function:buildRanks"
       },
       {
-        "end_line": 1168,
+        "end_line": 1160,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 1155,
-        "name": "_send_file",
-        "qualified_name": "stdd.draw._send_file",
+        "line": 1159,
+        "name": "__init__",
+        "qualified_name": "stdd.draw.__init__",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._send_file"
+        "symbol_id": "src/stdd/draw.py:stdd.draw.__init__"
+      },
+      {
+        "end_line": 1163,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 1162,
+        "name": "log_message",
+        "qualified_name": "stdd.draw.log_message",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.log_message"
       },
       {
         "end_line": 117,
@@ -8429,11 +8560,11 @@
         "end_line": 1175,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 1170,
-        "name": "_send_json_error",
-        "qualified_name": "stdd.draw._send_json_error",
+        "line": 1165,
+        "name": "_send_bytes",
+        "qualified_name": "stdd.draw._send_bytes",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._send_json_error"
+        "symbol_id": "src/stdd/draw.py:stdd.draw._send_bytes"
       },
       {
         "end_line": 1184,
@@ -8456,6 +8587,16 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.http_error_302"
       },
       {
+        "end_line": 1190,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 1177,
+        "name": "_send_file",
+        "qualified_name": "stdd.draw._send_file",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._send_file"
+      },
+      {
         "end_line": 1195,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -8464,6 +8605,16 @@
         "qualified_name": "tests.test_draw.test_draw_server_redirects_home_to_the_draw_viewer",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_server_redirects_home_to_the_draw_viewer"
+      },
+      {
+        "end_line": 1197,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 1192,
+        "name": "_send_json_error",
+        "qualified_name": "stdd.draw._send_json_error",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._send_json_error"
       },
       {
         "end_line": 120,
@@ -8589,6 +8740,17 @@
       },
       {
         "end_line": 13,
+        "file": "draw-editor/src/utils.tsx",
+        "kind": "function",
+        "line": 3,
+        "name": "renderWithMentions",
+        "qualified_name": "renderWithMentions",
+        "signature": "export function renderWithMentions(text: string)",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/utils.tsx:function:renderWithMentions"
+      },
+      {
+        "end_line": 13,
         "file": "src/stdd/runs.py",
         "kind": "function",
         "line": 11,
@@ -8608,26 +8770,6 @@
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis._read_secret_source"
       },
       {
-        "end_line": 1300,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 1177,
-        "name": "do_GET",
-        "qualified_name": "stdd.draw.do_GET",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.do_GET"
-      },
-      {
-        "end_line": 1311,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 1302,
-        "name": "_allow_local_origin",
-        "qualified_name": "stdd.draw._allow_local_origin",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._allow_local_origin"
-      },
-      {
         "end_line": 1314,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -8636,16 +8778,6 @@
         "qualified_name": "tests.test_draw.test_draw_server_serves_and_saves_improvement_sessions_separately",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_server_serves_and_saves_improvement_sessions_separately"
-      },
-      {
-        "end_line": 1318,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 1313,
-        "name": "end_headers",
-        "qualified_name": "stdd.draw.end_headers",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.end_headers"
       },
       {
         "end_line": 132,
@@ -8658,6 +8790,16 @@
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_static_analysis_passes_gate_for_marked_test_credential"
       },
       {
+        "end_line": 1322,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 1199,
+        "name": "do_GET",
+        "qualified_name": "stdd.draw.do_GET",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.do_GET"
+      },
+      {
         "end_line": 133,
         "file": "src/stdd/improvements.py",
         "kind": "function",
@@ -8668,20 +8810,40 @@
         "symbol_id": "src/stdd/improvements.py:stdd.improvements._validate_question"
       },
       {
-        "end_line": 1335,
+        "end_line": 1333,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 1320,
+        "line": 1324,
+        "name": "_allow_local_origin",
+        "qualified_name": "stdd.draw._allow_local_origin",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._allow_local_origin"
+      },
+      {
+        "end_line": 1340,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 1335,
+        "name": "end_headers",
+        "qualified_name": "stdd.draw.end_headers",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.end_headers"
+      },
+      {
+        "end_line": 1357,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 1342,
         "name": "do_OPTIONS",
         "qualified_name": "stdd.draw.do_OPTIONS",
         "source": "python_ast",
         "symbol_id": "src/stdd/draw.py:stdd.draw.do_OPTIONS"
       },
       {
-        "end_line": 1344,
+        "end_line": 1366,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 1337,
+        "line": 1359,
         "name": "_send_json",
         "qualified_name": "stdd.draw._send_json",
         "source": "python_ast",
@@ -8708,16 +8870,6 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_setup_detects_stack_without_assuming_python"
       },
       {
-        "end_line": 1384,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 1346,
-        "name": "do_POST",
-        "qualified_name": "stdd.draw.do_POST",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.do_POST"
-      },
-      {
         "end_line": 1387,
         "file": "draw-editor/src/components/Sidebar.tsx",
         "kind": "function",
@@ -8740,17 +8892,6 @@
       },
       {
         "end_line": 14,
-        "file": "draw-editor/src/components/CustomNode.tsx",
-        "kind": "function",
-        "line": 10,
-        "name": "groupColor",
-        "qualified_name": "groupColor",
-        "signature": "function groupColor(groupId?: number, color?: string)",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/components/CustomNode.tsx:function:groupColor"
-      },
-      {
-        "end_line": 14,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
         "line": 7,
@@ -8770,14 +8911,14 @@
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis._adapter_command"
       },
       {
-        "end_line": 141,
-        "file": "src/stdd/cli.py",
+        "end_line": 1406,
+        "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 105,
-        "name": "_format_backlog_response",
-        "qualified_name": "stdd.cli._format_backlog_response",
+        "line": 1368,
+        "name": "do_POST",
+        "qualified_name": "stdd.draw.do_POST",
         "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli._format_backlog_response"
+        "symbol_id": "src/stdd/draw.py:stdd.draw.do_POST"
       },
       {
         "end_line": 142,
@@ -8800,44 +8941,14 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.improvement_payload"
       },
       {
-        "end_line": 1442,
-        "file": "src/stdd/draw.py",
-        "kind": "class",
-        "line": 1134,
-        "name": "ProjectHandler",
-        "qualified_name": "stdd.draw.ProjectHandler",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.ProjectHandler"
-      },
-      {
-        "end_line": 1442,
-        "file": "src/stdd/draw.py",
+        "end_line": 145,
+        "file": "src/stdd/cli.py",
         "kind": "function",
-        "line": 1386,
-        "name": "do_PUT",
-        "qualified_name": "stdd.draw.do_PUT",
+        "line": 105,
+        "name": "_format_backlog_response",
+        "qualified_name": "stdd.cli._format_backlog_response",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.do_PUT"
-      },
-      {
-        "end_line": 1444,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 1119,
-        "name": "create_server",
-        "qualified_name": "stdd.draw.create_server",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.create_server"
-      },
-      {
-        "end_line": 1459,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 1447,
-        "name": "serve_draw",
-        "qualified_name": "stdd.draw.serve_draw",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.serve_draw"
+        "symbol_id": "src/stdd/cli.py:stdd.cli._format_backlog_response"
       },
       {
         "end_line": 146,
@@ -8850,14 +8961,34 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_loop_edges_use_distinct_lanes_when_returning_to_the_same_node"
       },
       {
-        "end_line": 1469,
+        "end_line": 1464,
+        "file": "src/stdd/draw.py",
+        "kind": "class",
+        "line": 1156,
+        "name": "ProjectHandler",
+        "qualified_name": "stdd.draw.ProjectHandler",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.ProjectHandler"
+      },
+      {
+        "end_line": 1464,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 1462,
-        "name": "start_server_for_test",
-        "qualified_name": "stdd.draw.start_server_for_test",
+        "line": 1408,
+        "name": "do_PUT",
+        "qualified_name": "stdd.draw.do_PUT",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.start_server_for_test"
+        "symbol_id": "src/stdd/draw.py:stdd.draw.do_PUT"
+      },
+      {
+        "end_line": 1466,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 1141,
+        "name": "create_server",
+        "qualified_name": "stdd.draw.create_server",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.create_server"
       },
       {
         "end_line": 147,
@@ -8888,6 +9019,37 @@
         "qualified_name": "tests.test_backlog._create_nested_hierarchical_fixture",
         "source": "python_ast",
         "symbol_id": "tests/test_backlog.py:tests.test_backlog._create_nested_hierarchical_fixture"
+      },
+      {
+        "end_line": 1481,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 1469,
+        "name": "serve_draw",
+        "qualified_name": "stdd.draw.serve_draw",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.serve_draw"
+      },
+      {
+        "end_line": 1491,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 1484,
+        "name": "start_server_for_test",
+        "qualified_name": "stdd.draw.start_server_for_test",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.start_server_for_test"
+      },
+      {
+        "end_line": 15,
+        "file": "draw-editor/src/components/CustomNode.tsx",
+        "kind": "function",
+        "line": 11,
+        "name": "groupColor",
+        "qualified_name": "groupColor",
+        "signature": "function groupColor(groupId?: number, color?: string)",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/components/CustomNode.tsx:function:groupColor"
       },
       {
         "end_line": 150,
@@ -9174,16 +9336,6 @@
       },
       {
         "end_line": 178,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 145,
-        "name": "init",
-        "qualified_name": "stdd.cli.init",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.init"
-      },
-      {
-        "end_line": 178,
         "file": "tests/test_cli.py",
         "kind": "function",
         "line": 163,
@@ -9201,6 +9353,16 @@
         "qualified_name": "stdd.templates.adapters.static_adapter.shutil_which",
         "source": "python_ast",
         "symbol_id": "src/stdd/templates/adapters/static_adapter.py:stdd.templates.adapters.static_adapter.shutil_which"
+      },
+      {
+        "end_line": 182,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 149,
+        "name": "init",
+        "qualified_name": "stdd.cli.init",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.init"
       },
       {
         "end_line": 182,
@@ -9281,17 +9443,6 @@
         "qualified_name": "tests.test_traceability.test_traceability_marks_changed_symbol_as_drift",
         "source": "python_ast",
         "symbol_id": "tests/test_traceability.py:tests.test_traceability.test_traceability_marks_changed_symbol_as_drift"
-      },
-      {
-        "end_line": 19,
-        "file": "draw-editor/src/components/CustomNode.tsx",
-        "kind": "function",
-        "line": 16,
-        "name": "darkGroupFill",
-        "qualified_name": "darkGroupFill",
-        "signature": "function darkGroupFill(groupId?: number)",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/components/CustomNode.tsx:function:darkGroupFill"
       },
       {
         "end_line": 191,
@@ -9375,14 +9526,15 @@
         "symbol_id": "src/stdd/backlog.py:stdd.backlog._child_checklist_id"
       },
       {
-        "end_line": 198,
-        "file": "src/stdd/cli.py",
+        "end_line": 20,
+        "file": "draw-editor/src/components/CustomNode.tsx",
         "kind": "function",
-        "line": 181,
-        "name": "choose_integrations",
-        "qualified_name": "stdd.cli.choose_integrations",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.choose_integrations"
+        "line": 17,
+        "name": "darkGroupFill",
+        "qualified_name": "darkGroupFill",
+        "signature": "function darkGroupFill(groupId?: number)",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/components/CustomNode.tsx:function:darkGroupFill"
       },
       {
         "end_line": 20,
@@ -9406,6 +9558,16 @@
       },
       {
         "end_line": 202,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 185,
+        "name": "choose_integrations",
+        "qualified_name": "stdd.cli.choose_integrations",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.choose_integrations"
+      },
+      {
+        "end_line": 202,
         "file": "src/stdd/setup.py",
         "kind": "function",
         "line": 198,
@@ -9413,17 +9575,6 @@
         "qualified_name": "stdd.setup._matching_names",
         "source": "python_ast",
         "symbol_id": "src/stdd/setup.py:stdd.setup._matching_names"
-      },
-      {
-        "end_line": 2036,
-        "file": "draw-editor/src/App.tsx",
-        "kind": "function",
-        "line": 2034,
-        "name": "<anonymous>",
-        "qualified_name": "<anonymous>",
-        "signature": "(",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/App.tsx:function:<anonymous>"
       },
       {
         "end_line": 205,
@@ -9434,6 +9585,17 @@
         "qualified_name": "tests.test_cli.test_php_adapter_reports_quality_metrics",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_php_adapter_reports_quality_metrics"
+      },
+      {
+        "end_line": 2054,
+        "file": "draw-editor/src/App.tsx",
+        "kind": "function",
+        "line": 2052,
+        "name": "<anonymous>",
+        "qualified_name": "<anonymous>",
+        "signature": "(",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/App.tsx:function:<anonymous>"
       },
       {
         "end_line": 207,
@@ -9486,16 +9648,6 @@
         "symbol_id": "src/stdd/core.py:stdd.core.init_project"
       },
       {
-        "end_line": 218,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 202,
-        "name": "setup",
-        "qualified_name": "stdd.cli.setup",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.setup"
-      },
-      {
         "end_line": 219,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -9534,6 +9686,16 @@
         "qualified_name": "stdd.backlog._has_self_loop",
         "source": "python_ast",
         "symbol_id": "src/stdd/backlog.py:stdd.backlog._has_self_loop"
+      },
+      {
+        "end_line": 222,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 206,
+        "name": "setup",
+        "qualified_name": "stdd.cli.setup",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.setup"
       },
       {
         "end_line": 222,
@@ -9647,16 +9809,6 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_keyboard_shortcuts_connect_and_duplicate_selected_blocks"
       },
       {
-        "end_line": 242,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 222,
-        "name": "test_all",
-        "qualified_name": "stdd.cli.test_all",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.test_all"
-      },
-      {
         "end_line": 245,
         "file": "src/stdd/improvements.py",
         "kind": "function",
@@ -9668,6 +9820,16 @@
       },
       {
         "end_line": 246,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 226,
+        "name": "test_all",
+        "qualified_name": "stdd.cli.test_all",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.test_all"
+      },
+      {
+        "end_line": 246,
         "file": "tests/test_stdd.py",
         "kind": "function",
         "line": 185,
@@ -9675,17 +9837,6 @@
         "qualified_name": "tests.test_stdd.test_agents_are_loaded_from_markdown_templates",
         "source": "python_ast",
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_agents_are_loaded_from_markdown_templates"
-      },
-      {
-        "end_line": 247,
-        "file": "draw-editor/src/components/QuestionsModal.tsx",
-        "kind": "function",
-        "line": 247,
-        "name": "<anonymous>",
-        "qualified_name": "<anonymous>",
-        "signature": "() => setShowDiscardDraftConfirm(false)",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/components/QuestionsModal.tsx:function:<anonymous>"
       },
       {
         "end_line": 247,
@@ -9706,6 +9857,17 @@
         "qualified_name": "tests.test_traceability.test_associate_node_reference_persists_only_minimal_cli_inputs",
         "source": "python_ast",
         "symbol_id": "tests/test_traceability.py:tests.test_traceability.test_associate_node_reference_persists_only_minimal_cli_inputs"
+      },
+      {
+        "end_line": 248,
+        "file": "draw-editor/src/components/QuestionsModal.tsx",
+        "kind": "function",
+        "line": 248,
+        "name": "<anonymous>",
+        "qualified_name": "<anonymous>",
+        "signature": "() => setShowDiscardDraftConfirm(false)",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/components/QuestionsModal.tsx:function:<anonymous>"
       },
       {
         "end_line": 25,
@@ -9920,6 +10082,17 @@
       },
       {
         "end_line": 27,
+        "file": "draw-editor/src/utils.tsx",
+        "kind": "function",
+        "line": 25,
+        "name": "<anonymous>",
+        "qualified_name": "<anonymous>",
+        "signature": "() =>",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/utils.tsx:function:<anonymous>"
+      },
+      {
+        "end_line": 27,
         "file": "src/stdd/traceability.py",
         "kind": "function",
         "line": 23,
@@ -9990,20 +10163,10 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_global_alias_respects_mvp_profile_and_approval_controls"
       },
       {
-        "end_line": 278,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 246,
-        "name": "log_work",
-        "qualified_name": "stdd.cli.log_work",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.log_work"
-      },
-      {
-        "end_line": 278,
+        "end_line": 279,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 106,
+        "line": 107,
         "name": "validate_draw_payload",
         "qualified_name": "stdd.draw.validate_draw_payload",
         "source": "python_ast",
@@ -10028,17 +10191,6 @@
         "qualified_name": "tests.test_draw.test_draw_questions_finds_only_open_stdd_questions",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_questions_finds_only_open_stdd_questions"
-      },
-      {
-        "end_line": 28,
-        "file": "draw-editor/src/components/CustomNode.tsx",
-        "kind": "function",
-        "line": 21,
-        "name": "withAlpha",
-        "qualified_name": "withAlpha",
-        "signature": "function withAlpha(hex: string, alpha: number)",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/components/CustomNode.tsx:function:withAlpha"
       },
       {
         "end_line": 28,
@@ -10081,6 +10233,16 @@
         "symbol_id": "src/stdd/improvements.py:stdd.improvements.mark_improvement_applied"
       },
       {
+        "end_line": 282,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 250,
+        "name": "log_work",
+        "qualified_name": "stdd.cli.log_work",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.log_work"
+      },
+      {
         "end_line": 286,
         "file": "src/stdd/static_analysis.py",
         "kind": "function",
@@ -10091,24 +10253,14 @@
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis._read_environment_values"
       },
       {
-        "end_line": 287,
+        "end_line": 288,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 281,
+        "line": 282,
         "name": "_analysis_text",
         "qualified_name": "stdd.draw._analysis_text",
         "source": "python_ast",
         "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_text"
-      },
-      {
-        "end_line": 288,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 282,
-        "name": "backlog_generate",
-        "qualified_name": "stdd.cli.backlog_generate",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.backlog_generate"
       },
       {
         "end_line": 288,
@@ -10121,6 +10273,17 @@
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_checklist_can_mark_without_static_evidence_and_uncheck"
       },
       {
+        "end_line": 29,
+        "file": "draw-editor/src/components/CustomNode.tsx",
+        "kind": "function",
+        "line": 22,
+        "name": "withAlpha",
+        "qualified_name": "withAlpha",
+        "signature": "function withAlpha(hex: string, alpha: number)",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/components/CustomNode.tsx:function:withAlpha"
+      },
+      {
         "end_line": 291,
         "file": "tests/test_traceability.py",
         "kind": "function",
@@ -10129,6 +10292,16 @@
         "qualified_name": "tests.test_traceability.test_cli_associate_reference_accepts_one_node_contract",
         "source": "python_ast",
         "symbol_id": "tests/test_traceability.py:tests.test_traceability.test_cli_associate_reference_accepts_one_node_contract"
+      },
+      {
+        "end_line": 292,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 286,
+        "name": "backlog_generate",
+        "qualified_name": "stdd.cli.backlog_generate",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.backlog_generate"
       },
       {
         "end_line": 292,
@@ -10181,10 +10354,10 @@
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_static_analysis_includes_draw_node_symbol_warnings"
       },
       {
-        "end_line": 296,
+        "end_line": 297,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 290,
+        "line": 291,
         "name": "_analysis_group_labels",
         "qualified_name": "stdd.draw._analysis_group_labels",
         "source": "python_ast",
@@ -10199,16 +10372,6 @@
         "qualified_name": "stdd.backlog._branches_for_draw",
         "source": "python_ast",
         "symbol_id": "src/stdd/backlog.py:stdd.backlog._branches_for_draw"
-      },
-      {
-        "end_line": 298,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 292,
-        "name": "backlog_missing",
-        "qualified_name": "stdd.cli.backlog_missing",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.backlog_missing"
       },
       {
         "end_line": 30,
@@ -10240,6 +10403,16 @@
         "qualified_name": "tests.test_cli.test_test_command_returns_execution_report",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_test_command_returns_execution_report"
+      },
+      {
+        "end_line": 302,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 296,
+        "name": "backlog_missing",
+        "qualified_name": "stdd.cli.backlog_missing",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.backlog_missing"
       },
       {
         "end_line": 302,
@@ -10302,16 +10475,6 @@
         "symbol_id": "src/stdd/backlog.py:stdd.backlog._existing_state"
       },
       {
-        "end_line": 309,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 299,
-        "name": "_analysis_node_tokens",
-        "qualified_name": "stdd.draw._analysis_node_tokens",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_node_tokens"
-      },
-      {
         "end_line": 31,
         "file": "src/stdd/backlog.py",
         "kind": "function",
@@ -10333,6 +10496,16 @@
       },
       {
         "end_line": 310,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 300,
+        "name": "_analysis_node_tokens",
+        "qualified_name": "stdd.draw._analysis_node_tokens",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_node_tokens"
+      },
+      {
+        "end_line": 310,
         "file": "tests/test_stdd.py",
         "kind": "function",
         "line": 295,
@@ -10340,16 +10513,6 @@
         "qualified_name": "tests.test_stdd.test_draw_system_levels_keep_then_compatible_with_one_branch_family",
         "source": "python_ast",
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_draw_system_levels_keep_then_compatible_with_one_branch_family"
-      },
-      {
-        "end_line": 313,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 302,
-        "name": "backlog_task",
-        "qualified_name": "stdd.cli.backlog_task",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.backlog_task"
       },
       {
         "end_line": 314,
@@ -10370,6 +10533,16 @@
         "qualified_name": "stdd.core.execute_test_suite",
         "source": "python_ast",
         "symbol_id": "src/stdd/core.py:stdd.core.execute_test_suite"
+      },
+      {
+        "end_line": 317,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 306,
+        "name": "backlog_task",
+        "qualified_name": "stdd.cli.backlog_task",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.backlog_task"
       },
       {
         "end_line": 32,
@@ -10393,16 +10566,6 @@
       },
       {
         "end_line": 321,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 312,
-        "name": "_analysis_edge_tokens",
-        "qualified_name": "stdd.draw._analysis_edge_tokens",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_edge_tokens"
-      },
-      {
-        "end_line": 321,
         "file": "src/stdd/setup.py",
         "kind": "function",
         "line": 305,
@@ -10413,6 +10576,16 @@
       },
       {
         "end_line": 322,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 313,
+        "name": "_analysis_edge_tokens",
+        "qualified_name": "stdd.draw._analysis_edge_tokens",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_edge_tokens"
+      },
+      {
+        "end_line": 322,
         "file": "src/stdd/static_analysis.py",
         "kind": "function",
         "line": 296,
@@ -10420,16 +10593,6 @@
         "qualified_name": "stdd.static_analysis.validate_static_analysis_result",
         "source": "python_ast",
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis.validate_static_analysis_result"
-      },
-      {
-        "end_line": 323,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 317,
-        "name": "backlog_test",
-        "qualified_name": "stdd.cli.backlog_test",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.backlog_test"
       },
       {
         "end_line": 323,
@@ -10450,17 +10613,6 @@
         "qualified_name": "tests.test_static_analysis.test_static_analysis_writes_kpi_snapshot_next_to_adapter_directory",
         "source": "python_ast",
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_static_analysis_writes_kpi_snapshot_next_to_adapter_directory"
-      },
-      {
-        "end_line": 325,
-        "file": "draw-editor/src/components/CustomNode.tsx",
-        "kind": "function",
-        "line": 320,
-        "name": "<anonymous>",
-        "qualified_name": "<anonymous>",
-        "signature": "(e) =>",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/components/CustomNode.tsx:function:<anonymous>"
       },
       {
         "end_line": 325,
@@ -10494,6 +10646,16 @@
       },
       {
         "end_line": 327,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 321,
+        "name": "backlog_test",
+        "qualified_name": "stdd.cli.backlog_test",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.backlog_test"
+      },
+      {
+        "end_line": 327,
         "file": "src/stdd/static_analysis.py",
         "kind": "function",
         "line": 325,
@@ -10511,6 +10673,17 @@
         "qualified_name": "tests.test_stdd.test_implement_skill_triages_draw_diffs_before_declaring_no_change",
         "source": "python_ast",
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_implement_skill_triages_draw_diffs_before_declaring_no_change"
+      },
+      {
+        "end_line": 329,
+        "file": "draw-editor/src/components/CustomNode.tsx",
+        "kind": "function",
+        "line": 324,
+        "name": "<anonymous>",
+        "qualified_name": "<anonymous>",
+        "signature": "(e) =>",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/components/CustomNode.tsx:function:<anonymous>"
       },
       {
         "end_line": 33,
@@ -10553,10 +10726,10 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_organize_button_clears_local_positions_without_changing_the_flow"
       },
       {
-        "end_line": 333,
+        "end_line": 337,
         "file": "src/stdd/cli.py",
         "kind": "function",
-        "line": 327,
+        "line": 331,
         "name": "backlog_complete",
         "qualified_name": "stdd.cli.backlog_complete",
         "source": "python_ast",
@@ -10633,10 +10806,10 @@
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis._validate_exception"
       },
       {
-        "end_line": 352,
+        "end_line": 353,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 324,
+        "line": 325,
         "name": "_analysis_flow_signature",
         "qualified_name": "stdd.draw._analysis_flow_signature",
         "source": "python_ast",
@@ -10651,17 +10824,6 @@
         "qualified_name": "tests.test_draw_editor.test_edge_conditions_keep_labels_separate_from_connection_colors",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_edge_conditions_keep_labels_separate_from_connection_colors"
-      },
-      {
-        "end_line": 355,
-        "file": "draw-editor/src/layout.ts",
-        "kind": "function",
-        "line": 177,
-        "name": "layoutGraph",
-        "qualified_name": "layoutGraph",
-        "signature": "export function layoutGraph(",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/layout.ts:function:layoutGraph"
       },
       {
         "end_line": 355,
@@ -10774,6 +10936,17 @@
         "symbol_id": "src/stdd/models.py:stdd.models.write"
       },
       {
+        "end_line": 371,
+        "file": "draw-editor/src/layout.ts",
+        "kind": "function",
+        "line": 177,
+        "name": "layoutGraph",
+        "qualified_name": "layoutGraph",
+        "signature": "export function layoutGraph(",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/layout.ts:function:layoutGraph"
+      },
+      {
         "end_line": 372,
         "file": "tests/test_cli.py",
         "kind": "function",
@@ -10814,26 +10987,6 @@
         "symbol_id": "src/stdd/backlog.py:stdd.backlog._refresh_branch_completion"
       },
       {
-        "end_line": 377,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 337,
-        "name": "draw_create",
-        "qualified_name": "stdd.cli.draw_create",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_create"
-      },
-      {
-        "end_line": 378,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 355,
-        "name": "_analysis_draw_signature",
-        "qualified_name": "stdd.draw._analysis_draw_signature",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_draw_signature"
-      },
-      {
         "end_line": 378,
         "file": "tests/test_backlog.py",
         "kind": "function",
@@ -10844,15 +10997,24 @@
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_preserves_shared_steps_in_explicit_flow_paths"
       },
       {
-        "end_line": 38,
-        "file": "draw-editor/src/components/CustomNode.tsx",
+        "end_line": 379,
+        "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 30,
-        "name": "withTint",
-        "qualified_name": "withTint",
-        "signature": "function withTint(hex: string, whiteAmount: number)",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/components/CustomNode.tsx:function:withTint"
+        "line": 356,
+        "name": "_analysis_draw_signature",
+        "qualified_name": "stdd.draw._analysis_draw_signature",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_draw_signature"
+      },
+      {
+        "end_line": 381,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 341,
+        "name": "draw_create",
+        "qualified_name": "stdd.cli.draw_create",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_create"
       },
       {
         "end_line": 382,
@@ -10866,16 +11028,6 @@
       },
       {
         "end_line": 383,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 381,
-        "name": "_analysis_fingerprint",
-        "qualified_name": "stdd.draw._analysis_fingerprint",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_fingerprint"
-      },
-      {
-        "end_line": 383,
         "file": "tests/test_static_analysis.py",
         "kind": "function",
         "line": 365,
@@ -10885,14 +11037,14 @@
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_expired_static_analysis_exception_blocks"
       },
       {
-        "end_line": 385,
-        "file": "src/stdd/cli.py",
+        "end_line": 384,
+        "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 381,
-        "name": "app_create",
-        "qualified_name": "stdd.cli.app_create",
+        "line": 382,
+        "name": "_analysis_fingerprint",
+        "qualified_name": "stdd.draw._analysis_fingerprint",
         "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.app_create"
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_fingerprint"
       },
       {
         "end_line": 388,
@@ -10903,6 +11055,27 @@
         "qualified_name": "tests.test_draw.test_create_draw_does_not_update_index_when_logical_payload_is_unchanged",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_does_not_update_index_when_logical_payload_is_unchanged"
+      },
+      {
+        "end_line": 389,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 385,
+        "name": "app_create",
+        "qualified_name": "stdd.cli.app_create",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.app_create"
+      },
+      {
+        "end_line": 39,
+        "file": "draw-editor/src/components/CustomNode.tsx",
+        "kind": "function",
+        "line": 31,
+        "name": "withTint",
+        "qualified_name": "withTint",
+        "signature": "function withTint(hex: string, whiteAmount: number)",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/components/CustomNode.tsx:function:withTint"
       },
       {
         "end_line": 39,
@@ -10976,26 +11149,6 @@
       },
       {
         "end_line": 403,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 390,
-        "name": "draw_list",
-        "qualified_name": "stdd.cli.draw_list",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_list"
-      },
-      {
-        "end_line": 403,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 386,
-        "name": "_analysis_documents",
-        "qualified_name": "stdd.draw._analysis_documents",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_documents"
-      },
-      {
-        "end_line": 403,
         "file": "src/stdd/static_analysis.py",
         "kind": "function",
         "line": 400,
@@ -11003,6 +11156,26 @@
         "qualified_name": "stdd.static_analysis._finding_rule",
         "source": "python_ast",
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis._finding_rule"
+      },
+      {
+        "end_line": 404,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 387,
+        "name": "_analysis_documents",
+        "qualified_name": "stdd.draw._analysis_documents",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_documents"
+      },
+      {
+        "end_line": 407,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 394,
+        "name": "draw_list",
+        "qualified_name": "stdd.cli.draw_list",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_list"
       },
       {
         "end_line": 407,
@@ -11065,26 +11238,6 @@
         "symbol_id": "tests/test_traceability.py:tests.test_traceability.test_refresh_traceability_ignores_macos_appledouble_files"
       },
       {
-        "end_line": 412,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 407,
-        "name": "draw_symbols",
-        "qualified_name": "stdd.cli.draw_symbols",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_symbols"
-      },
-      {
-        "end_line": 414,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 406,
-        "name": "_analysis_entity",
-        "qualified_name": "stdd.draw._analysis_entity",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_entity"
-      },
-      {
         "end_line": 414,
         "file": "tests/test_backlog.py",
         "kind": "function",
@@ -11096,6 +11249,16 @@
       },
       {
         "end_line": 415,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 407,
+        "name": "_analysis_entity",
+        "qualified_name": "stdd.draw._analysis_entity",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_entity"
+      },
+      {
+        "end_line": 415,
         "file": "src/stdd/static_analysis.py",
         "kind": "function",
         "line": 406,
@@ -11103,6 +11266,16 @@
         "qualified_name": "stdd.static_analysis._finding_line",
         "source": "python_ast",
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis._finding_line"
+      },
+      {
+        "end_line": 416,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 411,
+        "name": "draw_symbols",
+        "qualified_name": "stdd.cli.draw_symbols",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_symbols"
       },
       {
         "end_line": 419,
@@ -11146,26 +11319,6 @@
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_static_analysis_exceptions_do_not_release_hardcoded_secrets"
       },
       {
-        "end_line": 423,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 416,
-        "name": "draw_questions",
-        "qualified_name": "stdd.cli.draw_questions",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_questions"
-      },
-      {
-        "end_line": 424,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 417,
-        "name": "_analysis_entities",
-        "qualified_name": "stdd.draw._analysis_entities",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_entities"
-      },
-      {
         "end_line": 424,
         "file": "tests/test_stdd.py",
         "kind": "function",
@@ -11176,6 +11329,26 @@
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_draw_skills_document_questions_and_answer_history"
       },
       {
+        "end_line": 425,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 418,
+        "name": "_analysis_entities",
+        "qualified_name": "stdd.draw._analysis_entities",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_entities"
+      },
+      {
+        "end_line": 427,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 420,
+        "name": "draw_questions",
+        "qualified_name": "stdd.cli.draw_questions",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_questions"
+      },
+      {
         "end_line": 429,
         "file": "src/stdd/static_analysis.py",
         "kind": "function",
@@ -11184,17 +11357,6 @@
         "qualified_name": "stdd.static_analysis._exception_matches",
         "source": "python_ast",
         "symbol_id": "src/stdd/static_analysis.py:stdd.static_analysis._exception_matches"
-      },
-      {
-        "end_line": 43,
-        "file": "draw-editor/src/components/CustomNode.tsx",
-        "kind": "function",
-        "line": 40,
-        "name": "unansweredQuestionCount",
-        "qualified_name": "unansweredQuestionCount",
-        "signature": "function unansweredQuestionCount(questions?: Question[])",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/components/CustomNode.tsx:function:unansweredQuestionCount"
       },
       {
         "end_line": 431,
@@ -11218,26 +11380,6 @@
       },
       {
         "end_line": 436,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 427,
-        "name": "draw_answer",
-        "qualified_name": "stdd.cli.draw_answer",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_answer"
-      },
-      {
-        "end_line": 436,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 427,
-        "name": "_analysis_subflow_entities",
-        "qualified_name": "stdd.draw._analysis_subflow_entities",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_subflow_entities"
-      },
-      {
-        "end_line": 436,
         "file": "tests/test_draw.py",
         "kind": "function",
         "line": 423,
@@ -11245,6 +11387,16 @@
         "qualified_name": "tests.test_draw.test_create_draw_rejects_descriptive_ids_instead_of_labels",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_rejects_descriptive_ids_instead_of_labels"
+      },
+      {
+        "end_line": 437,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 428,
+        "name": "_analysis_subflow_entities",
+        "qualified_name": "stdd.draw._analysis_subflow_entities",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_subflow_entities"
       },
       {
         "end_line": 437,
@@ -11257,6 +11409,27 @@
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_marks_every_branch_complete_when_shared_terminal_is_done"
       },
       {
+        "end_line": 44,
+        "file": "draw-editor/src/components/CustomNode.tsx",
+        "kind": "function",
+        "line": 41,
+        "name": "unansweredQuestionCount",
+        "qualified_name": "unansweredQuestionCount",
+        "signature": "function unansweredQuestionCount(questions?: Question[])",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/components/CustomNode.tsx:function:unansweredQuestionCount"
+      },
+      {
+        "end_line": 440,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 431,
+        "name": "draw_answer",
+        "qualified_name": "stdd.cli.draw_answer",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_answer"
+      },
+      {
         "end_line": 440,
         "file": "tests/test_cli.py",
         "kind": "function",
@@ -11265,17 +11438,6 @@
         "qualified_name": "tests.test_cli.test_test_compacts_static_analysis_output_but_preserves_structured_report",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_test_compacts_static_analysis_output_but_preserves_structured_report"
-      },
-      {
-        "end_line": 442,
-        "file": "draw-editor/src/layout.ts",
-        "kind": "function",
-        "line": 358,
-        "name": "computeEdgeHandles",
-        "qualified_name": "computeEdgeHandles",
-        "signature": "export function computeEdgeHandles(",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/layout.ts:function:computeEdgeHandles"
       },
       {
         "end_line": 444,
@@ -11319,16 +11481,6 @@
       },
       {
         "end_line": 454,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 439,
-        "name": "_analysis_isolated_nodes",
-        "qualified_name": "stdd.draw._analysis_isolated_nodes",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_isolated_nodes"
-      },
-      {
-        "end_line": 454,
         "file": "tests/test_stdd.py",
         "kind": "function",
         "line": 447,
@@ -11336,6 +11488,16 @@
         "qualified_name": "tests.test_stdd.test_traceability_skills_cover_rpc_and_sql_implementations",
         "source": "python_ast",
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_traceability_skills_cover_rpc_and_sql_implementations"
+      },
+      {
+        "end_line": 455,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 440,
+        "name": "_analysis_isolated_nodes",
+        "qualified_name": "stdd.draw._analysis_isolated_nodes",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_isolated_nodes"
       },
       {
         "end_line": 456,
@@ -11346,6 +11508,17 @@
         "qualified_name": "tests.test_backlog.test_backlog_task_and_complete_walk_one_branch_then_the_next",
         "source": "python_ast",
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_task_and_complete_walk_one_branch_then_the_next"
+      },
+      {
+        "end_line": 458,
+        "file": "draw-editor/src/layout.ts",
+        "kind": "function",
+        "line": 374,
+        "name": "computeEdgeHandles",
+        "qualified_name": "computeEdgeHandles",
+        "signature": "export function computeEdgeHandles(",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/layout.ts:function:computeEdgeHandles"
       },
       {
         "end_line": 458,
@@ -11428,16 +11601,6 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_black_theme_is_default_and_test_checklist_uses_red_orange_accent"
       },
       {
-        "end_line": 471,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 440,
-        "name": "draw_diff",
-        "qualified_name": "stdd.cli.draw_diff",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_diff"
-      },
-      {
         "end_line": 473,
         "file": "tests/test_backlog.py",
         "kind": "function",
@@ -11446,6 +11609,16 @@
         "qualified_name": "tests.test_backlog.test_backlog_complete_rejects_a_task_that_is_not_current",
         "source": "python_ast",
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_complete_rejects_a_task_that_is_not_current"
+      },
+      {
+        "end_line": 475,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 444,
+        "name": "draw_diff",
+        "qualified_name": "stdd.cli.draw_diff",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_diff"
       },
       {
         "end_line": 475,
@@ -11479,25 +11652,14 @@
         "symbol_id": "draw-editor/src/components/FocusLoopEdge.tsx:function:<anonymous>"
       },
       {
-        "end_line": 480,
+        "end_line": 481,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 457,
+        "line": 458,
         "name": "_analysis_warning",
         "qualified_name": "stdd.draw._analysis_warning",
         "source": "python_ast",
         "symbol_id": "src/stdd/draw.py:stdd.draw._analysis_warning"
-      },
-      {
-        "end_line": 481,
-        "file": "draw-editor/src/layout.ts",
-        "kind": "function",
-        "line": 467,
-        "name": "visit",
-        "qualified_name": "visit",
-        "signature": "function visit(id: number)",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/layout.ts:function:visit"
       },
       {
         "end_line": 483,
@@ -11580,10 +11742,21 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_dialog_content_inherits_theme_text_color_on_dark_backgrounds"
       },
       {
-        "end_line": 499,
-        "file": "src/stdd/draw.py",
+        "end_line": 497,
+        "file": "draw-editor/src/layout.ts",
         "kind": "function",
         "line": 483,
+        "name": "visit",
+        "qualified_name": "visit",
+        "signature": "function visit(id: number)",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/layout.ts:function:visit"
+      },
+      {
+        "end_line": 500,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 484,
         "name": "_analysis_entity_pairs",
         "qualified_name": "stdd.draw._analysis_entity_pairs",
         "source": "python_ast",
@@ -11650,14 +11823,14 @@
         "symbol_id": "src/stdd/models.py:stdd.models.to_dict"
       },
       {
-        "end_line": 514,
-        "file": "src/stdd/cli.py",
+        "end_line": 517,
+        "file": "src/stdd/core.py",
         "kind": "function",
-        "line": 475,
-        "name": "draw_improve",
-        "qualified_name": "stdd.cli.draw_improve",
+        "line": 504,
+        "name": "_parse_gitignore_dirs",
+        "qualified_name": "stdd.core._parse_gitignore_dirs",
         "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_improve"
+        "symbol_id": "src/stdd/core.py:stdd.core._parse_gitignore_dirs"
       },
       {
         "end_line": 517,
@@ -11680,6 +11853,16 @@
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_readme_documents_codex_skill_invocation"
       },
       {
+        "end_line": 518,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 479,
+        "name": "draw_improve",
+        "qualified_name": "stdd.cli.draw_improve",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_improve"
+      },
+      {
         "end_line": 519,
         "file": "tests/test_backlog.py",
         "kind": "function",
@@ -11700,10 +11883,10 @@
         "symbol_id": "src/stdd/backlog.py:stdd.backlog._build_checklist"
       },
       {
-        "end_line": 520,
+        "end_line": 521,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 502,
+        "line": 503,
         "name": "_analysis_compare_entities",
         "qualified_name": "stdd.draw._analysis_compare_entities",
         "source": "python_ast",
@@ -11718,16 +11901,6 @@
         "qualified_name": "tests.test_draw.test_create_draw_rejects_isolated_node_without_writing",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_rejects_isolated_node_without_writing"
-      },
-      {
-        "end_line": 522,
-        "file": "src/stdd/core.py",
-        "kind": "function",
-        "line": 504,
-        "name": "get_workspace_snapshot",
-        "qualified_name": "stdd.core.get_workspace_snapshot",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/core.py:stdd.core.get_workspace_snapshot"
       },
       {
         "end_line": 528,
@@ -11770,16 +11943,6 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_test_blocks_blocking_long_function_quality_finding"
       },
       {
-        "end_line": 537,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 518,
-        "name": "draw_associate_reference",
-        "qualified_name": "stdd.cli.draw_associate_reference",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_associate_reference"
-      },
-      {
         "end_line": 538,
         "file": "tests/test_stdd.py",
         "kind": "function",
@@ -11801,6 +11964,17 @@
       },
       {
         "end_line": 54,
+        "file": "draw-editor/src/components/NodeEditModal.tsx",
+        "kind": "function",
+        "line": 54,
+        "name": "<anonymous>",
+        "qualified_name": "<anonymous>",
+        "signature": "(e) => setDescription(e.target.value)",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/components/NodeEditModal.tsx:function:<anonymous>"
+      },
+      {
+        "end_line": 54,
         "file": "tests/test_stdd.py",
         "kind": "function",
         "line": 44,
@@ -11811,13 +11985,13 @@
       },
       {
         "end_line": 541,
-        "file": "src/stdd/core.py",
+        "file": "src/stdd/cli.py",
         "kind": "function",
-        "line": 525,
-        "name": "get_draw_snapshot",
-        "qualified_name": "stdd.core.get_draw_snapshot",
+        "line": 522,
+        "name": "draw_associate_reference",
+        "qualified_name": "stdd.cli.draw_associate_reference",
         "source": "python_ast",
-        "symbol_id": "src/stdd/core.py:stdd.core.get_draw_snapshot"
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_associate_reference"
       },
       {
         "end_line": 541,
@@ -11890,24 +12064,24 @@
         "symbol_id": "src/stdd/cli.py:stdd.cli._human_answer"
       },
       {
-        "end_line": 550,
+        "end_line": 551,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 523,
+        "line": 524,
         "name": "analyze_draw_structure",
         "qualified_name": "stdd.draw.analyze_draw_structure",
         "source": "python_ast",
         "symbol_id": "src/stdd/draw.py:stdd.draw.analyze_draw_structure"
       },
       {
-        "end_line": 556,
+        "end_line": 553,
         "file": "src/stdd/core.py",
         "kind": "function",
-        "line": 544,
-        "name": "build_unified_diff",
-        "qualified_name": "stdd.core.build_unified_diff",
+        "line": 520,
+        "name": "get_workspace_snapshot",
+        "qualified_name": "stdd.core.get_workspace_snapshot",
         "source": "python_ast",
-        "symbol_id": "src/stdd/core.py:stdd.core.build_unified_diff"
+        "symbol_id": "src/stdd/core.py:stdd.core.get_workspace_snapshot"
       },
       {
         "end_line": 557,
@@ -11920,10 +12094,10 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_static_analysis_classifies_files_by_selected_indicator"
       },
       {
-        "end_line": 558,
+        "end_line": 559,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 553,
+        "line": 554,
         "name": "_is_empty_or_unnamed_symbol",
         "qualified_name": "stdd.draw._is_empty_or_unnamed_symbol",
         "source": "python_ast",
@@ -11970,16 +12144,6 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_create_warns_for_duplicate_structure_against_existing_draw"
       },
       {
-        "end_line": 567,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 541,
-        "name": "draw_serve",
-        "qualified_name": "stdd.cli.draw_serve",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_serve"
-      },
-      {
         "end_line": 57,
         "file": "src/stdd/backlog.py",
         "kind": "function",
@@ -12010,14 +12174,24 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_contract_allows_production_function_without_docstring"
       },
       {
-        "end_line": 572,
-        "file": "src/stdd/draw.py",
+        "end_line": 571,
+        "file": "src/stdd/cli.py",
         "kind": "function",
-        "line": 561,
-        "name": "_extract_node_symbols",
-        "qualified_name": "stdd.draw._extract_node_symbols",
+        "line": 545,
+        "name": "draw_serve",
+        "qualified_name": "stdd.cli.draw_serve",
         "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._extract_node_symbols"
+        "symbol_id": "src/stdd/cli.py:stdd.cli.draw_serve"
+      },
+      {
+        "end_line": 572,
+        "file": "src/stdd/core.py",
+        "kind": "function",
+        "line": 556,
+        "name": "get_draw_snapshot",
+        "qualified_name": "stdd.core.get_draw_snapshot",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/core.py:stdd.core.get_draw_snapshot"
       },
       {
         "end_line": 572,
@@ -12030,6 +12204,16 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_static_analysis_breakdown_findings_are_the_file_drilldown_items"
       },
       {
+        "end_line": 573,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 562,
+        "name": "_extract_node_symbols",
+        "qualified_name": "stdd.draw._extract_node_symbols",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._extract_node_symbols"
+      },
+      {
         "end_line": 576,
         "file": "tests/test_stdd.py",
         "kind": "function",
@@ -12040,10 +12224,10 @@
         "symbol_id": "tests/test_stdd.py:tests.test_stdd.test_runs_viewer_is_read_only_and_uses_incremental_json_documents"
       },
       {
-        "end_line": 577,
+        "end_line": 578,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 575,
+        "line": 576,
         "name": "_has_code_reference",
         "qualified_name": "stdd.draw._has_code_reference",
         "source": "python_ast",
@@ -12102,28 +12286,6 @@
         "symbol_id": "src/stdd/backlog.py:stdd.backlog._phase_checklists"
       },
       {
-        "end_line": 581,
-        "file": "draw-editor/src/layout.ts",
-        "kind": "function",
-        "line": 569,
-        "name": "<anonymous>",
-        "qualified_name": "<anonymous>",
-        "signature": "n =>",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/layout.ts:function:<anonymous>"
-      },
-      {
-        "end_line": 582,
-        "file": "draw-editor/src/layout.ts",
-        "kind": "function",
-        "line": 444,
-        "name": "layoutCurvedGraph",
-        "qualified_name": "layoutCurvedGraph",
-        "signature": "export function layoutCurvedGraph(",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/layout.ts:function:layoutCurvedGraph"
-      },
-      {
         "end_line": 583,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -12135,13 +12297,13 @@
       },
       {
         "end_line": 587,
-        "file": "src/stdd/cli.py",
+        "file": "src/stdd/core.py",
         "kind": "function",
-        "line": 570,
-        "name": "listening_process_ids",
-        "qualified_name": "stdd.cli.listening_process_ids",
+        "line": 575,
+        "name": "build_unified_diff",
+        "qualified_name": "stdd.core.build_unified_diff",
         "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.listening_process_ids"
+        "symbol_id": "src/stdd/core.py:stdd.core.build_unified_diff"
       },
       {
         "end_line": 587,
@@ -12195,6 +12357,16 @@
         "symbol_id": "src/stdd/traceability.py:stdd.traceability.associate_node_reference"
       },
       {
+        "end_line": 591,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 574,
+        "name": "listening_process_ids",
+        "qualified_name": "stdd.cli.listening_process_ids",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.listening_process_ids"
+      },
+      {
         "end_line": 598,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
@@ -12237,26 +12409,6 @@
       },
       {
         "end_line": 600,
-        "file": "src/stdd/cli.py",
-        "kind": "function",
-        "line": 590,
-        "name": "terminate_processes",
-        "qualified_name": "stdd.cli.terminate_processes",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.terminate_processes"
-      },
-      {
-        "end_line": 600,
-        "file": "src/stdd/core.py",
-        "kind": "function",
-        "line": 559,
-        "name": "get_incremental_draw_diff",
-        "qualified_name": "stdd.core.get_incremental_draw_diff",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/core.py:stdd.core.get_incremental_draw_diff"
-      },
-      {
-        "end_line": 600,
         "file": "tests/test_cli.py",
         "kind": "function",
         "line": 573,
@@ -12266,14 +12418,14 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_command_creates_incremental_summary_and_snapshot_in_date_subfolder"
       },
       {
-        "end_line": 609,
+        "end_line": 604,
         "file": "src/stdd/cli.py",
         "kind": "function",
-        "line": 603,
-        "name": "ask_alternative_port",
-        "qualified_name": "stdd.cli.ask_alternative_port",
+        "line": 594,
+        "name": "terminate_processes",
+        "qualified_name": "stdd.cli.terminate_processes",
         "source": "python_ast",
-        "symbol_id": "src/stdd/cli.py:stdd.cli.ask_alternative_port"
+        "symbol_id": "src/stdd/cli.py:stdd.cli.terminate_processes"
       },
       {
         "end_line": 61,
@@ -12285,6 +12437,38 @@
         "signature": "function lineOf(source, pos)",
         "source": "typescript_compiler_api",
         "symbol_id": "src/stdd/templates/adapters/js_ts_static_adapter.js:function:lineOf"
+      },
+      {
+        "end_line": 613,
+        "file": "draw-editor/src/layout.ts",
+        "kind": "function",
+        "line": 601,
+        "name": "<anonymous>",
+        "qualified_name": "<anonymous>",
+        "signature": "n =>",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/layout.ts:function:<anonymous>"
+      },
+      {
+        "end_line": 613,
+        "file": "src/stdd/cli.py",
+        "kind": "function",
+        "line": 607,
+        "name": "ask_alternative_port",
+        "qualified_name": "stdd.cli.ask_alternative_port",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/cli.py:stdd.cli.ask_alternative_port"
+      },
+      {
+        "end_line": 614,
+        "file": "draw-editor/src/layout.ts",
+        "kind": "function",
+        "line": 460,
+        "name": "layoutCurvedGraph",
+        "qualified_name": "layoutCurvedGraph",
+        "signature": "export function layoutCurvedGraph(",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/layout.ts:function:layoutCurvedGraph"
       },
       {
         "end_line": 615,
@@ -12411,6 +12595,16 @@
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_secret_scanner_ignores_local_secret_fixture_in_test_file"
       },
       {
+        "end_line": 631,
+        "file": "src/stdd/core.py",
+        "kind": "function",
+        "line": 590,
+        "name": "get_incremental_draw_diff",
+        "qualified_name": "stdd.core.get_incremental_draw_diff",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/core.py:stdd.core.get_incremental_draw_diff"
+      },
+      {
         "end_line": 633,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
@@ -12502,16 +12696,6 @@
         "symbol_id": "src/stdd/backlog.py:stdd.backlog.build_backlog"
       },
       {
-        "end_line": 655,
-        "file": "src/stdd/core.py",
-        "kind": "function",
-        "line": 604,
-        "name": "get_incremental_diff_stats",
-        "qualified_name": "stdd.core.get_incremental_diff_stats",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/core.py:stdd.core.get_incremental_diff_stats"
-      },
-      {
         "end_line": 66,
         "file": "src/stdd/draw.py",
         "kind": "function",
@@ -12542,10 +12726,10 @@
         "symbol_id": "tests/test_backlog_server.py:tests.test_backlog_server.test_draw_server_serves_backlog_and_claims_and_completes_task"
       },
       {
-        "end_line": 661,
+        "end_line": 662,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 580,
+        "line": 581,
         "name": "analyze_draw_contract",
         "qualified_name": "stdd.draw.analyze_draw_contract",
         "source": "python_ast",
@@ -12562,16 +12746,6 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_manual_save_button_persists_the_logical_contract"
       },
       {
-        "end_line": 664,
-        "file": "src/stdd/core.py",
-        "kind": "function",
-        "line": 658,
-        "name": "is_rework_diff",
-        "qualified_name": "stdd.core.is_rework_diff",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/core.py:stdd.core.is_rework_diff"
-      },
-      {
         "end_line": 665,
         "file": "tests/test_cli.py",
         "kind": "function",
@@ -12582,24 +12756,14 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_accumulates_runs_in_one_summary_and_snapshot_per_day"
       },
       {
-        "end_line": 680,
+        "end_line": 681,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 665,
+        "line": 666,
         "name": "scan_draw_contracts",
         "qualified_name": "stdd.draw.scan_draw_contracts",
         "source": "python_ast",
         "symbol_id": "src/stdd/draw.py:stdd.draw.scan_draw_contracts"
-      },
-      {
-        "end_line": 685,
-        "file": "src/stdd/core.py",
-        "kind": "function",
-        "line": 667,
-        "name": "get_previous_workspace_snapshot",
-        "qualified_name": "stdd.core.get_previous_workspace_snapshot",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/core.py:stdd.core.get_previous_workspace_snapshot"
       },
       {
         "end_line": 685,
@@ -12610,6 +12774,16 @@
         "qualified_name": "tests.test_draw.test_draw_create_reports_level_two_code_ref_warning_without_blocking",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_create_reports_level_two_code_ref_warning_without_blocking"
+      },
+      {
+        "end_line": 686,
+        "file": "src/stdd/core.py",
+        "kind": "function",
+        "line": 635,
+        "name": "get_incremental_diff_stats",
+        "qualified_name": "stdd.core.get_incremental_diff_stats",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/core.py:stdd.core.get_incremental_diff_stats"
       },
       {
         "end_line": 69,
@@ -12672,6 +12846,16 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_migrates_legacy_daily_documents_before_appending"
       },
       {
+        "end_line": 695,
+        "file": "src/stdd/core.py",
+        "kind": "function",
+        "line": 689,
+        "name": "is_rework_diff",
+        "qualified_name": "stdd.core.is_rework_diff",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/core.py:stdd.core.is_rework_diff"
+      },
+      {
         "end_line": 697,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -12690,16 +12874,6 @@
         "qualified_name": "stdd.backlog.validate_backlog",
         "source": "python_ast",
         "symbol_id": "src/stdd/backlog.py:stdd.backlog.validate_backlog"
-      },
-      {
-        "end_line": 706,
-        "file": "src/stdd/core.py",
-        "kind": "function",
-        "line": 688,
-        "name": "get_previous_draw_snapshot",
-        "qualified_name": "stdd.core.get_previous_draw_snapshot",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/core.py:stdd.core.get_previous_draw_snapshot"
       },
       {
         "end_line": 71,
@@ -12740,6 +12914,16 @@
         "qualified_name": "tests.test_cli.test_log_marks_large_incremental_change_as_refactor",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_marks_large_incremental_change_as_refactor"
+      },
+      {
+        "end_line": 716,
+        "file": "src/stdd/core.py",
+        "kind": "function",
+        "line": 698,
+        "name": "get_previous_workspace_snapshot",
+        "qualified_name": "stdd.core.get_previous_workspace_snapshot",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/core.py:stdd.core.get_previous_workspace_snapshot"
       },
       {
         "end_line": 722,
@@ -12795,17 +12979,17 @@
         "end_line": 737,
         "file": "src/stdd/core.py",
         "kind": "function",
-        "line": 709,
-        "name": "get_logged_draw_diff",
-        "qualified_name": "stdd.core.get_logged_draw_diff",
+        "line": 719,
+        "name": "get_previous_draw_snapshot",
+        "qualified_name": "stdd.core.get_previous_draw_snapshot",
         "source": "python_ast",
-        "symbol_id": "src/stdd/core.py:stdd.core.get_logged_draw_diff"
+        "symbol_id": "src/stdd/core.py:stdd.core.get_previous_draw_snapshot"
       },
       {
-        "end_line": 740,
+        "end_line": 741,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 683,
+        "line": 684,
         "name": "collect_draw_symbols",
         "qualified_name": "stdd.draw.collect_draw_symbols",
         "source": "python_ast",
@@ -12915,6 +13099,16 @@
       },
       {
         "end_line": 768,
+        "file": "src/stdd/core.py",
+        "kind": "function",
+        "line": 740,
+        "name": "get_logged_draw_diff",
+        "qualified_name": "stdd.core.get_logged_draw_diff",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/core.py:stdd.core.get_logged_draw_diff"
+      },
+      {
+        "end_line": 768,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
         "line": 758,
@@ -12964,24 +13158,14 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_draw_editor_exposes_separate_improvement_sessions_and_answers"
       },
       {
-        "end_line": 775,
+        "end_line": 776,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 743,
+        "line": 744,
         "name": "validate_hierarchy_parent",
         "qualified_name": "stdd.draw.validate_hierarchy_parent",
         "source": "python_ast",
         "symbol_id": "src/stdd/draw.py:stdd.draw.validate_hierarchy_parent"
-      },
-      {
-        "end_line": 778,
-        "file": "src/stdd/core.py",
-        "kind": "function",
-        "line": 740,
-        "name": "record_run_entry",
-        "qualified_name": "stdd.core.record_run_entry",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/core.py:stdd.core.record_run_entry"
       },
       {
         "end_line": 778,
@@ -13054,10 +13238,10 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_runs_load_history_for_period_selection_in_the_sidebar"
       },
       {
-        "end_line": 794,
+        "end_line": 795,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 778,
+        "line": 779,
         "name": "_validate_index_metadata",
         "qualified_name": "stdd.draw._validate_index_metadata",
         "source": "python_ast",
@@ -13125,6 +13309,16 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.fake_serve"
       },
       {
+        "end_line": 809,
+        "file": "src/stdd/core.py",
+        "kind": "function",
+        "line": 771,
+        "name": "record_run_entry",
+        "qualified_name": "stdd.core.record_run_entry",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/core.py:stdd.core.record_run_entry"
+      },
+      {
         "end_line": 812,
         "file": "src/stdd/backlog.py",
         "kind": "function",
@@ -13175,16 +13369,6 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_command_requires_at_least_one_work_type"
       },
       {
-        "end_line": 825,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 797,
-        "name": "_load_indexed_draw",
-        "qualified_name": "stdd.draw._load_indexed_draw",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw._load_indexed_draw"
-      },
-      {
         "end_line": 826,
         "file": "src/stdd/backlog.py",
         "kind": "function",
@@ -13193,6 +13377,16 @@
         "qualified_name": "stdd.backlog._parent_task",
         "source": "python_ast",
         "symbol_id": "src/stdd/backlog.py:stdd.backlog._parent_task"
+      },
+      {
+        "end_line": 826,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 798,
+        "name": "_load_indexed_draw",
+        "qualified_name": "stdd.draw._load_indexed_draw",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw._load_indexed_draw"
       },
       {
         "end_line": 83,
@@ -13215,16 +13409,6 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_sidebar_exposes_backlog_tasks_with_questions_and_symbols"
       },
       {
-        "end_line": 84,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 69,
-        "name": "logical_draw_payload",
-        "qualified_name": "stdd.draw.logical_draw_payload",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.logical_draw_payload"
-      },
-      {
         "end_line": 848,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
@@ -13235,14 +13419,14 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_loads_the_persisted_backlog_from_the_draw_server"
       },
       {
-        "end_line": 851,
-        "file": "src/stdd/backlog.py",
+        "end_line": 85,
+        "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 829,
-        "name": "_task_context",
-        "qualified_name": "stdd.backlog._task_context",
+        "line": 69,
+        "name": "logical_draw_payload",
+        "qualified_name": "stdd.draw.logical_draw_payload",
         "source": "python_ast",
-        "symbol_id": "src/stdd/backlog.py:stdd.backlog._task_context"
+        "symbol_id": "src/stdd/draw.py:stdd.draw.logical_draw_payload"
       },
       {
         "end_line": 853,
@@ -13253,16 +13437,6 @@
         "qualified_name": "tests.test_cli.test_draw_diff_command_reads_only_logged_draw_json_changes",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_draw_diff_command_reads_only_logged_draw_json_changes"
-      },
-      {
-        "end_line": 859,
-        "file": "src/stdd/backlog.py",
-        "kind": "function",
-        "line": 854,
-        "name": "_task_for_update",
-        "qualified_name": "stdd.backlog._task_for_update",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/backlog.py:stdd.backlog._task_for_update"
       },
       {
         "end_line": 86,
@@ -13286,10 +13460,10 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_enforces_hierarchical_parent_and_child_link"
       },
       {
-        "end_line": 861,
+        "end_line": 862,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 828,
+        "line": 829,
         "name": "validate_draw_workspace",
         "qualified_name": "stdd.draw.validate_draw_workspace",
         "source": "python_ast",
@@ -13304,16 +13478,6 @@
         "qualified_name": "tests.test_draw_editor.test_editor_allows_node_checklists_and_persists_them_through_backlog_api",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_allows_node_checklists_and_persists_them_through_backlog_api"
-      },
-      {
-        "end_line": 868,
-        "file": "src/stdd/backlog.py",
-        "kind": "function",
-        "line": 862,
-        "name": "_test_scope_tasks",
-        "qualified_name": "stdd.backlog._test_scope_tasks",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/backlog.py:stdd.backlog._test_scope_tasks"
       },
       {
         "end_line": 87,
@@ -13337,16 +13501,6 @@
       },
       {
         "end_line": 877,
-        "file": "src/stdd/backlog.py",
-        "kind": "function",
-        "line": 871,
-        "name": "_test_scope_complete",
-        "qualified_name": "stdd.backlog._test_scope_complete",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/backlog.py:stdd.backlog._test_scope_complete"
-      },
-      {
-        "end_line": 877,
         "file": "tests/test_cli.py",
         "kind": "function",
         "line": 856,
@@ -13354,6 +13508,16 @@
         "qualified_name": "tests.test_cli.test_log_marks_draw_only_changes_as_zero_line_checkpoint",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_marks_draw_only_changes_as_zero_line_checkpoint"
+      },
+      {
+        "end_line": 879,
+        "file": "src/stdd/backlog.py",
+        "kind": "function",
+        "line": 829,
+        "name": "_task_context",
+        "qualified_name": "stdd.backlog._task_context",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/backlog.py:stdd.backlog._task_context"
       },
       {
         "end_line": 88,
@@ -13398,16 +13562,6 @@
       },
       {
         "end_line": 886,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 864,
-        "name": "ensure_draw_workspace",
-        "qualified_name": "stdd.draw.ensure_draw_workspace",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.ensure_draw_workspace"
-      },
-      {
-        "end_line": 886,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
         "line": 868,
@@ -13417,14 +13571,24 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_backlog_can_hide_completed_tasks_with_a_visible_red_separator"
       },
       {
-        "end_line": 889,
+        "end_line": 887,
         "file": "src/stdd/backlog.py",
         "kind": "function",
-        "line": 880,
-        "name": "_refresh_task_checklist_items",
-        "qualified_name": "stdd.backlog._refresh_task_checklist_items",
+        "line": 882,
+        "name": "_task_for_update",
+        "qualified_name": "stdd.backlog._task_for_update",
         "source": "python_ast",
-        "symbol_id": "src/stdd/backlog.py:stdd.backlog._refresh_task_checklist_items"
+        "symbol_id": "src/stdd/backlog.py:stdd.backlog._task_for_update"
+      },
+      {
+        "end_line": 887,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 865,
+        "name": "ensure_draw_workspace",
+        "qualified_name": "stdd.draw.ensure_draw_workspace",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.ensure_draw_workspace"
       },
       {
         "end_line": 89,
@@ -13447,6 +13611,16 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_cli_accepts_inline_json_and_updates_existing_draw"
       },
       {
+        "end_line": 896,
+        "file": "src/stdd/backlog.py",
+        "kind": "function",
+        "line": 890,
+        "name": "_test_scope_tasks",
+        "qualified_name": "stdd.backlog._test_scope_tasks",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/backlog.py:stdd.backlog._test_scope_tasks"
+      },
+      {
         "end_line": 90,
         "file": "src/stdd/templates/adapters/js_ts_static_adapter.js",
         "kind": "function",
@@ -13458,10 +13632,20 @@
         "symbol_id": "src/stdd/templates/adapters/js_ts_static_adapter.js:function:complexity"
       },
       {
-        "end_line": 904,
+        "end_line": 905,
+        "file": "src/stdd/backlog.py",
+        "kind": "function",
+        "line": 899,
+        "name": "_test_scope_complete",
+        "qualified_name": "stdd.backlog._test_scope_complete",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/backlog.py:stdd.backlog._test_scope_complete"
+      },
+      {
+        "end_line": 905,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 889,
+        "line": 890,
         "name": "ensure_example_draw",
         "qualified_name": "stdd.draw.ensure_example_draw",
         "source": "python_ast",
@@ -13490,16 +13674,6 @@
       },
       {
         "end_line": 91,
-        "file": "src/stdd/draw.py",
-        "kind": "function",
-        "line": 87,
-        "name": "draw_directory",
-        "qualified_name": "stdd.draw.draw_directory",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.draw_directory"
-      },
-      {
-        "end_line": 91,
         "file": "src/stdd/templates/adapters/js_ts_static_adapter.js",
         "kind": "function",
         "line": 91,
@@ -13520,20 +13694,30 @@
         "symbol_id": "tests/test_backlog_server.py:tests.test_backlog_server.test_draw_server_updates_backlog_checklist"
       },
       {
-        "end_line": 915,
+        "end_line": 917,
         "file": "src/stdd/backlog.py",
         "kind": "function",
-        "line": 892,
-        "name": "update_backlog_checklist",
-        "qualified_name": "stdd.backlog.update_backlog_checklist",
+        "line": 908,
+        "name": "_refresh_task_checklist_items",
+        "qualified_name": "stdd.backlog._refresh_task_checklist_items",
         "source": "python_ast",
-        "symbol_id": "src/stdd/backlog.py:stdd.backlog.update_backlog_checklist"
+        "symbol_id": "src/stdd/backlog.py:stdd.backlog._refresh_task_checklist_items"
       },
       {
-        "end_line": 920,
+        "end_line": 92,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 907,
+        "line": 88,
+        "name": "draw_directory",
+        "qualified_name": "stdd.draw.draw_directory",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/draw.py:stdd.draw.draw_directory"
+      },
+      {
+        "end_line": 921,
+        "file": "src/stdd/draw.py",
+        "kind": "function",
+        "line": 908,
         "name": "read_draw_index",
         "qualified_name": "stdd.draw.read_draw_index",
         "source": "python_ast",
@@ -13570,6 +13754,16 @@
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_secret_scanner_does_not_allow_marker_in_production_file"
       },
       {
+        "end_line": 943,
+        "file": "src/stdd/backlog.py",
+        "kind": "function",
+        "line": 920,
+        "name": "update_backlog_checklist",
+        "qualified_name": "stdd.backlog.update_backlog_checklist",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/backlog.py:stdd.backlog.update_backlog_checklist"
+      },
+      {
         "end_line": 95,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -13578,16 +13772,6 @@
         "qualified_name": "tests.test_draw.test_create_draw_writes_only_json_and_light_index",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_writes_only_json_and_light_index"
-      },
-      {
-        "end_line": 956,
-        "file": "src/stdd/backlog.py",
-        "kind": "function",
-        "line": 918,
-        "name": "next_backlog_test",
-        "qualified_name": "stdd.backlog.next_backlog_test",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/backlog.py:stdd.backlog.next_backlog_test"
       },
       {
         "end_line": 959,
@@ -13600,24 +13784,34 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_uses_react_flow_at_the_renderer_boundary"
       },
       {
-        "end_line": 96,
+        "end_line": 97,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 94,
+        "line": 95,
         "name": "facts_directory",
         "qualified_name": "stdd.draw.facts_directory",
         "source": "python_ast",
         "symbol_id": "src/stdd/draw.py:stdd.draw.facts_directory"
       },
       {
-        "end_line": 974,
+        "end_line": 975,
         "file": "src/stdd/draw.py",
         "kind": "function",
-        "line": 923,
+        "line": 924,
         "name": "find_addressed_questions",
         "qualified_name": "stdd.draw.find_addressed_questions",
         "source": "python_ast",
         "symbol_id": "src/stdd/draw.py:stdd.draw.find_addressed_questions"
+      },
+      {
+        "end_line": 983,
+        "file": "src/stdd/backlog.py",
+        "kind": "function",
+        "line": 946,
+        "name": "next_backlog_test",
+        "qualified_name": "stdd.backlog.next_backlog_test",
+        "source": "python_ast",
+        "symbol_id": "src/stdd/backlog.py:stdd.backlog.next_backlog_test"
       },
       {
         "end_line": 99,
@@ -13648,16 +13842,6 @@
         "qualified_name": "tests.test_draw.test_draw_html_supports_direct_editing_reorganization_and_condition_visuals",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_supports_direct_editing_reorganization_and_condition_visuals"
-      },
-      {
-        "end_line": 997,
-        "file": "src/stdd/backlog.py",
-        "kind": "function",
-        "line": 959,
-        "name": "next_backlog_task",
-        "qualified_name": "stdd.backlog.next_backlog_task",
-        "source": "python_ast",
-        "symbol_id": "src/stdd/backlog.py:stdd.backlog.next_backlog_task"
       }
     ],
     "dependencies": [
@@ -13741,6 +13925,13 @@
         "source": "draw-editor/src/App.tsx",
         "source_tool": "typescript_compiler_api",
         "target": "./components/MetadataModal"
+      },
+      {
+        "file": "draw-editor/src/App.tsx",
+        "kind": "import",
+        "source": "draw-editor/src/App.tsx",
+        "source_tool": "typescript_compiler_api",
+        "target": "./components/NodeEditModal"
       },
       {
         "file": "draw-editor/src/App.tsx",
@@ -14319,6 +14510,13 @@
         "kind": "import",
         "source": "draw-editor/src/components/CustomNode.tsx",
         "source_tool": "typescript_compiler_api",
+        "target": "../utils"
+      },
+      {
+        "file": "draw-editor/src/components/CustomNode.tsx",
+        "kind": "import",
+        "source": "draw-editor/src/components/CustomNode.tsx",
+        "source_tool": "typescript_compiler_api",
         "target": "@xyflow/react"
       },
       {
@@ -14516,6 +14714,36 @@
         "target": "react"
       },
       {
+        "file": "draw-editor/src/components/NodeEditModal.tsx",
+        "kind": "calls",
+        "resolution": "unresolved",
+        "source": "<anonymous>",
+        "source_file": "draw-editor/src/components/NodeEditModal.tsx",
+        "source_tool": "typescript_compiler_api",
+        "target": "setDescription"
+      },
+      {
+        "file": "draw-editor/src/components/NodeEditModal.tsx",
+        "kind": "import",
+        "source": "draw-editor/src/components/NodeEditModal.tsx",
+        "source_tool": "typescript_compiler_api",
+        "target": "../types"
+      },
+      {
+        "file": "draw-editor/src/components/NodeEditModal.tsx",
+        "kind": "import",
+        "source": "draw-editor/src/components/NodeEditModal.tsx",
+        "source_tool": "typescript_compiler_api",
+        "target": "lucide-react"
+      },
+      {
+        "file": "draw-editor/src/components/NodeEditModal.tsx",
+        "kind": "import",
+        "source": "draw-editor/src/components/NodeEditModal.tsx",
+        "source_tool": "typescript_compiler_api",
+        "target": "react"
+      },
+      {
         "file": "draw-editor/src/components/QuestionsModal.tsx",
         "kind": "calls",
         "resolution": "unresolved",
@@ -14530,6 +14758,13 @@
         "source": "draw-editor/src/components/QuestionsModal.tsx",
         "source_tool": "typescript_compiler_api",
         "target": "../types"
+      },
+      {
+        "file": "draw-editor/src/components/QuestionsModal.tsx",
+        "kind": "import",
+        "source": "draw-editor/src/components/QuestionsModal.tsx",
+        "source_tool": "typescript_compiler_api",
+        "target": "../utils"
       },
       {
         "file": "draw-editor/src/components/QuestionsModal.tsx",
@@ -15863,6 +16098,49 @@
         "target": "react-dom/client"
       },
       {
+        "file": "draw-editor/src/utils.tsx",
+        "kind": "calls",
+        "resolution": "unresolved",
+        "source": "<anonymous>",
+        "source_file": "draw-editor/src/utils.tsx",
+        "source_tool": "typescript_compiler_api",
+        "target": "handleInput"
+      },
+      {
+        "file": "draw-editor/src/utils.tsx",
+        "kind": "calls",
+        "resolution": "unresolved",
+        "source": "renderWithMentions",
+        "source_file": "draw-editor/src/utils.tsx",
+        "source_tool": "typescript_compiler_api",
+        "target": "part.match"
+      },
+      {
+        "file": "draw-editor/src/utils.tsx",
+        "kind": "calls",
+        "resolution": "unresolved",
+        "source": "renderWithMentions",
+        "source_file": "draw-editor/src/utils.tsx",
+        "source_tool": "typescript_compiler_api",
+        "target": "parts.map"
+      },
+      {
+        "file": "draw-editor/src/utils.tsx",
+        "kind": "calls",
+        "resolution": "unresolved",
+        "source": "renderWithMentions",
+        "source_file": "draw-editor/src/utils.tsx",
+        "source_tool": "typescript_compiler_api",
+        "target": "text.split"
+      },
+      {
+        "file": "draw-editor/src/utils.tsx",
+        "kind": "import",
+        "source": "draw-editor/src/utils.tsx",
+        "source_tool": "typescript_compiler_api",
+        "target": "react"
+      },
+      {
         "file": "draw-editor/vite.config.ts",
         "kind": "import",
         "source": "draw-editor/vite.config.ts",
@@ -16092,6 +16370,13 @@
         "source": "stdd.core",
         "source_tool": "python_ast",
         "target": "draw"
+      },
+      {
+        "file": "src/stdd/core.py",
+        "kind": "import",
+        "source": "stdd.core",
+        "source_tool": "python_ast",
+        "target": "fnmatch"
       },
       {
         "file": "src/stdd/core.py",
@@ -18155,6 +18440,27 @@
         "source": "tests.test_traceability",
         "source_tool": "python_ast",
         "target": "typer.testing"
+      },
+      {
+        "file": "update_backlog.py",
+        "kind": "import",
+        "source": "update_backlog",
+        "source_tool": "python_ast",
+        "target": "pathlib"
+      },
+      {
+        "file": "update_backlog.py",
+        "kind": "import",
+        "source": "update_backlog",
+        "source_tool": "python_ast",
+        "target": "re"
+      },
+      {
+        "file": "update_cli.py",
+        "kind": "import",
+        "source": "update_cli",
+        "source_tool": "python_ast",
+        "target": "re"
       }
     ],
     "changes": []

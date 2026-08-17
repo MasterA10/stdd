@@ -11,7 +11,7 @@ Use esta skill quando uma feature, decisão, arquitetura ou trade-off ficar mais
 
 Quando o desenho fizer parte de um sistema maior, preserve uma árvore explícita de níveis:
 
-- **Nível 1 — arquitetura:** escolhas macro ao redor da codebase, como aplicativo, linguagem, runtime, banco, cache, autenticação e sistemas externos. Não descrever comportamento do aplicativo aqui.
+- **Nível 1 (Feature/Architecture):** escolhas macro ao redor da codebase, focando em integrações fora da codebase principal (como serviços externos, banco de dados, infraestrutura, deploy, aplicativo, linguagem, runtime, cache e autenticação). **O que NÃO deve conter:** detalhes profundos de regras de negócio locais, minúcias de implementação interna e comportamento do aplicativo.
 - **Nível 2 — jornada:** navegação e operação de cada usuário, incluindo cliente, administrador e outros papéis, com opções, permissões, regras de negócio e estados observáveis. Uma opção ainda não implementada é uma folha terminal, sem continuação fictícia.
 - **Nível 3 — implementação:** como o backend atende uma jornada, incluindo API, validações, autorização, persistência, eventos, integrações e falhas.
 - **Nível 4 — codebase:** arquivos, módulos, símbolos, testes e dependências reais, somente quando a complexidade justificar.
@@ -177,7 +177,7 @@ Perguntas respondidas permanecem no JSON como histórico. Não invente respostas
 ## Semântica dos blocos e grupos
 
 - O nó não possui tipo estrutural: não use `processo`, `decisão`, `ator`, `api` ou qualquer outro campo `nodes[].type`.
-- Pontos de decisão não são nós. A decisão é expressa pelas setas e por suas condições (`condition`, `label` e `description`).
+- Pontos de decisão não são nós. A decisão é expressa unicamente pelas setas (edges) e por suas condições (`condition`, `label` e `description`), NUNCA por tipos de nó.
 - Use `groups` para representar domínio, responsabilidade ou fronteira visual. A cor do bloco vem exclusivamente do grupo; não grave cores individuais no nó.
 - Um bloco sem grupo usa a aparência neutra do viewer. Para alterar o grupo, edite o campo `group` do nó no editor.
 

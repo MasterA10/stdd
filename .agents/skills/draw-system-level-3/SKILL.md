@@ -7,7 +7,7 @@ description: "Cria o nível 3 de um Draw System no STDD: o Controller detalhado 
 
 ## Responsabilidade
 
-Ser a ponte entre a View do nível 2 e a codebase do nível 4. Cada subfluxo corresponde a uma tela/nó do nível 2 que foi avaliado como necessitando de detalhamento. O nível 3 não é um fluxo genérico: ele começa pelas ações que a pessoa pode executar naquela tela e explica o comportamento iniciado por cada uma. O texto explica o comportamento em linguagem simples; o nó recebe `code_refs` de funções, handlers, services, use cases, endpoints e validadores reais quando encontrados.
+Ser a ponte entre a View do nível 2 e a codebase do nível 4. Esta skill permite modelagem de fluxos e loops **do zero**, inclusive para repositórios vazios. Não presuma que sempre existirá uma base de código prévia. Quando o repositório estiver vazio, os nós devem descrever o comportamento planejado em linguagem natural sem exigir `code_refs` reais. Cada subfluxo corresponde a uma tela/nó do nível 2 que foi avaliado como necessitando de detalhamento. O nível 3 não é um fluxo genérico: ele começa pelas ações que a pessoa pode executar naquela tela e explica o comportamento iniciado por cada uma. O texto explica o comportamento em linguagem simples; o nó recebe `code_refs` de funções, handlers, services, use cases, endpoints e validadores reais quando encontrados.
 
 Use esta skill somente depois de ler o nível 2, sua raiz e os descendentes relevantes. Não refaça a navegação global do nível 2, não transforme o nível 3 em lista de nomes técnicos e não abra nível 4 automaticamente.
 
@@ -15,10 +15,10 @@ Use esta skill somente depois de ler o nível 2, sua raiz e os descendentes rele
 
 O sucesso desta etapa depende obrigatoriamente da leitura do símbolo associado ao nó do nível 2 e da sua referência na codebase.
 
-- **Nenhum fluxo pode ser criado sem a leitura prévia do símbolo correspondente da implementação.**
+- **Nenhum fluxo pode ser criado sem a leitura prévia do símbolo correspondente da implementação, a menos que o projeto seja construído do zero e o repositório esteja vazio.**
 - Para explicar o fluxo de um nó vindo do nível 2 e criar o subfluxo de nível 3 para ele, o agente deve obrigatoriamente ler o símbolo e a referência dele no código-fonte.
 - Não é para implementar ou criar nenhum fluxo sem reler a implementação do símbolo correspondente.
-- Caso a referência ou o símbolo do nó do nível 2 ainda esteja pendente, utilize a análise estática e a busca no repositório para localizar a função, classe, handler ou service correspondente na codebase e faça sua leitura completa antes de desenhar o subfluxo.
+- Caso a referência ou o símbolo do nó do nível 2 ainda esteja pendente, utilize a análise estática e a busca no repositório para localizar a função, classe, handler ou service correspondente na codebase e faça sua leitura completa antes de desenhar o subfluxo (exceto se for repositório vazio, onde o comportamento é apenas planejado).
 - O detalhamento das regras de negócio, pré-condições, autorizações, validações, ramificações e saídas do nível 3 deve ser extraído diretamente da leitura do código do símbolo.
 
 
@@ -32,7 +32,7 @@ O pai mostra apenas a cápsula da tela e aponta para o filho. O filho mostra som
 
 O subfluxo de uma tela deve começar com um conjunto de nós-gatilho: crie um nó inicial para cada botão, link, aba, filtro, envio, confirmação, cancelamento, retorno ou outra ação de usuário comprovada que a tela permita. A tela fornece o contexto, mas não substitui os nós das ações. Não esconder várias ações em um único nó chamado `Controller`, `Interação` ou equivalente.
 
-Cada nó-gatilho deve estar conectado a outros nós por edges e iniciar uma sequência que explique o caso de uso correspondente: intenção, pré-condições, dados necessários, regra de negócio, autorização, validações, decisões, resultado, erro, bloqueio, retry, recuperação e saída. O primeiro nó de cada caminho é a ação do usuário; os nós seguintes explicam o que o sistema faz e o que a pessoa observa, sem antecipar detalhes técnicos do nível 4.
+Cada nó-gatilho deve estar conectado a outros nós por edges e iniciar uma sequência que explique o caso de uso correspondente: intenção, pré-condições, dados necessários, regra de negócio, autorização, validações, decisões, resultado, erro, bloqueio, retry, recuperação e saída. O primeiro nó de cada caminho é a ação do usuário; os nós seguintes explicam o que o sistema faz e o que a pessoa observa, sem antecipar detalhes técnicos do nível 4. **Atenção à posição de validações:** nós de validação devem ficar obrigatoriamente ANTES das ações críticas (ex: validar antes de persistir), e não soltos no fim do fluxo.
 
 Quando ações diferentes tiverem exatamente a mesma regra e o mesmo comportamento comprovado, elas podem convergir para um nó compartilhado depois de seus gatilhos. A convergência não autoriza apagar os gatilhos nem tratar ações diferentes como uma única ação. Quando os comportamentos divergirem, manter caminhos separados. Eventos automáticos, loading, atualização, timeout e reconexão podem aparecer como estados ou consequências do caminho acionado, mas não substituem as ações de entrada da tela.
 
@@ -111,6 +111,8 @@ Toda seta usa `condition` numérico:
 - `1` (`então`) é consequência certa e pode coexistir com um conjunto de `3` (`se`) ou de `2` (`ou`);
 - `3` (`se`) é guarda possível. Se houver um `se`, deve haver pelo menos outro `se` correspondente na mesma origem;
 - `2` (`ou`) é alternativa mutuamente exclusiva.
+
+**Tratamento de erros em conexões:** Não usar conectores sequenciais determinísticos (`então`, condition=1) para caminhos de erros ou falhas. Usar `se` (condition=3) ou `ou` (condition=2) para ramificações de erro.
 
 Nunca misture `se` com `ou` na mesma decisão. Nunca misture `ou` com `se`: são a mesma proibição vista pela outra direção. O `então` pode acompanhar uma família porque é a continuação inevitável. Se os caminhos puderem ocorrer juntos, use sequência ou paralelismo. Decisões são expressas pelas setas, não por `nodes[].type`.
 

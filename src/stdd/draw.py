@@ -71,7 +71,8 @@ def logical_draw_payload(payload: dict[str, Any]) -> dict[str, Any]:
     Layout, cores, dimensões, rotas e datas são responsabilidade do renderer e do índice.
     """
     document = deepcopy(payload)
-    for key in PRESENTATION_KEYS | {"created_at", "updated_at"}:
+    # DEPRECATED: tradeoffs removido do contrato ativo; aceito apenas na leitura
+    for key in PRESENTATION_KEYS | {"created_at", "updated_at", "tradeoffs"}:
         document.pop(key, None)
     for collection in ("groups", "nodes", "edges"):
         for item in document.get(collection, []):
@@ -1040,11 +1041,32 @@ def _atomic_write(path: Path, content: str) -> None:
     temporary.replace(path)
 
 
+def _strip_answered_tags(nodes: list[dict]) -> list[dict]:
+    """Remove marcações de perguntas que já foram respondidas."""
+    for node in nodes:
+        if not isinstance(node, dict):
+            continue
+        for question in node.get("questions", []):
+            if not isinstance(question, dict):
+                continue
+            answer = question.get("answer")
+            is_answered = answer is not None and (not isinstance(answer, str) or bool(answer.strip()))
+            if is_answered:
+                prompt = question.get("prompt")
+                if isinstance(prompt, str):
+                    prompt = re.sub(r'@(?:STDD|developer)\s*', '', prompt, flags=re.IGNORECASE)
+                    prompt = re.sub(r'@OBS\s*', '', prompt, flags=re.IGNORECASE)
+                    question["prompt"] = prompt.strip()
+    return nodes
+
+
 def create_draw(root: Path, payload: dict[str, Any]) -> Path:
     """Valida e grava um desenho JSON, atualizando somente o índice leve.
     Sobrescreve o mesmo ID de forma atômica e nunca produz HTML individual.
     """
     logical_payload = logical_draw_payload(payload)
+    if isinstance(logical_payload.get("nodes"), list):
+        logical_payload["nodes"] = _strip_answered_tags(logical_payload["nodes"])
     violations = validate_draw_payload(logical_payload)
     if violations:
         raise ValueError("Desenho inválido: " + "; ".join(violations))

@@ -95,7 +95,11 @@ Não limitar a estratégia a testes funcionais, mas também não criar uma suít
 | Revisão visual | a mudança é principalmente frontend, layout, interação visual ou renderização |
 | Documentação | o Markdown possui comandos executáveis, schema ou contrato que pode quebrar |
 
-Frontend não exige teste automatizado por padrão. Criar teste quando houver lógica crítica, transformação de dados, estado complexo, acessibilidade, segurança ou impacto de negócio; para renderização e layout, registrar revisão visual humana. Markdown não exige teste automatizado quando é apenas documentação.
+### Testes de Integração e Funcionais
+
+Os testes de integração devem ser robustos e usar asserções funcionais REAIS: teste se os dados foram de fato gravados no banco, teste o conteúdo da resposta da API e verifique os side-effects esperados. É expressamente PROIBIDO aceitar asserções superficiais que apenas verificam se uma função foi chamada (como mocks simples de chamada sem validar estado). Além disso, não exija validação manual repetitiva por parte do usuário para cada detalhe que já foi aprovado e documentado no fluxo do Draw.
+
+Frontend não exige teste automatizado por padrão. Criar teste quando houver lógica crítica, transformação de dados, estado complexo, acessibilidade, segurança ou impacto de negócio; para renderização e layout, registrar revisão visual humana. **Teste de contraste visual:** quando houver frontend, execute scripts de teste headless para checar a acessibilidade básica (ex: evitar texto branco sobre fundo branco, garantindo contraste mínimo). Markdown não exige teste automatizado quando é apenas documentação.
 
 ### Teste live de inteligência artificial
 
