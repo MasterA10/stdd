@@ -181,6 +181,11 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list
                         },
                     },
                     "tracked_extensions": sorted(list(DEFAULT_CODE_EXTENSIONS)),
+                    "backlog": {
+                        "bootstrap_task": False,
+                        "l2_verification_interval": 0,
+                        "final_verification_task": False,
+                    },
                     "version": 1,
                 },
                 indent=2,

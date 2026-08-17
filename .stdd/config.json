@@ -15,6 +15,11 @@
     "description_language": "pt-BR",
     "short_description_max_chars": 160
   },
+  "backlog": {
+    "bootstrap_task": true,
+    "l2_verification_interval": 1,
+    "final_verification_task": true
+  },
   "static_analysis": {
     "enabled": true,
     "adapter_command": [

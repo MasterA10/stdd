@@ -18,7 +18,15 @@ from .core import (
     record_run_entry,
     run_tests,
 )
-from .backlog import complete_backlog_task, generate_backlog, missing_backlog, next_backlog_task, next_backlog_test
+from .backlog import (
+    complete_backlog_task,
+    generate_backlog,
+    get_backlog_config,
+    missing_backlog,
+    next_backlog_task,
+    next_backlog_test,
+    set_backlog_config,
+)
 from .draw import (
     analyze_draw_contract,
     analyze_draw_structure,
@@ -89,6 +97,8 @@ def _compact_backlog_response(response: dict[str, object]) -> dict[str, object]:
     decision = _first_answer(task.get("questions"))
     if decision is not None:
         compact["decision"] = {"question": decision[0], "answer": decision[1]}
+    if task.get("verified_nodes"):
+        compact["verified_nodes"] = task.get("verified_nodes")
     reason_labels = {
         "test_missing": "os testes da task ainda não foram comprovados",
         "test_not_complete": "o checklist de testes ainda não foi concluído",
@@ -129,6 +139,14 @@ def _format_backlog_response(response: dict[str, object]) -> str:
         lines.append(f"ID: {compact['task_id']}")
     if compact.get("description"):
         lines.append(f"Descrição: {compact['description']}")
+    verified_nodes = compact.get("verified_nodes")
+    if isinstance(verified_nodes, list) and len(verified_nodes) > 1:
+        lines.append(f"Nós no lote ({len(verified_nodes)}):")
+        for vn in verified_nodes:
+            lbl = vn.get("label", f"Nó {vn.get('node_id')}")
+            syms = ", ".join(vn.get("symbols", []))
+            syms_str = f" [Símbolos: {syms}]" if syms else ""
+            lines.append(f"  • Nó {vn.get('node_id')}: {lbl}{syms_str}")
     decision = compact.get("decision")
     if isinstance(decision, dict):
         lines.append(f"Decisão: {decision['question']} → {decision['answer']}")
@@ -142,7 +160,7 @@ def _format_backlog_response(response: dict[str, object]) -> str:
     if isinstance(access_paths, list):
         for path in access_paths:
             lines.append(f"Origem: {path.replace(' → Nó atual', '')}")
-    return "\\n".join(lines)
+    return "\n".join(lines)
 
 
 @app.command()
@@ -305,13 +323,39 @@ def backlog_missing() -> None:
 @backlog_app.command("task")
 def backlog_task(
     json_output: bool = typer.Option(False, "--json", help="Retorna o payload estruturado completo."),
+    interval: Optional[int] = typer.Option(None, "--interval", "--verification-interval", help="Sobrescreve o intervalo de nós L2 para injeção de tarefas de verificação."),
 ) -> None:
     """Entrega uma única task e a reserva para o agente atual.
     Por padrão, exibe apenas o contexto acionável em linguagem humana.
     """
     try:
-        response = next_backlog_task(project_root())
+        response = next_backlog_task(project_root(), verification_interval=interval)
         typer.echo(json.dumps(response, ensure_ascii=False, indent=2) if json_output else _format_backlog_response(response))
+    except (OSError, ValueError) as error:
+        typer.echo(f"Erro: {error}", err=True)
+        raise typer.Exit(1)
+
+
+@backlog_app.command("config")
+def backlog_config(
+    interval: Optional[int] = typer.Option(None, "--interval", "--verification-interval", help="Define o intervalo de nós L2 para injeção de tarefas de verificação."),
+    bootstrap: Optional[bool] = typer.Option(None, "--bootstrap/--no-bootstrap", help="Habilita ou desabilita a task de bootstrap inicial."),
+    final_verification: Optional[bool] = typer.Option(None, "--final-verification/--no-final-verification", help="Habilita ou desabilita a task de verificação final E2E."),
+) -> None:
+    """Exibe ou atualiza as configurações do backlog em .stdd/config.json."""
+    try:
+        root = project_root()
+        if interval is not None or bootstrap is not None or final_verification is not None:
+            updated = set_backlog_config(
+                root,
+                verification_interval=interval,
+                bootstrap_task=bootstrap,
+                final_verification_task=final_verification,
+            )
+            typer.echo(f"Configuração do backlog atualizada: {json.dumps(updated, ensure_ascii=False)}")
+        else:
+            current = get_backlog_config(root)
+            typer.echo(json.dumps(current, ensure_ascii=False, indent=2))
     except (OSError, ValueError) as error:
         typer.echo(f"Erro: {error}", err=True)
         raise typer.Exit(1)

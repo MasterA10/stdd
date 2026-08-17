@@ -47,6 +47,14 @@ A saída padrão de `stdd backlog task` é resumida e humana. Quando for necess�
 
 Quando a resposta trouxer `parent_task`, `subtask` e `subtasks`, preservar o pai como contexto e concluir pai e subtasks por seus próprios IDs. O checklist de implementação só pode ser marcado depois que `phase_checklists.test` do nó e dos subfluxos estiver concluído.
 
+### Tasks Operacionais Injetadas (Bootstrap, Verificação e Encerramento)
+
+O cursor do backlog pode injetar tasks operacionais especiais durante a jornada:
+
+1. **`task:bootstrap`**: O agente deve verificar se dependências, `.env`, arquivos de configuração ou referências da stack precisam ser preparados antes de iniciar o desenvolvimento.
+2. **`task:verify:...` (Verificação da Implementação de Nós L2)**: O agente deve auditar o código implementado em relação à especificação do Draw. **Não altere nem questione o desenho/fluxo**: o objetivo exclusivo é conferir se o código de produção cumpre com precisão as regras, validações de entrada, persistência real e integrações descritas nas telas e subfluxos, corrigindo eventuais falhas ou lacunas de implementação antes de avançar.
+3. **`task:final:verification`**: O agente deve auditar a aplicação completa de ponta a ponta, garantir que a suíte de testes passa 100% e confirmar a associação de símbolos reais (`code_refs`) e testes a todos os nós L2 e L3.
+
 ### Uso da análise estática para refatoração segura
 
 Quando houver relatório de `static_analysis`, o agente deve usá-lo como evidência de risco, não como ordem automática de reescrita. Para cada `quality_finding` relevante:

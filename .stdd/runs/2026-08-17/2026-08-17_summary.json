@@ -64,8 +64,113 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "f0e2c36bef534a01a8174e9e644bfee8",
+      "timestamp": "2026-08-17T23:10:21.053837+00:00",
+      "description": "Injeção de tasks de bootstrap, verificação funcional por nó L2 e verificação final E2E no backlog",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 424,
+        "lines_deleted": 6,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "13d0e215e34d495fb746b1b9dec71bce",
+      "timestamp": "2026-08-17T23:13:19.518066+00:00",
+      "description": "Configuração do intervalo de verificação de nós L2 via CLI (stdd backlog config e stdd backlog task --interval)",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 112,
+        "lines_deleted": 3,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "5dcc963ec2c74574a8fdf4a4c2d045cb",
+      "timestamp": "2026-08-17T23:16:19.570367+00:00",
+      "description": "Enriquecimento de metadados estruturais na task de verificação de nó L2",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 7,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "2f6bf6860ae24450bcc226e6fec41505",
+      "timestamp": "2026-08-17T23:19:52.037738+00:00",
+      "description": "Unificação da injeção de verificação em lote com envio simultâneo de todos os nós L2 do intervalo",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 137,
+        "lines_deleted": 72,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "cdd0c7ca9a934392bd542c3992f5f95b",
+      "timestamp": "2026-08-17T23:24:27.673334+00:00",
+      "description": "Ajuste dos textos de verificação para focar na auditoria da implementação contra o Draw sem alterar fluxo",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 12,
+        "lines_deleted": 12,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 3,
-  "last_run_id": "908e387e446e46cab1b9a880671b67ed"
+  "run_count": 8,
+  "last_run_id": "cdd0c7ca9a934392bd542c3992f5f95b"
 }

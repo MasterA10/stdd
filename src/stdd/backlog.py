@@ -18,6 +18,165 @@ VALID_EXECUTION_PHASES = {None, "test", "implementation"}
 VALID_CHECKLIST_PHASES = {"test", "implementation"}
 
 
+def _get_backlog_config(root: Path) -> dict[str, Any]:
+    """Lê a configuração da chave 'backlog' em .stdd/config.json."""
+    config_path = root / ".stdd" / "config.json"
+    if not config_path.exists():
+        return {}
+    try:
+        data = json.loads(config_path.read_text(encoding="utf-8"))
+        if isinstance(data, dict):
+            backlog_cfg = data.get("backlog")
+            if isinstance(backlog_cfg, dict):
+                return backlog_cfg
+    except Exception:
+        pass
+    return {}
+
+
+def get_backlog_config(root: Path) -> dict[str, Any]:
+    """Retorna a configuração da seção 'backlog' em .stdd/config.json."""
+    return _get_backlog_config(root)
+
+
+def set_backlog_config(
+    root: Path,
+    verification_interval: int | None = None,
+    bootstrap_task: bool | None = None,
+    final_verification_task: bool | None = None,
+) -> dict[str, Any]:
+    """Atualiza a seção 'backlog' em .stdd/config.json de forma persistente."""
+    config_path = root / ".stdd" / "config.json"
+    data: dict[str, Any] = {}
+    if config_path.exists():
+        try:
+            data = json.loads(config_path.read_text(encoding="utf-8"))
+            if not isinstance(data, dict):
+                data = {}
+        except Exception:
+            data = {}
+    backlog_cfg = data.setdefault("backlog", {})
+    if not isinstance(backlog_cfg, dict):
+        backlog_cfg = {}
+        data["backlog"] = backlog_cfg
+    if verification_interval is not None:
+        backlog_cfg["l2_verification_interval"] = int(verification_interval)
+    if bootstrap_task is not None:
+        backlog_cfg["bootstrap_task"] = bool(bootstrap_task)
+    if final_verification_task is not None:
+        backlog_cfg["final_verification_task"] = bool(final_verification_task)
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    config_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return backlog_cfg
+
+
+def _create_injected_bootstrap_task() -> dict[str, Any]:
+    """Cria a task operacional inicial de bootstrap e setup."""
+    return {
+        "id": "task:bootstrap",
+        "draw_id": "system",
+        "backlog_id": "system",
+        "label": "Bootstrap e Infraestrutura Inicial",
+        "description": "Verificar dependências, variáveis de ambiente (.env), arquivos raiz ou de referência do framework e documentação inicial.",
+        "level": 1,
+        "status": "in_progress",
+        "test_status": "not-required",
+        "test_evidence": {"status": "not-required", "reason": "bootstrap inicial"},
+        "checklist_state": {"test": True, "implementation": False},
+        "branch": {"id": "system:bootstrap", "position": 1},
+        "branches": [{"id": "system:bootstrap", "position": 1}],
+    }
+
+
+def _create_injected_l2_batch_verify_task(target_nodes: list[dict[str, Any]]) -> dict[str, Any]:
+    """Cria a task de verificação funcional em lote para 1 ou mais nós L2 finalizados."""
+    if not target_nodes:
+        raise ValueError("lista de nós vazia para verificação")
+    if len(target_nodes) == 1:
+        n = target_nodes[0]
+        task_id = f"task:verify:{n.get('draw_id')}:node:{n.get('node_id')}"
+        label = f"Verificação da Implementação — {n.get('label', '')}"
+        desc = f"Auditar e validar o código implementado para o nó '{n.get('label', '')}' e seus subfluxos em relação à especificação do Draw. Não altere o fluxo ou o desenho: confira se a implementação de produção cumpre fielmente as regras de negócio, persistência real, validações de entrada e endpoints."
+    else:
+        labels = [n.get("label", f"Nó {n.get('node_id')}") for n in target_nodes]
+        node_ids_str = ":".join(str(n.get("node_id")) for n in target_nodes)
+        draw_id = target_nodes[0].get("draw_id", "system")
+        task_id = f"task:verify:{draw_id}:batch:{node_ids_str}"
+        label = f"Verificação da Implementação em Lote — ({len(target_nodes)} nós: {', '.join(labels)})"
+        desc = f"Auditar e validar o código implementado para os nós ({', '.join(labels)}) e seus respectivos subfluxos internos em relação à especificação do Draw. Não altere o fluxo ou o desenho: confira se a implementação de produção cumpre fielmente as regras de negócio, persistência real, validações de entrada e endpoints."
+
+    all_symbols: set[str] = set()
+    all_deps: set[str] = set()
+    all_code_refs: list[dict[str, Any]] = []
+    all_questions: list[dict[str, Any]] = []
+    all_child_task_ids: list[str] = []
+    verified_nodes: list[dict[str, Any]] = []
+
+    for n in target_nodes:
+        for s in n.get("symbols", []):
+            all_symbols.add(s)
+        for d in n.get("source_dependencies", []):
+            all_deps.add(d)
+        all_code_refs.extend(deepcopy(n.get("code_refs", [])))
+        all_questions.extend(deepcopy(n.get("questions", [])))
+        all_child_task_ids.extend(n.get("child_task_ids", []))
+        verified_nodes.append({
+            "task_id": n["id"],
+            "draw_id": n.get("draw_id"),
+            "node_id": n.get("node_id"),
+            "label": n.get("label", ""),
+            "description": n.get("description", ""),
+            "symbols": list(n.get("symbols", [])),
+            "source_dependencies": list(n.get("source_dependencies", [])),
+            "code_refs": deepcopy(n.get("code_refs", [])),
+            "questions": deepcopy(n.get("questions", [])),
+            "child_task_ids": list(n.get("child_task_ids", [])),
+        })
+
+    first = target_nodes[0]
+    return {
+        "id": task_id,
+        "draw_id": first.get("draw_id"),
+        "backlog_id": first.get("backlog_id"),
+        "parent_task_id": first.get("id"),
+        "node_id": first.get("node_id"),
+        "label": label,
+        "description": desc,
+        "level": 2,
+        "status": "in_progress",
+        "verified_nodes": verified_nodes,
+        "verified_task_ids": [n["id"] for n in target_nodes],
+        "questions": all_questions,
+        "code_refs": all_code_refs,
+        "symbols": sorted(all_symbols),
+        "source_dependencies": sorted(all_deps),
+        "child_task_ids": all_child_task_ids,
+        "test_status": "not-required",
+        "test_evidence": {"status": "not-required", "reason": "verificação em lote de nós L2"},
+        "checklist_state": {"test": True, "implementation": False},
+        "branch": first.get("branch", {}),
+        "branches": first.get("branches", []),
+    }
+
+
+def _create_injected_final_task() -> dict[str, Any]:
+    """Cria a task de encerramento final e verificação end-to-end do MVP."""
+    return {
+        "id": "task:final:verification",
+        "draw_id": "system",
+        "backlog_id": "system",
+        "label": "Verificação Final da Implementação e Associação de Símbolos",
+        "description": "Realizar a auditoria final de ponta a ponta do código implementado do MVP em relação à especificação e associar os símbolos e testes reais aos nós correspondentes.",
+        "level": 1,
+        "status": "in_progress",
+        "test_status": "not-required",
+        "test_evidence": {"status": "not-required", "reason": "verificação final do MVP"},
+        "checklist_state": {"test": True, "implementation": False},
+        "branch": {"id": "system:final", "position": 1},
+        "branches": [{"id": "system:final", "position": 1}],
+    }
+
+
 def backlog_path(root: Path) -> Path:
     """Retorna o arquivo agregado e persistente do backlog do projeto."""
     return root / ".stdd" / "backlog.json"
@@ -607,8 +766,10 @@ def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]
     previous_execution = previous.get("execution", {}) if isinstance(previous.get("execution", {}), dict) else {}
     current_phase = previous_execution.get("current_phase")
     valid_task_ids = {task["id"] for task in tasks}
-    current_task_id = previous_execution.get("current_task_id") if previous_execution.get("current_task_id") in valid_task_ids else None
-    if current_task_id and current_phase != "test" and next((task for task in tasks if task["id"] == current_task_id), {}).get("status") == "done":
+    prev_id = previous_execution.get("current_task_id")
+    is_injected_id = bool(prev_id and (prev_id == "task:bootstrap" or prev_id.startswith("task:verify:") or prev_id == "task:final:verification"))
+    current_task_id = prev_id if (prev_id in valid_task_ids or is_injected_id) else None
+    if current_task_id and current_phase != "test" and not is_injected_id and next((task for task in tasks if task["id"] == current_task_id), {}).get("status") == "done":
         current_task_id = None
     current_task = next((task for task in tasks if task["id"] == current_task_id), None)
     for checklist in checklists:
@@ -641,12 +802,16 @@ def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]
         "tasks": tasks,
         "execution": {
             "current_task_id": current_task_id,
-            "current_backlog_id": current_task.get("backlog_id") if current_task else None,
+            "current_backlog_id": current_task.get("backlog_id") if current_task else previous_execution.get("current_backlog_id"),
             "current_branch_id": previous_execution.get("current_branch_id"),
             "branch_position": previous_execution.get("branch_position"),
             "current_phase": current_phase,
             "current_parent_task_id": previous_execution.get("current_parent_task_id"),
             "current_subtask_id": previous_execution.get("current_subtask_id"),
+            "bootstrap_done": previous_execution.get("bootstrap_done", False),
+            "verified_l2_task_ids": previous_execution.get("verified_l2_task_ids", []),
+            "current_verified_batch_node_ids": previous_execution.get("current_verified_batch_node_ids", []),
+            "final_verification_done": previous_execution.get("final_verification_done", False),
             "completed_branches": [],
             "branches": execution_branches,
         },
@@ -767,13 +932,35 @@ def check_backlog(root: Path) -> dict[str, Any]:
     ]
     execution = payload.get("execution", {}) if isinstance(payload.get("execution"), dict) else {}
     blocked_by_tests = bool(missing_tests)
+    
+    config = _get_backlog_config(root)
+    bootstrap_pending = bool(tasks and config.get("bootstrap_task", config.get("bootstrap_enabled", False)) and not execution.get("bootstrap_done", False))
+    final_pending = bool(tasks and config.get("final_verification_task", config.get("final_verification_enabled", False)) and not execution.get("final_verification_done", False))
+    
+    interval = config.get("l2_verification_interval", config.get("verification_interval", 0))
+    l2_pending = False
+    if interval > 0:
+        tasks_by_id = {t.get("id"): t for t in tasks}
+        l2_tasks = [t for t in tasks if t.get("level") == 2]
+        verified_ids = set(execution.get("verified_l2_task_ids", []))
+        completed_l2 = [
+            t for t in l2_tasks
+            if t.get("status") == "done" and all(tasks_by_id.get(cid, {}).get("status") == "done" for cid in t.get("child_task_ids", []))
+        ]
+        unverified = [t for t in completed_l2 if t.get("id") not in verified_ids]
+        if unverified and (len(unverified) >= interval or not remaining):
+            l2_pending = True
+
+    injected_pending_count = (1 if bootstrap_pending else 0) + (1 if final_pending else 0) + (1 if l2_pending else 0)
+    has_pending = bool(remaining or blocked_by_tests or injected_pending_count > 0)
+
     return {
         "name": "backlog",
-        "status": "blocked" if remaining or blocked_by_tests else "passed",
-        "reason": "tasks_missing_tests" if blocked_by_tests else "tasks_pending" if remaining else "all_tasks_complete",
+        "status": "blocked" if has_pending else "passed",
+        "reason": "tasks_missing_tests" if blocked_by_tests else "tasks_pending" if has_pending else "all_tasks_complete",
         "total": len(tasks),
         "done": len(tasks) - len(remaining),
-        "remaining": len(remaining),
+        "remaining": len(remaining) + injected_pending_count,
         "remaining_task_ids": [task.get("id") for task in remaining[:10]],
         "missing_tests": len(missing_tests),
         "missing_test_task_ids": [task.get("id") for task in missing_tests[:10]],
@@ -983,13 +1170,58 @@ def next_backlog_test(root: Path) -> dict[str, Any]:
     )
 
 
-def next_backlog_task(root: Path) -> dict[str, Any]:
+def next_backlog_task(root: Path, verification_interval: int | None = None) -> dict[str, Any]:
     """Entrega e persiste a próxima task da ordem de branches."""
     payload = generate_backlog(root)
     execution = payload["execution"]
     current_id = execution.get("current_task_id")
     current_phase = execution.get("current_phase")
+    config = _get_backlog_config(root)
+    if verification_interval is not None:
+        config = {**config, "l2_verification_interval": int(verification_interval)}
+
+    # 1. Se já há uma task em andamento no cursor:
     if current_id:
+        if current_id == "task:bootstrap":
+            task = _create_injected_bootstrap_task()
+            return _task_context(
+                root,
+                payload,
+                task,
+                "implementation",
+                "backlog-task",
+                "Verifique se precisa de algo para iniciar o restante (instalar dependências, .env, arquivos de referência do framework e setup inicial).",
+            )
+        if current_id.startswith("task:verify:"):
+            batch_node_ids = execution.get("current_verified_batch_node_ids", [])
+            tasks_by_id = {t["id"]: t for t in payload["tasks"]}
+            target_nodes = [tasks_by_id[nid] for nid in batch_node_ids if nid in tasks_by_id]
+            if not target_nodes:
+                for t in payload["tasks"]:
+                    if t.get("level") == 2 and (f"task:verify:{t.get('draw_id')}:node:{t.get('node_id')}" == current_id or str(t.get("node_id")) in current_id):
+                        target_nodes.append(t)
+            if target_nodes:
+                task = _create_injected_l2_batch_verify_task(target_nodes)
+                labels_str = ", ".join(f"'{n.get('label')}'" for n in target_nodes)
+                return _task_context(
+                    root,
+                    payload,
+                    task,
+                    "implementation",
+                    "backlog-task",
+                    f"Audite o código implementado para os nós ({labels_str}) e seus subfluxos. Valide se a implementação de produção cumpre fielmente a especificação (regras, persistência, validações e integração real); não altere o fluxo nem o desenho.",
+                )
+        if current_id == "task:final:verification":
+            task = _create_injected_final_task()
+            return _task_context(
+                root,
+                payload,
+                task,
+                "implementation",
+                "backlog-task",
+                "Audite a implementação de ponta a ponta do MVP completo em relação à especificação, execute os testes para garantir estabilidade e associe os símbolos e testes aos nós L2 e L3 correspondentes.",
+            )
+
         current = next((task for task in payload["tasks"] if task["id"] == current_id), None)
         if current_phase == "test" and current and not _test_scope_complete(payload, current):
             response = _task_context(root, payload, current, "test", "backlog-test-required")
@@ -999,15 +1231,94 @@ def next_backlog_task(root: Path) -> dict[str, Any]:
             return _task_context(root, payload, current, "implementation", "backlog-task")
         if current and current.get("status") == "in_progress":
             return _task_context(root, payload, current, "implementation", "backlog-task")
+
+    # 2. Se o próximo nó L2 ainda não tem testes comprovados, bloqueia avisando backlog-test-required
+    pending_task = next((item for item in payload["tasks"] if item.get("status") != "done"), None)
+    if pending_task and pending_task.get("level") == 2 and not _test_scope_complete(payload, pending_task):
+        response = _task_context(root, payload, pending_task, "test", "backlog-test-required")
+        response.update({"status": "blocked", "reason": "test_missing" if pending_task.get("test_status") == "missing" else "test_not_complete"})
+        return response
+
+    # 3. Verifica se precisamos de Bootstrap task (se habilitado e ainda não feito e houver tasks no backlog)
+    has_tasks = len(payload["tasks"]) > 0
+    bootstrap_enabled = config.get("bootstrap_task", config.get("bootstrap_enabled", False))
+    if has_tasks and bootstrap_enabled and not execution.get("bootstrap_done", False):
+        task = _create_injected_bootstrap_task()
+        execution["current_task_id"] = task["id"]
+        execution["current_backlog_id"] = "system"
+        execution["current_phase"] = "implementation"
+        write_backlog(root, payload)
+        return _task_context(
+            root,
+            payload,
+            task,
+            "implementation",
+            "backlog-task",
+            "Verifique se precisa de algo para iniciar o restante (instalar dependências, .env, arquivos de referência do framework e setup inicial).",
+        )
+
+    # 4. Verifica se há verificação de nó L2 pendente que deve rodar antes das próximas tasks
+    interval = config.get("l2_verification_interval", config.get("verification_interval", 0))
+    if interval > 0:
+        tasks_by_id = {t["id"]: t for t in payload["tasks"]}
+        l2_tasks = [t for t in payload["tasks"] if t.get("level") == 2]
+        verified_ids = set(execution.get("verified_l2_task_ids", []))
+        completed_l2 = [
+            t for t in l2_tasks
+            if t.get("status") == "done" and all(tasks_by_id.get(cid, {}).get("status") == "done" for cid in t.get("child_task_ids", []))
+        ]
+        unverified = [t for t in completed_l2 if t["id"] not in verified_ids]
+        all_normal_tasks_done = not any(item.get("status") != "done" for item in payload["tasks"])
+        if unverified and (len(unverified) >= interval or all_normal_tasks_done):
+            batch_count = interval if len(unverified) >= interval else len(unverified)
+            target_nodes = unverified[:batch_count]
+            task = _create_injected_l2_batch_verify_task(target_nodes)
+            execution["current_task_id"] = task["id"]
+            execution["current_verified_batch_node_ids"] = [n["id"] for n in target_nodes]
+            execution["current_backlog_id"] = target_nodes[0].get("backlog_id")
+            execution["current_phase"] = "implementation"
+            write_backlog(root, payload)
+            labels_str = ", ".join(f"'{n.get('label')}'" for n in target_nodes)
+            return _task_context(
+                root,
+                payload,
+                task,
+                "implementation",
+                "backlog-task",
+                f"Audite o código implementado para os nós ({labels_str}) e seus subfluxos. Valide se a implementação de produção cumpre fielmente a especificação (regras, persistência, validações e integração real); não altere o fluxo nem o desenho.",
+            )
+
+    # 5. Busca a próxima task normal do backlog
     task = next((item for item in payload["tasks"] if item.get("status") != "done"), None)
     if task is None:
+        # Se todas as tasks normais foram concluídas, verifica se precisamos da Task Final
+        final_enabled = config.get("final_verification_task", config.get("final_verification_enabled", False))
+        if has_tasks and final_enabled and not execution.get("final_verification_done", False):
+            final_task = _create_injected_final_task()
+            execution["current_task_id"] = final_task["id"]
+            execution["current_backlog_id"] = "system"
+            execution["current_phase"] = "implementation"
+            write_backlog(root, payload)
+            return _task_context(
+                root,
+                payload,
+                final_task,
+                "implementation",
+                "backlog-task",
+                "Audite a implementação de ponta a ponta do MVP completo em relação à especificação, execute os testes para garantir estabilidade e associe os símbolos e testes aos nós L2 e L3 correspondentes.",
+            )
+
         _clear_execution_cursor(execution)
         write_backlog(root, payload)
         return {"kind": "backlog-empty", "status": "complete", "remaining": 0}
+
+    # 6. Se for nó L2 sem teste comprovado, bloqueia avisando
     if task.get("level") == 2 and not _test_scope_complete(payload, task):
         response = _task_context(root, payload, task, "test", "backlog-test-required")
         response.update({"status": "blocked", "reason": "test_missing" if task.get("test_status") == "missing" else "test_not_complete"})
         return response
+
+    # 7. Reserva a task normal de implementação
     task["status"] = "in_progress"
     execution["current_task_id"] = task["id"]
     execution["current_backlog_id"] = task.get("backlog_id")
@@ -1029,6 +1340,64 @@ def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
     payload = generate_backlog(root)
     execution = payload["execution"]
     current_id = execution.get("current_task_id")
+
+    # Tratamento para Bootstrap Task
+    if task_id == "task:bootstrap":
+        if current_id != "task:bootstrap":
+            raise ValueError("task atual não está em andamento")
+        execution["bootstrap_done"] = True
+        _clear_execution_cursor(execution)
+        write_backlog(root, payload)
+        task = _create_injected_bootstrap_task()
+        task["status"] = "done"
+        task["checklist_state"] = {"test": True, "implementation": True}
+        response = _task_context(root, payload, task, "implementation", "backlog-complete")
+        response.update({"status": "done", "remaining": sum(1 for item in payload["tasks"] if item.get("status") != "done")})
+        return response
+
+    # Tratamento para Verificação de Nó L2 (individual ou em lote)
+    if task_id.startswith("task:verify:"):
+        if current_id != task_id:
+            raise ValueError("task atual não está em andamento")
+        batch_node_ids = execution.get("current_verified_batch_node_ids", [])
+        tasks_by_id = {t["id"]: t for t in payload["tasks"]}
+        target_nodes = [tasks_by_id[nid] for nid in batch_node_ids if nid in tasks_by_id]
+        if not target_nodes:
+            for t in payload["tasks"]:
+                if t.get("level") == 2 and (f"task:verify:{t.get('draw_id')}:node:{t.get('node_id')}" == task_id or str(t.get("node_id")) in task_id):
+                    target_nodes.append(t)
+
+        verified = execution.setdefault("verified_l2_task_ids", [])
+        for n in target_nodes:
+            if n["id"] not in verified:
+                verified.append(n["id"])
+
+        execution.pop("current_verified_batch_node_ids", None)
+        _clear_execution_cursor(execution)
+        write_backlog(root, payload)
+        task = _create_injected_l2_batch_verify_task(target_nodes) if target_nodes else {
+            "id": task_id, "label": "Verificação Funcional", "level": 2, "status": "done"
+        }
+        task["status"] = "done"
+        task["checklist_state"] = {"test": True, "implementation": True}
+        response = _task_context(root, payload, task, "implementation", "backlog-complete")
+        response.update({"status": "done", "remaining": sum(1 for item in payload["tasks"] if item.get("status") != "done")})
+        return response
+
+    # Tratamento para Task Final
+    if task_id == "task:final:verification":
+        if current_id != "task:final:verification":
+            raise ValueError("task atual não está em andamento")
+        execution["final_verification_done"] = True
+        _clear_execution_cursor(execution)
+        write_backlog(root, payload)
+        task = _create_injected_final_task()
+        task["status"] = "done"
+        task["checklist_state"] = {"test": True, "implementation": True}
+        response = _task_context(root, payload, task, "implementation", "backlog-complete")
+        response.update({"status": "done", "remaining": 0})
+        return response
+
     current = next((item for item in payload["tasks"] if item["id"] == current_id), None)
     requested = next((item for item in payload["tasks"] if item["id"] == task_id), None)
     if requested is None:

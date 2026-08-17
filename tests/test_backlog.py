@@ -577,3 +577,184 @@ def test_stdd_test_blocks_when_backlog_has_unchecked_implementation(tmp_path: Pa
     assert passed_process.returncode == 0
     assert check_backlog(tmp_path)["status"] == "passed"
     assert passed_report["backlog"]["remaining"] == 0
+
+
+def test_backlog_injected_bootstrap_and_final_verification_tasks(tmp_path: Path):
+    """Injeta bootstrap e verificação final no ciclo operacional do backlog.
+    Configura bootstrap e final verification e valida a entrega sequencial e conclusão.
+    """
+    (tmp_path / ".stdd").mkdir()
+    (tmp_path / ".stdd/config.json").write_text(json.dumps({
+        "backlog": {
+            "bootstrap_task": True,
+            "final_verification_task": True,
+        }
+    }), encoding="utf-8")
+    _create_hierarchical_fixture(tmp_path)
+    _write_test_evidence(tmp_path)
+    generate_backlog(tmp_path)
+
+    # 1. Primeira task deve ser o bootstrap
+    first = next_backlog_task(tmp_path)
+    assert first["kind"] == "backlog-task"
+    assert first["task"]["id"] == "task:bootstrap"
+    assert "Bootstrap" in first["task"]["label"]
+
+    complete_backlog_task(tmp_path, "task:bootstrap")
+
+    # 2. Em seguida, as tasks normais de implementação são entregues
+    node1 = next_backlog_task(tmp_path)
+    assert node1["task"]["id"] == "task:jornada:node:1"
+    complete_backlog_task(tmp_path, "task:jornada:node:1")
+
+    node2 = next_backlog_task(tmp_path)
+    assert node2["task"]["id"] == "task:jornada:node:2"
+    complete_backlog_task(tmp_path, "task:jornada:node:2")
+
+    node3 = next_backlog_task(tmp_path)
+    assert node3["task"]["id"] == "task:jornada:node:3"
+    complete_backlog_task(tmp_path, "task:jornada:node:3")
+
+    # 3. Após todas as tasks normais, a task final de verificação E2E e associação de símbolos é entregue
+    final = next_backlog_task(tmp_path)
+    assert final["kind"] == "backlog-task"
+    assert final["task"]["id"] == "task:final:verification"
+    assert "Associação de Símbolos" in final["task"]["label"]
+
+    complete_backlog_task(tmp_path, "task:final:verification")
+
+    # 4. Agora sim o backlog está vazio
+    empty = next_backlog_task(tmp_path)
+    assert empty["kind"] == "backlog-empty"
+
+
+def test_backlog_injected_l2_verification_tasks_per_node(tmp_path: Path):
+    """Injeta verificação funcional ao concluir o escopo de cada nó de nível 2.
+    Conclui as tasks normais e confirma que a verificação intermediária é exigida antes do próximo nó.
+    """
+    (tmp_path / ".stdd").mkdir()
+    (tmp_path / ".stdd/config.json").write_text(json.dumps({
+        "backlog": {
+            "l2_verification_interval": 1,
+        }
+    }), encoding="utf-8")
+    _create_nested_hierarchical_fixture(tmp_path)
+    _write_test_evidence(tmp_path)
+    generate_backlog(tmp_path)
+
+    # Conclui nó 1 (e suas subtasks)
+    t1 = next_backlog_task(tmp_path)
+    assert t1["task"]["id"] == "task:jornada:node:1"
+    complete_backlog_task(tmp_path, "task:jornada:node:1")
+
+    sub1 = next_backlog_task(tmp_path)
+    assert sub1["task"]["id"] == "task:subjornada:node:1"
+    complete_backlog_task(tmp_path, "task:subjornada:node:1")
+
+    sub2 = next_backlog_task(tmp_path)
+    assert sub2["task"]["id"] == "task:subjornada:node:2"
+    complete_backlog_task(tmp_path, "task:subjornada:node:2")
+
+    # Nó 1 e subtasks concluídos -> injeta verificação do nó 1
+    v1 = next_backlog_task(tmp_path)
+    assert v1["task"]["id"] == "task:verify:jornada:node:1"
+    assert "Verificação da Implementação" in v1["task"]["label"]
+    complete_backlog_task(tmp_path, "task:verify:jornada:node:1")
+
+    # Em seguida, avança para nó 2
+    t2 = next_backlog_task(tmp_path)
+    assert t2["task"]["id"] == "task:jornada:node:2"
+    complete_backlog_task(tmp_path, "task:jornada:node:2")
+
+    # Nó 2 concluído -> injeta verificação do nó 2
+    v2 = next_backlog_task(tmp_path)
+    assert v2["task"]["id"] == "task:verify:jornada:node:2"
+    complete_backlog_task(tmp_path, "task:verify:jornada:node:2")
+
+
+def test_backlog_injected_l2_verification_interval_configurable(tmp_path: Path):
+    """Respeita o intervalo configurável para injeção de verificações de nós L2.
+    Configura intervalo de 2 nós e confirma que a verificação acumula e dispara na cadência correta.
+    """
+    (tmp_path / ".stdd").mkdir()
+    (tmp_path / ".stdd/config.json").write_text(json.dumps({
+        "backlog": {
+            "l2_verification_interval": 2,
+        }
+    }), encoding="utf-8")
+    _create_hierarchical_fixture(tmp_path)
+    _write_test_evidence(tmp_path)
+    generate_backlog(tmp_path)
+
+    # Conclui nó 1
+    t1 = next_backlog_task(tmp_path)
+    assert t1["task"]["id"] == "task:jornada:node:1"
+    complete_backlog_task(tmp_path, "task:jornada:node:1")
+
+    # Como o intervalo é 2, após nó 1 NÃO dispara verificação ainda -> entrega nó 2
+    t2 = next_backlog_task(tmp_path)
+    assert t2["task"]["id"] == "task:jornada:node:2"
+    complete_backlog_task(tmp_path, "task:jornada:node:2")
+
+    # Agora 2 nós L2 foram concluídos -> dispara UMA ÚNICA verificação em lote contendo os 2 nós juntos
+    v_batch = next_backlog_task(tmp_path)
+    assert v_batch["task"]["id"] == "task:verify:jornada:batch:1:2"
+    assert "Verificação da Implementação em Lote" in v_batch["task"]["label"]
+    assert len(v_batch["task"]["verified_nodes"]) == 2
+    assert v_batch["task"]["verified_nodes"][0]["node_id"] == 1
+    assert v_batch["task"]["verified_nodes"][1]["node_id"] == 2
+
+    # Conclui a verificação em lote de uma única vez
+    complete_backlog_task(tmp_path, "task:verify:jornada:batch:1:2")
+
+    # Próxima task normal é o nó 3
+    t3 = next_backlog_task(tmp_path)
+    assert t3["task"]["id"] == "task:jornada:node:3"
+    complete_backlog_task(tmp_path, "task:jornada:node:3")
+
+    # Como o nó 3 terminou e não há mais tarefas normais, dispara a verificação do nó 3 restante
+    v3 = next_backlog_task(tmp_path)
+    assert v3["task"]["id"] == "task:verify:jornada:node:3"
+    complete_backlog_task(tmp_path, "task:verify:jornada:node:3")
+
+    # Agora sim todo o backlog está concluído
+    empty = next_backlog_task(tmp_path)
+    assert empty["kind"] == "backlog-empty"
+
+
+def test_backlog_cli_config_and_interval_option(tmp_path: Path, monkeypatch):
+    """Permite configurar e sobrescrever o intervalo de verificação via CLI.
+    Testa o comando backlog config e a passagem de --interval na execução de tasks.
+    """
+    monkeypatch.chdir(tmp_path)
+    init_project(tmp_path)
+    _create_hierarchical_fixture(tmp_path)
+    _write_test_evidence(tmp_path)
+
+    # 1. Configura intervalo via comando CLI backlog config
+    config_res = runner.invoke(app, ["backlog", "config", "--interval", "2", "--bootstrap", "--final-verification"])
+    assert config_res.exit_code == 0
+    assert "l2_verification_interval" in config_res.stdout
+
+    # 2. Lê a configuração atual via CLI
+    view_res = runner.invoke(app, ["backlog", "config"])
+    assert view_res.exit_code == 0
+    assert '"l2_verification_interval": 2' in view_res.stdout
+    assert '"bootstrap_task": true' in view_res.stdout
+
+    # 3. Executa backlog task e avança pelo bootstrap
+    task1_res = runner.invoke(app, ["backlog", "task"])
+    assert task1_res.exit_code == 0
+    assert "task:bootstrap" in task1_res.stdout
+    complete_backlog_task(tmp_path, "task:bootstrap")
+
+    # 4. Executa nó 1 e conclui
+    task2_res = runner.invoke(app, ["backlog", "task"])
+    assert "task:jornada:node:1" in task2_res.stdout
+    complete_backlog_task(tmp_path, "task:jornada:node:1")
+
+    # 5. Com intervalo 2, próxima task é o nó 2
+    task3_res = runner.invoke(app, ["backlog", "task"])
+    assert "task:jornada:node:2" in task3_res.stdout
+
+
