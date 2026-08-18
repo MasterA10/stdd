@@ -421,8 +421,71 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "8d4252405a384578b3ac223e16d853af",
+      "timestamp": "2026-08-18T15:53:17.942238+00:00",
+      "description": "Atualiza novamente a instalação global do STDD",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "a25751af6f2746bc992ea11c2dc80a4c",
+      "timestamp": "2026-08-18T16:00:23.443012+00:00",
+      "description": "Reabre tasks quando checklists de teste antigos contradizem test_status missing",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 53,
+        "lines_deleted": 7,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "7b43173bd4a34b948d2c5d23a55e70aa",
+      "timestamp": "2026-08-18T16:00:57.963225+00:00",
+      "description": "Evita declarar a fase de testes concluída apenas pelo backlog-test-empty",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 20,
-  "last_run_id": "feb4d7da11c24641ae11ef5cdad1f098"
+  "run_count": 23,
+  "last_run_id": "7b43173bd4a34b948d2c5d23a55e70aa"
 }

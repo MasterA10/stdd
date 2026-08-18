@@ -382,6 +382,27 @@ def test_backlog_delivery_scope_groups_tests_and_implementation_by_node(tmp_path
     assert next_implementation["task"]["id"] == "task:jornada:node:2"
 
 
+def test_backlog_reopens_stale_test_checklists_when_evidence_is_missing(tmp_path: Path):
+    """Não trata checklists antigos como testes concluídos sem evidência.
+    Reabre a fase de testes quando o status atual voltou a ser missing.
+    """
+    _create_hierarchical_fixture(tmp_path)
+    generate_backlog(tmp_path)
+    _remove_test_refs(tmp_path)
+    stale = generate_backlog(tmp_path)
+    for task in stale["tasks"]:
+        task["test_status"] = "missing"
+    write_backlog(tmp_path, stale)
+    stale = read_backlog(tmp_path)
+
+    assert all(task["checklist_state"]["test"] for task in stale["tasks"])
+    assert all(task["test_status"] == "missing" for task in stale["tasks"])
+    response = next_backlog_test(tmp_path)
+
+    assert response["kind"] == "backlog-test-task"
+    assert response["task"]["id"] == "task:jornada:node:1"
+
+
 def test_backlog_test_accepts_test_refs_list_and_requires_one_file(tmp_path: Path):
     """Aceita a forma em lista quando ela aponta para um único arquivo.
     Rejeita uma associação que espalha a cobertura por mais de um arquivo.

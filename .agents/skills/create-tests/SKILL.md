@@ -35,6 +35,8 @@ Depois que a fase terminar, o próximo passo é `$implement`. Não implementar c
 
 O escopo comum em `backlog.task_delivery_scope` vale para esta fase e para a implementação: `task` entrega cada nó ou subfluxo separadamente; `node` entrega o nó pai e seus subfluxos juntos, concluídos pelo ID do pai.
 
+`backlog-test-empty` encerra somente a fila de testes. Antes de declarar a fase concluída, execute `stdd backlog task`: se retornar `backlog-test-required`, a fase ainda está bloqueada e deve voltar ao `backlog test`; se retornar `backlog-task`, os testes foram liberados e a próxima etapa é `$implement`; só `backlog-empty` indica que não há implementação restante.
+
 ## Escopo e Draws
 
 - Leia o Draw relacionado e os subfluxos cobertos pela task; não transforme arquitetura em teste sem comportamento observável.

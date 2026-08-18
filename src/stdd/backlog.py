@@ -477,6 +477,14 @@ def _default_checklist_state(task: dict[str, Any]) -> dict[str, bool]:
     }
 
 
+def _task_test_complete(task: dict[str, Any]) -> bool:
+    """Confirma teste executado ou liberado manualmente no viewer."""
+    state = task.get("checklist_state", {})
+    return state.get("test") is True and (
+        task.get("test_status") == "done" or task.get("test_manual") is True
+    )
+
+
 def _valid_checklist_state(value: Any) -> dict[str, bool] | None:
     """Aceita somente os dois marcadores booleanos persistidos pelo viewer."""
     if not isinstance(value, dict):
@@ -839,8 +847,13 @@ def _build_checklist(root: Path, document: dict[str, Any], checklist_ids: set[st
     }
 
 
-def _refresh_test_statuses(root: Path, tasks: list[dict[str, Any]]) -> None:
+def _refresh_test_statuses(
+    root: Path,
+    tasks: list[dict[str, Any]],
+    previous_tasks: dict[str, dict[str, Any]] | None = None,
+) -> None:
     """Atualiza a evidência do teste do nível 2 e propaga-a aos subfluxos."""
+    previous_tasks = previous_tasks or {}
     owners = {
         task["id"]: task
         for task in tasks
@@ -854,6 +867,13 @@ def _refresh_test_statuses(root: Path, tasks: list[dict[str, Any]]) -> None:
         task["test_ref_error"] = error
         task["test_status"] = evidence["status"]
         task["test_evidence"] = evidence
+        previous = previous_tasks.get(task["id"], {})
+        if evidence["status"] == "missing" and previous.get("test_status") == "done":
+            task["test_status"] = "done"
+            task["test_evidence"] = {
+                "status": "done",
+                "reason": "fase de testes concluída anteriormente",
+            }
     for task in tasks:
         owner_id = task.get("test_owner_task_id")
         if task.get("level") == 2 or not owner_id:
@@ -880,6 +900,8 @@ def _refresh_checklist_states(tasks: list[dict[str, Any]], previous_tasks: dict[
             if task.get("level") != 2 and owner is not None:
                 state["test"] = _valid_checklist_state(owner.get("checklist_state")) is not None and owner["checklist_state"]["test"]
         task["checklist_state"] = state
+        if previous.get("test_manual") is True:
+            task["test_manual"] = True
 
 
 def _phase_checklists(tasks: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
@@ -921,7 +943,7 @@ def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]
     }
 
     checklists = [_build_checklist(root, document, checklist_ids, context) for document in documents]
-    _refresh_test_statuses(root, tasks)
+    _refresh_test_statuses(root, tasks, previous_tasks)
     _refresh_checklist_states(tasks, previous_tasks)
     previous_execution = previous.get("execution", {}) if isinstance(previous.get("execution", {}), dict) else {}
     execution_config = _execution_config(root)
@@ -1339,12 +1361,9 @@ def _task_delivery_scope(payload: dict[str, Any]) -> str:
 def _test_scope_complete(payload: dict[str, Any], task: dict[str, Any]) -> bool:
     """Verifica evidência e marcação de teste para pai e todos os subfluxos."""
     if _task_delivery_scope(payload) == "task":
-        return task.get("checklist_state", {}).get("test") is True
+        return _task_test_complete(task)
     scope = _test_scope_tasks(payload, task)
-    return all(
-        item.get("checklist_state", {}).get("test") is True
-        for item in scope
-    )
+    return all(_task_test_complete(item) for item in scope)
 
 
 def _pending_test_tasks(payload: dict[str, Any]) -> list[dict[str, Any]]:
@@ -1392,6 +1411,11 @@ def update_backlog_checklist(root: Path, task_id: str, phase: str, checked: bool
     if phase == "implementation" and checked and not _test_scope_complete(payload, task):
         raise ValueError("checklist de teste do nó e dos subfluxos ainda não foi concluído")
     state[phase] = checked
+    if phase == "test":
+        if checked:
+            task["test_manual"] = True
+        else:
+            task.pop("test_manual", None)
     if phase == "implementation":
         task["status"] = "done" if checked else "pending"
     elif not checked:
@@ -1775,6 +1799,7 @@ def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
     if execution.get("current_phase") == "test":
         previous_status = task.pop("test_previous_status", None)
         task["test_status"] = "done"
+        task.pop("test_manual", None)
         scope_tasks = [task] if _task_delivery_scope(payload) == "task" else _test_scope_tasks(payload, task)
         for scope_task in scope_tasks:
             scope_task.setdefault("checklist_state", _default_checklist_state(scope_task))["test"] = True
