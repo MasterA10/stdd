@@ -1,9 +1,9 @@
 ---
 name: implement
-description: "Percorre o loop de implementação do STDD: recebe uma task liberada pelos testes, entrega o melhor comportamento possível dentro do escopo pedido, valida e conclui a task. Usar quando a fase de testes já foi concluída."
+description: "Percorre o loop de implementação do STDD pelo cursor do backlog: recebe uma task liberada pelos testes, entrega o melhor comportamento possível dentro do escopo pedido, valida e conclui a task com backlog complete. Usar quando a fase de testes já foi concluída."
 ---
 
-# Implement
+# Implement Agent
 
 ## Objetivo
 
@@ -20,16 +20,26 @@ stdd backlog task
 
 Não declarar conclusão no meio do loop. `backlog-empty` é o único sinal de que não há outra task de implementação.
 
+## Cursor obrigatório
+
+O cursor do backlog é a fonte de verdade da ordem de execução. Nunca escolha uma task manualmente, pule a task retornada ou avance pelo arquivo JSON.
+
+1. Execute `stdd backlog task` e trabalhe exatamente na task e no `task-id` retornados.
+2. Retome a task que o cursor indicar como `in_progress` antes de buscar qualquer outra.
+3. Depois de implementar e validar a task, execute obrigatoriamente `stdd backlog complete <task-id>` usando o mesmo ID recebido.
+4. Só procure a próxima task depois que o `backlog complete` terminar com sucesso; esse comando libera e avança o cursor.
+5. Repita o ciclo. Termine somente quando `stdd backlog task` retornar `kind: "backlog-empty"`.
+
+Concluir o código ou passar nos testes não conclui a task operacionalmente. Sem `backlog complete`, a task continua aberta no cursor.
+
 ## Regras do loop
 
-1. Execute `stdd backlog task` antes de alterar produção. Retome uma task `in_progress` antes de buscar outra.
-2. Leia o nó, predecessor, condição, pai, subfluxos, perguntas respondidas, símbolos e testes entregues pelo comando. Use `--json` somente quando precisar dos campos estruturados.
-3. Se a resposta for `kind: "backlog-test-required"`, não implemente: volte para `$create-tests`/`stdd backlog test`.
-4. Se a resposta for `kind: "backlog-bootstrap-task"`, prepare somente a estrutura mínima do projeto com as evidências locais; não implemente funcionalidade de produto. Conclua pelo ID recebido e retome o loop.
-5. Implemente apenas a task recebida, preservando contratos, autorização, dados e alterações locais do usuário.
-6. Execute o teste mais específico, as suítes afetadas e `stdd test`. Falha é bloqueio; não use `backlog complete` para avançar com validação quebrada.
-7. Conclua usando exatamente o ID recebido: `stdd backlog complete <task-id>`.
-8. Repita o loop. Se houver bloqueio, deixe a task aberta e informe o motivo, a evidência e a ação necessária.
+1. Leia o nó, predecessor, condição, pai, subfluxos, perguntas respondidas, símbolos e testes entregues pelo comando. Use `--json` somente quando precisar dos campos estruturados.
+2. Se a resposta for `kind: "backlog-test-required"`, não implemente: volte para `$create-tests`/`stdd backlog test`.
+3. Se a resposta for `kind: "backlog-bootstrap-task"`, prepare somente a estrutura mínima do projeto com as evidências locais; não implemente funcionalidade de produto.
+4. Implemente apenas a task recebida, preservando contratos, autorização, dados e alterações locais do usuário.
+5. Execute o teste mais específico, as suítes afetadas e `stdd test`. Falha é bloqueio; não execute `backlog complete` para avançar com validação quebrada.
+6. Se houver bloqueio, deixe a task aberta e informe o motivo, a evidência e a ação necessária.
 
 ## Escopo e Draws
 
@@ -38,6 +48,8 @@ Não declarar conclusão no meio do loop. `backlog-empty` é o único sinal de q
 - Não invente símbolos, referências, respostas ou continuação de fluxo.
 - Quando uma associação for necessária, consulte `stdd draw symbols` e grave-a com `stdd draw associate-reference`; não edite `code_refs` manualmente.
 - Preserve `draw_ref`, `parent_draw_ref`, `parent_node_id` e `root_draw_ref`.
+
+Para tasks originadas de `$draw-system-level-1` a `$draw-system-level-4`, ler o Draw pai e o filho, preservar `parent_draw_ref`, `parent_node_id`, `root_draw_ref` e `draw_ref`, e interromper diante de fluxo órfão. A triagem deve considerar `git diff -- .stdd/draws`, `git diff --cached -- .stdd/draws`, arquivos não rastreados e ler o JSON atual completo. O diff de desenho é entrada de implementação: diante de um pedido explícito de implementar, fazer uma mudança coerente antes de concluir.
 
 ## Implementação
 
@@ -49,14 +61,14 @@ Não declarar conclusão no meio do loop. `backlog-empty` é o único sinal de q
 
 ### Entrega completa da feature
 
-Antes de implementar, inspecione o Draw (nível 2 e 3) da task e identifique todas as camadas que a feature exige. Consulte a codebase e a stack configurada em `.stdd/config.json` para descobrir onde cada camada vive no projeto. A implementação deve cobrir **todas** as camadas necessárias, não apenas a que o teste mais direto exercita:
+Antes de implementar, inspecione o Draw (nível 2 e 3) da task e identifique todas as camadas que a feature exige. Consulte a codebase e a stack configurada em `.stdd/config.json` para descobrir onde cada camada vive no projeto. A implementação deve cobrir todas as camadas necessárias, não apenas a que o teste mais direto exercita:
 
 - **Lógica de negócio**: use cases, services, handlers, controllers, validadores ou equivalentes da stack.
 - **Apresentação**: templates, views, componentes, páginas ou qualquer artefato que renderize a resposta ao usuário. Se o Draw descreve uma tela, essa tela deve existir como artefato de apresentação na codebase, não apenas como retorno de dados de um método.
 - **Integração com o framework**: registro de rotas, menus, endpoints, hooks, middleware, injeção de dependências ou qualquer mecanismo que conecte a lógica ao framework e torne a feature acessível ao usuário.
 - **Assets e configuração**: scripts, estilos, migrações, seed data, configurações ou pacotes necessários para o funcionamento. Incluir enqueue, bundling, registro ou publicação conforme a convenção da stack.
 
-Quando a stack exigir bootstrap, ponto de entrada ou manifesto (como um arquivo principal de plugin, app, módulo ou pacote), verificar se existe e se registra a feature. Se não existir, criá-lo faz parte do escopo da task.
+Quando a stack exigir bootstrap, ponto de entrada ou manifesto, verificar se existe e se registra a feature. Se não existir, criá-lo faz parte do escopo da task.
 
 Descobrir as convenções de cada camada pela análise da codebase existente, do `setup`, do `.stdd/design.md` e da documentação do framework. Não inventar convenções: seguir as que o projeto já usa ou, se o projeto for novo, seguir as recomendações oficiais da stack detectada.
 
@@ -70,13 +82,21 @@ Antes de concluir uma task, registre:
 - limitações que permanecerem;
 - camadas entregues e camadas ausentes em relação ao Draw.
 
+Associar símbolos reais com `stdd draw associate-reference` e preservar `code_refs`. O gate inclui `draw.level2_missing_code_ref`, `draw.level3_missing_code_ref`, `draw.level4_missing_code_ref` e `draw.empty_node_symbol`.
+
+### Uso da análise estática para refatoração segura
+
+Usar a análise estática para refatoração segura, comparando valores antes/depois e sem esconder achados. Valores de função entre 101–150 linhas são manutenção; findings bloqueantes exigem escopo e evidência antes de uma mudança maior.
+
+Aplicar cobertura proporcional, incluindo frontend e markdown quando aplicáveis. Teste live, pgTAP, performance, segurança, isolamento e pentest exigem escopo próprio; ausência de pré-condição é `not_executed`. Em perfil MVP, qualquer ação de instalar, baixar, criar banco ou container exige aprovação explícita.
+
 ### Critério de conclusão
 
 Testes verdes são condição necessária, não suficiente. Para concluir uma task, verificar também:
 
-1. **Feature alcançável**: o usuário consegue acessar a feature pelo caminho descrito no Draw (rota, menu, link, comando ou equivalente da stack). Se o Draw descreve uma tela, a tela deve existir e ser renderizável.
-2. **Camadas completas**: todas as camadas que o Draw exige foram entregues — lógica, apresentação, integração e assets. Se alguma camada não puder ser entregue, registrar a limitação e o motivo.
-3. **code_refs atualizados**: os `code_refs` do Draw devem apontar para todos os artefatos relevantes — não apenas para o caso de uso/service, mas também para a view, template, componente ou artefato de apresentação, quando existirem.
+1. **Feature alcançável**: o usuário consegue acessar a feature pelo caminho descrito no Draw.
+2. **Camadas completas**: todas as camadas que o Draw exige foram entregues — lógica, apresentação, integração e assets.
+3. **code_refs atualizados**: os `code_refs` do Draw apontam para todos os artefatos relevantes.
 4. **Testes verdes**: `stdd test` deve passar.
 
 Registre cada trabalho concluído separadamente:

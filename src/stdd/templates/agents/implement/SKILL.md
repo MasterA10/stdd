@@ -1,245 +1,108 @@
 ---
 name: implement
-description: Implementa comportamento de produção guiado por testes no STDD, preservando contratos, segurança e qualidade estrutural. Usar quando testes já descrevem uma feature, correção, integração de IA, mudança de banco ou requisito não funcional a ser entregue.
+description: "Percorre o loop de implementação do STDD pelo cursor do backlog: recebe uma task liberada pelos testes, entrega o melhor comportamento possível dentro do escopo pedido, valida e conclui a task com backlog complete. Usar quando a fase de testes já foi concluída."
 ---
 
 # Implement Agent
 
-## Responsabilidade
+## Objetivo
 
-Entregar o melhor comportamento possível dentro do escopo pedido, com eficiência, segurança e boa experiência, preservando o restante do sistema. Separar implementação, correção e refactor nos WorkTypes. Não editar testes aprovados para obter verde e não contornar gates, adapters ou skills.
+Percorrer o backlog até o terminal, uma task por vez. O loop é:
 
-## Usuários, papéis e autorização
+```text
+stdd backlog task
+  -> ler o contexto da task
+  -> implementar somente essa task
+  -> executar testes focados e o gate global
+  -> stdd backlog complete <task-id>
+  -> repetir até backlog-empty
+```
 
-Ao implementar uma jornada, confirmar o papel do usuário e aplicar a autorização correspondente. Cliente e administrador não são intercambiáveis: quando seus objetivos, permissões, tenant, dados visíveis ou caminhos diferirem, preservar fronteiras e testes separados. Rejeitar acesso não autorizado de forma segura e não ampliar permissões apenas para satisfazer um caminho feliz. Se a regra de autorização não estiver definida no Draw ou nos testes, parar e registrar a decisão pendente.
+Não declarar conclusão no meio do loop. `backlog-empty` é o único sinal de que não há outra task de implementação.
 
-## Hierarquia como contrato de implementação
+## Cursor obrigatório
 
-Quando houver um desenho criado por `$draw-system-level-1` a `$draw-system-level-4`, ler a cadeia completa do nó de nível 2 até o nível 3 e, se existir, o nível 4. O nível 1 orienta fronteiras e escolhas de infraestrutura; o nível 2 define o comportamento do cliente; o nível 3 define o comportamento técnico a implementar; o nível 4 fornece referências verificáveis da codebase. Preservar `draw_ref`, `parent_draw_ref`, `parent_node_id` e `root_draw_ref`.
+O cursor do backlog é a fonte de verdade da ordem de execução. Nunca escolha uma task manualmente, pule a task retornada ou avance pelo arquivo JSON.
 
-Não implementar uma folha marcada como não implementada sem escopo aprovado. Se houver fluxo órfão, referência quebrada, pai que duplica o filho ou conflito entre níveis, parar antes de alterar produção e reportar a inconsistência. A implementação deve permanecer dentro da cápsula do desenho filho e não mover detalhes de nível 3 para o pai de nível 2.
+1. Execute `stdd backlog task` e trabalhe exatamente na task e no `task-id` retornados.
+2. Retome a task que o cursor indicar como `in_progress` antes de buscar qualquer outra.
+3. Depois de implementar e validar a task, execute obrigatoriamente `stdd backlog complete <task-id>` usando o mesmo ID recebido.
+4. Só procure a próxima task depois que o `backlog complete` terminar com sucesso; esse comando libera e avança o cursor.
+5. Repita o ciclo. Termine somente quando `stdd backlog task` retornar `kind: "backlog-empty"`.
 
-## Preflight obrigatório
+Concluir o código ou passar nos testes não conclui a task operacionalmente. Sem `backlog complete`, a task continua aberta no cursor.
 
-1. Ler a solicitação, os testes relevantes, `.stdd/config.json` e eventuais desenhos referenciados.
-2. Conferir Git, arquivos alterados e limites de escrita.
-3. Executar o teste mais específico e confirmar o estado vermelho esperado.
-4. Executar o baseline aplicável e registrar falhas preexistentes.
-5. Consultar fatos da análise estática quando disponível: símbolos, dependências, complexidade e testes relacionados.
-6. Revisar a consistência dos desenhos associados antes de alterar produção.
-7. Tratar capacidade ausente como `unavailable`; não inventar cobertura.
+## Regras do loop
 
-## Associação obrigatória de símbolos
+1. Leia o nó, predecessor, condição, pai, subfluxos, perguntas respondidas, símbolos e testes entregues pelo comando. Use `--json` somente quando precisar dos campos estruturados.
+2. Se a resposta for `kind: "backlog-test-required"`, não implemente: volte para `$create-tests`/`stdd backlog test`.
+3. Se a resposta for `kind: "backlog-bootstrap-task"`, prepare somente a estrutura mínima do projeto com as evidências locais; não implemente funcionalidade de produto.
+4. Implemente apenas a task recebida, preservando contratos, autorização, dados e alterações locais do usuário.
+5. Execute o teste mais específico, as suítes afetadas e `stdd test`. Falha é bloqueio; não execute `backlog complete` para avançar com validação quebrada.
+6. Se houver bloqueio, deixe a task aberta e informe o motivo, a evidência e a ação necessária.
 
-Antes de implementar, localizar no Draw o nó e associar a ele o símbolo real que executa o comportamento. Todo nó implementado ou alterado deve ter, no próprio nó, pelo menos um `code_refs` com `symbol` ou `qualified_name` comprovado pela análise estática; usar `code_refs` de outro nó, `unnamed`, `placeholder` ou nome inventado é inválido. Atualizar também dependências e `test_ref`/`test_refs` quando esses fatos estiverem disponíveis.
+## Escopo e Draws
 
-Toda associação de símbolo deve ser feita pela linha de comando. Executar `stdd draw symbols` para localizar o símbolo real e seu `qualified_name`, e então usar `stdd draw associate-reference --draw-id <draw-id> --node-id <node-id> --qualified-name <qualified-name>` (ou `--batch-json` para várias associações) para gravá-la. Usar exatamente o símbolo retornado pela análise estática; não editar `code_refs` manualmente no JSON nem usar a interface para criar associações. `stdd draw symbols` apenas consulta e valida as associações existentes.
+- Leia o Draw relacionado e seus subfluxos apenas na medida necessária para a task.
+- Não implemente folhas do grupo de funcionalidades não implementadas sem escopo aprovado.
+- Não invente símbolos, referências, respostas ou continuação de fluxo.
+- Quando uma associação for necessária, consulte `stdd draw symbols` e grave-a com `stdd draw associate-reference`; não edite `code_refs` manualmente.
+- Preserve `draw_ref`, `parent_draw_ref`, `parent_node_id` e `root_draw_ref`.
 
-Ao finalizar, executar `stdd test` e ler os achados de análise estática. O comando bloqueia nós de níveis 2, 3 e 4 sem símbolo (`draw.level2_missing_code_ref`, `draw.level3_missing_code_ref`, `draw.level4_missing_code_ref` ou `draw.empty_node_symbol`). Não declarar sucesso enquanto houver um desses achados: corrigir a associação no nó mais relacionado e repetir o gate. Para uma funcionalidade planejada e não implementada, não inventar símbolo nem continuação; mantê-la terminal no grupo de não implementados e relatar a limitação.
-
-Para uma conferência rápida antes do gate final, executar `stdd draw symbols`. Ele lista somente os símbolos dos nós e as associações ausentes, sem executar as suítes do projeto, o contrato, o backlog ou o adapter de análise completa.
-
-## Ordem do backlog
-
-Antes de executar `stdd backlog task`, verificar se a resposta é `kind: "backlog-test-required"`. Nesse caso, não alterar produção: executar ou retomar `stdd backlog test`, criar os testes do nó de nível 2 e de todos os seus subfluxos ou marcar manualmente o fluxo já existente no viewer. `test_ref` e análise estática são evidências complementares, não uma pré-condição para o checklist. Só depois a mesma task pode ser implementada e concluída.
-
-A saída padrão de `stdd backlog task` é resumida e humana. Quando for necessário consultar campos estruturados como `kind`, `parent_task`, `subtask` ou `subtasks`, repetir com `stdd backlog task --json`.
-
-Quando a resposta trouxer `parent_task`, `subtask` e `subtasks`, preservar o pai como contexto e concluir pai e subtasks por seus próprios IDs. O checklist de implementação só pode ser marcado depois que `phase_checklists.test` do nó e dos subfluxos estiver concluído.
-
-### Uso da análise estática para refatoração segura
-
-Quando houver relatório de `static_analysis`, o agente deve usá-lo como evidência de risco, não como ordem automática de reescrita. Para cada `quality_finding` relevante:
-
-1. localizar o `file`, `symbol_id`, `qualified_name`, `value`, `limit` e `evidence` no código;
-2. confirmar que o adapter realmente suporta aquela métrica para a linguagem da codebase;
-3. ler o símbolo completo, seus chamadores, dependências, testes relacionados e referências dos Draws;
-4. classificar o achado como correção necessária, refatoração segura, dívida técnica ou falso positivo justificado;
-5. escolher a divisão de responsabilidades mais coerente e eficiente, preservando entrada, saída, efeitos, transações, autorização e tratamento de erros;
-6. criar ou confirmar um teste de regressão antes da refatoração quando o comportamento ainda não estiver protegido;
-7. fazer a mudança em passos verificáveis, executando a suíte específica após cada passo;
-8. executar novamente o adapter e comparar `value`/`limit` antes e depois, sem esconder o achado alterando o limite apenas para obter aprovação.
-
-Para funções de produção, considerar como padrão: até 100 linhas é normal, 101–150 é warning de manutenção e acima de 150 é bloqueante. Uma função acima do limite não deve ser dividida mecanicamente; investigar primeiro coesão, dependências, fronteiras de domínio, efeitos colaterais e pontos de decisão. Preferir extrair funções com nomes comportamentais, manter uma sequência principal legível e preservar as identidades públicas quando o contrato não tiver autorizado renomeação.
-
-Para `high_complexity`, reduzir decisões aninhadas e caminhos implícitos apenas quando isso preservar a semântica. Para `too_many_parameters`, avaliar objeto de parâmetros ou agregação de dados somente quando houver coesão real; não agrupar argumentos arbitrariamente. Para `deep_nesting`, usar guard clauses ou extrair políticas quando os caminhos de erro continuarem equivalentes. Para `god_class_candidate` e `high_fan_out`, mapear responsabilidades e dependências antes de mover código.
-
-Warnings não são falhas automáticas e findings bloqueantes não autorizam uma grande refatoração sem escopo. Se o risco ou a mudança de contrato for maior que o pedido, parar e informar a decisão necessária. Se o achado for falso positivo, documentar a evidência e ajustar o adapter/fixture na camada correta, nunca silenciar o relatório no código de produção.
-
-Ao concluir, informar quais achados foram resolvidos, quais permaneceram, os valores antes/depois, testes executados e limitações da análise estática.
-
-### Verificação do desenho antes de implementar
-
-Antes de escrever código, confirmar que o desenho, os testes e os contratos descrevem a mesma intenção. Comparar o fluxo principal, subfluxos, grupos, relações, condições, entradas, saídas, erros, perguntas respondidas e referências de símbolos.
-
-Se existir uma inconsistência real — por exemplo, o desenho manda persistir em um lugar e o contrato manda persistir em outro, um teste exige um comportamento diferente, uma referência aponta para símbolo incorreto ou falta uma decisão necessária para escolher a implementação — não iniciar a implementação. Informar o conflito, apontar os nós/arquivos envolvidos e pedir a correção ou decisão do usuário. Não resolver uma contradição arquitetural silenciosamente no código.
-
-Se o desenho estiver consistente, registrar essa conclusão no raciocínio de implementação e usar suas referências como escopo. Perguntas já respondidas são decisões documentais; não tratá-las como pendências.
-
-### Triagem obrigatória do diff
-
-Antes de decidir o escopo ou concluir que nada precisa ser feito, avaliar o estado completo do Git:
-
-- `git status --short`, `git diff` e `git diff --cached`;
-- arquivos não rastreados, especialmente `.stdd/draws/`;
-- `git diff -- .stdd/draws` e `git diff --cached -- .stdd/draws`;
-- para cada desenho alterado, criado ou removido, ler o JSON atual completo e comparar a intenção do patch, incluindo nós, relações, `draw_ref`, fluxos, perguntas e respostas.
-
-O diff de desenho é entrada de implementação, não apenas evidência auxiliar. Não concluir que não há mudança só porque o diff de produção está vazio ou porque os testes atuais já passam. Ao receber um pedido explícito de implementar, assumir que existe comportamento pendente: localizar a alteração correspondente no diff, nos desenhos e nos contratos, fazer uma mudança coerente e validar seus efeitos. Só encerrar sem alteração quando houver um bloqueio externo explícito e documentado.
-
-Se um desenho referenciado possuir `questions`, ler as respostas persistidas como decisões do usuário. Perguntas sem resposta permanecem ambíguas e devem ser resolvidas antes de escolher um comportamento de produção que dependa delas.
+Para tasks originadas de `$draw-system-level-1` a `$draw-system-level-4`, ler o Draw pai e o filho, preservar `parent_draw_ref`, `parent_node_id`, `root_draw_ref` e `draw_ref`, e interromper diante de fluxo órfão. A triagem deve considerar `git diff -- .stdd/draws`, `git diff --cached -- .stdd/draws`, arquivos não rastreados e ler o JSON atual completo. O diff de desenho é entrada de implementação: diante de um pedido explícito de implementar, fazer uma mudança coerente antes de concluir.
 
 ## Implementação
 
-1. Validar entradas antes de ações com efeito.
-2. Preservar contratos públicos e compatibilidade, salvo mudança aprovada.
-3. Alterar apenas arquivos necessários ao comportamento.
-4. Evitar dependência nova; quando inevitável, justificar necessidade, alternativas e risco.
-5. Manter fatos determinísticos separados de interpretação produzida por IA.
-6. Não gravar segredos, tokens, prompts privados ou respostas sensíveis.
-7. Não inserir comentários em funções de produção, exceto para decisão importante ou comportamento não óbvio.
+- Entregue a melhor mudança coerente, eficiente e segura dentro do escopo pedido, buscando a melhor experiência sem inventar escopo.
+- Valide entradas antes de efeitos e mantenha falhas seguras.
+- Não edite testes aprovados para obter verde nem contorne gates.
+- Não adicione dependências ou mude contratos sem necessidade comprovada e escopo aprovado.
+- Não grave segredos em código, Draws, logs ou evidências.
 
-### Execução por backlog
+### Entrega completa da feature
 
-Quando houver um backlog gerado, o `$implement` deve executar o ciclo operacional até não haver mais tasks:
+Antes de implementar, inspecione o Draw (nível 2 e 3) da task e identifique todas as camadas que a feature exige. Consulte a codebase e a stack configurada em `.stdd/config.json` para descobrir onde cada camada vive no projeto. A implementação deve cobrir todas as camadas necessárias, não apenas a que o teste mais direto exercita:
 
-1. executar `stdd backlog task`;
-2. encerrar com `backlog-empty` somente quando o comando indicar que não há tasks restantes;
-3. ler perguntas, respostas, símbolos, dependências e subfluxo da task;
-4. implementar somente a task retornada;
-5. executar os testes específicos e os gates aplicáveis;
-6. executar `stdd backlog complete <task-id>` com o ID exato recebido;
-7. repetir `stdd backlog task`.
+- **Lógica de negócio**: use cases, services, handlers, controllers, validadores ou equivalentes da stack.
+- **Apresentação**: templates, views, componentes, páginas ou qualquer artefato que renderize a resposta ao usuário. Se o Draw descreve uma tela, essa tela deve existir como artefato de apresentação na codebase, não apenas como retorno de dados de um método.
+- **Integração com o framework**: registro de rotas, menus, endpoints, hooks, middleware, injeção de dependências ou qualquer mecanismo que conecte a lógica ao framework e torne a feature acessível ao usuário.
+- **Assets e configuração**: scripts, estilos, migrações, seed data, configurações ou pacotes necessários para o funcionamento. Incluir enqueue, bundling, registro ou publicação conforme a convenção da stack.
 
-Uma task `in_progress` deve ser retomada antes de qualquer outra. Não concluir uma task fora de ordem nem fabricar símbolos, arquivos ou respostas. Se houver bloqueio, preservar a task sem executar `backlog complete` e relatar o motivo.
+Quando a stack exigir bootstrap, ponto de entrada ou manifesto, verificar se existe e se registra a feature. Se não existir, criá-lo faz parte do escopo da task.
 
-Quando a resposta for `kind: "backlog-bootstrap-task"`, preparar somente a estrutura mínima do projeto com base nas evidências locais — ponto de entrada, arquivos raiz, configuração, dependências, convenções e comandos necessários. A task é agnóstica de framework: não inventar arquivos e não implementar funcionalidade de produto; concluir pelo ID recebido e retomar o loop.
+Descobrir as convenções de cada camada pela análise da codebase existente, do `setup`, do `.stdd/design.md` e da documentação do framework. Não inventar convenções: seguir as que o projeto já usa ou, se o projeto for novo, seguir as recomendações oficiais da stack detectada.
 
-## Seleção proporcional de testes
+## Validação e registro
 
-Testes protegem comportamento relevante, não cada arquivo alterado. Escolher a melhor evidência proporcional ao risco real:
+Antes de concluir uma task, registre:
 
-- backend, scripts, regras de negócio, contratos, dados e segurança: testes automatizados são esperados quando a superfície tem comportamento observável;
-- frontend: testar automaticamente somente lógica de negócio, transformações de dados, estados críticos, acessibilidade, segurança ou fluxos cuja falha tenha impacto relevante;
-- renderização visual, layout, interação comum e acabamento: validar com revisão humana no viewer, screenshots ou inspeção manual reproduzível; não criar testes automatizados apenas para provar que uma tela renderiza;
-- Markdown e documentação: não testar automaticamente, salvo quando o arquivo contém comandos executáveis, schema, contrato gerado ou outra regra que realmente possa quebrar;
-- mudança sem comportamento relevante: registrar a análise e executar apenas sintaxe, build ou lint aplicável.
+- testes executados e seus resultados;
+- falhas preexistentes ou pré-condições ausentes;
+- Draws e referências atualizados;
+- limitações que permanecerem;
+- camadas entregues e camadas ausentes em relação ao Draw.
 
-Não transformar a ausência de teste de uma superfície não aplicável em bloqueio. Registrar a justificativa e a evidência alternativa, como `visual_review`.
+Associar símbolos reais com `stdd draw associate-reference` e preservar `code_refs`. O gate inclui `draw.level2_missing_code_ref`, `draw.level3_missing_code_ref`, `draw.level4_missing_code_ref` e `draw.empty_node_symbol`.
 
-### Categorias aplicáveis
+### Uso da análise estática para refatoração segura
 
-Executar testes funcionais e não funcionais somente quando a categoria for justificada pelo risco:
+Usar a análise estática para refatoração segura, comparando valores antes/depois e sem esconder achados. Valores de função entre 101–150 linhas são manutenção; findings bloqueantes exigem escopo e evidência antes de uma mudança maior.
 
-- regra local: unitários e regressão;
-- integração entre módulos: integração e contrato;
-- fluxo completo: end-to-end;
-- schema ou lógica PostgreSQL: testes de banco e pgTAP;
-- chamada de IA: mock, fixture contratual, teste live e, se necessário, avaliação semântica;
-- autenticação, autorização ou entrada externa: segurança e isolamento;
-- superfície atacável: pentest autorizado;
-- caminho crítico ou volume: performance, benchmark ou carga;
-- migration: ida, rollback quando suportado e compatibilidade de dados.
+Aplicar cobertura proporcional, incluindo frontend e markdown quando aplicáveis. Teste live, pgTAP, performance, segurança, isolamento e pentest exigem escopo próprio; ausência de pré-condição é `not_executed`. Em perfil MVP, qualquer ação de instalar, baixar, criar banco ou container exige aprovação explícita.
 
-### Teste live de inteligência artificial
+### Critério de conclusão
 
-Quando a alteração integra um provedor real, manter quatro evidências distintas:
+Testes verdes são condição necessária, não suficiente. Para concluir uma task, verificar também:
 
-1. unidade determinística sem rede;
-2. contrato com fixture sanitizada;
-3. teste live opt-in contra o provedor;
-4. avaliação probabilística rotulada, sem substituir schema e contrato.
+1. **Feature alcançável**: o usuário consegue acessar a feature pelo caminho descrito no Draw.
+2. **Camadas completas**: todas as camadas que o Draw exige foram entregues — lógica, apresentação, integração e assets.
+3. **code_refs atualizados**: os `code_refs` do Draw apontam para todos os artefatos relevantes.
+4. **Testes verdes**: `stdd test` deve passar.
 
-No teste live, ler credencial do ambiente, limitar chamadas e custo, aplicar timeout e validar status, JSON, schema, normalização e campos obrigatórios. Não comparar texto livre por igualdade exata. Sem credencial, registrar `not_executed`; nunca converter ausência em `passed`. Sanitizar logs.
-
-### Banco e pgTAP
-
-Para PostgreSQL, usar pgTAP quando houver contrato de schema, constraint, função, trigger, role ou RLS. Preparar banco efêmero ou dedicado a testes, aplicar migrations, executar pgTAP e limpar o ambiente. Bloquear imediatamente qualquer configuração que aponte para produção. Ausência do runner deve aparecer como `not_executed` ou `blocked`, conforme a política do projeto.
-
-### Performance, segurança, isolamento e pentest
-
-- Performance: comparar com baseline sob carga reproduzível; registrar p50/p95 quando aplicável, repetições e tolerância.
-- Segurança: testar caminhos negativos, privilégios mínimos, validação de entrada, segredos e comportamento fail-closed.
-- Isolamento: executar casos concorrentes e provar separação entre tenants, bancos, filas, caches e arquivos temporários.
-- Pentest: executar somente em ambiente autorizado, com alvo e intensidade limitados; nunca iniciar contra produção por inferência.
-
-## Ordem de validação
-
-1. teste diretamente relacionado;
-2. suíte da área alterada;
-3. análise sintática, lint e tipagem disponíveis;
-4. análise estática integrada;
-5. suítes de contrato, banco, segurança ou performance exigidas pelo risco;
-6. `stdd test` como gate agregado.
-
-`stdd test` é o alias global: deve executar todas as suítes configuradas, mesmo que uma anterior falhe, e consolidar o resultado. Runners especializados são responsáveis por setup e cleanup próprios; no banco, isso inclui ambiente isolado, migrations, testes e limpeza.
-
-Em perfil `mvp`, respeitar a cobertura escolhida pelo usuário. Usar `--suite`, `--exclude` e `--profile` para controlar a execução; usar `--approve-actions` somente depois de obter aprovação explícita. Antes de instalar dependência ou blocker, baixar ferramenta ou imagem, iniciar ou recriar container, criar banco, aplicar migrations fora de ambiente efêmero ou acionar serviço pago, apresentar impacto e pedir autorização. Sem autorização, registrar `not_executed` e continuar apenas com o trabalho seguro.
-
-Falha de ferramenta obrigatória é `blocked` ou `failed`, não sucesso. Teste live, pentest ou banco não configurado deve ser `not_executed` com ação necessária.
-
-## Revisão obrigatória dos desenhos após implementar
-
-Depois que o código e os testes estiverem validados, revisar novamente todos os desenhos associados ao comportamento implementado. Essa revisão confirma se o código entregue continua consistente com a intenção que foi validada antes da implementação.
-
-Executar a revisão nesta ordem:
-
-1. localizar os desenhos associados pelos `code_refs`, `qualified_name`, `source_dependencies`, `draw_ref` e pelos fatos em `.stdd/facts/*.facts.json`;
-2. ler o desenho principal completo e todos os subfluxos relacionados, não somente o nó alterado;
-3. comparar nós, relações, estados, nomes, condições, erros, entradas, saídas, perguntas e respostas com o comportamento realmente implementado;
-4. verificar referências `resolved`, `unresolved` e `drift`, além de arquivos, funções e testes retornados pela análise estática;
-5. se aparecer uma inconsistência real, não alterar silenciosamente o desenho: informar o conflito, os elementos afetados e a decisão necessária;
-6. se não houver inconsistência, enriquecer a documentação sem mudar a intenção do desenho: corrigir apenas referências factuais, adicionar detalhes, perguntas já respondidas, grupos ou subfluxos explicativos quando forem complementares ao comportamento entregue;
-7. reler o desenho inteiro após qualquer enriquecimento e confirmar que o fluxo principal, os subfluxos e as conexões continuam coerentes.
-
-Não limitar a revisão ao nó que originou a implementação. Se uma mudança alterou uma condição, contrato, dependência, tratamento de erro ou sequência, verificar todos os elementos afetados. Só atualizar o desenho automaticamente quando a alteração for um enriquecimento compatível com a intenção já aprovada; mudança de escopo, fluxo ou decisão arquitetural exige aviso ao usuário.
-
-### Documentação rápida com perguntas respondidas
-
-Não tratar perguntas pendentes como requisito para concluir a implementação. Quando a implementação revelar uma decisão já tomada, regra implícita, risco ou detalhe que vale preservar, criar uma pergunta no nó ou subfluxo e gravar imediatamente a resposta correspondente como documentação rápida. Essas perguntas devem documentar o que foi feito, não abrir uma nova pendência.
-
-Usar perguntas respondidas para registrar, por exemplo:
-
-- por que uma dependência foi escolhida;
-- qual é a fronteira entre fluxo principal e subfluxo;
-- o que acontece em timeout, erro, retry ou resposta inválida;
-- qual símbolo, teste ou contrato deve ser revisado quando o nó mudar;
-- qual limitação ou decisão de segurança foi aplicada.
-
-As perguntas devem ser curtas, específicas e verificáveis. Em perguntas de múltipla escolha, colocar `(sugestao)` na alternativa da resposta recomendada, nunca no texto da pergunta. A resposta deve refletir o código realmente implementado; não usar perguntas respondidas para esconder uma incerteza que ainda exige decisão do usuário.
-
-Se o comportamento novo exigir uma sequência independente, uma integração ou um caminho de erro que complemente o nó atual sem mudar sua intenção, criar um subfluxo e conectá-lo ao ponto correto do fluxo principal. Se isso mudar o escopo ou introduzir uma decisão arquitetural nova, parar e avisar o usuário antes de alterar o desenho. Associar os novos nós aos símbolos e testes correspondentes quando esses fatos estiverem disponíveis.
-
-Ao concluir, informar quais desenhos foram revisados, quais vínculos foram atualizados, quais detalhes ou subfluxos foram inseridos e quais associações permanecem `unresolved` ou `drift`. O resultado só pode ser declarado completo quando código, testes, referências e desenhos estiverem consistentes.
-
-## Testes legíveis
-
-Se for necessário adicionar teste de regressão durante a implementação:
-
-- usar nome comportamental;
-- em Python, escrever docstring de exatamente duas linhas curtas;
-- marcar etapas de testes longos e end-to-end com comentários breves;
-- registrar teste e implementação em logs separados.
-
-## WorkTypes e logs
-
-Usar o tipo pela natureza real do trabalho:
-
-- `--impl`: comportamento novo planejado;
-- `--bug`: correção de defeito com regressão;
-- `--test`: criação ou alteração de teste;
-- `--refactor`: retrabalho, falta de planejamento prévio ou reorganização sem nova regra de negócio.
-
-O framework marca automaticamente como `refactor` apenas substituições extremas de pelo menos 500 linhas adicionadas e 500 removidas. Abaixo disso, avaliar intenção e contexto. Preferir um tipo por registro e criar logs progressivos por etapa concluída.
+Registre cada trabalho concluído separadamente:
 
 ```bash
-stdd log "Implementa comportamento aprovado" --impl
+stdd log "Implementa comportamento da task <task-id>" --type implementacao
 ```
 
-## Conclusão
-
-Declarar sucesso somente com diff dentro do escopo, testes relevantes passando, sintaxe válida, nenhuma regressão estrutural injustificada e limitações explícitas. Informar arquivos alterados, comandos e resultados, evidências, testes `not_executed` e próxima ação necessária.
-
-## Regras de interação
-
-Execute uma task por vez: `backlog test` antes de produção, `backlog task` para reservar, testes reais e `backlog complete <task-id>` para concluir. Diferencie testes pendentes, testes prontos, implementação em andamento e backlog concluído. Valide entrada antes de efeitos; erros são consequências condicionais e folhas planejadas permanecem terminais no grupo próprio.
+O `stdd test` deve ser executado antes de declarar a tarefa concluída. Só reporte sucesso quando o diff estiver dentro do escopo, a validação passar e o backlog tiver sido avançado pelo ID correto.
