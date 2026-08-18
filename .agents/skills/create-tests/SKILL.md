@@ -42,8 +42,23 @@ O escopo comum em `backlog.task_delivery_scope` vale para esta fase e para a imp
 - Leia o Draw relacionado e os subfluxos cobertos pela task; não transforme arquitetura em teste sem comportamento observável.
 - Não teste folhas do grupo de funcionalidades não implementadas como se existissem.
 - Preserve `draw_ref`, `parent_draw_ref`, `parent_node_id` e `root_draw_ref`.
-- Se for necessária rastreabilidade, consulte `stdd draw symbols` e use `stdd draw associate-reference`; não invente símbolos nem edite `code_refs` manualmente.
+- A associação não é automática e é obrigatória neste loop. Depois de criar ou alterar os testes, associe explicitamente cada nó entregue (o L2 e todos os L3 incluídos pelo `task_delivery_scope`) ao arquivo e ao símbolo real do teste.
 - Perguntas respondidas são decisões; perguntas abertas são bloqueios quando mudarem o comportamento a testar.
+
+### Rastreabilidade obrigatória em cada loop
+
+Antes de `backlog complete`:
+
+1. Identifique, no contexto da task, o `draw_id`, o `node_id` e todos os nós cobertos pelo escopo.
+2. Confirme na codebase e nos fatos estáticos o caminho do arquivo de teste e o `qualified_name` real do teste; o caminho do arquivo não é uma associação implícita e nenhum símbolo pode ser inventado.
+3. Para cada nó coberto, execute `stdd draw associate-reference` usando o símbolo de teste real e as dependências reais. Não edite `code_refs` manualmente.
+   ```bash
+   stdd draw associate-reference --draw-id <draw-id> --node-id <node-id> \
+     --qualified-name '<símbolo-real-do-teste>' --source-dependency '<dependência-real>'
+   ```
+4. Execute `stdd draw symbols` e confira que cada associação foi gravada no nó correto e resolve para o arquivo esperado. Se estiver ausente, vazia ou não puder ser comprovada, deixe a task aberta e informe o bloqueio.
+
+Na fase de testes, associe o símbolo de teste que realmente foi criado ou alterado. Quando a implementação ainda não existir, não invente um símbolo de produção para preencher o Draw; a associação do teste deve permanecer explícita até o próximo loop. O `backlog complete <task-id>` só pode ser o último comando do loop, depois da associação e da verificação.
 
 ## Qualidade mínima
 

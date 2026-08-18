@@ -264,6 +264,23 @@ def test_test_and_implement_skills_require_symbols_and_static_analysis_gate():
         assert "draw.empty_node_symbol" in content
 
 
+def test_test_and_implement_skills_require_explicit_draw_association_each_loop():
+    """Impede que as skills tratem arquivo/símbolo como associação automática."""
+    for name in ("create-tests", "implement"):
+        content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
+        assert "a associação não é automática" in content
+        assert "em todo loop" in content or "neste loop" in content
+        assert "cada nó entregue" in content
+        assert "qualified_name" in content
+        assert "stdd draw symbols" in content
+        assert "--draw-id <draw-id>" in content
+        assert "--node-id <node-id>" in content
+        assert "--qualified-name" in content
+        assert "--source-dependency" in content
+        assert "antes de `backlog complete`" in content
+        assert "só pode ser o último comando do loop" in content
+
+
 def test_draw_system_level_three_splits_complete_detailed_screen_flows_into_phases():
     """Mantém o nível 3 em lotes completos, detalhando a tela por inteiro.
     Lê a skill publicada e impede fluxo estático, fase única ou desenho padronizado.

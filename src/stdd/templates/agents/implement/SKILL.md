@@ -55,8 +55,23 @@ Essa configuração é a mesma usada por `stdd backlog test`. Em qualquer modo, 
 - Leia o Draw relacionado e seus subfluxos apenas na medida necessária para a task.
 - Não implemente folhas do grupo de funcionalidades não implementadas sem escopo aprovado.
 - Não invente símbolos, referências, respostas ou continuação de fluxo.
-- Quando uma associação for necessária, consulte `stdd draw symbols` e grave-a com `stdd draw associate-reference`; não edite `code_refs` manualmente.
+- A associação não é automática. Em todo loop, antes de concluir, associe explicitamente cada nó entregue (o L2 e todos os L3 incluídos pelo `task_delivery_scope`) aos arquivos e símbolos reais criados ou alterados nessa fase.
 - Preserve `draw_ref`, `parent_draw_ref`, `parent_node_id` e `root_draw_ref`.
+
+### Rastreabilidade obrigatória em cada loop
+
+Depois de criar ou alterar os artefatos e antes de `backlog complete`:
+
+1. Identifique, no contexto da task, o `draw_id`, o `node_id` e todos os nós cobertos pelo escopo.
+2. Execute `stdd test` para atualizar os fatos estáticos e confirme na codebase/fatos o caminho do arquivo e o `qualified_name` real de cada símbolo; nunca invente um nome nem trate o arquivo como associação implícita.
+3. Para cada nó coberto, execute `stdd draw associate-reference` com o símbolo real e suas dependências reais. Inclua os símbolos de teste relacionados como `--source-dependency` para manter a ligação entre implementação e teste.
+   ```bash
+   stdd draw associate-reference --draw-id <draw-id> --node-id <node-id> \
+     --qualified-name '<símbolo-real>' --source-dependency '<símbolo-de-teste>'
+   ```
+4. Execute `stdd draw symbols` e confira que as associações foram gravadas no nó correto e resolvem para os arquivos esperados. Se alguma associação estiver ausente, vazia ou não puder ser comprovada, deixe a task aberta e informe o bloqueio.
+
+Na fase de implementação, `--qualified-name` deve apontar para o símbolo de produção real; os testes vinculados entram como dependências reais. Se a fase só produzir uma estrutura de bootstrap, associe o símbolo real dessa fase ao nó, sem fabricar um símbolo de produção. O `backlog complete <task-id>` só pode ser o último comando do loop, depois dessa associação e verificação.
 
 Para tasks originadas de `$draw-system-level-1` a `$draw-system-level-4`, ler o Draw pai e o filho, preservar `parent_draw_ref`, `parent_node_id`, `root_draw_ref` e `draw_ref`, e interromper diante de fluxo órfão. A triagem deve considerar `git diff -- .stdd/draws`, `git diff --cached -- .stdd/draws`, arquivos não rastreados e ler o JSON atual completo. O diff de desenho é entrada de implementação: diante de um pedido explícito de implementar, fazer uma mudança coerente antes de concluir.
 
@@ -91,7 +106,7 @@ Antes de concluir uma task, registre:
 - limitações que permanecerem;
 - camadas entregues e camadas ausentes em relação ao Draw.
 
-Associar símbolos reais com `stdd draw associate-reference` e preservar `code_refs`. O gate inclui `draw.level2_missing_code_ref`, `draw.level3_missing_code_ref`, `draw.level4_missing_code_ref` e `draw.empty_node_symbol`.
+Associar símbolos reais em todos os nós entregues com `stdd draw associate-reference` e preservar `code_refs`. O gate inclui `draw.level2_missing_code_ref`, `draw.level3_missing_code_ref`, `draw.level4_missing_code_ref` e `draw.empty_node_symbol`.
 
 ### Uso da análise estática para refatoração segura
 
