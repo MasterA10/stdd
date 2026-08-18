@@ -76,7 +76,7 @@ def test_init_interactive_selects_multiple_agent_integrations(tmp_path: Path):
     config = json.loads((tmp_path / ".stdd/config.json").read_text())
     assert config["backlog"]["level_2_meaning"] == "Tela"
     assert config["backlog"]["level_3_meaning"] == "Regra de negócio"
-    assert config["backlog"]["test_task_scope"] == "node"
+    assert config["backlog"]["task_delivery_scope"] == "node"
 
 
 def test_init_interactive_does_not_ask_frontend_analysis_policy(tmp_path: Path):
@@ -107,18 +107,18 @@ def test_init_interactive_accepts_custom_level_meanings(tmp_path: Path):
     config = json.loads((tmp_path / ".stdd/config.json").read_text())
     assert config["backlog"]["level_2_meaning"] == "View pública e componentes frontend"
     assert config["backlog"]["level_3_meaning"] == "Políticas e detalhes de interação"
-    assert config["backlog"]["test_task_scope"] == "task"
+    assert config["backlog"]["task_delivery_scope"] == "task"
 
 
-def test_init_accepts_test_task_scope_option(tmp_path: Path):
-    """Permite configurar tasks de teste separadas sem abrir o modo interativo.
-    Persiste a escolha no backlog do projeto para os próximos ciclos.
+def test_init_accepts_task_delivery_scope_option(tmp_path: Path):
+    """Permite configurar o agrupamento comum sem abrir o modo interativo.
+    Persiste a escolha para os ciclos de teste e implementação.
     """
-    result = runner.invoke(app, ["init", str(tmp_path), "--test-task-scope", "task"])
+    result = runner.invoke(app, ["init", str(tmp_path), "--task-delivery-scope", "node"])
 
     assert result.exit_code == 0
     config = json.loads((tmp_path / ".stdd/config.json").read_text())
-    assert config["backlog"]["test_task_scope"] == "task"
+    assert config["backlog"]["task_delivery_scope"] == "node"
 
 
 def test_init_rejects_removed_frontend_analysis_option(tmp_path: Path):

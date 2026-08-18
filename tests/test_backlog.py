@@ -4,7 +4,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from stdd.backlog import bootstrap_report, build_backlog, check_backlog, complete_backlog_task, generate_backlog, next_backlog_task, next_backlog_test, read_backlog, update_backlog_checklist
+from stdd.backlog import bootstrap_report, build_backlog, check_backlog, complete_backlog_task, generate_backlog, next_backlog_task, next_backlog_test, read_backlog, update_backlog_checklist, write_backlog
 from stdd.cli import app
 from stdd.core import init_project, run_tests
 from stdd.draw import create_draw
@@ -267,6 +267,35 @@ def test_legacy_false_bootstrap_setting_does_not_skip_first_task(tmp_path: Path)
     assert first["task"]["id"] == "task:bootstrap"
 
 
+def test_backlog_test_recovers_product_cursor_before_bootstrap(tmp_path: Path):
+    """Recupera um cursor antigo que reservou produto antes do bootstrap.
+    Garante que a preparação continue sendo a primeira entrega do loop.
+    """
+    _create_hierarchical_fixture(tmp_path, bootstrap=True)
+    _remove_test_refs(tmp_path)
+
+    payload = generate_backlog(tmp_path)
+    product = next(task for task in payload["tasks"] if task["level"] == 2)
+    product["status"] = "in_progress"
+    product["test_status"] = "in_progress"
+    product["test_previous_status"] = "pending"
+    payload["execution"].update({
+        "current_task_id": product["id"],
+        "current_phase": "test",
+        "bootstrap_done": False,
+    })
+    write_backlog(tmp_path, payload)
+
+    first = next_backlog_test(tmp_path)
+
+    assert first["kind"] == "backlog-bootstrap-task"
+    assert first["task"]["id"] == "task:bootstrap"
+    repaired = read_backlog(tmp_path)
+    repaired_product = next(task for task in repaired["tasks"] if task["id"] == product["id"])
+    assert repaired_product["status"] == "pending"
+    assert repaired_product["test_status"] == "missing"
+
+
 def test_backlog_injects_level_context_into_level_two_and_level_three_tasks(tmp_path: Path):
     """Diferencia frontend de regras e detalhes nos contextos do backlog.
     Percorre a task L2 e o subfluxo L3 e valida a orientação injetada em ambos os loops.
@@ -288,7 +317,7 @@ def test_backlog_injects_level_context_into_level_two_and_level_three_tasks(tmp_
     assert "detalhes da tela" in child["level_context"]["guidance"].lower()
 
 
-def test_backlog_test_scope_can_deliver_internal_subflows_separately(tmp_path: Path):
+def test_backlog_delivery_scope_can_deliver_internal_subflows_separately(tmp_path: Path):
     """Entrega o L2 e cada task interna separadamente quando configurado.
     Confirma também que o bootstrap é a primeira entrega da fase de testes.
     """
@@ -298,7 +327,7 @@ def test_backlog_test_scope_can_deliver_internal_subflows_separately(tmp_path: P
     config = json.loads(config_path.read_text(encoding="utf-8"))
     config["backlog"]["bootstrap_task"] = True
     config["backlog"]["bootstrap_opt_out"] = False
-    config["backlog"]["test_task_scope"] = "task"
+    config["backlog"]["task_delivery_scope"] = "task"
     config_path.write_text(json.dumps(config), encoding="utf-8")
 
     bootstrap = next_backlog_test(tmp_path)
@@ -318,6 +347,39 @@ def test_backlog_test_scope_can_deliver_internal_subflows_separately(tmp_path: P
     internal_last = next_backlog_test(tmp_path)
     assert internal_last["task"]["id"] == "task:subjornada:node:2"
     assert "deste nó ou subfluxo" in internal_last["instruction"]
+
+
+def test_backlog_delivery_scope_groups_tests_and_implementation_by_node(tmp_path: Path):
+    """Entrega o nó e seus internos juntos nas duas fases do backlog.
+    Concluir o pai também conclui os subfluxos incluídos no escopo do nó.
+    """
+    _create_nested_hierarchical_fixture(tmp_path)
+    _remove_test_refs(tmp_path)
+    config_path = tmp_path / ".stdd" / "config.json"
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    config["backlog"]["task_delivery_scope"] = "node"
+    config_path.write_text(json.dumps(config), encoding="utf-8")
+
+    for task_id in (
+        "task:jornada:node:1",
+        "task:jornada:node:2",
+        "task:jornada:node:3",
+    ):
+        test_task = next_backlog_test(tmp_path)
+        assert test_task["task"]["id"] == task_id
+        complete_backlog_task(tmp_path, task_id)
+
+    implementation = next_backlog_task(tmp_path)
+    assert implementation["task"]["id"] == "task:jornada:node:1"
+    assert implementation["task_delivery_scope"] == "node"
+    assert {item["id"] for item in implementation["delivery_subtasks"]} == {
+        "task:subjornada:node:1",
+        "task:subjornada:node:2",
+    }
+    complete_backlog_task(tmp_path, implementation["task"]["id"])
+
+    next_implementation = next_backlog_task(tmp_path)
+    assert next_implementation["task"]["id"] == "task:jornada:node:2"
 
 
 def test_backlog_test_accepts_test_refs_list_and_requires_one_file(tmp_path: Path):

@@ -32,6 +32,15 @@ O cursor do backlog é a fonte de verdade da ordem de execução. Nunca escolha 
 
 Concluir o código ou passar nos testes não conclui a task operacionalmente. Sem `backlog complete`, a task continua aberta no cursor.
 
+## Escopo de entrega
+
+Leia `backlog.task_delivery_scope` em `.stdd/config.json`:
+
+- `task`: implemente somente o ID recebido; os subfluxos serão entregues em chamadas posteriores.
+- `node`: implemente o nó pai e os subfluxos listados no mesmo contexto; conclua o conjunto usando o ID do nó pai.
+
+Essa configuração é a mesma usada por `stdd backlog test`. Em qualquer modo, siga o cursor e não escolha IDs manualmente.
+
 ## Regras do loop
 
 1. Leia a resposta em linguagem natural de `stdd backlog task`, incluindo task, ID, predecessor, condição, pai, subfluxos, perguntas respondidas, símbolos e testes entregues pelo comando.

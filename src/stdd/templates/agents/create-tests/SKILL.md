@@ -33,6 +33,8 @@ Depois que a fase terminar, o próximo passo é `$implement`. Não implementar c
 8. Conclua usando exatamente o ID recebido: `stdd backlog complete <task-id>`.
 9. Repita o loop até não haver task de teste. Se houver bloqueio, deixe a task aberta e informe o motivo e a ação necessária.
 
+O escopo comum em `backlog.task_delivery_scope` vale para esta fase e para a implementação: `task` entrega cada nó ou subfluxo separadamente; `node` entrega o nó pai e seus subfluxos juntos, concluídos pelo ID do pai.
+
 ## Escopo e Draws
 
 - Leia o Draw relacionado e os subfluxos cobertos pela task; não transforme arquitetura em teste sem comportamento observável.

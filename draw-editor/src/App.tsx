@@ -1347,6 +1347,12 @@ export const App: React.FC = () => {
   const onPaneClick = () => {
     window.dispatchEvent(new Event('stdd:clear-node-editing'));
     selectionOrderRef.current = [];
+    // React Flow mantém `selected` dentro do array controlado de nós. Limpar
+    // apenas a ordem local deixa a seleção visual reaparecer no próximo
+    // `onSelectionChange`, especialmente depois de uma seleção com Shift.
+    setNodes((currentNodes) => currentNodes.map((node) => (
+      node.selected ? { ...node, selected: false } : node
+    )));
     setSelectedNodeId(null);
     setSelectedEdgeId(null);
     setIsFocusMode(false);

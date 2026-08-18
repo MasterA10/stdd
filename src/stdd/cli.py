@@ -26,7 +26,7 @@ from .backlog import (
     next_backlog_task,
     next_backlog_test,
     set_backlog_config,
-    VALID_TEST_TASK_SCOPES,
+    VALID_TASK_DELIVERY_SCOPES,
 )
 from .draw import (
     analyze_draw_contract,
@@ -108,6 +108,8 @@ def _compact_backlog_response(response: dict[str, object]) -> dict[str, object]:
         compact["verified_nodes"] = task.get("verified_nodes")
     if isinstance(response.get("level_context"), dict):
         compact["level_context"] = response["level_context"]
+    if response.get("task_delivery_scope") == "node" and isinstance(response.get("delivery_subtasks"), list):
+        compact["delivery_subtasks"] = response["delivery_subtasks"]
     reason_labels = {
         "test_missing": "os testes da task ainda não foram comprovados",
         "test_not_complete": "o checklist de testes ainda não foi concluído",
@@ -163,6 +165,12 @@ def _format_backlog_response(response: dict[str, object]) -> str:
         lines.append(f"ID: {compact['task_id']}")
     if compact.get("description"):
         lines.append(f"Descrição: {compact['description']}")
+    delivery_subtasks = compact.get("delivery_subtasks")
+    if isinstance(delivery_subtasks, list):
+        lines.append(f"Escopo entregue: nó e {len(delivery_subtasks)} subfluxo(s) interno(s)")
+        for subtask in delivery_subtasks:
+            if isinstance(subtask, dict):
+                lines.append(f"  • {subtask.get('label', 'Subfluxo')} (ID: {subtask.get('id')})")
     lines.extend(_format_level_context(compact.get("level_context")))
     if compact.get("previous_node"):
         previous = compact["previous_node"]
@@ -204,7 +212,7 @@ def init(
     integration: List[str] = typer.Option(None, "--integration", help="Agente a integrar: codex, claude ou gemini; pode repetir."),
     all_integrations: bool = typer.Option(False, "--all-integrations", help="Instala as skills para Codex, Claude e Gemini."),
     interactive: bool = typer.Option(False, "--interactive", help="Abre a seleção numérica de integrações e setup."),
-    test_task_scope: Optional[str] = typer.Option(None, "--test-task-scope", help="Escopo das tasks de teste: node (L2 e internos juntos) ou task (uma por vez)."),
+    task_delivery_scope: Optional[str] = typer.Option(None, "--task-delivery-scope", help="Como entregar as tasks em testes e implementação: node (L2 e internos juntos) ou task (uma por vez)."),
 ) -> None:
     """Inicializa a estrutura do STDD e instala as skills dos agentes.
     Cria o diretório-alvo quando necessário, depois cria .stdd/ e .agents/skills.
@@ -223,8 +231,8 @@ def init(
     if invalid:
         typer.echo(f"Erro: integrações desconhecidas: {', '.join(invalid)}", err=True)
         raise typer.Exit(1)
-    if test_task_scope is not None and test_task_scope not in VALID_TEST_TASK_SCOPES:
-        typer.echo("Erro: --test-task-scope deve ser node ou task.", err=True)
+    if task_delivery_scope is not None and task_delivery_scope not in VALID_TASK_DELIVERY_SCOPES:
+        typer.echo("Erro: --task-delivery-scope deve ser node ou task.", err=True)
         raise typer.Exit(1)
     created = init_project(target, integrations=requested)
     typer.echo(f"Projeto inicializado em {target}. {len(created)} itens criados.")
@@ -235,15 +243,15 @@ def init(
             ensure_stack_gitignore(target, stack["languages"])
             typer.echo(f"Stack: {', '.join(stack['languages']) or 'não detectada'}")
         level_2_meaning, level_3_meaning = choose_level_meanings()
-        selected_test_task_scope = test_task_scope or choose_test_task_scope()
+        selected_task_delivery_scope = task_delivery_scope or choose_task_delivery_scope()
         set_backlog_config(
             target,
             level_2_meaning=level_2_meaning,
             level_3_meaning=level_3_meaning,
-            test_task_scope=selected_test_task_scope,
+            task_delivery_scope=selected_task_delivery_scope,
         )
-    elif test_task_scope is not None:
-        set_backlog_config(target, test_task_scope=test_task_scope)
+    elif task_delivery_scope is not None:
+        set_backlog_config(target, task_delivery_scope=task_delivery_scope)
     unavailable = [name for name, found in available_integrations().items() if name in requested and not found]
     if unavailable:
         typer.echo(f"Aviso: agente(s) não encontrado(s) no PATH: {', '.join(unavailable)}.", err=True)
@@ -302,17 +310,17 @@ def choose_level_meanings() -> tuple[str, str]:
     return level_2_meaning, level_3_meaning
 
 
-def choose_test_task_scope() -> str:
-    """Define se os testes do L2 serão agregados ou entregues por task."""
-    typer.echo("Defina como o backlog deve entregar as tasks de teste:")
+def choose_task_delivery_scope() -> str:
+    """Define se o backlog entrega o nó com internos ou cada task separada."""
+    typer.echo("Defina como o backlog deve entregar as tasks:")
     typer.echo("  1. Nó de nível 2 e subfluxos internos juntos")
     typer.echo("  2. Separar o nó de nível 2 e cada subfluxo interno")
-    choice = typer.prompt("Escopo das tasks de teste", default="1").strip()
+    choice = typer.prompt("Escopo das tasks", default="2").strip()
     if choice == "1":
         return "node"
     if choice == "2":
         return "task"
-    if choice in VALID_TEST_TASK_SCOPES:
+    if choice in VALID_TASK_DELIVERY_SCOPES:
         return choice
     raise typer.BadParameter("Escolha 1, 2, node ou task.")
 
@@ -439,13 +447,13 @@ def backlog_config(
     final_verification: Optional[bool] = typer.Option(None, "--final-verification/--no-final-verification", help="Habilita ou desabilita a task de verificação final E2E."),
     task_batch_size: Optional[int] = typer.Option(None, "--task-batch-size", min=1, max=5, help="Quantidade de tasks entregues no lote (1 a 5)."),
     task_batch_scope: Optional[str] = typer.Option(None, "--task-batch-scope", help="Escopo do lote: task ou node."),
-    test_task_scope: Optional[str] = typer.Option(None, "--test-task-scope", help="Escopo dos testes: task ou node."),
+    task_delivery_scope: Optional[str] = typer.Option(None, "--task-delivery-scope", help="Escopo comum de testes e implementação: task ou node."),
     min_task_interval_seconds: Optional[int] = typer.Option(None, "--min-task-interval-seconds", min=0, help="Janela mínima anti-script entre avanços."),
 ) -> None:
     """Exibe ou atualiza as configurações do backlog em .stdd/config.json."""
     try:
         root = project_root()
-        if interval is not None or bootstrap is not None or final_verification is not None or task_batch_size is not None or task_batch_scope is not None or test_task_scope is not None or min_task_interval_seconds is not None:
+        if interval is not None or bootstrap is not None or final_verification is not None or task_batch_size is not None or task_batch_scope is not None or task_delivery_scope is not None or min_task_interval_seconds is not None:
             updated = set_backlog_config(
                 root,
                 verification_interval=interval,
@@ -453,7 +461,7 @@ def backlog_config(
                 final_verification_task=final_verification,
                 task_batch_size=task_batch_size,
                 task_batch_scope=task_batch_scope,
-                test_task_scope=test_task_scope,
+                task_delivery_scope=task_delivery_scope,
                 min_task_interval_seconds=min_task_interval_seconds,
             )
             typer.echo(f"Configuração do backlog atualizada: {json.dumps(updated, ensure_ascii=False)}")

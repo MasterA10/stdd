@@ -337,8 +337,92 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "42f89420ebec4462b667ac7a40681aaa",
+      "timestamp": "2026-08-18T15:43:30.268487+00:00",
+      "description": "Atualiza instalação global do STDD a partir do checkout atual",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d8114c1548b547aca124c98d3a9e176a",
+      "timestamp": "2026-08-18T15:49:10.674425+00:00",
+      "description": "Corrige recuperação do bootstrap quando o cursor persistido aponta para task de produto",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 179,
+        "lines_deleted": 50,
+        "files_changed": 6
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d179af736b54439da669b22006e92eb7",
+      "timestamp": "2026-08-18T15:51:34.489691+00:00",
+      "description": "Unifica o escopo de entrega do backlog entre testes e implementação",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 3,
+        "lines_deleted": 1,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "feb4d7da11c24641ae11ef5cdad1f098",
+      "timestamp": "2026-08-18T15:52:16.359248+00:00",
+      "description": "Corrige limpeza da seleção múltipla ao clicar no painel do Draw",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 6,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 16,
-  "last_run_id": "0f6f94a809b44bf281e47f2872f0bd0c"
+  "run_count": 20,
+  "last_run_id": "feb4d7da11c24641ae11ef5cdad1f098"
 }
