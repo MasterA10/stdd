@@ -67,7 +67,7 @@ def test_init_interactive_selects_multiple_agent_integrations(tmp_path: Path):
     """Permite escolher várias integrações por números durante a inicialização.
     Simula a seleção de Claude e Gemini e confirma que o setup também pode ser aceito no mesmo fluxo.
     """
-    result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="2,3\ny\n1\n1\n1\n")
+    result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="2,3\ny\n1\n1\n1\n1\n")
 
     assert result.exit_code == 0
     assert (tmp_path / ".claude/skills/setup/SKILL.md").exists()
@@ -77,6 +77,7 @@ def test_init_interactive_selects_multiple_agent_integrations(tmp_path: Path):
     assert config["backlog"]["level_2_meaning"] == "Tela"
     assert config["backlog"]["level_3_meaning"] == "Regra de negócio"
     assert config["backlog"]["task_delivery_scope"] == "node"
+    assert config["backlog"]["l2_verification_interval"] == 1
 
 
 def test_init_interactive_does_not_ask_frontend_analysis_policy(tmp_path: Path):
@@ -85,7 +86,7 @@ def test_init_interactive_does_not_ask_frontend_analysis_policy(tmp_path: Path):
     """
     (tmp_path / "index.html").write_text("<button>menu</button>")
 
-    result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="1\ny\n1\n2\n1\n")
+    result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="1\ny\n1\n2\n1\n1\n")
 
     assert result.exit_code == 0
     assert "política de análise estática frontend" not in result.stdout
@@ -100,7 +101,7 @@ def test_init_interactive_accepts_custom_level_meanings(tmp_path: Path):
     result = runner.invoke(
         app,
         ["init", str(tmp_path), "--interactive"],
-        input="1\ny\n2\nView pública e componentes frontend\n3\nPolíticas e detalhes de interação\n2\n",
+        input="1\ny\n2\nView pública e componentes frontend\n3\nPolíticas e detalhes de interação\n2\n1\n",
     )
 
     assert result.exit_code == 0
@@ -108,6 +109,7 @@ def test_init_interactive_accepts_custom_level_meanings(tmp_path: Path):
     assert config["backlog"]["level_2_meaning"] == "View pública e componentes frontend"
     assert config["backlog"]["level_3_meaning"] == "Políticas e detalhes de interação"
     assert config["backlog"]["task_delivery_scope"] == "task"
+    assert config["backlog"]["l2_verification_interval"] == 1
 
 
 def test_init_accepts_task_delivery_scope_option(tmp_path: Path):
@@ -119,6 +121,24 @@ def test_init_accepts_task_delivery_scope_option(tmp_path: Path):
     assert result.exit_code == 0
     config = json.loads((tmp_path / ".stdd/config.json").read_text())
     assert config["backlog"]["task_delivery_scope"] == "node"
+
+
+def test_init_accepts_l2_verification_interval_option(tmp_path: Path):
+    """Permite configurar pelo init a frequência da conferência dos nós L2."""
+    result = runner.invoke(app, ["init", str(tmp_path), "--l2-verification-interval", "2"])
+
+    assert result.exit_code == 0
+    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    assert config["backlog"]["l2_verification_interval"] == 2
+
+
+def test_init_interactive_can_disable_l2_verification_tasks(tmp_path: Path):
+    """Permite desabilitar as conferências automáticas durante o init interativo."""
+    result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="1\nn\n1\n1\n2\n0\n")
+
+    assert result.exit_code == 0
+    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    assert config["backlog"]["l2_verification_interval"] == 0
 
 
 def test_init_rejects_removed_frontend_analysis_option(tmp_path: Path):

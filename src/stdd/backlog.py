@@ -675,7 +675,7 @@ def _task_for_node(root: Path, document: dict[str, Any], node: dict[str, Any], b
         "test_ref_error": test_ref_error,
         "test_owner_task_id": owner_id,
         "test_status": "missing" if owner_id else "not-required",
-        "test_evidence": _test_reference_status(root, test_ref, test_ref_error) if level == 2 else {"status": "not-required", "reason": "coberto pela task de nível 2"},
+        "test_evidence": _test_reference_status(root, test_ref, test_ref_error) if level == 2 else {"status": "missing", "reason": "teste próprio do subfluxo ainda não concluído"},
         "checklist_state": {"test": False, "implementation": False},
         "child_checklist_id": next((ref for ref in node.get("draw_ref", []) if ref in checklist_ids), node.get("draw_ref")) if isinstance(node.get("draw_ref"), list) else node.get("draw_ref"),
         "status": "pending",
@@ -852,8 +852,9 @@ def _refresh_test_statuses(
     tasks: list[dict[str, Any]],
     previous_tasks: dict[str, dict[str, Any]] | None = None,
 ) -> None:
-    """Atualiza a evidência do teste do nível 2 e propaga-a aos subfluxos."""
+    """Atualiza testes; subfluxos só herdam o L2 no modo agrupado."""
     previous_tasks = previous_tasks or {}
+    delivery_scope = _execution_config(root)["task_delivery_scope"]
     owners = {
         task["id"]: task
         for task in tasks
@@ -878,6 +879,23 @@ def _refresh_test_statuses(
         owner_id = task.get("test_owner_task_id")
         if task.get("level") == 2 or not owner_id:
             continue
+        previous = previous_tasks.get(task["id"], {})
+        if delivery_scope == "task":
+            # Em entregas separadas, um L3 não pode ser liberado só porque o
+            # teste do L2 foi concluído. Preserve apenas conclusões que já
+            # pertenciam ao próprio L3 (sem a referência herdada do L2).
+            task["test_ref"] = None
+            task["test_ref_error"] = None
+            if previous.get("test_status") == "done" and (
+                previous.get("test_completed_independently") is True
+                or previous.get("test_manual") is True
+            ):
+                task["test_status"] = "done"
+                task["test_evidence"] = {"status": "done", "reason": "fase de testes concluída anteriormente"}
+            else:
+                task["test_status"] = "missing"
+                task["test_evidence"] = {"status": "missing", "reason": "teste próprio do subfluxo ainda não concluído"}
+            continue
         owner = owners.get(owner_id)
         if owner is None:
             task["test_status"] = "missing"
@@ -900,6 +918,8 @@ def _refresh_checklist_states(tasks: list[dict[str, Any]], previous_tasks: dict[
             if task.get("level") != 2 and owner is not None:
                 state["test"] = _valid_checklist_state(owner.get("checklist_state")) is not None and owner["checklist_state"]["test"]
         task["checklist_state"] = state
+        if task.get("level") != 2 and task.get("test_status") == "missing" and not task.get("test_manual"):
+            task["checklist_state"]["test"] = False
         if previous.get("test_manual") is True:
             task["test_manual"] = True
 
@@ -1800,6 +1820,8 @@ def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
         previous_status = task.pop("test_previous_status", None)
         task["test_status"] = "done"
         task.pop("test_manual", None)
+        if _task_delivery_scope(payload) == "task":
+            task["test_completed_independently"] = True
         scope_tasks = [task] if _task_delivery_scope(payload) == "task" else _test_scope_tasks(payload, task)
         for scope_task in scope_tasks:
             scope_task.setdefault("checklist_state", _default_checklist_state(scope_task))["test"] = True

@@ -13,6 +13,7 @@ import type { Connection, Edge, EdgeChange, Node, EdgeTypes } from '@xyflow/reac
 import '@xyflow/react/dist/style.css';
 
 import type { BacklogActionResponse, BacklogDocument, Contract, DrawIndexEntry, ImprovementIndexEntry, ImprovementSession, NodeData, EdgeData, RunRecord, TraceabilityFacts, StaticAnalysisKpiReport } from './types';
+import { deliveryScopeFor, pendingTestTasks, taskNeedsTests, testScopeFor } from './backlog-status';
 import { CustomNode } from './components/CustomNode';
 import { LoopEdge } from './components/LoopEdge';
 import { Sidebar } from './components/Sidebar';
@@ -173,7 +174,7 @@ export const App: React.FC = () => {
     updateLocalBacklog((previous) => {
       if (previous.execution.current_phase === 'test') return previous;
       const current = previous.execution.current_task_id;
-      const task = previous.tasks.find((item) => item.id === current) || previous.tasks.find((item) => item.status !== 'done' && (item.level !== 2 || item.test_status === 'done'));
+      const task = previous.tasks.find((item) => item.id === current) || previous.tasks.find((item) => item.status !== 'done' && !taskNeedsTests(previous, item));
       if (!task) return previous;
       const tasks = previous.tasks.map((item) => item.id === task.id ? { ...item, status: 'in_progress' as const } : item);
       return { ...previous, tasks, execution: { ...previous.execution, current_task_id: task.id, current_backlog_id: task.backlog_id, current_branch_id: task.branch?.id, branch_position: task.branch?.position, current_phase: 'implementation' as const } };
@@ -192,7 +193,7 @@ export const App: React.FC = () => {
     }
     updateLocalBacklog((previous) => {
       if (previous.execution.current_task_id) return previous;
-      const task = previous.tasks.find((item) => item.level === 2 && item.status !== 'done' && item.test_status !== 'done');
+      const task = pendingTestTasks(previous)[0];
       if (!task) return previous;
       const tasks = previous.tasks.map((item) => item.id === task.id
         ? { ...item, status: 'in_progress' as const, test_status: 'in_progress' as const }
@@ -239,7 +240,7 @@ export const App: React.FC = () => {
       if (previous.execution.current_phase === 'test') {
         const current = previous.tasks.find((item) => item.id === taskId);
         if (!current) return previous;
-        const scopeIds = new Set([current.id, ...(current.child_task_ids || [])]);
+        const scopeIds = new Set(testScopeFor(previous, current).map((item) => item.id));
         const tasks = previous.tasks.map((item) => scopeIds.has(item.id)
           ? { ...item, test_status: 'done' as const, checklist_state: { ...(item.checklist_state || { test: false, implementation: false }), test: true } }
           : item);
@@ -253,7 +254,12 @@ export const App: React.FC = () => {
           execution: { ...previous.execution, current_task_id: null, current_backlog_id: null, current_phase: null }
         };
       }
-      const tasks = previous.tasks.map((item) => item.id === taskId
+      const current = previous.tasks.find((item) => item.id === taskId);
+      if (!current) return previous;
+      const scopeIds = deliveryScopeFor(previous) === 'node'
+        ? new Set(testScopeFor(previous, current).map((item) => item.id))
+        : new Set([current.id]);
+      const tasks = previous.tasks.map((item) => scopeIds.has(item.id)
         ? { ...item, status: 'done' as const, checklist_state: { ...(item.checklist_state || { test: false, implementation: false }), implementation: true } }
         : item);
       return {

@@ -213,6 +213,7 @@ def init(
     all_integrations: bool = typer.Option(False, "--all-integrations", help="Instala as skills para Codex, Claude e Gemini."),
     interactive: bool = typer.Option(False, "--interactive", help="Abre a seleção numérica de integrações e setup."),
     task_delivery_scope: Optional[str] = typer.Option(None, "--task-delivery-scope", help="Como entregar as tasks em testes e implementação: node (L2 e internos juntos) ou task (uma por vez)."),
+    l2_verification_interval: Optional[int] = typer.Option(None, "--l2-verification-interval", "--verification-interval", min=0, help="Insere uma task de conferência a cada N nós L2 concluídos; 0 desabilita."),
 ) -> None:
     """Inicializa a estrutura do STDD e instala as skills dos agentes.
     Cria o diretório-alvo quando necessário, depois cria .stdd/ e .agents/skills.
@@ -244,14 +245,24 @@ def init(
             typer.echo(f"Stack: {', '.join(stack['languages']) or 'não detectada'}")
         level_2_meaning, level_3_meaning = choose_level_meanings()
         selected_task_delivery_scope = task_delivery_scope or choose_task_delivery_scope()
+        selected_l2_verification_interval = (
+            l2_verification_interval
+            if l2_verification_interval is not None
+            else choose_l2_verification_interval()
+        )
         set_backlog_config(
             target,
             level_2_meaning=level_2_meaning,
             level_3_meaning=level_3_meaning,
             task_delivery_scope=selected_task_delivery_scope,
+            verification_interval=selected_l2_verification_interval,
         )
-    elif task_delivery_scope is not None:
-        set_backlog_config(target, task_delivery_scope=task_delivery_scope)
+    elif task_delivery_scope is not None or l2_verification_interval is not None:
+        set_backlog_config(
+            target,
+            task_delivery_scope=task_delivery_scope,
+            verification_interval=l2_verification_interval,
+        )
     unavailable = [name for name, found in available_integrations().items() if name in requested and not found]
     if unavailable:
         typer.echo(f"Aviso: agente(s) não encontrado(s) no PATH: {', '.join(unavailable)}.", err=True)
@@ -323,6 +334,22 @@ def choose_task_delivery_scope() -> str:
     if choice in VALID_TASK_DELIVERY_SCOPES:
         return choice
     raise typer.BadParameter("Escolha 1, 2, node ou task.")
+
+
+def choose_l2_verification_interval() -> int:
+    """Define a frequência das tasks que conferem a implementação dos nós L2."""
+    typer.echo("Defina quando conferir a implementação dos nós L2:")
+    typer.echo("  0. Não inserir conferência automática")
+    typer.echo("  1. Após cada nó L2 concluído")
+    typer.echo("  N. Após cada N nós L2 concluídos, em lote")
+    answer = typer.prompt("Intervalo de conferência", default="1").strip()
+    try:
+        interval = int(answer)
+    except ValueError as error:
+        raise typer.BadParameter("Digite um número inteiro maior ou igual a zero.") from error
+    if interval < 0:
+        raise typer.BadParameter("O intervalo de conferência não pode ser negativo.")
+    return interval
 
 
 @app.command()

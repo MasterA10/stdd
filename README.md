@@ -43,7 +43,7 @@ Selecione as integrações do agente (ex.: 1,3 ou 4 para todos):
   4. Todos
 ```
 
-Depois da escolha, o CLI pergunta se deve executar o setup da stack. O setup não instala dependências nem inicia serviços sem autorização; ele apenas detecta arquivos e comandos locais. Em seguida, no modo interativo, o init pergunta o significado operacional do nível 2 e do nível 3: nível 2 pode ser `Tela` ou uma definição personalizada; nível 3 pode ser `Regra de negócio`, `Detalhes da tela` ou uma definição personalizada. Também pergunta como o backlog deve entregar as tasks, tanto em testes quanto em implementação: o nó L2 com seus internos juntos ou cada task separadamente. Essa escolha também pode ser passada por `--task-delivery-scope node|task` e fica em `.stdd/config.json`.
+Depois da escolha, o CLI pergunta se deve executar o setup da stack. O setup não instala dependências nem inicia serviços sem autorização; ele apenas detecta arquivos e comandos locais. Em seguida, no modo interativo, o init pergunta o significado operacional do nível 2 e do nível 3: nível 2 pode ser `Tela` ou uma definição personalizada; nível 3 pode ser `Regra de negócio`, `Detalhes da tela` ou uma definição personalizada. Também pergunta como o backlog deve entregar as tasks, tanto em testes quanto em implementação: o nó L2 com seus internos juntos ou cada task separadamente. Por fim, pergunta a frequência das tasks automáticas de conferência da implementação dos nós L2; `0` desabilita e `1` insere uma conferência após cada nó L2. Essas escolhas ficam em `.stdd/config.json` e também podem ser passadas por `--task-delivery-scope node|task` e `--l2-verification-interval N`.
 
 Para automação sem perguntas:
 

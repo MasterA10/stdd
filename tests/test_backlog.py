@@ -78,6 +78,9 @@ def _create_hierarchical_fixture(root: Path, bootstrap: bool = False) -> None:
     config = json.loads(config_path.read_text(encoding="utf-8")) if config_path.exists() else {}
     config.setdefault("backlog", {})["bootstrap_task"] = bootstrap
     config.setdefault("backlog", {})["bootstrap_opt_out"] = not bootstrap
+    # Estas fixtures históricas exercitam o fluxo agrupado; o comportamento
+    # padrão do produto é coberto explicitamente pelos testes de entrega task.
+    config.setdefault("backlog", {})["task_delivery_scope"] = "node"
     config_path.parent.mkdir(parents=True, exist_ok=True)
     config_path.write_text(json.dumps(config), encoding="utf-8")
 
@@ -347,6 +350,26 @@ def test_backlog_delivery_scope_can_deliver_internal_subflows_separately(tmp_pat
     internal_last = next_backlog_test(tmp_path)
     assert internal_last["task"]["id"] == "task:subjornada:node:2"
     assert "deste nó ou subfluxo" in internal_last["instruction"]
+
+
+def test_separate_delivery_does_not_inherit_l2_test_status_to_l3(tmp_path: Path):
+    """Mantém os L3 pendentes quando o L2 é entregue separadamente."""
+    _create_nested_hierarchical_fixture(tmp_path)
+    _remove_test_refs(tmp_path)
+    config_path = tmp_path / ".stdd" / "config.json"
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    config["backlog"].pop("task_delivery_scope", None)
+    config_path.write_text(json.dumps(config), encoding="utf-8")
+
+    parent = next_backlog_test(tmp_path)
+    assert parent["task"]["level"] == 2
+    complete_backlog_task(tmp_path, parent["task"]["id"])
+
+    internal = next_backlog_test(tmp_path)
+
+    assert internal["task"]["level"] == 3
+    assert internal["task"]["test_status"] == "in_progress"
+    assert internal["task"]["test_previous_status"] == "pending"
 
 
 def test_backlog_delivery_scope_groups_tests_and_implementation_by_node(tmp_path: Path):

@@ -843,6 +843,24 @@ def test_sidebar_exposes_backlog_tasks_with_questions_and_symbols():
     assert "Concluir task" in panel
     assert "Concluir testes" in panel
     assert "Testes associados" in panel
+    assert "pendingTestTasks" in panel
+    assert "taskTestStatus" in panel
+    assert "backlog-phase-summary" in panel
+
+
+def test_backlog_panel_exposes_both_execution_phase_statuses_and_delivery_scope():
+    """Mostra testes e implementação separadamente e respeita task ou node."""
+    panel = (EDITOR_ROOT / "src/components/BacklogPanel.tsx").read_text(encoding="utf-8")
+    status_helpers = (EDITOR_ROOT / "src/backlog-status.ts").read_text(encoding="utf-8")
+    types = (EDITOR_ROOT / "src/types.ts").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    assert "Testes" in panel and "Implementação" in panel
+    assert "deliveryScopeFor(backlog)" in panel
+    assert "task_delivery_scope" in types
+    assert "pendingTestTasks" in status_helpers
+    assert "testScopeFor" in status_helpers
+    assert ".backlog-phase-badge.test" in styles
 
 
 def test_editor_loads_the_persisted_backlog_from_the_draw_server():

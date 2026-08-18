@@ -484,8 +484,71 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "e772b970bdad44f593a2a2f43a722c05",
+      "timestamp": "2026-08-18T16:18:16.200083+00:00",
+      "description": "Adiciona intervalo configuravel de verificacao ao stdd init",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 52,
+        "lines_deleted": 5,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "ddb1f45a933b43fb9a79c1df458f52c8",
+      "timestamp": "2026-08-18T16:30:20.229024+00:00",
+      "description": "Separa testes de L3 e impede herança implícita do L2 no backlog",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 154,
+        "lines_deleted": 13,
+        "files_changed": 7
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "43abf17ad7e4445b891967da8f344009",
+      "timestamp": "2026-08-18T16:31:58.359293+00:00",
+      "description": "Melhora o painel do Draw com status separados de testes e implementacao",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 34,
+        "lines_deleted": 1,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 23,
-  "last_run_id": "7b43173bd4a34b948d2c5d23a55e70aa"
+  "run_count": 26,
+  "last_run_id": "43abf17ad7e4445b891967da8f344009"
 }

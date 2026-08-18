@@ -207,6 +207,7 @@ export interface BacklogTask {
   test_status?: 'missing' | 'in_progress' | 'done' | 'not-required';
   test_evidence?: { status?: string; file?: string | null; symbols?: string[]; missing_symbols?: string[]; reason?: string };
   test_owner_task_id?: string | null;
+  test_manual?: boolean;
   checklist_state?: { test: boolean; implementation: boolean };
   child_checklist_id?: string;
   child_backlog_id?: string;
@@ -234,6 +235,7 @@ export interface BacklogDocument {
     current_branch_id?: string | null;
     branch_position?: number | null;
     current_phase?: 'test' | 'implementation' | null;
+    task_delivery_scope?: 'task' | 'node';
     current_parent_task_id?: string | null;
     current_subtask_id?: string | null;
     completed_branches?: string[];
