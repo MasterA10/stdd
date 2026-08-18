@@ -7,7 +7,7 @@ description: Implementa comportamento de produção guiado por testes no STDD, p
 
 ## Responsabilidade
 
-Fazer a menor alteração coerente que satisfaça os testes aprovados e preserve o restante do sistema. Separar implementação, correção e refactor nos WorkTypes. Não editar testes aprovados para obter verde e não contornar gates, adapters ou skills.
+Entregar o melhor comportamento possível dentro do escopo pedido, com eficiência, segurança e boa experiência, preservando o restante do sistema. Separar implementação, correção e refactor nos WorkTypes. Não editar testes aprovados para obter verde e não contornar gates, adapters ou skills.
 
 ## Usuários, papéis e autorização
 
@@ -55,9 +55,9 @@ Quando houver relatório de `static_analysis`, o agente deve usá-lo como evidê
 2. confirmar que o adapter realmente suporta aquela métrica para a linguagem da codebase;
 3. ler o símbolo completo, seus chamadores, dependências, testes relacionados e referências dos Draws;
 4. classificar o achado como correção necessária, refatoração segura, dívida técnica ou falso positivo justificado;
-5. escolher a menor divisão coerente de responsabilidades, preservando entrada, saída, efeitos, transações, autorização e tratamento de erros;
+5. escolher a divisão de responsabilidades mais coerente e eficiente, preservando entrada, saída, efeitos, transações, autorização e tratamento de erros;
 6. criar ou confirmar um teste de regressão antes da refatoração quando o comportamento ainda não estiver protegido;
-7. fazer a mudança em passos pequenos, executando a suíte específica após cada passo;
+7. fazer a mudança em passos verificáveis, executando a suíte específica após cada passo;
 8. executar novamente o adapter e comparar `value`/`limit` antes e depois, sem esconder o achado alterando o limite apenas para obter aprovação.
 
 Para funções de produção, considerar como padrão: até 100 linhas é normal, 101–150 é warning de manutenção e acima de 150 é bloqueante. Uma função acima do limite não deve ser dividida mecanicamente; investigar primeiro coesão, dependências, fronteiras de domínio, efeitos colaterais e pontos de decisão. Preferir extrair funções com nomes comportamentais, manter uma sequência principal legível e preservar as identidades públicas quando o contrato não tiver autorizado renomeação.
@@ -113,9 +113,11 @@ Quando houver um backlog gerado, o `$implement` deve executar o ciclo operaciona
 
 Uma task `in_progress` deve ser retomada antes de qualquer outra. Não concluir uma task fora de ordem nem fabricar símbolos, arquivos ou respostas. Se houver bloqueio, preservar a task sem executar `backlog complete` e relatar o motivo.
 
+Quando a resposta for `kind: "backlog-bootstrap-task"`, preparar somente a estrutura mínima do projeto com base nas evidências locais — ponto de entrada, arquivos raiz, configuração, dependências, convenções e comandos necessários. A task é agnóstica de framework: não inventar arquivos e não implementar funcionalidade de produto; concluir pelo ID recebido e retomar o loop.
+
 ## Seleção proporcional de testes
 
-Testes protegem comportamento relevante, não cada arquivo alterado. Escolher a menor evidência suficiente para o risco real:
+Testes protegem comportamento relevante, não cada arquivo alterado. Escolher a melhor evidência proporcional ao risco real:
 
 - backend, scripts, regras de negócio, contratos, dados e segurança: testes automatizados são esperados quando a superfície tem comportamento observável;
 - frontend: testar automaticamente somente lógica de negócio, transformações de dados, estados críticos, acessibilidade, segurança ou fluxos cuja falha tenha impacto relevante;

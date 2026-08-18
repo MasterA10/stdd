@@ -43,7 +43,7 @@ Não gravar rotas ou URLs, cores, fontes, tamanhos, CSS, aparência visual, layo
 
 ## Pontos de entrada
 
-Use o menor número de pontos de entrada reais:
+Use os pontos de entrada reais que melhor representem as jornadas:
 
 - mobile normalmente parte de uma tela de abertura ou home;
 - site normalmente parte da home, com uma segunda entrada apenas para área administrativa/painel realmente separado;

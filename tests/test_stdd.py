@@ -62,6 +62,9 @@ def test_init_defers_language_specific_test_runner_to_setup(tmp_path: Path):
     config = json.loads((tmp_path / ".stdd/config.json").read_text())
     assert config["test_commands"] == []
     assert config["testing"]["profile"] == "mvp"
+    assert config["backlog"]["bootstrap_task"] is True
+    assert config["backlog"]["level_2_meaning"] == "Tela"
+    assert config["backlog"]["level_3_meaning"] == "Regra de negócio e detalhes da tela"
 
 
 def test_init_creates_static_analysis_without_frontend_policy(tmp_path: Path):

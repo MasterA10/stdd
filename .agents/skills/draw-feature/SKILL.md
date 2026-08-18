@@ -13,7 +13,7 @@ Quando o desenho fizer parte de um sistema maior, preserve uma árvore explícit
 
 - **Nível 1 (Feature/Architecture):** escolhas macro ao redor da codebase, focando em integrações fora da codebase principal (como serviços externos, banco de dados, infraestrutura, deploy, aplicativo, linguagem, runtime, cache e autenticação). **O que NÃO deve conter:** detalhes profundos de regras de negócio locais, minúcias de implementação interna e comportamento do aplicativo.
 - **Nível 2 — jornada:** navegação e operação de cada usuário, incluindo cliente, administrador e outros papéis, com opções, permissões, regras de negócio e estados observáveis. Uma opção ainda não implementada é uma folha terminal, sem continuação fictícia.
-- **Nível 3 — implementação:** como o backend atende uma jornada, incluindo API, validações, autorização, persistência, eventos, integrações e falhas.
+- **Nível 3 — implementação:** o caso de uso completo de como o sistema atende uma jornada de ponta a ponta, incluindo lógica de negócio, apresentação, validações, autorização, persistência, integração com o framework, eventos e tratamento de falhas.
 - **Nível 4 — codebase:** arquivos, módulos, símbolos, testes e dependências reais, somente quando a complexidade justificar.
 
 Desenhos integrados a essa árvore devem declarar `hierarchy.level`, `hierarchy.role`, `hierarchy.parent_draw_ref`, `hierarchy.parent_node_id` e `hierarchy.root_draw_ref`. A raiz usa nível 1 e pai nulo. Todo descendente tem pai e o pai aponta para ele com `draw_ref`; não existem fluxos órfãos. Um nível pode pular diretamente para outro quando não houver detalhe útil intermediário, mas nunca pode perder a relação de pai.

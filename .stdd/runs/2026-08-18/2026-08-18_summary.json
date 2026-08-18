@@ -85,8 +85,134 @@
         "lines_deleted": 18,
         "files_changed": 6
       }
+    },
+    {
+      "run_id": "b9902de2f911470685820f58c5267d2d",
+      "timestamp": "2026-08-18T13:58:02.790548+00:00",
+      "description": "Enxuga implement e create-tests para percorrer o loop do STDD",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "88d065af95aa448d92582e1a0ea33bee",
+      "timestamp": "2026-08-18T14:01:04.833221+00:00",
+      "description": "Troca o foco de menor implementação para melhor comportamento dentro do escopo",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "70a06ed7c5d54aceb9ec6bea94857d22",
+      "timestamp": "2026-08-18T14:22:37.343863+00:00",
+      "description": "Corrige skills create-tests e implement: adiciona cobertura de camadas, critério de conclusão multi-camada, entrega completa de feature e testes de alcançabilidade — tudo agnóstico de framework",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "a87b508aead74d1a9605ce03b2400cfa",
+      "timestamp": "2026-08-18T14:35:29.899873+00:00",
+      "description": "Adiciona semântica configurável de níveis 2 e 3 ao init e ao backlog",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 153,
+        "lines_deleted": 3,
+        "files_changed": 6
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "84a0d91d268442799894471470e6357e",
+      "timestamp": "2026-08-18T14:46:12.710775+00:00",
+      "description": "Injeta bootstrap agnóstico como primeira task dos loops",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 94,
+        "lines_deleted": 32,
+        "files_changed": 6
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "42005646236549cb90d7090634425315",
+      "timestamp": "2026-08-18T14:46:21.469054+00:00",
+      "description": "Substitui Controller e vies de backend por Caso de Uso e integracao funcional de ponta a ponta nas skills",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 4,
-  "last_run_id": "310e3fefb56e4df5b368e950f84a4927"
+  "run_count": 10,
+  "last_run_id": "42005646236549cb90d7090634425315"
 }

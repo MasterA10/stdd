@@ -67,12 +67,15 @@ def test_init_interactive_selects_multiple_agent_integrations(tmp_path: Path):
     """Permite escolher várias integrações por números durante a inicialização.
     Simula a seleção de Claude e Gemini e confirma que o setup também pode ser aceito no mesmo fluxo.
     """
-    result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="2,3\ny\n")
+    result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="2,3\ny\n1\n1\n")
 
     assert result.exit_code == 0
     assert (tmp_path / ".claude/skills/setup/SKILL.md").exists()
     assert (tmp_path / ".gemini/skills/setup/SKILL.md").exists()
     assert "Selecione" in result.stdout
+    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    assert config["backlog"]["level_2_meaning"] == "Tela"
+    assert config["backlog"]["level_3_meaning"] == "Regra de negócio"
 
 
 def test_init_interactive_does_not_ask_frontend_analysis_policy(tmp_path: Path):
@@ -81,12 +84,28 @@ def test_init_interactive_does_not_ask_frontend_analysis_policy(tmp_path: Path):
     """
     (tmp_path / "index.html").write_text("<button>menu</button>")
 
-    result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="1\ny\n")
+    result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="1\ny\n1\n2\n")
 
     assert result.exit_code == 0
     assert "política de análise estática frontend" not in result.stdout
     config = json.loads((tmp_path / ".stdd/config.json").read_text())
     assert "frontend" not in config["static_analysis"]
+
+
+def test_init_interactive_accepts_custom_level_meanings(tmp_path: Path):
+    """Persiste definições personalizadas para os níveis do Draw.
+    Usa a opção de texto livre e mantém as definições no backlog do projeto.
+    """
+    result = runner.invoke(
+        app,
+        ["init", str(tmp_path), "--interactive"],
+        input="1\ny\n2\nView pública e componentes frontend\n3\nPolíticas e detalhes de interação\n",
+    )
+
+    assert result.exit_code == 0
+    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    assert config["backlog"]["level_2_meaning"] == "View pública e componentes frontend"
+    assert config["backlog"]["level_3_meaning"] == "Políticas e detalhes de interação"
 
 
 def test_init_rejects_removed_frontend_analysis_option(tmp_path: Path):

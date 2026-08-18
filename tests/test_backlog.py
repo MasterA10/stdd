@@ -13,7 +13,7 @@ from stdd.draw import create_draw
 runner = CliRunner()
 
 
-def _create_hierarchical_fixture(root: Path) -> None:
+def _create_hierarchical_fixture(root: Path, bootstrap: bool = False) -> None:
     """Cria uma raiz, uma jornada de nível 2 e duas ramificações.
     Inclui perguntas, símbolos, dependências e um self-loop terminal.
     """
@@ -74,6 +74,11 @@ def _create_hierarchical_fixture(root: Path) -> None:
         },
     )
     _write_test_evidence(root)
+    config_path = root / ".stdd" / "config.json"
+    config = json.loads(config_path.read_text(encoding="utf-8")) if config_path.exists() else {}
+    config.setdefault("backlog", {})["bootstrap_task"] = bootstrap
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    config_path.write_text(json.dumps(config), encoding="utf-8")
 
 
 def _write_test_evidence(root: Path) -> None:
@@ -199,6 +204,8 @@ def test_backlog_test_creates_test_phase_then_releases_same_task_for_implementat
 
     assert test_task["kind"] == "backlog-test-task"
     assert test_task["phase"] == "test"
+    assert test_task["level_context"]["level"] == 2
+    assert "frontend" in test_task["level_context"]["guidance"].lower()
     task_id = test_task["task"]["id"]
     _add_test_refs(tmp_path)
     test_done = complete_backlog_task(tmp_path, task_id)
@@ -210,6 +217,58 @@ def test_backlog_test_creates_test_phase_then_releases_same_task_for_implementat
     assert implementation["kind"] == "backlog-task"
     assert implementation["phase"] == "implementation"
     assert implementation["task"]["id"] == task_id
+    assert implementation["level_context"]["meaning"] == "Tela"
+
+
+def test_bootstrap_is_first_and_agnostic_in_both_backlog_loops(tmp_path: Path):
+    """Entrega a preparação agnóstica antes de qualquer task de produto.
+    Confirma que implementação e testes recebem a mesma primeira task injetada.
+    """
+    _create_hierarchical_fixture(tmp_path, bootstrap=True)
+    _remove_test_refs(tmp_path)
+
+    implementation_first = next_backlog_task(tmp_path)
+    assert implementation_first["kind"] == "backlog-task"
+    assert implementation_first["task"]["id"] == "task:bootstrap"
+    assert "ponto de entrada" in implementation_first["task"]["description"]
+    assert "stack" in implementation_first["task"]["description"]
+    assert "wordpress" not in implementation_first["task"]["description"].lower()
+    complete_backlog_task(tmp_path, "task:bootstrap")
+
+    test_first = next_backlog_test(tmp_path)
+    assert test_first["kind"] == "backlog-test-task"
+
+    second_root = tmp_path / "test-loop"
+    _create_hierarchical_fixture(second_root, bootstrap=True)
+    _remove_test_refs(second_root)
+    test_bootstrap = next_backlog_test(second_root)
+    assert test_bootstrap["kind"] == "backlog-bootstrap-task"
+    assert test_bootstrap["phase"] == "bootstrap"
+    assert test_bootstrap["task"]["id"] == "task:bootstrap"
+    complete = complete_backlog_task(second_root, "task:bootstrap")
+    assert complete["kind"] == "backlog-bootstrap-complete"
+    assert next_backlog_test(second_root)["kind"] == "backlog-test-task"
+
+
+def test_backlog_injects_level_context_into_level_two_and_level_three_tasks(tmp_path: Path):
+    """Diferencia frontend de regras e detalhes nos contextos do backlog.
+    Percorre a task L2 e o subfluxo L3 e valida a orientação injetada em ambos os loops.
+    """
+    _create_nested_hierarchical_fixture(tmp_path)
+
+    first = next_backlog_task(tmp_path)
+    assert first["task"]["level"] == 2
+    assert first["level_context"]["meaning"] == "Tela"
+    assert "view" in first["level_context"]["guidance"].lower()
+    assert "frontend" in first["level_context"]["guidance"].lower()
+
+    complete_backlog_task(tmp_path, first["task"]["id"])
+    child = next_backlog_task(tmp_path)
+
+    assert child["task"]["level"] == 3
+    assert child["level_context"]["meaning"] == "Regra de negócio e detalhes da tela"
+    assert "regra de negócio" in child["level_context"]["guidance"].lower()
+    assert "detalhes da tela" in child["level_context"]["guidance"].lower()
 
 
 def test_backlog_test_accepts_test_refs_list_and_requires_one_file(tmp_path: Path):
@@ -534,6 +593,8 @@ def test_backlog_cli_task_has_a_concise_human_output(tmp_path: Path, monkeypatch
     assert "Fluxo: Jornada do usuário" in result.stdout
     assert "ID: task:jornada:node:1" in result.stdout
     assert "Símbolos: Audit.record, Journey.start" in result.stdout
+    assert "Escopo do nível 2: Tela" in result.stdout
+    assert "frontend" in result.stdout.lower()
     assert "Qual entrada? → botão" in result.stdout
     assert "Está autenticado?" not in result.stdout
     assert "options" not in result.stdout
@@ -590,7 +651,7 @@ def test_backlog_injected_bootstrap_and_final_verification_tasks(tmp_path: Path)
             "final_verification_task": True,
         }
     }), encoding="utf-8")
-    _create_hierarchical_fixture(tmp_path)
+    _create_hierarchical_fixture(tmp_path, bootstrap=True)
     _write_test_evidence(tmp_path)
     generate_backlog(tmp_path)
 
@@ -598,7 +659,7 @@ def test_backlog_injected_bootstrap_and_final_verification_tasks(tmp_path: Path)
     first = next_backlog_task(tmp_path)
     assert first["kind"] == "backlog-task"
     assert first["task"]["id"] == "task:bootstrap"
-    assert "Bootstrap" in first["task"]["label"]
+    assert "Preparar" in first["task"]["label"]
 
     complete_backlog_task(tmp_path, "task:bootstrap")
 

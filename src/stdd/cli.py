@@ -105,6 +105,8 @@ def _compact_backlog_response(response: dict[str, object]) -> dict[str, object]:
         compact["decision"] = {"question": decision[0], "answer": decision[1]}
     if task.get("verified_nodes"):
         compact["verified_nodes"] = task.get("verified_nodes")
+    if isinstance(response.get("level_context"), dict):
+        compact["level_context"] = response["level_context"]
     reason_labels = {
         "test_missing": "os testes da task ainda não foram comprovados",
         "test_not_complete": "o checklist de testes ainda não foi concluído",
@@ -118,6 +120,17 @@ def _compact_backlog_response(response: dict[str, object]) -> dict[str, object]:
     return {key: value for key, value in compact.items() if value not in (None, "", [])}
 
 
+def _format_level_context(level_context: object) -> list[str]:
+    """Renderiza a diretriz semântica de L2/L3 para a saída humana."""
+    if not isinstance(level_context, dict):
+        return []
+    lines = [f"Escopo do nível {level_context.get('level')}: {level_context.get('meaning')}"]
+    guidance = level_context.get("guidance")
+    if guidance:
+        lines.append(f"Diretriz: {guidance}")
+    return lines
+
+
 def _format_backlog_response(response: dict[str, object]) -> str:
     """Renderiza uma task sem o ruído do payload completo do backlog."""
     kind = response.get("kind")
@@ -125,7 +138,9 @@ def _format_backlog_response(response: dict[str, object]) -> str:
         return "Backlog concluído. Não há tasks pendentes."
 
     compact = _compact_backlog_response(response)
-    if kind == "backlog-test-required":
+    if kind == "backlog-bootstrap-task":
+        title = "Preparação inicial"
+    elif kind == "backlog-test-required":
         title = "Teste necessário antes da implementação"
     elif kind == "backlog-test-task":
         title = "Task de teste"
@@ -145,6 +160,7 @@ def _format_backlog_response(response: dict[str, object]) -> str:
         lines.append(f"ID: {compact['task_id']}")
     if compact.get("description"):
         lines.append(f"Descrição: {compact['description']}")
+    lines.extend(_format_level_context(compact.get("level_context")))
     if compact.get("previous_node"):
         previous = compact["previous_node"]
         lines.append(f"Nó anterior: {previous.get('label', previous.get('node_id'))}")
@@ -211,6 +227,12 @@ def init(
             stack = configure_project(target)
             ensure_stack_gitignore(target, stack["languages"])
             typer.echo(f"Stack: {', '.join(stack['languages']) or 'não detectada'}")
+        level_2_meaning, level_3_meaning = choose_level_meanings()
+        set_backlog_config(
+            target,
+            level_2_meaning=level_2_meaning,
+            level_3_meaning=level_3_meaning,
+        )
     unavailable = [name for name, found in available_integrations().items() if name in requested and not found]
     if unavailable:
         typer.echo(f"Aviso: agente(s) não encontrado(s) no PATH: {', '.join(unavailable)}.", err=True)
@@ -234,6 +256,39 @@ def choose_integrations() -> tuple[str, ...]:
         typer.echo("Nenhuma opção válida; usando Codex.")
         return ("codex",)
     return selected
+
+
+def choose_level_meanings() -> tuple[str, str]:
+    """Define o significado operacional dos níveis 2 e 3 no backlog."""
+    typer.echo("Defina o que cada nível do Draw significa para as tasks do backlog:")
+    typer.echo("Nível 2:")
+    typer.echo("  1. Tela — implementação da view/tela e do frontend")
+    typer.echo("  2. Outro — digitar uma definição personalizada")
+    level_2_choice = typer.prompt("Significado do nível 2", default="1").strip()
+    if level_2_choice == "1":
+        level_2_meaning = "Tela"
+    elif level_2_choice == "2":
+        level_2_meaning = typer.prompt("Digite o significado do nível 2").strip()
+    else:
+        level_2_meaning = level_2_choice
+
+    typer.echo("Nível 3:")
+    typer.echo("  1. Regra de negócio")
+    typer.echo("  2. Detalhes da tela")
+    typer.echo("  3. Outro — digitar uma definição personalizada")
+    level_3_choice = typer.prompt("Significado do nível 3", default="1").strip()
+    if level_3_choice == "1":
+        level_3_meaning = "Regra de negócio"
+    elif level_3_choice == "2":
+        level_3_meaning = "Detalhes da tela"
+    elif level_3_choice == "3":
+        level_3_meaning = typer.prompt("Digite o significado do nível 3").strip()
+    else:
+        level_3_meaning = level_3_choice
+
+    if not level_2_meaning or not level_3_meaning:
+        raise typer.BadParameter("Os significados dos níveis não podem ficar vazios.")
+    return level_2_meaning, level_3_meaning
 
 
 @app.command()

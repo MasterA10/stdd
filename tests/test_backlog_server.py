@@ -37,6 +37,10 @@ def _create_hierarchical_fixture(root: Path) -> None:
     kpi_path = root / ".stdd" / "adapters" / "static-analysis-kpis.json"
     kpi_path.parent.mkdir(parents=True, exist_ok=True)
     kpi_path.write_text(json.dumps({"details": {"symbols": [{"qualified_name": "tests.test_journey.test_journey_flow", "file": "tests/test_journey.py", "kind": "function"}]}}), encoding="utf-8")
+    config_path = root / ".stdd" / "config.json"
+    config = json.loads(config_path.read_text(encoding="utf-8")) if config_path.exists() else {}
+    config.setdefault("backlog", {})["bootstrap_task"] = False
+    config_path.write_text(json.dumps(config), encoding="utf-8")
 
 
 def test_draw_server_serves_backlog_and_claims_and_completes_task(tmp_path: Path):

@@ -43,7 +43,7 @@ Selecione as integrações do agente (ex.: 1,3 ou 4 para todos):
   4. Todos
 ```
 
-Depois da escolha, o CLI pergunta se deve executar o setup da stack. O setup não instala dependências nem inicia serviços sem autorização; ele apenas detecta arquivos e comandos locais.
+Depois da escolha, o CLI pergunta se deve executar o setup da stack. O setup não instala dependências nem inicia serviços sem autorização; ele apenas detecta arquivos e comandos locais. Em seguida, no modo interativo, o init pergunta o significado operacional do nível 2 e do nível 3: nível 2 pode ser `Tela` ou uma definição personalizada; nível 3 pode ser `Regra de negócio`, `Detalhes da tela` ou uma definição personalizada. Essas decisões ficam em `.stdd/config.json`.
 
 Para automação sem perguntas:
 
@@ -216,9 +216,9 @@ stdd backlog complete <task-id>
 
 O padrão é uma task por interação. Para fluxos maiores, configure de 1 a 5 itens e o escopo do lote (`task` ou `node`) em `.stdd/config.json` ou com `stdd backlog config --task-batch-size 2 --task-batch-scope node`. Cada item continua exigindo seu próprio `backlog complete`. O cursor usa lease e respeita a janela mínima configurada (`min_task_interval_seconds`, nunca menor que 3 quando habilitada), bloqueando chamadas fora de ordem ou tentativas de avançar várias tasks em um único script.
 
-O bootstrap, quando habilitado, é sempre a primeira task e audita Draw System nível 1, `.stdd/design.md`, ambiente, dependências, arquivos essenciais, `.env.example` e a estrutura mínima de armazenamento. O design precisa existir, estar preenchido e declarar identidade visual, tipografia, espaçamento, estados, acessibilidade e contraste; o template inicial bloqueia a execução até ser substituído. Após cada nó L2 e seus subfluxos, o backlog pode injetar duas tasks separadas: auditoria funcional real (API, persistência, validações, estados e efeitos) e associação de símbolos, arquivos de implementação e testes. A task final valida inicialização, renderização, uso básico e lacunas funcionais.
+O bootstrap é a primeira task por padrão e é agnóstico de framework: prepara o ponto de entrada, arquivos raiz, configuração, dependências, convenções e comandos necessários para receber as próximas tasks. O agente interpreta as evidências locais da stack e não deve inventar arquivos ou implementar funcionalidade de produto nessa etapa. A task também audita Draw System nível 1, `.stdd/design.md`, ambiente, `.env.example` e a estrutura mínima de armazenamento; `--no-bootstrap` continua disponível para projetos que optarem explicitamente por não executar essa preparação. Após cada nó L2 e seus subfluxos, o backlog pode injetar duas tasks separadas: auditoria funcional real (API, persistência, validações, estados e efeitos) e associação de símbolos, arquivos de implementação e testes. A task final valida inicialização, renderização, uso básico e lacunas funcionais.
 
-`stdd backlog task` mostra por padrão somente o contexto acionável em linguagem humana: task, fluxo, nó, uma decisão respondida e os símbolos associados. Para integrações que precisem do payload estruturado completo, use `stdd backlog task --json`.
+`stdd backlog task` mostra por padrão somente o contexto acionável em linguagem humana: task, fluxo, nó, uma decisão respondida, os símbolos associados e a diretriz do nível. Para integrações que precisem do payload estruturado completo, use `stdd backlog task --json`. Tasks de nível 2 recebem a definição escolhida para orientar a implementação da tela/frontend; tasks de nível 3 recebem a definição escolhida para orientar regras de negócio e/ou detalhes da tela. O mesmo `level_context` é entregue por `stdd backlog test`.
 
 O contexto também informa o predecessor imediato, descrição anterior, conexão, condição (`então`, `ou`, `se`), origem e caminho de acesso. O primeiro nó não recebe uma origem artificial. Os estados distinguem testes ausentes, testes prontos, implementação em andamento e backlog concluído.
 
@@ -229,7 +229,7 @@ stdd backlog test
 stdd backlog complete <task-id>
 ```
 
-Um nó de nível 2 pode declarar `test_ref` — ou `test_refs` compatíveis — com um único arquivo e as funções que cobrem o nó e todos os seus subfluxos. Quando essa referência existir, a análise estática será exibida como evidência complementar; ela não é obrigatória para marcar o checklist. `backlog test` entrega a task reservada para criar esses testes sem alterar produção, mas fluxos de sistemas já existentes também podem ser marcados manualmente no viewer.
+Um nó de nível 2 pode declarar `test_ref` — ou `test_refs` compatíveis — com um único arquivo e as funções que cobrem o nó e todos os seus subfluxos. Quando essa referência existir, a análise estática será exibida como evidência complementar; ela não é obrigatória para marcar o checklist. `backlog test` entrega primeiro a preparação agnóstica (`backlog-bootstrap-task`) e, depois de concluída, a task reservada para criar os testes sem alterar produção; fluxos de sistemas já existentes também podem ser marcados manualmente no viewer.
 
 O backlog mantém dois checklists centrais em `phase_checklists`: `test` vem antes de `implementation`, e os itens são derivados das tasks e subfluxos. No Draw, ao selecionar um nó, a Sidebar permite marcar ou desmarcar esses itens. A marcação é persistida no `.stdd/backlog.json` pelo servidor local, sem validação obrigatória de análise estática; a implementação continua bloqueada enquanto o checklist de teste do nó e de seus subfluxos estiver pendente.
 

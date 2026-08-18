@@ -14,11 +14,47 @@ from .draw import EDGE_CONDITIONS, draw_directory, facts_directory, read_draw, r
 BACKLOG_VERSION = 1
 VALID_TASK_STATUSES = {"pending", "in_progress", "done"}
 VALID_TEST_STATUSES = {"missing", "in_progress", "done"}
-VALID_EXECUTION_PHASES = {None, "test", "implementation"}
+VALID_EXECUTION_PHASES = {None, "bootstrap", "test", "implementation"}
 VALID_CHECKLIST_PHASES = {"test", "implementation"}
 DEFAULT_MIN_TASK_INTERVAL_SECONDS = 0
 DEFAULT_TASK_BATCH_SIZE = 1
 VALID_TASK_BATCH_SCOPES = {"task", "node"}
+DEFAULT_LEVEL_MEANINGS = {
+    "2": "Tela",
+    "3": "Regra de negócio e detalhes da tela",
+}
+
+
+def _level_guidance(level: str, meaning: str) -> str:
+    """Converte a definição escolhida no init em uma orientação acionável."""
+    normalized = meaning.casefold().strip()
+    if level == "2" and normalized == "tela":
+        return "Trate esta task como implementação da view/tela: entregue a apresentação e o comportamento frontend necessário."
+    if level == "3" and normalized in {"regra de negócio", "regra de negocio"}:
+        return "Trate este fluxo como regra de negócio: implemente decisões, validações, persistência e efeitos exigidos pelo comportamento."
+    if level == "3" and normalized == "detalhes da tela":
+        return "Trate este fluxo como detalhes da tela: implemente estados, interações, validações e comportamentos específicos da view."
+    if level == "3" and normalized in {
+        "regra de negócio e detalhes da tela",
+        "regra de negocio e detalhes da tela",
+    }:
+        return "Trate este fluxo como regra de negócio e detalhes da tela: implemente decisões, validações, estados, interações e efeitos necessários."
+    return f"Use esta definição como orientação de escopo para o nível {level}: {meaning}."
+
+
+def _level_semantics(root: Path) -> dict[str, dict[str, Any]]:
+    """Retorna as definições L2/L3 persistidas e suas orientações para o agente."""
+    config = _get_backlog_config(root)
+    semantics: dict[str, dict[str, Any]] = {}
+    for level, default in DEFAULT_LEVEL_MEANINGS.items():
+        configured = config.get(f"level_{level}_meaning", default)
+        meaning = configured.strip() if isinstance(configured, str) and configured.strip() else default
+        semantics[level] = {
+            "level": int(level),
+            "meaning": meaning,
+            "guidance": _level_guidance(level, meaning),
+        }
+    return semantics
 
 
 def _get_backlog_config(root: Path) -> dict[str, Any]:
@@ -74,6 +110,8 @@ def set_backlog_config(
     task_batch_size: int | None = None,
     task_batch_scope: str | None = None,
     min_task_interval_seconds: int | None = None,
+    level_2_meaning: str | None = None,
+    level_3_meaning: str | None = None,
 ) -> dict[str, Any]:
     """Atualiza a seção 'backlog' em .stdd/config.json de forma persistente."""
     config_path = root / ".stdd" / "config.json"
@@ -107,19 +145,34 @@ def set_backlog_config(
         if int(min_task_interval_seconds) < 0:
             raise ValueError("min_task_interval_seconds não pode ser negativo")
         backlog_cfg["min_task_interval_seconds"] = int(min_task_interval_seconds)
+    for level, meaning in ((2, level_2_meaning), (3, level_3_meaning)):
+        if meaning is not None:
+            normalized = str(meaning).strip()
+            if not normalized:
+                raise ValueError(f"level_{level}_meaning não pode ser vazio")
+            backlog_cfg[f"level_{level}_meaning"] = normalized
     config_path.parent.mkdir(parents=True, exist_ok=True)
     config_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return backlog_cfg
 
 
+def _bootstrap_instruction() -> str:
+    """Retorna a orientação curta e agnóstica da preparação inicial."""
+    return (
+        "Prepare o local antes das tasks de produto: leia a estrutura existente e deixe pronto o ponto de entrada, "
+        "arquivos raiz, configuração, dependências, convenções e comandos necessários para associar e executar as próximas tasks. "
+        "Use as evidências do projeto e da stack; não invente framework nem implemente funcionalidade de produto."
+    )
+
+
 def _create_injected_bootstrap_task() -> dict[str, Any]:
-    """Cria a task operacional inicial de bootstrap e setup."""
+    """Cria a primeira task operacional sem assumir uma stack específica."""
     return {
         "id": "task:bootstrap",
         "draw_id": "system",
         "backlog_id": "system",
-        "label": "Bootstrap e Infraestrutura Inicial",
-        "description": "Verificar dependências, variáveis de ambiente (.env), arquivos raiz ou de referência do framework e documentação inicial.",
+        "label": "Preparar a Estrutura Inicial",
+        "description": _bootstrap_instruction(),
         "level": 1,
         "status": "in_progress",
         "test_status": "not-required",
@@ -885,6 +938,7 @@ def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]
         "kind": "backlog",
         "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "system": {"root_draw_ids": [str(document["id"]) for document in documents if document.get("_hierarchy", {}).get("level") == 1]},
+        "level_semantics": _level_semantics(root),
         "checklists": checklists,
         "phase_checklists": _phase_checklists(tasks),
         "backlogs": backlogs,
@@ -1192,7 +1246,9 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
         except Exception:
             pass
 
-    if phase == "test":
+    if phase == "bootstrap":
+        state = "bootstrap_in_progress"
+    elif phase == "test":
         state = "tests_in_progress"
     elif task.get("test_status") in {"missing", "in_progress"}:
         state = "tests_missing"
@@ -1219,6 +1275,9 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
         "condition": connection.get("condition_label") if connection else None,
         "path": access_paths[0] if access_paths else None,
     }
+    level_context = payload.get("level_semantics", {}).get(str(task.get("level"))) if isinstance(payload.get("level_semantics"), dict) else None
+    if isinstance(level_context, dict):
+        response["level_context"] = deepcopy(level_context)
     options = _execution_config(root)
     if options["task_batch_size"] > 1 and task.get("id") in [item.get("id") for item in tasks]:
         start = next(index for index, item in enumerate(tasks) if item.get("id") == task.get("id"))
@@ -1304,10 +1363,23 @@ def next_backlog_test(root: Path) -> dict[str, Any]:
     execution = payload["execution"]
     current_id = execution.get("current_task_id")
     current = next((task for task in payload["tasks"] if task["id"] == current_id), None)
+    if current_id == "task:bootstrap":
+        return _task_context(root, payload, _create_injected_bootstrap_task(), "bootstrap", "backlog-bootstrap-task", _bootstrap_instruction())
     if execution.get("current_phase") == "test" and current is not None:
-        return {"kind": "backlog-test-task", "phase": "test", "task": current}
-    if execution.get("current_phase") == "implementation" and current is not None:
+        return _task_context(root, payload, current, "test", "backlog-test-task")
+    if execution.get("current_phase") in {"bootstrap", "implementation"} and current is not None:
         raise ValueError("a task atual já está na fase de implementação")
+    config = _get_backlog_config(root)
+    bootstrap_enabled = config.get("bootstrap_task", config.get("bootstrap_enabled", True))
+    if payload["tasks"] and bootstrap_enabled and not execution.get("bootstrap_done", False):
+        task = _create_injected_bootstrap_task()
+        task["checks"] = bootstrap_report(root)
+        execution["current_task_id"] = task["id"]
+        _mark_claim(execution)
+        execution["current_backlog_id"] = "system"
+        execution["current_phase"] = "bootstrap"
+        write_backlog(root, payload)
+        return _task_context(root, payload, task, "bootstrap", "backlog-bootstrap-task", _bootstrap_instruction())
     task = next(
         (item for item in payload["tasks"] if item.get("level") == 2 and not _test_scope_complete(payload, item)),
         None,
@@ -1355,13 +1427,15 @@ def next_backlog_task(root: Path, verification_interval: int | None = None) -> d
         if current_id == "task:bootstrap":
             task = _create_injected_bootstrap_task()
             task["checks"] = bootstrap_report(root)
+            bootstrap_phase = current_phase if current_phase == "bootstrap" else "implementation"
+            bootstrap_kind = "backlog-bootstrap-task" if bootstrap_phase == "bootstrap" else "backlog-task"
             return _task_context(
                 root,
                 payload,
                 task,
-                "implementation",
-                "backlog-task",
-                "Verifique se precisa de algo para iniciar o restante (instalar dependências, .env, arquivos de referência do framework e setup inicial).",
+                bootstrap_phase,
+                bootstrap_kind,
+                _bootstrap_instruction(),
             )
         if current_id.startswith("task:verify:"):
             batch_node_ids = execution.get("current_verified_batch_node_ids", [])
@@ -1409,16 +1483,9 @@ def next_backlog_task(root: Path, verification_interval: int | None = None) -> d
         if current and current.get("status") == "in_progress":
             return _task_context(root, payload, current, "implementation", "backlog-task")
 
-    # 2. Se o próximo nó L2 ainda não tem testes comprovados, bloqueia avisando backlog-test-required
-    pending_task = next((item for item in payload["tasks"] if item.get("status") != "done"), None)
-    if pending_task and pending_task.get("level") == 2 and not _test_scope_complete(payload, pending_task):
-        response = _task_context(root, payload, pending_task, "test", "backlog-test-required")
-        response.update({"status": "blocked", "reason": "test_missing" if pending_task.get("test_status") == "missing" else "test_not_complete"})
-        return response
-
-    # 3. Verifica se precisamos de Bootstrap task (se habilitado e ainda não feito e houver tasks no backlog)
+    # 2. O bootstrap agnóstico é sempre a primeira task operacional, salvo opt-out explícito.
     has_tasks = len(payload["tasks"]) > 0
-    bootstrap_enabled = config.get("bootstrap_task", config.get("bootstrap_enabled", False))
+    bootstrap_enabled = config.get("bootstrap_task", config.get("bootstrap_enabled", True))
     if has_tasks and bootstrap_enabled and not execution.get("bootstrap_done", False):
         task = _create_injected_bootstrap_task()
         task["checks"] = bootstrap_report(root)
@@ -1427,14 +1494,14 @@ def next_backlog_task(root: Path, verification_interval: int | None = None) -> d
         execution["current_backlog_id"] = "system"
         execution["current_phase"] = "implementation"
         write_backlog(root, payload)
-        return _task_context(
-            root,
-            payload,
-            task,
-            "implementation",
-            "backlog-task",
-            "Verifique se precisa de algo para iniciar o restante (instalar dependências, .env, arquivos de referência do framework e setup inicial).",
-        )
+        return _task_context(root, payload, task, "implementation", "backlog-task", _bootstrap_instruction())
+
+    # 3. Se o próximo nó L2 ainda não tem testes comprovados, bloqueia avisando backlog-test-required
+    pending_task = next((item for item in payload["tasks"] if item.get("status") != "done"), None)
+    if pending_task and pending_task.get("level") == 2 and not _test_scope_complete(payload, pending_task):
+        response = _task_context(root, payload, pending_task, "test", "backlog-test-required")
+        response.update({"status": "blocked", "reason": "test_missing" if pending_task.get("test_status") == "missing" else "test_not_complete"})
+        return response
 
     # 4. Verifica se há verificação de nó L2 pendente que deve rodar antes das próximas tasks
     interval = config.get("l2_verification_interval", config.get("verification_interval", 0))
@@ -1531,13 +1598,14 @@ def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
         checks = bootstrap_report(root)
         if config.get("bootstrap_strict", False) and checks["status"] != "passed":
             raise ValueError("bootstrap bloqueado: " + ", ".join(checks["failures"]))
+        bootstrap_phase = execution.get("current_phase") if execution.get("current_phase") in {"bootstrap", "implementation"} else "implementation"
         execution["bootstrap_done"] = True
         _clear_execution_cursor(execution)
         write_backlog(root, payload)
         task = _create_injected_bootstrap_task()
         task["status"] = "done"
         task["checklist_state"] = {"test": True, "implementation": True}
-        response = _task_context(root, payload, task, "implementation", "backlog-complete")
+        response = _task_context(root, payload, task, bootstrap_phase, "backlog-bootstrap-complete")
         response.update({"status": "done", "remaining": sum(1 for item in payload["tasks"] if item.get("status") != "done")})
         return response
 

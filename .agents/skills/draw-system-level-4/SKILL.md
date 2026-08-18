@@ -15,7 +15,7 @@ Leia sempre o nó de nível 3, seu pai de nível 2, a raiz e os descendentes rel
 
 Crie o filho com `hierarchy.level: 4`, `role: "codebase"`, `parent_draw_ref` igual ao nível 3, `parent_node_id` igual ao nó/decisão aprofundado e `root_draw_ref` igual à arquitetura. Atualize o nó pai com um único `draw_ref`. Todo descendente precisa de `parent_draw_ref`, `parent_node_id` e `root_draw_ref`; toda cadeia deve ser resolvível em `.stdd/draws/`, chegar ao nível 1 e permanecer sem fluxos órfãos.
 
-O nível 3 permanece como Controller em linguagem simples e o pai permanece como cápsula. Não duplicar regras, navegação ou passos do pai. Não criar fluxo órfão, referência quebrada, continuação fictícia ou arquivo intermediário.
+O nível 3 permanece como o caso de uso em linguagem simples e o pai permanece como cápsula. Não duplicar regras, navegação ou passos do pai. Não criar fluxo órfão, referência quebrada, continuação fictícia ou arquivo intermediário.
 
 ## Conteúdo técnico
 
