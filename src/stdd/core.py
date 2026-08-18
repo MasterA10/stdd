@@ -110,7 +110,9 @@ Este projeto usa o STDD para especificação, implementação, testes e evidênc
 - Antes de qualquer commit ou push na branch `main`, confirme que o diff inclui as fontes, templates, skills, assets empacotados, README e testes necessários para o comando de instalação do README reproduzir a versão publicada.
 - Depois de alterar o framework, valide a instalação equivalente com `uv tool install --force --editable .` e confirme que `stdd init` instala as skills atuais; não publique somente uma parte da alteração.
 - Ao integrar APIs/apps externos, registre o contrato no `AGENTS.md` e consulte a documentação oficial antes de implementar.
-- Preencha `.stdd/design.md` com identidade visual, tipografia, espaçamento, estados, acessibilidade e contraste antes do bootstrap.
+- O `.stdd/design.md` é a fonte obrigatória de decisões visuais: consulte e respeite identidade, tipografia, espaçamento, estados, acessibilidade e contraste em qualquer alteração ou implementação de interface; seu preenchimento é obrigatório antes de liberar o bootstrap.
+- `$create-tests-backlog` e `$implement-backlog` pertencem exclusivamente aos loops acionados por `stdd backlog test` e `stdd backlog task`; não leia essas skills para edições, perguntas ou medições comuns fora do backlog.
+- Quando o pedido vier de uma interação comum, trate-o como interação comum e siga somente as instruções necessárias ao pedido; não transforme a edição em task de backlog nem exija o ciclo de testes/implementação do backlog sem que o cursor tenha entregue uma task.
 - Ao relatar o resultado, informe status, arquivos alterados, testes executados, evidências e limitações.
 {STDD_AGENT_BLOCK_END}"""
 _STDD_AGENT_BLOCK_PATTERN = re.compile(

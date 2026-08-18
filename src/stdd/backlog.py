@@ -194,6 +194,36 @@ def _bootstrap_instruction() -> str:
     )
 
 
+def _verification_requirements() -> list[str]:
+    """Retorna o checklist obrigatório da auditoria de implementação."""
+    return [
+        "Leia o Draw, as decisões respondidas e os subfluxos dos nós auditados.",
+        "Localize os arquivos e símbolos reais indicados nas referências de código.",
+        "Carregue esses arquivos no contexto e leia o código relevante antes de emitir qualquer conclusão.",
+        "Compare o comportamento encontrado com a especificação: tela, regras, estados, validações, persistência, integrações e efeitos reais.",
+        "Execute os testes aplicáveis e confirme que o caminho funciona de fato; código presente ou teste superficial não prova implementação.",
+        "Só considere implementado o que estiver comprovado no código e funcionando; se faltar, estiver incompleto ou quebrado, relate as evidências e não conclua a task.",
+    ]
+
+
+def _implementation_verification_instruction(labels: list[str]) -> str:
+    """Monta a instrução explícita para a auditoria pós-implementação."""
+    scope = ", ".join(f"'{label}'" for label in labels)
+    checklist = " ".join(requirement for requirement in _verification_requirements())
+    return (
+        f"Audite obrigatoriamente a implementação dos nós {scope} e de seus subfluxos. "
+        "Esta task é uma auditoria real, não uma confirmação automática do status do backlog. "
+        f"{checklist} "
+        "Não invente arquivos, símbolos, testes ou evidências e não altere o Draw para encobrir uma lacuna."
+    )
+
+
+def _is_verification_task(task: dict[str, Any]) -> bool:
+    """Identifica tasks sintéticas de auditoria sem tratá-las como telas."""
+    task_id = task.get("id")
+    return isinstance(task_id, str) and (task_id.startswith("task:verify:") or task_id == "task:final:verification")
+
+
 def _create_injected_bootstrap_task() -> dict[str, Any]:
     """Cria a primeira task operacional sem assumir uma stack específica."""
     return {
@@ -236,18 +266,19 @@ def _create_injected_l2_batch_verify_task(target_nodes: list[dict[str, Any]]) ->
     """Cria a task de verificação funcional em lote para 1 ou mais nós L2 finalizados."""
     if not target_nodes:
         raise ValueError("lista de nós vazia para verificação")
+    labels = [n.get("label", f"Nó {n.get('node_id')}") for n in target_nodes]
+    verification_instruction = _implementation_verification_instruction(labels)
     if len(target_nodes) == 1:
         n = target_nodes[0]
         task_id = f"task:verify:{n.get('draw_id')}:node:{n.get('node_id')}"
         label = f"Verificação da Implementação — {n.get('label', '')}"
-        desc = f"Auditar e validar o código implementado para o nó '{n.get('label', '')}' e seus subfluxos em relação à especificação do Draw. Não altere o fluxo ou o desenho: confira se a implementação de produção cumpre fielmente as regras de negócio, persistência real, validações de entrada e endpoints."
+        desc = f"Auditoria obrigatória do nó '{n.get('label', '')}' e seus subfluxos. Não declare a implementação com base no status da task: leia os arquivos e símbolos reais, compare o código com o Draw e confirme o funcionamento por evidências."
     else:
-        labels = [n.get("label", f"Nó {n.get('node_id')}") for n in target_nodes]
         node_ids_str = ":".join(str(n.get("node_id")) for n in target_nodes)
         draw_id = target_nodes[0].get("draw_id", "system")
         task_id = f"task:verify:{draw_id}:batch:{node_ids_str}"
         label = f"Verificação da Implementação em Lote — ({len(target_nodes)} nós: {', '.join(labels)})"
-        desc = f"Auditar e validar o código implementado para os nós ({', '.join(labels)}) e seus respectivos subfluxos internos em relação à especificação do Draw. Não altere o fluxo ou o desenho: confira se a implementação de produção cumpre fielmente as regras de negócio, persistência real, validações de entrada e endpoints."
+        desc = f"Auditoria obrigatória dos nós ({', '.join(labels)}) e seus subfluxos. Não declare a implementação com base no status das tasks: leia os arquivos e símbolos reais, compare o código com o Draw e confirme o funcionamento por evidências."
 
     all_symbols: set[str] = set()
     all_deps: set[str] = set()
@@ -286,6 +317,8 @@ def _create_injected_l2_batch_verify_task(target_nodes: list[dict[str, Any]]) ->
         "node_id": first.get("node_id"),
         "label": label,
         "description": desc,
+        "verification_requirements": _verification_requirements(),
+        "verification_instruction": verification_instruction,
         "level": 2,
         "status": "in_progress",
         "verified_nodes": verified_nodes,
@@ -331,12 +364,15 @@ def _create_injected_l2_association_task(target_nodes: list[dict[str, Any]]) -> 
 
 def _create_injected_final_task() -> dict[str, Any]:
     """Cria a task de encerramento final e verificação end-to-end do MVP."""
+    verification_instruction = _implementation_verification_instruction(["o MVP completo"])
     return {
         "id": "task:final:verification",
         "draw_id": "system",
         "backlog_id": "system",
         "label": "Verificação Final da Implementação e Associação de Símbolos",
-        "description": "Realizar a auditoria final de ponta a ponta do código implementado do MVP em relação à especificação e associar os símbolos e testes reais aos nós correspondentes.",
+        "description": "Auditoria final obrigatória do MVP completo. Leia os arquivos e símbolos reais, compare o código com a especificação e confirme por evidências que o produto funciona; não declare conclusão apenas porque existem arquivos ou tasks concluídas.",
+        "verification_requirements": _verification_requirements(),
+        "verification_instruction": verification_instruction,
         "level": 1,
         "status": "in_progress",
         "test_status": "not-required",
@@ -1282,6 +1318,82 @@ def _parent_task(tasks: list[dict[str, Any]], task: dict[str, Any]) -> dict[str,
     return current
 
 
+def _navigation_action(label: Any, condition_label: str) -> str:
+    """Retorna o rótulo da ação sem repetir a condição da conexão."""
+    text = str(label or "").strip()
+    if not text:
+        return ""
+    normalized = text.casefold()
+    for prefix in (f"{condition_label}:", f"{condition_label} ", f"{condition_label},"):
+        if normalized.startswith(prefix.casefold()):
+            return text[len(prefix):].strip()
+    return text
+
+
+def _draw_navigation_context(root: Path, draw_id: Any, node_id: Any, task_label: str) -> dict[str, Any]:
+    """Monta as entradas de navegação de um nó sem escolher uma única origem."""
+    context: dict[str, Any] = {
+        "origin_nodes": [],
+        "origin_edges": [],
+        "access_paths": [],
+        "navigation_entries": [],
+        "previous_node": None,
+        "connection": None,
+    }
+    if draw_id is None or node_id is None:
+        return context
+    try:
+        document = read_draw(root, draw_id)
+        nodes = {node.get("id"): node for node in document.get("nodes", [])}
+        target_node = nodes.get(node_id)
+        for edge in document.get("edges", []):
+            if edge.get("to") != node_id:
+                continue
+            context["origin_edges"].append(edge)
+            from_id = edge.get("from")
+            from_node = nodes.get(from_id)
+            if from_node is None:
+                continue
+            context["origin_nodes"].append(from_node)
+            label = from_node.get("label") or str(from_id)
+            condition = EDGE_CONDITIONS.get(edge.get("condition"), "então")
+            action = _navigation_action(edge.get("label"), condition)
+            context["access_paths"].append(f"Nó {label} → {condition} → Nó atual")
+            context["navigation_entries"].append({
+                "origin": {
+                    "node_id": from_id,
+                    "label": from_node.get("label", ""),
+                    "description": from_node.get("description", ""),
+                },
+                "target": {
+                    "node_id": node_id,
+                    "label": (target_node or {}).get("label", task_label),
+                },
+                "condition": edge.get("condition"),
+                "condition_label": condition,
+                "action": action,
+                "label": edge.get("label", ""),
+                "description": edge.get("description", ""),
+            })
+            if context["previous_node"] is None:
+                context["previous_node"] = {
+                    "node_id": from_id,
+                    "label": from_node.get("label", ""),
+                    "description": from_node.get("description", ""),
+                    "questions": deepcopy(from_node.get("questions", [])),
+                    "symbols": _reference_symbols(from_node)[0],
+                }
+                context["connection"] = {
+                    "condition": edge.get("condition"),
+                    "condition_label": condition,
+                    "label": edge.get("label", ""),
+                    "description": edge.get("description", ""),
+                }
+    except Exception:
+        pass
+    return context
+
+
 def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], phase: str, kind: str, instruction: str | None = None) -> dict[str, Any]:
     """Retorna a task atual com pai e subtasks para o agente manter contexto."""
     tasks = payload.get("tasks", [])
@@ -1295,45 +1407,25 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
         None,
     )
     
-    origin_nodes = []
-    origin_edges = []
-    access_paths = []
-    predecessor: dict[str, Any] | None = None
-    connection: dict[str, Any] | None = None
-    
     draw_id = task.get("backlog_id")
     node_id = task.get("node_id")
-    
-    if draw_id is not None and node_id is not None:
-        try:
-            document = read_draw(root, draw_id)
-            nodes = {n.get("id"): n for n in document.get("nodes", [])}
-            for edge in document.get("edges", []):
-                if edge.get("to") == node_id:
-                    origin_edges.append(edge)
-                    from_id = edge.get("from")
-                    if from_id in nodes:
-                        from_node = nodes[from_id]
-                        origin_nodes.append(from_node)
-                        label = from_node.get("label") or str(from_id)
-                        condition = EDGE_CONDITIONS.get(edge.get("condition"), "então")
-                        access_paths.append(f"Nó {label} → {condition} → Nó atual")
-                        if predecessor is None:
-                            predecessor = {
-                                "node_id": from_id,
-                                "label": from_node.get("label", ""),
-                                "description": from_node.get("description", ""),
-                                "questions": deepcopy(from_node.get("questions", [])),
-                                "symbols": _reference_symbols(from_node)[0],
-                            }
-                            connection = {
-                                "condition": edge.get("condition"),
-                                "condition_label": condition,
-                                "label": edge.get("label", ""),
-                                "description": edge.get("description", ""),
-                            }
-        except Exception:
-            pass
+    verification_task = _is_verification_task(task)
+    navigation = (
+        {"origin_nodes": [], "origin_edges": [], "access_paths": [], "navigation_entries": [], "previous_node": None, "connection": None}
+        if verification_task
+        else _draw_navigation_context(root, draw_id, node_id, task.get("label", ""))
+    )
+
+    navigation_target: dict[str, Any] | None = None
+    if node_id is not None and not verification_task:
+        navigation_target = {
+            "node_id": node_id,
+            "label": task.get("label", ""),
+            "kind": "screen" if task.get("level") == 2 else "step",
+        }
+        if task.get("level") != 2 and parent.get("level") == 2:
+            navigation_target["screen_label"] = parent.get("label", "")
+            navigation_target["screen_node_id"] = parent.get("node_id")
 
     if phase == "bootstrap":
         state = "bootstrap_in_progress"
@@ -1356,13 +1448,15 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
         "parent_task": parent,
         "subtask": subtask,
         "subtasks": descendants,
-        "origin_nodes": origin_nodes,
-        "origin_edges": origin_edges,
-        "access_paths": access_paths,
-        "previous_node": predecessor,
-        "connection": connection,
-        "condition": connection.get("condition_label") if connection else None,
-        "path": access_paths[0] if access_paths else None,
+        "origin_nodes": navigation["origin_nodes"],
+        "origin_edges": navigation["origin_edges"],
+        "access_paths": navigation["access_paths"],
+        "navigation_target": navigation_target,
+        "navigation_entries": navigation["navigation_entries"],
+        "previous_node": navigation["previous_node"],
+        "connection": navigation["connection"],
+        "condition": navigation["connection"].get("condition_label") if navigation["connection"] else None,
+        "path": navigation["access_paths"][0] if navigation["access_paths"] else None,
     }
     level_context = payload.get("level_semantics", {}).get(str(task.get("level"))) if isinstance(payload.get("level_semantics"), dict) else None
     if isinstance(level_context, dict):
@@ -1608,14 +1702,13 @@ def next_backlog_task(root: Path, verification_interval: int | None = None) -> d
                         target_nodes.append(t)
             if target_nodes:
                 task = _create_injected_l2_batch_verify_task(target_nodes)
-                labels_str = ", ".join(f"'{n.get('label')}'" for n in target_nodes)
                 return _task_context(
                     root,
                     payload,
                     task,
                     "implementation",
-                    "backlog-task",
-                    f"Audite o código implementado para os nós ({labels_str}) e seus subfluxos. Valide se a implementação de produção cumpre fielmente a especificação (regras, persistência, validações e integração real); não altere o fluxo nem o desenho.",
+                    "backlog-verification-task",
+                    task["verification_instruction"],
                 )
         if current_id.startswith("task:associate:"):
             batch_node_ids = execution.get("current_association_node_ids", [])
@@ -1686,14 +1779,13 @@ def next_backlog_task(root: Path, verification_interval: int | None = None) -> d
             execution["current_backlog_id"] = target_nodes[0].get("backlog_id")
             execution["current_phase"] = "implementation"
             write_backlog(root, payload)
-            labels_str = ", ".join(f"'{n.get('label')}'" for n in target_nodes)
             return _task_context(
                 root,
                 payload,
                 task,
                 "implementation",
-                "backlog-task",
-                f"Audite o código implementado para os nós ({labels_str}) e seus subfluxos. Valide se a implementação de produção cumpre fielmente a especificação (regras, persistência, validações e integração real); não altere o fluxo nem o desenho.",
+                "backlog-verification-task",
+                task["verification_instruction"],
             )
 
     # 5. Busca a próxima task normal do backlog
@@ -1713,8 +1805,8 @@ def next_backlog_task(root: Path, verification_interval: int | None = None) -> d
                 payload,
                 final_task,
                 "implementation",
-                "backlog-task",
-                "Audite a implementação de ponta a ponta do MVP completo em relação à especificação, execute os testes para garantir estabilidade e associe os símbolos e testes aos nós L2 e L3 correspondentes.",
+                "backlog-verification-task",
+                final_task["verification_instruction"],
             )
 
         _clear_execution_cursor(execution)

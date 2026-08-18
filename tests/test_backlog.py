@@ -5,7 +5,7 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from stdd.backlog import bootstrap_report, build_backlog, check_backlog, complete_backlog_task, generate_backlog, next_backlog_task, next_backlog_test, read_backlog, update_backlog_checklist, write_backlog
-from stdd.cli import app
+from stdd.cli import _format_backlog_response, app
 from stdd.core import init_project, run_tests
 from stdd.draw import create_draw
 
@@ -766,6 +766,8 @@ def test_backlog_cli_exposes_test_phase_and_structured_missing_test(tmp_path: Pa
     assert "Task de teste" in testing.stdout
     assert "ID: task:jornada:node:1" in testing.stdout
     assert "Escopo do nível 2: Tela" in testing.stdout
+    assert "Tela de destino: Iniciar" in testing.stdout
+    assert "Entrada: início do fluxo" in testing.stdout
     assert "frontend" in testing.stdout.lower()
     json_test = runner.invoke(app, ["backlog", "test", "--json"])
     assert json_test.exit_code != 0
@@ -787,10 +789,54 @@ def test_backlog_cli_task_has_a_concise_human_output(tmp_path: Path, monkeypatch
     assert "ID: task:jornada:node:1" in result.stdout
     assert "Símbolos: Audit.record, Journey.start" in result.stdout
     assert "Escopo do nível 2: Tela" in result.stdout
+    assert "Tela de destino: Iniciar" in result.stdout
+    assert "Entrada: início do fluxo" in result.stdout
     assert "frontend" in result.stdout.lower()
     assert "Qual entrada? → botão" in result.stdout
     assert "Está autenticado?" not in result.stdout
     assert "options" not in result.stdout
+
+
+def test_backlog_cli_describes_all_screen_entry_transitions(tmp_path: Path, monkeypatch):
+    """Mostra origem, entrada e destino sem escolher uma única origem.
+    Confirma que uma tela com múltiplas entradas exibe cada transição completa.
+    """
+    monkeypatch.chdir(tmp_path)
+    init_project(tmp_path)
+    _create_hierarchical_fixture(tmp_path)
+
+    draw_path = tmp_path / ".stdd" / "draws" / "jornada.json"
+    document = json.loads(draw_path.read_text(encoding="utf-8"))
+    document["edges"].append({
+        "id": 4,
+        "from": 3,
+        "to": 2,
+        "kind": "conditional",
+        "condition": 3,
+        "label": "se recuperar cadastro",
+        "description": "Uma recuperação também retorna à tela de sucesso.",
+    })
+    create_draw(tmp_path, document)
+
+    first = runner.invoke(app, ["backlog", "task"])
+    assert first.exit_code == 0
+    complete_backlog_task(tmp_path, "task:jornada:node:1")
+
+    result = runner.invoke(app, ["backlog", "task"])
+
+    assert result.exit_code == 0
+    assert "Tela de destino: Sucesso" in result.stdout
+    assert "Entradas possíveis (2):" in result.stdout
+    assert "Tela de origem: Iniciar" in result.stdout
+    assert "Tela de origem: Retry" in result.stdout
+    assert "Condição: ou" in result.stdout
+    assert "Ação: sucesso" in result.stdout
+    assert "Condição: se" in result.stdout
+    assert "Ação: recuperar cadastro" in result.stdout
+    assert "Transição: Iniciar → Sucesso" in result.stdout
+    assert "Transição: Retry → Sucesso" in result.stdout
+    assert "Nó anterior:" not in result.stdout
+    assert "Caminho de acesso:" not in result.stdout
 
 
 def test_stdd_test_blocks_when_backlog_has_unchecked_implementation(tmp_path: Path):
@@ -871,7 +917,7 @@ def test_backlog_injected_bootstrap_and_final_verification_tasks(tmp_path: Path)
 
     # 3. Após todas as tasks normais, a task final de verificação E2E e associação de símbolos é entregue
     final = next_backlog_task(tmp_path)
-    assert final["kind"] == "backlog-task"
+    assert final["kind"] == "backlog-verification-task"
     assert final["task"]["id"] == "task:final:verification"
     assert "Associação de Símbolos" in final["task"]["label"]
 
@@ -914,7 +960,17 @@ def test_backlog_injected_l2_verification_tasks_per_node(tmp_path: Path):
     # Nó 1 e subtasks concluídos -> injeta verificação do nó 1
     v1 = next_backlog_task(tmp_path)
     assert v1["task"]["id"] == "task:verify:jornada:node:1"
+    assert v1["kind"] == "backlog-verification-task"
     assert "Verificação da Implementação" in v1["task"]["label"]
+    assert "leia os arquivos e símbolos reais" in v1["task"]["description"]
+    assert len(v1["task"]["verification_requirements"]) == 6
+    human_v1 = _format_backlog_response(v1)
+    assert "Verificação obrigatória da implementação" in human_v1
+    assert "Tela de destino:" not in human_v1
+    assert "Alvos da verificação:" in human_v1
+    assert "Procedimento obrigatório:" in human_v1
+    assert "Carregue esses arquivos no contexto" in human_v1
+    assert "código presente ou teste superficial não prova implementação" in human_v1
     complete_backlog_task(tmp_path, "task:verify:jornada:node:1")
 
     # Em seguida, avança para nó 2
@@ -955,6 +1011,7 @@ def test_backlog_injected_l2_verification_interval_configurable(tmp_path: Path):
     # Agora 2 nós L2 foram concluídos -> dispara UMA ÚNICA verificação em lote contendo os 2 nós juntos
     v_batch = next_backlog_task(tmp_path)
     assert v_batch["task"]["id"] == "task:verify:jornada:batch:1:2"
+    assert v_batch["kind"] == "backlog-verification-task"
     assert "Verificação da Implementação em Lote" in v_batch["task"]["label"]
     assert len(v_batch["task"]["verified_nodes"]) == 2
     assert v_batch["task"]["verified_nodes"][0]["node_id"] == 1

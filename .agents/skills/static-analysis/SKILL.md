@@ -284,4 +284,4 @@ O padrão é `true` para permitir fixtures explicitamente marcadas, nunca para l
 
 ## Loop interativo e integração real
 
-A análise deve alimentar uma task por interação: use `backlog test` antes de alterar produção e conclua com o ID individual de `backlog complete`. Erros são consequências condicionais (`se`/`ou`) e validações devem ser verificadas no ponto correto do fluxo. Associações devem apontar para símbolos, arquivos e testes reais; testes de integração precisam comprovar API, persistência, validações, efeitos e a alcançabilidade da feature pelo usuário.
+A análise deve alimentar uma task por interação: use `backlog test` antes de alterar produção e conclua com o ID individual de `backlog complete`. Erros são consequências condicionais (`se`/`ou`) e validações devem ser verificadas no ponto correto do fluxo. Associações devem apontar para símbolos, arquivos e testes reais; testes de integração precisam comprovar API, persistência, validações e efeitos, não apenas renderização.

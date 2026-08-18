@@ -133,7 +133,7 @@ Ao alterar o desenho, registrar:
 stdd log "Detalha comportamento do sistema no nível 3" --type implementacao
 ```
 
-Depois da última fase, entregar a árvore completa ao `$create-tests`. O Create Tests Agent deve ler os JSONs diretamente, transformar caminhos implementados em testes e tratar folhas não implementadas como escopo ausente. `$implement` só pode ser chamado depois de testes vermelhos aprovados.
+Depois da última fase, entregar a árvore completa ao `$create-tests-backlog`. O Create Tests Backlog Agent deve ler os JSONs diretamente, transformar caminhos implementados em testes e tratar folhas não implementadas como escopo ausente. `$implement-backlog` só pode ser chamado depois de testes vermelhos aprovados.
 
 ## Regras do ciclo interativo
 

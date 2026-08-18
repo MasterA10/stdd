@@ -29,7 +29,7 @@ Para cada tela, registre:
 - caminhos feliz, erro, recuperação e saída;
 - opções permitidas e ações proibidas sem detalhar ainda a regra interna;
 - dados e estados que o papel consegue observar;
-- `code_refs` dos componentes de interface reais (templates, views, componentes, páginas ou equivalentes da stack). Consultar a análise estática quando disponível; se o símbolo não puder ser resolvido automaticamente, buscar ativamente na codebase e registrar a associação como pendente quando nenhum artefato correspondente existir.
+- `code_refs` dos componentes frontend/interface reais, como React, Vue, HTML, templates, views, `.tsx` e `.jsx`, quando a análise estática os comprovar.
 
 Todo nó de um desenho com `hierarchy.level: 2` deve possuir pelo menos um `code_refs`. A análise estática e o comando `stdd draw create` emitem `draw.level2_missing_code_ref`; a criação visual continua possível, mas `stdd test` bloqueia cada nó sem referência. Se o símbolo ainda não puder ser resolvido, registrar a associação como pendente ou criar uma pergunta, sem inventar arquivo ou componente.
 

@@ -28,7 +28,7 @@ src/stdd/draw_assets/assets/index-XBaPXgdJ.js
 src/stdd/templates/adapters/js_ts_static_adapter.js
 src/stdd/templates/adapters/php_static_adapter.php
 src/stdd/templates/adapters/static_adapter.py
-src/stdd/templates/agents/create-tests/SKILL.md
+src/stdd/templates/agents/create-tests-backlog/SKILL.md
 src/stdd/templates/agents/draw-feature/SKILL.md
 src/stdd/templates/agents/draw-improve/SKILL.md
 src/stdd/templates/agents/draw-improve/agents/openai.yaml
@@ -42,7 +42,7 @@ src/stdd/templates/agents/draw-system-level-3/SKILL.md
 src/stdd/templates/agents/draw-system-level-3/agents/openai.yaml
 src/stdd/templates/agents/draw-system-level-4/SKILL.md
 src/stdd/templates/agents/draw-system-level-4/agents/openai.yaml
-src/stdd/templates/agents/implement/SKILL.md
+src/stdd/templates/agents/implement-backlog/SKILL.md
 src/stdd/templates/agents/missing/SKILL.md
 src/stdd/templates/agents/setup/SKILL.md
 src/stdd/templates/agents/static-analysis/SKILL.md

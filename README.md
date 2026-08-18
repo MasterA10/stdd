@@ -43,7 +43,7 @@ Selecione as integrações do agente (ex.: 1,3 ou 4 para todos):
   4. Todos
 ```
 
-Depois da escolha, o CLI pergunta se deve executar o setup da stack. O setup não instala dependências nem inicia serviços sem autorização; ele apenas detecta arquivos e comandos locais. Em seguida, no modo interativo, o init pergunta o significado operacional do nível 2 e do nível 3: nível 2 pode ser `Tela` ou uma definição personalizada; nível 3 pode ser `Regra de negócio`, `Detalhes da tela` ou uma definição personalizada. Também pergunta como o backlog deve entregar as tasks, tanto em testes quanto em implementação: o nó L2 com seus internos juntos ou cada task separadamente; e se o loop de testes deve ser executado. Quando o loop de testes é desabilitado, `stdd backlog test` informa que foi desativado e `stdd backlog task` libera somente implementação. Por fim, pergunta a frequência das tasks automáticas de conferência da implementação dos nós L2; `0` desabilita e `1` insere uma conferência após cada nó L2. Essas escolhas ficam em `.stdd/config.json` e também podem ser passadas por `--task-delivery-scope node|task`, `--test-loop`/`--no-test-loop` e `--l2-verification-interval N`.
+Depois da escolha, o CLI pergunta se deve executar o setup da stack. O setup não instala dependências nem inicia serviços sem autorização; ele apenas detecta arquivos e comandos locais. Em seguida, no modo interativo, o init pergunta o significado operacional do nível 2 e do nível 3: nível 2 pode ser `Tela` ou uma definição personalizada; nível 3 pode ser `Regra de negócio`, `Detalhes da tela` ou uma definição personalizada. Também pergunta como o backlog deve entregar as tasks, tanto em testes quanto em implementação: o nó L2 com seus internos juntos ou cada task separadamente; e se o loop de testes deve ser executado. Quando o loop de testes é desabilitado, `stdd backlog test` informa que foi desativado e `stdd backlog task` libera somente implementação. Por fim, pergunta a frequência das tasks automáticas de verificação da implementação dos nós L2; `0` desabilita e `1` insere uma auditoria após cada nó L2. Essa auditoria exige leitura dos arquivos e símbolos reais, comparação com o Draw e confirmação do funcionamento por testes e evidências; ela não aprova a implementação automaticamente pelo status da task. Essas escolhas ficam em `.stdd/config.json` e também podem ser passadas por `--task-delivery-scope node|task`, `--test-loop`/`--no-test-loop` e `--l2-verification-interval N`.
 
 Para automação sem perguntas:
 
@@ -81,11 +81,11 @@ O bloco é marcado, idempotente e preserva o conteúdo existente. Ele orienta o 
 
 ## Usar as skills no Codex
 
-Depois de inicializar o projeto, abra o Codex dentro do repositório. As skills ficam em `.agents/skills/<skill>/SKILL.md` e podem ser chamadas diretamente pelo nome, no formato de skills do Codex:
+Depois de inicializar o projeto, abra o Codex dentro do repositório. As skills ficam em `.agents/skills/<skill>/SKILL.md` e podem ser chamadas diretamente pelo nome, no formato de skills do Codex. As skills `$create-tests-backlog` e `$implement-backlog` são exclusivas do backlog: só devem ser lidas quando `stdd backlog test` ou `stdd backlog task` entregar uma task. Para uma edição comum, pergunta ou medição fora do backlog, não leia nem invoque essas duas skills.
 
 ```text
 $setup Detecte a stack deste repositório e configure os runners sem instalar dependências.
-$create-tests Quero implementar autenticação por sessão; transforme o pedido em uma feature testável.
+$create-tests-backlog Transforme a task entregue por stdd backlog test em testes executáveis.
 $draw-feature Desenhe o fluxo de autenticação, incluindo falhas e subfluxos.
 $draw-improve Revise o desenho atual e acrescente somente o próximo detalhe arquitetural relevante.
 $draw-interaction Investigue marcações do Draw; responda perguntas e execute tarefas na codebase.
@@ -95,35 +95,35 @@ $draw-system-level-3 Detalhe o comportamento completo de uma tela ou nó, em lot
 $draw-system-level-4 Rastreie sob demanda uma decisão até a codebase real.
 $static-analysis Analise dependências, complexidade, funções longas e segredos hardcoded.
 $missing Execute as tasks pendentes do backlog até não haver mais tasks; leia símbolos e testes e corrija o comportamento marcado como ausente.
-$implement Execute a implementação aprovada e rode os gates do STDD.
+$implement-backlog Execute a task entregue por stdd backlog task e rode os gates do STDD.
 ```
 
 Também é possível chamar a skill sem instrução adicional quando o objetivo já estiver claro:
 
 ```text
 $setup
-$create-tests
+$create-tests-backlog
 $draw-improve
 $draw-interaction
 $missing
-$implement
+$implement-backlog
 ```
 
 O agente deve ler o `SKILL.md` correspondente antes de agir. A skill define o contrato, os diretórios permitidos, os testes e os gates; a mensagem enviada no terminal fornece o contexto da tarefa. O processo recomendado é:
 
 ```text
 $setup
-$create-tests Descreva aqui o que o produto precisa fazer.
+$create-tests-backlog Execute a task de testes entregue por stdd backlog test.
 $draw-system-level-1 Modele a arquitetura macro do sistema.
 $draw-system-level-2 Modele as jornadas por papel — separando cliente, administrador e permissões.
 $draw-system-level-3 Modele de ponta a ponta o comportamento das telas que exigem regras, validações ou autorização.
 $draw-system-level-4 Abra somente o recorte de codebase que exija rastreabilidade técnica.
 $draw-feature Mostre a arquitetura e as decisões dessa feature.
 $draw-improve Evolua o desenho em um ciclo curto e pare para minha revisão.
-$implement Execute somente depois da aprovação.
+$implement-backlog Execute somente a task de implementação entregue por stdd backlog task.
 ```
 
-`$draw-improve` trabalha em duas fases sobre um JSON existente em `.stdd/draws/`. A primeira revisa o Draw e cria exatamente dez perguntas em uma sessão separada de `.stdd/improvements/`, sem alterar o fluxo. Responda as perguntas no viewer e salve a sessão; em uma nova chamada, o agente executa `stdd draw improve --pending`, consome somente sessões completas e aplica um único incremento coerente no Draw. Depois de salvar o fluxo, a sessão recebe status `applied` e permanece imutável como histórico. Quando o desenho estiver aprovado, `$create-tests` transforma sua lógica em testes. Mesmo que o próximo pedido seja apenas `$implement`, o agente deve passar primeiro pela etapa de create-tests e confirmar os testes vermelhos antes de alterar produção.
+`$draw-improve` trabalha em duas fases sobre um JSON existente em `.stdd/draws/`. A primeira revisa o Draw e cria exatamente dez perguntas em uma sessão separada de `.stdd/improvements/`, sem alterar o fluxo. Responda as perguntas no viewer e salve a sessão; em uma nova chamada, o agente executa `stdd draw improve --pending`, consome somente sessões completas e aplica um único incremento coerente no Draw. Depois de salvar o fluxo, a sessão recebe status `applied` e permanece imutável como histórico. Quando o desenho estiver aprovado, `$create-tests-backlog` transforma sua lógica em testes. Mesmo que o próximo pedido seja apenas `$implement-backlog`, o agente deve passar primeiro pela etapa de create-tests-backlog e confirmar os testes vermelhos antes de alterar produção.
 
 O `$draw-interaction` lê as marcações do Draw e identifica se cada uma é uma pergunta ou uma tarefa. Para perguntas com `@stdd` e `answer` ausente, executa `stdd draw questions`, consulta a codebase e os símbolos associados; se houver evidência, grava a resposta, marca os símbolos relevantes e remove o marcador. Para tarefas, consulta `stdd backlog missing`, lê os símbolos e testes e implementa o comportamento faltante na codebase, com regressão e gates quando necessário. Sem `@stdd`, a pergunta pertence ao usuário ou a um revisor humano; respostas já preenchidas, inclusive `false` e `0`, não geram nova ação. O `$draw-improve` preserva essa responsabilidade separada.
 
@@ -216,11 +216,11 @@ stdd backlog complete <task-id>
 
 O padrão é uma task por interação. Para fluxos maiores, configure de 1 a 5 itens e o escopo do lote (`task` ou `node`) em `.stdd/config.json` ou com `stdd backlog config --task-batch-size 2 --task-batch-scope node`. O escopo geral de entrega (`task_delivery_scope`) vale para as duas fases: `task` entrega cada item separadamente; `node` entrega o nó L2 com seus subfluxos internos juntos e conclui esse conjunto pelo ID do nó pai. Cada item continua exigindo seu próprio `backlog complete` no modo `task`; no modo `node`, a conclusão do pai conclui o conjunto entregue. O cursor usa lease e respeita a janela mínima configurada (`min_task_interval_seconds`, nunca menor que 3 quando habilitada), bloqueando chamadas fora de ordem ou tentativas de avançar várias tasks em um único script.
 
-O bootstrap é a primeira task por padrão e é agnóstico de framework: prepara o ponto de entrada, arquivos raiz, configuração, dependências, convenções e comandos necessários para receber as próximas tasks. O agente interpreta as evidências locais da stack e não deve inventar arquivos ou implementar funcionalidade de produto nessa etapa. A task também audita Draw System nível 1, `.stdd/design.md`, ambiente, `.env.example` e a estrutura mínima de armazenamento; `--no-bootstrap` continua disponível para projetos que optarem explicitamente por não executar essa preparação. Após cada nó L2 e seus subfluxos, o backlog pode injetar duas tasks separadas: auditoria funcional real (API, persistência, validações, estados e efeitos) e associação de símbolos, arquivos de implementação e testes. A task final valida inicialização, renderização, uso básico e lacunas funcionais.
+O bootstrap é a primeira task por padrão e é agnóstico de framework: prepara o ponto de entrada, arquivos raiz, configuração, dependências, convenções e comandos necessários para receber as próximas tasks. O agente interpreta as evidências locais da stack e não deve inventar arquivos ou implementar funcionalidade de produto nessa etapa. A task também audita Draw System nível 1, `.stdd/design.md`, ambiente, `.env.example` e a estrutura mínima de armazenamento; `--no-bootstrap` continua disponível para projetos que optarem explicitamente por não executar essa preparação. Após cada nó L2 e seus subfluxos, o backlog pode injetar uma task de verificação obrigatória: o agente deve ler o Draw, carregar e ler os arquivos indicados, analisar símbolos e dependências, executar os testes aplicáveis e declarar se o comportamento está implementado, parcial, ausente ou bloqueado, sempre com evidências. A associação de símbolos, arquivos de implementação e testes pode ser uma task separada. A task final valida inicialização, renderização, uso básico e lacunas funcionais com o mesmo critério de auditoria real.
 
 `stdd backlog task` e `stdd backlog test` mostram somente o contexto acionável em linguagem humana: task, fluxo, nó, uma decisão respondida, os símbolos associados e a diretriz do nível. Não há saída JSON nesses comandos. Tasks de nível 2 recebem a definição escolhida para orientar a implementação da tela/frontend; tasks de nível 3 recebem a definição escolhida para orientar regras de negócio e/ou detalhes da tela.
 
-O contexto também informa o predecessor imediato, descrição anterior, conexão, condição (`então`, `ou`, `se`), origem e caminho de acesso. O primeiro nó não recebe uma origem artificial. Os estados distinguem testes ausentes, testes prontos, implementação em andamento e backlog concluído.
+O contexto de navegação agora identifica explicitamente a tela de destino e todas as entradas possíveis. Para cada entrada, a saída mostra a tela de origem, sua descrição, a condição (`então`, `ou`, `se`), a ação registrada e a transição completa (`origem → destino`). O primeiro nó não recebe uma origem artificial: ele informa que é o início do fluxo. Em subtasks de nível 3, a saída separa a tela relacionada da etapa interna. Os estados distinguem testes ausentes, testes prontos, implementação em andamento e backlog concluído.
 
 Quando o loop de testes está habilitado, antes da implementação crie incrementalmente o teste da jornada:
 
@@ -233,7 +233,7 @@ Um nó de nível 2 pode declarar `test_ref` — ou `test_refs` compatíveis — 
 
 O backlog mantém dois checklists centrais em `phase_checklists`: `test` vem antes de `implementation`, e os itens são derivados das tasks e subfluxos. No Draw, ao selecionar um nó, a Sidebar permite marcar ou desmarcar esses itens. A marcação é persistida no `.stdd/backlog.json` pelo servidor local, sem validação obrigatória de análise estática; a implementação continua bloqueada enquanto o checklist de teste do nó e de seus subfluxos estiver pendente.
 
-Se `backlog task` for chamado antes da marcação do checklist de teste, ele mostra o bloqueio em linguagem humana e não reserva a implementação. O `$missing` e o `$implement` devem atender essa resposta com a etapa de testes ou com a marcação manual do fluxo já existente. Ao desmarcar a implementação, o `$missing` deve ler símbolos, dependências e testes, localizar o comportamento faltante e corrigi-lo antes de concluir a task. Com `backlog.test_loop_enabled: false`, essa barreira é removida intencionalmente e o cursor entrega somente tasks de implementação. Self-loops são terminais; ciclos diferentes de self-loop são bloqueados para evitar execução infinita. A aba `Backlog` do viewer mostra a task atual, perguntas, respostas, símbolos e a evidência opcional do teste quando o Draw Server está ativo.
+Se `backlog task` for chamado antes da marcação do checklist de teste, ele mostra o bloqueio em linguagem humana e não reserva a implementação. O `$missing` e o `$implement-backlog` devem atender essa resposta com a etapa de testes ou com a marcação manual do fluxo já existente. Ao desmarcar a implementação, o `$missing` deve ler símbolos, dependências e testes, localizar o comportamento faltante e corrigi-lo antes de concluir a task. Com `backlog.test_loop_enabled: false`, essa barreira é removida intencionalmente e o cursor entrega somente tasks de implementação. Self-loops são terminais; ciclos diferentes de self-loop são bloqueados para evitar execução infinita. A aba `Backlog` do viewer mostra a task atual, perguntas, respostas, símbolos e a evidência opcional do teste quando o Draw Server está ativo.
 
 Quando uma task possui subfluxo, a saída humana mostra o contexto do pai e a task atual. Pai e subtasks são independentes e devem ser concluídos pelos seus próprios IDs; a resposta mantém o contexto do pai enquanto avança pela primeira, segunda e demais subtasks.
 

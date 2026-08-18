@@ -20,9 +20,9 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert first.exit_code == 0
     assert second.exit_code == 0
     assert (tmp_path / ".stdd/config.json").exists()
-    assert (tmp_path / ".agents/skills/create-tests/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/create-tests-backlog/SKILL.md").exists()
     assert not (tmp_path / ".agents/skills/feature").exists()
-    assert (tmp_path / ".agents/skills/implement/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/implement-backlog/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/setup/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/static-analysis/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-feature/SKILL.md").exists()
@@ -35,7 +35,9 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert (tmp_path / ".agents/skills/draw-improve/agents/openai.yaml").exists()
     assert (tmp_path / "AGENTS.md").exists()
     assert "stdd test" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
-    assert "testes" in (tmp_path / ".agents/skills/create-tests/SKILL.md").read_text().lower()
+    assert "backlog" in (tmp_path / ".agents/skills/create-tests-backlog/SKILL.md").read_text().lower()
+    assert not (tmp_path / ".agents/skills/create-tests/SKILL.md").exists()
+    assert not (tmp_path / ".agents/skills/implement/SKILL.md").exists()
     for source in agent_templates():
         installed = tmp_path / ".agents" / "skills" / source.parent.name / "SKILL.md"
         assert installed.read_text(encoding="utf-8") == source.read_text(encoding="utf-8")
@@ -88,7 +90,7 @@ def test_init_accepts_project_directory_argument(tmp_path: Path, monkeypatch):
 
     assert result.exit_code == 0
     assert (tmp_path / "my-project/.stdd/config.json").exists()
-    assert (tmp_path / "my-project/.agents/skills/create-tests/SKILL.md").exists()
+    assert (tmp_path / "my-project/.agents/skills/create-tests-backlog/SKILL.md").exists()
     assert not (tmp_path / ".stdd").exists()
 
 
@@ -112,8 +114,8 @@ def test_init_keeps_framework_artifacts_in_stdd_and_agent_skills_in_agents(tmp_p
     init_project(tmp_path)
 
     assert {path.name for path in tmp_path.iterdir()} == {".stdd", ".agents", ".gitignore", "AGENTS.md"}
-    assert (tmp_path / ".agents/skills/create-tests/SKILL.md").exists()
-    assert (tmp_path / ".agents/skills/implement/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/create-tests-backlog/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/implement-backlog/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/setup/SKILL.md").exists()
     assert not (tmp_path / ".agents/config.json").exists()
     assert (tmp_path / ".stdd/config.json").exists()
@@ -152,6 +154,8 @@ def test_init_injects_idempotent_instructions_for_all_agents(tmp_path: Path):
         assert "push" in content
         assert "branch `main`" in content
         assert "uv tool install --force --editable ." in content
+        assert ".stdd/design.md" in content
+        assert "fonte obrigatória de decisões visuais" in content
     assert "Não remova este texto." in first["AGENTS.md"]
 
 
@@ -191,9 +195,9 @@ def test_agents_are_loaded_from_markdown_templates():
     Chama agent_templates e valida a presença dos títulos dos agentes create-tests, implement e setup.
     """
     templates = {template.parent.name: template for template in agent_templates()}
-    assert set(templates) == {"create-tests", "draw-interaction", "draw-feature", "draw-improve", "draw-system-level-1", "draw-system-level-2", "draw-system-level-3", "draw-system-level-4", "implement", "missing", "setup", "static-analysis"}
-    assert "# Create Tests Agent" in templates["create-tests"].read_text()
-    assert "# Implement Agent" in templates["implement"].read_text()
+    assert set(templates) == {"create-tests-backlog", "draw-interaction", "draw-feature", "draw-improve", "draw-system-level-1", "draw-system-level-2", "draw-system-level-3", "draw-system-level-4", "implement-backlog", "missing", "setup", "static-analysis"}
+    assert "# Create Tests Backlog Agent" in templates["create-tests-backlog"].read_text()
+    assert "# Implement Backlog Agent" in templates["implement-backlog"].read_text()
     assert "# Missing Agent" in templates["missing"].read_text()
     assert "lendo símbolos" in templates["missing"].read_text().lower()
     assert "testes associados" in templates["missing"].read_text()
@@ -244,7 +248,7 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "frontend-analysis" not in setup_content
     assert "static_analysis.exceptions" in setup_content
 
-    implement_content = templates["implement"].read_text()
+    implement_content = templates["implement-backlog"].read_text()
     assert "Uso da análise estática para refatoração segura" in implement_content
     assert "101–150" in implement_content
     assert "valores antes/depois" in implement_content
@@ -254,7 +258,7 @@ def test_test_and_implement_skills_require_symbols_and_static_analysis_gate():
     """Exige rastreabilidade de símbolos nas skills de teste e implementação.
     Confirma que ambas instruem o agente a executar `stdd test` antes de concluir.
     """
-    for name in ("create-tests", "implement"):
+    for name in ("create-tests-backlog", "implement-backlog"):
         content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         assert "associar" in content and "símbolo" in content
         assert "code_refs" in content
@@ -268,7 +272,7 @@ def test_test_and_implement_skills_require_explicit_draw_association_each_loop()
     """Impede que as skills tratem arquivo/símbolo como associação automática.
     Exige o comando e a verificação em cada ciclo de entrega.
     """
-    for name in ("create-tests", "implement"):
+    for name in ("create-tests-backlog", "implement-backlog"):
         content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         assert "a associação não é automática" in content
         assert "em todo loop" in content or "neste loop" in content
@@ -283,17 +287,59 @@ def test_test_and_implement_skills_require_explicit_draw_association_each_loop()
         assert "só pode ser o último comando do loop" in content
 
 
+def test_implement_skill_requires_real_post_implementation_audit():
+    """Impede que a verificação intermediária aprove código apenas por status.
+    Exige leitura dos arquivos, comparação com o Draw, testes e evidências reais.
+    """
+    content = Path("src/stdd/templates/agents/implement-backlog/SKILL.md").read_text(encoding="utf-8").lower()
+
+    for required in (
+        "verificação intermediária da implementação",
+        "auditoria obrigatória",
+        "l2_verification_interval",
+        "arquivos e símbolos reais",
+        "carregue esses arquivos no contexto",
+        "compare a implementação com a especificação",
+        "funciona de fato",
+        "não pode concluir",
+        "implementado",
+        "parcial",
+        "ausente",
+        "bloqueado",
+    ):
+        assert required in content
+
+
+def test_backlog_skills_are_not_for_common_interactions():
+    """Separa as skills do cursor do backlog das edições comuns do agente.
+    Confirma nomes explícitos, gatilho pelos comandos backlog e a regra de não leitura fora do ciclo.
+    """
+    for name, trigger in (
+        ("create-tests-backlog", "stdd backlog test"),
+        ("implement-backlog", "stdd backlog task"),
+    ):
+        content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
+        assert "exclusivamente" in content
+        assert trigger in content
+        assert "não leia esta skill para edições comuns" in content
+
+    installed_instructions = Path("AGENTS.md").read_text(encoding="utf-8").lower()
+    assert "$create-tests-backlog" in installed_instructions
+    assert "$implement-backlog" in installed_instructions
+    assert "não leia essas skills para edições" in installed_instructions
+
+
 def test_loop_skills_honor_disabled_test_phase():
     """Orienta os agentes a pular create-tests quando o init desabilitar testes.
     Mantém o cursor direcionado ao loop de implementação.
     """
-    implement = Path("src/stdd/templates/agents/implement/SKILL.md").read_text(encoding="utf-8").lower()
-    create_tests = Path("src/stdd/templates/agents/create-tests/SKILL.md").read_text(encoding="utf-8").lower()
+    implement = Path("src/stdd/templates/agents/implement-backlog/SKILL.md").read_text(encoding="utf-8").lower()
+    create_tests = Path("src/stdd/templates/agents/create-tests-backlog/SKILL.md").read_text(encoding="utf-8").lower()
     for content in (implement, create_tests):
         assert "test_loop_enabled: false" in content
         assert "loop de implementação" in content or "loop somente de implementação" in content
-    assert "$create-tests" in implement
-    assert "$implement" in create_tests
+    assert "$create-tests-backlog" in implement
+    assert "$implement-backlog" in create_tests
 
 
 def test_draw_system_level_three_splits_complete_detailed_screen_flows_into_phases():
@@ -350,7 +396,7 @@ def test_implement_skill_triages_draw_diffs_before_declaring_no_change():
     """Exige que implement considere diffs de desenhos como contrato.
     Também impede concluir implementação sem uma alteração coerente pendente.
     """
-    content = Path("src/stdd/templates/agents/implement/SKILL.md").read_text(encoding="utf-8").lower()
+    content = Path("src/stdd/templates/agents/implement-backlog/SKILL.md").read_text(encoding="utf-8").lower()
 
     for required in (
         "git diff -- .stdd/draws",
@@ -380,8 +426,8 @@ def test_draw_improve_skill_is_incremental_and_hands_off_through_feature():
         "já está bom",
         "um ciclo",
         "revisão",
-        "$create-tests",
-        "$implement",
+        "$create-tests-backlog",
+        "$implement-backlog",
         "estado vermelho",
         "stdd draw diff",
         "somente alterações em `.stdd/draws/*.json`",
@@ -474,7 +520,7 @@ def test_feature_and_implement_skills_honor_draw_system_boundaries():
     """Impede que testes ou produção ignorem a árvore de desenhos do sistema.
     Confirma leitura de pais, filhos, referências e folhas não implementadas.
     """
-    for name in ("create-tests", "implement", "setup", "static-analysis"):
+    for name in ("create-tests-backlog", "implement-backlog", "setup", "static-analysis"):
         content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         for required in ("draw-system", "parent_draw_ref", "parent_node_id", "root_draw_ref", "fluxo órfão"):
             assert required in content, f"{name} não define {required}"
@@ -518,7 +564,7 @@ def test_delivery_agents_define_complete_production_test_contract():
     """
     templates = {template.parent.name: template.read_text(encoding="utf-8").lower() for template in agent_templates()}
 
-    for name in ("setup", "create-tests", "implement"):
+    for name in ("setup", "create-tests-backlog", "implement-backlog"):
         content = templates[name]
         for required in ("teste live", "pgtap", "performance", "segurança", "isolamento", "pentest", "not_executed"):
             assert required in content, f"{name} não define {required}"
@@ -548,7 +594,7 @@ def test_readme_documents_codex_skill_invocation():
     """
     readme = Path("README.md").read_text(encoding="utf-8")
 
-    for command in ("$setup", "$create-tests", "$draw-feature", "$draw-improve", "$draw-interaction", "$draw-system-level-1", "$draw-system-level-2", "$draw-system-level-3", "$draw-system-level-4", "$static-analysis", "$implement"):
+    for command in ("$setup", "$create-tests-backlog", "$draw-feature", "$draw-improve", "$draw-interaction", "$draw-system-level-1", "$draw-system-level-2", "$draw-system-level-3", "$draw-system-level-4", "$static-analysis", "$implement-backlog"):
         assert command in readme
     assert ".agents/skills/<skill>/SKILL.md" in readme
 
@@ -557,7 +603,7 @@ def test_feature_skill_uses_tests_and_draw_json_without_markdown_copies():
     """Mantém testes e desenhos como fontes diretas da especificação da feature.
     Impede que a skill volte a criar request.md ou scenarios.md como cópias intermediárias.
     """
-    content = (Path("src/stdd/templates/agents/create-tests/SKILL.md")).read_text(encoding="utf-8")
+    content = (Path("src/stdd/templates/agents/create-tests-backlog/SKILL.md")).read_text(encoding="utf-8")
 
     assert ".stdd/draws/<draw-id>.json" in content
     assert "request.md" not in content
@@ -578,7 +624,7 @@ def test_agent_skills_require_approval_for_expensive_or_mutating_setup():
     """Impede instalação, download e provisionamento sem autorização do usuário.
     Confirma que setup e implement preservam controle explícito em perfis flexíveis como MVP.
     """
-    for name in ("setup", "implement"):
+    for name in ("setup", "implement-backlog"):
         content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         for required in ("mvp", "aprovação explícita", "instalar", "baixar", "container", "criar banco"):
             assert required in content, f"{name} não define {required}"

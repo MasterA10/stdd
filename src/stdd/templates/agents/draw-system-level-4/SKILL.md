@@ -69,7 +69,7 @@ Ao alterar o desenho, registrar:
 stdd log "Rastreia codebase do sistema no nível 4" --type implementacao
 ```
 
-Entregar IDs, arquivos e símbolos resolvidos, referências `unresolved` ou `drift`, queries, contratos, testes, limitações e o recorte para o `$create-tests`. O `$implement` só pode seguir após testes vermelhos aprovados.
+Entregar IDs, arquivos e símbolos resolvidos, referências `unresolved` ou `drift`, queries, contratos, testes, limitações e o recorte para o `$create-tests-backlog`. O `$implement-backlog` só pode seguir após testes vermelhos aprovados.
 
 ## Regras do ciclo interativo
 

@@ -11,9 +11,9 @@ Use esta skill quando uma feature, decisão ou arquitetura ficar mais fácil de 
 
 Quando o desenho fizer parte de um sistema maior, preserve uma árvore explícita de níveis:
 
-- **Nível 1 (Feature/Architecture):** escolhas macro ao redor da codebase, focando em integrações fora da codebase principal (como serviços externos, banco de dados, infraestrutura, deploy, aplicativo, linguagem, runtime, cache e autenticação). **O que NÃO deve conter:** detalhes profundos de regras de negócio locais, minúcias de implementação interna e comportamento do aplicativo.
+- **Nível 1 — arquitetura:** escolhas macro ao redor da codebase, como aplicativo, linguagem, runtime, banco, cache, autenticação e sistemas externos. Não descrever comportamento do aplicativo aqui.
 - **Nível 2 — jornada:** navegação e operação de cada usuário, incluindo cliente, administrador e outros papéis, com opções, permissões, regras de negócio e estados observáveis. Uma opção ainda não implementada é uma folha terminal, sem continuação fictícia.
-- **Nível 3 — implementação:** o caso de uso completo de como o sistema atende uma jornada de ponta a ponta, incluindo lógica de negócio, apresentação, validações, autorização, persistência, integração com o framework, eventos e tratamento de falhas.
+- **Nível 3 — implementação:** como o backend atende uma jornada, incluindo API, validações, autorização, persistência, eventos, integrações e falhas.
 - **Nível 4 — codebase:** arquivos, módulos, símbolos, testes e dependências reais, somente quando a complexidade justificar.
 
 Desenhos integrados a essa árvore devem declarar `hierarchy.level`, `hierarchy.role`, `hierarchy.parent_draw_ref`, `hierarchy.parent_node_id` e `hierarchy.root_draw_ref`. A raiz usa nível 1 e pai nulo. Todo descendente tem pai e o pai aponta para ele com `draw_ref`; não existem fluxos órfãos. Um nível pode pular diretamente para outro quando não houver detalhe útil intermediário, mas nunca pode perder a relação de pai.
@@ -181,7 +181,7 @@ Perguntas respondidas permanecem no JSON como histórico. Não invente respostas
 ## Semântica dos blocos e grupos
 
 - O nó não possui tipo estrutural: não use `processo`, `decisão`, `ator`, `api` ou qualquer outro campo `nodes[].type`.
-- Pontos de decisão não são nós. A decisão é expressa unicamente pelas setas (edges) e por suas condições (`condition`, `label` e `description`), NUNCA por tipos de nó.
+- Pontos de decisão não são nós. A decisão é expressa pelas setas e por suas condições (`condition`, `label` e `description`).
 - Use `groups` para representar domínio, responsabilidade ou fronteira visual. A cor do bloco vem exclusivamente do grupo; não grave cores individuais no nó.
 - Um bloco sem grupo usa a aparência neutra do viewer. Para alterar o grupo, edite o campo `group` do nó no editor.
 

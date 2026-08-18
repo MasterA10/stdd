@@ -1,13 +1,13 @@
 ---
 name: draw-system-level-3
-description: "Cria o nível 3 de um Draw System no STDD: o caso de uso detalhado de cada tela ou nó, explicando em linguagem simples todas as funcionalidades, decisões, regras e estados de ponta a ponta. Use depois de draw-system-level-2 e execute em dois ou mais lotes completos, ampliando o número de fases quando houver muitas telas."
+description: "Cria o nível 3 de um Draw System no STDD: o Controller detalhado de cada tela ou nó, explicando em linguagem simples todas as funcionalidades, decisões, regras e estados de ponta a ponta. Use depois de draw-system-level-2 e execute em dois ou mais lotes completos, ampliando o número de fases quando houver muitas telas."
 ---
 
-# Draw System — Nível 3: Comportamento / Caso de uso
+# Draw System — Nível 3: Comportamento / Controller
 
 ## Responsabilidade
 
-Ser a ponte entre a View do nível 2 e a codebase do nível 4. Esta skill permite modelagem de fluxos e loops **do zero**, inclusive para repositórios vazios. Não presuma que sempre existirá uma base de código prévia. Quando o repositório estiver vazio, os nós devem descrever o comportamento planejado em linguagem natural sem exigir `code_refs` reais. Cada subfluxo corresponde a uma tela/nó do nível 2 que foi avaliado como necessitando de detalhamento. O nível 3 não é um fluxo genérico: ele começa pelas ações que a pessoa pode executar naquela tela e explica o caso de uso e o comportamento iniciado por cada uma. O texto explica o comportamento em linguagem simples; o nó recebe `code_refs` de use cases, services, handlers, controllers, endpoints, validadores, templates, views e componentes de interface reais quando encontrados.
+Ser a ponte entre a View do nível 2 e a codebase do nível 4. Cada subfluxo corresponde a uma tela/nó do nível 2 que foi avaliado como necessitando de detalhamento. O nível 3 não é um fluxo genérico: ele começa pelas ações que a pessoa pode executar naquela tela e explica o comportamento iniciado por cada uma. O texto explica o comportamento em linguagem simples; o nó recebe `code_refs` de funções, handlers, services, use cases, endpoints e validadores reais quando encontrados.
 
 Use esta skill somente depois de ler o nível 2, sua raiz e os descendentes relevantes. Não refaça a navegação global do nível 2, não transforme o nível 3 em lista de nomes técnicos e não abra nível 4 automaticamente.
 
@@ -15,10 +15,10 @@ Use esta skill somente depois de ler o nível 2, sua raiz e os descendentes rele
 
 O sucesso desta etapa depende obrigatoriamente da leitura do símbolo associado ao nó do nível 2 e da sua referência na codebase.
 
-- **Nenhum fluxo pode ser criado sem a leitura prévia do símbolo correspondente da implementação, a menos que o projeto seja construído do zero e o repositório esteja vazio.**
+- **Nenhum fluxo pode ser criado sem a leitura prévia do símbolo correspondente da implementação.**
 - Para explicar o fluxo de um nó vindo do nível 2 e criar o subfluxo de nível 3 para ele, o agente deve obrigatoriamente ler o símbolo e a referência dele no código-fonte.
 - Não é para implementar ou criar nenhum fluxo sem reler a implementação do símbolo correspondente.
-- Caso a referência ou o símbolo do nó do nível 2 ainda esteja pendente, utilize a análise estática e a busca no repositório para localizar a função, classe, handler ou service correspondente na codebase e faça sua leitura completa antes de desenhar o subfluxo (exceto se for repositório vazio, onde o comportamento é apenas planejado).
+- Caso a referência ou o símbolo do nó do nível 2 ainda esteja pendente, utilize a análise estática e a busca no repositório para localizar a função, classe, handler ou service correspondente na codebase e faça sua leitura completa antes de desenhar o subfluxo.
 - O detalhamento das regras de negócio, pré-condições, autorizações, validações, ramificações e saídas do nível 3 deve ser extraído diretamente da leitura do código do símbolo.
 
 
@@ -32,7 +32,7 @@ O pai mostra apenas a cápsula da tela e aponta para o filho. O filho mostra som
 
 O subfluxo de uma tela deve começar com um conjunto de nós-gatilho: crie um nó inicial para cada botão, link, aba, filtro, envio, confirmação, cancelamento, retorno ou outra ação de usuário comprovada que a tela permita. A tela fornece o contexto, mas não substitui os nós das ações. Não esconder várias ações em um único nó chamado `Controller`, `Interação` ou equivalente.
 
-Cada nó-gatilho deve estar conectado a outros nós por edges e iniciar uma sequência que explique o caso de uso correspondente: intenção, pré-condições, dados necessários, regra de negócio, autorização, validações, decisões, resultado, erro, bloqueio, retry, recuperação e saída. O primeiro nó de cada caminho é a ação do usuário; os nós seguintes explicam o que o sistema faz e o que a pessoa observa, sem antecipar detalhes técnicos do nível 4. **Atenção à posição de validações:** nós de validação devem ficar obrigatoriamente ANTES das ações críticas (ex: validar antes de persistir), e não soltos no fim do fluxo.
+Cada nó-gatilho deve estar conectado a outros nós por edges e iniciar uma sequência que explique o caso de uso correspondente: intenção, pré-condições, dados necessários, regra de negócio, autorização, validações, decisões, resultado, erro, bloqueio, retry, recuperação e saída. O primeiro nó de cada caminho é a ação do usuário; os nós seguintes explicam o que o sistema faz e o que a pessoa observa, sem antecipar detalhes técnicos do nível 4.
 
 Quando ações diferentes tiverem exatamente a mesma regra e o mesmo comportamento comprovado, elas podem convergir para um nó compartilhado depois de seus gatilhos. A convergência não autoriza apagar os gatilhos nem tratar ações diferentes como uma única ação. Quando os comportamentos divergirem, manter caminhos separados. Eventos automáticos, loading, atualização, timeout e reconexão podem aparecer como estados ou consequências do caminho acionado, mas não substituem as ações de entrada da tela.
 
@@ -75,15 +75,15 @@ Preservar caminhos de sucesso, validação, autorização, vazio, timeout, nova 
 
 O nível 3 continua dividido em fases para permitir detalhe real:
 
-### Fase 2 — primeiro lote do caso de uso
+### Fase 2 — primeiro lote do Controller
 
 Só executar após aprovação da continuação do nível 2. Ler todos os nós elegíveis, inventariar os subfluxos e separar lotes completos, aproximadamente equilibrados, respeitando papéis, fronteiras e dependências. O primeiro lote não pode truncar uma tela nem ser escolhido por corte arbitrário.
 
-Criar somente esse lote. Para cada tela, primeiro inventariar todas as ações de usuário e criar seus nós-gatilho; depois explicar o comportamento completo de cada caminho com a quantidade necessária de nós, incluindo regras, autorizações, validações, resultados e falhas. Consultar análise estática e associar use cases, services, handlers, controllers, endpoints, rotas, validadores, templates, views e componentes nos próprios nós. Gravar, validar, revisar e pare e solicite confirmação antes de perguntar se o usuário quer continuar.
+Criar somente esse lote. Para cada tela, primeiro inventariar todas as ações de usuário e criar seus nós-gatilho; depois explicar o comportamento completo de cada caminho com a quantidade necessária de nós, incluindo regras, autorizações, validações, resultados e falhas. Consultar análise estática e associar handlers, controllers, endpoints, rotas, services, use cases e validadores nos próprios nós. Gravar, validar, revisar e pare e solicite confirmação antes de perguntar se o usuário quer continuar.
 
-### Fase 3 — segundo lote e fechamento do caso de uso
+### Fase 3 — segundo lote e fechamento do Controller
 
-Só executar após aprovação da Fase 2. Ler a divisão dos lotes e os subfluxos já criados. Criar somente o segundo lote, mantendo o detalhamento orientado pelas ações reais de cada tela e sem copiar a forma dos subfluxos da primeira metade. Associar símbolos de lógica de negócio e de apresentação nos nós correspondentes.
+Só executar após aprovação da Fase 2. Ler a divisão dos lotes e os subfluxos já criados. Criar somente o segundo lote, mantendo o detalhamento orientado pelas ações reais de cada tela e sem copiar a forma dos subfluxos da primeira metade. Associar símbolos de backend nos nós correspondentes.
 
 Ao fechar, revisar o nível 3 completo: todos os nós elegíveis foram avaliados, cada tela tem uma entrada para cada ação comprovada, cada ação está ligada ao seu comportamento ponta a ponta, não há quantidade fixa de nós, as ramificações relevantes estão representadas e não existem referências órfãs, pais duplicados ou continuidades inventadas.
 
@@ -95,7 +95,7 @@ Ao concluir a última fase, encerrar a sequência automática. Informar que `$dr
 
 ## Associação incremental de símbolos
 
-- Nas Fases 2 e 3 (e lotes adicionais), associar use cases, services, handlers, controllers, validadores, templates, views e componentes de interface.
+- Nas Fases 2 e 3 (e lotes adicionais), associar funções, handlers, services, use cases, endpoints, controllers e validadores de backend.
 - Manter o texto do nível 3 em linguagem simples. Se mencionar procedure, função externa, RPC, tabela, rota, classe, arquivo ou símbolo, mover o detalhe técnico para o nível 4 quando essa camada for aberta.
 - Usar `code_refs` no nó correspondente, com símbolo qualificado real, `identity` e `source_dependencies` somente quando a análise estática fornecer esses fatos.
 - Não colocar símbolos em nó genérico. Se o símbolo ainda não puder ser encontrado, marcar a associação como pendente.
@@ -111,8 +111,6 @@ Toda seta usa `condition` numérico:
 - `1` (`então`) é consequência certa e pode coexistir com um conjunto de `3` (`se`) ou de `2` (`ou`);
 - `3` (`se`) é guarda possível. Se houver um `se`, deve haver pelo menos outro `se` correspondente na mesma origem;
 - `2` (`ou`) é alternativa mutuamente exclusiva.
-
-**Tratamento de erros em conexões:** Não usar conectores sequenciais determinísticos (`então`, condition=1) para caminhos de erros ou falhas. Usar `se` (condition=3) ou `ou` (condition=2) para ramificações de erro.
 
 Nunca misture `se` com `ou` na mesma decisão. Nunca misture `ou` com `se`: são a mesma proibição vista pela outra direção. O `então` pode acompanhar uma família porque é a continuação inevitável. Se os caminhos puderem ocorrer juntos, use sequência ou paralelismo. Decisões são expressas pelas setas, não por `nodes[].type`.
 
@@ -135,7 +133,7 @@ Ao alterar o desenho, registrar:
 stdd log "Detalha comportamento do sistema no nível 3" --type implementacao
 ```
 
-Depois da última fase, entregar a árvore completa ao `$create-tests`. O Create Tests Agent deve ler os JSONs diretamente, transformar caminhos implementados em testes e tratar folhas não implementadas como escopo ausente. `$implement` só pode ser chamado depois de testes vermelhos aprovados.
+Depois da última fase, entregar a árvore completa ao `$create-tests-backlog`. O Create Tests Backlog Agent deve ler os JSONs diretamente, transformar caminhos implementados em testes e tratar folhas não implementadas como escopo ausente. `$implement-backlog` só pode ser chamado depois de testes vermelhos aprovados.
 
 ## Regras do ciclo interativo
 

@@ -91,7 +91,7 @@ Se houver alteração, registre:
 stdd log "Cria arquitetura do sistema no nível 1" --type implementacao
 ```
 
-Ao concluir, informe raiz, escolhas macro, símbolos resolvidos ou pendentes, perguntas, arquivos alterados e o comando de revisão visual. O `$create-tests` deve receber o ID da árvore somente depois de o usuário aprovar a continuação.
+Ao concluir, informe raiz, escolhas macro, símbolos resolvidos ou pendentes, perguntas, arquivos alterados e o comando de revisão visual. O `$create-tests-backlog` deve receber o ID da árvore somente depois de o usuário aprovar a continuação.
 
 ## Regras do ciclo interativo
 

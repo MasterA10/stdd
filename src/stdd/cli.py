@@ -93,6 +93,9 @@ def _compact_backlog_response(response: dict[str, object]) -> dict[str, object]:
         "node_id": task.get("node_id"),
         "description": task.get("description"),
         "symbols": task.get("symbols") or [],
+        "verification_requirements": task.get("verification_requirements") or [],
+        "navigation_target": response.get("navigation_target"),
+        "navigation_entries": response.get("navigation_entries") or [],
         "previous_node": response.get("previous_node"),
         "connection": response.get("connection"),
         "condition": response.get("condition"),
@@ -134,6 +137,49 @@ def _format_level_context(level_context: object) -> list[str]:
     return lines
 
 
+def _format_navigation_context(compact: dict[str, object]) -> list[str]:
+    """Renderiza destino e entradas da navegação em linguagem acionável."""
+    target = compact.get("navigation_target")
+    if not isinstance(target, dict):
+        return []
+    target_kind = target.get("kind")
+    lines: list[str] = []
+    if target_kind == "screen":
+        lines.append(f"Tela de destino: {target.get('label', target.get('node_id'))}")
+    else:
+        screen_label = target.get("screen_label")
+        if screen_label:
+            lines.append(f"Tela relacionada: {screen_label}")
+        lines.append(f"Etapa interna: {target.get('label', target.get('node_id'))}")
+
+    entries = compact.get("navigation_entries")
+    if not isinstance(entries, list) or not entries:
+        if target_kind == "screen":
+            lines.append("Entrada: início do fluxo; nenhuma tela de origem foi registrada.")
+        return lines
+
+    lines.append(f"Entradas possíveis ({len(entries)}):")
+    for index, entry in enumerate(entries, start=1):
+        if not isinstance(entry, dict):
+            continue
+        origin = entry.get("origin") if isinstance(entry.get("origin"), dict) else {}
+        destination = entry.get("target") if isinstance(entry.get("target"), dict) else target
+        origin_label = origin.get("label", origin.get("node_id", "origem"))
+        destination_label = destination.get("label", destination.get("node_id", "destino"))
+        origin_kind = "Tela de origem" if target_kind == "screen" else "Etapa anterior"
+        lines.append(f"  {index}. {origin_kind}: {origin_label}")
+        if origin.get("description"):
+            lines.append(f"     Descrição: {origin['description']}")
+        if entry.get("condition_label"):
+            lines.append(f"     Condição: {entry['condition_label']}")
+        if entry.get("action"):
+            lines.append(f"     Ação: {entry['action']}")
+        elif entry.get("label"):
+            lines.append(f"     Entrada: {entry['label']}")
+        lines.append(f"     Transição: {origin_label} → {destination_label}")
+    return lines
+
+
 def _format_backlog_response(response: dict[str, object]) -> str:
     """Renderiza uma task sem o ruído do payload completo do backlog."""
     kind = response.get("kind")
@@ -151,6 +197,8 @@ def _format_backlog_response(response: dict[str, object]) -> str:
         title = "Teste necessário antes da implementação"
     elif kind == "backlog-test-task":
         title = "Task de teste"
+    elif kind == "backlog-verification-task":
+        title = "Verificação obrigatória da implementação"
     else:
         title = "Task de implementação"
 
@@ -174,24 +222,42 @@ def _format_backlog_response(response: dict[str, object]) -> str:
             if isinstance(subtask, dict):
                 lines.append(f"  • {subtask.get('label', 'Subfluxo')} (ID: {subtask.get('id')})")
     lines.extend(_format_level_context(compact.get("level_context")))
-    if compact.get("previous_node"):
-        previous = compact["previous_node"]
-        lines.append(f"Nó anterior: {previous.get('label', previous.get('node_id'))}")
-        if previous.get("description"):
-            lines.append(f"Descrição anterior: {previous['description']}")
-    if compact.get("connection"):
-        connection = compact["connection"]
-        lines.append(f"Conexão: {connection.get('condition_label', 'então')}" + (f" — {connection.get('label')}" if connection.get('label') else ""))
-    if compact.get("path"):
-        lines.append(f"Caminho de acesso: {compact['path']}")
+    lines.extend(_format_navigation_context(compact))
     verified_nodes = compact.get("verified_nodes")
-    if isinstance(verified_nodes, list) and len(verified_nodes) > 1:
+    if kind == "backlog-verification-task" and isinstance(verified_nodes, list) and verified_nodes:
+        lines.append("Alvos da verificação:")
+        for vn in verified_nodes:
+            lbl = vn.get("label", f"Nó {vn.get('node_id')}")
+            syms = ", ".join(vn.get("symbols", []))
+            syms_str = f" [Símbolos: {syms}]" if syms else ""
+            lines.append(f"  • Nó {vn.get('node_id')}: {lbl}{syms_str}")
+            references = vn.get("code_refs")
+            if isinstance(references, list) and references:
+                lines.append("    Arquivos e símbolos para ler:")
+                for reference in references:
+                    if isinstance(reference, str):
+                        lines.append(f"      - {reference}")
+                        continue
+                    if not isinstance(reference, dict):
+                        continue
+                    symbol = reference.get("symbol") or reference.get("qualified_name")
+                    file = reference.get("file")
+                    if file and symbol:
+                        lines.append(f"      - {file} — {symbol}")
+                    elif file or symbol:
+                        lines.append(f"      - {file or symbol}")
+    elif isinstance(verified_nodes, list) and len(verified_nodes) > 1:
         lines.append(f"Nós no lote ({len(verified_nodes)}):")
         for vn in verified_nodes:
             lbl = vn.get("label", f"Nó {vn.get('node_id')}")
             syms = ", ".join(vn.get("symbols", []))
             syms_str = f" [Símbolos: {syms}]" if syms else ""
             lines.append(f"  • Nó {vn.get('node_id')}: {lbl}{syms_str}")
+    requirements = compact.get("verification_requirements")
+    if kind == "backlog-verification-task" and isinstance(requirements, list) and requirements:
+        lines.append("Procedimento obrigatório:")
+        for index, requirement in enumerate(requirements, start=1):
+            lines.append(f"  {index}. {requirement}")
     decision = compact.get("decision")
     if isinstance(decision, dict):
         lines.append(f"Decisão: {decision['question']} → {decision['answer']}")
@@ -200,7 +266,8 @@ def _format_backlog_response(response: dict[str, object]) -> str:
     if compact.get("reason"):
         lines.append(f"Bloqueio: {compact['reason']}")
     if compact.get("instruction"):
-        lines.append(f"Próximo passo: {compact['instruction']}")
+        instruction_label = "Instrução da auditoria" if kind == "backlog-verification-task" else "Próximo passo"
+        lines.append(f"{instruction_label}: {compact['instruction']}")
     access_paths = compact.get("access_paths")
     if isinstance(access_paths, list):
         for path in access_paths:
