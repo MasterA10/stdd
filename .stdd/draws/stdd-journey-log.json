@@ -106,8 +106,5 @@
       ]
     }
   ],
-  "tradeoffs": [
-    "O log usa diffs incrementais e checkpoints diários, facilitando revisão, mas não é um sistema externo de auditoria imutável."
-  ],
   "notes": []
 }

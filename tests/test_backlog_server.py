@@ -89,3 +89,43 @@ def test_draw_server_updates_backlog_checklist(tmp_path: Path):
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+
+def test_draw_server_exposes_test_phase_and_refresh(tmp_path: Path):
+    """Expõe reserva e refresh da fase de testes do backlog.
+    Confirma que testes concluídos liberam a implementação da mesma task.
+    """
+    _create_hierarchical_fixture(tmp_path)
+    draw_path = tmp_path / ".stdd" / "draws" / "jornada.json"
+    payload = json.loads(draw_path.read_text(encoding="utf-8"))
+    for node in payload["nodes"]:
+        node.pop("test_ref", None)
+    create_draw(tmp_path, payload)
+    generate_backlog(tmp_path)
+    server, thread = start_server_for_test(tmp_path)
+    base_url = f"http://127.0.0.1:{server.server_address[1]}"
+    try:
+        refresh = Request(f"{base_url}/__stdd/api/backlog/refresh", method="POST")
+        refreshed = json.loads(urlopen(refresh).read())
+        assert refreshed["kind"] == "backlog-refreshed"
+
+        testing = Request(f"{base_url}/__stdd/api/backlog/test", method="POST")
+        test_task = json.loads(urlopen(testing).read())
+        assert test_task["kind"] == "backlog-test-task"
+        assert test_task["phase"] == "test"
+
+        complete = Request(
+            f"{base_url}/__stdd/api/backlog/tasks/{test_task['task']['id']}/complete",
+            method="POST",
+        )
+        completed = json.loads(urlopen(complete).read())
+        assert completed["kind"] == "backlog-test-complete"
+
+        implementation = Request(f"{base_url}/__stdd/api/backlog/task", method="POST")
+        next_task = json.loads(urlopen(implementation).read())
+        assert next_task["kind"] == "backlog-task"
+        assert next_task["phase"] == "implementation"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)

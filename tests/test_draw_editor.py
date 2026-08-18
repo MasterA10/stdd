@@ -404,7 +404,8 @@ def test_shift_click_appends_to_a_normal_first_selection():
 
     assert "const currentSelection = selectionOrderRef.current.length > 0" in app
     assert "? [selectedNodeId]" in app
-    assert "selectionOrderRef.current = [...currentSelection, id]" in app
+    assert "selectionOrderRef.current = currentSelection.includes(id)" in app
+    assert "? currentSelection.filter((selectedId) => selectedId !== id)" in app
 
 
 def test_selected_blocks_have_an_explicit_visual_state():
@@ -648,7 +649,10 @@ def test_logical_save_is_manual_but_positions_use_presentation_cache():
     assert "onClick={handleOrganize}" in app
     assert "window.setTimeout" not in app
     assert "localStorage.setItem(presentationKey, JSON.stringify(parsed))" in app
-    assert "setIsDirty(false);" in app.split("const onNodeDragStop", 1)[1].split("// --- Exposed", 1)[0]
+    drag_handler = app.split("const onNodeDragStop", 1)[1].split("// --- Exposed", 1)[0]
+    assert "setIsDirty(false);" not in drag_handler
+    assert "...parsed.positions" in drag_handler
+    assert "...presentationPositionsRef.current" in drag_handler
 
 
 def test_manual_save_button_persists_the_logical_contract():
@@ -830,11 +834,15 @@ def test_sidebar_exposes_backlog_tasks_with_questions_and_symbols():
 
     assert "backlog={backlog}" in app
     assert "__stdd/api/backlog/task" in app
+    assert "__stdd/api/backlog/test" in app
+    assert "__stdd/api/backlog/refresh" in app
     assert "__stdd/api/backlog/tasks/" in app
     assert "activeTab === 'backlog'" in sidebar
     assert "Perguntas e respostas" in panel
     assert "Símbolos associados" in panel
     assert "Concluir task" in panel
+    assert "Concluir testes" in panel
+    assert "Testes associados" in panel
 
 
 def test_editor_loads_the_persisted_backlog_from_the_draw_server():
@@ -863,6 +871,21 @@ def test_editor_allows_node_checklists_and_persists_them_through_backlog_api():
     assert "Checklist de teste" in panel
     assert "Checklist de implementação" in panel
     assert "marcação manual" in sidebar
+
+
+def test_editor_reconciles_selection_and_protects_async_draw_loads():
+    """Evita seleção obsoleta e carregamento fora de ordem.
+    Mantém o desenho atual quando uma resposta antiga termina depois.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    layout = (EDITOR_ROOT / "src/layout.ts").read_text(encoding="utf-8")
+
+    assert "const drawingLoadRequestRef = useRef(0)" in app
+    assert "const isCurrentRequest = () => drawingLoadRequestRef.current === requestId" in app
+    assert "const selectedSet = new Set(selectedIds)" in app
+    assert "resolveNodeCollisions(nodes, finalPositions, lockedIds)" in layout
+    assert "Number.isFinite(manual.x)" in layout
+    assert "export function getCycleEdges" in layout
 
 
 def test_backlog_can_hide_completed_tasks_with_a_visible_red_separator():

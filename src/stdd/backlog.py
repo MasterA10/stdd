@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from .draw import draw_directory, facts_directory, read_draw, read_draw_index
+from .draw import EDGE_CONDITIONS, draw_directory, facts_directory, read_draw, read_draw_index
 
 
 BACKLOG_VERSION = 1
@@ -16,6 +16,9 @@ VALID_TASK_STATUSES = {"pending", "in_progress", "done"}
 VALID_TEST_STATUSES = {"missing", "in_progress", "done"}
 VALID_EXECUTION_PHASES = {None, "test", "implementation"}
 VALID_CHECKLIST_PHASES = {"test", "implementation"}
+DEFAULT_MIN_TASK_INTERVAL_SECONDS = 0
+DEFAULT_TASK_BATCH_SIZE = 1
+VALID_TASK_BATCH_SCOPES = {"task", "node"}
 
 
 def _get_backlog_config(root: Path) -> dict[str, Any]:
@@ -34,6 +37,30 @@ def _get_backlog_config(root: Path) -> dict[str, Any]:
     return {}
 
 
+def _execution_config(root: Path) -> dict[str, Any]:
+    """Normaliza as opções de cursor sem quebrar configurações antigas."""
+    config = _get_backlog_config(root)
+    size = config.get("task_batch_size", DEFAULT_TASK_BATCH_SIZE)
+    try:
+        size = max(1, min(5, int(size)))
+    except (TypeError, ValueError):
+        size = DEFAULT_TASK_BATCH_SIZE
+    scope = config.get("task_batch_scope", "task")
+    if scope not in VALID_TASK_BATCH_SCOPES:
+        scope = "task"
+    interval = config.get("min_task_interval_seconds", config.get("task_min_interval_seconds", config.get("minimum_task_interval_seconds", DEFAULT_MIN_TASK_INTERVAL_SECONDS)))
+    try:
+        interval = max(0, int(interval))
+    except (TypeError, ValueError):
+        interval = DEFAULT_MIN_TASK_INTERVAL_SECONDS
+    return {
+        "task_batch_size": size,
+        "task_batch_scope": scope,
+        "min_task_interval_seconds": interval,
+        "lease_seconds": max(3, int(config.get("lease_seconds", 900) or 900)),
+    }
+
+
 def get_backlog_config(root: Path) -> dict[str, Any]:
     """Retorna a configuração da seção 'backlog' em .stdd/config.json."""
     return _get_backlog_config(root)
@@ -44,6 +71,9 @@ def set_backlog_config(
     verification_interval: int | None = None,
     bootstrap_task: bool | None = None,
     final_verification_task: bool | None = None,
+    task_batch_size: int | None = None,
+    task_batch_scope: str | None = None,
+    min_task_interval_seconds: int | None = None,
 ) -> dict[str, Any]:
     """Atualiza a seção 'backlog' em .stdd/config.json de forma persistente."""
     config_path = root / ".stdd" / "config.json"
@@ -65,6 +95,18 @@ def set_backlog_config(
         backlog_cfg["bootstrap_task"] = bool(bootstrap_task)
     if final_verification_task is not None:
         backlog_cfg["final_verification_task"] = bool(final_verification_task)
+    if task_batch_size is not None:
+        if not 1 <= int(task_batch_size) <= 5:
+            raise ValueError("task_batch_size deve estar entre 1 e 5")
+        backlog_cfg["task_batch_size"] = int(task_batch_size)
+    if task_batch_scope is not None:
+        if task_batch_scope not in VALID_TASK_BATCH_SCOPES:
+            raise ValueError("task_batch_scope deve ser task ou node")
+        backlog_cfg["task_batch_scope"] = task_batch_scope
+    if min_task_interval_seconds is not None:
+        if int(min_task_interval_seconds) < 0:
+            raise ValueError("min_task_interval_seconds não pode ser negativo")
+        backlog_cfg["min_task_interval_seconds"] = int(min_task_interval_seconds)
     config_path.parent.mkdir(parents=True, exist_ok=True)
     config_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return backlog_cfg
@@ -86,6 +128,26 @@ def _create_injected_bootstrap_task() -> dict[str, Any]:
         "branch": {"id": "system:bootstrap", "position": 1},
         "branches": [{"id": "system:bootstrap", "position": 1}],
     }
+
+
+def bootstrap_report(root: Path) -> dict[str, Any]:
+    """Audita os pré-requisitos mínimos antes da primeira task do backlog."""
+    documents = _draw_documents(root)
+    root_draw = next(
+        (document for document in documents if document.get("_hierarchy", {}).get("level") == 1 and document.get("kind") == "system"),
+        None,
+    )
+    from .setup import bootstrap_design_status
+
+    checks = {
+        "system_level_1": {"status": "passed" if root_draw else "blocked", "reason": None if root_draw else "system_level_1_missing"},
+        "design": bootstrap_design_status(root),
+        "env_example": {"status": "passed" if (root / ".env.example").is_file() else "blocked", "reason": None if (root / ".env.example").is_file() else "env_example_missing"},
+        "stdd_config": {"status": "passed" if (root / ".stdd" / "config.json").is_file() else "blocked", "reason": None if (root / ".stdd" / "config.json").is_file() else "config_missing"},
+        "draw_storage": {"status": "passed" if (root / ".stdd" / "draws" / "index.json").is_file() else "blocked", "reason": None if (root / ".stdd" / "draws" / "index.json").is_file() else "draw_storage_missing"},
+    }
+    failures = [name for name, check in checks.items() if check.get("status") != "passed"]
+    return {"status": "blocked" if failures else "passed", "checks": checks, "failures": failures}
 
 
 def _create_injected_l2_batch_verify_task(target_nodes: list[dict[str, Any]]) -> dict[str, Any]:
@@ -156,6 +218,32 @@ def _create_injected_l2_batch_verify_task(target_nodes: list[dict[str, Any]]) ->
         "checklist_state": {"test": True, "implementation": False},
         "branch": first.get("branch", {}),
         "branches": first.get("branches", []),
+    }
+
+
+def _create_injected_l2_association_task(target_nodes: list[dict[str, Any]]) -> dict[str, Any]:
+    """Cria a segunda auditoria L2: associação de código e testes reais."""
+    if not target_nodes:
+        raise ValueError("lista de nós vazia para associação")
+    first = target_nodes[0]
+    ids = ":".join(str(node.get("node_id")) for node in target_nodes)
+    draw_id = first.get("draw_id", "system")
+    task_id = f"task:associate:{draw_id}:batch:{ids}" if len(target_nodes) > 1 else f"task:associate:{draw_id}:node:{first.get('node_id')}"
+    return {
+        "id": task_id,
+        "draw_id": draw_id,
+        "backlog_id": first.get("backlog_id"),
+        "parent_task_id": first.get("id"),
+        "node_id": first.get("node_id"),
+        "label": "Associação de símbolos, arquivos e testes",
+        "description": "Associar os símbolos qualificados, arquivos de implementação, views, contratos e testes reais aos nós L2 e aos subfluxos auditados, sem usar placeholders.",
+        "level": 2,
+        "status": "in_progress",
+        "target_task_ids": [node.get("id") for node in target_nodes],
+        "verified_nodes": deepcopy([{"node_id": node.get("node_id"), "label": node.get("label", ""), "symbols": node.get("symbols", [])} for node in target_nodes]),
+        "test_status": "not-required",
+        "test_evidence": {"status": "not-required", "reason": "associação posterior à auditoria funcional"},
+        "checklist_state": {"test": True, "implementation": False},
     }
 
 
@@ -764,6 +852,7 @@ def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]
     _refresh_test_statuses(root, tasks)
     _refresh_checklist_states(tasks, previous_tasks)
     previous_execution = previous.get("execution", {}) if isinstance(previous.get("execution", {}), dict) else {}
+    execution_config = _execution_config(root)
     current_phase = previous_execution.get("current_phase")
     valid_task_ids = {task["id"] for task in tasks}
     prev_id = previous_execution.get("current_task_id")
@@ -811,7 +900,16 @@ def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]
             "bootstrap_done": previous_execution.get("bootstrap_done", False),
             "verified_l2_task_ids": previous_execution.get("verified_l2_task_ids", []),
             "current_verified_batch_node_ids": previous_execution.get("current_verified_batch_node_ids", []),
+            "current_association_node_ids": previous_execution.get("current_association_node_ids", []),
             "final_verification_done": previous_execution.get("final_verification_done", False),
+            "lease_id": previous_execution.get("lease_id"),
+            "lease_started_at": previous_execution.get("lease_started_at"),
+            "lease_expires_at": previous_execution.get("lease_expires_at"),
+            "last_claim_at": previous_execution.get("last_claim_at"),
+            "last_transition_at": previous_execution.get("last_transition_at"),
+            "lease_seconds": execution_config["lease_seconds"],
+            "task_batch_size": execution_config["task_batch_size"],
+            "task_batch_scope": execution_config["task_batch_scope"],
             "completed_branches": [],
             "branches": execution_branches,
         },
@@ -997,6 +1095,34 @@ def _clear_execution_cursor(execution: dict[str, Any]) -> None:
     execution["current_phase"] = None
     execution["current_parent_task_id"] = None
     execution["current_subtask_id"] = None
+    execution["lease_id"] = None
+    execution["lease_started_at"] = None
+    execution["lease_expires_at"] = None
+    execution["last_transition_at"] = datetime.now(timezone.utc).isoformat()
+
+
+def _mark_claim(execution: dict[str, Any]) -> None:
+    """Registra lease/cursor de uma reserva sem esconder o histórico."""
+    now = datetime.now(timezone.utc)
+    lease_seconds = int(execution.get("lease_seconds", 900) or 900)
+    execution["lease_id"] = f"lease:{now.timestamp():.6f}"
+    execution["lease_started_at"] = now.isoformat()
+    execution["lease_expires_at"] = (now.timestamp() + lease_seconds)
+    execution["last_claim_at"] = now.isoformat()
+
+
+def _enforce_claim_window(execution: dict[str, Any], config: dict[str, Any]) -> None:
+    """Bloqueia somente avanço rápido configurado; reler a task atual é seguro."""
+    minimum = int(config.get("min_task_interval_seconds", 0) or 0)
+    previous = execution.get("last_transition_at")
+    if minimum <= 0 or not isinstance(previous, str):
+        return
+    try:
+        elapsed = (datetime.now(timezone.utc) - datetime.fromisoformat(previous)).total_seconds()
+    except ValueError:
+        return
+    if elapsed < minimum:
+        raise ValueError(f"janela mínima entre tasks ainda não terminou ({minimum} segundos)")
 
 
 def _parent_task(tasks: list[dict[str, Any]], task: dict[str, Any]) -> dict[str, Any]:
@@ -1029,11 +1155,13 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
     origin_nodes = []
     origin_edges = []
     access_paths = []
+    predecessor: dict[str, Any] | None = None
+    connection: dict[str, Any] | None = None
     
     draw_id = task.get("backlog_id")
     node_id = task.get("node_id")
     
-    if draw_id and node_id:
+    if draw_id is not None and node_id is not None:
         try:
             document = read_draw(root, draw_id)
             nodes = {n.get("id"): n for n in document.get("nodes", [])}
@@ -1047,12 +1175,38 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
                         label = from_node.get("label") or str(from_id)
                         condition = EDGE_CONDITIONS.get(edge.get("condition"), "então")
                         access_paths.append(f"Nó {label} → {condition} → Nó atual")
+                        if predecessor is None:
+                            predecessor = {
+                                "node_id": from_id,
+                                "label": from_node.get("label", ""),
+                                "description": from_node.get("description", ""),
+                                "questions": deepcopy(from_node.get("questions", [])),
+                                "symbols": _reference_symbols(from_node)[0],
+                            }
+                            connection = {
+                                "condition": edge.get("condition"),
+                                "condition_label": condition,
+                                "label": edge.get("label", ""),
+                                "description": edge.get("description", ""),
+                            }
         except Exception:
             pass
+
+    if phase == "test":
+        state = "tests_in_progress"
+    elif task.get("test_status") in {"missing", "in_progress"}:
+        state = "tests_missing"
+    elif task.get("status") == "in_progress":
+        state = "implementation_in_progress"
+    elif task.get("status") == "done":
+        state = "backlog_complete" if not any(item.get("status") != "done" for item in tasks) else "tests_ready"
+    else:
+        state = "tests_ready"
 
     response: dict[str, Any] = {
         "kind": kind,
         "phase": phase,
+        "state": state,
         "task": task,
         "parent_task": parent,
         "subtask": subtask,
@@ -1060,7 +1214,19 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
         "origin_nodes": origin_nodes,
         "origin_edges": origin_edges,
         "access_paths": access_paths,
+        "previous_node": predecessor,
+        "connection": connection,
+        "condition": connection.get("condition_label") if connection else None,
+        "path": access_paths[0] if access_paths else None,
     }
+    options = _execution_config(root)
+    if options["task_batch_size"] > 1 and task.get("id") in [item.get("id") for item in tasks]:
+        start = next(index for index, item in enumerate(tasks) if item.get("id") == task.get("id"))
+        candidates = [item for item in tasks[start:] if item.get("status") != "done"]
+        if options["task_batch_scope"] == "node":
+            candidates = [item for item in candidates if item.get("node_id") == task.get("node_id")]
+        response["batch"] = [{"id": item.get("id"), "label": item.get("label", "")} for item in candidates[:options["task_batch_size"]]]
+        response["batch_size"] = len(response["batch"])
     if instruction is not None:
         response["instruction"] = instruction
     return response
@@ -1155,6 +1321,7 @@ def next_backlog_test(root: Path) -> dict[str, Any]:
     if task.get("status") == "pending":
         task["status"] = "in_progress"
     execution["current_task_id"] = task["id"]
+    _mark_claim(execution)
     execution["current_backlog_id"] = task.get("backlog_id")
     execution["current_branch_id"] = task.get("branch", {}).get("id")
     execution["branch_position"] = task.get("branch", {}).get("position")
@@ -1177,13 +1344,17 @@ def next_backlog_task(root: Path, verification_interval: int | None = None) -> d
     current_id = execution.get("current_task_id")
     current_phase = execution.get("current_phase")
     config = _get_backlog_config(root)
+    execution_options = _execution_config(root)
     if verification_interval is not None:
         config = {**config, "l2_verification_interval": int(verification_interval)}
+    if not current_id:
+        _enforce_claim_window(execution, execution_options)
 
     # 1. Se já há uma task em andamento no cursor:
     if current_id:
         if current_id == "task:bootstrap":
             task = _create_injected_bootstrap_task()
+            task["checks"] = bootstrap_report(root)
             return _task_context(
                 root,
                 payload,
@@ -1211,6 +1382,12 @@ def next_backlog_task(root: Path, verification_interval: int | None = None) -> d
                     "backlog-task",
                     f"Audite o código implementado para os nós ({labels_str}) e seus subfluxos. Valide se a implementação de produção cumpre fielmente a especificação (regras, persistência, validações e integração real); não altere o fluxo nem o desenho.",
                 )
+        if current_id.startswith("task:associate:"):
+            batch_node_ids = execution.get("current_association_node_ids", [])
+            tasks_by_id = {t["id"]: t for t in payload["tasks"]}
+            target_nodes = [tasks_by_id[nid] for nid in batch_node_ids if nid in tasks_by_id]
+            task = _create_injected_l2_association_task(target_nodes) if target_nodes else {"id": current_id, "label": "Associação de símbolos", "status": "in_progress"}
+            return _task_context(root, payload, task, "implementation", "backlog-task", "Associe símbolos, arquivos e testes reais no nó correspondente e valide as referências.")
         if current_id == "task:final:verification":
             task = _create_injected_final_task()
             return _task_context(
@@ -1244,7 +1421,9 @@ def next_backlog_task(root: Path, verification_interval: int | None = None) -> d
     bootstrap_enabled = config.get("bootstrap_task", config.get("bootstrap_enabled", False))
     if has_tasks and bootstrap_enabled and not execution.get("bootstrap_done", False):
         task = _create_injected_bootstrap_task()
+        task["checks"] = bootstrap_report(root)
         execution["current_task_id"] = task["id"]
+        _mark_claim(execution)
         execution["current_backlog_id"] = "system"
         execution["current_phase"] = "implementation"
         write_backlog(root, payload)
@@ -1274,6 +1453,7 @@ def next_backlog_task(root: Path, verification_interval: int | None = None) -> d
             target_nodes = unverified[:batch_count]
             task = _create_injected_l2_batch_verify_task(target_nodes)
             execution["current_task_id"] = task["id"]
+            _mark_claim(execution)
             execution["current_verified_batch_node_ids"] = [n["id"] for n in target_nodes]
             execution["current_backlog_id"] = target_nodes[0].get("backlog_id")
             execution["current_phase"] = "implementation"
@@ -1296,6 +1476,7 @@ def next_backlog_task(root: Path, verification_interval: int | None = None) -> d
         if has_tasks and final_enabled and not execution.get("final_verification_done", False):
             final_task = _create_injected_final_task()
             execution["current_task_id"] = final_task["id"]
+            _mark_claim(execution)
             execution["current_backlog_id"] = "system"
             execution["current_phase"] = "implementation"
             write_backlog(root, payload)
@@ -1321,6 +1502,7 @@ def next_backlog_task(root: Path, verification_interval: int | None = None) -> d
     # 7. Reserva a task normal de implementação
     task["status"] = "in_progress"
     execution["current_task_id"] = task["id"]
+    _mark_claim(execution)
     execution["current_backlog_id"] = task.get("backlog_id")
     execution["current_branch_id"] = task["branch"]["id"]
     execution["branch_position"] = task["branch"]["position"]
@@ -1345,6 +1527,10 @@ def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
     if task_id == "task:bootstrap":
         if current_id != "task:bootstrap":
             raise ValueError("task atual não está em andamento")
+        config = _get_backlog_config(root)
+        checks = bootstrap_report(root)
+        if config.get("bootstrap_strict", False) and checks["status"] != "passed":
+            raise ValueError("bootstrap bloqueado: " + ", ".join(checks["failures"]))
         execution["bootstrap_done"] = True
         _clear_execution_cursor(execution)
         write_backlog(root, payload)
@@ -1373,6 +1559,16 @@ def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
                 verified.append(n["id"])
 
         execution.pop("current_verified_batch_node_ids", None)
+        if _get_backlog_config(root).get("l2_post_verification_tasks", False):
+            association = _create_injected_l2_association_task(target_nodes)
+            execution["current_task_id"] = association["id"]
+            execution["current_association_node_ids"] = [node["id"] for node in target_nodes]
+            execution["current_phase"] = "implementation"
+            _mark_claim(execution)
+            write_backlog(root, payload)
+            response = _task_context(root, payload, association, "implementation", "backlog-task", "Associe símbolos, arquivos e testes reais no nó correspondente e valide as referências.")
+            response.update({"status": "in_progress"})
+            return response
         _clear_execution_cursor(execution)
         write_backlog(root, payload)
         task = _create_injected_l2_batch_verify_task(target_nodes) if target_nodes else {
@@ -1380,6 +1576,17 @@ def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
         }
         task["status"] = "done"
         task["checklist_state"] = {"test": True, "implementation": True}
+        response = _task_context(root, payload, task, "implementation", "backlog-complete")
+        response.update({"status": "done", "remaining": sum(1 for item in payload["tasks"] if item.get("status") != "done")})
+        return response
+
+    if task_id.startswith("task:associate:"):
+        if current_id != task_id:
+            raise ValueError("task atual não está em andamento")
+        execution.pop("current_association_node_ids", None)
+        _clear_execution_cursor(execution)
+        write_backlog(root, payload)
+        task = {"id": task_id, "label": "Associação de símbolos, arquivos e testes", "status": "done", "level": 2}
         response = _task_context(root, payload, task, "implementation", "backlog-complete")
         response.update({"status": "done", "remaining": sum(1 for item in payload["tasks"] if item.get("status") != "done")})
         return response

@@ -207,9 +207,6 @@
       ]
     }
   ],
-  "tradeoffs": [
-    "O fluxo privilegia rastreabilidade e revisão explícita; isso aumenta o número de artefatos, mas evita declarar comportamento não verificado."
-  ],
   "notes": [
     "As quatro cápsulas com descendentes descrevem os caminhos técnicos mais relevantes do próprio STDD."
   ]

@@ -1671,7 +1671,7 @@
         const values = await openFormDialog('Novo Desenho', 'Crie um novo desenho vazio no repositório.', [
           { name: 'title', label: 'Título', value: 'Novo desenho', required: true },
           { name: 'subtitle', label: 'Descrição', value: '', type: 'textarea' },
-          { name: 'kind', label: 'Tipo', value: 'feature', options: ['feature', 'flow', 'architecture', 'tradeoff', 'subflow'].map(k => ({ value: k, label: k })) }
+          { name: 'kind', label: 'Tipo', value: 'feature', options: ['feature', 'flow', 'architecture', 'subflow'].map(k => ({ value: k, label: k })) }
         ]);
         if (!values || !values.title.trim()) return;
 
@@ -1703,7 +1703,7 @@
         const values = await openFormDialog('Detalhes do Desenho', 'Modifique os detalhes lógicos do cabeçalho.', [
           { name: 'title', label: 'Título', value: current.title || '', required: true },
           { name: 'subtitle', label: 'Descrição', value: current.subtitle || '', type: 'textarea' },
-          { name: 'kind', label: 'Tipo', value: current.kind || 'feature', options: ['feature', 'flow', 'architecture', 'tradeoff', 'subflow'].map(k => ({ value: k, label: k })) }
+          { name: 'kind', label: 'Tipo', value: current.kind || 'feature', options: ['feature', 'flow', 'architecture', 'subflow'].map(k => ({ value: k, label: k })) }
         ]);
         if (!values) return;
 

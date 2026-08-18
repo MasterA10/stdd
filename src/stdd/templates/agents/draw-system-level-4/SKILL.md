@@ -71,6 +71,10 @@ stdd log "Rastreia codebase do sistema no nível 4" --type implementacao
 
 Entregar IDs, arquivos e símbolos resolvidos, referências `unresolved` ou `drift`, queries, contratos, testes, limitações e o recorte para o `$create-tests`. O `$implement` só pode seguir após testes vermelhos aprovados.
 
+## Regras do ciclo interativo
+
+Trate erros como consequências condicionais (`se`/`ou`) e valide no ponto correto antes dos efeitos. Mantenha funcionalidades ainda não implementadas terminais no grupo `Não implementado`. O nível 4 também segue TDD: uma task por interação, `backlog test` antes da produção, integração comprovada por API, persistência e validações reais e `backlog complete` pelo ID recebido.
+
 ## Regras gerais de todos os níveis
 
 O JSON é a fonte de verdade. Não criar HTML, CSS, JavaScript, `request.md`, `scenarios.md` ou cópia intermediária. Não gravar layout, cor, posição, data ou viewport. Toda relação deve apontar para nós existentes; toda etapa de fluxo deve apontar para nó existente. Não registrar segredos.

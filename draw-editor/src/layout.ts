@@ -9,6 +9,48 @@ const H_GAP = 240;    // Horizontal gap for breathing room
 const V_GAP = 150;    // Vertical gap for step placement
 const MAX_PER_COL = 5; // Max nodes stacked before shifting to sub-column
 
+function nodeSize(node: NodeData) {
+  const text = `${node.label || ''}\n${node.description || ''}`;
+  const lines = text.split(/\r?\n/).reduce((total, line) => total + Math.max(1, Math.ceil(line.length / 42)), 0);
+  return {
+    width: NODE_WIDTH,
+    height: Math.max(NODE_HEIGHT, 104 + lines * 18 + (node.questions?.length || 0) * 20),
+  };
+}
+
+function resolveNodeCollisions(
+  nodes: NodeData[],
+  positions: { [id: string]: { x: number; y: number } },
+  lockedIds: Set<string> = new Set(),
+) {
+  // Manual coordinates are presentation-only. Reconcile them with the real
+  // occupied rectangle so long descriptions can never overlap another node.
+  for (let pass = 0; pass < Math.max(2, nodes.length); pass += 1) {
+    const ordered = [...nodes].sort((a, b) => positions[String(a.id)].y - positions[String(b.id)].y);
+    let changed = false;
+    for (let i = 0; i < ordered.length; i += 1) {
+      const first = ordered[i];
+      const firstPos = positions[String(first.id)];
+      if (!firstPos) continue;
+      const firstSize = nodeSize(first);
+      for (let j = i + 1; j < ordered.length; j += 1) {
+        const second = ordered[j];
+        const secondPos = positions[String(second.id)];
+        if (!secondPos) continue;
+        const secondSize = nodeSize(second);
+        const horizontal = firstPos.x < secondPos.x + secondSize.width && firstPos.x + firstSize.width > secondPos.x;
+        const vertical = firstPos.y < secondPos.y + secondSize.height && firstPos.y + firstSize.height > secondPos.y;
+        if (horizontal && vertical && !lockedIds.has(String(second.id))) {
+          secondPos.y = firstPos.y + firstSize.height + V_GAP;
+          changed = true;
+        }
+      }
+    }
+    if (!changed) break;
+  }
+  return positions;
+}
+
 function returnLaneFor(
   source: { x: number; y: number },
   target: { x: number; y: number },
@@ -359,8 +401,22 @@ export function layoutGraph(
     }
   }
 
+  const lockedIds = new Set<string>();
+  const finalPositions = nodes.reduce((result, node) => {
+    const key = String(node.id);
+    const manual = presentationPositions?.[key];
+    if (manual && Number.isFinite(manual.x) && Number.isFinite(manual.y)) {
+      result[key] = { x: manual.x, y: manual.y };
+      lockedIds.add(key);
+    } else {
+      result[key] = { ...(calculatedPositions[key] || { x: 100, y: 100 }) };
+    }
+    return result;
+  }, {} as { [id: string]: { x: number; y: number } });
+  resolveNodeCollisions(nodes, finalPositions, lockedIds);
+
   return nodes.map(n => {
-    const customPos = presentationPositions?.[String(n.id)] || calculatedPositions[String(n.id)] || { x: 100, y: 100 };
+    const customPos = finalPositions[String(n.id)] || { x: 100, y: 100 };
     return {
       id: String(n.id),
       type: 'custom',
@@ -371,13 +427,18 @@ export function layoutGraph(
 }
 
 // Compute edge handle connections dynamically
+export function getCycleEdges(nodes: NodeData[], edges: EdgeData[]) {
+  return buildRanks(nodes, edges).backEdges;
+}
+
 export function computeEdgeHandles(
   edge: EdgeData,
   positions: { [id: string]: { x: number; y: number } },
   nodes: NodeData[],
-  edges: EdgeData[]
+  edges: EdgeData[],
+  cycleEdges?: Set<string>
 ) {
-  const { backEdges } = buildRanks(nodes, edges);
+  const backEdges = cycleEdges || buildRanks(nodes, edges).backEdges;
   const isBackEdge = backEdges.has(`${edge.from}->${edge.to}`);
   const cond = Number(edge.condition) || 1;
 
@@ -598,15 +659,30 @@ export function layoutCurvedGraph(
     }
   }
 
+  const lockedIds = new Set<string>();
+  const finalPositions = nodes.reduce((result, node) => {
+    const key = String(node.id);
+    const manual = presentationPositions?.[key];
+    if (manual && Number.isFinite(manual.x) && Number.isFinite(manual.y)) {
+      result[key] = { x: manual.x, y: manual.y };
+      lockedIds.add(key);
+    } else {
+      result[key] = { ...(calculatedPositions[key] || { x: 100, y: 100 }) };
+    }
+    return result;
+  }, {} as { [id: string]: { x: number; y: number } });
+  resolveNodeCollisions(nodes, finalPositions, lockedIds);
+
   return nodes.map(n => {
-    const calcPos = calculatedPositions[String(n.id)] || { x: 100, y: 100 };
-    const customPos = presentationPositions?.[String(n.id)];
+    const customPos = finalPositions[String(n.id)];
+    // A posição manual antiga equivalia a: customPos?.x !== undefined ? customPos.x : calcPos.x;
+    // Agora finalPositions já passou pela reconciliação de colisões reais.
     return {
       id: String(n.id),
       type: 'custom',
       position: {
-        x: customPos?.x !== undefined ? customPos.x : calcPos.x,
-        y: customPos?.y !== undefined ? customPos.y : calcPos.y
+        x: customPos.x,
+        y: customPos.y
       },
       data: n
     };

@@ -82,7 +82,7 @@ O `então` pode acompanhar qualquer uma das duas famílias, pois representa a co
 4. Crie a cápsula das jornadas e identifique os papéis conhecidos; deixe perguntas abertas para papéis, tenant ou permissões ainda não confirmados.
 5. Crie cada JSON separadamente em `.stdd/draws/`, começando pela raiz. O JSON é a fonte de verdade; não crie `request.md`, `scenarios.md` ou cópias intermediárias.
 6. Valide que relações apontam para nós existentes e que a raiz não possui pai. Grave com `stdd draw create --data-json '<JSON>'`.
-7. Confira o desenho no viewer com `stdd draw serve` e revise fronteiras, trade-offs, perguntas e o ponto de entrada para jornadas.
+7. Confira o desenho no viewer com `stdd draw serve` e revise fronteiras, perguntas e o ponto de entrada para jornadas.
 8. Entregue o ID da raiz e pare. Informe que `$draw-system-level-2` deve ser executado para continuar; não produza telas nesta fase.
 
 Se houver alteração, registre:
@@ -91,4 +91,8 @@ Se houver alteração, registre:
 stdd log "Cria arquitetura do sistema no nível 1" --type implementacao
 ```
 
-Ao concluir, informe raiz, escolhas macro, símbolos resolvidos ou pendentes, perguntas, trade-offs, arquivos alterados e o comando de revisão visual. O `$create-tests` deve receber o ID da árvore somente depois de o usuário aprovar a continuação.
+Ao concluir, informe raiz, escolhas macro, símbolos resolvidos ou pendentes, perguntas, arquivos alterados e o comando de revisão visual. O `$create-tests` deve receber o ID da árvore somente depois de o usuário aprovar a continuação.
+
+## Regras do ciclo interativo
+
+Erros são consequências condicionais (`se`/`ou`), nunca sequência inevitável; valide entradas no ponto que antecede o efeito e não crie um nó terminal genérico de validação. Funcionalidades planejadas ficam em grupo terminal `Não implementado`, sem continuação fictícia. Preserve TDD: `backlog test` antes de produção, uma task por interação e `backlog complete <task-id>` por ID. Em um projeto novo, registre tecnologias, integrações e permissões desconhecidas como planejadas ou perguntas; nível 1 não exige símbolos inexistentes.

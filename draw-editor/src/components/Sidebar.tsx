@@ -26,6 +26,8 @@ interface SidebarProps {
   staticAnalysisKpis: StaticAnalysisKpiReport | null;
   backlog: BacklogDocument | null;
   onClaimBacklogTask: () => void;
+  onClaimBacklogTest: () => void;
+  onRefreshBacklog: () => void;
   onCompleteBacklogTask: (taskId: string) => void;
   onUpdateBacklogChecklist: (taskId: string, phase: 'test' | 'implementation', checked: boolean) => void;
 }
@@ -115,6 +117,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   staticAnalysisKpis,
   backlog,
   onClaimBacklogTask,
+  onClaimBacklogTest,
+  onRefreshBacklog,
   onCompleteBacklogTask,
   onUpdateBacklogChecklist
 }) => {
@@ -525,7 +529,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       <div className="sidebar-content">
         {activeTab === 'backlog' && (
-          <BacklogPanel backlog={backlog} onClaimTask={onClaimBacklogTask} onCompleteTask={onCompleteBacklogTask} onUpdateChecklist={onUpdateBacklogChecklist} />
+          <BacklogPanel backlog={backlog} onClaimTask={onClaimBacklogTask} onClaimTest={onClaimBacklogTest} onRefresh={onRefreshBacklog} onCompleteTask={onCompleteBacklogTask} onUpdateChecklist={onUpdateBacklogChecklist} />
         )}
 
         {/* Tab 0: Drawings list */}

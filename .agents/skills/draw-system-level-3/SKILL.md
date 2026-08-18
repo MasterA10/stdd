@@ -127,7 +127,7 @@ Para cada lote:
 3. Validar nós, arestas, fluxos, condições, grupos, `draw_ref`, pais, raiz, terminais e os critérios estáticos de quatro nós e 80 caracteres.
 4. Revisar no viewer com `stdd draw serve`.
 5. Conferir que cada ação de usuário comprovada possui um nó-gatilho conectado e que nenhum caminho foi reduzido a um fluxo genérico.
-6. Entregar IDs, telas concluídas, regras cobertas, `code_refs` resolvidos/pendentes, folhas não implementadas, perguntas, trade-offs, limitações e próximo lote.
+6. Entregar IDs, telas concluídas, regras cobertas, `code_refs` resolvidos/pendentes, folhas não implementadas, perguntas, limitações e próximo lote.
 
 Ao alterar o desenho, registrar:
 
@@ -136,3 +136,7 @@ stdd log "Detalha comportamento do sistema no nível 3" --type implementacao
 ```
 
 Depois da última fase, entregar a árvore completa ao `$create-tests`. O Create Tests Agent deve ler os JSONs diretamente, transformar caminhos implementados em testes e tratar folhas não implementadas como escopo ausente. `$implement` só pode ser chamado depois de testes vermelhos aprovados.
+
+## Regras do ciclo interativo
+
+Erros são consequências condicionais (`se`/`ou`), nunca sequência inevitável; validações pertencem ao ponto que antecede a ação e não a um terminal genérico. Funcionalidades planejadas são terminais no grupo `Não implementado`. Execute `backlog test` antes de produção, uma task por interação, testes de integração com API, persistência, validações e efeitos reais, e `backlog complete` com o ID individual.

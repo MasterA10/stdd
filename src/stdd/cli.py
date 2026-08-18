@@ -31,6 +31,7 @@ from .draw import (
     analyze_draw_contract,
     analyze_draw_structure,
     collect_draw_symbols,
+    consume_observation,
     create_draw,
     find_addressed_questions,
     format_draw_answers,
@@ -91,6 +92,11 @@ def _compact_backlog_response(response: dict[str, object]) -> dict[str, object]:
         "node_id": task.get("node_id"),
         "description": task.get("description"),
         "symbols": task.get("symbols") or [],
+        "previous_node": response.get("previous_node"),
+        "connection": response.get("connection"),
+        "condition": response.get("condition"),
+        "path": response.get("path"),
+        "state": response.get("state"),
     }
     if parent.get("id") and parent.get("id") != task.get("id"):
         compact["parent"] = parent.get("label")
@@ -139,6 +145,16 @@ def _format_backlog_response(response: dict[str, object]) -> str:
         lines.append(f"ID: {compact['task_id']}")
     if compact.get("description"):
         lines.append(f"Descrição: {compact['description']}")
+    if compact.get("previous_node"):
+        previous = compact["previous_node"]
+        lines.append(f"Nó anterior: {previous.get('label', previous.get('node_id'))}")
+        if previous.get("description"):
+            lines.append(f"Descrição anterior: {previous['description']}")
+    if compact.get("connection"):
+        connection = compact["connection"]
+        lines.append(f"Conexão: {connection.get('condition_label', 'então')}" + (f" — {connection.get('label')}" if connection.get('label') else ""))
+    if compact.get("path"):
+        lines.append(f"Caminho de acesso: {compact['path']}")
     verified_nodes = compact.get("verified_nodes")
     if isinstance(verified_nodes, list) and len(verified_nodes) > 1:
         lines.append(f"Nós no lote ({len(verified_nodes)}):")
@@ -341,16 +357,22 @@ def backlog_config(
     interval: Optional[int] = typer.Option(None, "--interval", "--verification-interval", help="Define o intervalo de nós L2 para injeção de tarefas de verificação."),
     bootstrap: Optional[bool] = typer.Option(None, "--bootstrap/--no-bootstrap", help="Habilita ou desabilita a task de bootstrap inicial."),
     final_verification: Optional[bool] = typer.Option(None, "--final-verification/--no-final-verification", help="Habilita ou desabilita a task de verificação final E2E."),
+    task_batch_size: Optional[int] = typer.Option(None, "--task-batch-size", min=1, max=5, help="Quantidade de tasks entregues no lote (1 a 5)."),
+    task_batch_scope: Optional[str] = typer.Option(None, "--task-batch-scope", help="Escopo do lote: task ou node."),
+    min_task_interval_seconds: Optional[int] = typer.Option(None, "--min-task-interval-seconds", min=0, help="Janela mínima anti-script entre avanços."),
 ) -> None:
     """Exibe ou atualiza as configurações do backlog em .stdd/config.json."""
     try:
         root = project_root()
-        if interval is not None or bootstrap is not None or final_verification is not None:
+        if interval is not None or bootstrap is not None or final_verification is not None or task_batch_size is not None or task_batch_scope is not None or min_task_interval_seconds is not None:
             updated = set_backlog_config(
                 root,
                 verification_interval=interval,
                 bootstrap_task=bootstrap,
                 final_verification_task=final_verification,
+                task_batch_size=task_batch_size,
+                task_batch_scope=task_batch_scope,
+                min_task_interval_seconds=min_task_interval_seconds,
             )
             typer.echo(f"Configuração do backlog atualizada: {json.dumps(updated, ensure_ascii=False)}")
         else:
@@ -461,10 +483,13 @@ def draw_symbols() -> None:
 
 
 @draw_app.command("questions")
-def draw_questions() -> None:
-    """Localiza perguntas abertas marcadas com @stdd para o Draw Interaction."""
+def draw_questions(
+    tag: Optional[str] = typer.Option(None, "--tag", "-t", help="Tag a filtrar (@stdd, @obs, @developer, ou todas por padrão)."),
+    answered: bool = typer.Option(False, "--answered", help="Inclui respostas; para observações use com --tag obs."),
+) -> None:
+    """Localiza perguntas ou anotações abertas marcadas com @stdd, @obs ou @developer."""
     try:
-        questions = find_addressed_questions(project_root())
+        questions = find_addressed_questions(project_root(), tag=tag, answered=answered)
     except (OSError, ValueError, RuntimeError) as error:
         typer.echo(f"Erro: {error}", err=True)
         raise typer.Exit(1)
@@ -472,16 +497,36 @@ def draw_questions() -> None:
 
 
 @draw_app.command("answer")
-def draw_answer() -> None:
-    """Entrega perguntas pendentes em linguagem humana, agrupadas por Draw e nó.
+def draw_answer(
+    tag: Optional[str] = typer.Option(None, "--tag", "-t", help="Tag a filtrar (@stdd, @obs, @developer, ou todas por padrão)."),
+) -> None:
+    """Entrega perguntas e observações pendentes em linguagem humana, agrupadas por Draw e nó.
     Mostra símbolos associados, arquivos, evidências e limitações sem despejar JSON.
     """
     try:
-        questions = find_addressed_questions(project_root())
+        # A saída humana histórica continua podendo revisar todas as menções;
+        # o comando canônico de pendências é `draw questions`.
+        questions = find_addressed_questions(project_root(), tag=tag or "all")
     except (OSError, ValueError, RuntimeError) as error:
         typer.echo(f"Erro: {error}", err=True)
         raise typer.Exit(1)
-    typer.echo(format_draw_answers(questions))
+    typer.echo(format_draw_answers(questions, tag=tag))
+
+
+@draw_app.command("consume-observation")
+@draw_app.command("consume-obs")
+def draw_consume_observation(
+    draw_id: str = typer.Option(..., "--draw-id", help="ID do Draw que contém a observação."),
+    question_id: int = typer.Option(..., "--question-id", help="ID numérico da pergunta respondida."),
+    node_id: Optional[int] = typer.Option(None, "--node-id", help="Nó da observação; omita para pergunta geral."),
+) -> None:
+    """Consome explicitamente uma observação respondida e preserva sua resposta."""
+    try:
+        consumed = consume_observation(project_root(), draw_id, question_id, node_id)
+    except (OSError, ValueError, RuntimeError) as error:
+        typer.echo(f"Erro: {error}", err=True)
+        raise typer.Exit(1)
+    typer.echo(json.dumps({"status": "consumed", "observation": consumed}, ensure_ascii=False, indent=2))
 
 
 @draw_app.command("diff")

@@ -205,11 +205,6 @@
     }
   ],
   "flows": [],
-  "tradeoffs": [
-    "O estado operacional fica em arquivos JSON versionáveis; isso simplifica auditoria, mas não substitui um banco concorrente.",
-    "A análise estática é agnóstica no núcleo e delegada a adapters da stack; a qualidade depende da cobertura do adapter local.",
-    "O Draw Server é local e embutido no pacote, reduzindo dependências de frontend no projeto-alvo."
-  ],
   "notes": [
     "A arquitetura não detalha cliques, regras de negócio ou telas; esses aspectos pertencem ao desenho de jornadas.",
     "O ponto de entrada para o comportamento do sistema é o nó 8."

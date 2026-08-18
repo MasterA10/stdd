@@ -71,9 +71,11 @@ def logical_draw_payload(payload: dict[str, Any]) -> dict[str, Any]:
     Layout, cores, dimensões, rotas e datas são responsabilidade do renderer e do índice.
     """
     document = deepcopy(payload)
-    # DEPRECATED: tradeoffs removido do contrato ativo; aceito apenas na leitura
-    for key in PRESENTATION_KEYS | {"created_at", "updated_at", "tradeoffs"}:
+    for key in PRESENTATION_KEYS | {"created_at", "updated_at"}:
         document.pop(key, None)
+    # Draws antigos podem ainda carregar a chave, mas ela nunca volta a ser
+    # persistida no contrato atual.
+    document.pop("tradeoffs", None)
     for collection in ("groups", "nodes", "edges"):
         for item in document.get(collection, []):
             if isinstance(item, dict):
@@ -83,6 +85,29 @@ def logical_draw_payload(payload: dict[str, Any]) -> dict[str, Any]:
         if isinstance(node, dict):
             node.pop("type", None)
     return document
+
+
+def _answer_is_filled(answer: Any) -> bool:
+    """Considera false e zero como respostas válidas; só vazio textual falta."""
+    return answer is not None and not (isinstance(answer, str) and not answer.strip())
+
+
+def _draw_question_entries(document: dict[str, Any]):
+    """Percorre perguntas de nós e perguntas gerais sem inventar um node_id."""
+    general_questions = document.get("questions", [])
+    if isinstance(general_questions, list):
+        for question in general_questions:
+            if isinstance(question, dict):
+                yield None, None, question
+    for node in document.get("nodes", []):
+        if not isinstance(node, dict):
+            continue
+        questions = node.get("questions", [])
+        if not isinstance(questions, list):
+            continue
+        for question in questions:
+            if isinstance(question, dict):
+                yield node, node.get("id"), question
 
 
 def draw_directory(root: Path) -> Path:
@@ -111,6 +136,8 @@ def validate_draw_payload(payload: Any) -> list[str]:
     if not isinstance(payload, dict):
         return ["o desenho deve ser um objeto JSON"]
     violations: list[str] = []
+    if "tradeoffs" in payload:
+        violations.append("tradeoffs não faz parte do contrato ativo; use questions")
     draw_id = payload.get("id")
     if not _is_draw_id(draw_id):
         violations.append("id do desenho deve ser descritivo, minúsculo e seguro; use números somente nas entidades internas")
@@ -221,6 +248,58 @@ def validate_draw_payload(payload: Any) -> list[str]:
                     violations.append(f"{prefix} open não deve declarar options")
                 if answer is not None and not isinstance(answer, str):
                     violations.append(f"{prefix}.answer deve ser texto ou nulo")
+
+    general_questions = payload.get("questions", [])
+    if not isinstance(general_questions, list):
+        violations.append("questions deve ser uma lista")
+        general_questions = []
+    general_question_ids: set[int] = set()
+    for question_index, question in enumerate(general_questions):
+        prefix = f"questions[{question_index}]"
+        if not isinstance(question, dict) or not _is_numeric_id(question.get("id")):
+            violations.append(f"{prefix} precisa de id numérico")
+            continue
+        question_id = question["id"]
+        if question_id in general_question_ids:
+            violations.append(f"pergunta geral duplicada: {question_id}")
+        general_question_ids.add(question_id)
+        question_type = question.get("type")
+        if question_type not in QUESTION_TYPES:
+            violations.append(f"{prefix}.type deve ser choice, boolean ou open")
+        if not isinstance(question.get("prompt"), str) or not question["prompt"].strip():
+            violations.append(f"{prefix}.prompt é obrigatório")
+        if "required" in question and not isinstance(question["required"], bool):
+            violations.append(f"{prefix}.required deve ser booleano")
+        answer = question.get("answer")
+        if question_type == "choice":
+            options = question.get("options")
+            if not isinstance(options, list) or len(options) < 2:
+                violations.append(f"{prefix}.options deve conter pelo menos duas opções")
+                options = []
+            option_ids: set[int] = set()
+            for option_index, option in enumerate(options):
+                option_prefix = f"{prefix}.options[{option_index}]"
+                if not isinstance(option, dict) or not _is_numeric_id(option.get("id")):
+                    violations.append(f"{option_prefix} precisa de id numérico")
+                    continue
+                option_id = option["id"]
+                if option_id in option_ids:
+                    violations.append(f"opção duplicada em {prefix}: {option_id}")
+                option_ids.add(option_id)
+                if not isinstance(option.get("label"), str) or not option["label"].strip():
+                    violations.append(f"{option_prefix}.label é obrigatório")
+            if answer is not None and not (_is_numeric_id(answer) and answer in option_ids) and not isinstance(answer, str):
+                violations.append(f"{prefix}.answer deve apontar para uma opção existente ou conter uma resposta livre")
+        elif question_type == "boolean":
+            if "options" in question:
+                violations.append(f"{prefix} boolean não deve declarar options")
+            if answer is not None and not (isinstance(answer, bool) or (isinstance(answer, str) and bool(answer.strip()))):
+                violations.append(f"{prefix}.answer deve ser booleano ou conter uma resposta livre")
+        elif question_type == "open":
+            if "options" in question:
+                violations.append(f"{prefix} open não deve declarar options")
+            if answer is not None and not isinstance(answer, str):
+                violations.append(f"{prefix}.answer deve ser texto ou nulo")
 
     groups = payload.get("groups", [])
     if not isinstance(groups, list):
@@ -921,10 +1000,30 @@ def read_draw_index(root: Path) -> dict[str, Any]:
     return index
 
 
-def find_addressed_questions(root: Path) -> list[dict[str, Any]]:
-    """Localiza perguntas abertas endereçadas ao Draw Interaction nos desenhos.
-    Usa o índice para descobrir os desenhos e retorna somente perguntas com @stdd.
+def find_addressed_questions(
+    root: Path,
+    tag: str | None = None,
+    *,
+    answered: bool = False,
+) -> list[dict[str, Any]]:
+    """Localiza marcações endereçadas respeitando tags e estado da resposta.
+
+    O filtro padrão é o trabalho acionável do agente e do desenvolvedor.
+    Observações respondidas só entram quando ``tag=obs`` e ``answered=True``;
+    isso evita consumir contexto humano duas vezes por acidente.
     """
+    clean_tag = (tag or "").lower().lstrip("@").strip()
+    if not clean_tag or clean_tag in ("all", "default"):
+        pattern = r"@(stdd|obs|developer)"
+    elif clean_tag in ("dev", "developer"):
+        pattern = r"@developer"
+    elif clean_tag == "obs":
+        pattern = r"@obs"
+    elif clean_tag == "stdd":
+        pattern = r"@stdd"
+    else:
+        pattern = rf"@{re.escape(clean_tag)}"
+
     questions: list[dict[str, Any]] = []
     for entry in read_draw_index(root).get("draws", []):
         draw_id = entry.get("id") if isinstance(entry, dict) else None
@@ -939,8 +1038,16 @@ def find_addressed_questions(root: Path) -> list[dict[str, Any]]:
                     continue
                 prompt = question.get("prompt")
                 answer = question.get("answer")
-                unanswered = answer is None or (isinstance(answer, str) and not answer.strip())
-                if isinstance(prompt, str) and re.search(r"@stdd", prompt, re.IGNORECASE) and unanswered:
+                is_answered = _answer_is_filled(answer)
+                # O comando canônico de pendências não consome @obs. Para
+                # inspeção explícita, --tag obs --answered recupera a dupla.
+                include = is_answered if answered else not is_answered
+                if (
+                    isinstance(prompt, str)
+                    and re.search(pattern, prompt, re.IGNORECASE)
+                    and include
+                    and not (not clean_tag and re.search(r"@obs", prompt, re.IGNORECASE))
+                ):
                     node_code_refs = deepcopy(node.get("code_refs", []))
                     symbols = []
                     source_dependencies = []
@@ -971,34 +1078,89 @@ def find_addressed_questions(root: Path) -> list[dict[str, Any]]:
                         "question": prompt,
                         "prompt": prompt,
                         "answer": answer,
+                        "destination": "node",
                     })
+    # Perguntas gerais criadas por uma skill de arquitetura pertencem ao
+    # painel de melhorias e não a um nó visual.
+    for entry in read_draw_index(root).get("draws", []):
+        draw_id = entry.get("id") if isinstance(entry, dict) else None
+        if not isinstance(draw_id, str):
+            continue
+        document = read_draw(root, draw_id)
+        for node, node_id, question in _draw_question_entries({"questions": document.get("questions", [])}):
+            if node_id is not None:
+                continue
+            prompt = question.get("prompt")
+            answer = question.get("answer")
+            is_answered = _answer_is_filled(answer)
+            if not isinstance(prompt, str) or not re.search(pattern, prompt, re.IGNORECASE):
+                continue
+            if is_answered != answered:
+                continue
+            if not clean_tag and re.search(r"@obs", prompt, re.IGNORECASE):
+                continue
+            questions.append({
+                "draw_id": draw_id,
+                "draw_title": document.get("title", draw_id),
+                "draw_file": f".stdd/draws/{draw_id}.json",
+                "node_id": None,
+                "node_label": None,
+                "node_code_refs": [],
+                "symbols": [],
+                "source_dependencies": [],
+                "question_id": question.get("id"),
+                "type": question.get("type"),
+                "question": prompt,
+                "prompt": prompt,
+                "answer": answer,
+                "destination": "improvement",
+            })
     return questions
 
 
-def format_draw_answers(questions: list[dict[str, Any]]) -> str:
-    """Apresenta perguntas do Draw Interaction agrupadas em uma leitura humana.
+def format_draw_answers(questions: list[dict[str, Any]], tag: str | None = None) -> str:
+    """Apresenta perguntas e observações do Draw agrupadas em uma leitura humana.
     Inclui o nó, cada símbolo associado, arquivos e limitações sem imprimir JSON bruto.
     """
+    clean_tag = (tag or "").lower().lstrip("@").strip()
     if not questions:
-        return "Nenhuma pergunta @stdd pendente."
+        if clean_tag == "stdd":
+            return "Nenhuma pergunta @stdd pendente."
+        if clean_tag == "obs":
+            return "Nenhuma anotação @obs pendente."
+        return "Nenhuma pergunta ou observação pendente."
 
     grouped: dict[str, list[dict[str, Any]]] = {}
     for question in questions:
         draw_id = str(question.get("draw_id", "desenho desconhecido"))
         grouped.setdefault(draw_id, []).append(question)
 
-    lines = ["Perguntas do Draw Interaction", ""]
+    if clean_tag == "obs":
+        header = "Observações (@obs) dos Draws"
+    elif clean_tag == "stdd":
+        header = "Perguntas do Draw Interaction"
+    else:
+        header = "Perguntas e Observações dos Draws"
+
+    lines = [header, ""]
     for draw_id, draw_questions in grouped.items():
         draw_title = draw_questions[0].get("draw_title") or draw_id
         lines.extend([f"Draw: {draw_title} ({draw_id})", ""])
         for index, question in enumerate(draw_questions):
-            prompt = str(question.get("prompt") or question.get("question") or "").strip()
-            prompt = re.sub(r"@stdd\s*", "", prompt, count=1, flags=re.IGNORECASE).strip()
+            raw_prompt = str(question.get("prompt") or question.get("question") or "").strip()
+            if re.search(r"@obs", raw_prompt, re.IGNORECASE):
+                label_prefix = "Observação"
+            elif re.search(r"@developer", raw_prompt, re.IGNORECASE):
+                label_prefix = "Ação do Desenvolvedor"
+            else:
+                label_prefix = "Pergunta"
+
+            prompt = re.sub(r"@(stdd|obs|developer)\s*", "", raw_prompt, count=1, flags=re.IGNORECASE).strip()
             node_label = question.get("node_label") or "Nó sem nome"
             node_id = question.get("node_id")
             question_id = question.get("question_id")
             lines.extend([
-                f"Pergunta: {prompt}",
+                f"{label_prefix}: {prompt}",
                 f"ID da pergunta: {question_id}",
                 f"Nó: {node_label} (id {node_id})",
             ])
@@ -1055,9 +1217,44 @@ def _strip_answered_tags(nodes: list[dict]) -> list[dict]:
                 prompt = question.get("prompt")
                 if isinstance(prompt, str):
                     prompt = re.sub(r'@(?:STDD|developer)\s*', '', prompt, flags=re.IGNORECASE)
-                    prompt = re.sub(r'@OBS\s*', '', prompt, flags=re.IGNORECASE)
                     question["prompt"] = prompt.strip()
     return nodes
+
+
+def _strip_answered_question_tags(questions: list[dict]) -> list[dict]:
+    """Remove somente tags de ação após resposta; @obs exige consumo explícito."""
+    for question in questions:
+        if not isinstance(question, dict) or not _answer_is_filled(question.get("answer")):
+            continue
+        prompt = question.get("prompt")
+        if isinstance(prompt, str):
+            question["prompt"] = re.sub(r'@(?:STDD|developer)\s*', '', prompt, flags=re.IGNORECASE).strip()
+    return questions
+
+
+def consume_observation(root: Path, draw_id: str, question_id: int, node_id: int | None = None) -> dict[str, Any]:
+    """Recupera uma observação respondida e remove apenas a menção ``@obs``.
+
+    A resposta permanece no histórico do Draw; o retorno contém a pergunta e
+    a resposta para o agente incorporar ao contexto antes da remoção.
+    """
+    document = read_draw(root, draw_id)
+    selected: dict[str, Any] | None = None
+    for node, current_node_id, question in _draw_question_entries(document):
+        if current_node_id != node_id or question.get("id") != question_id:
+            continue
+        prompt = question.get("prompt")
+        if not isinstance(prompt, str) or not re.search(r"@obs", prompt, re.IGNORECASE):
+            raise ValueError("a pergunta indicada não possui @obs")
+        if not _answer_is_filled(question.get("answer")):
+            raise ValueError("a observação precisa estar respondida antes do consumo")
+        selected = {"draw_id": draw_id, "node_id": node_id, "question_id": question_id, "prompt": prompt, "answer": question.get("answer")}
+        question["prompt"] = re.sub(r"@obs\s*", "", prompt, count=1, flags=re.IGNORECASE).strip()
+        break
+    if selected is None:
+        raise ValueError("observação não encontrada")
+    create_draw(root, document)
+    return selected
 
 
 def create_draw(root: Path, payload: dict[str, Any]) -> Path:
@@ -1067,6 +1264,8 @@ def create_draw(root: Path, payload: dict[str, Any]) -> Path:
     logical_payload = logical_draw_payload(payload)
     if isinstance(logical_payload.get("nodes"), list):
         logical_payload["nodes"] = _strip_answered_tags(logical_payload["nodes"])
+    if isinstance(logical_payload.get("questions"), list):
+        logical_payload["questions"] = _strip_answered_question_tags(logical_payload["questions"])
     violations = validate_draw_payload(logical_payload)
     if violations:
         raise ValueError("Desenho inválido: " + "; ".join(violations))
@@ -1129,6 +1328,11 @@ def read_draw(root: Path, draw_id: str) -> dict[str, Any]:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
         raise ValueError(f"desenho inválido: {error.__class__.__name__}") from error
+    if isinstance(payload, dict) and "tradeoffs" in payload:
+        # Compatibilidade de leitura: Draws antigos são migrados no primeiro
+        # acesso, mas a chave nunca volta a fazer parte do JSON persistido.
+        payload.pop("tradeoffs", None)
+        _atomic_write(path, json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
     violations = validate_draw_payload(payload)
     if violations:
         raise ValueError("Desenho inválido: " + "; ".join(violations))
@@ -1367,12 +1571,24 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
 
         def do_POST(self) -> None:
             """Reserva ou conclui uma task do backlog pelo servidor local."""
-            from .backlog import complete_backlog_task, next_backlog_task, update_backlog_checklist
+            from .backlog import complete_backlog_task, generate_backlog, next_backlog_task, next_backlog_test, update_backlog_checklist
 
             path = urlparse(self.path).path
             if path == "/__stdd/api/backlog/task":
                 try:
                     self._send_json(next_backlog_task(root))
+                except (OSError, ValueError) as error:
+                    self._send_json({"status": "blocked", "error": str(error)}, 400)
+                return
+            if path == "/__stdd/api/backlog/test":
+                try:
+                    self._send_json(next_backlog_test(root))
+                except (OSError, ValueError) as error:
+                    self._send_json({"status": "blocked", "error": str(error)}, 400)
+                return
+            if path == "/__stdd/api/backlog/refresh":
+                try:
+                    self._send_json({"kind": "backlog-refreshed", "backlog": generate_backlog(root)})
                 except (OSError, ValueError) as error:
                     self._send_json({"status": "blocked", "error": str(error)}, 400)
                 return

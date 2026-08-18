@@ -131,8 +131,5 @@
       ]
     }
   ],
-  "tradeoffs": [
-    "O alias global concentra os gates em uma única decisão; uma falha pode bloquear a entrega mesmo quando uma suíte isolada passa."
-  ],
   "notes": []
 }

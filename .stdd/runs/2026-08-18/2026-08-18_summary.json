@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "date": "2026-08-18",
+  "runs": [
+    {
+      "run_id": "fc70b8b26ba841f38e276f2530dfb628",
+      "timestamp": "2026-08-18T00:09:59.870732+00:00",
+      "description": "Reforça Draw, tags, viewer e loop interativo do backlog",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 681,
+        "lines_deleted": 42,
+        "files_changed": 13
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 10,
+        "files_changed": 3
+      }
+    },
+    {
+      "run_id": "199455a60acf49bd896a557c1820ac45",
+      "timestamp": "2026-08-18T00:10:02.109008+00:00",
+      "description": "Valida contratos, tags, bootstrap, contexto e execução do STDD",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d1739959d1d943a2bb7b4afd50b2a311",
+      "timestamp": "2026-08-18T00:35:06.741492+00:00",
+      "description": "Corrige persistência, seleção e ciclo de testes do viewer",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 266,
+        "lines_deleted": 36,
+        "files_changed": 10
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 18,
+        "files_changed": 6
+      }
+    },
+    {
+      "run_id": "310e3fefb56e4df5b368e950f84a4927",
+      "timestamp": "2026-08-18T00:35:06.745718+00:00",
+      "description": "Adiciona regressões do editor e endpoint de testes do backlog",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 266,
+        "lines_deleted": 36,
+        "files_changed": 10
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 18,
+        "files_changed": 6
+      }
+    }
+  ],
+  "run_count": 4,
+  "last_run_id": "310e3fefb56e4df5b368e950f84a4927"
+}

@@ -6,7 +6,7 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from stdd.cli import app
-from stdd.draw import analyze_draw_contract, analyze_draw_structure, create_draw, create_server, find_addressed_questions, read_draw_index, start_server_for_test
+from stdd.draw import analyze_draw_contract, analyze_draw_structure, consume_observation, create_draw, create_server, find_addressed_questions, read_draw_index, start_server_for_test
 from stdd.improvements import create_improvement, list_ready_improvements, mark_improvement_applied, read_improvement
 
 
@@ -277,6 +277,78 @@ def test_draw_questions_finds_only_open_stdd_questions(tmp_path: Path, monkeypat
     assert found[0]["symbols"] == ["CheckoutService.create"]
     assert found[0]["source_dependencies"] == ["CheckoutRepository"]
     assert find_addressed_questions(tmp_path)[0]["prompt"] == "@stdd Onde está o handler?"
+
+
+def test_draw_questions_filters_obs_and_developer_tags(tmp_path: Path, monkeypatch):
+    """Permite filtrar perguntas e anotações por tag (@obs, @developer, @stdd ou all).
+    Confirma as saídas JSON e humana para cada tipo de menção.
+    """
+    payload = draw_payload("observacoes-e-tags")
+    payload["nodes"][0]["questions"] = [
+        {"id": 1, "type": "open", "prompt": "@stdd Ação do agente", "answer": None},
+        {"id": 2, "type": "open", "prompt": "@obs Atenção aos limites de taxa da API", "answer": None},
+        {"id": 3, "type": "open", "prompt": "@developer Esclarecer regra tributária", "answer": None},
+    ]
+    create_draw(tmp_path, payload)
+    monkeypatch.chdir(tmp_path)
+
+    # 1. Filtra @obs
+    obs_res = runner.invoke(app, ["draw", "questions", "--tag", "obs"])
+    assert obs_res.exit_code == 0
+    obs_data = json.loads(obs_res.stdout)
+    assert len(obs_data) == 1
+    assert obs_data[0]["question"] == "@obs Atenção aos limites de taxa da API"
+
+    # 2. Resposta formatada humana para @obs
+    obs_ans = runner.invoke(app, ["draw", "answer", "--tag", "obs"])
+    assert obs_ans.exit_code == 0
+    assert "Observações (@obs) dos Draws" in obs_ans.stdout
+    assert "Observação: Atenção aos limites de taxa da API" in obs_ans.stdout
+
+    # 3. Filtra @developer
+    dev_res = runner.invoke(app, ["draw", "questions", "--tag", "developer"])
+    assert dev_res.exit_code == 0
+    dev_data = json.loads(dev_res.stdout)
+    assert len(dev_data) == 1
+    assert dev_data[0]["question"] == "@developer Esclarecer regra tributária"
+
+    # 4. stdd draw answer padrão sem flags mostra @stdd, @obs e @developer juntos
+    default_ans = runner.invoke(app, ["draw", "answer"])
+    assert default_ans.exit_code == 0
+    assert "Pergunta: Ação do agente" in default_ans.stdout
+    assert "Observação: Atenção aos limites de taxa da API" in default_ans.stdout
+    assert "Ação do Desenvolvedor: Esclarecer regra tributária" in default_ans.stdout
+
+
+def test_draw_tags_are_case_insensitive_and_obs_requires_explicit_consumption(tmp_path: Path):
+    """Diferencia tags de ação e contexto respondido sem perder false ou zero.
+    Confirma roteamento de perguntas gerais para melhorias e consumo seletivo de observações.
+    """
+    payload = draw_payload("contrato-de-tags")
+    payload["questions"] = [{"id": 7, "type": "open", "prompt": "@StDd Pergunta geral", "answer": None}]
+    payload["nodes"][0]["questions"] = [
+        {"id": 1, "type": "boolean", "prompt": "@STDD Resposta falsa", "answer": False},
+        {"id": 2, "type": "choice", "prompt": "@DEVELOPER Resposta zero", "options": [{"id": 0, "label": "Não"}, {"id": 1, "label": "Sim"}], "answer": 0},
+        {"id": 3, "type": "boolean", "prompt": "@ObS Contexto respondido", "answer": False},
+    ]
+    path = create_draw(tmp_path, payload)
+    saved = json.loads(path.read_text(encoding="utf-8"))
+
+    prompts = [question["prompt"] for question in saved["nodes"][0]["questions"]]
+    assert prompts == ["Resposta falsa", "Resposta zero", "@ObS Contexto respondido"]
+    assert "tradeoffs" not in saved
+
+    pending = find_addressed_questions(tmp_path)
+    assert [(item["node_id"], item["question_id"]) for item in pending] == [(None, 7)]
+    observations = find_addressed_questions(tmp_path, tag="OBS", answered=True)
+    assert observations[0]["question_id"] == 3
+    assert observations[0]["node_id"] == 1
+
+    consumed = consume_observation(tmp_path, "contrato-de-tags", 3, 1)
+    assert consumed["answer"] is False
+    updated = json.loads(path.read_text(encoding="utf-8"))
+    assert "@obs" not in updated["nodes"][0]["questions"][2]["prompt"].lower()
+    assert updated["nodes"][0]["questions"][2]["answer"] is False
 
 
 def test_draw_answer_outputs_human_context_grouped_with_node_symbol(tmp_path: Path, monkeypatch):

@@ -77,7 +77,6 @@ export const MetadataModal: React.FC<MetadataModalProps> = ({
                   <option value="feature">Funcionalidade (Feature)</option>
                   <option value="flow">Fluxo (Flow)</option>
                   <option value="architecture">Arquitetura (Architecture)</option>
-                  <option value="tradeoff">Decisão Técnica (Tradeoff)</option>
                   <option value="subflow">Subfluxo (Subflow)</option>
                 </select>
               </div>

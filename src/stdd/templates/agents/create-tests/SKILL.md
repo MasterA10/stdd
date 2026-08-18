@@ -33,7 +33,7 @@ Antes de especificar testes, identificar de onde vem a feature. Há três entrad
    git diff --cached --name-status -- .stdd/draws
    ```
 
-   Incluir também arquivos JSON não rastreados listados pelo `git status`. Para cada desenho alterado, ler o JSON atual completo e, para desenhos rastreados, comparar o patch com `git diff` (e com `git diff --cached` quando aplicável). O patch mostra a intenção incremental: nós, relações, condições, fluxos, `draw_ref`, perguntas e trade-offs criados, removidos ou alterados. O JSON atual mostra o contrato que deve orientar os testes.
+   Incluir também arquivos JSON não rastreados listados pelo `git status`. Para cada desenho alterado, ler o JSON atual completo e, para desenhos rastreados, comparar o patch com `git diff` (e com `git diff --cached` quando aplicável). O patch mostra a intenção incremental: nós, relações, condições, fluxos, `draw_ref`, perguntas e decisões criados, removidos ou alterados. O JSON atual mostra o contrato que deve orientar os testes.
 
 Se houver uma solicitação textual e um desenho alterado, combinar as fontes: o texto define o objetivo e o desenho fornece o fluxo observável. Não transformar todo desenho alterado em feature automaticamente; confirmar relevância pelo pedido, título, nós e relações. Se houver mais de um desenho candidato sem relação clara, pedir ao usuário que escolha antes de criar testes. Registrar no raciocínio qual modo foi usado, quais arquivos foram considerados e quais foram descartados.
 
@@ -173,3 +173,7 @@ stdd log "Especifica comportamento da feature" --test
 ```
 
 Não combinar esse log com implementação. Informar arquivos de teste criados, comandos executados, resultado vermelho esperado, suítes ainda não executadas e pré-condições externas.
+
+## Regras de interação
+
+Use `backlog test` e `backlog task` para receber uma única task; cada conclusão exige o ID individual em `backlog complete`. Testes de integração devem provar API, persistência, validação e efeitos reais, não apenas mocks ou renderização. Erros são cenários condicionais e folhas `Não implementado` ficam fora do escopo.

@@ -19,3 +19,6 @@ Este projeto usa o STDD para especificação, implementação, testes e evidênc
 - Todo fluxo e subfluxo deve possuir um grupo específico para funcionalidades não implementadas quando houver uma funcionalidade planejada que ainda não existe. Os nós não implementados devem pertencer a esse grupo, permanecer terminais e receber a diferenciação visual do grupo; não usar cor individual no nó nem inventar continuação.
 
 O comando do readme deve ser sempre atualizado de forma que qualquer push na main deve repletir nele. Se for necessário, pode mudar o comando, pode mudar a tag, mas o comando do README tem que estar sempre instalado e apontando para as últimas alterações. Sempre verifique o comando para ver se ele está atualizado.
+
+- Ao consumir APIs, apps, SDKs ou provedores externos, registre o nome do serviço, endpoint/contrato, autenticação e pré-condições neste arquivo; consulte a documentação oficial atual antes de implementar e não invente payloads.
+- O `.stdd/design.md` é a fonte das decisões visuais: identidade, tipografia, espaçamento, estados, acessibilidade e contraste mínimo devem estar preenchidos antes de liberar o bootstrap.

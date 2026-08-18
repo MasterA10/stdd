@@ -347,3 +347,7 @@ stdd log "Adiciona validações da stack" --test
 ```
 
 Usar `--refactor` para retrabalho ou falta de planejamento prévio. Não combinar WorkTypes por conveniência. Ao concluir, informar capacidades disponíveis, indisponíveis, comandos configurados, evidências e pré-condições externas.
+
+## Loop e design
+
+O setup cria `.stdd/design.md` com identidade visual, tipografia, espaçamento, estados, acessibilidade e contraste mínimo; o template não preenchido bloqueia o bootstrap. Registre APIs/apps externos no `AGENTS.md` e consulte a documentação oficial. Trabalhe uma task por interação, com `backlog test` antes de produção e `backlog complete` por ID.

@@ -12,6 +12,51 @@ from typing import Any
 
 
 SUPPORTED_INTEGRATIONS = ("codex", "claude", "gemini")
+DESIGN_TEMPLATE = """# Design do projeto
+
+> [PREENCHER] Substitua este bloco pela decisão visual e de interação do produto.
+
+## Identidade visual
+
+- Marca, tom e referências: [PREENCHER]
+- Tipografia e hierarquia: [PREENCHER]
+- Cores e estados: [PREENCHER]
+
+## Sistema de interface
+
+- Espaçamento e densidade: [PREENCHER]
+- Estados de loading, vazio, erro, sucesso e foco: [PREENCHER]
+- Acessibilidade e contraste mínimo: texto normal 4.5:1; texto grande 3:1; componentes 3:1.
+
+## Integrações externas
+
+- API/app/provedor e documentação oficial do contrato: [PREENCHER]
+"""
+
+
+def ensure_design_document(root: Path) -> Path:
+    """Cria o documento de design versionável sem fingir decisões do produto."""
+    path = root / ".stdd" / "design.md"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not path.exists():
+        path.write_text(DESIGN_TEMPLATE, encoding="utf-8")
+    return path
+
+
+def bootstrap_design_status(root: Path) -> dict[str, Any]:
+    """Retorna a evidência do design sem aceitar template não preenchido."""
+    path = root / ".stdd" / "design.md"
+    if not path.is_file():
+        return {"status": "blocked", "reason": "design_missing", "file": ".stdd/design.md"}
+    try:
+        content = path.read_text(encoding="utf-8")
+    except OSError:
+        return {"status": "blocked", "reason": "design_unreadable", "file": ".stdd/design.md"}
+    if not content.strip():
+        return {"status": "blocked", "reason": "design_empty", "file": ".stdd/design.md"}
+    if "[PREENCHER]" in content:
+        return {"status": "blocked", "reason": "design_template_unfilled", "file": ".stdd/design.md"}
+    return {"status": "passed", "file": ".stdd/design.md"}
 STACK_GITIGNORE_RULES = {
     "python": (".pytest_cache/", ".mypy_cache/", ".ruff_cache/"),
     "javascript": ("dist/",),

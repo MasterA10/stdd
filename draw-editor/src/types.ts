@@ -171,7 +171,6 @@ export interface Contract {
   edges: EdgeData[];
   flows?: FlowPath[];
   hierarchy?: DrawHierarchy;
-  tradeoffs?: any[];
 }
 
 export interface RunRecord {
@@ -240,6 +239,16 @@ export interface BacklogDocument {
     completed_branches?: string[];
     branches?: Array<{ id: string; completed?: boolean; terminal_reason?: string; task_ids?: string[]; node_ids?: number[]; edges?: EdgeData[]; flow_id?: number | null; backlog_id?: string; parent_task_id?: string; scope?: string }>;
   };
+}
+
+export interface BacklogActionResponse {
+  kind: string;
+  phase?: 'test' | 'implementation';
+  state?: string;
+  status?: string;
+  reason?: string;
+  task?: BacklogTask;
+  backlog?: BacklogDocument;
 }
 
 export interface BacklogChecklistItem {

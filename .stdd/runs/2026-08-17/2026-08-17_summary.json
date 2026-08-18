@@ -169,8 +169,50 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "30a1d925cd6a4a87a35d8dff9dd538da",
+      "timestamp": "2026-08-17T23:28:11.202093+00:00",
+      "description": "Filtro de tags @obs, @developer e @stdd nos comandos stdd draw questions e stdd draw answer",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 70,
+        "lines_deleted": 19,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "5ff048c6d8d84c5fbbfe613b09a3a0a3",
+      "timestamp": "2026-08-17T23:30:29.071157+00:00",
+      "description": "stdd draw answer agora exibe anotações @obs e ações @developer por padrão junto com perguntas @stdd",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 39,
+        "lines_deleted": 15,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 8,
-  "last_run_id": "cdd0c7ca9a934392bd542c3992f5f95b"
+  "run_count": 10,
+  "last_run_id": "5ff048c6d8d84c5fbbfe613b09a3a0a3"
 }

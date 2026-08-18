@@ -341,11 +341,6 @@
       ]
     }
   ],
-  "tradeoffs": [
-    "Os agentes são skills instaláveis; Codex, Claude e Gemini são integrações hospedeiras, não responsabilidades de negócio diferentes.",
-    "setup, static-analysis, create-tests e implement podem atuar sobre a codebase; draw-system, draw-feature e draw-improve alteram somente JSONs de desenho.",
-    "stdd test e stdd log permanecem como mecanismos do núcleo, garantindo que nenhum agente declare conclusão sem evidência."
-  ],
   "notes": [
     "Os nomes e responsabilidades foram derivados dos templates em src/stdd/templates/agents/.",
     "A árvore atual não cria um nível 3 para cada agente porque os agentes são papéis de orquestração, não endpoints ou casos de uso independentes.",

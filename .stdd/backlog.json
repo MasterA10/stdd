@@ -1,7 +1,7 @@
 {
   "version": 1,
   "kind": "backlog",
-  "generated_at": "2026-08-13T19:02:12.354797+00:00",
+  "generated_at": "2026-08-18T00:28:07.261068+00:00",
   "system": {
     "root_draw_ids": [
       "stdd-system-architecture"
@@ -209,6 +209,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-agent-journeys:node:1",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": true
+            },
             "child_checklist_id": null,
             "status": "done",
             "branch": {
@@ -264,6 +278,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-agent-journeys:node:2",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": true
+            },
             "child_checklist_id": null,
             "status": "done",
             "branch": {
@@ -312,6 +340,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-agent-journeys:node:3",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": true
+            },
             "child_checklist_id": null,
             "status": "done",
             "branch": {
@@ -367,6 +409,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-agent-journeys:node:4",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": true
+            },
             "child_checklist_id": null,
             "status": "done",
             "branch": {
@@ -415,6 +471,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-agent-journeys:node:5",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": true
+            },
             "child_checklist_id": null,
             "status": "done",
             "branch": {
@@ -463,6 +533,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-agent-journeys:node:6",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": true
+            },
             "child_checklist_id": null,
             "status": "done",
             "branch": {
@@ -525,6 +609,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-agent-journeys:node:7",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": true
+            },
             "child_checklist_id": null,
             "status": "done",
             "branch": {
@@ -556,7 +654,56 @@
           "symbols": [],
           "source_dependencies": [],
           "traceability": [],
-          "child_checklist_id": null
+          "child_checklist_id": null,
+          "task_id": "task:stdd-agent-journeys:node:8",
+          "task": {
+            "id": "task:stdd-agent-journeys:node:8",
+            "draw_id": "stdd-agent-journeys",
+            "backlog_id": "stdd-agent-journeys",
+            "parent_task_id": null,
+            "draw_title": "Agentes e responsabilidades do STDD",
+            "node_id": 8,
+            "level": 2,
+            "label": "$static-analysis",
+            "description": "Implementa ou conecta adapters agnósticos e produz fatos determinísticos sobre símbolos, dependências, complexidade, estrutura e alterações.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-agent-journeys:node:8",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-agent-journeys:branch:4",
+              "position": 1,
+              "terminal": true,
+              "terminal_node_id": 8,
+              "terminal_reason": "node-not-listed-in-flow"
+            },
+            "branches": [
+              {
+                "id": "stdd-agent-journeys:branch:4",
+                "position": 1,
+                "terminal": true,
+                "terminal_node_id": 8,
+                "terminal_reason": "node-not-listed-in-flow"
+              }
+            ]
+          }
         },
         {
           "id": "item:stdd-agent-journeys:node:9",
@@ -586,6 +733,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-agent-journeys:node:9",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": true
+            },
             "child_checklist_id": null,
             "status": "done",
             "branch": {
@@ -624,7 +785,56 @@
           "symbols": [],
           "source_dependencies": [],
           "traceability": [],
-          "child_checklist_id": null
+          "child_checklist_id": null,
+          "task_id": "task:stdd-agent-journeys:node:10",
+          "task": {
+            "id": "task:stdd-agent-journeys:node:10",
+            "draw_id": "stdd-agent-journeys",
+            "backlog_id": "stdd-agent-journeys",
+            "parent_task_id": null,
+            "draw_title": "Agentes e responsabilidades do STDD",
+            "node_id": 10,
+            "level": 2,
+            "label": "Codex",
+            "description": "Integração de agente que instala as skills em .agents/skills/.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-agent-journeys:node:10",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-agent-journeys:branch:5",
+              "position": 1,
+              "terminal": true,
+              "terminal_node_id": 10,
+              "terminal_reason": "node-not-listed-in-flow"
+            },
+            "branches": [
+              {
+                "id": "stdd-agent-journeys:branch:5",
+                "position": 1,
+                "terminal": true,
+                "terminal_node_id": 10,
+                "terminal_reason": "node-not-listed-in-flow"
+              }
+            ]
+          }
         },
         {
           "id": "item:stdd-agent-journeys:node:11",
@@ -637,7 +847,56 @@
           "symbols": [],
           "source_dependencies": [],
           "traceability": [],
-          "child_checklist_id": null
+          "child_checklist_id": null,
+          "task_id": "task:stdd-agent-journeys:node:11",
+          "task": {
+            "id": "task:stdd-agent-journeys:node:11",
+            "draw_id": "stdd-agent-journeys",
+            "backlog_id": "stdd-agent-journeys",
+            "parent_task_id": null,
+            "draw_title": "Agentes e responsabilidades do STDD",
+            "node_id": 11,
+            "level": 2,
+            "label": "Claude",
+            "description": "Integração de agente que instala as skills em .claude/skills/.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-agent-journeys:node:11",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-agent-journeys:branch:6",
+              "position": 1,
+              "terminal": true,
+              "terminal_node_id": 11,
+              "terminal_reason": "node-not-listed-in-flow"
+            },
+            "branches": [
+              {
+                "id": "stdd-agent-journeys:branch:6",
+                "position": 1,
+                "terminal": true,
+                "terminal_node_id": 11,
+                "terminal_reason": "node-not-listed-in-flow"
+              }
+            ]
+          }
         },
         {
           "id": "item:stdd-agent-journeys:node:12",
@@ -650,7 +909,56 @@
           "symbols": [],
           "source_dependencies": [],
           "traceability": [],
-          "child_checklist_id": null
+          "child_checklist_id": null,
+          "task_id": "task:stdd-agent-journeys:node:12",
+          "task": {
+            "id": "task:stdd-agent-journeys:node:12",
+            "draw_id": "stdd-agent-journeys",
+            "backlog_id": "stdd-agent-journeys",
+            "parent_task_id": null,
+            "draw_title": "Agentes e responsabilidades do STDD",
+            "node_id": 12,
+            "level": 2,
+            "label": "Gemini",
+            "description": "Integração de agente que instala as skills em .gemini/skills/.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-agent-journeys:node:12",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-agent-journeys:branch:7",
+              "position": 1,
+              "terminal": true,
+              "terminal_node_id": 12,
+              "terminal_reason": "node-not-listed-in-flow"
+            },
+            "branches": [
+              {
+                "id": "stdd-agent-journeys:branch:7",
+                "position": 1,
+                "terminal": true,
+                "terminal_node_id": 12,
+                "terminal_reason": "node-not-listed-in-flow"
+              }
+            ]
+          }
         },
         {
           "id": "item:stdd-agent-journeys:node:13",
@@ -680,6 +988,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-agent-journeys:node:13",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": true
+            },
             "child_checklist_id": null,
             "status": "done",
             "branch": {
@@ -744,6 +1066,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-user-journeys:node:1",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": true
+            },
             "child_checklist_id": null,
             "status": "done",
             "branch": {
@@ -775,7 +1111,66 @@
           "symbols": [],
           "source_dependencies": [],
           "traceability": [],
-          "child_checklist_id": "stdd-journey-init"
+          "child_checklist_id": "stdd-journey-init",
+          "task_id": "task:stdd-user-journeys:node:2",
+          "task": {
+            "id": "task:stdd-user-journeys:node:2",
+            "draw_id": "stdd-user-journeys",
+            "backlog_id": "stdd-user-journeys",
+            "parent_task_id": null,
+            "draw_title": "Jornadas de uso do STDD",
+            "node_id": 2,
+            "level": 2,
+            "label": "Inicializar e instalar skills",
+            "description": "O agente prepara .stdd/, instruções e skills para o projeto.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-user-journeys:node:2",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
+            "child_checklist_id": "stdd-journey-init",
+            "status": "pending",
+            "branch": {
+              "id": "stdd-user-journeys:branch:3",
+              "position": 1,
+              "terminal": true,
+              "terminal_node_id": 2,
+              "terminal_reason": "node-not-listed-in-flow"
+            },
+            "branches": [
+              {
+                "id": "stdd-user-journeys:branch:3",
+                "position": 1,
+                "terminal": true,
+                "terminal_node_id": 2,
+                "terminal_reason": "node-not-listed-in-flow"
+              }
+            ],
+            "child_backlog_id": "stdd-journey-init",
+            "child_task_ids": [
+              "task:stdd-journey-init:node:1",
+              "task:stdd-journey-init:node:2",
+              "task:stdd-journey-init:node:3",
+              "task:stdd-journey-init:node:4"
+            ],
+            "child_branch_ids": [
+              "stdd-journey-init:branch:1"
+            ]
+          }
         },
         {
           "id": "item:stdd-user-journeys:node:3",
@@ -805,6 +1200,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-user-journeys:node:3",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": true
+            },
             "child_checklist_id": null,
             "status": "done",
             "branch": {
@@ -860,6 +1269,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-user-journeys:node:4",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": true
+            },
             "child_checklist_id": "stdd-journey-test",
             "status": "done",
             "branch": {
@@ -890,10 +1313,12 @@
               "task:stdd-journey-test:node:1",
               "task:stdd-journey-test:node:2",
               "task:stdd-journey-test:node:3",
-              "task:stdd-journey-test:node:4"
+              "task:stdd-journey-test:node:4",
+              "task:stdd-journey-test:node:5"
             ],
             "child_branch_ids": [
-              "stdd-journey-test:branch:1"
+              "stdd-journey-test:branch:1",
+              "stdd-journey-test:branch:2"
             ]
           }
         },
@@ -925,6 +1350,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-user-journeys:node:5",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": true
+            },
             "child_checklist_id": "stdd-journey-log",
             "status": "done",
             "branch": {
@@ -983,6 +1422,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-user-journeys:node:6",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": true
+            },
             "child_checklist_id": "stdd-journey-draw",
             "status": "done",
             "branch": {
@@ -1042,6 +1495,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-user-journeys:node:7",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": true
+            },
             "child_checklist_id": null,
             "status": "done",
             "branch": {
@@ -1073,7 +1540,56 @@
           "symbols": [],
           "source_dependencies": [],
           "traceability": [],
-          "child_checklist_id": null
+          "child_checklist_id": null,
+          "task_id": "task:stdd-user-journeys:node:8",
+          "task": {
+            "id": "task:stdd-user-journeys:node:8",
+            "draw_id": "stdd-user-journeys",
+            "backlog_id": "stdd-user-journeys",
+            "parent_task_id": null,
+            "draw_title": "Jornadas de uso do STDD",
+            "node_id": 8,
+            "level": 2,
+            "label": "Entrega rastreável",
+            "description": "A mudança termina com fontes, testes, desenho e evidências coerentes no repositório.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "test_ref": null,
+            "test_ref_error": "test_ref ausente",
+            "test_owner_task_id": "task:stdd-user-journeys:node:8",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-user-journeys:branch:4",
+              "position": 1,
+              "terminal": true,
+              "terminal_node_id": 8,
+              "terminal_reason": "node-not-listed-in-flow"
+            },
+            "branches": [
+              {
+                "id": "stdd-user-journeys:branch:4",
+                "position": 1,
+                "terminal": true,
+                "terminal_node_id": 8,
+                "terminal_reason": "node-not-listed-in-flow"
+              }
+            ]
+          }
         }
       ]
     },
@@ -1161,6 +1677,20 @@
                 "source": "python_ast"
               }
             ],
+            "test_ref": null,
+            "test_ref_error": null,
+            "test_owner_task_id": "task:stdd-user-journeys:node:6",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
             "child_checklist_id": null,
             "status": "pending",
             "branch": {
@@ -1209,6 +1739,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": null,
+            "test_owner_task_id": "task:stdd-user-journeys:node:6",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
             "child_checklist_id": null,
             "status": "pending",
             "branch": {
@@ -1303,6 +1847,20 @@
                 "source": "python_ast"
               }
             ],
+            "test_ref": null,
+            "test_ref_error": null,
+            "test_owner_task_id": "task:stdd-user-journeys:node:6",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
             "child_checklist_id": null,
             "status": "pending",
             "branch": {
@@ -1427,6 +1985,20 @@
                 "source": "python_ast"
               }
             ],
+            "test_ref": null,
+            "test_ref_error": null,
+            "test_owner_task_id": "task:stdd-user-journeys:node:6",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
             "child_checklist_id": null,
             "status": "pending",
             "branch": {
@@ -1475,6 +2047,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": null,
+            "test_owner_task_id": "task:stdd-user-journeys:node:6",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
             "child_checklist_id": null,
             "status": "pending",
             "branch": {
@@ -1522,7 +2108,56 @@
           "symbols": [],
           "source_dependencies": [],
           "traceability": [],
-          "child_checklist_id": null
+          "child_checklist_id": null,
+          "task_id": "task:stdd-journey-init:node:1",
+          "task": {
+            "id": "task:stdd-journey-init:node:1",
+            "draw_id": "stdd-journey-init",
+            "backlog_id": "stdd-journey-init",
+            "parent_task_id": "task:stdd-user-journeys:node:2",
+            "draw_title": "Implementação da jornada de inicialização",
+            "node_id": 1,
+            "level": 3,
+            "label": "Receber destino e integrações",
+            "description": "A CLI valida o diretório e a seleção Codex, Claude ou Gemini.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "test_ref": null,
+            "test_ref_error": null,
+            "test_owner_task_id": "task:stdd-user-journeys:node:2",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-journey-init:branch:1",
+              "position": 1,
+              "terminal": false,
+              "terminal_node_id": 4,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-journey-init:branch:1",
+                "position": 1,
+                "terminal": false,
+                "terminal_node_id": 4,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
         },
         {
           "id": "item:stdd-journey-init:node:2",
@@ -1535,7 +2170,56 @@
           "symbols": [],
           "source_dependencies": [],
           "traceability": [],
-          "child_checklist_id": null
+          "child_checklist_id": null,
+          "task_id": "task:stdd-journey-init:node:2",
+          "task": {
+            "id": "task:stdd-journey-init:node:2",
+            "draw_id": "stdd-journey-init",
+            "backlog_id": "stdd-journey-init",
+            "parent_task_id": "task:stdd-user-journeys:node:2",
+            "draw_title": "Implementação da jornada de inicialização",
+            "node_id": 2,
+            "level": 3,
+            "label": "Criar configuração e estado",
+            "description": "Cria .stdd/config.json, runs, features, draws e regras de gitignore.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "test_ref": null,
+            "test_ref_error": null,
+            "test_owner_task_id": "task:stdd-user-journeys:node:2",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-journey-init:branch:1",
+              "position": 2,
+              "terminal": false,
+              "terminal_node_id": 4,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-journey-init:branch:1",
+                "position": 2,
+                "terminal": false,
+                "terminal_node_id": 4,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
         },
         {
           "id": "item:stdd-journey-init:node:3",
@@ -1548,7 +2232,56 @@
           "symbols": [],
           "source_dependencies": [],
           "traceability": [],
-          "child_checklist_id": null
+          "child_checklist_id": null,
+          "task_id": "task:stdd-journey-init:node:3",
+          "task": {
+            "id": "task:stdd-journey-init:node:3",
+            "draw_id": "stdd-journey-init",
+            "backlog_id": "stdd-journey-init",
+            "parent_task_id": "task:stdd-user-journeys:node:2",
+            "draw_title": "Implementação da jornada de inicialização",
+            "node_id": 3,
+            "level": 3,
+            "label": "Instalar skills e instruções",
+            "description": "Copia templates atuais e atualiza AGENTS.md, CLAUDE.md ou GEMINI.md.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "test_ref": null,
+            "test_ref_error": null,
+            "test_owner_task_id": "task:stdd-user-journeys:node:2",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-journey-init:branch:1",
+              "position": 3,
+              "terminal": false,
+              "terminal_node_id": 4,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-journey-init:branch:1",
+                "position": 3,
+                "terminal": false,
+                "terminal_node_id": 4,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
         },
         {
           "id": "item:stdd-journey-init:node:4",
@@ -1586,7 +2319,81 @@
               "source": "python_ast"
             }
           ],
-          "child_checklist_id": null
+          "child_checklist_id": null,
+          "task_id": "task:stdd-journey-init:node:4",
+          "task": {
+            "id": "task:stdd-journey-init:node:4",
+            "draw_id": "stdd-journey-init",
+            "backlog_id": "stdd-journey-init",
+            "parent_task_id": "task:stdd-user-journeys:node:2",
+            "draw_title": "Implementação da jornada de inicialização",
+            "node_id": 4,
+            "level": 3,
+            "label": "Projeto pronto",
+            "description": "O agente pode usar as skills no projeto inicializado.",
+            "questions": [],
+            "code_refs": [
+              {
+                "symbol": "stdd.core.init_project",
+                "identity": "0b657e84450a304e",
+                "source_dependencies": [
+                  "stdd.draw.ensure_draw_workspace",
+                  "stdd.core.ensure_gitignore",
+                  "stdd.core.ensure_agent_instructions"
+                ]
+              }
+            ],
+            "symbols": [
+              "stdd.core.init_project"
+            ],
+            "source_dependencies": [
+              "stdd.core.ensure_agent_instructions",
+              "stdd.core.ensure_gitignore",
+              "stdd.draw.ensure_draw_workspace"
+            ],
+            "traceability": [
+              {
+                "symbol": "stdd.core.init_project",
+                "identity": "0b657e84450a304e",
+                "status": "drift",
+                "file": "src/stdd/core.py",
+                "kind": "function",
+                "source": "python_ast"
+              }
+            ],
+            "test_ref": null,
+            "test_ref_error": null,
+            "test_owner_task_id": "task:stdd-user-journeys:node:2",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-journey-init:branch:1",
+              "position": 4,
+              "terminal": true,
+              "terminal_node_id": 4,
+              "terminal_reason": "flow-end"
+            },
+            "branches": [
+              {
+                "id": "stdd-journey-init:branch:1",
+                "position": 4,
+                "terminal": true,
+                "terminal_node_id": 4,
+                "terminal_reason": "flow-end"
+              }
+            ]
+          }
         }
       ]
     },
@@ -1632,6 +2439,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": null,
+            "test_owner_task_id": "task:stdd-user-journeys:node:5",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
             "child_checklist_id": null,
             "status": "pending",
             "branch": {
@@ -1680,6 +2501,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": null,
+            "test_owner_task_id": "task:stdd-user-journeys:node:5",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
             "child_checklist_id": null,
             "status": "pending",
             "branch": {
@@ -1728,6 +2563,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": null,
+            "test_owner_task_id": "task:stdd-user-journeys:node:5",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
             "child_checklist_id": null,
             "status": "pending",
             "branch": {
@@ -1776,6 +2625,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": null,
+            "test_owner_task_id": "task:stdd-user-journeys:node:5",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
             "child_checklist_id": null,
             "status": "pending",
             "branch": {
@@ -1840,6 +2703,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": null,
+            "test_owner_task_id": "task:stdd-user-journeys:node:4",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
             "child_checklist_id": null,
             "status": "pending",
             "branch": {
@@ -1888,6 +2765,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": null,
+            "test_owner_task_id": "task:stdd-user-journeys:node:4",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
             "child_checklist_id": null,
             "status": "pending",
             "branch": {
@@ -1982,6 +2873,20 @@
                 "source": "python_ast"
               }
             ],
+            "test_ref": null,
+            "test_ref_error": null,
+            "test_owner_task_id": "task:stdd-user-journeys:node:4",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
             "child_checklist_id": null,
             "status": "pending",
             "branch": {
@@ -2030,6 +2935,20 @@
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
+            "test_ref": null,
+            "test_ref_error": null,
+            "test_owner_task_id": "task:stdd-user-journeys:node:4",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
             "child_checklist_id": null,
             "status": "pending",
             "branch": {
@@ -2055,6 +2974,296 @@
           "node_id": 5,
           "label": "Gate bloqueado",
           "description": "Falha de teste, contrato, análise ou segurança retorna status bloqueado.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null,
+          "task_id": "task:stdd-journey-test:node:5",
+          "task": {
+            "id": "task:stdd-journey-test:node:5",
+            "draw_id": "stdd-journey-test",
+            "backlog_id": "stdd-journey-test",
+            "parent_task_id": "task:stdd-user-journeys:node:4",
+            "draw_title": "Implementação da jornada de verificação",
+            "node_id": 5,
+            "level": 3,
+            "label": "Gate bloqueado",
+            "description": "Falha de teste, contrato, análise ou segurança retorna status bloqueado.",
+            "questions": [],
+            "code_refs": [],
+            "symbols": [],
+            "source_dependencies": [],
+            "traceability": [],
+            "test_ref": null,
+            "test_ref_error": null,
+            "test_owner_task_id": "task:stdd-user-journeys:node:4",
+            "test_status": "missing",
+            "test_evidence": {
+              "status": "missing",
+              "file": null,
+              "symbols": [],
+              "reason": "test_ref ausente"
+            },
+            "checklist_state": {
+              "test": false,
+              "implementation": false
+            },
+            "child_checklist_id": null,
+            "status": "pending",
+            "branch": {
+              "id": "stdd-journey-test:branch:2",
+              "position": 1,
+              "terminal": true,
+              "terminal_node_id": 5,
+              "terminal_reason": "node-not-listed-in-flow"
+            },
+            "branches": [
+              {
+                "id": "stdd-journey-test:branch:2",
+                "position": 1,
+                "terminal": true,
+                "terminal_node_id": 5,
+                "terminal_reason": "node-not-listed-in-flow"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "cadastro-incorporado-whatsapp",
+      "draw_id": "cadastro-incorporado-whatsapp",
+      "title": "Cadastro incorporado de WhatsApp",
+      "hierarchy": {},
+      "parent_checklist_id": null,
+      "parent_node_id": null,
+      "items": [
+        {
+          "id": "item:cadastro-incorporado-whatsapp:node:0",
+          "node_id": 0,
+          "label": "Administrador",
+          "description": "Usuário autenticado que informa o número e conclui as telas da Meta.",
+          "status": "pending",
+          "questions": [
+            {
+              "id": 1,
+              "type": "boolean",
+              "prompt": "O administrador tem permissão de WABA Manager na Meta?",
+              "answer": true
+            }
+          ],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:cadastro-incorporado-whatsapp:node:1",
+          "node_id": 1,
+          "label": "Tela WhatsApp Setup",
+          "description": "Valida o telefone, abre SDK ou popup e acompanha o status.",
+          "status": "pending",
+          "questions": [
+            {
+              "id": 1,
+              "type": "open",
+              "prompt": "Como é tratada a falha de renderização do SDK?",
+              "answer": "Fallbacks com redirect OAuth caso o bloqueador de anúncios impeça a inicialização."
+            }
+          ],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:cadastro-incorporado-whatsapp:node:2",
+          "node_id": 2,
+          "label": "onboarding/start",
+          "description": "Cria a tentativa, deriva o tenant da sessão e devolve dados públicos.",
+          "status": "pending",
+          "questions": [
+            {
+              "id": 1,
+              "type": "open",
+              "prompt": "Qual a expiração padrão do state gerado?",
+              "answer": "15 minutos."
+            }
+          ],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:cadastro-incorporado-whatsapp:node:3",
+          "node_id": 3,
+          "label": "Tentativa + state",
+          "description": "Guarda attempt_id, hash do state, telefone, redirect_uri, validade e status.",
+          "status": "pending",
+          "questions": [
+            {
+              "id": 1,
+              "type": "boolean",
+              "prompt": "O state é deletado após o consumo único?",
+              "answer": true
+            }
+          ],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:cadastro-incorporado-whatsapp:node:4",
+          "node_id": 4,
+          "label": "Embedded Signup Meta",
+          "description": "Jornada oficial de autorização e configuração da conta WhatsApp.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:cadastro-incorporado-whatsapp:node:5",
+          "node_id": 5,
+          "label": "Retorno SDK ou OAuth",
+          "description": "SDK entrega code e IDs por postMessage; redirect entrega code e state no callback.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:cadastro-incorporado-whatsapp:node:6",
+          "node_id": 6,
+          "label": "complete ou callback",
+          "description": "Entrada autenticada do SDK ou callback server-side que valida e consome a tentativa.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:cadastro-incorporado-whatsapp:node:7",
+          "node_id": 7,
+          "label": "Reconciliação server-side",
+          "description": "Troca code, consulta Graph API, valida ownership, aplica retry e idempotência.",
+          "status": "pending",
+          "questions": [
+            {
+              "id": 1,
+              "type": "choice",
+              "prompt": "Política de Retry para APIs Meta:",
+              "options": [
+                {
+                  "id": 1,
+                  "label": "Exponencial de até 3 tentativas"
+                },
+                {
+                  "id": 2,
+                  "label": "Execução imediata sem retry"
+                },
+                {
+                  "id": 3,
+                  "label": "Fila com processamento assíncrono"
+                }
+              ],
+              "answer": 1
+            }
+          ],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:cadastro-incorporado-whatsapp:node:8",
+          "node_id": 8,
+          "label": "Graph API Meta",
+          "description": "Troca authorization code por token e descobre WABA e phone_number_id.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:cadastro-incorporado-whatsapp:node:9",
+          "node_id": 9,
+          "label": "Conexão WhatsApp",
+          "description": "Upsert de WABA, número e token criptografado, com vínculo ao tenant.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:cadastro-incorporado-whatsapp:node:10",
+          "node_id": 10,
+          "label": "Assinatura de webhooks",
+          "description": "Inscreve a WABA para eventos futuros após a conexão ser confirmada.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:cadastro-incorporado-whatsapp:node:11",
+          "node_id": 11,
+          "label": "Status da tentativa",
+          "description": "Polling tenant-scoped; pode avançar job pendente e retorna apenas dados seguros.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:cadastro-incorporado-whatsapp:node:12",
+          "node_id": 12,
+          "label": "Resultado na tela",
+          "description": "Exibe completed, processamento, falha, expiração ou cancelamento.",
+          "status": "pending",
+          "questions": [],
+          "code_refs": [],
+          "symbols": [],
+          "source_dependencies": [],
+          "traceability": [],
+          "child_checklist_id": null
+        },
+        {
+          "id": "item:cadastro-incorporado-whatsapp:node:13",
+          "node_id": 13,
+          "label": "session_uuid legado",
+          "description": "Rotas antigas de compatibilidade que fazem persistência direta.",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -2284,6 +3493,792 @@
       ]
     }
   ],
+  "phase_checklists": {
+    "test": [
+      {
+        "id": "check:test:task:stdd-agent-journeys:node:1",
+        "task_id": "task:stdd-agent-journeys:node:1",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 1,
+        "label": "Pedido do usuário",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-agent-journeys:node:2",
+        "task_id": "task:stdd-agent-journeys:node:2",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 2,
+        "label": "$setup",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-agent-journeys:node:3",
+        "task_id": "task:stdd-agent-journeys:node:3",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 3,
+        "label": "$draw-system",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-agent-journeys:node:6",
+        "task_id": "task:stdd-agent-journeys:node:6",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 6,
+        "label": "$create-tests",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-agent-journeys:node:7",
+        "task_id": "task:stdd-agent-journeys:node:7",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 7,
+        "label": "$implement",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-agent-journeys:node:9",
+        "task_id": "task:stdd-agent-journeys:node:9",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 9,
+        "label": "stdd test e stdd log",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-agent-journeys:node:13",
+        "task_id": "task:stdd-agent-journeys:node:13",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 13,
+        "label": "Entrega documentada",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-agent-journeys:node:4",
+        "task_id": "task:stdd-agent-journeys:node:4",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 4,
+        "label": "$draw-feature",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-agent-journeys:node:5",
+        "task_id": "task:stdd-agent-journeys:node:5",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 5,
+        "label": "$draw-improve",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-agent-journeys:node:8",
+        "task_id": "task:stdd-agent-journeys:node:8",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 8,
+        "label": "$static-analysis",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-agent-journeys:node:10",
+        "task_id": "task:stdd-agent-journeys:node:10",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 10,
+        "label": "Codex",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-agent-journeys:node:11",
+        "task_id": "task:stdd-agent-journeys:node:11",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 11,
+        "label": "Claude",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-agent-journeys:node:12",
+        "task_id": "task:stdd-agent-journeys:node:12",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 12,
+        "label": "Gemini",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-user-journeys:node:1",
+        "task_id": "task:stdd-user-journeys:node:1",
+        "draw_id": "stdd-user-journeys",
+        "node_id": 1,
+        "label": "Entrada: projeto e pedido",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-user-journeys:node:3",
+        "task_id": "task:stdd-user-journeys:node:3",
+        "draw_id": "stdd-user-journeys",
+        "node_id": 3,
+        "label": "Especificar e desenhar",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-user-journeys:node:4",
+        "task_id": "task:stdd-user-journeys:node:4",
+        "draw_id": "stdd-user-journeys",
+        "node_id": 4,
+        "label": "Executar gates",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-journey-test:node:1",
+        "task_id": "task:stdd-journey-test:node:1",
+        "draw_id": "stdd-journey-test",
+        "node_id": 1,
+        "label": "Ler perfil e suítes",
+        "parent_task_id": "task:stdd-user-journeys:node:4",
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-journey-test:node:2",
+        "task_id": "task:stdd-journey-test:node:2",
+        "draw_id": "stdd-journey-test",
+        "node_id": 2,
+        "label": "Executar runners e contrato",
+        "parent_task_id": "task:stdd-user-journeys:node:4",
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-journey-test:node:3",
+        "task_id": "task:stdd-journey-test:node:3",
+        "draw_id": "stdd-journey-test",
+        "node_id": 3,
+        "label": "Analisar estática e rastreabilidade",
+        "parent_task_id": "task:stdd-user-journeys:node:4",
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-journey-test:node:4",
+        "task_id": "task:stdd-journey-test:node:4",
+        "draw_id": "stdd-journey-test",
+        "node_id": 4,
+        "label": "Gate aprovado",
+        "parent_task_id": "task:stdd-user-journeys:node:4",
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-journey-test:node:5",
+        "task_id": "task:stdd-journey-test:node:5",
+        "draw_id": "stdd-journey-test",
+        "node_id": 5,
+        "label": "Gate bloqueado",
+        "parent_task_id": "task:stdd-user-journeys:node:4",
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-user-journeys:node:5",
+        "task_id": "task:stdd-user-journeys:node:5",
+        "draw_id": "stdd-user-journeys",
+        "node_id": 5,
+        "label": "Registrar evidência",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-journey-log:node:1",
+        "task_id": "task:stdd-journey-log:node:1",
+        "draw_id": "stdd-journey-log",
+        "node_id": 1,
+        "label": "Receber descrição e tipo",
+        "parent_task_id": "task:stdd-user-journeys:node:5",
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-journey-log:node:2",
+        "task_id": "task:stdd-journey-log:node:2",
+        "draw_id": "stdd-journey-log",
+        "node_id": 2,
+        "label": "Coletar diff e snapshot",
+        "parent_task_id": "task:stdd-user-journeys:node:5",
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-journey-log:node:3",
+        "task_id": "task:stdd-journey-log:node:3",
+        "draw_id": "stdd-journey-log",
+        "node_id": 3,
+        "label": "Registrar execução",
+        "parent_task_id": "task:stdd-user-journeys:node:5",
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-journey-log:node:4",
+        "task_id": "task:stdd-journey-log:node:4",
+        "draw_id": "stdd-journey-log",
+        "node_id": 4,
+        "label": "Evidência disponível",
+        "parent_task_id": "task:stdd-user-journeys:node:5",
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-user-journeys:node:6",
+        "task_id": "task:stdd-user-journeys:node:6",
+        "draw_id": "stdd-user-journeys",
+        "node_id": 6,
+        "label": "Revisar no Draw",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-journey-draw:node:1",
+        "task_id": "task:stdd-journey-draw:node:1",
+        "draw_id": "stdd-journey-draw",
+        "node_id": 1,
+        "label": "Receber JSON lógico",
+        "parent_task_id": "task:stdd-user-journeys:node:6",
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-journey-draw:node:2",
+        "task_id": "task:stdd-journey-draw:node:2",
+        "draw_id": "stdd-journey-draw",
+        "node_id": 2,
+        "label": "Validar contrato e hierarquia",
+        "parent_task_id": "task:stdd-user-journeys:node:6",
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-journey-draw:node:3",
+        "task_id": "task:stdd-journey-draw:node:3",
+        "draw_id": "stdd-journey-draw",
+        "node_id": 3,
+        "label": "Persistir desenho e índice",
+        "parent_task_id": "task:stdd-user-journeys:node:6",
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-journey-draw:node:4",
+        "task_id": "task:stdd-journey-draw:node:4",
+        "draw_id": "stdd-journey-draw",
+        "node_id": 4,
+        "label": "Servir viewer e API local",
+        "parent_task_id": "task:stdd-user-journeys:node:6",
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-journey-draw:node:5",
+        "task_id": "task:stdd-journey-draw:node:5",
+        "draw_id": "stdd-journey-draw",
+        "node_id": 5,
+        "label": "Árvore navegável",
+        "parent_task_id": "task:stdd-user-journeys:node:6",
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-user-journeys:node:7",
+        "task_id": "task:stdd-user-journeys:node:7",
+        "draw_id": "stdd-user-journeys",
+        "node_id": 7,
+        "label": "Bloqueado ou pendente",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-user-journeys:node:2",
+        "task_id": "task:stdd-user-journeys:node:2",
+        "draw_id": "stdd-user-journeys",
+        "node_id": 2,
+        "label": "Inicializar e instalar skills",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-journey-init:node:1",
+        "task_id": "task:stdd-journey-init:node:1",
+        "draw_id": "stdd-journey-init",
+        "node_id": 1,
+        "label": "Receber destino e integrações",
+        "parent_task_id": "task:stdd-user-journeys:node:2",
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-journey-init:node:2",
+        "task_id": "task:stdd-journey-init:node:2",
+        "draw_id": "stdd-journey-init",
+        "node_id": 2,
+        "label": "Criar configuração e estado",
+        "parent_task_id": "task:stdd-user-journeys:node:2",
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-journey-init:node:3",
+        "task_id": "task:stdd-journey-init:node:3",
+        "draw_id": "stdd-journey-init",
+        "node_id": 3,
+        "label": "Instalar skills e instruções",
+        "parent_task_id": "task:stdd-user-journeys:node:2",
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-journey-init:node:4",
+        "task_id": "task:stdd-journey-init:node:4",
+        "draw_id": "stdd-journey-init",
+        "node_id": 4,
+        "label": "Projeto pronto",
+        "parent_task_id": "task:stdd-user-journeys:node:2",
+        "checked": false,
+        "evidence_status": "missing"
+      },
+      {
+        "id": "check:test:task:stdd-user-journeys:node:8",
+        "task_id": "task:stdd-user-journeys:node:8",
+        "draw_id": "stdd-user-journeys",
+        "node_id": 8,
+        "label": "Entrega rastreável",
+        "parent_task_id": null,
+        "checked": false,
+        "evidence_status": "missing"
+      }
+    ],
+    "implementation": [
+      {
+        "id": "check:implementation:task:stdd-agent-journeys:node:1",
+        "task_id": "task:stdd-agent-journeys:node:1",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 1,
+        "label": "Pedido do usuário",
+        "parent_task_id": null,
+        "checked": true,
+        "status": "done"
+      },
+      {
+        "id": "check:implementation:task:stdd-agent-journeys:node:2",
+        "task_id": "task:stdd-agent-journeys:node:2",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 2,
+        "label": "$setup",
+        "parent_task_id": null,
+        "checked": true,
+        "status": "done"
+      },
+      {
+        "id": "check:implementation:task:stdd-agent-journeys:node:3",
+        "task_id": "task:stdd-agent-journeys:node:3",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 3,
+        "label": "$draw-system",
+        "parent_task_id": null,
+        "checked": true,
+        "status": "done"
+      },
+      {
+        "id": "check:implementation:task:stdd-agent-journeys:node:6",
+        "task_id": "task:stdd-agent-journeys:node:6",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 6,
+        "label": "$create-tests",
+        "parent_task_id": null,
+        "checked": true,
+        "status": "done"
+      },
+      {
+        "id": "check:implementation:task:stdd-agent-journeys:node:7",
+        "task_id": "task:stdd-agent-journeys:node:7",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 7,
+        "label": "$implement",
+        "parent_task_id": null,
+        "checked": true,
+        "status": "done"
+      },
+      {
+        "id": "check:implementation:task:stdd-agent-journeys:node:9",
+        "task_id": "task:stdd-agent-journeys:node:9",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 9,
+        "label": "stdd test e stdd log",
+        "parent_task_id": null,
+        "checked": true,
+        "status": "done"
+      },
+      {
+        "id": "check:implementation:task:stdd-agent-journeys:node:13",
+        "task_id": "task:stdd-agent-journeys:node:13",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 13,
+        "label": "Entrega documentada",
+        "parent_task_id": null,
+        "checked": true,
+        "status": "done"
+      },
+      {
+        "id": "check:implementation:task:stdd-agent-journeys:node:4",
+        "task_id": "task:stdd-agent-journeys:node:4",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 4,
+        "label": "$draw-feature",
+        "parent_task_id": null,
+        "checked": true,
+        "status": "done"
+      },
+      {
+        "id": "check:implementation:task:stdd-agent-journeys:node:5",
+        "task_id": "task:stdd-agent-journeys:node:5",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 5,
+        "label": "$draw-improve",
+        "parent_task_id": null,
+        "checked": true,
+        "status": "done"
+      },
+      {
+        "id": "check:implementation:task:stdd-agent-journeys:node:8",
+        "task_id": "task:stdd-agent-journeys:node:8",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 8,
+        "label": "$static-analysis",
+        "parent_task_id": null,
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-agent-journeys:node:10",
+        "task_id": "task:stdd-agent-journeys:node:10",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 10,
+        "label": "Codex",
+        "parent_task_id": null,
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-agent-journeys:node:11",
+        "task_id": "task:stdd-agent-journeys:node:11",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 11,
+        "label": "Claude",
+        "parent_task_id": null,
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-agent-journeys:node:12",
+        "task_id": "task:stdd-agent-journeys:node:12",
+        "draw_id": "stdd-agent-journeys",
+        "node_id": 12,
+        "label": "Gemini",
+        "parent_task_id": null,
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-user-journeys:node:1",
+        "task_id": "task:stdd-user-journeys:node:1",
+        "draw_id": "stdd-user-journeys",
+        "node_id": 1,
+        "label": "Entrada: projeto e pedido",
+        "parent_task_id": null,
+        "checked": true,
+        "status": "done"
+      },
+      {
+        "id": "check:implementation:task:stdd-user-journeys:node:3",
+        "task_id": "task:stdd-user-journeys:node:3",
+        "draw_id": "stdd-user-journeys",
+        "node_id": 3,
+        "label": "Especificar e desenhar",
+        "parent_task_id": null,
+        "checked": true,
+        "status": "done"
+      },
+      {
+        "id": "check:implementation:task:stdd-user-journeys:node:4",
+        "task_id": "task:stdd-user-journeys:node:4",
+        "draw_id": "stdd-user-journeys",
+        "node_id": 4,
+        "label": "Executar gates",
+        "parent_task_id": null,
+        "checked": true,
+        "status": "done"
+      },
+      {
+        "id": "check:implementation:task:stdd-journey-test:node:1",
+        "task_id": "task:stdd-journey-test:node:1",
+        "draw_id": "stdd-journey-test",
+        "node_id": 1,
+        "label": "Ler perfil e suítes",
+        "parent_task_id": "task:stdd-user-journeys:node:4",
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-journey-test:node:2",
+        "task_id": "task:stdd-journey-test:node:2",
+        "draw_id": "stdd-journey-test",
+        "node_id": 2,
+        "label": "Executar runners e contrato",
+        "parent_task_id": "task:stdd-user-journeys:node:4",
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-journey-test:node:3",
+        "task_id": "task:stdd-journey-test:node:3",
+        "draw_id": "stdd-journey-test",
+        "node_id": 3,
+        "label": "Analisar estática e rastreabilidade",
+        "parent_task_id": "task:stdd-user-journeys:node:4",
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-journey-test:node:4",
+        "task_id": "task:stdd-journey-test:node:4",
+        "draw_id": "stdd-journey-test",
+        "node_id": 4,
+        "label": "Gate aprovado",
+        "parent_task_id": "task:stdd-user-journeys:node:4",
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-journey-test:node:5",
+        "task_id": "task:stdd-journey-test:node:5",
+        "draw_id": "stdd-journey-test",
+        "node_id": 5,
+        "label": "Gate bloqueado",
+        "parent_task_id": "task:stdd-user-journeys:node:4",
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-user-journeys:node:5",
+        "task_id": "task:stdd-user-journeys:node:5",
+        "draw_id": "stdd-user-journeys",
+        "node_id": 5,
+        "label": "Registrar evidência",
+        "parent_task_id": null,
+        "checked": true,
+        "status": "done"
+      },
+      {
+        "id": "check:implementation:task:stdd-journey-log:node:1",
+        "task_id": "task:stdd-journey-log:node:1",
+        "draw_id": "stdd-journey-log",
+        "node_id": 1,
+        "label": "Receber descrição e tipo",
+        "parent_task_id": "task:stdd-user-journeys:node:5",
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-journey-log:node:2",
+        "task_id": "task:stdd-journey-log:node:2",
+        "draw_id": "stdd-journey-log",
+        "node_id": 2,
+        "label": "Coletar diff e snapshot",
+        "parent_task_id": "task:stdd-user-journeys:node:5",
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-journey-log:node:3",
+        "task_id": "task:stdd-journey-log:node:3",
+        "draw_id": "stdd-journey-log",
+        "node_id": 3,
+        "label": "Registrar execução",
+        "parent_task_id": "task:stdd-user-journeys:node:5",
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-journey-log:node:4",
+        "task_id": "task:stdd-journey-log:node:4",
+        "draw_id": "stdd-journey-log",
+        "node_id": 4,
+        "label": "Evidência disponível",
+        "parent_task_id": "task:stdd-user-journeys:node:5",
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-user-journeys:node:6",
+        "task_id": "task:stdd-user-journeys:node:6",
+        "draw_id": "stdd-user-journeys",
+        "node_id": 6,
+        "label": "Revisar no Draw",
+        "parent_task_id": null,
+        "checked": true,
+        "status": "done"
+      },
+      {
+        "id": "check:implementation:task:stdd-journey-draw:node:1",
+        "task_id": "task:stdd-journey-draw:node:1",
+        "draw_id": "stdd-journey-draw",
+        "node_id": 1,
+        "label": "Receber JSON lógico",
+        "parent_task_id": "task:stdd-user-journeys:node:6",
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-journey-draw:node:2",
+        "task_id": "task:stdd-journey-draw:node:2",
+        "draw_id": "stdd-journey-draw",
+        "node_id": 2,
+        "label": "Validar contrato e hierarquia",
+        "parent_task_id": "task:stdd-user-journeys:node:6",
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-journey-draw:node:3",
+        "task_id": "task:stdd-journey-draw:node:3",
+        "draw_id": "stdd-journey-draw",
+        "node_id": 3,
+        "label": "Persistir desenho e índice",
+        "parent_task_id": "task:stdd-user-journeys:node:6",
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-journey-draw:node:4",
+        "task_id": "task:stdd-journey-draw:node:4",
+        "draw_id": "stdd-journey-draw",
+        "node_id": 4,
+        "label": "Servir viewer e API local",
+        "parent_task_id": "task:stdd-user-journeys:node:6",
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-journey-draw:node:5",
+        "task_id": "task:stdd-journey-draw:node:5",
+        "draw_id": "stdd-journey-draw",
+        "node_id": 5,
+        "label": "Árvore navegável",
+        "parent_task_id": "task:stdd-user-journeys:node:6",
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-user-journeys:node:7",
+        "task_id": "task:stdd-user-journeys:node:7",
+        "draw_id": "stdd-user-journeys",
+        "node_id": 7,
+        "label": "Bloqueado ou pendente",
+        "parent_task_id": null,
+        "checked": true,
+        "status": "done"
+      },
+      {
+        "id": "check:implementation:task:stdd-user-journeys:node:2",
+        "task_id": "task:stdd-user-journeys:node:2",
+        "draw_id": "stdd-user-journeys",
+        "node_id": 2,
+        "label": "Inicializar e instalar skills",
+        "parent_task_id": null,
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-journey-init:node:1",
+        "task_id": "task:stdd-journey-init:node:1",
+        "draw_id": "stdd-journey-init",
+        "node_id": 1,
+        "label": "Receber destino e integrações",
+        "parent_task_id": "task:stdd-user-journeys:node:2",
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-journey-init:node:2",
+        "task_id": "task:stdd-journey-init:node:2",
+        "draw_id": "stdd-journey-init",
+        "node_id": 2,
+        "label": "Criar configuração e estado",
+        "parent_task_id": "task:stdd-user-journeys:node:2",
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-journey-init:node:3",
+        "task_id": "task:stdd-journey-init:node:3",
+        "draw_id": "stdd-journey-init",
+        "node_id": 3,
+        "label": "Instalar skills e instruções",
+        "parent_task_id": "task:stdd-user-journeys:node:2",
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-journey-init:node:4",
+        "task_id": "task:stdd-journey-init:node:4",
+        "draw_id": "stdd-journey-init",
+        "node_id": 4,
+        "label": "Projeto pronto",
+        "parent_task_id": "task:stdd-user-journeys:node:2",
+        "checked": false,
+        "status": "pending"
+      },
+      {
+        "id": "check:implementation:task:stdd-user-journeys:node:8",
+        "task_id": "task:stdd-user-journeys:node:8",
+        "draw_id": "stdd-user-journeys",
+        "node_id": 8,
+        "label": "Entrega rastreável",
+        "parent_task_id": null,
+        "checked": false,
+        "status": "pending"
+      }
+    ]
+  },
   "backlogs": [
     {
       "id": "backlog:stdd-agent-journeys",
@@ -2299,7 +4294,11 @@
         "task:stdd-agent-journeys:node:9",
         "task:stdd-agent-journeys:node:13",
         "task:stdd-agent-journeys:node:4",
-        "task:stdd-agent-journeys:node:5"
+        "task:stdd-agent-journeys:node:5",
+        "task:stdd-agent-journeys:node:8",
+        "task:stdd-agent-journeys:node:10",
+        "task:stdd-agent-journeys:node:11",
+        "task:stdd-agent-journeys:node:12"
       ]
     },
     {
@@ -2313,7 +4312,9 @@
         "task:stdd-user-journeys:node:4",
         "task:stdd-user-journeys:node:5",
         "task:stdd-user-journeys:node:6",
-        "task:stdd-user-journeys:node:7"
+        "task:stdd-user-journeys:node:7",
+        "task:stdd-user-journeys:node:2",
+        "task:stdd-user-journeys:node:8"
       ]
     },
     {
@@ -2327,6 +4328,18 @@
         "task:stdd-journey-draw:node:3",
         "task:stdd-journey-draw:node:4",
         "task:stdd-journey-draw:node:5"
+      ]
+    },
+    {
+      "id": "backlog:stdd-journey-init",
+      "draw_id": "stdd-journey-init",
+      "title": "Implementação da jornada de inicialização",
+      "parent_task_id": "task:stdd-user-journeys:node:2",
+      "task_ids": [
+        "task:stdd-journey-init:node:1",
+        "task:stdd-journey-init:node:2",
+        "task:stdd-journey-init:node:3",
+        "task:stdd-journey-init:node:4"
       ]
     },
     {
@@ -2350,7 +4363,8 @@
         "task:stdd-journey-test:node:1",
         "task:stdd-journey-test:node:2",
         "task:stdd-journey-test:node:3",
-        "task:stdd-journey-test:node:4"
+        "task:stdd-journey-test:node:4",
+        "task:stdd-journey-test:node:5"
       ]
     }
   ],
@@ -2370,6 +4384,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-agent-journeys:node:1",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": true
+      },
       "child_checklist_id": null,
       "status": "done",
       "branch": {
@@ -2411,6 +4439,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-agent-journeys:node:2",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": true
+      },
       "child_checklist_id": null,
       "status": "done",
       "branch": {
@@ -2445,6 +4487,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-agent-journeys:node:3",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": true
+      },
       "child_checklist_id": null,
       "status": "done",
       "branch": {
@@ -2486,6 +4542,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-agent-journeys:node:6",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": true
+      },
       "child_checklist_id": null,
       "status": "done",
       "branch": {
@@ -2534,6 +4604,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-agent-journeys:node:7",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": true
+      },
       "child_checklist_id": null,
       "status": "done",
       "branch": {
@@ -2568,6 +4652,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-agent-journeys:node:9",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": true
+      },
       "child_checklist_id": null,
       "status": "done",
       "branch": {
@@ -2609,6 +4707,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-agent-journeys:node:13",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": true
+      },
       "child_checklist_id": null,
       "status": "done",
       "branch": {
@@ -2643,6 +4755,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-agent-journeys:node:4",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": true
+      },
       "child_checklist_id": null,
       "status": "done",
       "branch": {
@@ -2677,6 +4803,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-agent-journeys:node:5",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": true
+      },
       "child_checklist_id": null,
       "status": "done",
       "branch": {
@@ -2697,6 +4837,198 @@
       ]
     },
     {
+      "id": "task:stdd-agent-journeys:node:8",
+      "draw_id": "stdd-agent-journeys",
+      "backlog_id": "stdd-agent-journeys",
+      "parent_task_id": null,
+      "draw_title": "Agentes e responsabilidades do STDD",
+      "node_id": 8,
+      "level": 2,
+      "label": "$static-analysis",
+      "description": "Implementa ou conecta adapters agnósticos e produz fatos determinísticos sobre símbolos, dependências, complexidade, estrutura e alterações.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-agent-journeys:node:8",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-agent-journeys:branch:4",
+        "position": 1,
+        "terminal": true,
+        "terminal_node_id": 8,
+        "terminal_reason": "node-not-listed-in-flow"
+      },
+      "branches": [
+        {
+          "id": "stdd-agent-journeys:branch:4",
+          "position": 1,
+          "terminal": true,
+          "terminal_node_id": 8,
+          "terminal_reason": "node-not-listed-in-flow"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-agent-journeys:node:10",
+      "draw_id": "stdd-agent-journeys",
+      "backlog_id": "stdd-agent-journeys",
+      "parent_task_id": null,
+      "draw_title": "Agentes e responsabilidades do STDD",
+      "node_id": 10,
+      "level": 2,
+      "label": "Codex",
+      "description": "Integração de agente que instala as skills em .agents/skills/.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-agent-journeys:node:10",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-agent-journeys:branch:5",
+        "position": 1,
+        "terminal": true,
+        "terminal_node_id": 10,
+        "terminal_reason": "node-not-listed-in-flow"
+      },
+      "branches": [
+        {
+          "id": "stdd-agent-journeys:branch:5",
+          "position": 1,
+          "terminal": true,
+          "terminal_node_id": 10,
+          "terminal_reason": "node-not-listed-in-flow"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-agent-journeys:node:11",
+      "draw_id": "stdd-agent-journeys",
+      "backlog_id": "stdd-agent-journeys",
+      "parent_task_id": null,
+      "draw_title": "Agentes e responsabilidades do STDD",
+      "node_id": 11,
+      "level": 2,
+      "label": "Claude",
+      "description": "Integração de agente que instala as skills em .claude/skills/.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-agent-journeys:node:11",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-agent-journeys:branch:6",
+        "position": 1,
+        "terminal": true,
+        "terminal_node_id": 11,
+        "terminal_reason": "node-not-listed-in-flow"
+      },
+      "branches": [
+        {
+          "id": "stdd-agent-journeys:branch:6",
+          "position": 1,
+          "terminal": true,
+          "terminal_node_id": 11,
+          "terminal_reason": "node-not-listed-in-flow"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-agent-journeys:node:12",
+      "draw_id": "stdd-agent-journeys",
+      "backlog_id": "stdd-agent-journeys",
+      "parent_task_id": null,
+      "draw_title": "Agentes e responsabilidades do STDD",
+      "node_id": 12,
+      "level": 2,
+      "label": "Gemini",
+      "description": "Integração de agente que instala as skills em .gemini/skills/.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-agent-journeys:node:12",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-agent-journeys:branch:7",
+        "position": 1,
+        "terminal": true,
+        "terminal_node_id": 12,
+        "terminal_reason": "node-not-listed-in-flow"
+      },
+      "branches": [
+        {
+          "id": "stdd-agent-journeys:branch:7",
+          "position": 1,
+          "terminal": true,
+          "terminal_node_id": 12,
+          "terminal_reason": "node-not-listed-in-flow"
+        }
+      ]
+    },
+    {
       "id": "task:stdd-user-journeys:node:1",
       "draw_id": "stdd-user-journeys",
       "backlog_id": "stdd-user-journeys",
@@ -2711,6 +5043,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-user-journeys:node:1",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": true
+      },
       "child_checklist_id": null,
       "status": "done",
       "branch": {
@@ -2745,6 +5091,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-user-journeys:node:3",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": true
+      },
       "child_checklist_id": null,
       "status": "done",
       "branch": {
@@ -2786,6 +5146,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-user-journeys:node:4",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": true
+      },
       "child_checklist_id": "stdd-journey-test",
       "status": "done",
       "branch": {
@@ -2816,10 +5190,12 @@
         "task:stdd-journey-test:node:1",
         "task:stdd-journey-test:node:2",
         "task:stdd-journey-test:node:3",
-        "task:stdd-journey-test:node:4"
+        "task:stdd-journey-test:node:4",
+        "task:stdd-journey-test:node:5"
       ],
       "child_branch_ids": [
-        "stdd-journey-test:branch:1"
+        "stdd-journey-test:branch:1",
+        "stdd-journey-test:branch:2"
       ]
     },
     {
@@ -2837,6 +5213,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": null,
+      "test_owner_task_id": "task:stdd-user-journeys:node:4",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
       "child_checklist_id": null,
       "status": "pending",
       "branch": {
@@ -2871,6 +5261,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": null,
+      "test_owner_task_id": "task:stdd-user-journeys:node:4",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
       "child_checklist_id": null,
       "status": "pending",
       "branch": {
@@ -2928,6 +5332,20 @@
           "source": "python_ast"
         }
       ],
+      "test_ref": null,
+      "test_ref_error": null,
+      "test_owner_task_id": "task:stdd-user-journeys:node:4",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
       "child_checklist_id": null,
       "status": "pending",
       "branch": {
@@ -2962,6 +5380,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": null,
+      "test_owner_task_id": "task:stdd-user-journeys:node:4",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
       "child_checklist_id": null,
       "status": "pending",
       "branch": {
@@ -2982,6 +5414,54 @@
       ]
     },
     {
+      "id": "task:stdd-journey-test:node:5",
+      "draw_id": "stdd-journey-test",
+      "backlog_id": "stdd-journey-test",
+      "parent_task_id": "task:stdd-user-journeys:node:4",
+      "draw_title": "Implementação da jornada de verificação",
+      "node_id": 5,
+      "level": 3,
+      "label": "Gate bloqueado",
+      "description": "Falha de teste, contrato, análise ou segurança retorna status bloqueado.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "test_ref": null,
+      "test_ref_error": null,
+      "test_owner_task_id": "task:stdd-user-journeys:node:4",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-journey-test:branch:2",
+        "position": 1,
+        "terminal": true,
+        "terminal_node_id": 5,
+        "terminal_reason": "node-not-listed-in-flow"
+      },
+      "branches": [
+        {
+          "id": "stdd-journey-test:branch:2",
+          "position": 1,
+          "terminal": true,
+          "terminal_node_id": 5,
+          "terminal_reason": "node-not-listed-in-flow"
+        }
+      ]
+    },
+    {
       "id": "task:stdd-user-journeys:node:5",
       "draw_id": "stdd-user-journeys",
       "backlog_id": "stdd-user-journeys",
@@ -2996,6 +5476,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-user-journeys:node:5",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": true
+      },
       "child_checklist_id": "stdd-journey-log",
       "status": "done",
       "branch": {
@@ -3040,6 +5534,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": null,
+      "test_owner_task_id": "task:stdd-user-journeys:node:5",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
       "child_checklist_id": null,
       "status": "pending",
       "branch": {
@@ -3074,6 +5582,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": null,
+      "test_owner_task_id": "task:stdd-user-journeys:node:5",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
       "child_checklist_id": null,
       "status": "pending",
       "branch": {
@@ -3108,6 +5630,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": null,
+      "test_owner_task_id": "task:stdd-user-journeys:node:5",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
       "child_checklist_id": null,
       "status": "pending",
       "branch": {
@@ -3142,6 +5678,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": null,
+      "test_owner_task_id": "task:stdd-user-journeys:node:5",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
       "child_checklist_id": null,
       "status": "pending",
       "branch": {
@@ -3176,6 +5726,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-user-journeys:node:6",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": true
+      },
       "child_checklist_id": "stdd-journey-draw",
       "status": "done",
       "branch": {
@@ -3242,6 +5806,20 @@
           "source": "python_ast"
         }
       ],
+      "test_ref": null,
+      "test_ref_error": null,
+      "test_owner_task_id": "task:stdd-user-journeys:node:6",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
       "child_checklist_id": null,
       "status": "pending",
       "branch": {
@@ -3276,6 +5854,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": null,
+      "test_owner_task_id": "task:stdd-user-journeys:node:6",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
       "child_checklist_id": null,
       "status": "pending",
       "branch": {
@@ -3333,6 +5925,20 @@
           "source": "python_ast"
         }
       ],
+      "test_ref": null,
+      "test_ref_error": null,
+      "test_owner_task_id": "task:stdd-user-journeys:node:6",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
       "child_checklist_id": null,
       "status": "pending",
       "branch": {
@@ -3405,6 +6011,20 @@
           "source": "python_ast"
         }
       ],
+      "test_ref": null,
+      "test_ref_error": null,
+      "test_owner_task_id": "task:stdd-user-journeys:node:6",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
       "child_checklist_id": null,
       "status": "pending",
       "branch": {
@@ -3439,6 +6059,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": null,
+      "test_owner_task_id": "task:stdd-user-journeys:node:6",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
       "child_checklist_id": null,
       "status": "pending",
       "branch": {
@@ -3473,6 +6107,20 @@
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-user-journeys:node:7",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": true
+      },
       "child_checklist_id": null,
       "status": "done",
       "branch": {
@@ -3491,6 +6139,329 @@
           "terminal_reason": "flow-end"
         }
       ]
+    },
+    {
+      "id": "task:stdd-user-journeys:node:2",
+      "draw_id": "stdd-user-journeys",
+      "backlog_id": "stdd-user-journeys",
+      "parent_task_id": null,
+      "draw_title": "Jornadas de uso do STDD",
+      "node_id": 2,
+      "level": 2,
+      "label": "Inicializar e instalar skills",
+      "description": "O agente prepara .stdd/, instruções e skills para o projeto.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-user-journeys:node:2",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
+      "child_checklist_id": "stdd-journey-init",
+      "status": "pending",
+      "branch": {
+        "id": "stdd-user-journeys:branch:3",
+        "position": 1,
+        "terminal": true,
+        "terminal_node_id": 2,
+        "terminal_reason": "node-not-listed-in-flow"
+      },
+      "branches": [
+        {
+          "id": "stdd-user-journeys:branch:3",
+          "position": 1,
+          "terminal": true,
+          "terminal_node_id": 2,
+          "terminal_reason": "node-not-listed-in-flow"
+        }
+      ],
+      "child_backlog_id": "stdd-journey-init",
+      "child_task_ids": [
+        "task:stdd-journey-init:node:1",
+        "task:stdd-journey-init:node:2",
+        "task:stdd-journey-init:node:3",
+        "task:stdd-journey-init:node:4"
+      ],
+      "child_branch_ids": [
+        "stdd-journey-init:branch:1"
+      ]
+    },
+    {
+      "id": "task:stdd-journey-init:node:1",
+      "draw_id": "stdd-journey-init",
+      "backlog_id": "stdd-journey-init",
+      "parent_task_id": "task:stdd-user-journeys:node:2",
+      "draw_title": "Implementação da jornada de inicialização",
+      "node_id": 1,
+      "level": 3,
+      "label": "Receber destino e integrações",
+      "description": "A CLI valida o diretório e a seleção Codex, Claude ou Gemini.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "test_ref": null,
+      "test_ref_error": null,
+      "test_owner_task_id": "task:stdd-user-journeys:node:2",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-journey-init:branch:1",
+        "position": 1,
+        "terminal": false,
+        "terminal_node_id": 4,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-journey-init:branch:1",
+          "position": 1,
+          "terminal": false,
+          "terminal_node_id": 4,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-journey-init:node:2",
+      "draw_id": "stdd-journey-init",
+      "backlog_id": "stdd-journey-init",
+      "parent_task_id": "task:stdd-user-journeys:node:2",
+      "draw_title": "Implementação da jornada de inicialização",
+      "node_id": 2,
+      "level": 3,
+      "label": "Criar configuração e estado",
+      "description": "Cria .stdd/config.json, runs, features, draws e regras de gitignore.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "test_ref": null,
+      "test_ref_error": null,
+      "test_owner_task_id": "task:stdd-user-journeys:node:2",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-journey-init:branch:1",
+        "position": 2,
+        "terminal": false,
+        "terminal_node_id": 4,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-journey-init:branch:1",
+          "position": 2,
+          "terminal": false,
+          "terminal_node_id": 4,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-journey-init:node:3",
+      "draw_id": "stdd-journey-init",
+      "backlog_id": "stdd-journey-init",
+      "parent_task_id": "task:stdd-user-journeys:node:2",
+      "draw_title": "Implementação da jornada de inicialização",
+      "node_id": 3,
+      "level": 3,
+      "label": "Instalar skills e instruções",
+      "description": "Copia templates atuais e atualiza AGENTS.md, CLAUDE.md ou GEMINI.md.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "test_ref": null,
+      "test_ref_error": null,
+      "test_owner_task_id": "task:stdd-user-journeys:node:2",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-journey-init:branch:1",
+        "position": 3,
+        "terminal": false,
+        "terminal_node_id": 4,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-journey-init:branch:1",
+          "position": 3,
+          "terminal": false,
+          "terminal_node_id": 4,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-journey-init:node:4",
+      "draw_id": "stdd-journey-init",
+      "backlog_id": "stdd-journey-init",
+      "parent_task_id": "task:stdd-user-journeys:node:2",
+      "draw_title": "Implementação da jornada de inicialização",
+      "node_id": 4,
+      "level": 3,
+      "label": "Projeto pronto",
+      "description": "O agente pode usar as skills no projeto inicializado.",
+      "questions": [],
+      "code_refs": [
+        {
+          "symbol": "stdd.core.init_project",
+          "identity": "0b657e84450a304e",
+          "source_dependencies": [
+            "stdd.draw.ensure_draw_workspace",
+            "stdd.core.ensure_gitignore",
+            "stdd.core.ensure_agent_instructions"
+          ]
+        }
+      ],
+      "symbols": [
+        "stdd.core.init_project"
+      ],
+      "source_dependencies": [
+        "stdd.core.ensure_agent_instructions",
+        "stdd.core.ensure_gitignore",
+        "stdd.draw.ensure_draw_workspace"
+      ],
+      "traceability": [
+        {
+          "symbol": "stdd.core.init_project",
+          "identity": "0b657e84450a304e",
+          "status": "drift",
+          "file": "src/stdd/core.py",
+          "kind": "function",
+          "source": "python_ast"
+        }
+      ],
+      "test_ref": null,
+      "test_ref_error": null,
+      "test_owner_task_id": "task:stdd-user-journeys:node:2",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-journey-init:branch:1",
+        "position": 4,
+        "terminal": true,
+        "terminal_node_id": 4,
+        "terminal_reason": "flow-end"
+      },
+      "branches": [
+        {
+          "id": "stdd-journey-init:branch:1",
+          "position": 4,
+          "terminal": true,
+          "terminal_node_id": 4,
+          "terminal_reason": "flow-end"
+        }
+      ]
+    },
+    {
+      "id": "task:stdd-user-journeys:node:8",
+      "draw_id": "stdd-user-journeys",
+      "backlog_id": "stdd-user-journeys",
+      "parent_task_id": null,
+      "draw_title": "Jornadas de uso do STDD",
+      "node_id": 8,
+      "level": 2,
+      "label": "Entrega rastreável",
+      "description": "A mudança termina com fontes, testes, desenho e evidências coerentes no repositório.",
+      "questions": [],
+      "code_refs": [],
+      "symbols": [],
+      "source_dependencies": [],
+      "traceability": [],
+      "test_ref": null,
+      "test_ref_error": "test_ref ausente",
+      "test_owner_task_id": "task:stdd-user-journeys:node:8",
+      "test_status": "missing",
+      "test_evidence": {
+        "status": "missing",
+        "file": null,
+        "symbols": [],
+        "reason": "test_ref ausente"
+      },
+      "checklist_state": {
+        "test": false,
+        "implementation": false
+      },
+      "child_checklist_id": null,
+      "status": "pending",
+      "branch": {
+        "id": "stdd-user-journeys:branch:4",
+        "position": 1,
+        "terminal": true,
+        "terminal_node_id": 8,
+        "terminal_reason": "node-not-listed-in-flow"
+      },
+      "branches": [
+        {
+          "id": "stdd-user-journeys:branch:4",
+          "position": 1,
+          "terminal": true,
+          "terminal_node_id": 8,
+          "terminal_reason": "node-not-listed-in-flow"
+        }
+      ]
     }
   ],
   "execution": {
@@ -3498,6 +6469,22 @@
     "current_backlog_id": null,
     "current_branch_id": "stdd-user-journeys:branch:2",
     "branch_position": 2,
+    "current_phase": null,
+    "current_parent_task_id": null,
+    "current_subtask_id": null,
+    "bootstrap_done": false,
+    "verified_l2_task_ids": [],
+    "current_verified_batch_node_ids": [],
+    "current_association_node_ids": [],
+    "final_verification_done": false,
+    "lease_id": null,
+    "lease_started_at": null,
+    "lease_expires_at": null,
+    "last_claim_at": null,
+    "last_transition_at": null,
+    "lease_seconds": 900,
+    "task_batch_size": 1,
+    "task_batch_scope": "task",
     "completed_branches": [
       "stdd-agent-journeys:branch:1",
       "stdd-agent-journeys:branch:2",
@@ -3578,6 +6565,74 @@
         "completed": true
       },
       {
+        "id": "stdd-agent-journeys:branch:4",
+        "draw_id": "stdd-agent-journeys",
+        "backlog_id": "stdd-agent-journeys",
+        "flow_id": null,
+        "task_ids": [
+          "task:stdd-agent-journeys:node:8"
+        ],
+        "node_ids": [
+          8
+        ],
+        "edges": [],
+        "terminal_node_id": 8,
+        "terminal_reason": "node-not-listed-in-flow",
+        "scope": "root",
+        "completed": false
+      },
+      {
+        "id": "stdd-agent-journeys:branch:5",
+        "draw_id": "stdd-agent-journeys",
+        "backlog_id": "stdd-agent-journeys",
+        "flow_id": null,
+        "task_ids": [
+          "task:stdd-agent-journeys:node:10"
+        ],
+        "node_ids": [
+          10
+        ],
+        "edges": [],
+        "terminal_node_id": 10,
+        "terminal_reason": "node-not-listed-in-flow",
+        "scope": "root",
+        "completed": false
+      },
+      {
+        "id": "stdd-agent-journeys:branch:6",
+        "draw_id": "stdd-agent-journeys",
+        "backlog_id": "stdd-agent-journeys",
+        "flow_id": null,
+        "task_ids": [
+          "task:stdd-agent-journeys:node:11"
+        ],
+        "node_ids": [
+          11
+        ],
+        "edges": [],
+        "terminal_node_id": 11,
+        "terminal_reason": "node-not-listed-in-flow",
+        "scope": "root",
+        "completed": false
+      },
+      {
+        "id": "stdd-agent-journeys:branch:7",
+        "draw_id": "stdd-agent-journeys",
+        "backlog_id": "stdd-agent-journeys",
+        "flow_id": null,
+        "task_ids": [
+          "task:stdd-agent-journeys:node:12"
+        ],
+        "node_ids": [
+          12
+        ],
+        "edges": [],
+        "terminal_node_id": 12,
+        "terminal_reason": "node-not-listed-in-flow",
+        "scope": "root",
+        "completed": false
+      },
+      {
         "id": "stdd-journey-test:branch:1",
         "draw_id": "stdd-journey-test",
         "backlog_id": "stdd-journey-test",
@@ -3598,6 +6653,24 @@
         "edges": [],
         "terminal_node_id": 4,
         "terminal_reason": "flow-end",
+        "scope": "nested",
+        "completed": false
+      },
+      {
+        "id": "stdd-journey-test:branch:2",
+        "draw_id": "stdd-journey-test",
+        "backlog_id": "stdd-journey-test",
+        "parent_task_id": "task:stdd-user-journeys:node:4",
+        "flow_id": null,
+        "task_ids": [
+          "task:stdd-journey-test:node:5"
+        ],
+        "node_ids": [
+          5
+        ],
+        "edges": [],
+        "terminal_node_id": 5,
+        "terminal_reason": "node-not-listed-in-flow",
         "scope": "nested",
         "completed": false
       },
@@ -3664,6 +6737,7 @@
           "task:stdd-journey-test:node:2",
           "task:stdd-journey-test:node:3",
           "task:stdd-journey-test:node:4",
+          "task:stdd-journey-test:node:5",
           "task:stdd-user-journeys:node:5",
           "task:stdd-journey-log:node:1",
           "task:stdd-journey-log:node:2",
@@ -3700,6 +6774,7 @@
           "task:stdd-journey-test:node:2",
           "task:stdd-journey-test:node:3",
           "task:stdd-journey-test:node:4",
+          "task:stdd-journey-test:node:5",
           "task:stdd-user-journeys:node:7",
           "task:stdd-user-journeys:node:3"
         ],
@@ -3711,6 +6786,68 @@
         "edges": [],
         "terminal_node_id": 3,
         "terminal_reason": "flow-end",
+        "scope": "root",
+        "completed": false
+      },
+      {
+        "id": "stdd-journey-init:branch:1",
+        "draw_id": "stdd-journey-init",
+        "backlog_id": "stdd-journey-init",
+        "parent_task_id": "task:stdd-user-journeys:node:2",
+        "flow_id": 1,
+        "task_ids": [
+          "task:stdd-journey-init:node:1",
+          "task:stdd-journey-init:node:2",
+          "task:stdd-journey-init:node:3",
+          "task:stdd-journey-init:node:4"
+        ],
+        "node_ids": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "edges": [],
+        "terminal_node_id": 4,
+        "terminal_reason": "flow-end",
+        "scope": "nested",
+        "completed": false
+      },
+      {
+        "id": "stdd-user-journeys:branch:3",
+        "draw_id": "stdd-user-journeys",
+        "backlog_id": "stdd-user-journeys",
+        "flow_id": null,
+        "task_ids": [
+          "task:stdd-user-journeys:node:2",
+          "task:stdd-journey-init:node:1",
+          "task:stdd-journey-init:node:2",
+          "task:stdd-journey-init:node:3",
+          "task:stdd-journey-init:node:4"
+        ],
+        "node_ids": [
+          2
+        ],
+        "edges": [],
+        "terminal_node_id": 2,
+        "terminal_reason": "node-not-listed-in-flow",
+        "scope": "root",
+        "completed": false
+      },
+      {
+        "id": "stdd-user-journeys:branch:4",
+        "draw_id": "stdd-user-journeys",
+        "backlog_id": "stdd-user-journeys",
+        "flow_id": null,
+        "task_ids": [
+          "task:stdd-user-journeys:node:8"
+        ],
+        "node_ids": [
+          8
+        ],
+        "edges": [],
+        "terminal_node_id": 8,
+        "terminal_reason": "node-not-listed-in-flow",
         "scope": "root",
         "completed": false
       }

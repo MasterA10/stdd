@@ -14,8 +14,8 @@ Investigar cada marcação endereçada a esta skill e decidir se ela representa 
 As marcações nos Draws utilizam um sistema de tags com comportamentos específicos:
 - `@STDD`: indica uma pendência a ser resolvida pelo agente autônomo.
 - `@developer`: indica uma pendência que necessita intervenção humana.
-- `@OBS`: indica uma decisão arquitetural que o agente deve ler, incorporar ao contexto e, em seguida, remover a tag após processamento.
-- Quando a pergunta tiver resposta, a @tag é removida automaticamente pelo backend.
+- `@OBS`: indica uma decisão arquitetural respondida que o agente deve ler e incorporar ao contexto; remova a tag somente com `stdd draw consume-observation` depois do consumo explícito.
+- Quando a pergunta tiver resposta, o backend remove automaticamente somente `@stdd` e `@developer`; `@obs` permanece como contexto até ser consumida.
 
 ## Localização das marcações
 
@@ -46,7 +46,7 @@ Leia a task, o nó do Draw, suas perguntas e respostas, `code_refs`, símbolos, 
 
 - Grave a resposta em `question.answer`, respeitando `choice`, `boolean` ou `open`.
 - Associe no próprio nó os símbolos comprovados em `code_refs`, preservando referências existentes.
-- Remova somente `@stdd` do `question.prompt` quando a resposta estiver comprovada.
+- Remova somente `@stdd` ou `@developer` do `question.prompt` quando a resposta estiver comprovada; deixe `@obs` para o consumo explícito.
 - Se não houver evidência, mantenha a pergunta aberta e associe apenas o arquivo/símbolo relevante que puder ser comprovado.
 
 Uma pergunta respondida não deve continuar aberta; uma pergunta sem evidência mantém a pergunta aberta.
@@ -87,3 +87,7 @@ Descreva os arquivos, símbolos, testes, contratos ou fatos que sustentam o resu
 ### Limitações
 
 Informe incertezas relevantes. Se não houver, escreva `Nenhuma limitação relevante encontrada.`
+
+## Execução incremental
+
+Consuma exatamente uma task por interação: `backlog test`/`backlog task`, leitura do contexto, mudança comprovada, testes e `backlog complete <task-id>`. Erros são caminhos condicionais (`se`/`ou`) e validações ficam antes de efeitos críticos. Use o grupo terminal `Não implementado` para escopo planejado, sem inventar sequência. APIs e apps externos devem ser registrados no `AGENTS.md` e consultados na documentação oficial.

@@ -117,9 +117,6 @@
       ]
     }
   ],
-  "tradeoffs": [
-    "A inicialização é idempotente e preserva instruções existentes, mas mantém o estado operacional dentro do projeto."
-  ],
   "notes": [
     "A associação está no nó que representa o caso de uso real, não em um nó genérico de arquitetura."
   ]

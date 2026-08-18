@@ -118,7 +118,7 @@ $draw-system-level-1 Modele a arquitetura macro do sistema.
 $draw-system-level-2 Modele as jornadas por papel — separando cliente, administrador e permissões.
 $draw-system-level-3 Modele de ponta a ponta o comportamento das telas que exigem regras, validações ou autorização.
 $draw-system-level-4 Abra somente o recorte de codebase que exija rastreabilidade técnica.
-$draw-feature Mostre a arquitetura e os trade-offs dessa feature.
+$draw-feature Mostre a arquitetura e as decisões dessa feature.
 $draw-improve Evolua o desenho em um ciclo curto e pare para minha revisão.
 $implement Execute somente depois da aprovação.
 ```
@@ -214,7 +214,13 @@ stdd backlog task
 stdd backlog complete <task-id>
 ```
 
+O padrão é uma task por interação. Para fluxos maiores, configure de 1 a 5 itens e o escopo do lote (`task` ou `node`) em `.stdd/config.json` ou com `stdd backlog config --task-batch-size 2 --task-batch-scope node`. Cada item continua exigindo seu próprio `backlog complete`. O cursor usa lease e respeita a janela mínima configurada (`min_task_interval_seconds`, nunca menor que 3 quando habilitada), bloqueando chamadas fora de ordem ou tentativas de avançar várias tasks em um único script.
+
+O bootstrap, quando habilitado, é sempre a primeira task e audita Draw System nível 1, `.stdd/design.md`, ambiente, dependências, arquivos essenciais, `.env.example` e a estrutura mínima de armazenamento. O design precisa existir, estar preenchido e declarar identidade visual, tipografia, espaçamento, estados, acessibilidade e contraste; o template inicial bloqueia a execução até ser substituído. Após cada nó L2 e seus subfluxos, o backlog pode injetar duas tasks separadas: auditoria funcional real (API, persistência, validações, estados e efeitos) e associação de símbolos, arquivos de implementação e testes. A task final valida inicialização, renderização, uso básico e lacunas funcionais.
+
 `stdd backlog task` mostra por padrão somente o contexto acionável em linguagem humana: task, fluxo, nó, uma decisão respondida e os símbolos associados. Para integrações que precisem do payload estruturado completo, use `stdd backlog task --json`.
+
+O contexto também informa o predecessor imediato, descrição anterior, conexão, condição (`então`, `ou`, `se`), origem e caminho de acesso. O primeiro nó não recebe uma origem artificial. Os estados distinguem testes ausentes, testes prontos, implementação em andamento e backlog concluído.
 
 Antes da implementação, crie incrementalmente o teste da jornada:
 
@@ -286,6 +292,8 @@ Ao clicar em `＋ Novo desenho`, o Draw pede o nome do desenho antes de criá-lo
 
 O Live Server continua opcional para desenvolvimento do próprio editor React, mas não é necessário para usar o viewer instalado.
 
+Na aba `Backlog`, o viewer usa o Draw Server local para separar as fases do ciclo: `POST /__stdd/api/backlog/test` reserva a task de testes, `POST /__stdd/api/backlog/tasks/<task-id>/complete` conclui a fase atual e `POST /__stdd/api/backlog/refresh` regenera as evidências exibidas. A implementação só fica disponível depois que o teste da task e de seus subfluxos estiver concluído.
+
 Atalhos e gestos principais:
 
 - Duplo clique em um bloco: editar nome e descrição diretamente.
@@ -317,6 +325,17 @@ O cabeçalho do desenho pode ser editado com duplo clique. Setas selecionadas ex
 ### Perguntas de esclarecimento no Draw
 
 Um bloco pode declarar opcionalmente `questions` no JSON lógico. Cada pergunta usa `type: "choice"`, `"boolean"` ou `"open"`, e pode manter `answer: null` até uma decisão ser tomada. O badge numérico no bloco mostra quantas perguntas ainda estão sem resposta; quando todas forem respondidas, ele permanece visível com `0` para preservar o histórico. Clique no badge para responder diretamente no bloco. Perguntas respondidas continuam no JSON e no painel, inclusive respostas booleanas `false`.
+
+As tags são case-insensitive: `@stdd` representa ação do agente, `@developer` representa resposta humana e `@obs` registra contexto que o agente deve consumir. O comando canônico para pendências é:
+
+```bash
+stdd draw questions
+stdd draw questions --tag developer
+stdd draw questions --tag obs --answered
+stdd draw consume-observation --draw-id <draw-id> --question-id <id> [--node-id <node-id>]
+```
+
+Respostas removem automaticamente somente `@stdd` e `@developer`; `@obs` permanece até o consumo explícito, que devolve pergunta e resposta e remove apenas a tag. Perguntas gerais, sem `node_id`, pertencem ao painel de melhorias; perguntas de nó permanecem associadas ao nó.
 
 ## Segurança e análise estática
 

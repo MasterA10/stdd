@@ -62,7 +62,7 @@ Uma tela de transição, loading, confirmação ou encaminhamento que apenas con
 
 ## Funcionalidades não implementadas
 
-Uma opção planejada e ainda não implementada é um nó terminal: registre o estado `não implementado`, não crie continuação fictícia, não dê filhos, não aponte para nível 3 e preserve perguntas/trade-offs necessários. Quando houver mistura de implementado e planejado, crie um grupo específico `Não implementado` ou `Planejado`; atribua os nós ao grupo e deixe a diferenciação visual para a paleta semântica do viewer. Nunca grave cor individual. Essa regra vale para todo fluxo e subfluxo; se não houver escopo planejado, não invente grupo.
+Uma opção planejada e ainda não implementada é um nó terminal: registre o estado `não implementado`, não crie continuação fictícia, não dê filhos, não aponte para nível 3 e preserve perguntas e decisões necessárias. Quando houver mistura de implementado e planejado, crie um grupo específico `Não implementado` ou `Planejado`; atribua os nós ao grupo e deixe a diferenciação visual para a paleta semântica do viewer. Nunca grave cor individual. Essa regra vale para todo fluxo e subfluxo; se não houver escopo planejado, não invente grupo.
 
 ## Convenção lógica de conexões
 
@@ -83,7 +83,7 @@ Nunca misture `se` com `ou` na mesma decisão, em nenhuma direção ou rótulo. 
 5. Use `groups` para fronteiras e `flows` para caminhos temporais. Não grave layout, posição, cor, data ou HTML.
 6. Valide nós, relações, etapas de fluxo, grupos de não implementados, perguntas e referências hierárquicas.
 7. Grave com `stdd draw create --data-json '<JSON>'` e confira com `stdd draw serve`.
-8. Revise a árvore, trade-offs, folhas não implementadas e todas as telas que exigem nível 3.
+8. Revise a árvore, folhas não implementadas e todas as telas que exigem nível 3.
 9. Pare e pergunte se o usuário quer continuar para `$draw-system-level-3`; não crie comportamento antes da aprovação.
 
 Registre a alteração:
@@ -92,4 +92,8 @@ Registre a alteração:
 stdd log "Cria jornadas do sistema no nível 2" --type implementacao
 ```
 
-Entregue raiz, ID da jornada, telas com `draw_ref`, folhas não implementadas, perguntas, trade-offs, arquivos alterados e o comando de revisão visual.
+Entregue raiz, ID da jornada, telas com `draw_ref`, folhas não implementadas, perguntas, arquivos alterados e o comando de revisão visual.
+
+## Regras do ciclo interativo
+
+Erros são consequências condicionais (`se`/`ou`), nunca sequência inevitável; valide no ponto de entrada da ação, antes de persistir ou chamar integrações. Funcionalidades planejadas ficam no grupo terminal `Não implementado`. A arquitetura é TDD: execute `backlog test` antes de produção, trate uma task por interação e conclua somente o ID recebido por `backlog complete`.

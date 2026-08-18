@@ -237,3 +237,7 @@ stdd log "Implementa comportamento aprovado" --impl
 ## Conclusão
 
 Declarar sucesso somente com diff dentro do escopo, testes relevantes passando, sintaxe válida, nenhuma regressão estrutural injustificada e limitações explícitas. Informar arquivos alterados, comandos e resultados, evidências, testes `not_executed` e próxima ação necessária.
+
+## Regras de interação
+
+Execute uma task por vez: `backlog test` antes de produção, `backlog task` para reservar, testes reais e `backlog complete <task-id>` para concluir. Diferencie testes pendentes, testes prontos, implementação em andamento e backlog concluído. Valide entrada antes de efeitos; erros são consequências condicionais e folhas planejadas permanecem terminais no grupo próprio.

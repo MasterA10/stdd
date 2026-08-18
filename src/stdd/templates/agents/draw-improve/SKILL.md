@@ -109,6 +109,10 @@ O desenho não autoriza alteração direta de produção.
 - `$implement` deve executar primeiro o contrato de `$create-tests` e somente depois alterar produção.
 - Não pular a etapa de testes nem tratar Draw aprovado como teste aprovado.
 
+## Regras do ciclo interativo
+
+Uma melhoria pode, quando autorizada e comprovada, criar ou alterar nós, conexões, grupos e referências no ponto arquitetural correto; não fica limitada a perguntas. Erros são condicionais (`se`/`ou`), validações antecedem efeitos e funcionalidades planejadas permanecem terminais no grupo `Não implementado`. Após aplicar, execute `backlog test` antes de produção e registre a alteração com `stdd log`.
+
 ## Encerramento
 
 Informar:

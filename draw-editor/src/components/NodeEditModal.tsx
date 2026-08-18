@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { NodeData } from '../types';
 import { X } from 'lucide-react';
 
@@ -11,6 +11,14 @@ interface NodeEditModalProps {
 export const NodeEditModal: React.FC<NodeEditModalProps> = ({ node, onClose, onSave }) => {
   const [label, setLabel] = useState(node.label || '');
   const [description, setDescription] = useState(node.description || '');
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const textarea = descriptionRef.current;
+    if (!textarea) return;
+    textarea.style.height = 'auto';
+    textarea.style.height = `${Math.min(textarea.scrollHeight, window.innerHeight * 0.55)}px`;
+  }, [description]);
 
   const handleSave = () => {
     onSave(node.id, label, description);
@@ -49,8 +57,10 @@ export const NodeEditModal: React.FC<NodeEditModalProps> = ({ node, onClose, onS
           
           <div className="dialog-fields" style={{ marginTop: '16px' }}>
             <label>Descrição</label>
-            <textarea 
-              value={description} 
+              <textarea
+                ref={descriptionRef}
+                aria-label="Descrição integral do bloco"
+                value={description}
               onChange={(e) => setDescription(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Descreva os detalhes e regras deste bloco..."

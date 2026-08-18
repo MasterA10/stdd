@@ -17,6 +17,7 @@ from .models import REWORK_LINE_THRESHOLD, RunLogEntry
 from .runs import ensure_runs_workspace, update_runs_index
 from .static_analysis import run_static_analysis, write_static_analysis_kpis
 from .traceability import refresh_traceability
+from .setup import ensure_design_document
 
 VALID_WORK_TYPES = {"bug", "teste", "implementacao", "refactor"}
 DEFAULT_CODE_EXTENSIONS = {
@@ -108,6 +109,8 @@ Este projeto usa o STDD para especificação, implementação, testes e evidênc
 - A análise de código deve permanecer separada da análise dos Draws/JSONs; preserve símbolos, referências e métricas gerais quando a stack oferecer essa capacidade.
 - Antes de qualquer commit ou push na branch `main`, confirme que o diff inclui as fontes, templates, skills, assets empacotados, README e testes necessários para o comando de instalação do README reproduzir a versão publicada.
 - Depois de alterar o framework, valide a instalação equivalente com `uv tool install --force --editable .` e confirme que `stdd init` instala as skills atuais; não publique somente uma parte da alteração.
+- Ao integrar APIs/apps externos, registre o contrato no `AGENTS.md` e consulte a documentação oficial antes de implementar.
+- Preencha `.stdd/design.md` com identidade visual, tipografia, espaçamento, estados, acessibilidade e contraste antes do bootstrap.
 - Ao relatar o resultado, informe status, arquivos alterados, testes executados, evidências e limitações.
 {STDD_AGENT_BLOCK_END}"""
 _STDD_AGENT_BLOCK_PATTERN = re.compile(
@@ -185,6 +188,10 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list
                         "bootstrap_task": False,
                         "l2_verification_interval": 0,
                         "final_verification_task": False,
+                        "task_batch_size": 1,
+                        "task_batch_scope": "task",
+                        "min_task_interval_seconds": 0,
+                        "l2_post_verification_tasks": False,
                     },
                     "version": 1,
                 },
@@ -200,6 +207,9 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list
     created.extend(ensure_draw_workspace(root, include_example=True))
     created.extend(ensure_improvement_workspace(root))
     created.extend(ensure_runs_workspace(root))
+    design_path = ensure_design_document(root)
+    if design_path not in created:
+        created.append(design_path)
     created.extend(ensure_gitignore(root))
 
     for integration in integrations:
@@ -536,22 +546,44 @@ def get_workspace_snapshot(root: Path) -> dict[str, list[str]]:
             
     import fnmatch
 
-    snapshot: dict[str, list[str]] = {}
-    for path in sorted(root.rglob("*")):
-        ignored_by_file = False
-        for pattern in gitignore_patterns:
-            if not pattern.endswith("/") and fnmatch.fnmatch(path.name, pattern):
-                ignored_by_file = True
-                break
+    candidates = [
+        path for path in sorted(root.rglob("*"))
+        if path.is_file()
+        and path.suffix.lower() in tracked_exts
+        and not ignored_dirs.intersection(path.parts)
+    ]
+    relative_candidates = [path.relative_to(root).as_posix() for path in candidates]
+    ignored_by_git: set[str] = set()
+    if relative_candidates:
+        try:
+            checked = subprocess.run(
+                ["git", "check-ignore", "--no-index", "-z", "--stdin"],
+                cwd=root,
+                input="\0".join(relative_candidates) + "\0",
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            ignored_by_git = {item for item in checked.stdout.split("\0") if item}
+        except OSError:
+            ignored_by_git = set()
 
-        if (
-            path.is_file()
-            and not ignored_by_file
-            and path.suffix.lower() in tracked_exts
-            and not ignored_dirs.intersection(path.parts)
-        ):
+    snapshot: dict[str, list[str]] = {}
+    for path, rel_path in zip(candidates, relative_candidates):
+        ignored_by_file = rel_path in ignored_by_git
+        if not ignored_by_file:
+            # Fallback for directories outside a Git checkout.  Match the
+            # complete relative path as well as the basename, preserving
+            # common patterns such as ``generated/*.py``.
+            for pattern in gitignore_patterns:
+                if pattern.endswith("/"):
+                    continue
+                candidate_pattern = pattern.lstrip("/")
+                if fnmatch.fnmatch(rel_path, candidate_pattern) or fnmatch.fnmatch(path.name, candidate_pattern):
+                    ignored_by_file = True
+                    break
+        if not ignored_by_file:
             try:
-                rel_path = str(path.relative_to(root))
                 snapshot[rel_path] = path.read_text(encoding="utf-8").splitlines()
             except (UnicodeDecodeError, PermissionError):
                 continue

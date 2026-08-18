@@ -4,7 +4,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from stdd.backlog import build_backlog, check_backlog, complete_backlog_task, generate_backlog, next_backlog_task, next_backlog_test, read_backlog, update_backlog_checklist
+from stdd.backlog import bootstrap_report, build_backlog, check_backlog, complete_backlog_task, generate_backlog, next_backlog_task, next_backlog_test, read_backlog, update_backlog_checklist
 from stdd.cli import app
 from stdd.core import init_project, run_tests
 from stdd.draw import create_draw
@@ -758,3 +758,33 @@ def test_backlog_cli_config_and_interval_option(tmp_path: Path, monkeypatch):
     assert "task:jornada:node:2" in task3_res.stdout
 
 
+def test_backlog_context_batch_and_claim_window_are_explicit(tmp_path: Path):
+    """Entrega predecessor, condição e lote sem permitir avanço rápido configurado.
+    Confirma que o cursor preserva contexto e que cada task continua sendo concluída por ID.
+    """
+    (tmp_path / ".stdd").mkdir()
+    (tmp_path / ".stdd/config.json").write_text(json.dumps({"backlog": {"task_batch_size": 2, "task_batch_scope": "task", "min_task_interval_seconds": 3}}), encoding="utf-8")
+    _create_hierarchical_fixture(tmp_path)
+    generate_backlog(tmp_path)
+
+    first = next_backlog_task(tmp_path)
+    assert first["state"] == "implementation_in_progress"
+    assert [item["id"] for item in first["batch"]] == ["task:jornada:node:1", "task:jornada:node:2"]
+    complete_backlog_task(tmp_path, first["task"]["id"])
+
+    try:
+        next_backlog_task(tmp_path)
+    except ValueError as error:
+        assert "janela mínima" in str(error)
+    else:
+        raise AssertionError("a janela mínima deveria bloquear o avanço imediato")
+
+
+def test_bootstrap_report_requires_design_and_environment_contract(tmp_path: Path):
+    """Expõe os bloqueios mínimos do bootstrap em um projeto incompleto.
+    Confirma que design, Draw raiz, configuração, armazenamento e env example são auditados.
+    """
+    report = bootstrap_report(tmp_path)
+
+    assert report["status"] == "blocked"
+    assert {"system_level_1", "design", "env_example", "stdd_config", "draw_storage"}.issubset(report["failures"])

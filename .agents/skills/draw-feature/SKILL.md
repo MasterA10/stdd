@@ -1,11 +1,11 @@
 ---
 name: draw-feature
-description: Cria JSONs de features, fluxos, arquiteturas e trade-offs para o viewer Draw do STDD, sem escrever HTML manualmente.
+description: Cria JSONs de features, fluxos, arquiteturas e decisões para o viewer Draw do STDD, sem escrever HTML manualmente.
 ---
 
 # Draw Feature
 
-Use esta skill quando uma feature, decisão, arquitetura ou trade-off ficar mais fácil de entender com um desenho de nós e relações.
+Use esta skill quando uma feature, decisão ou arquitetura ficar mais fácil de entender com um desenho de nós e relações.
 
 ## Hierarquia do sistema
 
@@ -20,7 +20,7 @@ Desenhos integrados a essa árvore devem declarar `hierarchy.level`, `hierarchy.
 
 ## Fluxo
 
-1. Modele o problema como dados: nós, grupos, relações, fluxos, trade-offs e, quando aplicável, a posição na hierarquia do sistema.
+1. Modele o problema como dados: nós, grupos, relações, fluxos e, quando aplicável, a posição na hierarquia do sistema.
 2. Use IDs estáveis, labels curtos e descrições que expliquem a responsabilidade de cada nó. Identifique o papel do usuário em cada jornada; não trate cliente e administrador como o mesmo ator quando as permissões ou objetivos forem diferentes.
 3. Faça cada relação declarar origem, destino, tipo e motivo.
 4. Gere ou atualize somente o JSON usando:
@@ -35,13 +35,17 @@ Depois de criar ou atualizar o JSON, inclusive quando somente o Draw mudou, regi
 stdd log "Atualiza desenho da feature" --impl
 ```
 
+## Regras obrigatórias do loop
+
+Erros são consequências condicionais (`se`/`ou`), validações antecedem ações críticas e funcionalidade planejada fica terminal no grupo `Não implementado`. Consulte `backlog test` antes de produção, execute uma task por interação e conclua pelo ID com `backlog complete`. Perguntas gerais sem `node_id` pertencem ao painel geral de melhorias.
+
 5. Abra o viewer com:
 
 ```bash
 stdd draw serve
 ```
 
-6. Selecione o desenho gerado no índice e confira conexões, fluxo e trade-offs.
+6. Selecione o desenho gerado no índice e confira conexões, fluxo e decisões.
 
 7. Para editar manualmente, interaja diretamente com o canvas: selecione e mova blocos, altere os controles embutidos ou arraste a porta roxa de saída até o destino. O botão `Conectar blocos` mantém o fluxo alternativo por dois cliques. Toda exclusão pede confirmação.
 8. Para começar do zero, use `Novo desenho`, informe o título e adicione o primeiro bloco. Um canvas sem nós é válido. As mudanças ficam pendentes até o usuário pressionar `Salvar alterações`.
@@ -53,7 +57,7 @@ Não escreva HTML, CSS ou JavaScript para um desenho individual. O layout e os c
 
 ## Modelo de dados
 
-O JSON deve conter `id`, `title`, `kind`, `nodes` e `edges`. Pode conter `groups`, `flows`, `tradeoffs` e `notes`.
+O JSON deve conter `id`, `title`, `kind`, `nodes` e `edges`. Pode conter `groups`, `flows` e `notes`. Decisões ficam em perguntas respondidas; não há chave de alternativas no contrato ativo.
 
 O `id` do desenho deve ser descritivo, seguro e corresponder ao nome do JSON, por exemplo `checkout-resiliente`. `draw_ref` usa o mesmo tipo de ID para relacionar um fluxo a um subfluxo. IDs internos de nós, grupos, relações e fluxos devem ser números inteiros não negativos.
 
@@ -68,7 +72,7 @@ Use `nodes` para representar sistemas, módulos, atores, decisões, tabelas ou e
 - `alternative-to`;
 - `flow`.
 
-Use `flows` para mostrar caminhos temporais ou operacionais. Use `tradeoffs` para registrar uma decisão, as opções consideradas, prós, contras e impacto.
+Use `flows` para mostrar caminhos temporais ou operacionais. Registre decisões como perguntas respondidas no nó mais relacionado, preservando a evidência e o histórico.
 
 Toda seta deve declarar `condition` como código numérico: `1` representa `então`, `2` representa `ou` e `3` representa `se`. O viewer converte os códigos para os nomes no HTML. Use `label` e `description` para explicar o significado específico do caminho sem inventar um novo código.
 

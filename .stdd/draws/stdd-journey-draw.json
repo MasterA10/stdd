@@ -160,10 +160,6 @@
       ]
     }
   ],
-  "tradeoffs": [
-    "O layout é preferência do viewer e não faz parte da fonte de verdade; isso preserva portabilidade e revisão por diff textual.",
-    "A API é local, simples e suficiente para uso individual, mas não modela colaboração concorrente."
-  ],
   "notes": [
     "Este é o caminho usado para documentar o próprio STDD nesta solicitação."
   ]

@@ -12,7 +12,7 @@ import {
 import type { Connection, Edge, EdgeChange, Node, EdgeTypes } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import type { BacklogDocument, Contract, DrawIndexEntry, ImprovementIndexEntry, ImprovementSession, NodeData, EdgeData, RunRecord, TraceabilityFacts, StaticAnalysisKpiReport } from './types';
+import type { BacklogActionResponse, BacklogDocument, Contract, DrawIndexEntry, ImprovementIndexEntry, ImprovementSession, NodeData, EdgeData, RunRecord, TraceabilityFacts, StaticAnalysisKpiReport } from './types';
 import { CustomNode } from './components/CustomNode';
 import { LoopEdge } from './components/LoopEdge';
 import { Sidebar } from './components/Sidebar';
@@ -24,7 +24,7 @@ import { ConfirmModal } from './components/ConfirmModal';
 import { FocusDetailModal } from './components/FocusDetailModal';
 import { ImprovementEditor } from './components/ImprovementEditor';
 import { NodeEditModal } from './components/NodeEditModal';
-import { layoutCurvedGraph, computeEdgeHandles } from './layout';
+import { layoutCurvedGraph, computeEdgeHandles, getCycleEdges } from './layout';
 import { RotateCcw, Save, Download, Sun, Moon, Contrast, Sparkles, ClipboardList, X } from 'lucide-react';
 
 import defaultContract from '../contract.json';
@@ -171,12 +171,58 @@ export const App: React.FC = () => {
       } catch (error: any) { alert(`Erro ao reservar task: ${error.message}`); return; }
     }
     updateLocalBacklog((previous) => {
+      if (previous.execution.current_phase === 'test') return previous;
       const current = previous.execution.current_task_id;
-      const task = previous.tasks.find((item) => item.id === current) || previous.tasks.find((item) => item.status !== 'done');
+      const task = previous.tasks.find((item) => item.id === current) || previous.tasks.find((item) => item.status !== 'done' && (item.level !== 2 || item.test_status === 'done'));
       if (!task) return previous;
       const tasks = previous.tasks.map((item) => item.id === task.id ? { ...item, status: 'in_progress' as const } : item);
-      return { ...previous, tasks, execution: { ...previous.execution, current_task_id: task.id, current_backlog_id: task.backlog_id, current_branch_id: task.branch?.id, branch_position: task.branch?.position } };
+      return { ...previous, tasks, execution: { ...previous.execution, current_task_id: task.id, current_backlog_id: task.backlog_id, current_branch_id: task.branch?.id, branch_position: task.branch?.position, current_phase: 'implementation' as const } };
     });
+  };
+
+  const claimBacklogTest = async () => {
+    if (storageMode === 'backend') {
+      try {
+        const response = await fetch(`${getApiOrigin()}/__stdd/api/backlog/test`, { method: 'POST' });
+        const result = await response.json().catch(() => ({})) as BacklogActionResponse;
+        if (!response.ok) throw new Error((result as any).error || `HTTP ${response.status}`);
+        await loadBacklog();
+        return;
+      } catch (error: any) { alert(`Erro ao reservar testes: ${error.message}`); return; }
+    }
+    updateLocalBacklog((previous) => {
+      if (previous.execution.current_task_id) return previous;
+      const task = previous.tasks.find((item) => item.level === 2 && item.status !== 'done' && item.test_status !== 'done');
+      if (!task) return previous;
+      const tasks = previous.tasks.map((item) => item.id === task.id
+        ? { ...item, status: 'in_progress' as const, test_status: 'in_progress' as const }
+        : item);
+      return {
+        ...previous,
+        tasks,
+        execution: {
+          ...previous.execution,
+          current_task_id: task.id,
+          current_backlog_id: task.backlog_id,
+          current_branch_id: task.branch?.id,
+          branch_position: task.branch?.position,
+          current_phase: 'test' as const
+        }
+      };
+    });
+  };
+
+  const refreshBacklog = async () => {
+    if (storageMode === 'backend') {
+      try {
+        const response = await fetch(`${getApiOrigin()}/__stdd/api/backlog/refresh`, { method: 'POST' });
+        const result = await response.json().catch(() => ({})) as BacklogActionResponse;
+        if (!response.ok) throw new Error((result as any).error || `HTTP ${response.status}`);
+        setBacklog(result.backlog || null);
+        return;
+      } catch (error: any) { alert(`Erro ao atualizar backlog: ${error.message}`); return; }
+    }
+    await loadBacklog();
   };
 
   const completeBacklogTask = async (taskId: string) => {
@@ -190,7 +236,35 @@ export const App: React.FC = () => {
     }
     updateLocalBacklog((previous) => {
       if (previous.execution.current_task_id !== taskId) return previous;
-      return { ...previous, tasks: previous.tasks.map((item) => item.id === taskId ? { ...item, status: 'done' as const } : item), execution: { ...previous.execution, current_task_id: null, current_backlog_id: null } };
+      if (previous.execution.current_phase === 'test') {
+        const current = previous.tasks.find((item) => item.id === taskId);
+        if (!current) return previous;
+        const scopeIds = new Set([current.id, ...(current.child_task_ids || [])]);
+        const tasks = previous.tasks.map((item) => scopeIds.has(item.id)
+          ? { ...item, test_status: 'done' as const, checklist_state: { ...(item.checklist_state || { test: false, implementation: false }), test: true } }
+          : item);
+        return {
+          ...previous,
+          tasks,
+          phase_checklists: {
+            ...(previous.phase_checklists || { test: [], implementation: [] }),
+            test: (previous.phase_checklists?.test || []).map((item) => ({ ...item, checked: tasks.find((task) => task.id === item.task_id)?.checklist_state?.test === true }))
+          },
+          execution: { ...previous.execution, current_task_id: null, current_backlog_id: null, current_phase: null }
+        };
+      }
+      const tasks = previous.tasks.map((item) => item.id === taskId
+        ? { ...item, status: 'done' as const, checklist_state: { ...(item.checklist_state || { test: false, implementation: false }), implementation: true } }
+        : item);
+      return {
+        ...previous,
+        tasks,
+        phase_checklists: {
+          ...(previous.phase_checklists || { test: [], implementation: [] }),
+          implementation: (previous.phase_checklists?.implementation || []).map((item) => ({ ...item, checked: tasks.find((task) => task.id === item.task_id)?.checklist_state?.implementation === true, status: tasks.find((task) => task.id === item.task_id)?.status }))
+        },
+        execution: { ...previous.execution, current_task_id: null, current_backlog_id: null, current_phase: null }
+      };
     });
   };
 
@@ -280,6 +354,7 @@ export const App: React.FC = () => {
   const skipHistoryRef = useRef(false);
   const presentationPositionsRef = useRef<Record<string, { x: number; y: number }>>({});
   const searchRequestRef = useRef(0);
+  const drawingLoadRequestRef = useRef(0);
   const pendingSearchFocusRef = useRef<{ drawId: string; nodeId: number } | null>(null);
   const reactFlowInstanceRef = useRef<any>(null);
 
@@ -648,6 +723,9 @@ export const App: React.FC = () => {
     id: string,
     opts?: { resetNavigation?: boolean; indexData?: DrawIndexEntry[]; mode?: 'backend' | 'local' }
   ) => {
+    const requestId = drawingLoadRequestRef.current + 1;
+    drawingLoadRequestRef.current = requestId;
+    const isCurrentRequest = () => drawingLoadRequestRef.current === requestId;
     const activeMode = opts?.mode || storageMode;
 
     if (isDirty || isImprovementDirty) {
@@ -674,6 +752,7 @@ export const App: React.FC = () => {
         const response = await fetch(`${origin}/.stdd/draws/${encodeURIComponent(id)}.json`, { cache: 'no-store' });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
+        if (!isCurrentRequest()) return;
         setContract(data);
         setCurrentImprovement(null);
         setPresentationPositionsForDrawing(id);
@@ -690,6 +769,7 @@ export const App: React.FC = () => {
       if (saved) {
         try {
           const data = JSON.parse(saved);
+          if (!isCurrentRequest()) return;
           setContract(data);
           setCurrentImprovement(null);
           setPresentationPositionsForDrawing(id);
@@ -702,6 +782,7 @@ export const App: React.FC = () => {
           alert('Erro ao carregar desenho local: JSON corrompido.');
         }
       } else if (id === typedDefaultContract.id) {
+        if (!isCurrentRequest()) return;
         setContract(typedDefaultContract);
         setCurrentImprovement(null);
         setPresentationPositionsForDrawing(id);
@@ -719,6 +800,7 @@ export const App: React.FC = () => {
             const response = await fetch(`${origin}/.stdd/draws/${encodeURIComponent(id)}.json`, { cache: 'no-store' });
             if (!response.ok) continue;
             const data = await response.json();
+            if (!isCurrentRequest()) return;
             detectedBackendOrigin = origin;
             setStorageMode('backend');
             setContract(data);
@@ -782,6 +864,8 @@ export const App: React.FC = () => {
     const doc = JSON.parse(JSON.stringify(payload));
     delete doc.isHighlighted;
     delete doc.isDimmed;
+    // Migração de Draws antigos: decisões legadas nunca reaparecem no JSON salvo.
+    delete doc.tradeoffs;
     
     doc.nodes = doc.nodes.map((node: any) => {
       const cleanNode = { ...node };
@@ -1006,6 +1090,7 @@ export const App: React.FC = () => {
     } catch (_) {}
     return presentationPositionsState;
   }, [contract.id, isDirty, presentationPositionsState]);
+  const cycleEdges = useMemo(() => getCycleEdges(contract.nodes, contract.edges), [contract.nodes, contract.edges]);
 
   useEffect(() => {
     let activeNodeIds = new Set<number>();
@@ -1097,7 +1182,7 @@ export const App: React.FC = () => {
         }
       }
 
-      const edgeHandles = computeEdgeHandles(edge, positions, contract.nodes, contract.edges);
+      const edgeHandles = computeEdgeHandles(edge, positions, contract.nodes, contract.edges, cycleEdges);
       const condition = Number(edge.condition) || DEFAULT_CONDITION;
       
       const visual =
@@ -1157,7 +1242,7 @@ export const App: React.FC = () => {
     });
 
     setEdges(formattedEdges);
-  }, [backlog, contract, activeFlowId, presentationPositions, theme, selectedNodeId, isFocusMode, selectionRevision]);
+  }, [backlog, contract, activeFlowId, presentationPositions, theme, selectedNodeId, isFocusMode, selectionRevision, cycleEdges]);
 
   useEffect(() => {
     const request = pendingSearchFocusRef.current;
@@ -1205,10 +1290,10 @@ export const App: React.FC = () => {
   }, [contract.nodes, nodes, selectedNodeId]);
 
   const onSelectionChange = useCallback((selection: { nodes: Node[] }) => {
-    const selectedIds = selection.nodes.map((node) => Number(node.id));
-    if (selectedIds.length === 0 && selectionOrderRef.current.length > 0) return;
     const availableIds = new Set(contract.nodes.map((node) => node.id));
-    const ordered = selectionOrderRef.current.filter((id) => availableIds.has(id));
+    const selectedIds = [...new Set(selection.nodes.map((node) => Number(node.id)).filter((id) => availableIds.has(id)))];
+    const selectedSet = new Set(selectedIds);
+    const ordered = selectionOrderRef.current.filter((id) => selectedSet.has(id));
     selectedIds.forEach((id) => {
       if (!ordered.includes(id)) ordered.push(id);
     });
@@ -1229,18 +1314,17 @@ export const App: React.FC = () => {
     setIsFocusMode((event.ctrlKey || event.metaKey) && !isMultiSelect);
     if (!isMultiSelect) {
       selectionOrderRef.current = [id];
-      setSelectedNodeId(id);
     } else {
       const currentSelection = selectionOrderRef.current.length > 0
         ? selectionOrderRef.current
         : selectedNodeId !== null
           ? [selectedNodeId]
           : [];
-      if (!currentSelection.includes(id)) {
-        selectionOrderRef.current = [...currentSelection, id];
-      }
-      setSelectedNodeId(selectionOrderRef.current[0] ?? id);
+      selectionOrderRef.current = currentSelection.includes(id)
+        ? currentSelection.filter((selectedId) => selectedId !== id)
+        : [...currentSelection, id];
     }
+    setSelectedNodeId(selectionOrderRef.current[0] ?? null);
     setSelectedEdgeId(null);
     setSelectionRevision((value) => value + 1);
   };
@@ -1493,6 +1577,7 @@ export const App: React.FC = () => {
 
   const onNodeDragStop = useCallback(
     (_: any, node: Node) => {
+      if (!Number.isFinite(node.position.x) || !Number.isFinite(node.position.y)) return;
       const presentationKey = `stdd-draw-presentation:${contractRef.current.id}`;
       let parsed = { positions: {} as { [key: string]: { x: number; y: number } }, nodes: {} as any };
       try {
@@ -1501,15 +1586,14 @@ export const App: React.FC = () => {
       } catch (_) {}
 
       const nextPositions = {
-        ...presentationPositionsRef.current,
         ...parsed.positions,
+        ...presentationPositionsRef.current,
         [String(node.id)]: node.position
       };
       presentationPositionsRef.current = nextPositions;
       setPresentationPositionsState(nextPositions);
       parsed.positions = nextPositions;
       localStorage.setItem(presentationKey, JSON.stringify(parsed));
-      setIsDirty(false);
     },
     []
   );
@@ -1888,6 +1972,8 @@ export const App: React.FC = () => {
           staticAnalysisKpis={staticAnalysisKpis}
           backlog={backlog}
           onClaimBacklogTask={claimBacklogTask}
+          onClaimBacklogTest={claimBacklogTest}
+          onRefreshBacklog={refreshBacklog}
           onCompleteBacklogTask={completeBacklogTask}
           onUpdateBacklogChecklist={updateBacklogChecklist}
         />
