@@ -34,7 +34,7 @@ Concluir o código ou passar nos testes não conclui a task operacionalmente. Se
 
 ## Regras do loop
 
-1. Leia o nó, predecessor, condição, pai, subfluxos, perguntas respondidas, símbolos e testes entregues pelo comando. Use `--json` somente quando precisar dos campos estruturados.
+1. Leia a resposta em linguagem natural de `stdd backlog task`, incluindo task, ID, predecessor, condição, pai, subfluxos, perguntas respondidas, símbolos e testes entregues pelo comando.
 2. Se a resposta for `kind: "backlog-test-required"`, não implemente: volte para `$create-tests`/`stdd backlog test`.
 3. Se a resposta for `kind: "backlog-bootstrap-task"`, prepare somente a estrutura mínima do projeto com as evidências locais; não implemente funcionalidade de produto.
 4. Implemente apenas a task recebida, preservando contratos, autorização, dados e alterações locais do usuário.

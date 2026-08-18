@@ -73,6 +73,13 @@ def _get_backlog_config(root: Path) -> dict[str, Any]:
     return {}
 
 
+def _bootstrap_enabled(config: dict[str, Any]) -> bool:
+    """Habilita bootstrap salvo quando houver opt-out explícito.
+    Trata o antigo default ``bootstrap_task: false`` como configuração legada.
+    """
+    return config.get("bootstrap_opt_out") is not True
+
+
 def _execution_config(root: Path) -> dict[str, Any]:
     """Normaliza as opções de cursor sem quebrar configurações antigas."""
     config = _get_backlog_config(root)
@@ -131,6 +138,7 @@ def set_backlog_config(
         backlog_cfg["l2_verification_interval"] = int(verification_interval)
     if bootstrap_task is not None:
         backlog_cfg["bootstrap_task"] = bool(bootstrap_task)
+        backlog_cfg["bootstrap_opt_out"] = not bool(bootstrap_task)
     if final_verification_task is not None:
         backlog_cfg["final_verification_task"] = bool(final_verification_task)
     if task_batch_size is not None:
@@ -1086,7 +1094,7 @@ def check_backlog(root: Path) -> dict[str, Any]:
     blocked_by_tests = bool(missing_tests)
     
     config = _get_backlog_config(root)
-    bootstrap_pending = bool(tasks and config.get("bootstrap_task", config.get("bootstrap_enabled", False)) and not execution.get("bootstrap_done", False))
+    bootstrap_pending = bool(tasks and _bootstrap_enabled(config) and not execution.get("bootstrap_done", False))
     final_pending = bool(tasks and config.get("final_verification_task", config.get("final_verification_enabled", False)) and not execution.get("final_verification_done", False))
     
     interval = config.get("l2_verification_interval", config.get("verification_interval", 0))
@@ -1370,7 +1378,7 @@ def next_backlog_test(root: Path) -> dict[str, Any]:
     if execution.get("current_phase") in {"bootstrap", "implementation"} and current is not None:
         raise ValueError("a task atual já está na fase de implementação")
     config = _get_backlog_config(root)
-    bootstrap_enabled = config.get("bootstrap_task", config.get("bootstrap_enabled", True))
+    bootstrap_enabled = _bootstrap_enabled(config)
     if payload["tasks"] and bootstrap_enabled and not execution.get("bootstrap_done", False):
         task = _create_injected_bootstrap_task()
         task["checks"] = bootstrap_report(root)
@@ -1485,7 +1493,7 @@ def next_backlog_task(root: Path, verification_interval: int | None = None) -> d
 
     # 2. O bootstrap agnóstico é sempre a primeira task operacional, salvo opt-out explícito.
     has_tasks = len(payload["tasks"]) > 0
-    bootstrap_enabled = config.get("bootstrap_task", config.get("bootstrap_enabled", True))
+    bootstrap_enabled = _bootstrap_enabled(config)
     if has_tasks and bootstrap_enabled and not execution.get("bootstrap_done", False):
         task = _create_injected_bootstrap_task()
         task["checks"] = bootstrap_report(root)

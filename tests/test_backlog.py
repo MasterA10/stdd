@@ -77,6 +77,7 @@ def _create_hierarchical_fixture(root: Path, bootstrap: bool = False) -> None:
     config_path = root / ".stdd" / "config.json"
     config = json.loads(config_path.read_text(encoding="utf-8")) if config_path.exists() else {}
     config.setdefault("backlog", {})["bootstrap_task"] = bootstrap
+    config.setdefault("backlog", {})["bootstrap_opt_out"] = not bootstrap
     config_path.parent.mkdir(parents=True, exist_ok=True)
     config_path.write_text(json.dumps(config), encoding="utf-8")
 
@@ -248,6 +249,22 @@ def test_bootstrap_is_first_and_agnostic_in_both_backlog_loops(tmp_path: Path):
     complete = complete_backlog_task(second_root, "task:bootstrap")
     assert complete["kind"] == "backlog-bootstrap-complete"
     assert next_backlog_test(second_root)["kind"] == "backlog-test-task"
+
+
+def test_legacy_false_bootstrap_setting_does_not_skip_first_task(tmp_path: Path):
+    """Migra o antigo default falso sem pular a preparação inicial.
+    Mantém o bootstrap como primeira task quando não existe opt-out explícito.
+    """
+    _create_hierarchical_fixture(tmp_path)
+    config_path = tmp_path / ".stdd" / "config.json"
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    config["backlog"].pop("bootstrap_opt_out", None)
+    config["backlog"]["bootstrap_task"] = False
+    config_path.write_text(json.dumps(config), encoding="utf-8")
+
+    first = next_backlog_task(tmp_path)
+
+    assert first["task"]["id"] == "task:bootstrap"
 
 
 def test_backlog_injects_level_context_into_level_two_and_level_three_tasks(tmp_path: Path):
@@ -534,7 +551,7 @@ def test_backlog_complete_rejects_a_task_that_is_not_current(tmp_path: Path):
 
 def test_backlog_cli_generates_returns_missing_task_and_completes_by_id(tmp_path: Path, monkeypatch):
     """Expõe o ciclo operacional do backlog pela CLI.
-    Executa generate, task e complete e valida o modo JSON estruturado.
+    Executa generate, task e complete usando somente a saída em linguagem humana.
     """
     monkeypatch.chdir(tmp_path)
     init_project(tmp_path)
@@ -542,11 +559,13 @@ def test_backlog_cli_generates_returns_missing_task_and_completes_by_id(tmp_path
 
     generated = runner.invoke(app, ["backlog", "generate"])
     assert generated.exit_code == 0
-    task = runner.invoke(app, ["backlog", "task", "--json"])
+    task = runner.invoke(app, ["backlog", "task"])
     assert task.exit_code == 0
-    task_payload = json.loads(task.stdout)
-    assert task_payload["kind"] == "backlog-task"
-    completed = runner.invoke(app, ["backlog", "complete", task_payload["task"]["id"]])
+    assert "Task de implementação" in task.stdout
+    assert "ID: task:jornada:node:1" in task.stdout
+    json_task = runner.invoke(app, ["backlog", "task", "--json"])
+    assert json_task.exit_code != 0
+    completed = runner.invoke(app, ["backlog", "complete", "task:jornada:node:1"])
     assert completed.exit_code == 0
     missing = runner.invoke(app, ["backlog", "missing"])
     assert missing.exit_code == 0
@@ -555,7 +574,7 @@ def test_backlog_cli_generates_returns_missing_task_and_completes_by_id(tmp_path
 
 def test_backlog_cli_exposes_test_phase_and_structured_missing_test(tmp_path: Path, monkeypatch):
     """Expõe `backlog test` e o bloqueio legível de `backlog task`.
-    Mantém ambas as respostas em JSON para consumo incremental pelo agente.
+    Mantém as respostas dos dois comandos em linguagem natural para consumo pelo agente.
     """
     monkeypatch.chdir(tmp_path)
     init_project(tmp_path)
@@ -567,15 +586,17 @@ def test_backlog_cli_exposes_test_phase_and_structured_missing_test(tmp_path: Pa
     assert "Teste necessário antes da implementação" in human.stdout
     assert "test_missing" not in human.stdout
 
-    missing = runner.invoke(app, ["backlog", "task", "--json"])
-    assert missing.exit_code == 0
-    assert json.loads(missing.stdout)["kind"] == "backlog-test-required"
+    json_task = runner.invoke(app, ["backlog", "task", "--json"])
+    assert json_task.exit_code != 0
     testing = runner.invoke(app, ["backlog", "test"])
 
     assert testing.exit_code == 0
-    test_payload = json.loads(testing.stdout)
-    assert test_payload["kind"] == "backlog-test-task"
-    assert test_payload["phase"] == "test"
+    assert "Task de teste" in testing.stdout
+    assert "ID: task:jornada:node:1" in testing.stdout
+    assert "Escopo do nível 2: Tela" in testing.stdout
+    assert "frontend" in testing.stdout.lower()
+    json_test = runner.invoke(app, ["backlog", "test", "--json"])
+    assert json_test.exit_code != 0
 
 
 def test_backlog_cli_task_has_a_concise_human_output(tmp_path: Path, monkeypatch):

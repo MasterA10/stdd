@@ -187,7 +187,6 @@ Adicionar:
 
 * `--help`;
 * `--version`;
-* `--json`;
 * `--verbose`;
 * `--quiet`;
 * `--no-color`;

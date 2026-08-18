@@ -136,6 +136,8 @@ def _format_backlog_response(response: dict[str, object]) -> str:
     kind = response.get("kind")
     if kind == "backlog-empty":
         return "Backlog concluído. Não há tasks pendentes."
+    if kind == "backlog-test-empty":
+        return "Fase de testes concluída. Não há tasks de teste pendentes."
 
     compact = _compact_backlog_response(response)
     if kind == "backlog-bootstrap-task":
@@ -393,15 +395,14 @@ def backlog_missing() -> None:
 
 @backlog_app.command("task")
 def backlog_task(
-    json_output: bool = typer.Option(False, "--json", help="Retorna o payload estruturado completo."),
     interval: Optional[int] = typer.Option(None, "--interval", "--verification-interval", help="Sobrescreve o intervalo de nós L2 para injeção de tarefas de verificação."),
 ) -> None:
     """Entrega uma única task e a reserva para o agente atual.
-    Por padrão, exibe apenas o contexto acionável em linguagem humana.
+    Exibe somente o contexto acionável em linguagem humana.
     """
     try:
         response = next_backlog_task(project_root(), verification_interval=interval)
-        typer.echo(json.dumps(response, ensure_ascii=False, indent=2) if json_output else _format_backlog_response(response))
+        typer.echo(_format_backlog_response(response))
     except (OSError, ValueError) as error:
         typer.echo(f"Erro: {error}", err=True)
         raise typer.Exit(1)
@@ -442,7 +443,7 @@ def backlog_config(
 def backlog_test() -> None:
     """Entrega uma task incremental para criação dos testes do nó e subfluxos."""
     try:
-        typer.echo(json.dumps(next_backlog_test(project_root()), ensure_ascii=False, indent=2))
+        typer.echo(_format_backlog_response(next_backlog_test(project_root())))
     except (OSError, ValueError) as error:
         typer.echo(f"Erro: {error}", err=True)
         raise typer.Exit(1)

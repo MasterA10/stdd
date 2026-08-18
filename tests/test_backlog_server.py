@@ -40,6 +40,7 @@ def _create_hierarchical_fixture(root: Path) -> None:
     config_path = root / ".stdd" / "config.json"
     config = json.loads(config_path.read_text(encoding="utf-8")) if config_path.exists() else {}
     config.setdefault("backlog", {})["bootstrap_task"] = False
+    config.setdefault("backlog", {})["bootstrap_opt_out"] = True
     config_path.write_text(json.dumps(config), encoding="utf-8")
 
 

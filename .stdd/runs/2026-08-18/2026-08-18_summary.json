@@ -253,8 +253,50 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "9db62301439c40e5b54001a45c81e792",
+      "timestamp": "2026-08-18T15:18:01.149433+00:00",
+      "description": "Remove saída JSON de tasks e testes do backlog",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 19,
+        "lines_deleted": 16,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "6c963ff1b7114e42832953352137de31",
+      "timestamp": "2026-08-18T15:21:11.106954+00:00",
+      "description": "Corrige bootstrap inicial legado e injeta contexto também nos testes",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 32,
+        "lines_deleted": 3,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 12,
-  "last_run_id": "5db47038279449a590377e3b80ed04d7"
+  "run_count": 14,
+  "last_run_id": "6c963ff1b7114e42832953352137de31"
 }
