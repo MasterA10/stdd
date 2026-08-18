@@ -1,11 +1,23 @@
 {
   "version": 1,
   "kind": "backlog",
-  "generated_at": "2026-08-18T00:28:07.261068+00:00",
+  "generated_at": "2026-08-18T15:39:34.302345+00:00",
   "system": {
     "root_draw_ids": [
       "stdd-system-architecture"
     ]
+  },
+  "level_semantics": {
+    "2": {
+      "level": 2,
+      "meaning": "Tela",
+      "guidance": "Trate esta task como implementação da view/tela: entregue a apresentação e o comportamento frontend necessário."
+    },
+    "3": {
+      "level": 3,
+      "meaning": "Regra de negócio e detalhes da tela",
+      "guidance": "Trate este fluxo como regra de negócio e detalhes da tela: implemente decisões, validações, estados, interações e efeitos necessários."
+    }
   },
   "checklists": [
     {
@@ -6465,11 +6477,11 @@
     }
   ],
   "execution": {
-    "current_task_id": null,
-    "current_backlog_id": null,
+    "current_task_id": "task:bootstrap",
+    "current_backlog_id": "system",
     "current_branch_id": "stdd-user-journeys:branch:2",
     "branch_position": 2,
-    "current_phase": null,
+    "current_phase": "bootstrap",
     "current_parent_task_id": null,
     "current_subtask_id": null,
     "bootstrap_done": false,
@@ -6477,14 +6489,15 @@
     "current_verified_batch_node_ids": [],
     "current_association_node_ids": [],
     "final_verification_done": false,
-    "lease_id": null,
-    "lease_started_at": null,
-    "lease_expires_at": null,
-    "last_claim_at": null,
+    "lease_id": "lease:1787066770.718556",
+    "lease_started_at": "2026-08-18T15:26:10.718556+00:00",
+    "lease_expires_at": 1787067670.718556,
+    "last_claim_at": "2026-08-18T15:26:10.718556+00:00",
     "last_transition_at": null,
     "lease_seconds": 900,
     "task_batch_size": 1,
     "task_batch_scope": "task",
+    "test_task_scope": "node",
     "completed_branches": [
       "stdd-agent-journeys:branch:1",
       "stdd-agent-journeys:branch:2",

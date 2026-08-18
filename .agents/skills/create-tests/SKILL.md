@@ -23,7 +23,7 @@ Depois que a fase terminar, o próximo passo é `$implement`. Não implementar c
 
 ## Regras do loop
 
-1. Execute `stdd backlog test` antes de criar testes. Trabalhe somente na task retornada e retome uma task `in_progress` antes de buscar outra.
+1. Execute `stdd backlog test` antes de criar testes. Quando o bootstrap estiver habilitado, a primeira resposta será sempre `task:bootstrap`; conclua essa preparação pelo ID recebido antes de consumir qualquer task de teste L2 ou de subfluxo interno. Trabalhe somente na task retornada e retome uma task `in_progress` antes de buscar outra.
 2. Se receber `kind: "backlog-bootstrap-task"`, prepare apenas a estrutura mínima do projeto com base nas evidências locais; não crie testes nem produção. Conclua pelo ID recebido e retome o loop.
 3. Leia o nó, predecessor, condição, pai, subfluxos, perguntas respondidas, símbolos e contratos relevantes.
 4. Especifique somente comportamento observável: entrada, pré-condição, resultado, erro, limite e efeito colateral.

@@ -295,8 +295,50 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "cc9509951590440abcdde26e2e997abe",
+      "timestamp": "2026-08-18T15:27:56.713686+00:00",
+      "description": "Corrige saída JSON obsoleta do backlog test no executável instalado",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "0f6f94a809b44bf281e47f2872f0bd0c",
+      "timestamp": "2026-08-18T15:36:13.329961+00:00",
+      "description": "Configura escopo das tasks de teste e garante bootstrap antes do backlog test",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 116,
+        "lines_deleted": 18,
+        "files_changed": 6
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 14,
-  "last_run_id": "6c963ff1b7114e42832953352137de31"
+  "run_count": 16,
+  "last_run_id": "0f6f94a809b44bf281e47f2872f0bd0c"
 }

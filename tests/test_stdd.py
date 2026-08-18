@@ -63,6 +63,7 @@ def test_init_defers_language_specific_test_runner_to_setup(tmp_path: Path):
     assert config["test_commands"] == []
     assert config["testing"]["profile"] == "mvp"
     assert config["backlog"]["bootstrap_task"] is True
+    assert config["backlog"]["test_task_scope"] == "node"
     assert config["backlog"]["level_2_meaning"] == "Tela"
     assert config["backlog"]["level_3_meaning"] == "Regra de negócio e detalhes da tela"
 

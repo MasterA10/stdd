@@ -26,6 +26,7 @@ from .backlog import (
     next_backlog_task,
     next_backlog_test,
     set_backlog_config,
+    VALID_TEST_TASK_SCOPES,
 )
 from .draw import (
     analyze_draw_contract,
@@ -203,6 +204,7 @@ def init(
     integration: List[str] = typer.Option(None, "--integration", help="Agente a integrar: codex, claude ou gemini; pode repetir."),
     all_integrations: bool = typer.Option(False, "--all-integrations", help="Instala as skills para Codex, Claude e Gemini."),
     interactive: bool = typer.Option(False, "--interactive", help="Abre a seleção numérica de integrações e setup."),
+    test_task_scope: Optional[str] = typer.Option(None, "--test-task-scope", help="Escopo das tasks de teste: node (L2 e internos juntos) ou task (uma por vez)."),
 ) -> None:
     """Inicializa a estrutura do STDD e instala as skills dos agentes.
     Cria o diretório-alvo quando necessário, depois cria .stdd/ e .agents/skills.
@@ -221,6 +223,9 @@ def init(
     if invalid:
         typer.echo(f"Erro: integrações desconhecidas: {', '.join(invalid)}", err=True)
         raise typer.Exit(1)
+    if test_task_scope is not None and test_task_scope not in VALID_TEST_TASK_SCOPES:
+        typer.echo("Erro: --test-task-scope deve ser node ou task.", err=True)
+        raise typer.Exit(1)
     created = init_project(target, integrations=requested)
     typer.echo(f"Projeto inicializado em {target}. {len(created)} itens criados.")
     if interactive or sys.stdin.isatty():
@@ -230,11 +235,15 @@ def init(
             ensure_stack_gitignore(target, stack["languages"])
             typer.echo(f"Stack: {', '.join(stack['languages']) or 'não detectada'}")
         level_2_meaning, level_3_meaning = choose_level_meanings()
+        selected_test_task_scope = test_task_scope or choose_test_task_scope()
         set_backlog_config(
             target,
             level_2_meaning=level_2_meaning,
             level_3_meaning=level_3_meaning,
+            test_task_scope=selected_test_task_scope,
         )
+    elif test_task_scope is not None:
+        set_backlog_config(target, test_task_scope=test_task_scope)
     unavailable = [name for name, found in available_integrations().items() if name in requested and not found]
     if unavailable:
         typer.echo(f"Aviso: agente(s) não encontrado(s) no PATH: {', '.join(unavailable)}.", err=True)
@@ -291,6 +300,21 @@ def choose_level_meanings() -> tuple[str, str]:
     if not level_2_meaning or not level_3_meaning:
         raise typer.BadParameter("Os significados dos níveis não podem ficar vazios.")
     return level_2_meaning, level_3_meaning
+
+
+def choose_test_task_scope() -> str:
+    """Define se os testes do L2 serão agregados ou entregues por task."""
+    typer.echo("Defina como o backlog deve entregar as tasks de teste:")
+    typer.echo("  1. Nó de nível 2 e subfluxos internos juntos")
+    typer.echo("  2. Separar o nó de nível 2 e cada subfluxo interno")
+    choice = typer.prompt("Escopo das tasks de teste", default="1").strip()
+    if choice == "1":
+        return "node"
+    if choice == "2":
+        return "task"
+    if choice in VALID_TEST_TASK_SCOPES:
+        return choice
+    raise typer.BadParameter("Escolha 1, 2, node ou task.")
 
 
 @app.command()
@@ -415,12 +439,13 @@ def backlog_config(
     final_verification: Optional[bool] = typer.Option(None, "--final-verification/--no-final-verification", help="Habilita ou desabilita a task de verificação final E2E."),
     task_batch_size: Optional[int] = typer.Option(None, "--task-batch-size", min=1, max=5, help="Quantidade de tasks entregues no lote (1 a 5)."),
     task_batch_scope: Optional[str] = typer.Option(None, "--task-batch-scope", help="Escopo do lote: task ou node."),
+    test_task_scope: Optional[str] = typer.Option(None, "--test-task-scope", help="Escopo dos testes: task ou node."),
     min_task_interval_seconds: Optional[int] = typer.Option(None, "--min-task-interval-seconds", min=0, help="Janela mínima anti-script entre avanços."),
 ) -> None:
     """Exibe ou atualiza as configurações do backlog em .stdd/config.json."""
     try:
         root = project_root()
-        if interval is not None or bootstrap is not None or final_verification is not None or task_batch_size is not None or task_batch_scope is not None or min_task_interval_seconds is not None:
+        if interval is not None or bootstrap is not None or final_verification is not None or task_batch_size is not None or task_batch_scope is not None or test_task_scope is not None or min_task_interval_seconds is not None:
             updated = set_backlog_config(
                 root,
                 verification_interval=interval,
@@ -428,6 +453,7 @@ def backlog_config(
                 final_verification_task=final_verification,
                 task_batch_size=task_batch_size,
                 task_batch_scope=task_batch_scope,
+                test_task_scope=test_task_scope,
                 min_task_interval_seconds=min_task_interval_seconds,
             )
             typer.echo(f"Configuração do backlog atualizada: {json.dumps(updated, ensure_ascii=False)}")

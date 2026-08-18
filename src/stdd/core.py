@@ -191,6 +191,7 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list
                         "final_verification_task": False,
                         "task_batch_size": 1,
                         "task_batch_scope": "task",
+                        "test_task_scope": "node",
                         "min_task_interval_seconds": 0,
                         "l2_post_verification_tasks": False,
                         "level_2_meaning": "Tela",

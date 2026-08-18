@@ -19,6 +19,7 @@ VALID_CHECKLIST_PHASES = {"test", "implementation"}
 DEFAULT_MIN_TASK_INTERVAL_SECONDS = 0
 DEFAULT_TASK_BATCH_SIZE = 1
 VALID_TASK_BATCH_SCOPES = {"task", "node"}
+VALID_TEST_TASK_SCOPES = {"task", "node"}
 DEFAULT_LEVEL_MEANINGS = {
     "2": "Tela",
     "3": "Regra de negócio e detalhes da tela",
@@ -91,6 +92,9 @@ def _execution_config(root: Path) -> dict[str, Any]:
     scope = config.get("task_batch_scope", "task")
     if scope not in VALID_TASK_BATCH_SCOPES:
         scope = "task"
+    test_scope = config.get("test_task_scope", "node")
+    if test_scope not in VALID_TEST_TASK_SCOPES:
+        test_scope = "node"
     interval = config.get("min_task_interval_seconds", config.get("task_min_interval_seconds", config.get("minimum_task_interval_seconds", DEFAULT_MIN_TASK_INTERVAL_SECONDS)))
     try:
         interval = max(0, int(interval))
@@ -99,6 +103,7 @@ def _execution_config(root: Path) -> dict[str, Any]:
     return {
         "task_batch_size": size,
         "task_batch_scope": scope,
+        "test_task_scope": test_scope,
         "min_task_interval_seconds": interval,
         "lease_seconds": max(3, int(config.get("lease_seconds", 900) or 900)),
     }
@@ -116,6 +121,7 @@ def set_backlog_config(
     final_verification_task: bool | None = None,
     task_batch_size: int | None = None,
     task_batch_scope: str | None = None,
+    test_task_scope: str | None = None,
     min_task_interval_seconds: int | None = None,
     level_2_meaning: str | None = None,
     level_3_meaning: str | None = None,
@@ -149,6 +155,10 @@ def set_backlog_config(
         if task_batch_scope not in VALID_TASK_BATCH_SCOPES:
             raise ValueError("task_batch_scope deve ser task ou node")
         backlog_cfg["task_batch_scope"] = task_batch_scope
+    if test_task_scope is not None:
+        if test_task_scope not in VALID_TEST_TASK_SCOPES:
+            raise ValueError("test_task_scope deve ser task ou node")
+        backlog_cfg["test_task_scope"] = test_task_scope
     if min_task_interval_seconds is not None:
         if int(min_task_interval_seconds) < 0:
             raise ValueError("min_task_interval_seconds não pode ser negativo")
@@ -972,6 +982,7 @@ def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]
             "lease_seconds": execution_config["lease_seconds"],
             "task_batch_size": execution_config["task_batch_size"],
             "task_batch_scope": execution_config["task_batch_scope"],
+            "test_task_scope": execution_config["test_task_scope"],
             "completed_branches": [],
             "branches": execution_branches,
         },
@@ -1086,10 +1097,7 @@ def check_backlog(root: Path) -> dict[str, Any]:
         }
     tasks = [task for task in payload.get("tasks", []) if isinstance(task, dict)]
     remaining = [task for task in tasks if task.get("status") != "done"]
-    missing_tests = [
-        task for task in tasks
-        if task.get("level") == 2 and not _test_scope_complete(payload, task)
-    ]
+    missing_tests = _pending_test_tasks(payload)
     execution = payload.get("execution", {}) if isinstance(payload.get("execution"), dict) else {}
     blocked_by_tests = bool(missing_tests)
     
@@ -1318,11 +1326,26 @@ def _test_scope_tasks(payload: dict[str, Any], task: dict[str, Any]) -> list[dic
 
 def _test_scope_complete(payload: dict[str, Any], task: dict[str, Any]) -> bool:
     """Verifica evidência e marcação de teste para pai e todos os subfluxos."""
+    if payload.get("execution", {}).get("test_task_scope", "node") == "task":
+        return task.get("checklist_state", {}).get("test") is True
     scope = _test_scope_tasks(payload, task)
     return all(
         item.get("checklist_state", {}).get("test") is True
         for item in scope
     )
+
+
+def _pending_test_tasks(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    """Retorna as tasks que ainda precisam passar pela fase de testes."""
+    if payload.get("execution", {}).get("test_task_scope", "node") == "task":
+        return [
+            item for item in payload.get("tasks", [])
+            if item.get("level") in {2, 3} and not _test_scope_complete(payload, item)
+        ]
+    return [
+        item for item in payload.get("tasks", [])
+        if item.get("level") == 2 and not _test_scope_complete(payload, item)
+    ]
 
 
 def _refresh_task_checklist_items(payload: dict[str, Any]) -> None:
@@ -1388,10 +1411,7 @@ def next_backlog_test(root: Path) -> dict[str, Any]:
         execution["current_phase"] = "bootstrap"
         write_backlog(root, payload)
         return _task_context(root, payload, task, "bootstrap", "backlog-bootstrap-task", _bootstrap_instruction())
-    task = next(
-        (item for item in payload["tasks"] if item.get("level") == 2 and not _test_scope_complete(payload, item)),
-        None,
-    )
+    task = next(iter(_pending_test_tasks(payload)), None)
     if task is None:
         _clear_execution_cursor(execution)
         write_backlog(root, payload)
@@ -1413,7 +1433,11 @@ def next_backlog_test(root: Path) -> dict[str, Any]:
         task,
         "test",
         "backlog-test-task",
-        "Crie os testes do nó de nível 2 e de todos os seus subfluxos; não implemente produção.",
+        (
+            "Crie os testes deste nó ou subfluxo; não implemente produção."
+            if payload.get("execution", {}).get("test_task_scope", "node") == "task"
+            else "Crie os testes do nó de nível 2 e de todos os seus subfluxos; não implemente produção."
+        ),
     )
 
 
@@ -1506,7 +1530,7 @@ def next_backlog_task(root: Path, verification_interval: int | None = None) -> d
 
     # 3. Se o próximo nó L2 ainda não tem testes comprovados, bloqueia avisando backlog-test-required
     pending_task = next((item for item in payload["tasks"] if item.get("status") != "done"), None)
-    if pending_task and pending_task.get("level") == 2 and not _test_scope_complete(payload, pending_task):
+    if pending_task and not _test_scope_complete(payload, pending_task):
         response = _task_context(root, payload, pending_task, "test", "backlog-test-required")
         response.update({"status": "blocked", "reason": "test_missing" if pending_task.get("test_status") == "missing" else "test_not_complete"})
         return response
@@ -1569,7 +1593,7 @@ def next_backlog_task(root: Path, verification_interval: int | None = None) -> d
         return {"kind": "backlog-empty", "status": "complete", "remaining": 0}
 
     # 6. Se for nó L2 sem teste comprovado, bloqueia avisando
-    if task.get("level") == 2 and not _test_scope_complete(payload, task):
+    if not _test_scope_complete(payload, task):
         response = _task_context(root, payload, task, "test", "backlog-test-required")
         response.update({"status": "blocked", "reason": "test_missing" if task.get("test_status") == "missing" else "test_not_complete"})
         return response
@@ -1706,7 +1730,8 @@ def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
     if execution.get("current_phase") == "test":
         previous_status = task.pop("test_previous_status", None)
         task["test_status"] = "done"
-        for scope_task in _test_scope_tasks(payload, task):
+        scope_tasks = [task] if payload.get("execution", {}).get("test_task_scope", "node") == "task" else _test_scope_tasks(payload, task)
+        for scope_task in scope_tasks:
             scope_task.setdefault("checklist_state", _default_checklist_state(scope_task))["test"] = True
         if previous_status == "pending":
             task["status"] = "pending"
@@ -1714,11 +1739,11 @@ def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
         _refresh_task_checklist_items(payload)
         write_backlog(root, payload)
         response = _task_context(root, payload, task, "test", "backlog-test-complete")
-        response.update({"status": "test-done", "remaining": sum(1 for item in payload["tasks"] if item.get("level") == 2 and not _test_scope_complete(payload, item))})
+        response.update({"status": "test-done", "remaining": len(_pending_test_tasks(payload))})
         return response
     if task.get("status") != "in_progress":
         raise ValueError("task atual não está em andamento")
-    if task.get("level") == 2 and not _test_scope_complete(payload, task):
+    if not _test_scope_complete(payload, task):
         raise ValueError("teste da task ainda não foi comprovado")
     task["status"] = "done"
     task.setdefault("checklist_state", _default_checklist_state(task))["implementation"] = True

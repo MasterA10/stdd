@@ -288,6 +288,38 @@ def test_backlog_injects_level_context_into_level_two_and_level_three_tasks(tmp_
     assert "detalhes da tela" in child["level_context"]["guidance"].lower()
 
 
+def test_backlog_test_scope_can_deliver_internal_subflows_separately(tmp_path: Path):
+    """Entrega o L2 e cada task interna separadamente quando configurado.
+    Confirma também que o bootstrap é a primeira entrega da fase de testes.
+    """
+    _create_nested_hierarchical_fixture(tmp_path)
+    _remove_test_refs(tmp_path)
+    config_path = tmp_path / ".stdd" / "config.json"
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    config["backlog"]["bootstrap_task"] = True
+    config["backlog"]["bootstrap_opt_out"] = False
+    config["backlog"]["test_task_scope"] = "task"
+    config_path.write_text(json.dumps(config), encoding="utf-8")
+
+    bootstrap = next_backlog_test(tmp_path)
+    assert bootstrap["kind"] == "backlog-bootstrap-task"
+    assert bootstrap["task"]["id"] == "task:bootstrap"
+    complete_backlog_task(tmp_path, "task:bootstrap")
+
+    parent = next_backlog_test(tmp_path)
+    assert parent["task"]["id"] == "task:jornada:node:1"
+    complete_backlog_task(tmp_path, parent["task"]["id"])
+
+    internal = next_backlog_test(tmp_path)
+    assert internal["task"]["id"] == "task:subjornada:node:1"
+    assert internal["task"]["level"] == 3
+    complete_backlog_task(tmp_path, internal["task"]["id"])
+
+    internal_last = next_backlog_test(tmp_path)
+    assert internal_last["task"]["id"] == "task:subjornada:node:2"
+    assert "deste nó ou subfluxo" in internal_last["instruction"]
+
+
 def test_backlog_test_accepts_test_refs_list_and_requires_one_file(tmp_path: Path):
     """Aceita a forma em lista quando ela aponta para um único arquivo.
     Rejeita uma associação que espalha a cobertura por mais de um arquivo.
