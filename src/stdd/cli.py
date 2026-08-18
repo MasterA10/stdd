@@ -141,6 +141,8 @@ def _format_backlog_response(response: dict[str, object]) -> str:
         return "Backlog concluído. Não há tasks pendentes."
     if kind == "backlog-test-empty":
         return "Fase de testes concluída. Não há tasks de teste pendentes."
+    if kind == "backlog-test-disabled":
+        return "Loop de testes desabilitado. O backlog entrega somente implementação; use stdd backlog task."
 
     compact = _compact_backlog_response(response)
     if kind == "backlog-bootstrap-task":
@@ -214,6 +216,7 @@ def init(
     interactive: bool = typer.Option(False, "--interactive", help="Abre a seleção numérica de integrações e setup."),
     task_delivery_scope: Optional[str] = typer.Option(None, "--task-delivery-scope", help="Como entregar as tasks em testes e implementação: node (L2 e internos juntos) ou task (uma por vez)."),
     l2_verification_interval: Optional[int] = typer.Option(None, "--l2-verification-interval", "--verification-interval", min=0, help="Insere uma task de conferência a cada N nós L2 concluídos; 0 desabilita."),
+    test_loop_enabled: Optional[bool] = typer.Option(None, "--test-loop/--no-test-loop", help="Habilita ou desabilita a fase de testes do backlog; desabilitada entrega somente implementação."),
 ) -> None:
     """Inicializa a estrutura do STDD e instala as skills dos agentes.
     Cria o diretório-alvo quando necessário, depois cria .stdd/ e .agents/skills.
@@ -250,18 +253,25 @@ def init(
             if l2_verification_interval is not None
             else choose_l2_verification_interval()
         )
+        selected_test_loop_enabled = (
+            test_loop_enabled
+            if test_loop_enabled is not None
+            else choose_test_loop_enabled()
+        )
         set_backlog_config(
             target,
             level_2_meaning=level_2_meaning,
             level_3_meaning=level_3_meaning,
             task_delivery_scope=selected_task_delivery_scope,
             verification_interval=selected_l2_verification_interval,
+            test_loop_enabled=selected_test_loop_enabled,
         )
-    elif task_delivery_scope is not None or l2_verification_interval is not None:
+    elif task_delivery_scope is not None or l2_verification_interval is not None or test_loop_enabled is not None:
         set_backlog_config(
             target,
             task_delivery_scope=task_delivery_scope,
             verification_interval=l2_verification_interval,
+            test_loop_enabled=test_loop_enabled,
         )
     unavailable = [name for name, found in available_integrations().items() if name in requested and not found]
     if unavailable:
@@ -350,6 +360,19 @@ def choose_l2_verification_interval() -> int:
     if interval < 0:
         raise typer.BadParameter("O intervalo de conferência não pode ser negativo.")
     return interval
+
+
+def choose_test_loop_enabled() -> bool:
+    """Define se o backlog executará a fase de testes."""
+    typer.echo("Defina se o backlog deve gerar tasks de teste:")
+    typer.echo("  1. Sim — executar testes antes da implementação")
+    typer.echo("  2. Não — entregar somente o loop de implementação")
+    choice = typer.prompt("Loop de testes", default="1").strip()
+    if choice == "1":
+        return True
+    if choice == "2":
+        return False
+    raise typer.BadParameter("Escolha 1 ou 2.")
 
 
 @app.command()
@@ -476,11 +499,12 @@ def backlog_config(
     task_batch_scope: Optional[str] = typer.Option(None, "--task-batch-scope", help="Escopo do lote: task ou node."),
     task_delivery_scope: Optional[str] = typer.Option(None, "--task-delivery-scope", help="Escopo comum de testes e implementação: task ou node."),
     min_task_interval_seconds: Optional[int] = typer.Option(None, "--min-task-interval-seconds", min=0, help="Janela mínima anti-script entre avanços."),
+    test_loop_enabled: Optional[bool] = typer.Option(None, "--test-loop/--no-test-loop", help="Habilita ou desabilita o loop de testes."),
 ) -> None:
     """Exibe ou atualiza as configurações do backlog em .stdd/config.json."""
     try:
         root = project_root()
-        if interval is not None or bootstrap is not None or final_verification is not None or task_batch_size is not None or task_batch_scope is not None or task_delivery_scope is not None or min_task_interval_seconds is not None:
+        if interval is not None or bootstrap is not None or final_verification is not None or task_batch_size is not None or task_batch_scope is not None or task_delivery_scope is not None or min_task_interval_seconds is not None or test_loop_enabled is not None:
             updated = set_backlog_config(
                 root,
                 verification_interval=interval,
@@ -490,6 +514,7 @@ def backlog_config(
                 task_batch_scope=task_batch_scope,
                 task_delivery_scope=task_delivery_scope,
                 min_task_interval_seconds=min_task_interval_seconds,
+                test_loop_enabled=test_loop_enabled,
             )
             typer.echo(f"Configuração do backlog atualizada: {json.dumps(updated, ensure_ascii=False)}")
         else:

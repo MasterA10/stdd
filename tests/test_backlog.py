@@ -124,11 +124,16 @@ def _add_test_refs(root: Path, as_list: bool = False) -> None:
     create_draw(root, payload)
 
 
-def _create_nested_hierarchical_fixture(root: Path) -> None:
+def _create_nested_hierarchical_fixture(root: Path, delivery_scope: str | None = None) -> None:
     """Cria uma jornada com subfluxo associado a um nó pai.
     O filho possui duas etapas internas que devem entrar no backlog.
     """
     _create_hierarchical_fixture(root)
+    if delivery_scope is not None:
+        config_path = root / ".stdd" / "config.json"
+        config = json.loads(config_path.read_text(encoding="utf-8")) if config_path.exists() else {}
+        config.setdefault("backlog", {})["task_delivery_scope"] = delivery_scope
+        config_path.write_text(json.dumps(config), encoding="utf-8")
     parent_path = root / ".stdd" / "draws" / "jornada.json"
     parent = json.loads(parent_path.read_text(encoding="utf-8"))
     parent["nodes"][0]["draw_ref"] = "subjornada"
@@ -195,6 +200,31 @@ def test_backlog_task_reports_missing_test_without_claiming_implementation(tmp_p
     assert response["status"] == "blocked"
     assert response["task"]["test_status"] == "missing"
     assert read_backlog(tmp_path)["execution"]["current_task_id"] is None
+
+
+def test_disabled_test_loop_delivers_only_implementation_tasks(tmp_path: Path):
+    """Permite implementar diretamente quando o loop de testes está desabilitado.
+    Confirma que o cursor não cria bloqueio nem tasks de teste.
+    """
+    _create_hierarchical_fixture(tmp_path)
+    _remove_test_refs(tmp_path)
+    config_path = tmp_path / ".stdd" / "config.json"
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    config["backlog"]["test_loop_enabled"] = False
+    config_path.write_text(json.dumps(config), encoding="utf-8")
+
+    disabled = next_backlog_test(tmp_path)
+    assert disabled["kind"] == "backlog-test-disabled"
+
+    implementation = next_backlog_task(tmp_path)
+    assert implementation["kind"] == "backlog-task"
+    assert implementation["phase"] == "implementation"
+    assert implementation["task"]["test_status"] == "not-required"
+    assert implementation["task"]["checklist_state"]["test"] is True
+    assert check_backlog(tmp_path)["missing_tests"] == 0
+
+    completed = complete_backlog_task(tmp_path, implementation["task"]["id"])
+    assert completed["status"] == "done"
 
 
 def test_backlog_test_creates_test_phase_then_releases_same_task_for_implementation(tmp_path: Path):
@@ -303,7 +333,7 @@ def test_backlog_injects_level_context_into_level_two_and_level_three_tasks(tmp_
     """Diferencia frontend de regras e detalhes nos contextos do backlog.
     Percorre a task L2 e o subfluxo L3 e valida a orientação injetada em ambos os loops.
     """
-    _create_nested_hierarchical_fixture(tmp_path)
+    _create_nested_hierarchical_fixture(tmp_path, delivery_scope="task")
 
     first = next_backlog_task(tmp_path)
     assert first["task"]["level"] == 2
@@ -506,7 +536,9 @@ def test_backlog_parent_and_subtask_can_be_completed_independently(tmp_path: Pat
     """Permite concluir o pai e a subtask pelo próprio ID.
     Depois da primeira subtask, a resposta avança para a segunda mantendo o pai.
     """
-    _create_nested_hierarchical_fixture(tmp_path)
+    _create_nested_hierarchical_fixture(tmp_path, delivery_scope="task")
+    for task_id in ("task:jornada:node:1", "task:subjornada:node:1", "task:subjornada:node:2"):
+        update_backlog_checklist(tmp_path, task_id, "test", True)
     first = next_backlog_task(tmp_path)
     parent_id = first["task"]["id"]
     first_subtask_id = first["subtask"]["id"]
@@ -544,7 +576,9 @@ def test_backlog_starts_child_backlog_after_parent_node(tmp_path: Path):
     """Inclui o nó pai e as tasks do subfluxo na sequência operacional.
     Só continua a branch principal depois de concluir o backlog interno.
     """
-    _create_nested_hierarchical_fixture(tmp_path)
+    _create_nested_hierarchical_fixture(tmp_path, delivery_scope="task")
+    for task_id in ("task:jornada:node:1", "task:subjornada:node:1", "task:subjornada:node:2", "task:jornada:node:2", "task:jornada:node:3"):
+        update_backlog_checklist(tmp_path, task_id, "test", True)
     generate_backlog(tmp_path)
 
     first = next_backlog_task(tmp_path)
@@ -858,8 +892,10 @@ def test_backlog_injected_l2_verification_tasks_per_node(tmp_path: Path):
             "l2_verification_interval": 1,
         }
     }), encoding="utf-8")
-    _create_nested_hierarchical_fixture(tmp_path)
+    _create_nested_hierarchical_fixture(tmp_path, delivery_scope="task")
     _write_test_evidence(tmp_path)
+    for task_id in ("task:jornada:node:1", "task:subjornada:node:1", "task:subjornada:node:2", "task:jornada:node:2", "task:jornada:node:3"):
+        update_backlog_checklist(tmp_path, task_id, "test", True)
     generate_backlog(tmp_path)
 
     # Conclui nó 1 (e suas subtasks)

@@ -20,6 +20,8 @@ stdd backlog task
 
 Não declarar conclusão no meio do loop. `backlog-empty` é o único sinal de que não há outra task de implementação.
 
+Se `.stdd/config.json` tiver `backlog.test_loop_enabled: false`, a fase de testes está intencionalmente desabilitada: não execute `$create-tests` nem trate `backlog-test-required` como bloqueio. Use diretamente `stdd backlog task` e percorra somente o loop de implementação.
+
 ## Cursor obrigatório
 
 O cursor do backlog é a fonte de verdade da ordem de execução. Nunca escolha uma task manualmente, pule a task retornada ou avance pelo arquivo JSON.

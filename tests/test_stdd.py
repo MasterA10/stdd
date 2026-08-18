@@ -265,7 +265,9 @@ def test_test_and_implement_skills_require_symbols_and_static_analysis_gate():
 
 
 def test_test_and_implement_skills_require_explicit_draw_association_each_loop():
-    """Impede que as skills tratem arquivo/símbolo como associação automática."""
+    """Impede que as skills tratem arquivo/símbolo como associação automática.
+    Exige o comando e a verificação em cada ciclo de entrega.
+    """
     for name in ("create-tests", "implement"):
         content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         assert "a associação não é automática" in content
@@ -279,6 +281,19 @@ def test_test_and_implement_skills_require_explicit_draw_association_each_loop()
         assert "--source-dependency" in content
         assert "antes de `backlog complete`" in content
         assert "só pode ser o último comando do loop" in content
+
+
+def test_loop_skills_honor_disabled_test_phase():
+    """Orienta os agentes a pular create-tests quando o init desabilitar testes.
+    Mantém o cursor direcionado ao loop de implementação.
+    """
+    implement = Path("src/stdd/templates/agents/implement/SKILL.md").read_text(encoding="utf-8").lower()
+    create_tests = Path("src/stdd/templates/agents/create-tests/SKILL.md").read_text(encoding="utf-8").lower()
+    for content in (implement, create_tests):
+        assert "test_loop_enabled: false" in content
+        assert "loop de implementação" in content or "loop somente de implementação" in content
+    assert "$create-tests" in implement
+    assert "$implement" in create_tests
 
 
 def test_draw_system_level_three_splits_complete_detailed_screen_flows_into_phases():

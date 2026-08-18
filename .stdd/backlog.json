@@ -1,7 +1,7 @@
 {
   "version": 1,
   "kind": "backlog",
-  "generated_at": "2026-08-18T15:43:26.418792+00:00",
+  "generated_at": "2026-08-18T17:29:22.303349+00:00",
   "system": {
     "root_draw_ids": [
       "stdd-system-architecture"
@@ -1695,9 +1695,7 @@
             "test_status": "missing",
             "test_evidence": {
               "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "reason": "teste próprio do subfluxo ainda não concluído"
             },
             "checklist_state": {
               "test": false,
@@ -1757,9 +1755,7 @@
             "test_status": "missing",
             "test_evidence": {
               "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "reason": "teste próprio do subfluxo ainda não concluído"
             },
             "checklist_state": {
               "test": false,
@@ -1865,9 +1861,7 @@
             "test_status": "missing",
             "test_evidence": {
               "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "reason": "teste próprio do subfluxo ainda não concluído"
             },
             "checklist_state": {
               "test": false,
@@ -2003,9 +1997,7 @@
             "test_status": "missing",
             "test_evidence": {
               "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "reason": "teste próprio do subfluxo ainda não concluído"
             },
             "checklist_state": {
               "test": false,
@@ -2065,9 +2057,7 @@
             "test_status": "missing",
             "test_evidence": {
               "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "reason": "teste próprio do subfluxo ainda não concluído"
             },
             "checklist_state": {
               "test": false,
@@ -2143,9 +2133,7 @@
             "test_status": "missing",
             "test_evidence": {
               "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "reason": "teste próprio do subfluxo ainda não concluído"
             },
             "checklist_state": {
               "test": false,
@@ -2205,9 +2193,7 @@
             "test_status": "missing",
             "test_evidence": {
               "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "reason": "teste próprio do subfluxo ainda não concluído"
             },
             "checklist_state": {
               "test": false,
@@ -2267,9 +2253,7 @@
             "test_status": "missing",
             "test_evidence": {
               "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "reason": "teste próprio do subfluxo ainda não concluído"
             },
             "checklist_state": {
               "test": false,
@@ -2379,9 +2363,7 @@
             "test_status": "missing",
             "test_evidence": {
               "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "reason": "teste próprio do subfluxo ainda não concluído"
             },
             "checklist_state": {
               "test": false,
@@ -2457,9 +2439,7 @@
             "test_status": "missing",
             "test_evidence": {
               "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "reason": "teste próprio do subfluxo ainda não concluído"
             },
             "checklist_state": {
               "test": false,
@@ -2519,9 +2499,7 @@
             "test_status": "missing",
             "test_evidence": {
               "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "reason": "teste próprio do subfluxo ainda não concluído"
             },
             "checklist_state": {
               "test": false,
@@ -2581,9 +2559,7 @@
             "test_status": "missing",
             "test_evidence": {
               "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "reason": "teste próprio do subfluxo ainda não concluído"
             },
             "checklist_state": {
               "test": false,
@@ -2643,9 +2619,7 @@
             "test_status": "missing",
             "test_evidence": {
               "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "reason": "teste próprio do subfluxo ainda não concluído"
             },
             "checklist_state": {
               "test": false,
@@ -2721,9 +2695,7 @@
             "test_status": "missing",
             "test_evidence": {
               "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "reason": "teste próprio do subfluxo ainda não concluído"
             },
             "checklist_state": {
               "test": false,
@@ -2783,9 +2755,7 @@
             "test_status": "missing",
             "test_evidence": {
               "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "reason": "teste próprio do subfluxo ainda não concluído"
             },
             "checklist_state": {
               "test": false,
@@ -2891,9 +2861,7 @@
             "test_status": "missing",
             "test_evidence": {
               "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "reason": "teste próprio do subfluxo ainda não concluído"
             },
             "checklist_state": {
               "test": false,
@@ -2953,9 +2921,7 @@
             "test_status": "missing",
             "test_evidence": {
               "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "reason": "teste próprio do subfluxo ainda não concluído"
             },
             "checklist_state": {
               "test": false,
@@ -3015,9 +2981,7 @@
             "test_status": "missing",
             "test_evidence": {
               "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "reason": "teste próprio do subfluxo ainda não concluído"
             },
             "checklist_state": {
               "test": false,
@@ -5231,9 +5195,7 @@
       "test_status": "missing",
       "test_evidence": {
         "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "reason": "teste próprio do subfluxo ainda não concluído"
       },
       "checklist_state": {
         "test": false,
@@ -5279,9 +5241,7 @@
       "test_status": "missing",
       "test_evidence": {
         "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "reason": "teste próprio do subfluxo ainda não concluído"
       },
       "checklist_state": {
         "test": false,
@@ -5350,9 +5310,7 @@
       "test_status": "missing",
       "test_evidence": {
         "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "reason": "teste próprio do subfluxo ainda não concluído"
       },
       "checklist_state": {
         "test": false,
@@ -5398,9 +5356,7 @@
       "test_status": "missing",
       "test_evidence": {
         "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "reason": "teste próprio do subfluxo ainda não concluído"
       },
       "checklist_state": {
         "test": false,
@@ -5446,9 +5402,7 @@
       "test_status": "missing",
       "test_evidence": {
         "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "reason": "teste próprio do subfluxo ainda não concluído"
       },
       "checklist_state": {
         "test": false,
@@ -5552,9 +5506,7 @@
       "test_status": "missing",
       "test_evidence": {
         "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "reason": "teste próprio do subfluxo ainda não concluído"
       },
       "checklist_state": {
         "test": false,
@@ -5600,9 +5552,7 @@
       "test_status": "missing",
       "test_evidence": {
         "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "reason": "teste próprio do subfluxo ainda não concluído"
       },
       "checklist_state": {
         "test": false,
@@ -5648,9 +5598,7 @@
       "test_status": "missing",
       "test_evidence": {
         "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "reason": "teste próprio do subfluxo ainda não concluído"
       },
       "checklist_state": {
         "test": false,
@@ -5696,9 +5644,7 @@
       "test_status": "missing",
       "test_evidence": {
         "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "reason": "teste próprio do subfluxo ainda não concluído"
       },
       "checklist_state": {
         "test": false,
@@ -5824,9 +5770,7 @@
       "test_status": "missing",
       "test_evidence": {
         "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "reason": "teste próprio do subfluxo ainda não concluído"
       },
       "checklist_state": {
         "test": false,
@@ -5872,9 +5816,7 @@
       "test_status": "missing",
       "test_evidence": {
         "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "reason": "teste próprio do subfluxo ainda não concluído"
       },
       "checklist_state": {
         "test": false,
@@ -5943,9 +5885,7 @@
       "test_status": "missing",
       "test_evidence": {
         "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "reason": "teste próprio do subfluxo ainda não concluído"
       },
       "checklist_state": {
         "test": false,
@@ -6029,9 +5969,7 @@
       "test_status": "missing",
       "test_evidence": {
         "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "reason": "teste próprio do subfluxo ainda não concluído"
       },
       "checklist_state": {
         "test": false,
@@ -6077,9 +6015,7 @@
       "test_status": "missing",
       "test_evidence": {
         "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "reason": "teste próprio do subfluxo ainda não concluído"
       },
       "checklist_state": {
         "test": false,
@@ -6231,9 +6167,7 @@
       "test_status": "missing",
       "test_evidence": {
         "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "reason": "teste próprio do subfluxo ainda não concluído"
       },
       "checklist_state": {
         "test": false,
@@ -6279,9 +6213,7 @@
       "test_status": "missing",
       "test_evidence": {
         "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "reason": "teste próprio do subfluxo ainda não concluído"
       },
       "checklist_state": {
         "test": false,
@@ -6327,9 +6259,7 @@
       "test_status": "missing",
       "test_evidence": {
         "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "reason": "teste próprio do subfluxo ainda não concluído"
       },
       "checklist_state": {
         "test": false,
@@ -6400,9 +6330,7 @@
       "test_status": "missing",
       "test_evidence": {
         "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "reason": "teste próprio do subfluxo ainda não concluído"
       },
       "checklist_state": {
         "test": false,
@@ -6482,6 +6410,7 @@
     "current_branch_id": "stdd-user-journeys:branch:2",
     "branch_position": 2,
     "current_phase": "bootstrap",
+    "test_loop_enabled": true,
     "current_parent_task_id": null,
     "current_subtask_id": null,
     "bootstrap_done": false,
@@ -6497,7 +6426,7 @@
     "lease_seconds": 900,
     "task_batch_size": 1,
     "task_batch_scope": "task",
-    "test_task_scope": "node",
+    "task_delivery_scope": "task",
     "completed_branches": [
       "stdd-agent-journeys:branch:1",
       "stdd-agent-journeys:branch:2",

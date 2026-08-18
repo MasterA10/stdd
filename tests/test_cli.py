@@ -67,7 +67,7 @@ def test_init_interactive_selects_multiple_agent_integrations(tmp_path: Path):
     """Permite escolher várias integrações por números durante a inicialização.
     Simula a seleção de Claude e Gemini e confirma que o setup também pode ser aceito no mesmo fluxo.
     """
-    result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="2,3\ny\n1\n1\n1\n1\n")
+    result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="2,3\ny\n1\n1\n1\n1\n1\n")
 
     assert result.exit_code == 0
     assert (tmp_path / ".claude/skills/setup/SKILL.md").exists()
@@ -86,7 +86,7 @@ def test_init_interactive_does_not_ask_frontend_analysis_policy(tmp_path: Path):
     """
     (tmp_path / "index.html").write_text("<button>menu</button>")
 
-    result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="1\ny\n1\n2\n1\n1\n")
+    result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="1\ny\n1\n2\n1\n1\n1\n")
 
     assert result.exit_code == 0
     assert "política de análise estática frontend" not in result.stdout
@@ -101,7 +101,7 @@ def test_init_interactive_accepts_custom_level_meanings(tmp_path: Path):
     result = runner.invoke(
         app,
         ["init", str(tmp_path), "--interactive"],
-        input="1\ny\n2\nView pública e componentes frontend\n3\nPolíticas e detalhes de interação\n2\n1\n",
+        input="1\ny\n2\nView pública e componentes frontend\n3\nPolíticas e detalhes de interação\n2\n1\n1\n",
     )
 
     assert result.exit_code == 0
@@ -132,9 +132,31 @@ def test_init_accepts_l2_verification_interval_option(tmp_path: Path):
     assert config["backlog"]["l2_verification_interval"] == 2
 
 
+def test_init_can_disable_the_test_loop(tmp_path: Path):
+    """Persiste a opção que entrega somente tasks de implementação.
+    Confirma a configuração no arquivo do projeto.
+    """
+    result = runner.invoke(app, ["init", str(tmp_path), "--no-test-loop"])
+
+    assert result.exit_code == 0
+    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    assert config["backlog"]["test_loop_enabled"] is False
+
+
+def test_init_interactive_can_disable_the_test_loop(tmp_path: Path):
+    """Oferece a escolha do loop somente de implementação no init interativo.
+    Confirma a escolha persistida no backlog.
+    """
+    result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="1\nn\n1\n1\n2\n0\n2\n")
+
+    assert result.exit_code == 0
+    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    assert config["backlog"]["test_loop_enabled"] is False
+
+
 def test_init_interactive_can_disable_l2_verification_tasks(tmp_path: Path):
     """Permite desabilitar as conferências automáticas durante o init interativo."""
-    result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="1\nn\n1\n1\n2\n0\n")
+    result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="1\nn\n1\n1\n2\n0\n1\n")
 
     assert result.exit_code == 0
     config = json.loads((tmp_path / ".stdd/config.json").read_text())

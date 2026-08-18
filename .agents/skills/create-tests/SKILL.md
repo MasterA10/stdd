@@ -5,6 +5,8 @@ description: "Percorre a fase de testes do loop STDD: recebe uma task, transform
 
 # Create Tests
 
+Se `.stdd/config.json` tiver `backlog.test_loop_enabled: false`, esta skill não deve ser executada: o projeto optou pelo loop somente de implementação. Use `$implement` e `stdd backlog task`.
+
 ## Objetivo
 
 Percorrer o backlog de testes até o terminal, uma task por vez. O loop é:
