@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 28.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1" id="Camada_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 612 792" style="enable-background:new 0 0 612 792;" xml:space="preserve">
-<g>
+	viewBox="0 72 612 612" style="enable-background:new 0 0 612 792;" xml:space="preserve">
+	<defs>
+		<linearGradient id="red-to-orange" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0%" stop-color="#e31b23"/>
+			<stop offset="100%" stop-color="#ff8c00"/>
+		</linearGradient>
+	</defs>
+	<rect x="0" y="72" width="612" height="612" rx="104" fill="url(#red-to-orange)"/>
+<g fill="#000000">
 	<path d="M251.1,375.6c-6.1,6.5-12.2,12.9-18.2,19.2c-5.7-5.2-11.2-10.5-16.9-15.5c-8.9-7.9-18.4-14.9-29.4-19.6
 		c-10.7-4.6-21.8-6.9-33.3-4c-16.6,4.1-27.6,14.5-31.6,31.2c-3.8,16.1,0.9,30.2,13.4,41.2c14.6,12.8,31.4,14.3,49.3,8.4
 		c13.2-4.3,24.6-11.9,34.7-21.2c11.5-10.7,22.4-22.1,33.3-33.3c13-13.5,25.9-27.1,41.7-37.5c16.1-10.6,33.5-17.6,53.2-16.9

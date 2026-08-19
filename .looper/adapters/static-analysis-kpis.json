@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-08-19T00:46:32.213166+00:00",
+  "generated_at": "2026-08-19T00:59:10.859569+00:00",
   "status": "blocked",
   "reason": "quality_gate_blocked",
   "adapter_command": [
@@ -4491,7 +4491,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 100,
+        "line": 101,
         "lines": 9,
         "max_depth": 0,
         "parameters": 1,
@@ -4502,7 +4502,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 111,
+        "line": 112,
         "lines": 11,
         "max_depth": 0,
         "parameters": 2,
@@ -4513,7 +4513,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 124,
+        "line": 125,
         "lines": 11,
         "max_depth": 0,
         "parameters": 1,
@@ -4524,7 +4524,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 189,
+        "line": 190,
         "lines": 12,
         "max_depth": 0,
         "parameters": 1,
@@ -4535,7 +4535,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 203,
+        "line": 204,
         "lines": 15,
         "max_depth": 0,
         "parameters": 1,
@@ -4547,7 +4547,7 @@
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
         "line": 46,
-        "lines": 25,
+        "lines": 26,
         "max_depth": 0,
         "parameters": 1,
         "qualified_name": "tests.test_looper.test_init_migrates_legacy_stdd_state_and_text_references",
@@ -4557,7 +4557,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 553,
+        "line": 554,
         "lines": 9,
         "max_depth": 0,
         "parameters": 0,
@@ -4568,7 +4568,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 645,
+        "line": 646,
         "lines": 14,
         "max_depth": 0,
         "parameters": 0,
@@ -4579,7 +4579,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 672,
+        "line": 673,
         "lines": 9,
         "max_depth": 0,
         "parameters": 0,
@@ -4590,7 +4590,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 703,
+        "line": 704,
         "lines": 10,
         "max_depth": 0,
         "parameters": 0,
@@ -4601,7 +4601,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 715,
+        "line": 716,
         "lines": 14,
         "max_depth": 0,
         "parameters": 0,
@@ -4612,7 +4612,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 73,
+        "line": 74,
         "lines": 11,
         "max_depth": 0,
         "parameters": 1,
@@ -4623,7 +4623,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 86,
+        "line": 87,
         "lines": 12,
         "max_depth": 0,
         "parameters": 1,
@@ -6427,7 +6427,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 137,
+        "line": 138,
         "lines": 24,
         "max_depth": 0,
         "parameters": 1,
@@ -6438,7 +6438,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 284,
+        "line": 285,
         "lines": 12,
         "max_depth": 1,
         "parameters": 0,
@@ -6449,7 +6449,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 298,
+        "line": 299,
         "lines": 17,
         "max_depth": 1,
         "parameters": 0,
@@ -6460,7 +6460,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 317,
+        "line": 318,
         "lines": 21,
         "max_depth": 1,
         "parameters": 0,
@@ -6471,7 +6471,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 340,
+        "line": 341,
         "lines": 21,
         "max_depth": 1,
         "parameters": 0,
@@ -6482,7 +6482,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 363,
+        "line": 364,
         "lines": 18,
         "max_depth": 1,
         "parameters": 0,
@@ -6493,7 +6493,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 383,
+        "line": 384,
         "lines": 17,
         "max_depth": 1,
         "parameters": 0,
@@ -6504,7 +6504,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 402,
+        "line": 403,
         "lines": 11,
         "max_depth": 1,
         "parameters": 0,
@@ -6515,7 +6515,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 415,
+        "line": 416,
         "lines": 30,
         "max_depth": 1,
         "parameters": 0,
@@ -6526,7 +6526,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 465,
+        "line": 466,
         "lines": 16,
         "max_depth": 1,
         "parameters": 0,
@@ -6537,7 +6537,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 483,
+        "line": 484,
         "lines": 25,
         "max_depth": 1,
         "parameters": 0,
@@ -6548,7 +6548,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 510,
+        "line": 511,
         "lines": 17,
         "max_depth": 1,
         "parameters": 0,
@@ -6559,7 +6559,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 529,
+        "line": 530,
         "lines": 22,
         "max_depth": 1,
         "parameters": 0,
@@ -6570,7 +6570,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 609,
+        "line": 610,
         "lines": 7,
         "max_depth": 1,
         "parameters": 0,
@@ -6581,7 +6581,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 618,
+        "line": 619,
         "lines": 11,
         "max_depth": 1,
         "parameters": 0,
@@ -6592,7 +6592,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 661,
+        "line": 662,
         "lines": 9,
         "max_depth": 1,
         "parameters": 0,
@@ -6603,7 +6603,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 683,
+        "line": 684,
         "lines": 8,
         "max_depth": 1,
         "parameters": 0,
@@ -7505,7 +7505,7 @@
       {
         "cyclomatic": 3,
         "file": "tests/test_looper.py",
-        "line": 163,
+        "line": 164,
         "lines": 24,
         "max_depth": 1,
         "parameters": 1,
@@ -7516,7 +7516,7 @@
       {
         "cyclomatic": 3,
         "file": "tests/test_looper.py",
-        "line": 447,
+        "line": 448,
         "lines": 16,
         "max_depth": 1,
         "parameters": 0,
@@ -7527,7 +7527,7 @@
       {
         "cyclomatic": 3,
         "file": "tests/test_looper.py",
-        "line": 579,
+        "line": 580,
         "lines": 8,
         "max_depth": 1,
         "parameters": 0,
@@ -7538,7 +7538,7 @@
       {
         "cyclomatic": 3,
         "file": "tests/test_looper.py",
-        "line": 589,
+        "line": 590,
         "lines": 8,
         "max_depth": 1,
         "parameters": 0,
@@ -7549,7 +7549,7 @@
       {
         "cyclomatic": 3,
         "file": "tests/test_looper.py",
-        "line": 599,
+        "line": 600,
         "lines": 8,
         "max_depth": 1,
         "parameters": 0,
@@ -7560,7 +7560,7 @@
       {
         "cyclomatic": 3,
         "file": "tests/test_looper.py",
-        "line": 693,
+        "line": 694,
         "lines": 8,
         "max_depth": 1,
         "parameters": 0,
@@ -8418,7 +8418,7 @@
       {
         "cyclomatic": 5,
         "file": "tests/test_looper.py",
-        "line": 564,
+        "line": 565,
         "lines": 13,
         "max_depth": 1,
         "parameters": 0,
@@ -8429,7 +8429,7 @@
       {
         "cyclomatic": 5,
         "file": "tests/test_looper.py",
-        "line": 631,
+        "line": 632,
         "lines": 12,
         "max_depth": 1,
         "parameters": 0,
@@ -9045,7 +9045,7 @@
       {
         "cyclomatic": 8,
         "file": "tests/test_looper.py",
-        "line": 220,
+        "line": 221,
         "lines": 62,
         "max_depth": 1,
         "parameters": 0,
@@ -9482,7 +9482,7 @@
         "file": "tests/test_looper.py",
         "functions": 40,
         "imports": 5,
-        "lines": 728,
+        "lines": 729,
         "source": "python_ast"
       },
       {
@@ -9716,16 +9716,6 @@
         "symbol_id": "draw-editor/src/components/LoopEdge.tsx:function:<anonymous>"
       },
       {
-        "end_line": 108,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 100,
-        "name": "test_init_creates_static_analysis_without_frontend_policy",
-        "qualified_name": "tests.test_looper.test_init_creates_static_analysis_without_frontend_policy",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_creates_static_analysis_without_frontend_policy"
-      },
-      {
         "end_line": 1084,
         "file": "tests/test_backlog.py",
         "kind": "function",
@@ -9775,6 +9765,16 @@
         "qualified_name": "tests.test_backlog._remove_test_refs",
         "source": "python_ast",
         "symbol_id": "tests/test_backlog.py:tests.test_backlog._remove_test_refs"
+      },
+      {
+        "end_line": 109,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 101,
+        "name": "test_init_creates_static_analysis_without_frontend_policy",
+        "qualified_name": "tests.test_looper.test_init_creates_static_analysis_without_frontend_policy",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_creates_static_analysis_without_frontend_policy"
       },
       {
         "end_line": 1091,
@@ -10009,16 +10009,6 @@
         "symbol_id": "src/looper/draw.py:looper.draw._atomic_write"
       },
       {
-        "end_line": 121,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 111,
-        "name": "test_init_accepts_project_directory_argument",
-        "qualified_name": "tests.test_looper.test_init_accepts_project_directory_argument",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_accepts_project_directory_argument"
-      },
-      {
         "end_line": 1219,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -10047,6 +10037,16 @@
         "qualified_name": "looper.templates.adapters.static_adapter.py_adapter",
         "source": "python_ast",
         "symbol_id": "src/looper/templates/adapters/static_adapter.py:looper.templates.adapters.static_adapter.py_adapter"
+      },
+      {
+        "end_line": 122,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 112,
+        "name": "test_init_accepts_project_directory_argument",
+        "qualified_name": "tests.test_looper.test_init_accepts_project_directory_argument",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_accepts_project_directory_argument"
       },
       {
         "end_line": 1221,
@@ -10341,16 +10341,6 @@
         "symbol_id": "src/looper/improvements.py:looper.improvements._validate_question"
       },
       {
-        "end_line": 134,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 124,
-        "name": "test_init_rejects_file_as_project_directory",
-        "qualified_name": "tests.test_looper.test_init_rejects_file_as_project_directory",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_rejects_file_as_project_directory"
-      },
-      {
         "end_line": 1342,
         "file": "src/looper/draw.py",
         "kind": "function",
@@ -10369,6 +10359,16 @@
         "qualified_name": "looper.backlog._parent_task",
         "source": "python_ast",
         "symbol_id": "src/looper/backlog.py:looper.backlog._parent_task"
+      },
+      {
+        "end_line": 135,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 125,
+        "name": "test_init_rejects_file_as_project_directory",
+        "qualified_name": "tests.test_looper.test_init_rejects_file_as_project_directory",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_rejects_file_as_project_directory"
       },
       {
         "end_line": 1355,
@@ -10845,16 +10845,6 @@
         "symbol_id": "src/looper/traceability.py:looper.traceability._unique_strings"
       },
       {
-        "end_line": 160,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 137,
-        "name": "test_init_keeps_framework_artifacts_in_looper_and_agent_skills_in_agents",
-        "qualified_name": "tests.test_looper.test_init_keeps_framework_artifacts_in_looper_and_agent_skills_in_agents",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_keeps_framework_artifacts_in_looper_and_agent_skills_in_agents"
-      },
-      {
         "end_line": 161,
         "file": "src/looper/core.py",
         "kind": "function",
@@ -10863,6 +10853,16 @@
         "qualified_name": "looper.core._legacy_text_files",
         "source": "python_ast",
         "symbol_id": "src/looper/core.py:looper.core._legacy_text_files"
+      },
+      {
+        "end_line": 161,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 138,
+        "name": "test_init_keeps_framework_artifacts_in_looper_and_agent_skills_in_agents",
+        "qualified_name": "tests.test_looper.test_init_keeps_framework_artifacts_in_looper_and_agent_skills_in_agents",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_keeps_framework_artifacts_in_looper_and_agent_skills_in_agents"
       },
       {
         "end_line": 1614,
@@ -11146,16 +11146,6 @@
         "symbol_id": "src/looper/static_analysis.py:looper.static_analysis._credential_finding"
       },
       {
-        "end_line": 186,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 163,
-        "name": "test_init_injects_idempotent_instructions_for_all_agents",
-        "qualified_name": "tests.test_looper.test_init_injects_idempotent_instructions_for_all_agents",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_injects_idempotent_instructions_for_all_agents"
-      },
-      {
         "end_line": 187,
         "file": "tests/test_backlog.py",
         "kind": "function",
@@ -11164,6 +11154,16 @@
         "qualified_name": "tests.test_backlog.test_build_backlog_copies_level_two_questions_symbols_and_branches",
         "source": "python_ast",
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_build_backlog_copies_level_two_questions_symbols_and_branches"
+      },
+      {
+        "end_line": 187,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 164,
+        "name": "test_init_injects_idempotent_instructions_for_all_agents",
+        "qualified_name": "tests.test_looper.test_init_injects_idempotent_instructions_for_all_agents",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_injects_idempotent_instructions_for_all_agents"
       },
       {
         "end_line": 1875,
@@ -11299,16 +11299,6 @@
         "symbol_id": "src/looper/traceability.py:looper.traceability._draw_facts_path"
       },
       {
-        "end_line": 200,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 189,
-        "name": "test_init_uses_existing_claude_project_memory_file",
-        "qualified_name": "tests.test_looper.test_init_uses_existing_claude_project_memory_file",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_uses_existing_claude_project_memory_file"
-      },
-      {
         "end_line": 201,
         "file": "src/looper/traceability.py",
         "kind": "function",
@@ -11317,6 +11307,16 @@
         "qualified_name": "looper.traceability.refresh_traceability",
         "source": "python_ast",
         "symbol_id": "src/looper/traceability.py:looper.traceability.refresh_traceability"
+      },
+      {
+        "end_line": 201,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 190,
+        "name": "test_init_uses_existing_claude_project_memory_file",
+        "qualified_name": "tests.test_looper.test_init_uses_existing_claude_project_memory_file",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_uses_existing_claude_project_memory_file"
       },
       {
         "end_line": 202,
@@ -11390,16 +11390,6 @@
         "symbol_id": "draw-editor/src/layout.ts:function:barycentricOrder"
       },
       {
-        "end_line": 217,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 203,
-        "name": "test_init_preserves_existing_gitignore_and_does_not_duplicate_rules",
-        "qualified_name": "tests.test_looper.test_init_preserves_existing_gitignore_and_does_not_duplicate_rules",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_preserves_existing_gitignore_and_does_not_duplicate_rules"
-      },
-      {
         "end_line": 218,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
@@ -11408,6 +11398,16 @@
         "qualified_name": "tests.test_draw_editor.test_longest_return_from_terminal_node_can_use_the_upper_lane",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_longest_return_from_terminal_node_can_use_the_upper_lane"
+      },
+      {
+        "end_line": 218,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 204,
+        "name": "test_init_preserves_existing_gitignore_and_does_not_duplicate_rules",
+        "qualified_name": "tests.test_looper.test_init_preserves_existing_gitignore_and_does_not_duplicate_rules",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_preserves_existing_gitignore_and_does_not_duplicate_rules"
       },
       {
         "end_line": 219,
@@ -11925,16 +11925,6 @@
         "symbol_id": "src/looper/setup.py:looper.setup._stack_evidence"
       },
       {
-        "end_line": 281,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 220,
-        "name": "test_agents_are_loaded_from_markdown_templates",
-        "qualified_name": "tests.test_looper.test_agents_are_loaded_from_markdown_templates",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_agents_are_loaded_from_markdown_templates"
-      },
-      {
         "end_line": 282,
         "file": "src/looper/cli.py",
         "kind": "function",
@@ -11943,6 +11933,16 @@
         "qualified_name": "looper.cli._format_backlog_response",
         "source": "python_ast",
         "symbol_id": "src/looper/cli.py:looper.cli._format_backlog_response"
+      },
+      {
+        "end_line": 282,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 221,
+        "name": "test_agents_are_loaded_from_markdown_templates",
+        "qualified_name": "tests.test_looper.test_agents_are_loaded_from_markdown_templates",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_agents_are_loaded_from_markdown_templates"
       },
       {
         "end_line": 284,
@@ -12027,16 +12027,6 @@
       },
       {
         "end_line": 295,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 284,
-        "name": "test_test_and_implement_skills_require_symbols_and_static_analysis_gate",
-        "qualified_name": "tests.test_looper.test_test_and_implement_skills_require_symbols_and_static_analysis_gate",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_test_and_implement_skills_require_symbols_and_static_analysis_gate"
-      },
-      {
-        "end_line": 295,
         "file": "tests/test_static_analysis.py",
         "kind": "function",
         "line": 264,
@@ -12044,6 +12034,16 @@
         "qualified_name": "tests.test_static_analysis.test_static_analysis_includes_draw_node_symbol_warnings",
         "source": "python_ast",
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_static_analysis_includes_draw_node_symbol_warnings"
+      },
+      {
+        "end_line": 296,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 285,
+        "name": "test_test_and_implement_skills_require_symbols_and_static_analysis_gate",
+        "qualified_name": "tests.test_looper.test_test_and_implement_skills_require_symbols_and_static_analysis_gate",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_test_and_implement_skills_require_symbols_and_static_analysis_gate"
       },
       {
         "end_line": 30,
@@ -12138,16 +12138,6 @@
       },
       {
         "end_line": 314,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 298,
-        "name": "test_test_and_implement_skills_require_explicit_draw_association_each_loop",
-        "qualified_name": "tests.test_looper.test_test_and_implement_skills_require_explicit_draw_association_each_loop",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_test_and_implement_skills_require_explicit_draw_association_each_loop"
-      },
-      {
-        "end_line": 314,
         "file": "tests/test_traceability.py",
         "kind": "function",
         "line": 294,
@@ -12155,6 +12145,16 @@
         "qualified_name": "tests.test_traceability.test_cli_associate_reference_accepts_batch_contract",
         "source": "python_ast",
         "symbol_id": "tests/test_traceability.py:tests.test_traceability.test_cli_associate_reference_accepts_batch_contract"
+      },
+      {
+        "end_line": 315,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 299,
+        "name": "test_test_and_implement_skills_require_explicit_draw_association_each_loop",
+        "qualified_name": "tests.test_looper.test_test_and_implement_skills_require_explicit_draw_association_each_loop",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_test_and_implement_skills_require_explicit_draw_association_each_loop"
       },
       {
         "end_line": 32,
@@ -12297,16 +12297,6 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_discovers_draw_server_when_running_on_another_local_origin"
       },
       {
-        "end_line": 337,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 317,
-        "name": "test_implement_skill_requires_real_post_implementation_audit",
-        "qualified_name": "tests.test_looper.test_implement_skill_requires_real_post_implementation_audit",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_implement_skill_requires_real_post_implementation_audit"
-      },
-      {
         "end_line": 338,
         "file": "src/looper/setup.py",
         "kind": "function",
@@ -12325,6 +12315,16 @@
         "qualified_name": "looper.static_analysis._validate_exceptions",
         "source": "python_ast",
         "symbol_id": "src/looper/static_analysis.py:looper.static_analysis._validate_exceptions"
+      },
+      {
+        "end_line": 338,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 318,
+        "name": "test_implement_skill_requires_real_post_implementation_audit",
+        "qualified_name": "tests.test_looper.test_implement_skill_requires_real_post_implementation_audit",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_implement_skill_requires_real_post_implementation_audit"
       },
       {
         "end_line": 341,
@@ -12448,16 +12448,6 @@
         "symbol_id": "src/looper/draw.py:looper.draw.validate_draw_payload"
       },
       {
-        "end_line": 360,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 340,
-        "name": "test_backlog_skills_are_not_for_common_interactions",
-        "qualified_name": "tests.test_looper.test_backlog_skills_are_not_for_common_interactions",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_backlog_skills_are_not_for_common_interactions"
-      },
-      {
         "end_line": 361,
         "file": "src/looper/backlog.py",
         "kind": "function",
@@ -12466,6 +12456,16 @@
         "qualified_name": "looper.backlog._create_injected_l2_batch_verify_task",
         "source": "python_ast",
         "symbol_id": "src/looper/backlog.py:looper.backlog._create_injected_l2_batch_verify_task"
+      },
+      {
+        "end_line": 361,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 341,
+        "name": "test_backlog_skills_are_not_for_common_interactions",
+        "qualified_name": "tests.test_looper.test_backlog_skills_are_not_for_common_interactions",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_backlog_skills_are_not_for_common_interactions"
       },
       {
         "end_line": 362,
@@ -12588,10 +12588,10 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_answer_outputs_human_context_grouped_with_node_symbol"
       },
       {
-        "end_line": 380,
+        "end_line": 381,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 363,
+        "line": 364,
         "name": "test_contextual_memory_routes_durable_rules_to_the_right_document",
         "qualified_name": "tests.test_looper.test_contextual_memory_routes_durable_rules_to_the_right_document",
         "source": "python_ast",
@@ -12699,16 +12699,6 @@
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_static_analysis_rejects_invalid_exception_policy"
       },
       {
-        "end_line": 399,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 383,
-        "name": "test_node_delivery_contract_covers_tests_and_full_implementation",
-        "qualified_name": "tests.test_looper.test_node_delivery_contract_covers_tests_and_full_implementation",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_node_delivery_contract_covers_tests_and_full_implementation"
-      },
-      {
         "end_line": 400,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
@@ -12717,6 +12707,16 @@
         "qualified_name": "tests.test_draw_editor.test_organize_button_clears_local_positions_without_changing_the_flow",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_organize_button_clears_local_positions_without_changing_the_flow"
+      },
+      {
+        "end_line": 400,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 384,
+        "name": "test_node_delivery_contract_covers_tests_and_full_implementation",
+        "qualified_name": "tests.test_looper.test_node_delivery_contract_covers_tests_and_full_implementation",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_node_delivery_contract_covers_tests_and_full_implementation"
       },
       {
         "end_line": 401,
@@ -12809,16 +12809,6 @@
         "symbol_id": "tests/test_traceability.py:tests.test_traceability.test_refresh_traceability_ignores_macos_appledouble_files"
       },
       {
-        "end_line": 412,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 402,
-        "name": "test_loop_skills_honor_disabled_test_phase",
-        "qualified_name": "tests.test_looper.test_loop_skills_honor_disabled_test_phase",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_loop_skills_honor_disabled_test_phase"
-      },
-      {
         "end_line": 413,
         "file": "src/looper/backlog.py",
         "kind": "function",
@@ -12827,6 +12817,16 @@
         "qualified_name": "looper.backlog.backlog_path",
         "source": "python_ast",
         "symbol_id": "src/looper/backlog.py:looper.backlog.backlog_path"
+      },
+      {
+        "end_line": 413,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 403,
+        "name": "test_loop_skills_honor_disabled_test_phase",
+        "qualified_name": "tests.test_looper.test_loop_skills_honor_disabled_test_phase",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_loop_skills_honor_disabled_test_phase"
       },
       {
         "end_line": 415,
@@ -13033,10 +13033,10 @@
         "symbol_id": "tests/test_backlog_server.py:tests.test_backlog_server._create_hierarchical_fixture"
       },
       {
-        "end_line": 444,
+        "end_line": 445,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 415,
+        "line": 416,
         "name": "test_draw_system_level_three_splits_complete_detailed_screen_flows_into_phases",
         "qualified_name": "tests.test_looper.test_draw_system_level_three_splits_complete_detailed_screen_flows_into_phases",
         "source": "python_ast",
@@ -13153,16 +13153,6 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_does_not_update_index_when_logical_payload_is_unchanged"
       },
       {
-        "end_line": 462,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 447,
-        "name": "test_draw_system_levels_keep_then_compatible_with_one_branch_family",
-        "qualified_name": "tests.test_looper.test_draw_system_levels_keep_then_compatible_with_one_branch_family",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_system_levels_keep_then_compatible_with_one_branch_family"
-      },
-      {
         "end_line": 463,
         "file": "src/looper/draw.py",
         "kind": "function",
@@ -13171,6 +13161,16 @@
         "qualified_name": "looper.draw._analysis_fingerprint",
         "source": "python_ast",
         "symbol_id": "src/looper/draw.py:looper.draw._analysis_fingerprint"
+      },
+      {
+        "end_line": 463,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 448,
+        "name": "test_draw_system_levels_keep_then_compatible_with_one_branch_family",
+        "qualified_name": "tests.test_looper.test_draw_system_levels_keep_then_compatible_with_one_branch_family",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_system_levels_keep_then_compatible_with_one_branch_family"
       },
       {
         "end_line": 464,
@@ -13294,10 +13294,10 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_draw_editor_can_move_up_a_hierarchy_level_and_choose_between_parents"
       },
       {
-        "end_line": 480,
+        "end_line": 481,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 465,
+        "line": 466,
         "name": "test_implement_skill_triages_draw_diffs_before_declaring_no_change",
         "qualified_name": "tests.test_looper.test_implement_skill_triages_draw_diffs_before_declaring_no_change",
         "source": "python_ast",
@@ -13475,16 +13475,6 @@
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_check_backlog_blocks_missing_test_evidence"
       },
       {
-        "end_line": 507,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 483,
-        "name": "test_draw_improve_skill_is_incremental_and_hands_off_through_feature",
-        "qualified_name": "tests.test_looper.test_draw_improve_skill_is_incremental_and_hands_off_through_feature",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_improve_skill_is_incremental_and_hands_off_through_feature"
-      },
-      {
         "end_line": 508,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -13493,6 +13483,16 @@
         "qualified_name": "tests.test_draw.test_create_draw_rejects_descriptive_ids_instead_of_labels",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_rejects_descriptive_ids_instead_of_labels"
+      },
+      {
+        "end_line": 508,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 484,
+        "name": "test_draw_improve_skill_is_incremental_and_hands_off_through_feature",
+        "qualified_name": "tests.test_looper.test_draw_improve_skill_is_incremental_and_hands_off_through_feature",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_improve_skill_is_incremental_and_hands_off_through_feature"
       },
       {
         "end_line": 51,
@@ -13597,10 +13597,10 @@
         "symbol_id": "src/looper/core.py:looper.core._static_analysis_summary"
       },
       {
-        "end_line": 526,
+        "end_line": 527,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 510,
+        "line": 511,
         "name": "test_draw_improve_skill_requires_global_consistency_groups_and_questions",
         "qualified_name": "tests.test_looper.test_draw_improve_skill_requires_global_consistency_groups_and_questions",
         "source": "python_ast",
@@ -13737,10 +13737,10 @@
         "symbol_id": "src/looper/cli.py:looper.cli.backlog_missing"
       },
       {
-        "end_line": 550,
+        "end_line": 551,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 529,
+        "line": 530,
         "name": "test_draw_answer_owns_question_discovery_and_codebase_traceability",
         "qualified_name": "tests.test_looper.test_draw_answer_owns_question_discovery_and_codebase_traceability",
         "source": "python_ast",
@@ -13809,10 +13809,10 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_requires_fixed_selectable_edge_conditions"
       },
       {
-        "end_line": 561,
+        "end_line": 562,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 553,
+        "line": 554,
         "name": "test_draw_feature_matches_always_interactive_viewer",
         "qualified_name": "tests.test_looper.test_draw_feature_matches_always_interactive_viewer",
         "source": "python_ast",
@@ -13879,10 +13879,10 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_rejects_dangling_edges_without_writing"
       },
       {
-        "end_line": 576,
+        "end_line": 577,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 564,
+        "line": 565,
         "name": "test_draw_skills_document_questions_and_answer_history",
         "qualified_name": "tests.test_looper.test_draw_skills_document_questions_and_answer_history",
         "source": "python_ast",
@@ -13961,10 +13961,10 @@
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_keeps_shared_steps_in_every_branch_and_tracks_all_occurrences"
       },
       {
-        "end_line": 586,
+        "end_line": 587,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 579,
+        "line": 580,
         "name": "test_draw_skills_preserve_system_hierarchy_and_terminal_unimplemented_paths",
         "qualified_name": "tests.test_looper.test_draw_skills_preserve_system_hierarchy_and_terminal_unimplemented_paths",
         "source": "python_ast",
@@ -14052,10 +14052,10 @@
         "symbol_id": "src/looper/backlog.py:looper.backlog._child_checklist_id"
       },
       {
-        "end_line": 596,
+        "end_line": 597,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 589,
+        "line": 590,
         "name": "test_feature_and_implement_skills_honor_draw_system_boundaries",
         "qualified_name": "tests.test_looper.test_feature_and_implement_skills_honor_draw_system_boundaries",
         "source": "python_ast",
@@ -14143,10 +14143,10 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_accepts_nodes_connected_in_either_direction"
       },
       {
-        "end_line": 606,
+        "end_line": 607,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 599,
+        "line": 600,
         "name": "test_traceability_skills_cover_rpc_and_sql_implementations",
         "qualified_name": "tests.test_looper.test_traceability_skills_cover_rpc_and_sql_implementations",
         "source": "python_ast",
@@ -14184,10 +14184,10 @@
         "symbol_id": "src/looper/backlog.py:looper.backlog._checklist_item"
       },
       {
-        "end_line": 615,
+        "end_line": 616,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 609,
+        "line": 610,
         "name": "test_setup_reports_missing_system_draw_without_creating_it",
         "qualified_name": "tests.test_looper.test_setup_reports_missing_system_draw_without_creating_it",
         "source": "python_ast",
@@ -14286,10 +14286,10 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_static_analysis_indicators_support_dragging_and_occurrence_evidence"
       },
       {
-        "end_line": 628,
+        "end_line": 629,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 618,
+        "line": 619,
         "name": "test_agent_skills_are_self_contained_and_do_not_reference_internal_plan",
         "qualified_name": "tests.test_looper.test_agent_skills_are_self_contained_and_do_not_reference_internal_plan",
         "source": "python_ast",
@@ -14450,10 +14450,10 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_static_analysis_classifies_files_by_selected_indicator"
       },
       {
-        "end_line": 642,
+        "end_line": 643,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 631,
+        "line": 632,
         "name": "test_delivery_agents_define_complete_production_test_contract",
         "qualified_name": "tests.test_looper.test_delivery_agents_define_complete_production_test_contract",
         "source": "python_ast",
@@ -14540,10 +14540,10 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_static_analysis_breakdown_findings_are_the_file_drilldown_items"
       },
       {
-        "end_line": 658,
+        "end_line": 659,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 645,
+        "line": 646,
         "name": "test_readme_documents_remote_install_and_interactive_integrations",
         "qualified_name": "tests.test_looper.test_readme_documents_remote_install_and_interactive_integrations",
         "source": "python_ast",
@@ -14600,10 +14600,10 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_contract_rejects_function_with_single_line_docstring"
       },
       {
-        "end_line": 669,
+        "end_line": 670,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 661,
+        "line": 662,
         "name": "test_readme_documents_codex_skill_invocation",
         "qualified_name": "tests.test_looper.test_readme_documents_codex_skill_invocation",
         "source": "python_ast",
@@ -14660,10 +14660,10 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_contract_allows_production_function_without_docstring"
       },
       {
-        "end_line": 680,
+        "end_line": 681,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 672,
+        "line": 673,
         "name": "test_feature_skill_uses_tests_and_draw_json_without_markdown_copies",
         "qualified_name": "tests.test_looper.test_feature_skill_uses_tests_and_draw_json_without_markdown_copies",
         "source": "python_ast",
@@ -14742,16 +14742,6 @@
         "symbol_id": "draw-editor/src/layout.ts:function:layoutCurvedGraph"
       },
       {
-        "end_line": 690,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 683,
-        "name": "test_setup_skill_defines_global_alias_and_database_lifecycle",
-        "qualified_name": "tests.test_looper.test_setup_skill_defines_global_alias_and_database_lifecycle",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_setup_skill_defines_global_alias_and_database_lifecycle"
-      },
-      {
         "end_line": 691,
         "file": "src/looper/static_analysis.py",
         "kind": "function",
@@ -14760,6 +14750,16 @@
         "qualified_name": "looper.static_analysis.write_static_analysis_kpis",
         "source": "python_ast",
         "symbol_id": "src/looper/static_analysis.py:looper.static_analysis.write_static_analysis_kpis"
+      },
+      {
+        "end_line": 691,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 684,
+        "name": "test_setup_skill_defines_global_alias_and_database_lifecycle",
+        "qualified_name": "tests.test_looper.test_setup_skill_defines_global_alias_and_database_lifecycle",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_setup_skill_defines_global_alias_and_database_lifecycle"
       },
       {
         "end_line": 696,
@@ -14792,20 +14792,10 @@
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_marks_every_branch_complete_when_shared_terminal_is_done"
       },
       {
-        "end_line": 70,
+        "end_line": 701,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 46,
-        "name": "test_init_migrates_legacy_stdd_state_and_text_references",
-        "qualified_name": "tests.test_looper.test_init_migrates_legacy_stdd_state_and_text_references",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_migrates_legacy_stdd_state_and_text_references"
-      },
-      {
-        "end_line": 700,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 693,
+        "line": 694,
         "name": "test_agent_skills_require_approval_for_expensive_or_mutating_setup",
         "qualified_name": "tests.test_looper.test_agent_skills_require_approval_for_expensive_or_mutating_setup",
         "source": "python_ast",
@@ -14872,6 +14862,16 @@
         "symbol_id": "tests/test_backlog_server.py:tests.test_backlog_server.test_draw_server_serves_backlog_and_claims_and_completes_task"
       },
       {
+        "end_line": 71,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 46,
+        "name": "test_init_migrates_legacy_stdd_state_and_text_references",
+        "qualified_name": "tests.test_looper.test_init_migrates_legacy_stdd_state_and_text_references",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_migrates_legacy_stdd_state_and_text_references"
+      },
+      {
         "end_line": 710,
         "file": "src/looper/core.py",
         "kind": "function",
@@ -14892,10 +14892,10 @@
         "symbol_id": "src/looper/cli.py:looper.cli.draw_questions"
       },
       {
-        "end_line": 712,
+        "end_line": 713,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 703,
+        "line": 704,
         "name": "test_init_does_not_create_feature_or_implementation_commands",
         "qualified_name": "tests.test_looper.test_init_does_not_create_feature_or_implementation_commands",
         "source": "python_ast",
@@ -14952,16 +14952,6 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_contract_warns_for_level3_and_level4_missing_code_refs"
       },
       {
-        "end_line": 728,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 715,
-        "name": "test_runs_viewer_is_read_only_and_uses_incremental_json_documents",
-        "qualified_name": "tests.test_looper.test_runs_viewer_is_read_only_and_uses_incremental_json_documents",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_runs_viewer_is_read_only_and_uses_incremental_json_documents"
-      },
-      {
         "end_line": 729,
         "file": "src/looper/cli.py",
         "kind": "function",
@@ -14980,6 +14970,16 @@
         "qualified_name": "looper.core.get_draw_snapshot",
         "source": "python_ast",
         "symbol_id": "src/looper/core.py:looper.core.get_draw_snapshot"
+      },
+      {
+        "end_line": 729,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 716,
+        "name": "test_runs_viewer_is_read_only_and_uses_incremental_json_documents",
+        "qualified_name": "tests.test_looper.test_runs_viewer_is_read_only_and_uses_incremental_json_documents",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_runs_viewer_is_read_only_and_uses_incremental_json_documents"
       },
       {
         "end_line": 73,
@@ -15386,16 +15386,6 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_does_not_classify_medium_replacement_as_refactor"
       },
       {
-        "end_line": 83,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 73,
-        "name": "test_init_always_synchronizes_existing_agent_skills",
-        "qualified_name": "tests.test_looper.test_init_always_synchronizes_existing_agent_skills",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_always_synchronizes_existing_agent_skills"
-      },
-      {
         "end_line": 836,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -15404,6 +15394,16 @@
         "qualified_name": "tests.test_draw.test_draw_cli_reports_invalid_workspace_before_starting_viewer",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_cli_reports_invalid_workspace_before_starting_viewer"
+      },
+      {
+        "end_line": 84,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 74,
+        "name": "test_init_always_synchronizes_existing_agent_skills",
+        "qualified_name": "tests.test_looper.test_init_always_synchronizes_existing_agent_skills",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_always_synchronizes_existing_agent_skills"
       },
       {
         "end_line": 843,
@@ -16000,10 +16000,10 @@
         "symbol_id": "tests/test_backlog.py:tests.test_backlog._write_test_evidence"
       },
       {
-        "end_line": 97,
+        "end_line": 98,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 86,
+        "line": 87,
         "name": "test_init_defers_language_specific_test_runner_to_setup",
         "qualified_name": "tests.test_looper.test_init_defers_language_specific_test_runner_to_setup",
         "source": "python_ast",
