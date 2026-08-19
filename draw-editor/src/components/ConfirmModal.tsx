@@ -47,8 +47,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
               {cancelLabel}
             </button>
             <button
-              className={isDanger ? 'primary' : 'primary'} // Styled primary, or we can use styling for danger if desired
-              style={isDanger ? { backgroundColor: 'var(--danger)', borderColor: 'var(--danger)', color: '#fff' } : {}}
+              className={isDanger ? 'primary danger' : 'primary'}
               type="button"
               onClick={onConfirm}
             >

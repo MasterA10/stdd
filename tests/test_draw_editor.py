@@ -562,7 +562,7 @@ def test_node_question_counts_use_answer_state_colors():
     styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
 
     assert ".question-count.answered" in styles
-    assert "background: linear-gradient(135deg, #ef4444 0%, #fb923c 100%);" in styles
+    assert "background: var(--brand-gradient);" in styles
     assert ".question-count.unanswered" in styles
     assert "background: #4b5563;" in styles
     assert "color: #fff;" in styles
@@ -763,6 +763,7 @@ def test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal():
     assert "/.looper/runs/index.json" in app
     assert "runs={runs}" in app
     assert "activeTab === 'runs'" in sidebar
+    assert ">('runs');" in sidebar
     assert sidebar.index("<span>Runs</span>") < sidebar.index("<span>Desenhos</span>")
     assert "RunDetailsModal" not in sidebar
     assert "new Intl.DateTimeFormat('pt-BR'" in sidebar
@@ -836,7 +837,7 @@ def test_dark_nodes_use_grayscale_fills_and_keep_group_accent_on_border():
     assert "const isDarkTheme = data.theme === 'dark' || data.theme === 'black';" in node
     assert "background: isDarkTheme" in node
     assert "darkGroupFill(data.group)" in node
-    assert "color: isDarkTheme ? '#f8fafc' : '#0f172a'" in node
+    assert "color: isBacklogTaskInProgress || isBacklogTaskDone || isDarkTheme ? '#f8fafc' : '#0f172a'" in node
     assert "const groupPillStyle = isDarkTheme" in node
     assert "backgroundColor: accentColor, color: '#ffffff'" in node
     assert "style={groupPillStyle}" in node
@@ -856,13 +857,15 @@ def test_backlog_task_states_style_in_progress_and_done_nodes():
     assert "status: backlogTask.status" in app
     assert "backlog-task-in-progress" in node
     assert "backlog-task-done" in node
-    assert "TestTube2" in node
+    assert "lucide-test-tube-diagonal" in node
     assert "hasAssociatedTest = backlogChecklist?.test === true" in node
     assert "Boolean(data.test_ref)" in node
     assert "data.test_refs.length > 0" in node
     assert "node-associated-test" in node
-    assert "looper-associated-test-glow" in styles
-    assert "background: linear-gradient(135deg, #f97316 0%, #ea580c 48%, #dc2626 100%)" in styles
+    assert "background: #000000;" in styles
+    assert "stroke=\"#ffffff\"" in node
+    assert "? 'var(--brand-gradient)'" in node
+    assert "color: isBacklogTaskInProgress || isBacklogTaskDone || isDarkTheme ? '#f8fafc' : '#0f172a'" in node
     assert "width: 24px" in styles
     assert "height: 18px" in styles
     assert "title={isBacklogTaskInProgress ? 'Task em andamento' : isBacklogTaskDone ? 'Task pronta' : undefined}" in node
@@ -870,8 +873,7 @@ def test_backlog_task_states_style_in_progress_and_done_nodes():
     assert "looper-backlog-task-light-sweep" in styles
     assert "looper-backlog-task-gradient-drift" in styles
     assert "background-size: 175% 175%" in styles
-    assert "linear-gradient(135deg, #fffaf5 0%, #fed7aa 58%, #fb923c 100%)" in node
-    assert "linear-gradient(135deg, #f97316 0%, #ef4444 100%)" in node
+    assert node.count("'var(--brand-gradient)'") >= 4
     assert "borderColor: accentColor" in node
     assert "borderWidth: '2px'" in node
     assert "withAlpha(accentColor, 0.2)" in node

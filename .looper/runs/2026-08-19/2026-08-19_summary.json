@@ -148,8 +148,92 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "af73d5fe08d9401797af35f860387c57",
+      "timestamp": "2026-08-19T01:19:45.536643+00:00",
+      "description": "Padroniza degradês da logo em modais, ações e estados de backlog",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 24,
+        "lines_deleted": 10,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "dacb321df915455bab8b9ee6b6303cf9",
+      "timestamp": "2026-08-19T01:21:48.723649+00:00",
+      "description": "Ajusta degradê dos nós concluídos para seguir a direção da logo",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 16,
+        "lines_deleted": 0,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "8594b4916d0a4dd69b81b3059e83fb16",
+      "timestamp": "2026-08-19T01:24:42.961917+00:00",
+      "description": "Padroniza a cor dos nós em implementação com o botão Salvar",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 35,
+        "lines_deleted": 6,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "cb3c73602a9c49cf8e2edc5908c7e495",
+      "timestamp": "2026-08-19T01:30:12.526737+00:00",
+      "description": "Define Runs como aba inicial e padroniza o ícone de teste branco",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 71,
+        "lines_deleted": 8,
+        "files_changed": 6
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 7,
-  "last_run_id": "199401c65dbf4f1d907c11fd7b23f5b1"
+  "run_count": 11,
+  "last_run_id": "cb3c73602a9c49cf8e2edc5908c7e495"
 }

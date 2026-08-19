@@ -136,7 +136,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }).format(date);
   };
 
-  const [activeTab, setActiveTab] = useState<'drawings' | 'analysis' | 'runs' | 'backlog' | 'info' | 'blocks' | 'groups' | 'flows'>('drawings');
+  const [activeTab, setActiveTab] = useState<'drawings' | 'analysis' | 'runs' | 'backlog' | 'info' | 'blocks' | 'groups' | 'flows'>('runs');
   const [drawingSearchQuery, setDrawingSearchQuery] = useState('');
   const [showZeroLineRuns, setShowZeroLineRuns] = useState(false);
   const [showAllRuns, setShowAllRuns] = useState(false);

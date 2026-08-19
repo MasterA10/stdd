@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-08-19T00:59:10.859569+00:00",
+  "generated_at": "2026-08-19T01:30:01.367978+00:00",
   "status": "blocked",
   "reason": "quality_gate_blocked",
   "adapter_command": [
@@ -309,14 +309,14 @@
         "value": 43
       },
       {
-        "evidence": "48 linhas em <anonymous>",
+        "evidence": "47 linhas em <anonymous>",
         "file": "draw-editor/src/components/ConfirmModal.tsx",
         "kind": "long_function",
         "limit": 40,
         "severity": "warning",
         "source": "typescript_compiler_api",
         "symbol_id": "draw-editor/src/components/ConfirmModal.tsx:function:<anonymous>",
-        "value": 48
+        "value": 47
       },
       {
         "evidence": "51 linhas em buildRanks",
@@ -1171,16 +1171,6 @@
       },
       {
         "evidence": "long_function:50",
-        "file": "tests/test_draw_editor.py",
-        "kind": "long_function",
-        "limit": 40,
-        "severity": "warning",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal",
-        "value": 50
-      },
-      {
-        "evidence": "long_function:50",
         "file": "tests/test_traceability.py",
         "kind": "long_function",
         "limit": 40,
@@ -1197,6 +1187,16 @@
         "severity": "warning",
         "source": "python_ast",
         "symbol_id": "src/looper/draw.py:looper.draw.do_POST",
+        "value": 51
+      },
+      {
+        "evidence": "long_function:51",
+        "file": "tests/test_draw_editor.py",
+        "kind": "long_function",
+        "limit": 40,
+        "severity": "warning",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal",
         "value": 51
       },
       {
@@ -3831,7 +3831,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 1014,
+        "line": 1016,
         "lines": 13,
         "max_depth": 0,
         "parameters": 0,
@@ -3842,7 +3842,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 1029,
+        "line": 1031,
         "lines": 19,
         "max_depth": 0,
         "parameters": 0,
@@ -4338,7 +4338,7 @@
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
         "line": 754,
-        "lines": 50,
+        "lines": 51,
         "max_depth": 0,
         "parameters": 0,
         "qualified_name": "tests.test_draw_editor.test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal",
@@ -4359,7 +4359,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 806,
+        "line": 807,
         "lines": 18,
         "max_depth": 0,
         "parameters": 0,
@@ -4370,7 +4370,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 826,
+        "line": 827,
         "lines": 20,
         "max_depth": 0,
         "parameters": 0,
@@ -4381,8 +4381,8 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 848,
-        "lines": 32,
+        "line": 849,
+        "lines": 33,
         "max_depth": 0,
         "parameters": 0,
         "qualified_name": "tests.test_draw_editor.test_backlog_task_states_style_in_progress_and_done_nodes",
@@ -4392,7 +4392,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 882,
+        "line": 884,
         "lines": 11,
         "max_depth": 0,
         "parameters": 0,
@@ -4403,7 +4403,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 895,
+        "line": 897,
         "lines": 12,
         "max_depth": 0,
         "parameters": 0,
@@ -4414,7 +4414,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 909,
+        "line": 911,
         "lines": 9,
         "max_depth": 0,
         "parameters": 0,
@@ -4425,7 +4425,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 920,
+        "line": 922,
         "lines": 11,
         "max_depth": 0,
         "parameters": 0,
@@ -4436,7 +4436,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 933,
+        "line": 935,
         "lines": 12,
         "max_depth": 0,
         "parameters": 0,
@@ -4447,7 +4447,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 947,
+        "line": 949,
         "lines": 22,
         "max_depth": 0,
         "parameters": 0,
@@ -4458,7 +4458,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 971,
+        "line": 973,
         "lines": 13,
         "max_depth": 0,
         "parameters": 0,
@@ -4469,7 +4469,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 986,
+        "line": 988,
         "lines": 9,
         "max_depth": 0,
         "parameters": 0,
@@ -4480,7 +4480,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_draw_editor.py",
-        "line": 997,
+        "line": 999,
         "lines": 15,
         "max_depth": 0,
         "parameters": 0,
@@ -5492,7 +5492,7 @@
       {
         "cyclomatic": 2,
         "file": "draw-editor/src/components/CustomNode.tsx",
-        "line": 352,
+        "line": 368,
         "lines": 6,
         "max_depth": 2,
         "parameters": 1,
@@ -6789,6 +6789,17 @@
       },
       {
         "cyclomatic": 3,
+        "file": "draw-editor/src/components/ConfirmModal.tsx",
+        "line": 15,
+        "lines": 47,
+        "max_depth": 1,
+        "parameters": 1,
+        "qualified_name": "<anonymous>",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/components/ConfirmModal.tsx:function:<anonymous>"
+      },
+      {
+        "cyclomatic": 3,
         "file": "draw-editor/src/components/CustomNode.tsx",
         "line": 11,
         "lines": 5,
@@ -7611,17 +7622,6 @@
         "qualified_name": "looper.backlog._task_context",
         "source": "python_ast",
         "symbol_id": "src/looper/backlog.py:looper.backlog._task_context"
-      },
-      {
-        "cyclomatic": 4,
-        "file": "draw-editor/src/components/ConfirmModal.tsx",
-        "line": 15,
-        "lines": 48,
-        "max_depth": 1,
-        "parameters": 1,
-        "qualified_name": "<anonymous>",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/components/ConfirmModal.tsx:function:<anonymous>"
       },
       {
         "cyclomatic": 4,
@@ -9218,7 +9218,7 @@
         "file": "draw-editor/src/components/ConfirmModal.tsx",
         "functions": 1,
         "imports": 2,
-        "lines": 63,
+        "lines": 62,
         "source": "typescript_compiler_api"
       },
       {
@@ -9226,7 +9226,7 @@
         "file": "draw-editor/src/components/CustomNode.tsx",
         "functions": 6,
         "imports": 5,
-        "lines": 441,
+        "lines": 457,
         "source": "typescript_compiler_api"
       },
       {
@@ -9474,7 +9474,7 @@
         "file": "tests/test_draw_editor.py",
         "functions": 62,
         "imports": 1,
-        "lines": 1047,
+        "lines": 1049,
         "source": "python_ast"
       },
       {
@@ -9582,10 +9582,10 @@
         "symbol_id": "src/looper/backlog.py:looper.backlog._refresh_checklist_states"
       },
       {
-        "end_line": 1011,
+        "end_line": 1013,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 997,
+        "line": 999,
         "name": "test_editor_allows_node_checklists_and_persists_them_through_backlog_api",
         "qualified_name": "tests.test_draw_editor.test_editor_allows_node_checklists_and_persists_them_through_backlog_api",
         "source": "python_ast",
@@ -9602,10 +9602,10 @@
         "symbol_id": "src/looper/backlog.py:looper.backlog._phase_checklists"
       },
       {
-        "end_line": 1026,
+        "end_line": 1028,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 1014,
+        "line": 1016,
         "name": "test_editor_reconciles_selection_and_protects_async_draw_loads",
         "qualified_name": "tests.test_draw_editor.test_editor_reconciles_selection_and_protects_async_draw_loads",
         "source": "python_ast",
@@ -9633,16 +9633,6 @@
         "symbol_id": "draw-editor/src/components/CodeReferencesModal.tsx:function:<anonymous>"
       },
       {
-        "end_line": 1047,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 1029,
-        "name": "test_backlog_can_hide_completed_tasks_with_a_visible_red_separator",
-        "qualified_name": "tests.test_draw_editor.test_backlog_can_hide_completed_tasks_with_a_visible_red_separator",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_backlog_can_hide_completed_tasks_with_a_visible_red_separator"
-      },
-      {
         "end_line": 1048,
         "file": "tests/test_backlog.py",
         "kind": "function",
@@ -9651,6 +9641,16 @@
         "qualified_name": "tests.test_backlog.test_backlog_injected_l2_verification_interval_configurable",
         "source": "python_ast",
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_injected_l2_verification_interval_configurable"
+      },
+      {
+        "end_line": 1049,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 1031,
+        "name": "test_backlog_can_hide_completed_tasks_with_a_visible_red_separator",
+        "qualified_name": "tests.test_draw_editor.test_backlog_can_hide_completed_tasks_with_a_visible_red_separator",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_backlog_can_hide_completed_tasks_with_a_visible_red_separator"
       },
       {
         "end_line": 105,
@@ -12427,17 +12427,6 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_global_test_alias_continues_after_suite_failure"
       },
       {
-        "end_line": 357,
-        "file": "draw-editor/src/components/CustomNode.tsx",
-        "kind": "function",
-        "line": 352,
-        "name": "<anonymous>",
-        "qualified_name": "<anonymous>",
-        "signature": "(e) =>",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/components/CustomNode.tsx:function:<anonymous>"
-      },
-      {
         "end_line": 358,
         "file": "src/looper/draw.py",
         "kind": "function",
@@ -12556,6 +12545,17 @@
         "qualified_name": "looper.cli.choose_integrations",
         "source": "python_ast",
         "symbol_id": "src/looper/cli.py:looper.cli.choose_integrations"
+      },
+      {
+        "end_line": 373,
+        "file": "draw-editor/src/components/CustomNode.tsx",
+        "kind": "function",
+        "line": 368,
+        "name": "<anonymous>",
+        "qualified_name": "<anonymous>",
+        "signature": "(e) =>",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/components/CustomNode.tsx:function:<anonymous>"
       },
       {
         "end_line": 376,
@@ -14164,6 +14164,17 @@
       },
       {
         "end_line": 61,
+        "file": "draw-editor/src/components/ConfirmModal.tsx",
+        "kind": "function",
+        "line": 15,
+        "name": "<anonymous>",
+        "qualified_name": "<anonymous>",
+        "signature": "(",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/components/ConfirmModal.tsx:function:<anonymous>"
+      },
+      {
+        "end_line": 61,
         "file": "src/looper/templates/adapters/js_ts_static_adapter.js",
         "kind": "function",
         "line": 61,
@@ -14222,17 +14233,6 @@
         "qualified_name": "tests.test_backlog.test_backlog_starts_child_backlog_after_parent_node",
         "source": "python_ast",
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_starts_child_backlog_after_parent_node"
-      },
-      {
-        "end_line": 62,
-        "file": "draw-editor/src/components/ConfirmModal.tsx",
-        "kind": "function",
-        "line": 15,
-        "name": "<anonymous>",
-        "qualified_name": "<anonymous>",
-        "signature": "(",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/components/ConfirmModal.tsx:function:<anonymous>"
       },
       {
         "end_line": 62,
@@ -15306,7 +15306,7 @@
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_secret_scanner_warns_for_explicitly_allowed_test_credential"
       },
       {
-        "end_line": 803,
+        "end_line": 804,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
         "line": 754,
@@ -15366,10 +15366,10 @@
         "symbol_id": "src/looper/cli.py:looper.cli.draw_improve"
       },
       {
-        "end_line": 823,
+        "end_line": 824,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 806,
+        "line": 807,
         "name": "test_blocks_use_groups_instead_of_structural_types",
         "qualified_name": "tests.test_draw_editor.test_blocks_use_groups_instead_of_structural_types",
         "source": "python_ast",
@@ -15416,16 +15416,6 @@
         "symbol_id": "src/looper/core.py:looper.core.get_incremental_diff_stats"
       },
       {
-        "end_line": 845,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 826,
-        "name": "test_dark_nodes_use_grayscale_fills_and_keep_group_accent_on_border",
-        "qualified_name": "tests.test_draw_editor.test_dark_nodes_use_grayscale_fills_and_keep_group_accent_on_border",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_dark_nodes_use_grayscale_fills_and_keep_group_accent_on_border"
-      },
-      {
         "end_line": 846,
         "file": "src/looper/cli.py",
         "kind": "function",
@@ -15434,6 +15424,16 @@
         "qualified_name": "looper.cli.draw_associate_reference",
         "source": "python_ast",
         "symbol_id": "src/looper/cli.py:looper.cli.draw_associate_reference"
+      },
+      {
+        "end_line": 846,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 827,
+        "name": "test_dark_nodes_use_grayscale_fills_and_keep_group_accent_on_border",
+        "qualified_name": "tests.test_draw_editor.test_dark_nodes_use_grayscale_fills_and_keep_group_accent_on_border",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_dark_nodes_use_grayscale_fills_and_keep_group_accent_on_border"
       },
       {
         "end_line": 85,
@@ -15597,16 +15597,6 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.fake_serve"
       },
       {
-        "end_line": 879,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 848,
-        "name": "test_backlog_task_states_style_in_progress_and_done_nodes",
-        "qualified_name": "tests.test_draw_editor.test_backlog_task_states_style_in_progress_and_done_nodes",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_backlog_task_states_style_in_progress_and_done_nodes"
-      },
-      {
         "end_line": 88,
         "file": "src/looper/templates/adapters/js_ts_static_adapter.js",
         "kind": "function",
@@ -15616,6 +15606,16 @@
         "signature": "function visit(n, depth)",
         "source": "typescript_compiler_api",
         "symbol_id": "src/looper/templates/adapters/js_ts_static_adapter.js:function:visit"
+      },
+      {
+        "end_line": 881,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 849,
+        "name": "test_backlog_task_states_style_in_progress_and_done_nodes",
+        "qualified_name": "tests.test_draw_editor.test_backlog_task_states_style_in_progress_and_done_nodes",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_backlog_task_states_style_in_progress_and_done_nodes"
       },
       {
         "end_line": 884,
@@ -15658,16 +15658,6 @@
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_looper_test_blocks_when_backlog_has_unchecked_implementation"
       },
       {
-        "end_line": 892,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 882,
-        "name": "test_double_click_changes_group_and_canvas_click_exits_editing",
-        "qualified_name": "tests.test_draw_editor.test_double_click_changes_group_and_canvas_click_exits_editing",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_double_click_changes_group_and_canvas_click_exits_editing"
-      },
-      {
         "end_line": 894,
         "file": "src/looper/core.py",
         "kind": "function",
@@ -15676,6 +15666,16 @@
         "qualified_name": "looper.core.get_previous_draw_snapshot",
         "source": "python_ast",
         "symbol_id": "src/looper/core.py:looper.core.get_previous_draw_snapshot"
+      },
+      {
+        "end_line": 894,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 884,
+        "name": "test_double_click_changes_group_and_canvas_click_exits_editing",
+        "qualified_name": "tests.test_draw_editor.test_double_click_changes_group_and_canvas_click_exits_editing",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_double_click_changes_group_and_canvas_click_exits_editing"
       },
       {
         "end_line": 896,
@@ -15719,10 +15719,10 @@
         "symbol_id": "src/looper/draw.py:looper.draw._load_indexed_draw"
       },
       {
-        "end_line": 906,
+        "end_line": 908,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 895,
+        "line": 897,
         "name": "test_new_drawing_button_persists_a_new_json_document",
         "qualified_name": "tests.test_draw_editor.test_new_drawing_button_persists_a_new_json_document",
         "source": "python_ast",
@@ -15748,16 +15748,6 @@
         "signature": "function declarationName(node)",
         "source": "typescript_compiler_api",
         "symbol_id": "src/looper/templates/adapters/js_ts_static_adapter.js:function:declarationName"
-      },
-      {
-        "end_line": 917,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 909,
-        "name": "test_runs_load_history_for_period_selection_in_the_sidebar",
-        "qualified_name": "tests.test_draw_editor.test_runs_load_history_for_period_selection_in_the_sidebar",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_runs_load_history_for_period_selection_in_the_sidebar"
       },
       {
         "end_line": 918,
@@ -15788,6 +15778,16 @@
         "qualified_name": "tests.test_cli.test_log_snapshot_includes_diffs_for_created_and_deleted_files",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_snapshot_includes_diffs_for_created_and_deleted_files"
+      },
+      {
+        "end_line": 919,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 911,
+        "name": "test_runs_load_history_for_period_selection_in_the_sidebar",
+        "qualified_name": "tests.test_draw_editor.test_runs_load_history_for_period_selection_in_the_sidebar",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_runs_load_history_for_period_selection_in_the_sidebar"
       },
       {
         "end_line": 92,
@@ -15840,16 +15840,6 @@
         "symbol_id": "tests/test_traceability.py:tests.test_traceability.test_traceability_maps_node_references_to_symbols_files_and_tests"
       },
       {
-        "end_line": 930,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 920,
-        "name": "test_code_references_modal_displays_file_path_under_symbol",
-        "qualified_name": "tests.test_draw_editor.test_code_references_modal_displays_file_path_under_symbol",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_code_references_modal_displays_file_path_under_symbol"
-      },
-      {
         "end_line": 932,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -15858,6 +15848,16 @@
         "qualified_name": "tests.test_draw.test_create_draw_enforces_hierarchical_parent_and_child_link",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_enforces_hierarchical_parent_and_child_link"
+      },
+      {
+        "end_line": 932,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 922,
+        "name": "test_code_references_modal_displays_file_path_under_symbol",
+        "qualified_name": "tests.test_draw_editor.test_code_references_modal_displays_file_path_under_symbol",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_code_references_modal_displays_file_path_under_symbol"
       },
       {
         "end_line": 94,
@@ -15900,10 +15900,10 @@
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_injected_bootstrap_and_final_verification_tasks"
       },
       {
-        "end_line": 944,
+        "end_line": 946,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 933,
+        "line": 935,
         "name": "test_code_references_modal_displays_declared_draw_test_references",
         "qualified_name": "tests.test_draw_editor.test_code_references_modal_displays_declared_draw_test_references",
         "source": "python_ast",
@@ -15980,16 +15980,6 @@
         "symbol_id": "src/looper/draw.py:looper.draw.ensure_draw_workspace"
       },
       {
-        "end_line": 968,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 947,
-        "name": "test_sidebar_exposes_backlog_tasks_with_questions_and_symbols",
-        "qualified_name": "tests.test_draw_editor.test_sidebar_exposes_backlog_tasks_with_questions_and_symbols",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_sidebar_exposes_backlog_tasks_with_questions_and_symbols"
-      },
-      {
         "end_line": 97,
         "file": "tests/test_backlog.py",
         "kind": "function",
@@ -15998,6 +15988,16 @@
         "qualified_name": "tests.test_backlog._write_test_evidence",
         "source": "python_ast",
         "symbol_id": "tests/test_backlog.py:tests.test_backlog._write_test_evidence"
+      },
+      {
+        "end_line": 970,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 949,
+        "name": "test_sidebar_exposes_backlog_tasks_with_questions_and_symbols",
+        "qualified_name": "tests.test_draw_editor.test_sidebar_exposes_backlog_tasks_with_questions_and_symbols",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_sidebar_exposes_backlog_tasks_with_questions_and_symbols"
       },
       {
         "end_line": 98,
@@ -16030,16 +16030,6 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_marks_draw_only_changes_as_zero_line_checkpoint"
       },
       {
-        "end_line": 983,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 971,
-        "name": "test_backlog_panel_exposes_both_execution_phase_statuses_and_delivery_scope",
-        "qualified_name": "tests.test_draw_editor.test_backlog_panel_exposes_both_execution_phase_statuses_and_delivery_scope",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_backlog_panel_exposes_both_execution_phase_statuses_and_delivery_scope"
-      },
-      {
         "end_line": 984,
         "file": "src/looper/draw.py",
         "kind": "function",
@@ -16048,6 +16038,16 @@
         "qualified_name": "looper.draw.ensure_example_draw",
         "source": "python_ast",
         "symbol_id": "src/looper/draw.py:looper.draw.ensure_example_draw"
+      },
+      {
+        "end_line": 985,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 973,
+        "name": "test_backlog_panel_exposes_both_execution_phase_statuses_and_delivery_scope",
+        "qualified_name": "tests.test_draw_editor.test_backlog_panel_exposes_both_execution_phase_statuses_and_delivery_scope",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_backlog_panel_exposes_both_execution_phase_statuses_and_delivery_scope"
       },
       {
         "end_line": 986,
@@ -16080,10 +16080,10 @@
         "symbol_id": "src/looper/improvements.py:looper.improvements._validate_choice_question"
       },
       {
-        "end_line": 994,
+        "end_line": 996,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 986,
+        "line": 988,
         "name": "test_editor_loads_the_persisted_backlog_from_the_draw_server",
         "qualified_name": "tests.test_draw_editor.test_editor_loads_the_persisted_backlog_from_the_draw_server",
         "source": "python_ast",

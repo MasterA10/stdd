@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import type { NodeProps, Node } from '@xyflow/react';
 import type { NodeData, Question } from '../types';
-import { Trash2, ClipboardList, Eye, Code2, TestTube2 } from 'lucide-react';
+import { Trash2, ClipboardList, Eye, Code2 } from 'lucide-react';
 import { renderWithMentions } from '../utils';
 
 const FALLBACK_GROUP_COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f97316', '#ec4899', '#3b82f6'];
@@ -168,18 +168,18 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
   const bgStyle = {
     background: isDarkTheme
       ? isBacklogTaskDone
-        ? 'linear-gradient(135deg, #c2410c 0%, #991b1b 100%)'
+        ? 'var(--brand-gradient)'
         : isBacklogTaskInProgress
-        ? 'linear-gradient(135deg, #9a3412 0%, #f97316 100%)'
+        ? 'var(--brand-gradient)'
         : darkGroupFill(data.group)
       : isBacklogTaskDone
-      ? 'linear-gradient(135deg, #f97316 0%, #ef4444 100%)'
+      ? 'var(--brand-gradient)'
       : isBacklogTaskInProgress
-      ? 'linear-gradient(135deg, #fffaf5 0%, #fed7aa 58%, #fb923c 100%)'
+      ? 'var(--brand-gradient)'
       : data.group !== undefined
       ? withTint(accentColor, 0.82)
       : '#f8fafc',
-    color: isDarkTheme ? '#f8fafc' : '#0f172a',
+    color: isBacklogTaskInProgress || isBacklogTaskDone || isDarkTheme ? '#f8fafc' : '#0f172a',
     opacity: isDimmed ? 0.08 : 1
   };
   const groupPillStyle = isDarkTheme
@@ -290,7 +290,23 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
           <span className="node-header-id">#{id}</span>
           {hasAssociatedTest && (
             <span className="node-associated-test" role="img" title="Teste criado e associado" aria-label="Teste criado e associado">
-              <TestTube2 aria-hidden="true" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#ffffff"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-test-tube-diagonal"
+                aria-hidden="true"
+              >
+                <path d="M21 7 6.82 21.18a2.83 2.83 0 0 1-3.99-.01a2.83 2.83 0 0 1 0-4L17 3" />
+                <path d="m16 2 6 6" />
+                <path d="M12 16H4" />
+              </svg>
             </span>
           )}
         </span>
