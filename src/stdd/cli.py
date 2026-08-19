@@ -101,6 +101,7 @@ def _compact_backlog_response(response: dict[str, object]) -> dict[str, object]:
         "condition": response.get("condition"),
         "path": response.get("path"),
         "state": response.get("state"),
+        "task_delivery_scope": response.get("task_delivery_scope"),
     }
     if parent.get("id") and parent.get("id") != task.get("id"):
         compact["parent"] = parent.get("label")
@@ -113,6 +114,7 @@ def _compact_backlog_response(response: dict[str, object]) -> dict[str, object]:
         compact["level_context"] = response["level_context"]
     if response.get("task_delivery_scope") == "node" and isinstance(response.get("delivery_subtasks"), list):
         compact["delivery_subtasks"] = response["delivery_subtasks"]
+    compact["delivery_scope_note"] = response.get("delivery_scope_note")
     reason_labels = {
         "test_missing": "os testes da task ainda não foram comprovados",
         "test_not_complete": "o checklist de testes ainda não foi concluído",
@@ -217,10 +219,15 @@ def _format_backlog_response(response: dict[str, object]) -> str:
         lines.append(f"Descrição: {compact['description']}")
     delivery_subtasks = compact.get("delivery_subtasks")
     if isinstance(delivery_subtasks, list):
+        scope_action = "criar testes para" if kind in {"backlog-test-task", "backlog-test-required"} else "implementar"
+        lines.append(f"Escopo obrigatório: {scope_action} o nó inteiro e todos os subfluxos internos")
         lines.append(f"Escopo entregue: nó e {len(delivery_subtasks)} subfluxo(s) interno(s)")
         for subtask in delivery_subtasks:
             if isinstance(subtask, dict):
                 lines.append(f"  • {subtask.get('label', 'Subfluxo')} (ID: {subtask.get('id')})")
+        note = compact.get("delivery_scope_note")
+        if note:
+            lines.append(f"Regra do escopo: {note}")
     lines.extend(_format_level_context(compact.get("level_context")))
     lines.extend(_format_navigation_context(compact))
     verified_nodes = compact.get("verified_nodes")
@@ -281,7 +288,7 @@ def init(
     integration: List[str] = typer.Option(None, "--integration", help="Agente a integrar: codex, claude ou gemini; pode repetir."),
     all_integrations: bool = typer.Option(False, "--all-integrations", help="Instala as skills para Codex, Claude e Gemini."),
     interactive: bool = typer.Option(False, "--interactive", help="Abre a seleção numérica de integrações e setup."),
-    task_delivery_scope: Optional[str] = typer.Option(None, "--task-delivery-scope", help="Como entregar as tasks em testes e implementação: node (L2 e internos juntos) ou task (uma por vez)."),
+    task_delivery_scope: Optional[str] = typer.Option(None, "--task-delivery-scope", help="Como entregar as tasks em testes e implementação: node (tela, funcionamento e internos juntos) ou task (uma por vez)."),
     l2_verification_interval: Optional[int] = typer.Option(None, "--l2-verification-interval", "--verification-interval", min=0, help="Insere uma task de conferência a cada N nós L2 concluídos; 0 desabilita."),
     test_loop_enabled: Optional[bool] = typer.Option(None, "--test-loop/--no-test-loop", help="Habilita ou desabilita a fase de testes do backlog; desabilitada entrega somente implementação."),
 ) -> None:
@@ -401,7 +408,7 @@ def choose_level_meanings() -> tuple[str, str]:
 def choose_task_delivery_scope() -> str:
     """Define se o backlog entrega o nó com internos ou cada task separada."""
     typer.echo("Defina como o backlog deve entregar as tasks:")
-    typer.echo("  1. Nó de nível 2 e subfluxos internos juntos")
+    typer.echo("  1. Nó de nível 2, tela, funcionamento e subfluxos internos juntos")
     typer.echo("  2. Separar o nó de nível 2 e cada subfluxo interno")
     choice = typer.prompt("Escopo das tasks", default="2").strip()
     if choice == "1":
@@ -564,7 +571,7 @@ def backlog_config(
     final_verification: Optional[bool] = typer.Option(None, "--final-verification/--no-final-verification", help="Habilita ou desabilita a task de verificação final E2E."),
     task_batch_size: Optional[int] = typer.Option(None, "--task-batch-size", min=1, max=5, help="Quantidade de tasks entregues no lote (1 a 5)."),
     task_batch_scope: Optional[str] = typer.Option(None, "--task-batch-scope", help="Escopo do lote: task ou node."),
-    task_delivery_scope: Optional[str] = typer.Option(None, "--task-delivery-scope", help="Escopo comum de testes e implementação: task ou node."),
+    task_delivery_scope: Optional[str] = typer.Option(None, "--task-delivery-scope", help="Escopo comum de testes e implementação: task ou node (tela e funcionamento com os subfluxos)."),
     min_task_interval_seconds: Optional[int] = typer.Option(None, "--min-task-interval-seconds", min=0, help="Janela mínima anti-script entre avanços."),
     test_loop_enabled: Optional[bool] = typer.Option(None, "--test-loop/--no-test-loop", help="Habilita ou desabilita o loop de testes."),
 ) -> None:

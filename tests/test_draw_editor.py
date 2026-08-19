@@ -25,6 +25,57 @@ def test_drawings_index_enriches_entries_with_hierarchy_metadata():
     assert "setDrawingsIndex(enrichedIndex)" in app
 
 
+def test_draw_editor_can_move_up_a_hierarchy_level_and_choose_between_parents():
+    """Exibe retorno hierárquico mesmo em acesso direto e resolve múltiplos pais.
+    Confirma que o editor consulta draw_ref, mostra o botão e abre a escolha de pai.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    modal = (EDITOR_ROOT / "src/components/ParentNavigationModal.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    for required in (
+        "findParentNavigationOptions",
+        "node.draw_ref !== childId",
+        "contract.hierarchy?.parent_draw_ref",
+        "const canGoUp =",
+        "Subir nível",
+        "ParentNavigationModal",
+    ):
+        assert required in app
+    for required in ("Escolha para onde voltar", "mais de um nó", "onSelect", "ArrowUp"):
+        assert required in modal
+    assert ".level-up-btn" in styles
+    assert ".parent-navigation-option" in styles
+
+
+def test_subdraw_navigation_fits_the_entire_loaded_flow_in_the_canvas():
+    """Reposiciona e ajusta o zoom quando um Draw é carregado.
+    Mantém todos os nós visíveis sem substituir o foco específico da busca.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+
+    assert "const flowNodeSignature = useMemo(" in app
+    assert "const contractNodeSignature = useMemo(" in app
+    assert "const nodesInitialized = useNodesInitialized({ includeHiddenNodes: true });" in app
+    assert "!nodesInitialized" in app
+    assert "renderedDrawId !== contract.id" in app
+    assert "flowNodeSignature !== contractNodeSignature" in app
+    assert "const pendingAutoFitDrawRef = useRef<string | null>(null);" in app
+    assert "setAutoFitRevision((value) => value + 1)" in app
+    assert "reactFlowInstanceRef.current?.fitView({" in app
+    assert "includeHiddenNodes: true" in app
+    assert "duration: 450" in app
+    assert "padding: 0.22" in app
+    assert "maxZoom: 1.25" in app
+    assert "cancelAnimationFrame(frame);" in app
+    assert "setRenderedDrawId(null);" in app
+    assert "setNodes([]);" in app
+
+    main = (EDITOR_ROOT / "src/main.tsx").read_text(encoding="utf-8")
+    assert "<ReactFlowProvider>" in main
+    assert "<App />" in main
+
+
 def test_drawings_sidebar_keeps_all_flows_and_groups_them_by_level():
     """Preserva a lista completa e oferece navegação por níveis.
     Confirma que níveis recolhíveis expõem pais e subfluxos relacionados.
@@ -238,6 +289,23 @@ def test_keyboard_shortcuts_connect_and_duplicate_selected_blocks():
     assert "(cópia)" in app
 
 
+def test_keyboard_shortcuts_copy_and_paste_nodes_as_json():
+    """Copia o contrato lógico do nó e cola uma nova instância com outro ID.
+    Mantém referências e campos do JSON sem duplicar conexões automaticamente.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+
+    assert "function parseClipboardNodeJson(text: string): NodeData[]" in app
+    assert "JSON.stringify(payload, null, 2)" in app
+    assert "navigator.clipboard.writeText" in app
+    assert "navigator.clipboard.readText" in app
+    assert "const copies = pastedNodes.map((node, index)" in app
+    assert "id: nextIdStart + index" in app
+    assert "if (modifier && key === 'c')" in app
+    assert "if (modifier && key === 'v')" in app
+    assert "Ctrl+C</kbd>/<kbd>Ctrl+V" in app
+
+
 def test_editor_persists_pending_layout_and_deletions_until_save():
     """Preserva posições e exclusões durante a edição local.
     Confirma que apagar e salvar usam o contrato e o cache visual corretos.
@@ -417,7 +485,8 @@ def test_selected_blocks_have_an_explicit_visual_state():
 
     assert "selected: selectedNodeIds.has(Number(node.id))" in app
     assert "className={`custom-flow-node ${selected ? 'selected' : ''}" in node
-    assert "const borderStyle = selected" in node
+    assert "const borderStyle = isBacklogTaskDone" in node
+    assert "borderColor: accentColor" in node
 
 
 def test_space_creates_an_instant_block_without_interrupting_text_fields():
@@ -457,6 +526,21 @@ def test_v_opens_question_editor_from_the_block_and_footer_documents_it():
     assert "isAnswered(question.answer)" in modal
     assert "unanswered" in modal
     assert "Sem resposta" in modal
+
+
+def test_question_textareas_keep_normal_text_visible_and_highlight_mentions_only_when_needed():
+    """Mantém a digitação comum legível nos campos de perguntas.
+    Usa a camada de destaque somente para menções e alinha sua tipografia ao textarea.
+    """
+    utils = (EDITOR_ROOT / "src/utils.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    assert "const hasMentions = /(@stdd|@developer|@obs)/i.test(value || '')" in utils
+    assert "const useHighlightLayer = hasMentions && !isFocused" in utils
+    assert "color: useHighlightLayer ? 'transparent' : 'var(--ink)'" in utils
+    assert "background: useHighlightLayer ? 'transparent' : 'var(--input-bg)'" in utils
+    assert "question-create-prompt-display" in styles
+    assert ".question-prompt-input::placeholder" in styles
 
 
 def test_black_theme_is_default_and_test_checklist_uses_red_orange_accent():
@@ -692,7 +776,9 @@ def test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal():
     assert "const runTotals = visibleRuns.reduce" in sidebar
     assert "Mostrar checkpoints (0 linhas)" in sidebar
     assert "useState(false)" in sidebar
-    assert "addedPercentage" in sidebar
+    assert "aria-label={`Nota ponderada: ${weightedRunScore}/100`}" in sidebar
+    assert "width: `${weightedRunScore}%`" in sidebar
+    assert "addedPercentage" not in sidebar
     assert "Eficiência" in sidebar
     assert "Saldo acumulado" not in sidebar
     assert "saldo final" in sidebar
@@ -757,6 +843,40 @@ def test_dark_nodes_use_grayscale_fills_and_keep_group_accent_on_border():
     assert "borderColor: accentColor" in node
     assert "theme," in app
     assert "theme" in focus.split("groupOptions: contract.groups", 1)[1].split("}", 1)[0]
+
+
+def test_backlog_task_states_style_in_progress_and_done_nodes():
+    """Mostra o andamento e a conclusão da task diretamente no nó associado.
+    Confirma o brilho animado, o degradê final e o fallback para movimento reduzido.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    node = (EDITOR_ROOT / "src/components/CustomNode.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    assert "status: backlogTask.status" in app
+    assert "backlog-task-in-progress" in node
+    assert "backlog-task-done" in node
+    assert "TestTube2" in node
+    assert "hasAssociatedTest = backlogChecklist?.test === true" in node
+    assert "Boolean(data.test_ref)" in node
+    assert "data.test_refs.length > 0" in node
+    assert "node-associated-test" in node
+    assert "stdd-associated-test-glow" in styles
+    assert "background: linear-gradient(135deg, #f97316 0%, #ea580c 48%, #dc2626 100%)" in styles
+    assert "width: 24px" in styles
+    assert "height: 18px" in styles
+    assert "title={isBacklogTaskInProgress ? 'Task em andamento' : isBacklogTaskDone ? 'Task pronta' : undefined}" in node
+    assert ".custom-flow-node.backlog-task-in-progress::after" in styles
+    assert "stdd-backlog-task-light-sweep" in styles
+    assert "stdd-backlog-task-gradient-drift" in styles
+    assert "background-size: 175% 175%" in styles
+    assert "linear-gradient(135deg, #fffaf5 0%, #fed7aa 58%, #fb923c 100%)" in node
+    assert "linear-gradient(135deg, #f97316 0%, #ef4444 100%)" in node
+    assert "borderColor: accentColor" in node
+    assert "borderWidth: '2px'" in node
+    assert "withAlpha(accentColor, 0.2)" in node
+    assert "border-color: #ef4444 !important" not in styles
+    assert "@media (prefers-reduced-motion: reduce)" in styles
 
 
 def test_double_click_changes_group_and_canvas_click_exits_editing():

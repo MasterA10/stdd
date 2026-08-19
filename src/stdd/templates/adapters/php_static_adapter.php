@@ -142,7 +142,13 @@ function analyze_php_file(string $code, string $relative, array &$result, array 
             $nameIndex = significant_index($tokens, $i + 1);
             if ($nameIndex === null || !is_array($tokens[$nameIndex]) || $tokens[$nameIndex][0] !== T_STRING) continue;
             $open = significant_index($tokens, $nameIndex + 1);
-            if ($open !== null && ($tokens[$open] === '{') && isset($pairs[$open])) {
+            // A declaração pode conter extends/implements entre o nome e a
+            // abertura. Continue até a chave para indexar também classes de
+            // testes como `final class ExampleTest extends TestCase`.
+            while ($open !== null && $tokens[$open] !== '{') {
+                $open = significant_index($tokens, $open + 1);
+            }
+            if ($open !== null && isset($pairs[$open])) {
                 $classes[] = ['name' => $tokens[$nameIndex][1], 'line' => $tokens[$nameIndex][2], 'open' => $open, 'close' => $pairs[$open], 'qualified' => ($namespace ? $namespace . '\\' : '') . $tokens[$nameIndex][1]];
             }
         }

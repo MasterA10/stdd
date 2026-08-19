@@ -48,6 +48,17 @@ O escopo comum em `backlog.task_delivery_scope` vale para esta fase e para a imp
 `task` entrega cada nó ou subfluxo separadamente; `node` entrega o nó pai e seus subfluxos
 juntos, concluídos pelo ID do pai.
 
+### Teste de nó: cobertura do pacote completo
+
+Quando a resposta mostrar `Escopo obrigatório` ou `Escopo entregue: nó e ... subfluxo(s)
+interno(s)`, crie testes para o nó L2 e para todos os subfluxos internos listados no mesmo contexto.
+A palavra `Tela` classifica o nível do nó, mas não reduz a cobertura à interface: leia os
+Draws L2/L3 e cubra cada camada observável exigida, incluindo apresentação, regras, estados,
+validações, endpoints/handlers, persistência, hooks, integrações, permissões, notificações
+e recuperação de falhas, quando descritas. Não libere a implementação com testes apenas da
+fila/view; o contrato completo do nó e dos subfluxos precisa estar coberto. Esta skill cria
+testes e não implementa produção.
+
 `backlog-test-empty` encerra somente a fila de testes. Antes de declarar a fase concluída,
 execute `stdd backlog task`: se retornar `backlog-test-required`, a fase ainda está
 bloqueada e deve voltar ao `backlog test`; se retornar `backlog-task`, os testes foram
@@ -89,6 +100,15 @@ O contexto de um `$draw-system-level-1` a `$draw-system-level-4` deve preservar
 `parent_draw_ref`, `parent_node_id`, `root_draw_ref` e `draw_ref`. Ler o JSON do Draw quando
 ele for a fonte da task; tratar fluxo órfão como bloqueio e não copiar requisitos para
 arquivos intermediários.
+
+## Memória contextual seletiva
+
+Durante o loop, verifique se a task ou o teste confirmou uma regra reutilizável. Registre
+contratos, limites, escopo, operação e rastreabilidade no `AGENTS.md`; registre padrões
+visuais e de interação no `.stdd/design.md`. Atualize somente decisões aceitas ou padrões
+comprovados, consolidando uma regra existente quando possível. Não registre logs, hipóteses,
+IDs temporários, detalhes de implementação sem valor futuro ou segredos. Se o contexto for
+alterado, inclua os arquivos e a razão no relato da task antes de `backlog complete`.
 
 ## Qualidade mínima
 

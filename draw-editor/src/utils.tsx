@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
 export function renderWithMentions(text: string) {
   if (!text) return text;
@@ -14,6 +14,9 @@ export function renderWithMentions(text: string) {
 
 export const MentionTextarea = ({ value, onChange, placeholder, className, rows = 2, 'aria-label': ariaLabel, required }: any) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [isFocused, setIsFocused] = useState(false);
+  const hasMentions = /(@stdd|@developer|@obs)/i.test(value || '');
+  const useHighlightLayer = hasMentions && !isFocused;
 
   const handleInput = () => {
     if (textareaRef.current) {
@@ -30,6 +33,7 @@ export const MentionTextarea = ({ value, onChange, placeholder, className, rows 
     <div className={`mention-textarea-wrapper ${className}-wrapper`} style={{ position: 'relative' }}>
       <div 
         className={`${className}-display`}
+        aria-hidden="true"
         style={{
           position: 'absolute',
           inset: 0,
@@ -39,7 +43,8 @@ export const MentionTextarea = ({ value, onChange, placeholder, className, rows 
           overflowWrap: 'anywhere',
           color: value ? 'var(--ink)' : 'var(--muted)',
           zIndex: 1,
-          overflow: 'hidden'
+          overflow: 'hidden',
+          opacity: useHighlightLayer ? 1 : 0
         }}
       >
         {value ? renderWithMentions(value) : placeholder}
@@ -54,9 +59,11 @@ export const MentionTextarea = ({ value, onChange, placeholder, className, rows 
         aria-label={ariaLabel}
         required={required}
         onInput={handleInput}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         style={{
-          color: 'transparent',
-          background: 'transparent',
+          color: useHighlightLayer ? 'transparent' : 'var(--ink)',
+          background: useHighlightLayer ? 'transparent' : 'var(--input-bg)',
           caretColor: 'var(--ink)',
           position: 'relative',
           zIndex: 2,

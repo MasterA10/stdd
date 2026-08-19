@@ -420,6 +420,14 @@ def test_backlog_delivery_scope_groups_tests_and_implementation_by_node(tmp_path
     ):
         test_task = next_backlog_test(tmp_path)
         assert test_task["task"]["id"] == task_id
+        if task_id == "task:jornada:node:1":
+            assert "todos os subfluxos internos" in test_task["instruction"]
+            assert "camada observável" in test_task["instruction"]
+            assert "Tela" in test_task["delivery_scope_note"]
+            test_human = _format_backlog_response(test_task)
+            assert "Escopo obrigatório: criar testes para o nó inteiro e todos os subfluxos internos" in test_human
+            assert "não limita o escopo ao frontend" in test_human
+            assert "endpoints/handlers" in test_human
         complete_backlog_task(tmp_path, task_id)
 
     implementation = next_backlog_task(tmp_path)
@@ -429,6 +437,11 @@ def test_backlog_delivery_scope_groups_tests_and_implementation_by_node(tmp_path
         "task:subjornada:node:1",
         "task:subjornada:node:2",
     }
+    assert "entregue a tela e o funcionamento completo" in implementation["instruction"]
+    assert "não deixe essas partes para outra task" in implementation["instruction"]
+    implementation_human = _format_backlog_response(implementation)
+    assert "Escopo obrigatório: implementar o nó inteiro e todos os subfluxos internos" in implementation_human
+    assert "endpoints/handlers" in implementation_human
     complete_backlog_task(tmp_path, implementation["task"]["id"])
 
     next_implementation = next_backlog_task(tmp_path)

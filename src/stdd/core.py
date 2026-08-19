@@ -111,8 +111,11 @@ Este projeto usa o STDD para especificação, implementação, testes e evidênc
 - Depois de alterar o framework, valide a instalação equivalente com `uv tool install --force --editable .` e confirme que `stdd init` instala as skills atuais; não publique somente uma parte da alteração.
 - Ao integrar APIs/apps externos, registre o contrato no `AGENTS.md` e consulte a documentação oficial antes de implementar.
 - O `.stdd/design.md` é a fonte obrigatória de decisões visuais: consulte e respeite identidade, tipografia, espaçamento, estados, acessibilidade e contraste em qualquer alteração ou implementação de interface; seu preenchimento é obrigatório antes de liberar o bootstrap.
+- Mantenha memória contextual seletiva: registre decisões duráveis e aceitas no `AGENTS.md` (contratos, arquitetura, operação e escopo) ou no `.stdd/design.md` (visual e interação); consolide duplicatas e não registre hipóteses, detalhes temporários, IDs de execução ou segredos.
 - `$create-tests-backlog` e `$implement-backlog` pertencem exclusivamente aos loops acionados por `stdd backlog test` e `stdd backlog task`; não leia essas skills para edições, perguntas ou medições comuns fora do backlog.
 - Quando o pedido vier de uma interação comum, trate-o como interação comum e siga somente as instruções necessárias ao pedido; não transforme a edição em task de backlog nem exija o ciclo de testes/implementação do backlog sem que o cursor tenha entregue uma task.
+- No loop do backlog, execute `stdd backlog complete <task-id>` com o mesmo ID recebido somente após validar a task; sem isso, o cursor não avança.
+- Quando o backlog entregar o nó e os subfluxos internos juntos, implemente e teste ambos; “Tela” classifica o nível do nó e não limita a entrega ao frontend.
 - Ao relatar o resultado, informe status, arquivos alterados, testes executados, evidências e limitações.
 {STDD_AGENT_BLOCK_END}"""
 _STDD_AGENT_BLOCK_PATTERN = re.compile(

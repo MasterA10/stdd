@@ -55,6 +55,17 @@ Leia `backlog.task_delivery_scope` em `.stdd/config.json`:
 Essa configuração é a mesma usada por `stdd backlog test`. Em qualquer modo, siga o
 cursor e não escolha IDs manualmente.
 
+### Entrega de nó: tela e funcionamento completo
+
+Quando a resposta mostrar `Escopo obrigatório` ou `Escopo entregue: nó e ... subfluxo(s)
+interno(s)`, a entrega é um pacote completo. Implemente o nó L2 e todos os subfluxos
+internos listados no mesmo contexto. A palavra `Tela` apenas classifica o nível do nó; não autoriza
+implementar somente o frontend. Leia os Draws L2/L3 e entregue todas as camadas exigidas
+por eles: apresentação, regras, estados, validações, endpoints/handlers, persistência,
+hooks, integrações, permissões, notificações, recuperação e testes, quando aplicáveis.
+Não deixe endpoint, persistência ou integração descritos nos subfluxos para outra task.
+Conclua usando o ID do nó pai somente depois de validar o pacote inteiro.
+
 ## Regras do loop
 
 1. Leia a resposta em linguagem natural de `stdd backlog task`, incluindo task, ID, predecessor, condição, pai, subfluxos, perguntas respondidas, símbolos e testes entregues pelo comando.
@@ -118,6 +129,16 @@ interromper diante de fluxo órfão. Antes de declarar que não há mudança, co
 `git diff -- .stdd/draws` e `git diff --cached -- .stdd/draws`, liste os arquivos não rastreados
 e faça ler o JSON atual completo. O diff de desenho é entrada de implementação:
 diante de um pedido explícito de implementar, fazer uma mudança coerente antes de concluir.
+
+## Memória contextual seletiva
+
+Antes de `backlog complete`, verifique se a implementação confirmou uma regra reutilizável.
+Registre contratos, arquitetura, operação, limites e escopo no `AGENTS.md`; registre
+tipografia, cores, espaçamento, estados, animações e interações no `.stdd/design.md`.
+Atualize somente decisões aceitas ou padrões comprovados, consolidando duplicatas e
+removendo detalhes temporários. Não registre hipóteses, IDs de execução, segredos ou
+detalhes de implementação que não orientem trabalhos futuros. Relate qualquer atualização
+de contexto junto dos arquivos, testes e limitações da task.
 
 ## Implementação e validação
 

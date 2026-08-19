@@ -279,6 +279,38 @@ def test_php_adapter_reports_quality_metrics(tmp_path: Path):
     assert "too_many_parameters" in findings
 
 
+def test_php_adapter_indexes_classes_with_inheritance_and_interfaces(tmp_path: Path):
+    """Indexa classes PHP mesmo quando a declaração usa extends/implements.
+    Confirma a classe e mantém seus métodos qualificados pelo nome da classe.
+    """
+    if shutil.which("php") is None:
+        pytest.skip("PHP CLI não disponível")
+    source = tmp_path / "tests/ExampleTest.php"
+    source.parent.mkdir(parents=True)
+    source.write_text(
+        "<?php\nnamespace Demo;\n"
+        "final class ExampleTest extends TestCase implements Contract {\n"
+        "    public function test_example() { return true; }\n"
+        "}\n",
+        encoding="utf-8",
+    )
+    runner.invoke(app, ["setup", str(tmp_path)])
+    request = json.dumps({"contract_version": "1", "project_path": str(tmp_path), "changed_files": [], "mode": "full"})
+    process = subprocess.run(
+        ["php", ".stdd/adapters/php_static_adapter.php"],
+        cwd=tmp_path,
+        input=request,
+        text=True,
+        capture_output=True,
+    )
+    report = json.loads(process.stdout)
+
+    assert process.returncode == 0
+    qualified_names = {item["qualified_name"] for item in report["symbols"]}
+    assert "Demo\\ExampleTest" in qualified_names
+    assert "Demo\\ExampleTest::test_example" in qualified_names
+
+
 def test_test_runs_all_configured_suites(tmp_path: Path):
     """Executa todas as suítes de testes configuradas no alias geral do STDD.
     Cria uma configuração com duas suítes em .stdd/config.json e valida o stdout do run_tests.

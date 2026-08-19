@@ -49,6 +49,31 @@ def _level_guidance(level: str, meaning: str) -> str:
     return f"Use esta definição como orientação de escopo para o nível {level}: {meaning}."
 
 
+def _node_delivery_note() -> str:
+    """Explica que a entrega agrupada inclui o nó L2 e seus comportamentos internos."""
+    return (
+        "Este é um pacote completo: o nó de nível 2 e todos os subfluxos internos listados "
+        "fazem parte da mesma entrega. ‘Tela’ classifica o tipo do nó, mas não limita o escopo "
+        "ao frontend. Considere todas as camadas exigidas pelo Draw — apresentação, regras, "
+        "estados, validações, endpoints/handlers, persistência, hooks, integrações, permissões, "
+        "notificações, recuperação e testes — quando estiverem descritas no nó ou nos subfluxos."
+    )
+
+
+def _node_delivery_phase_instruction(phase: str) -> str:
+    """Gera a instrução específica do pacote agrupado para cada fase do cursor."""
+    if phase == "test":
+        return (
+            "Na fase de testes, crie cobertura executável para o nó e para todos os subfluxos internos, "
+            "incluindo cada camada observável exigida pelo Draw; não teste somente a tela e não implemente produção."
+        )
+    return (
+        "Na fase de implementação, entregue a tela e o funcionamento completo do nó e de todos os subfluxos internos, "
+        "incluindo endpoints/handlers, regras, persistência, hooks e integrações quando exigidos pelo Draw; "
+        "não deixe essas partes para outra task."
+    )
+
+
 def _level_semantics(root: Path) -> dict[str, dict[str, Any]]:
     """Retorna as definições L2/L3 persistidas e suas orientações para o agente."""
     config = _get_backlog_config(root)
@@ -1458,12 +1483,23 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
         "condition": navigation["connection"].get("condition_label") if navigation["connection"] else None,
         "path": navigation["access_paths"][0] if navigation["access_paths"] else None,
     }
+    delivery_scope = _task_delivery_scope(payload)
+    is_node_delivery = delivery_scope == "node" and task.get("level") == 2 and task.get("id") == parent.get("id")
+    node_delivery_note = _node_delivery_note() if is_node_delivery else None
+    if is_node_delivery:
+        phase_instruction = _node_delivery_phase_instruction(phase)
+        instruction = f"{instruction.rstrip()} {phase_instruction}" if instruction else phase_instruction
+
     level_context = payload.get("level_semantics", {}).get(str(task.get("level"))) if isinstance(payload.get("level_semantics"), dict) else None
     if isinstance(level_context, dict):
         response["level_context"] = deepcopy(level_context)
-    response["task_delivery_scope"] = _task_delivery_scope(payload)
+        if is_node_delivery:
+            response["level_context"]["guidance"] = node_delivery_note
+    response["task_delivery_scope"] = delivery_scope
     if response["task_delivery_scope"] == "node" and task.get("id") == parent.get("id"):
         response["delivery_subtasks"] = deepcopy(descendants)
+    if node_delivery_note:
+        response["delivery_scope_note"] = node_delivery_note
     options = _execution_config(root)
     if options["task_batch_size"] > 1 and task.get("id") in [item.get("id") for item in tasks]:
         start = next(index for index, item in enumerate(tasks) if item.get("id") == task.get("id"))

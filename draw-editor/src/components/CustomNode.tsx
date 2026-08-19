@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import type { NodeProps, Node } from '@xyflow/react';
 import type { NodeData, Question } from '../types';
-import { Trash2, ClipboardList, Eye, Code2 } from 'lucide-react';
+import { Trash2, ClipboardList, Eye, Code2, TestTube2 } from 'lucide-react';
 import { renderWithMentions } from '../utils';
 
 const FALLBACK_GROUP_COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f97316', '#ec4899', '#3b82f6'];
@@ -60,6 +60,12 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
   const answeredQuestions = totalQuestions - unansweredQuestions;
   const codeReferenceCount = Array.isArray(data.code_refs) ? data.code_refs.length : 0;
   const backlogChecklist = data.backlogChecklist;
+  const backlogTaskStatus = backlogChecklist?.status;
+  const isBacklogTaskInProgress = backlogTaskStatus === 'in_progress';
+  const isBacklogTaskDone = backlogTaskStatus === 'done';
+  const hasAssociatedTest = backlogChecklist?.test === true
+    || Boolean(data.test_ref)
+    || (Array.isArray(data.test_refs) && data.test_refs.length > 0);
 
   const isHighlighted = data.isHighlighted;
   const isDimmed = data.isDimmed;
@@ -147,7 +153,13 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
   };
 
   // Node visual styles
-  const borderStyle = selected
+  const borderStyle = isBacklogTaskDone
+    ? {
+      borderColor: accentColor,
+      borderWidth: '2px',
+      boxShadow: `0 0 0 3px ${withAlpha(accentColor, 0.2)}, 0 10px 26px rgba(234, 88, 12, .18)`
+    }
+    : selected
     ? { borderColor: '#6366f1', borderWidth: '2.5px', boxShadow: '0 0 0 4px rgba(99, 102, 241, 0.15)' }
     : isHighlighted
     ? { borderColor: '#10b981', borderWidth: '2.5px', boxShadow: '0 0 0 4px rgba(16, 185, 129, 0.2)' }
@@ -155,7 +167,15 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
 
   const bgStyle = {
     background: isDarkTheme
-      ? darkGroupFill(data.group)
+      ? isBacklogTaskDone
+        ? 'linear-gradient(135deg, #c2410c 0%, #991b1b 100%)'
+        : isBacklogTaskInProgress
+        ? 'linear-gradient(135deg, #9a3412 0%, #f97316 100%)'
+        : darkGroupFill(data.group)
+      : isBacklogTaskDone
+      ? 'linear-gradient(135deg, #f97316 0%, #ef4444 100%)'
+      : isBacklogTaskInProgress
+      ? 'linear-gradient(135deg, #fffaf5 0%, #fed7aa 58%, #fb923c 100%)'
       : data.group !== undefined
       ? withTint(accentColor, 0.82)
       : '#f8fafc',
@@ -168,8 +188,9 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
 
   return (
     <div
-      className={`custom-flow-node ${selected ? 'selected' : ''} ${isHighlighted ? 'highlighted' : ''} ${isDimmed ? 'dimmed' : ''}`}
+      className={`custom-flow-node ${selected ? 'selected' : ''} ${isHighlighted ? 'highlighted' : ''} ${isDimmed ? 'dimmed' : ''} ${isBacklogTaskInProgress ? 'backlog-task-in-progress' : ''} ${isBacklogTaskDone ? 'backlog-task-done' : ''}`}
       style={{ ...borderStyle, ...bgStyle }}
+      title={isBacklogTaskInProgress ? 'Task em andamento' : isBacklogTaskDone ? 'Task pronta' : undefined}
       onDoubleClick={handleNodeDoubleClick}
     >
       {/* Node actions toolbar */}
@@ -265,7 +286,14 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
             {groupInfo?.label || 'Sem grupo'}
           </span>
         )}
-        <span className="node-header-id">#{id}</span>
+        <span className="node-header-id-wrap">
+          <span className="node-header-id">#{id}</span>
+          {hasAssociatedTest && (
+            <span className="node-associated-test" role="img" title="Teste criado e associado" aria-label="Teste criado e associado">
+              <TestTube2 aria-hidden="true" />
+            </span>
+          )}
+        </span>
       </div>
 
       {/* Main Content */}

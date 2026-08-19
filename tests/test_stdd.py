@@ -327,6 +327,49 @@ def test_backlog_skills_are_not_for_common_interactions():
     assert "$create-tests-backlog" in installed_instructions
     assert "$implement-backlog" in installed_instructions
     assert "não leia essas skills para edições" in installed_instructions
+    assert "stdd backlog complete <task-id>" in installed_instructions
+    assert "o cursor não avança" in installed_instructions
+    assert "implemente e teste ambos" in installed_instructions
+    assert "não limita a entrega ao frontend" in installed_instructions
+
+
+def test_contextual_memory_routes_durable_rules_to_the_right_document():
+    """Mantém a memória do projeto seletiva e separa operação de design.
+    Confirma que as skills orientam o registro durável sem transformar logs em contexto.
+    """
+    agents = Path("AGENTS.md").read_text(encoding="utf-8").lower()
+    design = Path(".stdd/design.md").read_text(encoding="utf-8").lower()
+
+    assert "memória contextual seletiva" in agents
+    assert "contratos, arquitetura, operação" in agents
+    assert "não registre hipóteses" in agents
+    assert "decisões confirmadas de interface" in design
+    assert "ctrl/cmd+c" in design
+    assert "nota ponderada" in design
+    for name in ("create-tests-backlog", "implement-backlog"):
+        skill = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
+        assert "memória contextual seletiva" in skill
+        assert ".stdd/design.md" in skill
+        assert "não registre" in skill
+
+
+def test_node_delivery_contract_covers_tests_and_full_implementation():
+    """Mantém explícito que `node` entrega a tela e todos os comportamentos internos.
+    Confirma a regra nas skills de testes e de implementação do backlog.
+    """
+    implement = Path("src/stdd/templates/agents/implement-backlog/SKILL.md").read_text(encoding="utf-8").lower()
+    create_tests = Path("src/stdd/templates/agents/create-tests-backlog/SKILL.md").read_text(encoding="utf-8").lower()
+    normalized_implement = " ".join(implement.split())
+    normalized_create_tests = " ".join(create_tests.split())
+
+    for content in (implement, create_tests):
+        assert "todos os subfluxos internos" in " ".join(content.split())
+        assert "tela" in content
+        assert "endpoints/handlers" in content
+        assert "persistência" in content
+        assert "integrações" in content
+    assert "não autoriza implementar somente o frontend" in normalized_implement
+    assert "não reduz a cobertura à interface" in normalized_create_tests
 
 
 def test_loop_skills_honor_disabled_test_phase():

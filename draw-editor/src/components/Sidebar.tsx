@@ -265,8 +265,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       removed: totals.removed + weightedRemoved
     };
   }, { added: 0, removed: 0 });
-  const runChangeTotal = runTotals.added + runTotals.removed;
-  const addedPercentage = runChangeTotal > 0 ? (runTotals.added / runChangeTotal) * 100 : 0;
   const netLineBalance = runTotals.added - runTotals.removed;
   const weightedRunScore = calculateWeightedRunScore(weightedRunTotals.added, weightedRunTotals.removed);
 
@@ -868,8 +866,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <strong>{weightedRunScore}<small>/100</small></strong>
                 </div>
               </div>
-              <div className="runs-total-progress" aria-label={`${addedPercentage.toFixed(1)}% das linhas foram adicionadas`}>
-                <span style={{ width: `${addedPercentage}%` }} />
+              <div className="runs-total-progress" aria-label={`Nota ponderada: ${weightedRunScore}/100`}>
+                <span style={{ width: `${weightedRunScore}%` }} />
               </div>
               <div className="runs-total-grid">
                 <div><strong className="run-stat-added">+{runTotals.added}</strong><span>adicionadas</span></div>

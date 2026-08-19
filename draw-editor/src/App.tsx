@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   ReactFlow,
-  ReactFlowProvider,
   Controls,
   Background,
   MiniMap,
   useNodesState,
   useEdgesState,
+  useNodesInitialized,
   MarkerType
 } from '@xyflow/react';
 import type { Connection, Edge, EdgeChange, Node, EdgeTypes } from '@xyflow/react';
@@ -25,8 +25,9 @@ import { ConfirmModal } from './components/ConfirmModal';
 import { FocusDetailModal } from './components/FocusDetailModal';
 import { ImprovementEditor } from './components/ImprovementEditor';
 import { NodeEditModal } from './components/NodeEditModal';
+import { ParentNavigationModal, type ParentNavigationOption } from './components/ParentNavigationModal';
 import { layoutCurvedGraph, computeEdgeHandles, getCycleEdges } from './layout';
-import { RotateCcw, Save, Download, Sun, Moon, Contrast, Sparkles, ClipboardList, X } from 'lucide-react';
+import { ArrowUp, RotateCcw, Save, Download, Sun, Moon, Contrast, Sparkles, ClipboardList, X } from 'lucide-react';
 
 import defaultContract from '../contract.json';
 
@@ -58,6 +59,24 @@ const getApiOrigin = () => detectedBackendOrigin || getApiOrigins()[0];
 
 const isImprovementAnswer = (answer: ImprovementSession['questions'][number]['answer']) =>
   answer !== null && !(typeof answer === 'string' && answer.trim() === '');
+
+function parseClipboardNodeJson(text: string): NodeData[] {
+  const parsed: unknown = JSON.parse(text);
+  const candidates = Array.isArray(parsed) ? parsed : [parsed];
+  if (candidates.length === 0 || candidates.some((candidate) => (
+    !candidate || typeof candidate !== 'object' || Array.isArray(candidate)
+  ))) {
+    throw new Error('O JSON não contém um nó válido.');
+  }
+
+  return candidates.map((candidate) => {
+    const node = JSON.parse(JSON.stringify(candidate)) as Partial<NodeData>;
+    if (typeof node.label !== 'string' || typeof node.description !== 'string') {
+      throw new Error('O JSON precisa conter label e description do nó.');
+    }
+    return node as NodeData;
+  });
+}
 
 interface DrawSearchResult {
   drawId: string;
@@ -113,6 +132,8 @@ export const App: React.FC = () => {
   const [staticAnalysisKpis, setStaticAnalysisKpis] = useState<StaticAnalysisKpiReport | null>(null);
   const [activeDetailNodeId, setActiveDetailNodeId] = useState<number | null>(null);
   const [importExportMode, setImportExportMode] = useState<'import' | 'export' | null>(null);
+  const [parentNavigationOptions, setParentNavigationOptions] = useState<ParentNavigationOption[] | null>(null);
+  const [isParentNavigationLoading, setIsParentNavigationLoading] = useState(false);
   const [metadataModalConfig, setMetadataModalConfig] = useState<{
     isOpen: boolean;
     mode: 'create' | 'edit';
@@ -131,6 +152,7 @@ export const App: React.FC = () => {
   // --- React Flow Node & Edge States ---
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<NodeData>>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+  const nodesInitialized = useNodesInitialized({ includeHiddenNodes: true });
 
   const loadBacklog = useCallback(async () => {
     const origins = [...new Set([getApiOrigin(), ...getApiOrigins()])];
@@ -362,7 +384,20 @@ export const App: React.FC = () => {
   const searchRequestRef = useRef(0);
   const drawingLoadRequestRef = useRef(0);
   const pendingSearchFocusRef = useRef<{ drawId: string; nodeId: number } | null>(null);
+  const pendingAutoFitDrawRef = useRef<string | null>(null);
   const reactFlowInstanceRef = useRef<any>(null);
+  const lastAutoFitKeyRef = useRef<string | null>(null);
+  const [renderedDrawId, setRenderedDrawId] = useState<string | null>(null);
+  const [autoFitRevision, setAutoFitRevision] = useState(0);
+
+  const flowNodeSignature = useMemo(
+    () => nodes.map((node) => `${String(node.id)}:${node.data.label}:${node.data.description}`).join('|'),
+    [nodes]
+  );
+  const contractNodeSignature = useMemo(
+    () => contract.nodes.map((node) => `${String(node.id)}:${node.label}:${node.description}`).join('|'),
+    [contract.nodes]
+  );
 
   const readPresentationPositions = (id: string) => {
     try {
@@ -734,6 +769,14 @@ export const App: React.FC = () => {
     const isCurrentRequest = () => drawingLoadRequestRef.current === requestId;
     const activeMode = opts?.mode || storageMode;
 
+    const clearRenderedFlow = () => {
+      // Não deixe o viewport do desenho pai disputar com o fit do desenho
+      // filho enquanto o React Flow troca os nós controlados.
+      setRenderedDrawId(null);
+      setNodes([]);
+      setEdges([]);
+    };
+
     if (isDirty || isImprovementDirty) {
       const proceed = await askConfirm(
         'Descartar alterações?',
@@ -759,6 +802,8 @@ export const App: React.FC = () => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         if (!isCurrentRequest()) return;
+        pendingAutoFitDrawRef.current = id;
+        clearRenderedFlow();
         setContract(data);
         setCurrentImprovement(null);
         setPresentationPositionsForDrawing(id);
@@ -776,6 +821,8 @@ export const App: React.FC = () => {
         try {
           const data = JSON.parse(saved);
           if (!isCurrentRequest()) return;
+          pendingAutoFitDrawRef.current = id;
+          clearRenderedFlow();
           setContract(data);
           setCurrentImprovement(null);
           setPresentationPositionsForDrawing(id);
@@ -789,6 +836,8 @@ export const App: React.FC = () => {
         }
       } else if (id === typedDefaultContract.id) {
         if (!isCurrentRequest()) return;
+        pendingAutoFitDrawRef.current = id;
+        clearRenderedFlow();
         setContract(typedDefaultContract);
         setCurrentImprovement(null);
         setPresentationPositionsForDrawing(id);
@@ -809,6 +858,8 @@ export const App: React.FC = () => {
             if (!isCurrentRequest()) return;
             detectedBackendOrigin = origin;
             setStorageMode('backend');
+            pendingAutoFitDrawRef.current = id;
+            clearRenderedFlow();
             setContract(data);
             setCurrentImprovement(null);
             setPresentationPositionsForDrawing(id);
@@ -1078,11 +1129,90 @@ export const App: React.FC = () => {
   };
 
   // --- Subdraw Navigation ---
-  const handleGoBack = () => {
-    if (navigation.length === 0) return;
-    const parentId = navigation[navigation.length - 1];
-    setNavigation((prev) => prev.slice(0, -1));
-    loadDrawingById(parentId);
+  const findParentNavigationOptions = async (childId: string): Promise<ParentNavigationOption[]> => {
+    const options: ParentNavigationOption[] = [];
+    const seen = new Set<string>();
+    const addOption = (option: ParentNavigationOption) => {
+      const key = `${option.drawId}:${option.nodeId ?? 'draw'}`;
+      if (option.drawId === childId || seen.has(key)) return;
+      seen.add(key);
+      options.push(option);
+    };
+
+    const entries = drawingsIndex.filter((entry) => entry.id !== childId);
+    const documents = await Promise.all(entries.map(async (entry) => ({
+      entry,
+      document: await loadContractForSearch(entry, storageMode)
+    })));
+
+    documents.forEach(({ entry, document }) => {
+      document?.nodes.forEach((node) => {
+        if (node.draw_ref !== childId) return;
+        addOption({
+          drawId: entry.id,
+          title: entry.title || entry.id,
+          nodeId: node.id,
+          nodeLabel: node.label || `Nó ${node.id}`,
+          level: entry.hierarchy?.level
+        });
+      });
+    });
+
+    const hierarchyParentId = contract.hierarchy?.parent_draw_ref;
+    if (hierarchyParentId) {
+      const hierarchyParentEntry = drawingsIndex.find((entry) => entry.id === hierarchyParentId);
+      const hierarchyParentDocument = documents.find(({ entry }) => entry.id === hierarchyParentId)?.document
+        || (hierarchyParentEntry ? await loadContractForSearch(hierarchyParentEntry, storageMode) : null);
+      const hierarchyParentNodeId = contract.hierarchy?.parent_node_id ?? null;
+      const hierarchyParentNode = hierarchyParentDocument?.nodes.find((node) => node.id === hierarchyParentNodeId);
+      addOption({
+        drawId: hierarchyParentId,
+        title: hierarchyParentEntry?.title || hierarchyParentId,
+        nodeId: hierarchyParentNodeId,
+        nodeLabel: hierarchyParentNode?.label || (hierarchyParentNodeId === null ? 'Desenho pai' : `Nó ${hierarchyParentNodeId}`),
+        level: hierarchyParentEntry?.hierarchy?.level
+      });
+    }
+
+    const historyParentId = navigation[navigation.length - 1];
+    if (historyParentId && !options.some((option) => option.drawId === historyParentId)) {
+      const historyParentEntry = drawingsIndex.find((entry) => entry.id === historyParentId);
+      addOption({
+        drawId: historyParentId,
+        title: historyParentEntry?.title || historyParentId,
+        nodeId: null,
+        nodeLabel: 'Desenho pai',
+        level: historyParentEntry?.hierarchy?.level
+      });
+    }
+
+    return options;
+  };
+
+  const navigateToParent = (option: ParentNavigationOption) => {
+    setParentNavigationOptions(null);
+    const visitedParentIndex = navigation.lastIndexOf(option.drawId);
+    setNavigation((prev) => visitedParentIndex >= 0 ? prev.slice(0, visitedParentIndex) : []);
+    if (option.nodeId !== null) {
+      pendingSearchFocusRef.current = { drawId: option.drawId, nodeId: option.nodeId };
+    }
+    loadDrawingById(option.drawId);
+  };
+
+  const handleGoBack = async () => {
+    if (currentImprovement || isParentNavigationLoading) return;
+    setIsParentNavigationLoading(true);
+    try {
+      const options = await findParentNavigationOptions(contract.id);
+      if (options.length === 0) return;
+      if (options.length === 1) {
+        navigateToParent(options[0]);
+      } else {
+        setParentNavigationOptions(options);
+      }
+    } finally {
+      setIsParentNavigationLoading(false);
+    }
   };
 
   // --- Node & Edge Mappings ---
@@ -1153,7 +1283,8 @@ export const App: React.FC = () => {
         backlogChecklist: backlogTask ? {
           taskId: backlogTask.id,
           test: backlogTask.checklist_state?.test === true,
-          implementation: backlogTask.checklist_state?.implementation === true
+          implementation: backlogTask.checklist_state?.implementation === true,
+          status: backlogTask.status
         } : undefined
       };
     });
@@ -1165,6 +1296,11 @@ export const App: React.FC = () => {
       selected: selectedNodeIds.has(Number(node.id))
     }));
     setNodes(nodesWithSelection);
+    setRenderedDrawId(contract.id);
+    if (pendingAutoFitDrawRef.current === contract.id) {
+      pendingAutoFitDrawRef.current = null;
+      setAutoFitRevision((value) => value + 1);
+    }
 
     const positions = Object.fromEntries(
       nodesWithSelection.map((n) => [n.id, n.position])
@@ -1249,6 +1385,41 @@ export const App: React.FC = () => {
 
     setEdges(formattedEdges);
   }, [backlog, contract, activeFlowId, presentationPositions, theme, selectedNodeId, isFocusMode, selectionRevision, cycleEdges]);
+
+  useEffect(() => {
+    if (
+      !reactFlowInstanceRef.current ||
+      !nodesInitialized ||
+      nodes.length === 0 ||
+      !flowNodeSignature ||
+      renderedDrawId !== contract.id ||
+      flowNodeSignature !== contractNodeSignature
+    ) return;
+    if (pendingSearchFocusRef.current?.drawId === contract.id) return;
+    const fitKey = `${contract.id}:${contractNodeSignature}:${autoFitRevision}`;
+    if (lastAutoFitKeyRef.current === fitKey) return;
+    lastAutoFitKeyRef.current = fitKey;
+
+    let secondFrame: number | null = null;
+    const frame = requestAnimationFrame(() => {
+      // O primeiro frame aplica os nós no store interno; o segundo garante
+      // que as dimensões dos CustomNodes já estejam disponíveis ao fitView.
+      secondFrame = requestAnimationFrame(() => {
+        reactFlowInstanceRef.current?.fitView({
+          nodes: contract.nodes.map((node) => ({ id: String(node.id) })),
+          includeHiddenNodes: true,
+          duration: 450,
+          padding: 0.22,
+          maxZoom: 1.25
+        });
+      });
+    });
+
+    return () => {
+      cancelAnimationFrame(frame);
+      if (secondFrame !== null) cancelAnimationFrame(secondFrame);
+    };
+  }, [autoFitRevision, contract.id, contract.nodes, contractNodeSignature, flowNodeSignature, nodes.length, nodesInitialized, reactFlowReady, renderedDrawId]);
 
   useEffect(() => {
     const request = pendingSearchFocusRef.current;
@@ -1471,6 +1642,43 @@ export const App: React.FC = () => {
     setIsDirty(true);
   }, [getOrderedSelectedNodeIds]);
 
+  const copySelectedNodesAsJson = useCallback(async (selectedIds: number[]) => {
+    const selectedNodes = contractRef.current.nodes.filter((node) => selectedIds.includes(node.id));
+    if (selectedNodes.length === 0) return;
+
+    const payload = selectedNodes.length === 1 ? selectedNodes[0] : selectedNodes;
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+    } catch (error: any) {
+      alert(`Não foi possível copiar o JSON do nó: ${error.message}`);
+    }
+  }, []);
+
+  const pasteNodesFromJsonClipboard = useCallback(async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      const pastedNodes = parseClipboardNodeJson(text);
+      setContract((prev) => {
+        const nextIdStart = prev.nodes.length
+          ? Math.max(...prev.nodes.map((node) => node.id)) + 1
+          : 1;
+        const copies = pastedNodes.map((node, index) => ({
+          ...node,
+          id: nextIdStart + index
+        }));
+        selectionOrderRef.current = copies.map((node) => node.id);
+        setSelectedNodeId(copies[0]?.id ?? null);
+        setSelectedEdgeId(null);
+        setIsFocusMode(false);
+        setSelectionRevision((value) => value + 1);
+        return { ...prev, nodes: [...prev.nodes, ...copies] };
+      });
+      setIsDirty(true);
+    } catch (error: any) {
+      alert(`Não foi possível colar o JSON do nó: ${error.message}`);
+    }
+  }, []);
+
   const createInstantNode = useCallback(() => {
     const nextNodeId = contractRef.current.nodes.length
       ? Math.max(...contractRef.current.nodes.map((node) => node.id)) + 1
@@ -1513,6 +1721,21 @@ export const App: React.FC = () => {
         return;
       }
 
+      if (modifier && key === 'c') {
+        const selectedIds = getOrderedSelectedNodeIds();
+        if (selectedIds.length > 0) {
+          event.preventDefault();
+          void copySelectedNodesAsJson(selectedIds);
+        }
+        return;
+      }
+
+      if (modifier && key === 'v') {
+        event.preventDefault();
+        void pasteNodesFromJsonClipboard();
+        return;
+      }
+
       if (!modifier && !event.altKey && (key === 'delete' || key === 'backspace')) {
         if (deleteSelectedItems()) event.preventDefault();
         return;
@@ -1551,7 +1774,7 @@ export const App: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyboardShortcuts);
     return () => window.removeEventListener('keydown', handleKeyboardShortcuts);
-  }, [connectSelectedNodes, createInstantNode, deleteSelectedItems, duplicateSelectedNodes, selectedNodeId]);
+  }, [connectSelectedNodes, copySelectedNodesAsJson, createInstantNode, deleteSelectedItems, duplicateSelectedNodes, getOrderedSelectedNodeIds, pasteNodesFromJsonClipboard, selectedNodeId]);
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -1847,6 +2070,9 @@ export const App: React.FC = () => {
     pendingImprovementQuestions > 0 ||
     currentImprovement.status === 'draft'
   ));
+  const canGoUp = !currentImprovement && Boolean(
+    navigation.length > 0 || contract.hierarchy?.parent_draw_ref || (contract.hierarchy?.level && contract.hierarchy.level > 1)
+  );
 
   return (
     <div className={`app-container ${theme}-theme`}>
@@ -1861,14 +2087,16 @@ export const App: React.FC = () => {
       {/* Top Header / Toolbar Overlay */}
       <header className="top-toolbar">
         <div className="title-container" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {navigation.length > 0 && (
+          {canGoUp && (
             <button 
-              className="icon-btn" 
+              className="icon-btn level-up-btn"
               onClick={handleGoBack} 
-              title="Voltar para o desenho pai"
-              style={{ padding: '4px 10px', height: '30px', margin: 0 }}
+              disabled={isParentNavigationLoading}
+              title="Voltar um nível acima"
+              aria-label="Voltar um nível acima"
             >
-              <span>Voltar</span>
+              <ArrowUp size={16} />
+              <span>{isParentNavigationLoading ? 'Procurando...' : 'Subir nível'}</span>
             </button>
           )}
           {renderBreadcrumbs()}
@@ -1992,38 +2220,35 @@ export const App: React.FC = () => {
 
         {/* Canvas Area */}
         <main className="workspace">
-          <ReactFlowProvider>
-            <div className="react-flow-stage">
-              <ReactFlow
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={handleEdgesChange}
-                deleteKeyCode={null}
-                nodeTypes={nodeTypes}
-                edgeTypes={edgeTypes}
-                onInit={(instance) => {
-                  reactFlowInstanceRef.current = instance;
-                  setReactFlowReady((value) => value + 1);
-                }}
-                onNodeClick={onNodeClick}
-                onSelectionChange={onSelectionChange}
-                multiSelectionKeyCode={['Shift']}
-                onEdgeClick={onEdgeClick}
-                onEdgeDoubleClick={onEdgeDoubleClick}
-                onPaneClick={onPaneClick}
-                onConnect={onConnect}
-                onNodeDragStop={onNodeDragStop}
-                fitView
-                minZoom={0.01}
-                maxZoom={4}
-              >
-                <Controls />
-                <MiniMap zoomable pannable style={{ borderRadius: '14px', overflow: 'hidden' }} />
-                <Background gap={24} size={1} />
-                </ReactFlow>
-            </div>
-          </ReactFlowProvider>
+          <div className="react-flow-stage">
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={handleEdgesChange}
+              deleteKeyCode={null}
+              nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
+              onInit={(instance) => {
+                reactFlowInstanceRef.current = instance;
+                setReactFlowReady((value) => value + 1);
+              }}
+              onNodeClick={onNodeClick}
+              onSelectionChange={onSelectionChange}
+              multiSelectionKeyCode={['Shift']}
+              onEdgeClick={onEdgeClick}
+              onEdgeDoubleClick={onEdgeDoubleClick}
+              onPaneClick={onPaneClick}
+              onConnect={onConnect}
+              onNodeDragStop={onNodeDragStop}
+              minZoom={0.01}
+              maxZoom={4}
+            >
+              <Controls />
+              <MiniMap zoomable pannable style={{ borderRadius: '14px', overflow: 'hidden' }} />
+              <Background gap={24} size={1} />
+            </ReactFlow>
+          </div>
         </main>
       </div>
 
@@ -2034,6 +2259,7 @@ export const App: React.FC = () => {
         <span><kbd>Alt</kbd> detalhes</span>
         <span><kbd>Shift</kbd> selecionar vários</span>
         <span><kbd>Z</kbd>/<kbd>X</kbd>/<kbd>C</kbd> conectar</span>
+        <span><kbd>Ctrl+C</kbd>/<kbd>Ctrl+V</kbd> copiar/colar JSON</span>
         <span><kbd>Ctrl+D</kbd> duplicar</span>
         <span><kbd>Ctrl+Z</kbd> desfazer</span>
         <span><kbd>V</kbd> perguntas</span>
@@ -2126,6 +2352,16 @@ export const App: React.FC = () => {
             confirmConfig.resolve(false);
             setConfirmConfig(null);
           }}
+        />
+      )}
+
+      {parentNavigationOptions && (
+        <ParentNavigationModal
+          isOpen={parentNavigationOptions.length > 1}
+          childTitle={contract.title}
+          options={parentNavigationOptions}
+          onSelect={navigateToParent}
+          onClose={() => setParentNavigationOptions(null)}
         />
       )}
 

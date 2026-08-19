@@ -12,10 +12,29 @@ Este projeto usa o STDD para especificação, implementação, testes e evidênc
 - Depois de alterar o framework, valide a instalação equivalente com `uv tool install --force --editable .` e confirme que `stdd init` instala as skills atuais; não publique somente uma parte da alteração.
 - Ao integrar APIs/apps externos, registre o contrato no `AGENTS.md` e consulte a documentação oficial antes de implementar.
 - O `.stdd/design.md` é a fonte obrigatória de decisões visuais: consulte e respeite identidade, tipografia, espaçamento, estados, acessibilidade e contraste em qualquer alteração ou implementação de interface; seu preenchimento é obrigatório antes de liberar o bootstrap.
+- Mantenha memória contextual seletiva: registre decisões duráveis e aceitas no `AGENTS.md` (contratos, arquitetura, operação e escopo) ou no `.stdd/design.md` (visual e interação); consolide duplicatas e não registre hipóteses, detalhes temporários, IDs de execução ou segredos.
 - `$create-tests-backlog` e `$implement-backlog` pertencem exclusivamente aos loops acionados por `stdd backlog test` e `stdd backlog task`; não leia essas skills para edições, perguntas ou medições comuns fora do backlog.
 - Quando o pedido vier de uma interação comum, trate-o como interação comum e siga somente as instruções necessárias ao pedido; não transforme a edição em task de backlog nem exija o ciclo de testes/implementação do backlog sem que o cursor tenha entregue uma task.
+- No loop do backlog, execute `stdd backlog complete <task-id>` com o mesmo ID recebido somente após validar a task; sem isso, o cursor não avança.
+- Quando o backlog entregar o nó e os subfluxos internos juntos, implemente e teste ambos; “Tela” classifica o nível do nó e não limita a entrega ao frontend.
 - Ao relatar o resultado, informe status, arquivos alterados, testes executados, evidências e limitações.
 <!-- STDD:END AGENT INSTRUCTIONS -->
+
+## Memória contextual seletiva
+
+Este arquivo é contexto vivo do projeto, não um diário de execução. Registre somente
+decisões duráveis confirmadas por uma solicitação aceita, por uma integração verificada
+ou por um padrão que o loop passou a exigir repetidamente.
+
+- Use o `AGENTS.md` para contratos, arquitetura, operação, rastreabilidade, limites de escopo e instalação.
+- Use o `.stdd/design.md` para decisões visuais e de interação, como tipografia, cores, espaçamento, estados, animações e atalhos.
+- Antes de acrescentar contexto, procure uma regra equivalente, consolide duplicatas e remova detalhes temporários; não registre hipóteses, IDs de execução, segredos ou alterações pontuais.
+- Uma interação comum só atualiza esses arquivos quando produzir uma decisão reutilizável. No backlog, faça essa verificação antes de `backlog complete` e relate a atualização junto com os testes.
+
+## Contexto confirmado do projeto
+
+- O viewer servido por `stdd draw serve` usa os assets empacotados em `src/stdd/draw_assets`; o build de `draw-editor` precisa ser sincronizado para essa pasta antes da validação fora deste repositório.
+- Quando o backlog entregar um nó com seus subfluxos, a entrega cobre o nó L2 e todos os L3 listados; o nível “Tela” não limita a implementação ao frontend.
 
 ## Regras de edição dos Draws
 

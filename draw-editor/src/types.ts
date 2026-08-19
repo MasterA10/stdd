@@ -52,6 +52,7 @@ export interface NodeData {
     taskId: string;
     test: boolean;
     implementation: boolean;
+    status: 'pending' | 'in_progress' | 'done';
   };
   [key: string]: any;
 }

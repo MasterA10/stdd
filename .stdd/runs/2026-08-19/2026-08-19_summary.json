@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "date": "2026-08-19",
+  "runs": [
+    {
+      "run_id": "c76c60e85bf64f06ad76ea437efa7594",
+      "timestamp": "2026-08-19T00:25:55.404110+00:00",
+      "description": "Corrige enquadramento ao navegar para subfluxos",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 1096,
+        "lines_deleted": 162,
+        "files_changed": 19
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    }
+  ],
+  "run_count": 1,
+  "last_run_id": "c76c60e85bf64f06ad76ea437efa7594"
+}
