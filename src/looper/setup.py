@@ -36,7 +36,7 @@ DESIGN_TEMPLATE = """# Design do projeto
 
 def ensure_design_document(root: Path) -> Path:
     """Cria o documento de design versionável sem fingir decisões do produto."""
-    path = root / ".stdd" / "design.md"
+    path = root / ".looper" / "design.md"
     path.parent.mkdir(parents=True, exist_ok=True)
     if not path.exists():
         path.write_text(DESIGN_TEMPLATE, encoding="utf-8")
@@ -45,18 +45,18 @@ def ensure_design_document(root: Path) -> Path:
 
 def bootstrap_design_status(root: Path) -> dict[str, Any]:
     """Retorna a evidência do design sem aceitar template não preenchido."""
-    path = root / ".stdd" / "design.md"
+    path = root / ".looper" / "design.md"
     if not path.is_file():
-        return {"status": "blocked", "reason": "design_missing", "file": ".stdd/design.md"}
+        return {"status": "blocked", "reason": "design_missing", "file": ".looper/design.md"}
     try:
         content = path.read_text(encoding="utf-8")
     except OSError:
-        return {"status": "blocked", "reason": "design_unreadable", "file": ".stdd/design.md"}
+        return {"status": "blocked", "reason": "design_unreadable", "file": ".looper/design.md"}
     if not content.strip():
-        return {"status": "blocked", "reason": "design_empty", "file": ".stdd/design.md"}
+        return {"status": "blocked", "reason": "design_empty", "file": ".looper/design.md"}
     if "[PREENCHER]" in content:
-        return {"status": "blocked", "reason": "design_template_unfilled", "file": ".stdd/design.md"}
-    return {"status": "passed", "file": ".stdd/design.md"}
+        return {"status": "blocked", "reason": "design_template_unfilled", "file": ".looper/design.md"}
+    return {"status": "passed", "file": ".looper/design.md"}
 STACK_GITIGNORE_RULES = {
     "python": (".pytest_cache/", ".mypy_cache/", ".ruff_cache/"),
     "javascript": ("dist/",),
@@ -99,7 +99,7 @@ def detect_stack(root: Path) -> dict[str, Any]:
             runners.append("pytest")
             test_command = ["python", "-m", "pytest"]
 
-    # O pacote do STDD distribui templates de adapters PHP para outros projetos.
+    # O pacote do Looper distribui templates de adapters PHP para outros projetos.
     # Esses templates não são evidência da linguagem da aplicação atual.
     php_files = _project_php_files(root)
     composer = root / "composer.json"
@@ -163,7 +163,7 @@ def configure_project(root: Path) -> dict[str, Any]:
     """Atualiza a configuração com a stack detectada e seu runner nativo.
     Mantém comandos previamente configurados e só adiciona um runner quando há evidência.
     """
-    config_path = root / ".stdd" / "config.json"
+    config_path = root / ".looper" / "config.json"
     config = json.loads(config_path.read_text(encoding="utf-8")) if config_path.exists() else {}
     stack = detect_stack(root)
     config["stack"] = {key: value for key, value in stack.items() if key != "test_command"}
@@ -173,7 +173,7 @@ def configure_project(root: Path) -> dict[str, Any]:
     if analyzable:
         static_config = config.setdefault("static_analysis", {})
         current_command = static_config.get("adapter_command") if isinstance(static_config, dict) else None
-        legacy_php = analyzable == {"php"} and isinstance(current_command, list) and current_command == ["php", ".stdd/adapters/php_static_adapter.php"]
+        legacy_php = analyzable == {"php"} and isinstance(current_command, list) and current_command == ["php", ".looper/adapters/php_static_adapter.php"]
         replace_generated = isinstance(current_command, list) and any(str(item).endswith("python_static_adapter.py") for item in current_command)
         if isinstance(static_config, dict) and analyzable == {"php"} and not current_command and shutil.which("php"):
             adapter = ensure_php_adapter(root)
@@ -183,7 +183,7 @@ def configure_project(root: Path) -> dict[str, Any]:
             adapter = ensure_static_adapter(root, stack["languages"])
             if adapter:
                 static_config["adapter_command"] = [_python_executable(), str(adapter.relative_to(root))]
-        elif isinstance(static_config, dict) and legacy_php and not (root / ".stdd/adapters/php_static_adapter.php").exists():
+        elif isinstance(static_config, dict) and legacy_php and not (root / ".looper/adapters/php_static_adapter.php").exists():
             adapter = ensure_php_adapter(root)
             if adapter:
                 static_config["adapter_command"] = ["php", str(adapter.relative_to(root))]
@@ -282,14 +282,14 @@ def _stack_evidence(root: Path) -> list[str]:
 
 
 def _project_php_files(root: Path) -> list[Path]:
-    """Lista PHP da aplicação, ignorando artefatos e templates internos do STDD."""
-    ignored_parts = {".git", ".stdd", "node_modules", "vendor", "__pycache__"}
+    """Lista PHP da aplicação, ignorando artefatos e templates internos do Looper."""
+    ignored_parts = {".git", ".looper", "node_modules", "vendor", "__pycache__"}
     files: list[Path] = []
     for path in root.rglob("*.php"):
         relative = path.relative_to(root)
         if ignored_parts.intersection(relative.parts):
             continue
-        if relative.parts[:3] == ("src", "stdd", "templates"):
+        if relative.parts[:3] == ("src", "looper", "templates"):
             continue
         files.append(path)
     return sorted(files)
@@ -325,13 +325,13 @@ def _looks_like_wordpress(root: Path, php_files: list[Path]) -> bool:
 
 
 def ensure_php_adapter(root: Path) -> Path | None:
-    """Materializa o adapter PHP nativo do STDD quando o CLI PHP está disponível."""
+    """Materializa o adapter PHP nativo do Looper quando o CLI PHP está disponível."""
     if shutil.which("php") is None:
         return None
     source = Path(__file__).parent / "templates" / "adapters" / "php_static_adapter.php"
     if not source.exists():
         return None
-    target = root / ".stdd" / "adapters" / "php_static_adapter.php"
+    target = root / ".looper" / "adapters" / "php_static_adapter.php"
     target.parent.mkdir(parents=True, exist_ok=True)
     if not target.exists():
         target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
@@ -340,7 +340,7 @@ def ensure_php_adapter(root: Path) -> Path | None:
 
 def _project_package_files(root: Path) -> list[Path]:
     """Encontra manifests JavaScript/TypeScript em um monorepo sem atravessar artefatos."""
-    ignored = {".git", ".stdd", "node_modules", "vendor", "dist", "build", "coverage"}
+    ignored = {".git", ".looper", "node_modules", "vendor", "dist", "build", "coverage"}
     return sorted(
         path for path in root.rglob("package.json")
         if path.is_file() and not ignored.intersection(path.relative_to(root).parts)
@@ -350,7 +350,7 @@ def _project_package_files(root: Path) -> list[Path]:
 def ensure_static_adapter(root: Path, languages: list[str]) -> Path | None:
     """Materializa o dispatcher e os módulos específicos das linguagens detectadas."""
     sources = Path(__file__).parent / "templates" / "adapters"
-    target_dir = root / ".stdd" / "adapters"
+    target_dir = root / ".looper" / "adapters"
     target_dir.mkdir(parents=True, exist_ok=True)
     dispatcher = target_dir / "static_adapter.py"
     source = sources / "static_adapter.py"

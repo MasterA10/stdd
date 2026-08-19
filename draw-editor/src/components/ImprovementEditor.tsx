@@ -18,7 +18,7 @@ export const ImprovementEditor: React.FC<ImprovementEditorProps> = ({ session, o
     <section className="improvement-editor" aria-label="Sessão de melhoria do Draw">
       <div className="improvement-editor-header">
         <div>
-          <span className="eyebrow">STDD · Draw Improve</span>
+          <span className="eyebrow">Looper · Draw Improve</span>
           <h2>{session.title}</h2>
           <p>Draw associado: <code>{session.draw_id}</code>. As respostas são salvas separadamente do fluxo.</p>
         </div>

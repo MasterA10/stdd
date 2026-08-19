@@ -9,10 +9,10 @@ import pytest
 
 from typer.testing import CliRunner
 
-from stdd.cli import app
-from stdd.contract import check_contract
-from stdd.core import get_workspace_snapshot, is_rework_diff, run_tests
-from stdd.setup import detect_stack
+from looper.cli import app
+from looper.contract import check_contract
+from looper.core import get_workspace_snapshot, is_rework_diff, run_tests
+from looper.setup import detect_stack
 
 
 runner = CliRunner()
@@ -51,7 +51,7 @@ def test_draw_answer_skill_requires_structured_human_output_with_node_symbol():
     """Define a resposta do Draw Interaction como uma saída humana e rastreável.
     Exige que o contrato mostre o símbolo associado ao próprio nó e as evidências.
     """
-    skill = Path("src/stdd/templates/agents/draw-interaction/SKILL.md").read_text(encoding="utf-8")
+    skill = Path("src/looper/templates/agents/draw-interaction/SKILL.md").read_text(encoding="utf-8")
 
     assert "## Formato obrigatório da resposta" in skill
     assert "### Resposta" in skill
@@ -73,7 +73,7 @@ def test_init_interactive_selects_multiple_agent_integrations(tmp_path: Path):
     assert (tmp_path / ".claude/skills/setup/SKILL.md").exists()
     assert (tmp_path / ".gemini/skills/setup/SKILL.md").exists()
     assert "Selecione" in result.stdout
-    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    config = json.loads((tmp_path / ".looper/config.json").read_text())
     assert config["backlog"]["level_2_meaning"] == "Tela"
     assert config["backlog"]["level_3_meaning"] == "Regra de negócio"
     assert config["backlog"]["task_delivery_scope"] == "node"
@@ -90,7 +90,7 @@ def test_init_interactive_does_not_ask_frontend_analysis_policy(tmp_path: Path):
 
     assert result.exit_code == 0
     assert "política de análise estática frontend" not in result.stdout
-    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    config = json.loads((tmp_path / ".looper/config.json").read_text())
     assert "frontend" not in config["static_analysis"]
 
 
@@ -105,7 +105,7 @@ def test_init_interactive_accepts_custom_level_meanings(tmp_path: Path):
     )
 
     assert result.exit_code == 0
-    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    config = json.loads((tmp_path / ".looper/config.json").read_text())
     assert config["backlog"]["level_2_meaning"] == "View pública e componentes frontend"
     assert config["backlog"]["level_3_meaning"] == "Políticas e detalhes de interação"
     assert config["backlog"]["task_delivery_scope"] == "task"
@@ -119,7 +119,7 @@ def test_init_accepts_task_delivery_scope_option(tmp_path: Path):
     result = runner.invoke(app, ["init", str(tmp_path), "--task-delivery-scope", "node"])
 
     assert result.exit_code == 0
-    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    config = json.loads((tmp_path / ".looper/config.json").read_text())
     assert config["backlog"]["task_delivery_scope"] == "node"
 
 
@@ -128,7 +128,7 @@ def test_init_accepts_l2_verification_interval_option(tmp_path: Path):
     result = runner.invoke(app, ["init", str(tmp_path), "--l2-verification-interval", "2"])
 
     assert result.exit_code == 0
-    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    config = json.loads((tmp_path / ".looper/config.json").read_text())
     assert config["backlog"]["l2_verification_interval"] == 2
 
 
@@ -139,7 +139,7 @@ def test_init_can_disable_the_test_loop(tmp_path: Path):
     result = runner.invoke(app, ["init", str(tmp_path), "--no-test-loop"])
 
     assert result.exit_code == 0
-    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    config = json.loads((tmp_path / ".looper/config.json").read_text())
     assert config["backlog"]["test_loop_enabled"] is False
 
 
@@ -150,7 +150,7 @@ def test_init_interactive_can_disable_the_test_loop(tmp_path: Path):
     result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="1\nn\n1\n1\n2\n0\n2\n")
 
     assert result.exit_code == 0
-    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    config = json.loads((tmp_path / ".looper/config.json").read_text())
     assert config["backlog"]["test_loop_enabled"] is False
 
 
@@ -159,7 +159,7 @@ def test_init_interactive_can_disable_l2_verification_tasks(tmp_path: Path):
     result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="1\nn\n1\n1\n2\n0\n1\n")
 
     assert result.exit_code == 0
-    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    config = json.loads((tmp_path / ".looper/config.json").read_text())
     assert config["backlog"]["l2_verification_interval"] == 0
 
 
@@ -179,7 +179,7 @@ def test_init_removes_legacy_frontend_policy_without_losing_other_static_config(
     """
     init_result = runner.invoke(app, ["init", str(tmp_path)])
     assert init_result.exit_code == 0
-    config_path = tmp_path / ".stdd/config.json"
+    config_path = tmp_path / ".looper/config.json"
     config = json.loads(config_path.read_text())
     config["static_analysis"]["frontend"] = {"enabled": True, "mode": "warning"}
     config["static_analysis"]["adapter_command"] = ["python", "adapter.py"]
@@ -204,7 +204,7 @@ def test_setup_detects_stack_without_assuming_python(tmp_path: Path):
     result = runner.invoke(app, ["setup", str(tmp_path)])
 
     assert result.exit_code == 0
-    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    config = json.loads((tmp_path / ".looper/config.json").read_text())
     assert config["stack"]["languages"] == ["typescript"]
     assert config["test_commands"][0]["command"] == ["npm", "test"]
     assert "pytest" not in json.dumps(config)
@@ -223,33 +223,33 @@ def test_setup_detects_php_wordpress_and_custom_runner_and_generates_adapter(tmp
     result = runner.invoke(app, ["setup", str(tmp_path)])
 
     assert result.exit_code == 0
-    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    config = json.loads((tmp_path / ".looper/config.json").read_text())
     assert config["stack"]["languages"] == ["php"]
     assert "wordpress" in config["stack"]["frameworks"]
     assert "php custom runner" in config["stack"]["test_runners"]
     assert config["test_commands"][0]["command"] == ["php", "tests/router/run.php"]
-    assert config["static_analysis"]["adapter_command"] == ["php", ".stdd/adapters/php_static_adapter.php"]
-    assert (tmp_path / ".stdd/adapters/php_static_adapter.php").exists()
+    assert config["static_analysis"]["adapter_command"] == ["php", ".looper/adapters/php_static_adapter.php"]
+    assert (tmp_path / ".looper/adapters/php_static_adapter.php").exists()
     assert "vendor/" in (tmp_path / ".gitignore").read_text()
     assert "._*" in (tmp_path / ".gitignore").read_text()
 
 
-def test_setup_ignores_stdd_php_adapter_template_when_detecting_stack(tmp_path: Path):
-    """Não confunde template interno do STDD com PHP da aplicação.
+def test_setup_ignores_looper_php_adapter_template_when_detecting_stack(tmp_path: Path):
+    """Não confunde template interno do Looper com PHP da aplicação.
     Mantém uma codebase Python identificada sem gerar adapter PHP indevido.
     """
     (tmp_path / "pyproject.toml").write_text("[project]\ndependencies = ['pytest']\n")
-    template = tmp_path / "src/stdd/templates/adapters/php_static_adapter.php"
+    template = tmp_path / "src/looper/templates/adapters/php_static_adapter.php"
     template.parent.mkdir(parents=True)
     template.write_text("<?php echo 'template';\n")
 
     result = runner.invoke(app, ["setup", str(tmp_path)])
 
     assert result.exit_code == 0
-    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    config = json.loads((tmp_path / ".looper/config.json").read_text())
     assert config["stack"]["languages"] == ["python"]
     assert config["static_analysis"]["adapter_command"] is None
-    assert not (tmp_path / ".stdd/adapters/php_static_adapter.php").exists()
+    assert not (tmp_path / ".looper/adapters/php_static_adapter.php").exists()
 
 
 def test_php_adapter_reports_quality_metrics(tmp_path: Path):
@@ -268,7 +268,7 @@ def test_php_adapter_reports_quality_metrics(tmp_path: Path):
     )
     runner.invoke(app, ["setup", str(tmp_path)])
     request = json.dumps({"contract_version": "1", "project_path": str(tmp_path), "changed_files": [], "mode": "full"})
-    process = subprocess.run(["php", ".stdd/adapters/php_static_adapter.php"], cwd=tmp_path, input=request, text=True, capture_output=True)
+    process = subprocess.run(["php", ".looper/adapters/php_static_adapter.php"], cwd=tmp_path, input=request, text=True, capture_output=True)
     report = json.loads(process.stdout)
 
     assert process.returncode == 0
@@ -297,7 +297,7 @@ def test_php_adapter_indexes_classes_with_inheritance_and_interfaces(tmp_path: P
     runner.invoke(app, ["setup", str(tmp_path)])
     request = json.dumps({"contract_version": "1", "project_path": str(tmp_path), "changed_files": [], "mode": "full"})
     process = subprocess.run(
-        ["php", ".stdd/adapters/php_static_adapter.php"],
+        ["php", ".looper/adapters/php_static_adapter.php"],
         cwd=tmp_path,
         input=request,
         text=True,
@@ -312,17 +312,17 @@ def test_php_adapter_indexes_classes_with_inheritance_and_interfaces(tmp_path: P
 
 
 def test_test_runs_all_configured_suites(tmp_path: Path):
-    """Executa todas as suítes de testes configuradas no alias geral do STDD.
-    Cria uma configuração com duas suítes em .stdd/config.json e valida o stdout do run_tests.
+    """Executa todas as suítes de testes configuradas no alias geral do Looper.
+    Cria uma configuração com duas suítes em .looper/config.json e valida o stdout do run_tests.
     """
-    (tmp_path / ".stdd").mkdir()
+    (tmp_path / ".looper").mkdir()
     config = {
         "test_commands": [
             {"name": "unit", "command": [sys.executable, "-c", "print('unit')"]},
             {"name": "integration", "command": [sys.executable, "-c", "print('integration')"]},
         ]
     }
-    (tmp_path / ".stdd/config.json").write_text(json.dumps(config))
+    (tmp_path / ".looper/config.json").write_text(json.dumps(config))
     process, report = run_tests(tmp_path)
     assert process.returncode == 0
     assert report["status"] == "passed"
@@ -336,14 +336,14 @@ def test_global_test_alias_continues_after_suite_failure(tmp_path: Path):
     """Executa todas as suítes mesmo quando uma delas falha no alias global.
     Configura uma falha antes de uma suíte válida e confirma o relatório consolidado das duas.
     """
-    (tmp_path / ".stdd").mkdir()
+    (tmp_path / ".looper").mkdir()
     config = {
         "test_commands": [
             {"name": "database", "command": [sys.executable, "-c", "raise SystemExit(3)"]},
             {"name": "security", "command": [sys.executable, "-c", "print('security-ran')"]},
         ]
     }
-    (tmp_path / ".stdd/config.json").write_text(json.dumps(config))
+    (tmp_path / ".looper/config.json").write_text(json.dumps(config))
 
     process, report = run_tests(tmp_path)
 
@@ -360,7 +360,7 @@ def test_global_alias_respects_mvp_profile_and_approval_controls(tmp_path: Path)
     """Permite ao MVP pular suítes caras e bloqueia ações que exigem aprovação.
     Configura unitário, banco e performance e confirma os motivos de cada not_executed.
     """
-    (tmp_path / ".stdd").mkdir()
+    (tmp_path / ".looper").mkdir()
     config = {
         "testing": {"profile": "mvp"},
         "test_commands": [
@@ -369,7 +369,7 @@ def test_global_alias_respects_mvp_profile_and_approval_controls(tmp_path: Path)
             {"name": "performance", "command": [sys.executable, "-c", "raise SystemExit(9)"], "enabled": False},
         ],
     }
-    (tmp_path / ".stdd/config.json").write_text(json.dumps(config))
+    (tmp_path / ".looper/config.json").write_text(json.dumps(config))
 
     process, report = run_tests(tmp_path)
 
@@ -387,7 +387,7 @@ def test_global_alias_can_explicitly_run_approved_suite(tmp_path: Path):
     """Executa somente a suíte solicitada quando a ação cara foi aprovada explicitamente.
     Seleciona banco, libera a ação e mantém as demais suítes como não executadas.
     """
-    (tmp_path / ".stdd").mkdir()
+    (tmp_path / ".looper").mkdir()
     config = {
         "testing": {"profile": "mvp"},
         "test_commands": [
@@ -395,7 +395,7 @@ def test_global_alias_can_explicitly_run_approved_suite(tmp_path: Path):
             {"name": "database", "command": [sys.executable, "-c", "print('database')"], "requires_approval": True},
         ],
     }
-    (tmp_path / ".stdd/config.json").write_text(json.dumps(config))
+    (tmp_path / ".looper/config.json").write_text(json.dumps(config))
 
     process, report = run_tests(tmp_path, include_suites={"database"}, approve_actions=True)
 
@@ -413,13 +413,13 @@ def test_test_cli_requires_explicit_flag_for_controlled_suite(tmp_path: Path, mo
     Executa o mesmo runner sem e com a flag e confirma que somente a segunda chamada o libera.
     """
     monkeypatch.chdir(tmp_path)
-    (tmp_path / ".stdd").mkdir()
+    (tmp_path / ".looper").mkdir()
     config = {
         "test_commands": [
             {"name": "database", "command": [sys.executable, "-c", "print('database-executed')"], "requires_approval": True}
         ]
     }
-    (tmp_path / ".stdd/config.json").write_text(json.dumps(config))
+    (tmp_path / ".looper/config.json").write_text(json.dumps(config))
 
     denied = runner.invoke(app, ["test", "--suite", "database"])
     approved = runner.invoke(app, ["test", "--suite", "database", "--approve-actions"])
@@ -435,12 +435,12 @@ def test_test_reports_static_analysis_unavailable_without_adapter(tmp_path: Path
     """Mantém o teste aprovado quando não existe adaptador estático configurado.
     Executa uma suíte fake e verifica o status explícito unavailable no relatório e na saída.
     """
-    (tmp_path / ".stdd").mkdir()
+    (tmp_path / ".looper").mkdir()
     config = {
         "test_commands": [{"name": "unit", "command": [sys.executable, "-c", "print('unit')"]}],
         "static_analysis": {"enabled": True, "adapter_command": None, "contract_version": "1"},
     }
-    (tmp_path / ".stdd/config.json").write_text(json.dumps(config))
+    (tmp_path / ".looper/config.json").write_text(json.dumps(config))
 
     process, report = run_tests(tmp_path)
 
@@ -453,10 +453,10 @@ def test_test_reports_static_analysis_unavailable_without_adapter(tmp_path: Path
 
 def test_test_cli_blocks_draw_node_without_associated_symbol(tmp_path: Path, monkeypatch):
     """Bloqueia o CLI quando um nó de jornada não possui símbolo associado.
-    Executa `stdd test` e confirma o finding determinístico da análise dos Draws.
+    Executa `looper test` e confirma o finding determinístico da análise dos Draws.
     """
     monkeypatch.chdir(tmp_path)
-    draws = tmp_path / ".stdd" / "draws"
+    draws = tmp_path / ".looper" / "draws"
     draws.mkdir(parents=True)
     (draws / "journey.json").write_text(json.dumps({
         "id": "journey",
@@ -465,7 +465,7 @@ def test_test_cli_blocks_draw_node_without_associated_symbol(tmp_path: Path, mon
         "nodes": [{"id": 1, "label": "Tela sem referência"}],
         "edges": [],
     }), encoding="utf-8")
-    (tmp_path / ".stdd" / "config.json").write_text(json.dumps({
+    (tmp_path / ".looper" / "config.json").write_text(json.dumps({
         "test_commands": [{"name": "unit", "command": [sys.executable, "-c", "print('unit')"]}],
         "static_analysis": {"enabled": True, "adapter_command": None},
     }), encoding="utf-8")
@@ -483,7 +483,7 @@ def test_draw_symbols_lists_missing_nodes_without_running_test_suites(tmp_path: 
     Configura uma suíte que deixaria marcador e confirma que ela não é executada.
     """
     monkeypatch.chdir(tmp_path)
-    draws = tmp_path / ".stdd" / "draws"
+    draws = tmp_path / ".looper" / "draws"
     draws.mkdir(parents=True)
     (draws / "journey.json").write_text(json.dumps({
         "id": "journey",
@@ -495,7 +495,7 @@ def test_draw_symbols_lists_missing_nodes_without_running_test_suites(tmp_path: 
         ],
         "edges": [],
     }), encoding="utf-8")
-    (tmp_path / ".stdd" / "config.json").write_text(json.dumps({
+    (tmp_path / ".looper" / "config.json").write_text(json.dumps({
         "test_commands": [{
             "name": "must-not-run",
             "command": [sys.executable, "-c", "from pathlib import Path; Path('suite-ran').write_text('x')"],
@@ -517,7 +517,7 @@ def test_test_compacts_static_analysis_output_but_preserves_structured_report(tm
     """Resume a saída textual sem perder o relatório estruturado da análise.
     Emite muitos símbolos no adapter e confirma que o terminal não recebe o dump completo.
     """
-    (tmp_path / ".stdd").mkdir()
+    (tmp_path / ".looper").mkdir()
     adapter_result = {
         "contract_version": "1",
         "status": "passed",
@@ -536,7 +536,7 @@ def test_test_compacts_static_analysis_output_but_preserves_structured_report(tm
         "test_commands": [{"name": "unit", "command": [sys.executable, "-c", "print('unit')"]}],
         "static_analysis": {"adapter_command": [sys.executable, "-c", adapter_code]},
     }
-    (tmp_path / ".stdd/config.json").write_text(json.dumps(config))
+    (tmp_path / ".looper/config.json").write_text(json.dumps(config))
 
     process, report = run_tests(tmp_path)
 
@@ -550,7 +550,7 @@ def test_test_executes_fake_static_analysis_adapter(tmp_path: Path):
     """Executa um adaptador fake e incorpora seu relatório factual ao resultado do teste.
     Configura um comando Python que retorna dependências e complexidade em JSON válido.
     """
-    (tmp_path / ".stdd").mkdir()
+    (tmp_path / ".looper").mkdir()
     adapter_result = {
         "contract_version": "1",
         "status": "passed",
@@ -571,7 +571,7 @@ def test_test_executes_fake_static_analysis_adapter(tmp_path: Path):
         "test_commands": [{"name": "unit", "command": [sys.executable, "-c", "print('unit')"]}],
         "static_analysis": {"enabled": True, "adapter_command": [sys.executable, "-c", adapter_code]},
     }
-    (tmp_path / ".stdd/config.json").write_text(json.dumps(config))
+    (tmp_path / ".looper/config.json").write_text(json.dumps(config))
 
     process, report = run_tests(tmp_path)
 
@@ -585,12 +585,12 @@ def test_test_blocks_invalid_static_analysis_output(tmp_path: Path):
     """Bloqueia a execução quando o adaptador não cumpre o schema agnóstico.
     Configura um adaptador que retorna um objeto incompleto e verifica o motivo estruturado.
     """
-    (tmp_path / ".stdd").mkdir()
+    (tmp_path / ".looper").mkdir()
     config = {
         "test_commands": [{"name": "unit", "command": [sys.executable, "-c", "print('unit')"]}],
         "static_analysis": {"adapter_command": [sys.executable, "-c", "print('{}')"]},
     }
-    (tmp_path / ".stdd/config.json").write_text(json.dumps(config))
+    (tmp_path / ".looper/config.json").write_text(json.dumps(config))
 
     process, report = run_tests(tmp_path)
 
@@ -604,7 +604,7 @@ def test_test_blocks_blocking_long_function_quality_finding(tmp_path: Path):
     """Bloqueia uma função acima do limite configurado quando o adaptador reporta severidade blocking.
     Retorna um achado long_function válido e verifica que o gate impede a aprovação silenciosa.
     """
-    (tmp_path / ".stdd").mkdir()
+    (tmp_path / ".looper").mkdir()
     adapter_result = {
         "contract_version": "1",
         "status": "passed",
@@ -632,7 +632,7 @@ def test_test_blocks_blocking_long_function_quality_finding(tmp_path: Path):
         "test_commands": [{"name": "unit", "command": [sys.executable, "-c", "print('unit')"]}],
         "static_analysis": {"adapter_command": [sys.executable, "-c", adapter_code]},
     }
-    (tmp_path / ".stdd/config.json").write_text(json.dumps(config))
+    (tmp_path / ".looper/config.json").write_text(json.dumps(config))
 
     process, report = run_tests(tmp_path)
 
@@ -678,7 +678,7 @@ def test_contract_allows_production_function_without_docstring(tmp_path: Path):
 
 def test_log_command_creates_incremental_summary_and_snapshot_in_date_subfolder(tmp_path: Path, monkeypatch):
     """Registra alteração na subpasta diária com summary e snapshot acumulativos.
-    Invoca stdd log e confirma a presença de somente um arquivo de cada tipo.
+    Invoca looper log e confirma a presença de somente um arquivo de cada tipo.
     """
     monkeypatch.chdir(tmp_path)
     runner.invoke(app, ["init"])
@@ -686,7 +686,7 @@ def test_log_command_creates_incremental_summary_and_snapshot_in_date_subfolder(
     assert result.exit_code == 0
     assert "Registro gravado em" in result.stdout
 
-    day_folders = [p for p in (tmp_path / ".stdd/runs").iterdir() if p.is_dir() and p.name != "data"]
+    day_folders = [p for p in (tmp_path / ".looper/runs").iterdir() if p.is_dir() and p.name != "data"]
     assert len(day_folders) == 1
 
     summary_files = list(day_folders[0].glob("*_summary.json"))
@@ -702,8 +702,8 @@ def test_log_command_creates_incremental_summary_and_snapshot_in_date_subfolder(
     snapshot_data = json.loads(snapshot_files[0].read_text(encoding="utf-8"))
     assert snapshot_data["runs"][0]["run_id"] == log_data["runs"][0]["run_id"]
     assert isinstance(snapshot_data["workspace_snapshot"], dict)
-    assert not (tmp_path / ".stdd/latest_snapshot.json").exists()
-    assert not (tmp_path / ".stdd/runs/data/latest_snapshot.json").exists()
+    assert not (tmp_path / ".looper/latest_snapshot.json").exists()
+    assert not (tmp_path / ".looper/runs/data/latest_snapshot.json").exists()
 
 
 def test_log_ignores_invalid_utf8_appledouble_snapshot(tmp_path: Path, monkeypatch):
@@ -714,7 +714,7 @@ def test_log_ignores_invalid_utf8_appledouble_snapshot(tmp_path: Path, monkeypat
     runner.invoke(app, ["init"])
     first = runner.invoke(app, ["log", "Primeiro registro", "-i"])
     assert first.exit_code == 0
-    day_folder = next(path for path in (tmp_path / ".stdd/runs").iterdir() if path.is_dir() and path.name != "data")
+    day_folder = next(path for path in (tmp_path / ".looper/runs").iterdir() if path.is_dir() and path.name != "data")
     (day_folder / "._invalid_snapshot.json").write_bytes(b"AppleDouble\x00\xff")
 
     second = runner.invoke(app, ["log", "Segundo registro", "-t"])
@@ -723,21 +723,21 @@ def test_log_ignores_invalid_utf8_appledouble_snapshot(tmp_path: Path, monkeypat
     assert "Registro gravado em" in second.stdout
 
 
-def test_workspace_snapshot_excludes_stdd_draw_and_run_json_documents(tmp_path: Path):
+def test_workspace_snapshot_excludes_looper_draw_and_run_json_documents(tmp_path: Path):
     """Exclui JSONs operacionais dos desenhos e das execuções.
     Mantém arquivos de código do projeto disponíveis para o diff incremental.
     """
-    (tmp_path / ".stdd/draws").mkdir(parents=True)
-    (tmp_path / ".stdd/runs/2026-08-03").mkdir(parents=True)
-    (tmp_path / ".stdd/draws/subfluxo.json").write_text('{"nodes": []}', encoding="utf-8")
-    (tmp_path / ".stdd/runs/2026-08-03/2026-08-03_summary.json").write_text('{"runs": []}', encoding="utf-8")
+    (tmp_path / ".looper/draws").mkdir(parents=True)
+    (tmp_path / ".looper/runs/2026-08-03").mkdir(parents=True)
+    (tmp_path / ".looper/draws/subfluxo.json").write_text('{"nodes": []}', encoding="utf-8")
+    (tmp_path / ".looper/runs/2026-08-03/2026-08-03_summary.json").write_text('{"runs": []}', encoding="utf-8")
     source = tmp_path / "feature.py"
     source.write_text("value = 1\n", encoding="utf-8")
 
     snapshot = get_workspace_snapshot(tmp_path)
 
     assert "feature.py" in snapshot
-    assert all(not path.startswith(".stdd/") for path in snapshot)
+    assert all(not path.startswith(".looper/") for path in snapshot)
 
 
 def test_log_accumulates_runs_in_one_summary_and_snapshot_per_day(tmp_path: Path, monkeypatch):
@@ -748,7 +748,7 @@ def test_log_accumulates_runs_in_one_summary_and_snapshot_per_day(tmp_path: Path
     runner.invoke(app, ["init"])
 
     first = runner.invoke(app, ["log", "Primeiro registro", "-i"])
-    day_folder = next(path for path in (tmp_path / ".stdd/runs").iterdir() if path.is_dir() and path.name != "data")
+    day_folder = next(path for path in (tmp_path / ".looper/runs").iterdir() if path.is_dir() and path.name != "data")
     (day_folder / "125000_old_summary.json").write_text("{}", encoding="utf-8")
     (day_folder / "125000_old_snapshot.json").write_text("{}", encoding="utf-8")
     second = runner.invoke(app, ["log", "Segundo registro", "-t"])
@@ -767,8 +767,8 @@ def test_log_accumulates_runs_in_one_summary_and_snapshot_per_day(tmp_path: Path
     assert [run["description"] for run in summary["runs"]] == ["Primeiro registro", "Segundo registro"]
     assert snapshot["run_count"] == 2
     assert [run["run_id"] for run in snapshot["runs"]] == [run["run_id"] for run in summary["runs"]]
-    assert not (tmp_path / ".stdd/latest_snapshot.json").exists()
-    assert not (tmp_path / ".stdd/runs/data/latest_snapshot.json").exists()
+    assert not (tmp_path / ".looper/latest_snapshot.json").exists()
+    assert not (tmp_path / ".looper/runs/data/latest_snapshot.json").exists()
 
 
 def test_log_migrates_legacy_daily_documents_before_appending(tmp_path: Path, monkeypatch):
@@ -778,7 +778,7 @@ def test_log_migrates_legacy_daily_documents_before_appending(tmp_path: Path, mo
     monkeypatch.chdir(tmp_path)
     runner.invoke(app, ["init"])
     day = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    day_folder = tmp_path / ".stdd/runs" / day
+    day_folder = tmp_path / ".looper/runs" / day
     day_folder.mkdir(parents=True)
     (day_folder / f"{day}_summary.json").write_text(
         json.dumps({"run_id": "legacy-summary", "timestamp": f"{day}T10:00:00+00:00", "description": "Legado", "work_types": ["teste"], "diff_stats": {}}),
@@ -813,7 +813,7 @@ def test_log_marks_large_incremental_change_as_refactor(tmp_path: Path, monkeypa
 
     assert baseline.exit_code == 0
     assert result.exit_code == 0
-    day_folder = next(path for path in (tmp_path / ".stdd/runs").iterdir() if path.is_dir() and path.name != "data")
+    day_folder = next(path for path in (tmp_path / ".looper/runs").iterdir() if path.is_dir() and path.name != "data")
     summary = json.loads(next(day_folder.glob("*_summary.json")).read_text(encoding="utf-8"))
     last_run = summary["runs"][-1]
     assert "refactor" in last_run["work_types"]
@@ -829,12 +829,12 @@ def test_log_does_not_classify_medium_replacement_as_refactor():
 
 
 def test_log_command_respects_custom_tracked_extensions(tmp_path: Path, monkeypatch):
-    """Respeita as extensões rastreadas customizadas no arquivo .stdd/config.json.
+    """Respeita as extensões rastreadas customizadas no arquivo .looper/config.json.
     Adiciona .md às extensões rastreadas, modifica um arquivo markdown e valida no snapshot.
     """
     monkeypatch.chdir(tmp_path)
     runner.invoke(app, ["init"])
-    config_path = tmp_path / ".stdd/config.json"
+    config_path = tmp_path / ".looper/config.json"
     config = json.loads(config_path.read_text(encoding="utf-8"))
     config["tracked_extensions"] = [".py", ".md"]
     config_path.write_text(json.dumps(config), encoding="utf-8")
@@ -845,7 +845,7 @@ def test_log_command_respects_custom_tracked_extensions(tmp_path: Path, monkeypa
     result = runner.invoke(app, ["log", "Atualiza documentação markdown", "-i"])
     assert result.exit_code == 0
 
-    day_folder = next(path for path in (tmp_path / ".stdd/runs").iterdir() if path.is_dir() and path.name != "data")
+    day_folder = next(path for path in (tmp_path / ".looper/runs").iterdir() if path.is_dir() and path.name != "data")
     snapshot_file = list(day_folder.glob("*_snapshot.json"))[0]
     snapshot_data = json.loads(snapshot_file.read_text(encoding="utf-8"))
     modified_paths = [f["path"] for f in snapshot_data["runs"][-1]["files"]]
@@ -866,7 +866,7 @@ def test_log_snapshot_includes_unified_diff_for_modified_file(tmp_path: Path, mo
     result = runner.invoke(app, ["log", "Atualiza resposta", "-i"])
 
     assert result.exit_code == 0
-    day_folder = next(path for path in (tmp_path / ".stdd/runs").iterdir() if path.is_dir() and path.name != "data")
+    day_folder = next(path for path in (tmp_path / ".looper/runs").iterdir() if path.is_dir() and path.name != "data")
     snapshots = list(day_folder.glob("*_snapshot.json"))
     assert len(snapshots) == 1
     snapshot_data = json.loads(snapshots[0].read_text(encoding="utf-8"))
@@ -900,7 +900,7 @@ def test_log_snapshot_includes_diffs_for_created_and_deleted_files(tmp_path: Pat
     result = runner.invoke(app, ["log", "Troca arquivos", "-i"])
 
     assert result.exit_code == 0
-    day_folder = next(path for path in (tmp_path / ".stdd/runs").iterdir() if path.is_dir() and path.name != "data")
+    day_folder = next(path for path in (tmp_path / ".looper/runs").iterdir() if path.is_dir() and path.name != "data")
     snapshot_data = json.loads(sorted(day_folder.glob("*_snapshot.json"))[-1].read_text(encoding="utf-8"))
     files = {item["path"]: item for item in snapshot_data["runs"][-1]["files"]}
 
@@ -919,8 +919,8 @@ def test_log_snapshot_includes_diffs_for_created_and_deleted_files(tmp_path: Pat
 
 
 def test_log_command_requires_at_least_one_work_type(tmp_path: Path, monkeypatch):
-    """Rejeita comandos stdd log sem informar nenhum tipo de trabalho.
-    Invoca stdd log sem flags -i, -t, -b ou -r e valida a mensagem de erro.
+    """Rejeita comandos looper log sem informar nenhum tipo de trabalho.
+    Invoca looper log sem flags -i, -t, -b ou -r e valida a mensagem de erro.
     """
     monkeypatch.chdir(tmp_path)
     runner.invoke(app, ["init"])
@@ -935,7 +935,7 @@ def test_draw_diff_command_reads_only_logged_draw_json_changes(tmp_path: Path, m
     """
     monkeypatch.chdir(tmp_path)
     runner.invoke(app, ["init"])
-    draws_dir = tmp_path / ".stdd/draws"
+    draws_dir = tmp_path / ".looper/draws"
     draw_file = draws_dir / "checkout.json"
     draw_file.write_text('{"id":"checkout","title":"Inicial"}\n', encoding="utf-8")
     (tmp_path / "service.py").write_text("return 1\n", encoding="utf-8")
@@ -965,7 +965,7 @@ def test_log_marks_draw_only_changes_as_zero_line_checkpoint(tmp_path: Path, mon
     """
     monkeypatch.chdir(tmp_path)
     runner.invoke(app, ["init"])
-    draw_file = tmp_path / ".stdd/draws/checkout.json"
+    draw_file = tmp_path / ".looper/draws/checkout.json"
     draw_file.write_text('{"title":"Inicial"}\n', encoding="utf-8")
     baseline = runner.invoke(app, ["log", "Baseline do desenho", "-i"])
     assert baseline.exit_code == 0
@@ -974,7 +974,7 @@ def test_log_marks_draw_only_changes_as_zero_line_checkpoint(tmp_path: Path, mon
     result = runner.invoke(app, ["log", "Atualiza desenho", "-i"])
     assert result.exit_code == 0
 
-    summary_file = next((tmp_path / ".stdd/runs").glob("*/*_summary.json"))
+    summary_file = next((tmp_path / ".looper/runs").glob("*/*_summary.json"))
     latest = json.loads(summary_file.read_text(encoding="utf-8"))["runs"][-1]
 
     assert latest["checkpoint"] is True

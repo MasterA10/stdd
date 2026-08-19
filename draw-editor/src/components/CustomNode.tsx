@@ -85,8 +85,8 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
       setEditingField(null);
       setIsEditingGroup(false);
     };
-    window.addEventListener('stdd:clear-node-editing', clearEditing);
-    return () => window.removeEventListener('stdd:clear-node-editing', clearEditing);
+    window.addEventListener('looper:clear-node-editing', clearEditing);
+    return () => window.removeEventListener('looper:clear-node-editing', clearEditing);
   }, []);
 
   const handleDoubleClick = (field: 'label' | 'description', e: React.MouseEvent) => {

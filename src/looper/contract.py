@@ -7,9 +7,9 @@ from pathlib import Path
 
 def contract_config(root: Path) -> dict:
     """Lê a configuração do contrato do projeto.
-    Carrega o arquivo .stdd/config.json e retorna a seção contract.
+    Carrega o arquivo .looper/config.json e retorna a seção contract.
     """
-    config_path = root / ".stdd" / "config.json"
+    config_path = root / ".looper" / "config.json"
     if not config_path.exists():
         return {"enabled": True, "code_language": "python", "description_language": "pt-BR"}
     config = json.loads(config_path.read_text(encoding="utf-8"))
@@ -20,7 +20,7 @@ def python_files(root: Path) -> list[Path]:
     """Localiza arquivos Python sujeitos ao contrato.
     Percorre a árvore de diretórios ignorando pastas ocultas e de ambiente.
     """
-    ignored = {".git", ".venv", "venv", "node_modules", ".stdd"}
+    ignored = {".git", ".venv", "venv", "node_modules", ".looper"}
     return sorted(
         path
         for path in root.rglob("*.py")

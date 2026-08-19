@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "bin": {
-    "stdd-flow": "./bin/serve.js"
+    "looper-flow": "./bin/serve.js"
   },
   "scripts": {
     "dev": "vite",

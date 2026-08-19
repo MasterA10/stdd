@@ -9,14 +9,14 @@ description: Identifica lacunas arquiteturais em um Draw existente por meio de d
 
 O `$draw-improve` trabalha em duas fases explícitas:
 
-1. **Perguntar:** revisar o Draw inteiro, criar exatamente dez perguntas arquiteturais em uma sessão separada de `.stdd/improvements/` e parar para a resposta humana. Nesta fase não alterar `.stdd/draws/<draw-id>.json`, não criar nós e não criar conexões.
-2. **Aplicar:** em uma nova invocação, localizar sessões completas com `stdd draw improve --pending`, ler as respostas, revisar novamente o Draw associado e aplicar somente o próximo incremento coerente. Depois de salvar o Draw, marcar a sessão como `applied`.
+1. **Perguntar:** revisar o Draw inteiro, criar exatamente dez perguntas arquiteturais em uma sessão separada de `.looper/improvements/` e parar para a resposta humana. Nesta fase não alterar `.looper/draws/<draw-id>.json`, não criar nós e não criar conexões.
+2. **Aplicar:** em uma nova invocação, localizar sessões completas com `looper draw improve --pending`, ler as respostas, revisar novamente o Draw associado e aplicar somente o próximo incremento coerente. Depois de salvar o Draw, marcar a sessão como `applied`.
 
 O ciclo só termina depois de apresentar o resultado e pedir revisão. `Já está bom` continua sendo uma conclusão válida quando não houver lacuna relevante, mas a fase de perguntas deve existir sempre que uma decisão arquitetural depender da pessoa. Uma nova invocação inicia um ciclo posterior; não repetir automaticamente o ciclo atual.
 
 ## Sessão de perguntas
 
-Uma sessão é um JSON separado em `.stdd/improvements/<improvement-id>.json`, associado por `draw_id`. Ela não é um subdraw, não pertence à hierarquia arquitetural e nunca deve ser gravada dentro do JSON do fluxo. O campo `questions` guarda as respostas, e o status `applied` identifica o histórico imutável.
+Uma sessão é um JSON separado em `.looper/improvements/<improvement-id>.json`, associado por `draw_id`. Ela não é um subdraw, não pertence à hierarquia arquitetural e nunca deve ser gravada dentro do JSON do fluxo. O campo `questions` guarda as respostas, e o status `applied` identifica o histórico imutável.
 
 A sessão deve possuir exatamente dez perguntas. Cada pergunta usa um destes tipos:
 
@@ -29,10 +29,10 @@ Todas começam com `answer: null`, isto é, sem resposta. Não registrar recomen
 Criar a sessão pelo contrato oficial:
 
 ```bash
-stdd draw improve --create --data-json '<JSON_DA_SESSAO>'
+looper draw improve --create --data-json '<JSON_DA_SESSAO>'
 ```
 
-Depois, orientar a pessoa a abrir o viewer, responder as dez perguntas e salvar. A UI salva somente `.stdd/improvements/`; o Draw continua intacto.
+Depois, orientar a pessoa a abrir o viewer, responder as dez perguntas e salvar. A UI salva somente `.looper/improvements/`; o Draw continua intacto.
 
 ## Revisão da hierarquia e do Draw inteiro
 
@@ -49,7 +49,7 @@ Organizar os nós em grupos arquiteturais coerentes e corrigir descrições vaga
 Executar:
 
 ```bash
-stdd draw improve --pending
+looper draw improve --pending
 ```
 
 Usar somente sessões `ready`, isto é, com as dez respostas válidas. Nunca aplicar uma sessão `draft` ou inferir resposta ausente. O comando entrega o `draw_id`, o arquivo da sessão, as perguntas e as respostas.
@@ -64,13 +64,13 @@ Para cada sessão pronta:
 6. Persistir o Draw completo com:
 
    ```bash
-   stdd draw create --data-json '<JSON_COMPLETO_ATUALIZADO>'
+   looper draw create --data-json '<JSON_COMPLETO_ATUALIZADO>'
    ```
 
 7. Somente depois de o Draw ser salvo com sucesso, executar:
 
    ```bash
-   stdd draw improve --mark-applied --id <improvement-id>
+   looper draw improve --mark-applied --id <improvement-id>
    ```
 
 Uma sessão `applied` é histórica e imutável. Não reaplicá-la nem apagar suas perguntas e respostas.
@@ -83,22 +83,22 @@ Na fase de perguntas, não alterar o Draw para cumprir esses limites: o único a
 
 ## Perguntas da codebase
 
-Perguntas marcadas com `@stdd` pertencem exclusivamente ao `$draw-interaction`. O `$draw-improve` não responde, não preenche `answer`, não implementa produção e não remove marcadores `@stdd`; deve preservá-los.
+Perguntas marcadas com `@looper` pertencem exclusivamente ao `$draw-interaction`. O `$draw-improve` não responde, não preenche `answer`, não implementa produção e não remove marcadores `@looper`; deve preservá-los.
 
 ## Fluxo operacional
 
 1. Conferir Git e preservar alterações existentes, sem usar o diff geral como fonte da decisão.
-2. Executar `stdd draw diff`; sem `--run-id`, comparar o estado atual com o último snapshot salvo por `stdd log` e considerar somente alterações em `.stdd/draws/*.json`.
+2. Executar `looper draw diff`; sem `--run-id`, comparar o estado atual com o último snapshot salvo por `looper log` e considerar somente alterações em `.looper/draws/*.json`.
 3. Resolver o Draw pelo ID explícito, contexto atual, único Draw alterado ou único item disponível no índice; se houver mais de um candidato, perguntar qual usar.
 4. Ler o índice, o Draw escolhido e apenas os subdesenhos necessários.
-5. Na primeira fase, gerar e salvar a sessão com `stdd draw improve --create`.
-6. Na fase posterior, executar `stdd draw improve --pending`, aplicar respostas e salvar o Draw.
+5. Na primeira fase, gerar e salvar a sessão com `looper draw improve --create`.
+6. Na fase posterior, executar `looper draw improve --pending`, aplicar respostas e salvar o Draw.
 7. Validar IDs numéricos, referências, condições, conexões, `draw_ref` e a árvore hierárquica.
-8. Abrir `stdd draw serve` quando a revisão visual for útil.
+8. Abrir `looper draw serve` quando a revisão visual for útil.
 9. Registrar uma aplicação concluída como implementação:
 
    ```bash
-   stdd log "Melhora incrementalmente o desenho <draw-id>" --impl
+   looper log "Melhora incrementalmente o desenho <draw-id>" --impl
    ```
 
 ## Handoff

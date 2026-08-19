@@ -40,7 +40,7 @@ export const MetadataModal: React.FC<MetadataModalProps> = ({
         <div className="dialog-content">
           <div className="dialog-header">
             <div>
-              <p className="eyebrow">STDD · Metadados do Desenho</p>
+              <p className="eyebrow">Looper · Metadados do Desenho</p>
               <h2>{titleText}</h2>
             </div>
             <button className="close-btn" onClick={onClose} type="button">

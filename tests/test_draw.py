@@ -5,9 +5,9 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from stdd.cli import app
-from stdd.draw import analyze_draw_contract, analyze_draw_structure, consume_observation, create_draw, create_server, find_addressed_questions, read_draw_index, start_server_for_test
-from stdd.improvements import create_improvement, list_ready_improvements, mark_improvement_applied, read_improvement
+from looper.cli import app
+from looper.draw import analyze_draw_contract, analyze_draw_structure, consume_observation, create_draw, create_server, find_addressed_questions, read_draw_index, start_server_for_test
+from looper.improvements import create_improvement, list_ready_improvements, mark_improvement_applied, read_improvement
 
 
 runner = CliRunner()
@@ -41,12 +41,12 @@ def test_init_installs_draw_data_without_copying_viewer_code(tmp_path: Path, mon
     result = runner.invoke(app, ["init"], catch_exceptions=False)
 
     assert result.exit_code == 0
-    assert (tmp_path / ".stdd/draws/index.json").exists()
-    assert (tmp_path / ".stdd/improvements/index.json").exists()
-    assert not (tmp_path / ".stdd/draw.html").exists()
-    index = json.loads((tmp_path / ".stdd/draws/index.json").read_text())
+    assert (tmp_path / ".looper/draws/index.json").exists()
+    assert (tmp_path / ".looper/improvements/index.json").exists()
+    assert not (tmp_path / ".looper/draw.html").exists()
+    index = json.loads((tmp_path / ".looper/draws/index.json").read_text())
     assert [entry["id"] for entry in index["draws"]] == ["demo-inicial"]
-    assert (tmp_path / ".stdd/draws/demo-inicial.json").exists()
+    assert (tmp_path / ".looper/draws/demo-inicial.json").exists()
 
 
 def test_init_installs_example_draw_idempotently(tmp_path: Path, monkeypatch):
@@ -58,9 +58,9 @@ def test_init_installs_example_draw_idempotently(tmp_path: Path, monkeypatch):
     runner.invoke(app, ["init"], catch_exceptions=False)
     runner.invoke(app, ["init"], catch_exceptions=False)
 
-    index = json.loads((tmp_path / ".stdd/draws/index.json").read_text())
+    index = json.loads((tmp_path / ".looper/draws/index.json").read_text())
     assert [entry["id"] for entry in index["draws"]].count("demo-inicial") == 1
-    assert len(json.loads((tmp_path / ".stdd/draws/demo-inicial.json").read_text())["nodes"]) > 0
+    assert len(json.loads((tmp_path / ".looper/draws/demo-inicial.json").read_text())["nodes"]) > 0
 
 
 def test_init_removes_legacy_draw_viewer(tmp_path: Path, monkeypatch):
@@ -68,7 +68,7 @@ def test_init_removes_legacy_draw_viewer(tmp_path: Path, monkeypatch):
     Cria um HTML antigo e confirma que init deixa somente o armazenamento JSON.
     """
     monkeypatch.chdir(tmp_path)
-    legacy = tmp_path / ".stdd/draw.html"
+    legacy = tmp_path / ".looper/draw.html"
     legacy.parent.mkdir()
     legacy.write_text("viewer legado", encoding="utf-8")
 
@@ -83,9 +83,9 @@ def test_create_draw_writes_only_json_and_light_index(tmp_path: Path):
     """
     path = create_draw(tmp_path, draw_payload())
 
-    assert path == tmp_path / ".stdd/draws/checkout.json"
+    assert path == tmp_path / ".looper/draws/checkout.json"
     assert path.exists()
-    assert not (tmp_path / ".stdd/draws/checkout.html").exists()
+    assert not (tmp_path / ".looper/draws/checkout.html").exists()
     index = read_draw_index(tmp_path)
     assert index["draws"][0]["id"] == "checkout"
     assert index["draws"][0]["node_count"] == 2
@@ -152,7 +152,7 @@ def test_improvement_session_is_separate_and_becomes_ready_only_after_all_answer
     session = improvement_payload()
 
     output = create_improvement(tmp_path, session)
-    assert output == tmp_path / ".stdd/improvements/melhoria-checkout.json"
+    assert output == tmp_path / ".looper/improvements/melhoria-checkout.json"
     assert read_improvement(tmp_path, "melhoria-checkout")["status"] == "draft"
     assert list_ready_improvements(tmp_path) == []
     assert draw_path.read_bytes() == original_draw
@@ -250,7 +250,7 @@ def test_draw_improve_cli_creates_lists_and_marks_session(tmp_path: Path, monkey
     assert read_improvement(tmp_path, "melhoria-cli")["status"] == "applied"
 
 
-def test_draw_questions_finds_only_open_stdd_questions(tmp_path: Path, monkeypatch):
+def test_draw_questions_finds_only_open_looper_questions(tmp_path: Path, monkeypatch):
     """Localiza perguntas endereçadas sem reprocessar decisões existentes.
     Confirma o filtro oficial usado pelo agente Draw Interaction e sua saída JSON.
     """
@@ -259,10 +259,10 @@ def test_draw_questions_finds_only_open_stdd_questions(tmp_path: Path, monkeypat
         {"qualified_name": "CheckoutService.create", "file": "src/checkout.py", "source_dependencies": ["CheckoutRepository"]}
     ]
     payload["nodes"][0]["questions"] = [
-        {"id": 1, "type": "open", "prompt": "@stdd Onde está o handler?", "answer": None},
-        {"id": 2, "type": "open", "prompt": "@STDD Já respondida", "answer": "sim"},
+        {"id": 1, "type": "open", "prompt": "@looper Onde está o handler?", "answer": None},
+        {"id": 2, "type": "open", "prompt": "@Looper Já respondida", "answer": "sim"},
         {"id": 3, "type": "open", "prompt": "Pergunta humana", "answer": None},
-        {"id": 4, "type": "boolean", "prompt": "@stdd Decisão", "answer": False},
+        {"id": 4, "type": "boolean", "prompt": "@looper Decisão", "answer": False},
     ]
     create_draw(tmp_path, payload)
     monkeypatch.chdir(tmp_path)
@@ -272,20 +272,20 @@ def test_draw_questions_finds_only_open_stdd_questions(tmp_path: Path, monkeypat
     assert result.exit_code == 0
     found = json.loads(result.stdout)
     assert [(item["draw_id"], item["question_id"]) for item in found] == [("perguntas-agente", 1)]
-    assert found[0]["question"] == "@stdd Onde está o handler?"
-    assert found[0]["draw_file"] == ".stdd/draws/perguntas-agente.json"
+    assert found[0]["question"] == "@looper Onde está o handler?"
+    assert found[0]["draw_file"] == ".looper/draws/perguntas-agente.json"
     assert found[0]["symbols"] == ["CheckoutService.create"]
     assert found[0]["source_dependencies"] == ["CheckoutRepository"]
-    assert find_addressed_questions(tmp_path)[0]["prompt"] == "@stdd Onde está o handler?"
+    assert find_addressed_questions(tmp_path)[0]["prompt"] == "@looper Onde está o handler?"
 
 
 def test_draw_questions_filters_obs_and_developer_tags(tmp_path: Path, monkeypatch):
-    """Permite filtrar perguntas e anotações por tag (@obs, @developer, @stdd ou all).
+    """Permite filtrar perguntas e anotações por tag (@obs, @developer, @looper ou all).
     Confirma as saídas JSON e humana para cada tipo de menção.
     """
     payload = draw_payload("observacoes-e-tags")
     payload["nodes"][0]["questions"] = [
-        {"id": 1, "type": "open", "prompt": "@stdd Ação do agente", "answer": None},
+        {"id": 1, "type": "open", "prompt": "@looper Ação do agente", "answer": None},
         {"id": 2, "type": "open", "prompt": "@obs Atenção aos limites de taxa da API", "answer": None},
         {"id": 3, "type": "open", "prompt": "@developer Esclarecer regra tributária", "answer": None},
     ]
@@ -312,7 +312,7 @@ def test_draw_questions_filters_obs_and_developer_tags(tmp_path: Path, monkeypat
     assert len(dev_data) == 1
     assert dev_data[0]["question"] == "@developer Esclarecer regra tributária"
 
-    # 4. stdd draw answer padrão sem flags mostra @stdd, @obs e @developer juntos
+    # 4. looper draw answer padrão sem flags mostra @looper, @obs e @developer juntos
     default_ans = runner.invoke(app, ["draw", "answer"])
     assert default_ans.exit_code == 0
     assert "Pergunta: Ação do agente" in default_ans.stdout
@@ -325,9 +325,9 @@ def test_draw_tags_are_case_insensitive_and_obs_requires_explicit_consumption(tm
     Confirma roteamento de perguntas gerais para melhorias e consumo seletivo de observações.
     """
     payload = draw_payload("contrato-de-tags")
-    payload["questions"] = [{"id": 7, "type": "open", "prompt": "@StDd Pergunta geral", "answer": None}]
+    payload["questions"] = [{"id": 7, "type": "open", "prompt": "@looper Pergunta geral", "answer": None}]
     payload["nodes"][0]["questions"] = [
-        {"id": 1, "type": "boolean", "prompt": "@STDD Resposta falsa", "answer": False},
+        {"id": 1, "type": "boolean", "prompt": "@Looper Resposta falsa", "answer": False},
         {"id": 2, "type": "choice", "prompt": "@DEVELOPER Resposta zero", "options": [{"id": 0, "label": "Não"}, {"id": 1, "label": "Sim"}], "answer": 0},
         {"id": 3, "type": "boolean", "prompt": "@ObS Contexto respondido", "answer": False},
     ]
@@ -360,7 +360,7 @@ def test_draw_answer_outputs_human_context_grouped_with_node_symbol(tmp_path: Pa
         {"qualified_name": "CheckoutService.create", "symbol": "create", "file": "src/checkout.py"}
     ]
     payload["nodes"][0]["questions"] = [
-        {"id": 1, "type": "open", "prompt": "@stdd Onde está o handler?", "answer": None}
+        {"id": 1, "type": "open", "prompt": "@looper Onde está o handler?", "answer": None}
     ]
     create_draw(tmp_path, payload)
     monkeypatch.chdir(tmp_path)
@@ -374,7 +374,7 @@ def test_draw_answer_outputs_human_context_grouped_with_node_symbol(tmp_path: Pa
     assert "Símbolo associado ao nó: CheckoutService.create" in result.stdout
     assert "Arquivo: src/checkout.py" in result.stdout
     assert "{" not in result.stdout
-    assert "@stdd" not in result.stdout
+    assert "@looper" not in result.stdout
 
 
 def test_draw_answer_reports_when_node_symbol_is_not_proven(tmp_path: Path, monkeypatch):
@@ -383,7 +383,7 @@ def test_draw_answer_reports_when_node_symbol_is_not_proven(tmp_path: Path, monk
     """
     payload = draw_payload("resposta-sem-simbolo")
     payload["nodes"][0]["questions"] = [
-        {"id": 1, "type": "open", "prompt": "@stdd Qual é o handler?", "answer": None}
+        {"id": 1, "type": "open", "prompt": "@looper Qual é o handler?", "answer": None}
     ]
     create_draw(tmp_path, payload)
     monkeypatch.chdir(tmp_path)
@@ -443,8 +443,8 @@ def test_create_draw_replaces_current_json_without_history(tmp_path: Path):
     updated["title"] = "Checkout atualizado"
     create_draw(tmp_path, updated)
 
-    assert json.loads((tmp_path / ".stdd/draws/checkout.json").read_text())["title"] == "Checkout atualizado"
-    assert not (tmp_path / ".stdd/draws/history").exists()
+    assert json.loads((tmp_path / ".looper/draws/checkout.json").read_text())["title"] == "Checkout atualizado"
+    assert not (tmp_path / ".looper/draws/history").exists()
 
 
 def test_create_draw_does_not_update_index_when_logical_payload_is_unchanged(tmp_path: Path):
@@ -573,7 +573,7 @@ def test_create_draw_rejects_dangling_edges_without_writing(tmp_path: Path):
         assert "não existe" in str(error)
     else:
         raise AssertionError("payload inválido deveria ser rejeitado")
-    assert not (tmp_path / ".stdd/draws/checkout.json").exists()
+    assert not (tmp_path / ".looper/draws/checkout.json").exists()
 
 
 def test_create_draw_rejects_isolated_node_without_writing(tmp_path: Path):
@@ -590,7 +590,7 @@ def test_create_draw_rejects_isolated_node_without_writing(tmp_path: Path):
         assert "Órfão" in str(error)
     else:
         raise AssertionError("nó isolado deveria ser rejeitado")
-    assert not (tmp_path / ".stdd/draws/checkout.json").exists()
+    assert not (tmp_path / ".looper/draws/checkout.json").exists()
 
 
 def test_create_draw_accepts_nodes_connected_in_either_direction(tmp_path: Path):
@@ -635,7 +635,7 @@ def test_draw_create_warns_for_duplicate_structure_against_existing_draw(tmp_pat
     assert result.exit_code == 0
     assert "nenhum warning bloqueia a criação" in result.stdout
     assert "Desenho gravado" in result.stdout
-    assert (tmp_path / ".stdd/draws/segundo.json").exists()
+    assert (tmp_path / ".looper/draws/segundo.json").exists()
 
 
 def test_structural_analysis_warns_for_near_duplicate_at_threshold(tmp_path: Path):
@@ -663,7 +663,7 @@ def test_level_two_contract_warns_for_nodes_without_code_refs(tmp_path: Path):
     payload["hierarchy"] = {"level": 2, "role": "journey", "root_draw_ref": "journey-without-refs"}
     payload["nodes"][0]["code_refs"] = [{"symbol": "ui.Checkout"}]
 
-    findings = analyze_draw_contract(payload, ".stdd/draws/journey-without-refs.json")
+    findings = analyze_draw_contract(payload, ".looper/draws/journey-without-refs.json")
 
     assert len(findings) == 1
     assert findings[0]["kind"] == "draw.level2_missing_code_ref"
@@ -679,7 +679,7 @@ def test_draw_contract_warns_for_empty_or_unnamed_node_symbols():
     payload["nodes"][0]["code_refs"] = [{"symbol": ""}]
     payload["nodes"][1]["code_refs"] = [{"symbol": "unnamed"}]
 
-    findings = analyze_draw_contract(payload, ".stdd/draws/draw-empty-symbols.json")
+    findings = analyze_draw_contract(payload, ".looper/draws/draw-empty-symbols.json")
 
     kinds = [finding["kind"] for finding in findings]
     assert kinds.count("draw.empty_node_symbol") == 2
@@ -692,16 +692,16 @@ def test_draw_contract_warns_for_duplicate_node_symbols():
     Verifica que até 4 ocorrências não geram aviso e 5 ocorrências disparam o warning.
     """
     payload_4 = draw_payload("draw-4-symbols")
-    payload_4["nodes"] = [{"id": i, "label": f"Nó {i}", "code_refs": [{"symbol": "stdd.core.process"}]} for i in range(1, 5)]
-    findings_4 = analyze_draw_contract(payload_4, ".stdd/draws/draw-4-symbols.json")
+    payload_4["nodes"] = [{"id": i, "label": f"Nó {i}", "code_refs": [{"symbol": "looper.core.process"}]} for i in range(1, 5)]
+    findings_4 = analyze_draw_contract(payload_4, ".looper/draws/draw-4-symbols.json")
     assert not any(f["kind"] == "draw.duplicate_node_symbol" for f in findings_4)
 
     payload_5 = draw_payload("draw-5-symbols")
-    payload_5["nodes"] = [{"id": i, "label": f"Nó {i}", "code_refs": [{"symbol": "stdd.core.process"}]} for i in range(1, 6)]
-    findings_5 = analyze_draw_contract(payload_5, ".stdd/draws/draw-5-symbols.json")
+    payload_5["nodes"] = [{"id": i, "label": f"Nó {i}", "code_refs": [{"symbol": "looper.core.process"}]} for i in range(1, 6)]
+    findings_5 = analyze_draw_contract(payload_5, ".looper/draws/draw-5-symbols.json")
     duplicate_findings = [f for f in findings_5 if f["kind"] == "draw.duplicate_node_symbol"]
     assert len(duplicate_findings) == 1
-    assert duplicate_findings[0]["symbol"] == "stdd.core.process"
+    assert duplicate_findings[0]["symbol"] == "looper.core.process"
     assert duplicate_findings[0]["node_ids"] == [1, 2, 3, 4, 5]
     assert duplicate_findings[0]["value"] == 5
     assert duplicate_findings[0]["limit"] == 4
@@ -714,12 +714,12 @@ def test_draw_contract_warns_for_level3_and_level4_missing_code_refs():
     """
     payload3 = draw_payload("level3-missing")
     payload3["hierarchy"] = {"level": 3, "role": "implementation", "parent_draw_ref": "p", "parent_node_id": 1, "root_draw_ref": "r"}
-    findings3 = analyze_draw_contract(payload3, ".stdd/draws/level3-missing.json")
+    findings3 = analyze_draw_contract(payload3, ".looper/draws/level3-missing.json")
     assert any(f["kind"] == "draw.level3_missing_code_ref" for f in findings3)
 
     payload4 = draw_payload("level4-missing")
     payload4["hierarchy"] = {"level": 4, "role": "codebase", "parent_draw_ref": "p", "parent_node_id": 1, "root_draw_ref": "r"}
-    findings4 = analyze_draw_contract(payload4, ".stdd/draws/level4-missing.json")
+    findings4 = analyze_draw_contract(payload4, ".looper/draws/level4-missing.json")
     assert any(f["kind"] == "draw.level4_missing_code_ref" for f in findings4)
 
 
@@ -754,7 +754,7 @@ def test_draw_create_reports_level_two_code_ref_warning_without_blocking(tmp_pat
     assert result.exit_code == 0
     assert "draw.level2_missing_code_ref" in result.stdout
     assert "nenhum warning bloqueia a criação" in result.stdout
-    assert (tmp_path / ".stdd/draws/journey-create-warning.json").exists()
+    assert (tmp_path / ".looper/draws/journey-create-warning.json").exists()
 
 
 def test_create_draw_accepts_subdraw_reference_and_counts_it(tmp_path: Path):
@@ -773,7 +773,7 @@ def test_draw_server_rejects_legacy_edge_keys_before_starting(tmp_path: Path):
     """Bloqueia desenhos com chaves de aresta incompatíveis antes do viewer.
     Grava source e target no schema antigo e confirma que a porta não é aberta.
     """
-    draws = tmp_path / ".stdd" / "draws"
+    draws = tmp_path / ".looper" / "draws"
     draws.mkdir(parents=True)
     payload = draw_payload()
     payload["edges"][0]["source"] = payload["edges"][0].pop("from")
@@ -799,7 +799,7 @@ def test_draw_server_rejects_index_reference_to_missing_draw(tmp_path: Path):
     """Bloqueia links do índice que não possuem JSON correspondente.
     Cria uma entrada órfã e confirma que o erro aparece ao iniciar o servidor.
     """
-    draws = tmp_path / ".stdd" / "draws"
+    draws = tmp_path / ".looper" / "draws"
     draws.mkdir(parents=True)
     (draws / "index.json").write_text(
         json.dumps({"version": 1, "draws": [{"id": "checkout", "file": "checkout.json"}]}),
@@ -819,7 +819,7 @@ def test_draw_cli_reports_invalid_workspace_before_starting_viewer(tmp_path: Pat
     Confirma que o usuário recebe erro acionável sem abrir uma página que falharia em 404.
     """
     monkeypatch.chdir(tmp_path)
-    draws = tmp_path / ".stdd" / "draws"
+    draws = tmp_path / ".looper" / "draws"
     draws.mkdir(parents=True)
     payload = draw_payload()
     payload["edges"][0]["source"] = payload["edges"][0].pop("from")
@@ -852,9 +852,9 @@ def test_draw_cli_can_replace_server_on_occupied_port(tmp_path: Path, monkeypatc
             raise OSError(errno.EADDRINUSE, "porta ocupada")
 
     killed = []
-    monkeypatch.setattr("stdd.cli.serve_draw", fake_serve)
-    monkeypatch.setattr("stdd.cli.listening_process_ids", lambda port: (4321,))
-    monkeypatch.setattr("stdd.cli.terminate_processes", lambda ids: killed.extend(ids))
+    monkeypatch.setattr("looper.cli.serve_draw", fake_serve)
+    monkeypatch.setattr("looper.cli.listening_process_ids", lambda port: (4321,))
+    monkeypatch.setattr("looper.cli.terminate_processes", lambda ids: killed.extend(ids))
 
     result = runner.invoke(app, ["draw", "serve", "--port", "8765"], input="y\n")
 
@@ -878,8 +878,8 @@ def test_draw_cli_can_choose_another_port_when_port_is_occupied(tmp_path: Path, 
         if len(attempts) == 1:
             raise OSError(errno.EADDRINUSE, "porta ocupada")
 
-    monkeypatch.setattr("stdd.cli.serve_draw", fake_serve)
-    monkeypatch.setattr("stdd.cli.listening_process_ids", lambda port: (4321,))
+    monkeypatch.setattr("looper.cli.serve_draw", fake_serve)
+    monkeypatch.setattr("looper.cli.listening_process_ids", lambda port: (4321,))
 
     result = runner.invoke(app, ["draw", "serve", "--port", "8765"], input="n\n8766\n")
 
@@ -964,8 +964,8 @@ def test_draw_cli_accepts_inline_json_and_updates_existing_draw(tmp_path: Path, 
     assert "checkout" in listed.stdout
 
 
-def test_stdd_create_top_level_command_creates_draw_and_reports_symbol_warnings(tmp_path: Path, monkeypatch):
-    """Executa o comando stdd create no nível raiz da CLI para criar um desenho.
+def test_looper_create_top_level_command_creates_draw_and_reports_symbol_warnings(tmp_path: Path, monkeypatch):
+    """Executa o comando looper create no nível raiz da CLI para criar um desenho.
     Navega até o diretório temporário e verifica o salvamento do JSON e os avisos de símbolos.
     """
     monkeypatch.chdir(tmp_path)
@@ -978,7 +978,7 @@ def test_stdd_create_top_level_command_creates_draw_and_reports_symbol_warnings(
 
     assert result.exit_code == 0
     assert "draw.empty_node_symbol" in result.stdout
-    assert (tmp_path / ".stdd/draws/top-level-create.json").exists()
+    assert (tmp_path / ".looper/draws/top-level-create.json").exists()
 
 
 
@@ -986,7 +986,7 @@ def test_draw_html_fetches_index_and_only_selected_json():
     """Mantém o viewer orientado a carregamento sob demanda.
     Inspeciona o template e confirma que ele busca o índice e depois apenas o desenho selecionado.
     """
-    template = Path("src/stdd/templates/draw/draw.html").read_text(encoding="utf-8")
+    template = Path("src/looper/templates/draw/draw.html").read_text(encoding="utf-8")
 
     assert "getJson('draws/index.json')" in template
     assert "getJson(`draws/${encodeURIComponent(id)}.json`)" in template
@@ -1006,7 +1006,7 @@ def test_draw_html_uses_react_flow_at_the_renderer_boundary():
     """Confirma que o frontend usa React Flow sem alterar o contrato lógico.
     Verifica a biblioteca, os adaptadores de entrada e saída e a ausência do renderer SVG próprio.
     """
-    template = Path("src/stdd/templates/draw/draw.html").read_text(encoding="utf-8")
+    template = Path("src/looper/templates/draw/draw.html").read_text(encoding="utf-8")
 
     assert '"@xyflow/react"' in template
     assert "react%2Fjsx-runtime" in template
@@ -1026,7 +1026,7 @@ def test_draw_html_uses_react_flow_at_the_renderer_boundary():
     assert "function apiOrigin()" in template
     assert "window.location.port === '5500'" in template
     assert "window.location.protocol === 'file:'" in template
-    assert "new URL(`/.stdd/${url}`, apiOrigin())" in template
+    assert "new URL(`/.looper/${url}`, apiOrigin())" in template
     assert "const loadIndex = async (announce = true)" in template
     assert "loadIndex(false)" in template
 
@@ -1035,7 +1035,7 @@ def test_draw_html_supports_direct_editing_reorganization_and_condition_visuals(
     """Confirma as interações diretas do editor e a leitura visual das condições.
     Verifica reorganização automática, edição inline e estilos distintos para então, ou e se.
     """
-    template = Path("src/stdd/templates/draw/draw.html").read_text(encoding="utf-8")
+    template = Path("src/looper/templates/draw/draw.html").read_text(encoding="utf-8")
 
     assert "✦ Reorganizar" in template
     assert "const reorganize = ()" in template
@@ -1066,7 +1066,7 @@ def test_draw_html_puts_condition_before_edge_message_and_reserves_label_space()
     """Confirma a ordem dos rótulos e o espaçamento baseado no texto da relação.
     Exige o mesmo formato para então, ou e se e uma largura calculada antes do layout.
     """
-    template = Path("src/stdd/templates/draw/draw.html").read_text(encoding="utf-8")
+    template = Path("src/looper/templates/draw/draw.html").read_text(encoding="utf-8")
 
     assert "function edgeLabelText(edge)" in template
     assert "function edgeLabelWidth(edge)" in template
@@ -1080,7 +1080,7 @@ def test_demo_draw_contains_answered_questions_and_all_conditions():
     """Mantém um desenho reproduzível para revisar perguntas e respostas no viewer.
     Verifica respostas persistidas e as três condições do contrato lógico.
     """
-    payload = json.loads(Path(".stdd/draws/demo-perguntas-respostas.json").read_text(encoding="utf-8"))
+    payload = json.loads(Path(".looper/draws/demo-perguntas-respostas.json").read_text(encoding="utf-8"))
 
     answers = [question.get("answer") for node in payload["nodes"] for question in node.get("questions", [])]
     assert 2 in answers
@@ -1095,7 +1095,7 @@ def test_draw_html_provides_visual_editor_pan_and_readable_long_flow_layout():
     """Expõe edição visual completa sem obrigar o usuário a manipular JSON.
     Confirma controles de pan, nós, conexões e roteamento em camadas para fluxos longos.
     """
-    template = Path("src/stdd/templates/draw/draw.html").read_text(encoding="utf-8")
+    template = Path("src/looper/templates/draw/draw.html").read_text(encoding="utf-8")
 
     assert "content=\"5\"" in template
     assert "id=\"viewport\"" in template
@@ -1179,14 +1179,14 @@ def test_draw_html_provides_visual_editor_pan_and_readable_long_flow_layout():
     assert "salvos diretamente no diretório escolhido" in template
     assert "window.location.protocol === 'file:'" in template
     assert "Salvamento direto indisponível em file://" in template
-    assert "new URL(`/__stdd/api/draws/" in template
+    assert "new URL(`/__looper/api/draws/" in template
 
 
 def test_draw_html_connects_blocks_by_dragging_visible_ports():
     """Disponibiliza conexão direta por arraste sem depender do modo em dois cliques.
     Confirma porta de saída, alvo destacado, seta de preview e criação centralizada da relação.
     """
-    template = Path("src/stdd/templates/draw/draw.html").read_text(encoding="utf-8")
+    template = Path("src/looper/templates/draw/draw.html").read_text(encoding="utf-8")
 
     assert "port-out" in template
     assert "port-in" in template
@@ -1206,8 +1206,8 @@ def test_draw_readme_documents_local_server_and_visual_shortcuts():
     """
     readme = Path("README.md").read_text(encoding="utf-8")
 
-    assert "stdd draw serve --port 8765" in readme
-    assert "127.0.0.1:8765/.stdd/draw.html" in readme
+    assert "looper draw serve --port 8765" in readme
+    assert "127.0.0.1:8765/.looper/draw.html" in readme
     assert "Ctrl/Cmd+D" in readme
     assert "arrastar" in readme.lower()
     assert "dentro dele" in readme
@@ -1225,16 +1225,16 @@ def test_draw_server_serves_viewer_index_and_selected_json(tmp_path: Path):
     """
     create_draw(tmp_path, draw_payload())
     facts = {"version": 1, "draw_id": "checkout", "nodes": {}}
-    (tmp_path / ".stdd" / "facts").mkdir(parents=True, exist_ok=True)
-    (tmp_path / ".stdd" / "facts" / "checkout.facts.json").write_text(json.dumps(facts), encoding="utf-8")
+    (tmp_path / ".looper" / "facts").mkdir(parents=True, exist_ok=True)
+    (tmp_path / ".looper" / "facts" / "checkout.facts.json").write_text(json.dumps(facts), encoding="utf-8")
     server, thread = start_server_for_test(tmp_path)
     base_url = f"http://127.0.0.1:{server.server_address[1]}"
     try:
-        viewer_html = urlopen(f"{base_url}/.stdd/draw.html").read().decode()
+        viewer_html = urlopen(f"{base_url}/.looper/draw.html").read().decode()
         assert 'id="root"' in viewer_html
-        assert "Checkout" in urlopen(f"{base_url}/.stdd/draws/index.json").read().decode()
-        assert "Carrinho" in urlopen(f"{base_url}/.stdd/draws/checkout.json").read().decode()
-        assert json.loads(urlopen(f"{base_url}/.stdd/facts/checkout.facts.json").read().decode()) == facts
+        assert "Checkout" in urlopen(f"{base_url}/.looper/draws/index.json").read().decode()
+        assert "Carrinho" in urlopen(f"{base_url}/.looper/draws/checkout.json").read().decode()
+        assert json.loads(urlopen(f"{base_url}/.looper/facts/checkout.facts.json").read().decode()) == facts
         assert "assets/" in viewer_html
         script_path = next(part.split('"', 1)[0] for part in viewer_html.split('src="') if part.startswith("/assets/") and ".js" in part)
         assert "react" in urlopen(f"{base_url}{script_path}").read().decode().lower()
@@ -1260,7 +1260,7 @@ def test_draw_server_redirects_home_to_the_draw_viewer(tmp_path: Path):
     try:
         response = build_opener(NoRedirect()).open(f"{base_url}/")
         assert response.status == 302
-        assert response.headers["Location"] == "/.stdd/draw.html"
+        assert response.headers["Location"] == "/.looper/draw.html"
     finally:
         server.shutdown()
         server.server_close()
@@ -1271,9 +1271,9 @@ def test_draw_server_serves_run_index_and_summary_only(tmp_path: Path):
     """Serve o índice e os summaries das runs pela API local do viewer.
     Confirma que o endpoint permite montar o histórico sem expor snapshots por padrão.
     """
-    runs_dir = tmp_path / ".stdd" / "runs" / "2026-08-02"
+    runs_dir = tmp_path / ".looper" / "runs" / "2026-08-02"
     runs_dir.mkdir(parents=True)
-    (tmp_path / ".stdd" / "runs" / "index.json").write_text(
+    (tmp_path / ".looper" / "runs" / "index.json").write_text(
         json.dumps({"version": 1, "days": [{"date": "2026-08-02", "summary": "2026-08-02/2026-08-02_summary.json"}]}),
         encoding="utf-8",
     )
@@ -1284,10 +1284,10 @@ def test_draw_server_serves_run_index_and_summary_only(tmp_path: Path):
     server, thread = start_server_for_test(tmp_path)
     base_url = f"http://127.0.0.1:{server.server_address[1]}"
     try:
-        assert "2026-08-02_summary.json" in urlopen(f"{base_url}/.stdd/runs/index.json").read().decode()
-        assert "Atualiza pagamentos" in urlopen(f"{base_url}/.stdd/runs/2026-08-02/2026-08-02_summary.json").read().decode()
+        assert "2026-08-02_summary.json" in urlopen(f"{base_url}/.looper/runs/index.json").read().decode()
+        assert "Atualiza pagamentos" in urlopen(f"{base_url}/.looper/runs/2026-08-02/2026-08-02_summary.json").read().decode()
         try:
-            urlopen(f"{base_url}/.stdd/runs/2026-08-02/2026-08-02_snapshot.json")
+            urlopen(f"{base_url}/.looper/runs/2026-08-02/2026-08-02_snapshot.json")
         except Exception as error:
             assert "404" in str(error)
         else:
@@ -1329,17 +1329,17 @@ def test_draw_server_saves_edited_json_and_rejects_mismatched_id(tmp_path: Path)
         updated = draw_payload()
         updated["title"] = "Checkout editado"
         request = Request(
-            f"{base_url}/__stdd/api/draws/checkout.json",
+            f"{base_url}/__looper/api/draws/checkout.json",
             data=json.dumps(updated).encode(),
             headers={"Content-Type": "application/json"},
             method="PUT",
         )
         assert json.loads(urlopen(request).read())["status"] == "saved"
-        assert json.loads((tmp_path / ".stdd/draws/checkout.json").read_text())["title"] == "Checkout editado"
+        assert json.loads((tmp_path / ".looper/draws/checkout.json").read_text())["title"] == "Checkout editado"
 
         mismatched = dict(updated, id="outro-desenho")
         request = Request(
-            f"{base_url}/__stdd/api/draws/checkout.json",
+            f"{base_url}/__looper/api/draws/checkout.json",
             data=json.dumps(mismatched).encode(),
             headers={"Content-Type": "application/json"},
             method="PUT",
@@ -1366,13 +1366,13 @@ def test_draw_server_serves_and_saves_improvement_sessions_separately(tmp_path: 
     server, thread = start_server_for_test(tmp_path)
     base_url = f"http://127.0.0.1:{server.server_address[1]}"
     try:
-        index = json.loads(urlopen(f"{base_url}/.stdd/improvements/index.json").read().decode())
+        index = json.loads(urlopen(f"{base_url}/.looper/improvements/index.json").read().decode())
         assert index["improvements"][0]["draw_id"] == "checkout"
-        loaded = json.loads(urlopen(f"{base_url}/.stdd/improvements/melhoria-checkout.json").read().decode())
+        loaded = json.loads(urlopen(f"{base_url}/.looper/improvements/melhoria-checkout.json").read().decode())
         for question in loaded["questions"]:
             question["answer"] = False if question["type"] == "boolean" else 0 if question["type"] == "choice" else "Resposta"
         request = Request(
-            f"{base_url}/__stdd/api/improvements/melhoria-checkout.json",
+            f"{base_url}/__looper/api/improvements/melhoria-checkout.json",
             data=json.dumps(loaded).encode(),
             headers={"Content-Type": "application/json"},
             method="PUT",

@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Implementa comportamento de produção guiado por testes no STDD, preservando contratos, segurança e qualidade estrutural. Usar quando testes já descrevem uma feature, correção, integração de IA, mudança de banco ou requisito não funcional a ser entregue.
+description: Implementa comportamento de produção guiado por testes no Looper, preservando contratos, segurança e qualidade estrutural. Usar quando testes já descrevem uma feature, correção, integração de IA, mudança de banco ou requisito não funcional a ser entregue.
 ---
 
 # Implement Agent
@@ -21,7 +21,7 @@ Não implementar uma folha marcada como não implementada sem escopo aprovado. S
 
 ## Preflight obrigatório
 
-1. Ler a solicitação, os testes relevantes, `.stdd/config.json` e eventuais desenhos referenciados.
+1. Ler a solicitação, os testes relevantes, `.looper/config.json` e eventuais desenhos referenciados.
 2. Conferir Git, arquivos alterados e limites de escrita.
 3. Executar o teste mais específico e confirmar o estado vermelho esperado.
 4. Executar o baseline aplicável e registrar falhas preexistentes.
@@ -33,13 +33,13 @@ Não implementar uma folha marcada como não implementada sem escopo aprovado. S
 
 Antes de implementar, localizar no Draw o nó e associar a ele o símbolo real que executa o comportamento. Todo nó implementado ou alterado deve ter, no próprio nó, pelo menos um `code_refs` com `symbol` ou `qualified_name` comprovado pela análise estática; usar `code_refs` de outro nó, `unnamed`, `placeholder` ou nome inventado é inválido. Atualizar também dependências e `test_ref`/`test_refs` quando esses fatos estiverem disponíveis.
 
-Ao finalizar, executar `stdd test` e ler os achados de análise estática. O comando bloqueia nós de níveis 2, 3 e 4 sem símbolo (`draw.level2_missing_code_ref`, `draw.level3_missing_code_ref`, `draw.level4_missing_code_ref` ou `draw.empty_node_symbol`). Não declarar sucesso enquanto houver um desses achados: corrigir a associação no nó mais relacionado e repetir o gate. Para uma funcionalidade planejada e não implementada, não inventar símbolo nem continuação; mantê-la terminal no grupo de não implementados e relatar a limitação.
+Ao finalizar, executar `looper test` e ler os achados de análise estática. O comando bloqueia nós de níveis 2, 3 e 4 sem símbolo (`draw.level2_missing_code_ref`, `draw.level3_missing_code_ref`, `draw.level4_missing_code_ref` ou `draw.empty_node_symbol`). Não declarar sucesso enquanto houver um desses achados: corrigir a associação no nó mais relacionado e repetir o gate. Para uma funcionalidade planejada e não implementada, não inventar símbolo nem continuação; mantê-la terminal no grupo de não implementados e relatar a limitação.
 
-Para uma conferência rápida antes do gate final, executar `stdd draw symbols`. Ele lista somente os símbolos dos nós e as associações ausentes, sem executar as suítes do projeto, o contrato, o backlog ou o adapter de análise completa.
+Para uma conferência rápida antes do gate final, executar `looper draw symbols`. Ele lista somente os símbolos dos nós e as associações ausentes, sem executar as suítes do projeto, o contrato, o backlog ou o adapter de análise completa.
 
 ## Ordem do backlog
 
-Antes de executar `stdd backlog task`, verificar se a resposta é `kind: "backlog-test-required"`. Nesse caso, não alterar produção: executar ou retomar `stdd backlog test`, criar os testes do nó de nível 2 e de todos os seus subfluxos ou marcar manualmente o fluxo já existente no viewer. `test_ref` e análise estática são evidências complementares, não uma pré-condição para o checklist. Só depois a mesma task pode ser implementada e concluída.
+Antes de executar `looper backlog task`, verificar se a resposta é `kind: "backlog-test-required"`. Nesse caso, não alterar produção: executar ou retomar `looper backlog test`, criar os testes do nó de nível 2 e de todos os seus subfluxos ou marcar manualmente o fluxo já existente no viewer. `test_ref` e análise estática são evidências complementares, não uma pré-condição para o checklist. Só depois a mesma task pode ser implementada e concluída.
 
 Quando a resposta trouxer `parent_task`, `subtask` e `subtasks`, preservar o pai como contexto e concluir pai e subtasks por seus próprios IDs. O checklist de implementação só pode ser marcado depois que `phase_checklists.test` do nó e dos subfluxos estiver concluído.
 
@@ -77,8 +77,8 @@ Se o desenho estiver consistente, registrar essa conclusão no raciocínio de im
 Antes de decidir o escopo ou concluir que nada precisa ser feito, avaliar o estado completo do Git:
 
 - `git status --short`, `git diff` e `git diff --cached`;
-- arquivos não rastreados, especialmente `.stdd/draws/`;
-- `git diff -- .stdd/draws` e `git diff --cached -- .stdd/draws`;
+- arquivos não rastreados, especialmente `.looper/draws/`;
+- `git diff -- .looper/draws` e `git diff --cached -- .looper/draws`;
 - para cada desenho alterado, criado ou removido, ler o JSON atual completo e comparar a intenção do patch, incluindo nós, relações, `draw_ref`, fluxos, perguntas e respostas.
 
 O diff de desenho é entrada de implementação, não apenas evidência auxiliar. Não concluir que não há mudança só porque o diff de produção está vazio ou porque os testes atuais já passam. Ao receber um pedido explícito de implementar, assumir que existe comportamento pendente: localizar a alteração correspondente no diff, nos desenhos e nos contratos, fazer uma mudança coerente e validar seus efeitos. Só encerrar sem alteração quando houver um bloqueio externo explícito e documentado.
@@ -99,13 +99,13 @@ Se um desenho referenciado possuir `questions`, ler as respostas persistidas com
 
 Quando houver um backlog gerado, o `$implement` deve executar o ciclo operacional até não haver mais tasks:
 
-1. executar `stdd backlog task`;
+1. executar `looper backlog task`;
 2. encerrar com `backlog-empty` somente quando o comando indicar que não há tasks restantes;
 3. ler perguntas, respostas, símbolos, dependências e subfluxo da task;
 4. implementar somente a task retornada;
 5. executar os testes específicos e os gates aplicáveis;
-6. executar `stdd backlog complete <task-id>` com o ID exato recebido;
-7. repetir `stdd backlog task`.
+6. executar `looper backlog complete <task-id>` com o ID exato recebido;
+7. repetir `looper backlog task`.
 
 Uma task `in_progress` deve ser retomada antes de qualquer outra. Não concluir uma task fora de ordem nem fabricar símbolos, arquivos ou respostas. Se houver bloqueio, preservar a task sem executar `backlog complete` e relatar o motivo.
 
@@ -164,9 +164,9 @@ Para PostgreSQL, usar pgTAP quando houver contrato de schema, constraint, funç�
 3. análise sintática, lint e tipagem disponíveis;
 4. análise estática integrada;
 5. suítes de contrato, banco, segurança ou performance exigidas pelo risco;
-6. `stdd test` como gate agregado.
+6. `looper test` como gate agregado.
 
-`stdd test` é o alias global: deve executar todas as suítes configuradas, mesmo que uma anterior falhe, e consolidar o resultado. Runners especializados são responsáveis por setup e cleanup próprios; no banco, isso inclui ambiente isolado, migrations, testes e limpeza.
+`looper test` é o alias global: deve executar todas as suítes configuradas, mesmo que uma anterior falhe, e consolidar o resultado. Runners especializados são responsáveis por setup e cleanup próprios; no banco, isso inclui ambiente isolado, migrations, testes e limpeza.
 
 Em perfil `mvp`, respeitar a cobertura escolhida pelo usuário. Usar `--suite`, `--exclude` e `--profile` para controlar a execução; usar `--approve-actions` somente depois de obter aprovação explícita. Antes de instalar dependência ou blocker, baixar ferramenta ou imagem, iniciar ou recriar container, criar banco, aplicar migrations fora de ambiente efêmero ou acionar serviço pago, apresentar impacto e pedir autorização. Sem autorização, registrar `not_executed` e continuar apenas com o trabalho seguro.
 
@@ -178,7 +178,7 @@ Depois que o código e os testes estiverem validados, revisar novamente todos os
 
 Executar a revisão nesta ordem:
 
-1. localizar os desenhos associados pelos `code_refs`, `qualified_name`, `source_dependencies`, `draw_ref` e pelos fatos em `.stdd/facts/*.facts.json`;
+1. localizar os desenhos associados pelos `code_refs`, `qualified_name`, `source_dependencies`, `draw_ref` e pelos fatos em `.looper/facts/*.facts.json`;
 2. ler o desenho principal completo e todos os subfluxos relacionados, não somente o nó alterado;
 3. comparar nós, relações, estados, nomes, condições, erros, entradas, saídas, perguntas e respostas com o comportamento realmente implementado;
 4. verificar referências `resolved`, `unresolved` e `drift`, além de arquivos, funções e testes retornados pela análise estática;
@@ -227,7 +227,7 @@ Usar o tipo pela natureza real do trabalho:
 O framework marca automaticamente como `refactor` apenas substituições extremas de pelo menos 500 linhas adicionadas e 500 removidas. Abaixo disso, avaliar intenção e contexto. Preferir um tipo por registro e criar logs progressivos por etapa concluída.
 
 ```bash
-stdd log "Implementa comportamento aprovado" --impl
+looper log "Implementa comportamento aprovado" --impl
 ```
 
 ## Conclusão

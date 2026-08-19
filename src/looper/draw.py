@@ -26,7 +26,7 @@ HIERARCHY_ROLE_BY_LEVEL = {1: "architecture", 2: "journey", 3: "implementation",
 DRAW_ID_PATTERN = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$")
 DRAW_ASSETS = Path(__file__).parent / "draw_assets"
 DRAW_EXAMPLE_TEMPLATE = Path(__file__).parent / "templates" / "draw" / "example.json"
-LEGACY_DRAW_VIEWER = Path(".stdd") / "draw.html"
+LEGACY_DRAW_VIEWER = Path(".looper") / "draw.html"
 PRESENTATION_KEYS = {"color", "colors", "position", "style", "styles", "layout", "viewport", "theme", "x", "y", "width", "height"}
 DRAW_ANALYSIS_SIMILARITY_THRESHOLD = 0.85
 DRAW_LEVEL2_CODE_REF_RULE = "draw.level2_missing_code_ref"
@@ -112,14 +112,14 @@ def _draw_question_entries(document: dict[str, Any]):
 
 def draw_directory(root: Path) -> Path:
     """Retorna o diretório de dados dos desenhos do projeto.
-    Mantém todos os JSONs gerados pelo framework dentro de .stdd/draws.
+    Mantém todos os JSONs gerados pelo framework dentro de .looper/draws.
     """
-    return root / ".stdd" / "draws"
+    return root / ".looper" / "draws"
 
 
 def facts_directory(root: Path) -> Path:
     """Retorna o diretório separado dos relatórios derivados de análise."""
-    return root / ".stdd" / "facts"
+    return root / ".looper" / "facts"
 
 
 def draw_index_path(root: Path) -> Path:
@@ -878,7 +878,7 @@ def _load_indexed_draw(root: Path, entry_index: int, entry: Any) -> tuple[list[s
     """Carrega e valida um desenho anunciado pelo índice.
     Retorna violações, ID válido e payload para as verificações cruzadas do workspace.
     """
-    prefix = f".stdd/draws/index.json draws[{entry_index}]"
+    prefix = f".looper/draws/index.json draws[{entry_index}]"
     if not isinstance(entry, dict):
         return [f"{prefix} deve ser um objeto"], None, None
     draw_id = entry.get("id")
@@ -915,7 +915,7 @@ def validate_draw_workspace(root: Path) -> list[str]:
     try:
         entries = read_draw_index(root).get("draws", [])
     except ValueError as error:
-        return [f".stdd/draws/index.json: {error}"]
+        return [f".looper/draws/index.json: {error}"]
 
     violations: list[str] = []
     indexed_ids: set[str] = set()
@@ -925,14 +925,14 @@ def validate_draw_workspace(root: Path) -> list[str]:
         violations.extend(entry_violations)
         if draw_id is None or draw_id in indexed_ids:
             if draw_id in indexed_ids:
-                violations.append(f".stdd/draws/index.json draws[{entry_index}].id duplicado: {draw_id}")
+                violations.append(f".looper/draws/index.json draws[{entry_index}].id duplicado: {draw_id}")
             continue
         indexed_ids.add(draw_id)
         if payload is not None:
             documents[draw_id] = payload
 
     file_ids = {path.stem for path in draws_path.glob("*.json") if path.name != "index.json"}
-    violations.extend(f".stdd/draws/{draw_id}.json não está presente no índice" for draw_id in sorted(file_ids - indexed_ids))
+    violations.extend(f".looper/draws/{draw_id}.json não está presente no índice" for draw_id in sorted(file_ids - indexed_ids))
     available_ids = set(documents)
     for draw_id, payload in documents.items():
         for node_index, node in enumerate(payload.get("nodes", [])):
@@ -945,11 +945,11 @@ def ensure_draw_workspace(root: Path, include_example: bool = False) -> list[Pat
     """Cria somente o armazenamento dos desenhos no projeto.
     Remove o viewer legado e opcionalmente instala um desenho demonstrativo.
     """
-    stdd_path = root / ".stdd"
+    looper_path = root / ".looper"
     draws_path = draw_directory(root)
     facts_path = facts_directory(root)
     created: list[Path] = []
-    for directory in (stdd_path, draws_path, facts_path):
+    for directory in (looper_path, draws_path, facts_path):
         if not directory.exists():
             directory.mkdir(parents=True, exist_ok=True)
             created.append(directory)
@@ -1014,13 +1014,13 @@ def find_addressed_questions(
     """
     clean_tag = (tag or "").lower().lstrip("@").strip()
     if not clean_tag or clean_tag in ("all", "default"):
-        pattern = r"@(stdd|obs|developer)"
+        pattern = r"@(looper|obs|developer)"
     elif clean_tag in ("dev", "developer"):
         pattern = r"@developer"
     elif clean_tag == "obs":
         pattern = r"@obs"
-    elif clean_tag == "stdd":
-        pattern = r"@stdd"
+    elif clean_tag == "looper":
+        pattern = r"@looper"
     else:
         pattern = rf"@{re.escape(clean_tag)}"
 
@@ -1067,7 +1067,7 @@ def find_addressed_questions(
                     questions.append({
                         "draw_id": draw_id,
                         "draw_title": document.get("title", draw_id),
-                        "draw_file": f".stdd/draws/{draw_id}.json",
+                        "draw_file": f".looper/draws/{draw_id}.json",
                         "node_id": node.get("id"),
                         "node_label": node.get("label", ""),
                         "node_code_refs": node_code_refs,
@@ -1102,7 +1102,7 @@ def find_addressed_questions(
             questions.append({
                 "draw_id": draw_id,
                 "draw_title": document.get("title", draw_id),
-                "draw_file": f".stdd/draws/{draw_id}.json",
+                "draw_file": f".looper/draws/{draw_id}.json",
                 "node_id": None,
                 "node_label": None,
                 "node_code_refs": [],
@@ -1124,8 +1124,8 @@ def format_draw_answers(questions: list[dict[str, Any]], tag: str | None = None)
     """
     clean_tag = (tag or "").lower().lstrip("@").strip()
     if not questions:
-        if clean_tag == "stdd":
-            return "Nenhuma pergunta @stdd pendente."
+        if clean_tag == "looper":
+            return "Nenhuma pergunta @looper pendente."
         if clean_tag == "obs":
             return "Nenhuma anotação @obs pendente."
         return "Nenhuma pergunta ou observação pendente."
@@ -1137,7 +1137,7 @@ def format_draw_answers(questions: list[dict[str, Any]], tag: str | None = None)
 
     if clean_tag == "obs":
         header = "Observações (@obs) dos Draws"
-    elif clean_tag == "stdd":
+    elif clean_tag == "looper":
         header = "Perguntas do Draw Interaction"
     else:
         header = "Perguntas e Observações dos Draws"
@@ -1155,7 +1155,7 @@ def format_draw_answers(questions: list[dict[str, Any]], tag: str | None = None)
             else:
                 label_prefix = "Pergunta"
 
-            prompt = re.sub(r"@(stdd|obs|developer)\s*", "", raw_prompt, count=1, flags=re.IGNORECASE).strip()
+            prompt = re.sub(r"@(looper|obs|developer)\s*", "", raw_prompt, count=1, flags=re.IGNORECASE).strip()
             node_label = question.get("node_label") or "Nó sem nome"
             node_id = question.get("node_id")
             question_id = question.get("question_id")
@@ -1216,7 +1216,7 @@ def _strip_answered_tags(nodes: list[dict]) -> list[dict]:
             if is_answered:
                 prompt = question.get("prompt")
                 if isinstance(prompt, str):
-                    prompt = re.sub(r'@(?:STDD|developer)\s*', '', prompt, flags=re.IGNORECASE)
+                    prompt = re.sub(r'@(?:Looper|developer)\s*', '', prompt, flags=re.IGNORECASE)
                     question["prompt"] = prompt.strip()
     return nodes
 
@@ -1228,7 +1228,7 @@ def _strip_answered_question_tags(questions: list[dict]) -> list[dict]:
             continue
         prompt = question.get("prompt")
         if isinstance(prompt, str):
-            question["prompt"] = re.sub(r'@(?:STDD|developer)\s*', '', prompt, flags=re.IGNORECASE).strip()
+            question["prompt"] = re.sub(r'@(?:Looper|developer)\s*', '', prompt, flags=re.IGNORECASE).strip()
     return questions
 
 
@@ -1379,7 +1379,7 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
             self.wfile.write(content)
 
         def _send_file(self, path: Path) -> None:
-            """Envia um asset validado pertencente ao pacote do STDD.
+            """Envia um asset validado pertencente ao pacote do Looper.
             Retorna 404 quando o asset solicitado não existe.
             """
             try:
@@ -1407,11 +1407,11 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
             path = urlparse(self.path).path
             if path == "/":
                 self.send_response(302)
-                self.send_header("Location", "/.stdd/draw.html")
+                self.send_header("Location", "/.looper/draw.html")
                 self.send_header("Content-Length", "0")
                 self.end_headers()
                 return
-            if path in {"/.stdd/draw.html", "/draw.html", "/index.html"}:
+            if path in {"/.looper/draw.html", "/draw.html", "/index.html"}:
                 self._send_file(DRAW_ASSETS / "index.html")
                 return
             if path in {"/favicon.svg", "/favicon.ico"}:
@@ -1424,7 +1424,7 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                 asset_name = unquote(path[len("/assets/"):])
                 self._send_file(DRAW_ASSETS / "assets" / asset_name)
                 return
-            if path == "/.stdd/draws/index.json":
+            if path == "/.looper/draws/index.json":
                 try:
                     body = json.dumps(read_draw_index(root), ensure_ascii=False).encode("utf-8")
                 except ValueError as error:
@@ -1432,7 +1432,7 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                     return
                 self._send_bytes(body, "application/json; charset=utf-8")
                 return
-            if path == "/.stdd/improvements/index.json":
+            if path == "/.looper/improvements/index.json":
                 from .improvements import read_improvement_index
 
                 try:
@@ -1442,7 +1442,7 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                     return
                 self._send_bytes(body, "application/json; charset=utf-8")
                 return
-            if path == "/.stdd/backlog.json":
+            if path == "/.looper/backlog.json":
                 from .backlog import read_backlog
 
                 try:
@@ -1452,8 +1452,8 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                     return
                 self._send_bytes(body, "application/json; charset=utf-8")
                 return
-            if path == "/.stdd/runs/index.json":
-                runs_index = root / ".stdd" / "runs" / "index.json"
+            if path == "/.looper/runs/index.json":
+                runs_index = root / ".looper" / "runs" / "index.json"
                 try:
                     body = runs_index.read_bytes() if runs_index.exists() else b'{"version": 1, "days": []}'
                 except OSError:
@@ -1461,8 +1461,8 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                     return
                 self._send_bytes(body, "application/json; charset=utf-8")
                 return
-            if path == "/.stdd/adapters/static-analysis-kpis.json":
-                kpi_path = root / ".stdd" / "adapters" / "static-analysis-kpis.json"
+            if path == "/.looper/adapters/static-analysis-kpis.json":
+                kpi_path = root / ".looper" / "adapters" / "static-analysis-kpis.json"
                 try:
                     body = kpi_path.read_bytes() if kpi_path.exists() else b'{"status":"unavailable","indicators":[],"details":{}}'
                 except OSError:
@@ -1470,10 +1470,10 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                     return
                 self._send_bytes(body, "application/json; charset=utf-8")
                 return
-            runs_prefix = "/.stdd/runs/"
+            runs_prefix = "/.looper/runs/"
             if path.startswith(runs_prefix) and path.endswith(".json"):
                 relative_run_path = unquote(path[len(runs_prefix):])
-                runs_root = (root / ".stdd" / "runs").resolve()
+                runs_root = (root / ".looper" / "runs").resolve()
                 run_path = (runs_root / relative_run_path).resolve()
                 try:
                     run_path.relative_to(runs_root)
@@ -1485,7 +1485,7 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                     return
                 self._send_bytes(body, "application/json; charset=utf-8")
                 return
-            facts_prefix = "/.stdd/facts/"
+            facts_prefix = "/.looper/facts/"
             facts_suffix = ".facts.json"
             if path.startswith(facts_prefix) and path.endswith(facts_suffix):
                 draw_id = unquote(path[len(facts_prefix):-len(facts_suffix)])
@@ -1501,7 +1501,7 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                     return
                 self._send_bytes(body, "application/json; charset=utf-8")
                 return
-            draws_prefix = "/.stdd/draws/"
+            draws_prefix = "/.looper/draws/"
             if path.startswith(draws_prefix) and path.endswith(".json"):
                 draw_id = unquote(path[len(draws_prefix):-5])
                 try:
@@ -1511,7 +1511,7 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                     return
                 self._send_bytes(body, "application/json; charset=utf-8")
                 return
-            improvements_prefix = "/.stdd/improvements/"
+            improvements_prefix = "/.looper/improvements/"
             if path.startswith(improvements_prefix) and path.endswith(".json"):
                 from .improvements import read_improvement
 
@@ -1549,9 +1549,9 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
             """
             path = urlparse(self.path).path
             if not (
-                path.startswith("/__stdd/api/draws/")
-                or path.startswith("/__stdd/api/improvements/")
-                or path.startswith("/__stdd/api/backlog")
+                path.startswith("/__looper/api/draws/")
+                or path.startswith("/__looper/api/improvements/")
+                or path.startswith("/__looper/api/backlog")
             ):
                 self.send_error(404, "endpoint inexistente")
                 return
@@ -1574,25 +1574,25 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
             from .backlog import complete_backlog_task, generate_backlog, next_backlog_task, next_backlog_test, update_backlog_checklist
 
             path = urlparse(self.path).path
-            if path == "/__stdd/api/backlog/task":
+            if path == "/__looper/api/backlog/task":
                 try:
                     self._send_json(next_backlog_task(root))
                 except (OSError, ValueError) as error:
                     self._send_json({"status": "blocked", "error": str(error)}, 400)
                 return
-            if path == "/__stdd/api/backlog/test":
+            if path == "/__looper/api/backlog/test":
                 try:
                     self._send_json(next_backlog_test(root))
                 except (OSError, ValueError) as error:
                     self._send_json({"status": "blocked", "error": str(error)}, 400)
                 return
-            if path == "/__stdd/api/backlog/refresh":
+            if path == "/__looper/api/backlog/refresh":
                 try:
                     self._send_json({"kind": "backlog-refreshed", "backlog": generate_backlog(root)})
                 except (OSError, ValueError) as error:
                     self._send_json({"status": "blocked", "error": str(error)}, 400)
                 return
-            if path == "/__stdd/api/backlog/checklist":
+            if path == "/__looper/api/backlog/checklist":
                 try:
                     length = int(self.headers.get("Content-Length", "0"))
                     if length <= 0 or length > 100_000:
@@ -1610,7 +1610,7 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                 except (OSError, ValueError, UnicodeDecodeError, json.JSONDecodeError) as error:
                     self._send_json({"status": "blocked", "error": str(error)}, 400)
                 return
-            prefix = "/__stdd/api/backlog/tasks/"
+            prefix = "/__looper/api/backlog/tasks/"
             suffix = "/complete"
             if path.startswith(prefix) and path.endswith(suffix):
                 task_id = unquote(path[len(prefix):-len(suffix)])
@@ -1626,7 +1626,7 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
             Aceita somente o ID do desenho na rota e delega validação ao contrato canônico.
             """
             path = urlparse(self.path).path
-            improvement_prefix = "/__stdd/api/improvements/"
+            improvement_prefix = "/__looper/api/improvements/"
             if path.startswith(improvement_prefix):
                 from .improvements import create_improvement
 
@@ -1650,7 +1650,7 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                 except (OSError, ValueError, UnicodeDecodeError, json.JSONDecodeError) as error:
                     self._send_json_error(400, str(error))
                 return
-            prefix = "/__stdd/api/draws/"
+            prefix = "/__looper/api/draws/"
             if not path.startswith(prefix):
                 self.send_error(404, "endpoint inexistente")
                 return
@@ -1688,7 +1688,7 @@ def serve_draw(root: Path, host: str = "127.0.0.1", port: int = 8765) -> None:
     """
     ensure_draw_workspace(root, include_example=True)
     server = create_server(root, host, port)
-    print(f"Draw disponível em http://{server.server_address[0]}:{server.server_address[1]}/.stdd/draw.html")
+    print(f"Draw disponível em http://{server.server_address[0]}:{server.server_address[1]}/.looper/draw.html")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

@@ -1,34 +1,34 @@
 ---
 name: implement-backlog
-description: "Percorre exclusivamente o loop de implementação do backlog STDD: recebe uma task liberada por stdd backlog task, implementa apenas o escopo recebido, valida, audita quando exigido e conclui pelo backlog complete."
+description: "Percorre exclusivamente o loop de implementação do backlog Looper: recebe uma task liberada por looper backlog task, implementa apenas o escopo recebido, valida, audita quando exigido e conclui pelo backlog complete."
 ---
 
 # Implement Backlog Agent
 
 Esta skill pertence exclusivamente ao loop de implementação do backlog. Leia-a somente
-quando `stdd backlog task` entregar uma resposta acionável (`backlog-task`,
+quando `looper backlog task` entregar uma resposta acionável (`backlog-task`,
 `backlog-bootstrap-task` ou `backlog-verification-task`). Não leia esta skill para edições comuns, perguntas, medições, revisões livres ou qualquer pedido que não tenha
-sido entregue pelo comando `stdd backlog task`.
+sido entregue pelo comando `looper backlog task`.
 
 ## Objetivo
 
 Percorrer o backlog até o terminal, uma task por vez. O loop é:
 
 ```text
-stdd backlog task
+looper backlog task
   -> ler o contexto da task
   -> implementar somente essa task
   -> executar testes focados e o gate global
-  -> stdd backlog complete <task-id>
+  -> looper backlog complete <task-id>
   -> repetir até backlog-empty
 ```
 
 Não declarar conclusão no meio do loop. `backlog-empty` é o único sinal de que não há
 outra task de implementação.
 
-Se `.stdd/config.json` tiver `backlog.test_loop_enabled: false`, a fase de testes está
+Se `.looper/config.json` tiver `backlog.test_loop_enabled: false`, a fase de testes está
 intencionalmente desabilitada: não execute `$create-tests-backlog` nem trate
-`backlog-test-required` como bloqueio. Use diretamente `stdd backlog task` e percorra
+`backlog-test-required` como bloqueio. Use diretamente `looper backlog task` e percorra
 somente o loop de implementação.
 
 ## Cursor obrigatório
@@ -36,23 +36,23 @@ somente o loop de implementação.
 O cursor do backlog é a fonte de verdade da ordem de execução. Nunca escolha uma task
 manualmente, pule a task retornada ou avance pelo arquivo JSON.
 
-1. Execute `stdd backlog task` e trabalhe exatamente na task e no `task-id` retornados.
+1. Execute `looper backlog task` e trabalhe exatamente na task e no `task-id` retornados.
 2. Retome a task que o cursor indicar como `in_progress` antes de buscar qualquer outra.
-3. Depois de implementar e validar a task, execute obrigatoriamente `stdd backlog complete <task-id>` usando o mesmo ID recebido.
+3. Depois de implementar e validar a task, execute obrigatoriamente `looper backlog complete <task-id>` usando o mesmo ID recebido.
 4. Só procure a próxima task depois que o `backlog complete` terminar com sucesso; esse comando libera e avança o cursor.
-5. Repita o ciclo. Termine somente quando `stdd backlog task` retornar `kind: "backlog-empty"`.
+5. Repita o ciclo. Termine somente quando `looper backlog task` retornar `kind: "backlog-empty"`.
 
 Concluir o código ou passar nos testes não conclui a task operacionalmente. Sem
 `backlog complete`, a task continua aberta no cursor.
 
 ## Escopo de entrega
 
-Leia `backlog.task_delivery_scope` em `.stdd/config.json`:
+Leia `backlog.task_delivery_scope` em `.looper/config.json`:
 
 - `task`: implemente somente o ID recebido; os subfluxos serão entregues em chamadas posteriores.
 - `node`: implemente o nó pai e os subfluxos listados no mesmo contexto; conclua o conjunto usando o ID do nó pai.
 
-Essa configuração é a mesma usada por `stdd backlog test`. Em qualquer modo, siga o
+Essa configuração é a mesma usada por `looper backlog test`. Em qualquer modo, siga o
 cursor e não escolha IDs manualmente.
 
 ### Entrega de nó: tela e funcionamento completo
@@ -68,16 +68,16 @@ Conclua usando o ID do nó pai somente depois de validar o pacote inteiro.
 
 ## Regras do loop
 
-1. Leia a resposta em linguagem natural de `stdd backlog task`, incluindo task, ID, predecessor, condição, pai, subfluxos, perguntas respondidas, símbolos e testes entregues pelo comando.
-2. Se a resposta for `kind: "backlog-test-required"`, não implemente: volte para `$create-tests-backlog`/`stdd backlog test`.
+1. Leia a resposta em linguagem natural de `looper backlog task`, incluindo task, ID, predecessor, condição, pai, subfluxos, perguntas respondidas, símbolos e testes entregues pelo comando.
+2. Se a resposta for `kind: "backlog-test-required"`, não implemente: volte para `$create-tests-backlog`/`looper backlog test`.
 3. Se a resposta for `kind: "backlog-bootstrap-task"`, prepare somente a estrutura mínima do projeto com as evidências locais; não implemente funcionalidade de produto.
 4. Implemente apenas a task recebida, preservando contratos, autorização, dados e alterações locais do usuário.
-5. Execute o teste mais específico, as suítes afetadas e `stdd test`. Falha é bloqueio; não execute `backlog complete` para avançar com validação quebrada.
+5. Execute o teste mais específico, as suítes afetadas e `looper test`. Falha é bloqueio; não execute `backlog complete` para avançar com validação quebrada.
 6. Se houver bloqueio, deixe a task aberta e informe o motivo, a evidência e a ação necessária.
 
 ## Verificação intermediária da implementação
 
-Quando `stdd backlog task` entregar uma task de verificação criada por
+Quando `looper backlog task` entregar uma task de verificação criada por
 `l2_verification_interval`, ela é uma auditoria obrigatória do comportamento já
 implementado. O agente não pode concluir essa task apenas porque a task anterior está
 `done`, existem arquivos, há símbolos associados ou algum teste superficial passa.
@@ -109,13 +109,13 @@ concretas para cada resultado.
 Depois de criar ou alterar os artefatos e antes de `backlog complete`:
 
 1. Identifique, no contexto da task, o `draw_id`, o `node_id` e todos os nós cobertos pelo escopo.
-2. Execute `stdd test` para atualizar os fatos estáticos e confirme na codebase/fatos o caminho do arquivo e o `qualified_name` real de cada símbolo; nunca invente um nome nem trate o arquivo como associação implícita.
-3. Para cada nó coberto, execute `stdd draw associate-reference` com o símbolo real e suas dependências reais. Inclua os símbolos de teste relacionados como `--source-dependency` para manter a ligação entre implementação e teste.
+2. Execute `looper test` para atualizar os fatos estáticos e confirme na codebase/fatos o caminho do arquivo e o `qualified_name` real de cada símbolo; nunca invente um nome nem trate o arquivo como associação implícita.
+3. Para cada nó coberto, execute `looper draw associate-reference` com o símbolo real e suas dependências reais. Inclua os símbolos de teste relacionados como `--source-dependency` para manter a ligação entre implementação e teste.
    ```bash
-   stdd draw associate-reference --draw-id <draw-id> --node-id <node-id> \
+   looper draw associate-reference --draw-id <draw-id> --node-id <node-id> \
      --qualified-name '<símbolo-real>' --source-dependency '<símbolo-de-teste>'
    ```
-4. Execute `stdd draw symbols` e confira que as associações foram gravadas no nó correto e resolvem para os arquivos esperados. Se alguma associação estiver ausente, vazia ou não puder ser comprovada, deixe a task aberta e informe o bloqueio.
+4. Execute `looper draw symbols` e confira que as associações foram gravadas no nó correto e resolvem para os arquivos esperados. Se alguma associação estiver ausente, vazia ou não puder ser comprovada, deixe a task aberta e informe o bloqueio.
 
 Na fase de implementação, `--qualified-name` deve apontar para o símbolo de produção real;
 os testes vinculados entram como dependências reais. Se a fase só produzir uma estrutura
@@ -126,7 +126,7 @@ associação e verificação.
 Para tasks originadas de `$draw-system-level-1` a `$draw-system-level-4`, ler o Draw pai e
 o filho, preservar `parent_draw_ref`, `parent_node_id`, `root_draw_ref` e `draw_ref`, e
 interromper diante de fluxo órfão. Antes de declarar que não há mudança, confira
-`git diff -- .stdd/draws` e `git diff --cached -- .stdd/draws`, liste os arquivos não rastreados
+`git diff -- .looper/draws` e `git diff --cached -- .looper/draws`, liste os arquivos não rastreados
 e faça ler o JSON atual completo. O diff de desenho é entrada de implementação:
 diante de um pedido explícito de implementar, fazer uma mudança coerente antes de concluir.
 
@@ -134,7 +134,7 @@ diante de um pedido explícito de implementar, fazer uma mudança coerente antes
 
 Antes de `backlog complete`, verifique se a implementação confirmou uma regra reutilizável.
 Registre contratos, arquitetura, operação, limites e escopo no `AGENTS.md`; registre
-tipografia, cores, espaçamento, estados, animações e interações no `.stdd/design.md`.
+tipografia, cores, espaçamento, estados, animações e interações no `.looper/design.md`.
 Atualize somente decisões aceitas ou padrões comprovados, consolidando duplicatas e
 removendo detalhes temporários. Não registre hipóteses, IDs de execução, segredos ou
 detalhes de implementação que não orientem trabalhos futuros. Relate qualquer atualização
@@ -178,13 +178,13 @@ Testes verdes são condição necessária, não suficiente. Verifique também qu
 1. a feature é alcançável pelo caminho descrito no Draw;
 2. todas as camadas exigidas foram entregues;
 3. os `code_refs` apontam para os artefatos relevantes;
-4. `stdd test` passou;
+4. `looper test` passou;
 5. o cursor foi avançado pelo ID correto.
 
 Registre cada trabalho concluído separadamente:
 
 ```bash
-stdd log "Implementa comportamento da task <task-id>" --type implementacao
+looper log "Implementa comportamento da task <task-id>" --type implementacao
 ```
 
 Só reporte sucesso quando o diff estiver dentro do escopo, a validação passar e o

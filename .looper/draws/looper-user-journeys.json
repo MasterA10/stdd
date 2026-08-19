@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "id": "stdd-user-journeys",
-  "title": "Jornadas de uso do STDD",
+  "id": "looper-user-journeys",
+  "title": "Jornadas de uso do Looper",
   "subtitle": "Como agente e desenvolvedor especificam, verificam e documentam o sistema",
   "kind": "system",
   "hierarchy": {
     "level": 2,
     "role": "journey",
-    "parent_draw_ref": "stdd-system-architecture",
+    "parent_draw_ref": "looper-system-architecture",
     "parent_node_id": 8,
-    "root_draw_ref": "stdd-system-architecture"
+    "root_draw_ref": "looper-system-architecture"
   },
   "groups": [
     {
@@ -40,8 +40,8 @@
       "id": 2,
       "label": "Inicializar e instalar skills",
       "group": 1,
-      "description": "O agente prepara .stdd/, instruções e skills para o projeto.",
-      "draw_ref": "stdd-journey-init"
+      "description": "O agente prepara .looper/, instruções e skills para o projeto.",
+      "draw_ref": "looper-journey-init"
     },
     {
       "id": 3,
@@ -54,21 +54,21 @@
       "label": "Executar gates",
       "group": 2,
       "description": "O agente executa testes, contrato e análise estática antes de declarar conclusão.",
-      "draw_ref": "stdd-journey-test"
+      "draw_ref": "looper-journey-test"
     },
     {
       "id": 5,
       "label": "Registrar evidência",
       "group": 2,
       "description": "O trabalho concluído recebe log com tipo e diff incremental.",
-      "draw_ref": "stdd-journey-log"
+      "draw_ref": "looper-journey-log"
     },
     {
       "id": 6,
       "label": "Revisar no Draw",
       "group": 3,
       "description": "O usuário abre o viewer local, navega pela árvore e revisa decisões, perguntas e trade-offs.",
-      "draw_ref": "stdd-journey-draw"
+      "draw_ref": "looper-journey-draw"
     },
     {
       "id": 7,
@@ -109,7 +109,7 @@
       "kind": "flow",
       "condition": 1,
       "label": "então verifica",
-      "description": "A implementação ou documentação passa pelos gates do STDD."
+      "description": "A implementação ou documentação passa pelos gates do Looper."
     },
     {
       "id": 4,
@@ -208,6 +208,6 @@
     }
   ],
   "notes": [
-    "As quatro cápsulas com descendentes descrevem os caminhos técnicos mais relevantes do próprio STDD."
+    "As quatro cápsulas com descendentes descrevem os caminhos técnicos mais relevantes do próprio Looper."
   ]
 }

@@ -35,7 +35,7 @@ export const ParentNavigationModal: React.FC<ParentNavigationModalProps> = ({
       >
         <div className="dialog-header">
           <div>
-            <p className="eyebrow">STDD · Navegação hierárquica</p>
+            <p className="eyebrow">Looper · Navegação hierárquica</p>
             <h2>Escolha para onde voltar</h2>
           </div>
           <button className="close-btn" onClick={onClose} type="button" aria-label="Fechar escolha de nível">

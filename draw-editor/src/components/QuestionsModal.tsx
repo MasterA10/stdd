@@ -92,7 +92,7 @@ export const QuestionsModal: React.FC<QuestionsModalProps> = ({
         <div className="dialog-content questions-modal-content">
           <div className="dialog-header">
             <div>
-              <p className="eyebrow">STDD · Perguntas e observações</p>
+              <p className="eyebrow">Looper · Perguntas e observações</p>
               <h2>{node.label}</h2>
             </div>
             <button className="close-btn" onClick={requestClose} type="button">

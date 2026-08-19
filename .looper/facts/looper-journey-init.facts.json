@@ -1,31 +1,31 @@
 {
   "version": 1,
-  "draw_id": "stdd-journey-init",
+  "draw_id": "looper-journey-init",
   "nodes": {
     "4": {
       "node_id": 4,
       "references": [
         {
-          "symbol": "stdd.core.init_project",
+          "symbol": "looper.core.init_project",
           "identity": "0b657e84450a304e",
           "status": "drift",
-          "file": "src/stdd/core.py",
+          "file": "src/looper/core.py",
           "kind": "function",
           "source": "python_ast"
         }
       ],
       "source_dependencies": [
-        "stdd.core.ensure_agent_instructions",
-        "stdd.core.ensure_gitignore",
-        "stdd.draw.ensure_draw_workspace"
+        "looper.core.ensure_agent_instructions",
+        "looper.core.ensure_gitignore",
+        "looper.draw.ensure_draw_workspace"
       ],
       "files": [
-        "src/stdd/core.py",
-        "src/stdd/draw.py"
+        "src/looper/core.py",
+        "src/looper/draw.py"
       ],
       "tests": [],
       "unresolved": [
-        "stdd.core.init_project"
+        "looper.core.init_project"
       ],
       "suggestions": []
     }

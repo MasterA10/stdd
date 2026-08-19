@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "id": "stdd-system-architecture",
-  "title": "Arquitetura do sistema de especificação STDD",
-  "subtitle": "O próprio STDD documentado pelo método que ele oferece aos agentes",
+  "id": "looper-system-architecture",
+  "title": "Arquitetura do sistema de especificação Looper",
+  "subtitle": "O próprio Looper documentado pelo método que ele oferece aos agentes",
   "kind": "system",
   "hierarchy": {
     "level": 1,
     "role": "architecture",
     "parent_draw_ref": null,
     "parent_node_id": null,
-    "root_draw_ref": "stdd-system-architecture"
+    "root_draw_ref": "looper-system-architecture"
   },
   "groups": [
     {
@@ -42,7 +42,7 @@
     },
     {
       "id": 2,
-      "label": "CLI stdd",
+      "label": "CLI looper",
       "group": 1,
       "description": "Interface operacional para init, setup, test, log e draw."
     },
@@ -56,32 +56,32 @@
       "id": 4,
       "label": "Contrato e testes do framework",
       "group": 2,
-      "description": "Suítes pytest e regras de contrato que protegem o comportamento do próprio STDD."
+      "description": "Suítes pytest e regras de contrato que protegem o comportamento do próprio Looper."
     },
     {
       "id": 5,
-      "label": ".stdd/config.json",
+      "label": ".looper/config.json",
       "group": 3,
       "description": "Configuração de runners, stack detectada, contrato e adapter de análise estática."
     },
     {
       "id": 6,
-      "label": ".stdd/runs e facts",
+      "label": ".looper/runs e facts",
       "group": 3,
       "description": "Estado versionável de execuções, snapshots, KPIs de análise e fatos de rastreabilidade."
     },
     {
       "id": 7,
-      "label": ".stdd/draws",
+      "label": ".looper/draws",
       "group": 4,
       "description": "Fonte de verdade JSON dos desenhos, com índice e relações hierárquicas."
     },
     {
       "id": 8,
-      "label": "Jornadas do usuário do STDD",
+      "label": "Jornadas do usuário do Looper",
       "group": 1,
       "description": "Entrada para o desenho de nível 2: como agente e desenvolvedor usam o sistema.",
-      "draw_ref": "stdd-user-journeys"
+      "draw_ref": "looper-user-journeys"
     },
     {
       "id": 9,
@@ -97,10 +97,10 @@
     },
     {
       "id": 11,
-      "label": "Agentes STDD e integrações",
+      "label": "Agentes Looper e integrações",
       "group": 5,
       "description": "Skills especializadas que conduzem o ciclo de especificação, desenho, análise e implementação; instaladas nas integrações Codex, Claude e Gemini.",
-      "draw_ref": "stdd-agent-journeys"
+      "draw_ref": "looper-agent-journeys"
     }
   ],
   "edges": [
@@ -138,7 +138,7 @@
       "kind": "publishes",
       "condition": 1,
       "label": "registra evidências",
-      "description": "Resultados, snapshots e fatos ficam em .stdd/."
+      "description": "Resultados, snapshots e fatos ficam em .looper/."
     },
     {
       "id": 5,

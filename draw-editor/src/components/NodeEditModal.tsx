@@ -37,7 +37,7 @@ export const NodeEditModal: React.FC<NodeEditModalProps> = ({ node, onClose, onS
         <div className="dialog-content">
           <div className="dialog-header">
             <div>
-              <p className="eyebrow">STDD · Edição de Bloco</p>
+              <p className="eyebrow">Looper · Edição de Bloco</p>
               <h2>Editar Descrição</h2>
             </div>
             <button className="close-btn" onClick={onClose} type="button">

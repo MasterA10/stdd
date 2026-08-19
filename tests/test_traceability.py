@@ -2,9 +2,9 @@ import json
 
 from typer.testing import CliRunner
 
-from stdd.cli import app
-from stdd.draw import create_draw
-from stdd.traceability import associate_node_reference, build_traceability_report, enrich_traceability, refresh_traceability
+from looper.cli import app
+from looper.draw import create_draw
+from looper.traceability import associate_node_reference, build_traceability_report, enrich_traceability, refresh_traceability
 
 
 def _draw_with_traceable_node():
@@ -33,7 +33,7 @@ def test_refresh_traceability_ignores_macos_appledouble_files(tmp_path):
     """Ignora metadados AppleDouble que possuem extensão JSON aparente.
     Evita que arquivos binários ._ gerados pelo macOS derrubem o teste global.
     """
-    draws = tmp_path / ".stdd/draws"
+    draws = tmp_path / ".looper/draws"
     draws.mkdir(parents=True)
     (draws / "index.json").write_text("{}", encoding="utf-8")
     (draws / "._broken.json").write_bytes(b"AppleDouble\x00\xff")
@@ -239,12 +239,12 @@ def test_associate_node_reference_persists_only_minimal_cli_inputs(tmp_path):
         ["checkout.authorize"],
     )
 
-    saved = json.loads((tmp_path / ".stdd/draws/checkout.json").read_text(encoding="utf-8"))
+    saved = json.loads((tmp_path / ".looper/draws/checkout.json").read_text(encoding="utf-8"))
     assert saved["nodes"][0]["code_refs"] == [{
         "symbol": "checkout.authorize",
         "source_dependencies": ["checkout.authorize"],
     }]
-    assert not list((tmp_path / ".stdd/facts").glob("*.facts.json"))
+    assert not list((tmp_path / ".looper/facts").glob("*.facts.json"))
 
 
 def test_enrich_traceability_recalculates_and_persists_separate_facts_file(tmp_path):
@@ -264,7 +264,7 @@ def test_enrich_traceability_recalculates_and_persists_separate_facts_file(tmp_p
 
     facts_path = enrich_traceability(tmp_path, "checkout", analysis_facts)
 
-    assert facts_path == tmp_path / ".stdd/facts/checkout.facts.json"
+    assert facts_path == tmp_path / ".looper/facts/checkout.facts.json"
     facts = json.loads(facts_path.read_text(encoding="utf-8"))
     assert facts["version"] == 1
     assert facts["draw_id"] == "checkout"
@@ -287,7 +287,7 @@ def test_cli_associate_reference_accepts_one_node_contract(tmp_path, monkeypatch
     ])
 
     assert result.exit_code == 0
-    saved = json.loads((tmp_path / ".stdd/draws/checkout.json").read_text(encoding="utf-8"))
+    saved = json.loads((tmp_path / ".looper/draws/checkout.json").read_text(encoding="utf-8"))
     assert saved["nodes"][0]["code_refs"][0]["symbol"] == "checkout.authorize"
 
 
@@ -308,7 +308,7 @@ def test_cli_associate_reference_accepts_batch_contract(tmp_path, monkeypatch):
     result = runner.invoke(app, ["draw", "associate-reference", "--draw-id", "checkout", "--batch-json", batch])
 
     assert result.exit_code == 0
-    saved = json.loads((tmp_path / ".stdd/draws/checkout.json").read_text(encoding="utf-8"))
+    saved = json.loads((tmp_path / ".looper/draws/checkout.json").read_text(encoding="utf-8"))
     references = {node["id"]: node.get("code_refs", [{}])[0].get("symbol") for node in saved["nodes"]}
     assert references[7] == "checkout.authorize"
     assert references[9] == "checkout.capture"

@@ -27,7 +27,7 @@
     {
       "run_id": "098a0201767a49eda766668f21075bf2",
       "timestamp": "2026-08-13T13:12:43.852167+00:00",
-      "description": "adiciona analise de simbolos dos nos em stdd test e stdd create",
+      "description": "adiciona analise de simbolos dos nos em looper test e looper create",
       "work_types": [
         "teste",
         "implementacao"
@@ -202,7 +202,7 @@
     {
       "run_id": "2d7154a42d294829a767a3a9ab67ee66",
       "timestamp": "2026-08-13T18:16:05.897230+00:00",
-      "description": "Implementa backlog hierárquico, comandos e gate no stdd test",
+      "description": "Implementa backlog hierárquico, comandos e gate no looper test",
       "work_types": [
         "implementacao"
       ],

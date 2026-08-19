@@ -1,5 +1,5 @@
 <?php
-// STDD_GENERATED_PHP_ADAPTER
+// Looper_GENERATED_PHP_ADAPTER
 // Adapter PHP determinístico baseado no tokenizer nativo do PHP.
 
 $request = json_decode(stream_get_contents(STDIN), true);
@@ -22,7 +22,7 @@ if (!$root || !is_dir($root)) {
 }
 
 $config = [];
-$configPath = $root . DIRECTORY_SEPARATOR . '.stdd' . DIRECTORY_SEPARATOR . 'config.json';
+$configPath = $root . DIRECTORY_SEPARATOR . '.looper' . DIRECTORY_SEPARATOR . 'config.json';
 if (is_file($configPath)) {
     $decoded = json_decode((string) file_get_contents($configPath), true);
     if (is_array($decoded)) $config = $decoded;
@@ -209,7 +209,7 @@ $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, 
 foreach ($iterator as $file) {
     if (!$file->isFile() || strtolower($file->getExtension()) !== 'php') continue;
     $relative = str_replace(DIRECTORY_SEPARATOR, '/', substr($file->getPathname(), strlen($root) + 1));
-    if (preg_match('~(^|/)(\.git|\.stdd|vendor|node_modules|__pycache__)(/|$)~', $relative) || str_starts_with(basename($relative), '._')) continue;
+    if (preg_match('~(^|/)(\.git|\.looper|vendor|node_modules|__pycache__)(/|$)~', $relative) || str_starts_with(basename($relative), '._')) continue;
     $files[] = [$file->getPathname(), $relative];
 }
 usort($files, fn($a, $b) => $a[1] <=> $b[1]);

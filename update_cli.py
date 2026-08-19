@@ -1,6 +1,6 @@
 import re
 
-with open('src/stdd/cli.py', 'r') as f:
+with open('src/looper/cli.py', 'r') as f:
     content = f.read()
 
 # Update _compact_backlog_response
@@ -25,5 +25,5 @@ content = re.sub(
     content
 )
 
-with open('src/stdd/cli.py', 'w') as f:
+with open('src/looper/cli.py', 'w') as f:
     f.write(content)

@@ -1,28 +1,28 @@
 {
   "version": 1,
-  "draw_id": "stdd-journey-draw",
+  "draw_id": "looper-journey-draw",
   "nodes": {
     "1": {
       "node_id": 1,
       "references": [
         {
-          "symbol": "stdd.cli.draw_create",
+          "symbol": "looper.cli.draw_create",
           "identity": "64fd878f20627d43",
           "status": "drift",
-          "file": "src/stdd/cli.py",
+          "file": "src/looper/cli.py",
           "kind": "function",
           "source": "python_ast"
         }
       ],
       "source_dependencies": [
-        "stdd.draw.create_draw"
+        "looper.draw.create_draw"
       ],
       "files": [
-        "src/stdd/draw.py"
+        "src/looper/draw.py"
       ],
       "tests": [],
       "unresolved": [
-        "stdd.cli.draw_create"
+        "looper.cli.draw_create"
       ],
       "suggestions": []
     },
@@ -30,24 +30,24 @@
       "node_id": 3,
       "references": [
         {
-          "symbol": "stdd.draw.create_draw",
+          "symbol": "looper.draw.create_draw",
           "identity": "8a42d3855073c490",
           "status": "drift",
-          "file": "src/stdd/draw.py",
+          "file": "src/looper/draw.py",
           "kind": "function",
           "source": "python_ast"
         }
       ],
       "source_dependencies": [
-        "stdd.draw.validate_draw_payload",
-        "stdd.draw.validate_hierarchy_parent"
+        "looper.draw.validate_draw_payload",
+        "looper.draw.validate_hierarchy_parent"
       ],
       "files": [
-        "src/stdd/draw.py"
+        "src/looper/draw.py"
       ],
       "tests": [],
       "unresolved": [
-        "stdd.draw.create_draw"
+        "looper.draw.create_draw"
       ],
       "suggestions": []
     },
@@ -55,33 +55,33 @@
       "node_id": 4,
       "references": [
         {
-          "symbol": "stdd.cli.draw_serve",
+          "symbol": "looper.cli.draw_serve",
           "identity": "6fc36dddf6301a84",
           "status": "drift",
-          "file": "src/stdd/cli.py",
+          "file": "src/looper/cli.py",
           "kind": "function",
           "source": "python_ast"
         },
         {
-          "symbol": "stdd.draw.serve_draw",
+          "symbol": "looper.draw.serve_draw",
           "identity": "324880b0e1533bd3",
           "status": "drift",
-          "file": "src/stdd/draw.py",
+          "file": "src/looper/draw.py",
           "kind": "function",
           "source": "python_ast"
         }
       ],
       "source_dependencies": [
-        "stdd.draw.create_draw",
-        "stdd.draw.serve_draw"
+        "looper.draw.create_draw",
+        "looper.draw.serve_draw"
       ],
       "files": [
-        "src/stdd/draw.py"
+        "src/looper/draw.py"
       ],
       "tests": [],
       "unresolved": [
-        "stdd.cli.draw_serve",
-        "stdd.draw.serve_draw"
+        "looper.cli.draw_serve",
+        "looper.draw.serve_draw"
       ],
       "suggestions": []
     }

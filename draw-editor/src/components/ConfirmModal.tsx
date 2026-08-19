@@ -30,7 +30,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
         <div className="dialog-content">
           <div className="dialog-header">
             <div>
-              <p className="eyebrow">STDD · Confirmação</p>
+              <p className="eyebrow">Looper · Confirmação</p>
               <h2>{title}</h2>
             </div>
             <button className="close-btn" onClick={onCancel} type="button">

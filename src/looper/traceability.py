@@ -187,7 +187,7 @@ def refresh_traceability(root: Path, analysis_facts: dict[str, Any]) -> list[Pat
     """Enriquece todos os Draws que possuem referências quando facts estão disponíveis.
     Retorna somente os arquivos derivados atualizados nesta execução.
     """
-    draws_root = root / ".stdd" / "draws"
+    draws_root = root / ".looper" / "draws"
     outputs: list[Path] = []
     for path in sorted(draws_root.glob("*.json")):
         if path.name == "index.json" or path.name.endswith(".facts.json") or path.name.startswith("._"):

@@ -5,7 +5,7 @@
     {
       "run_id": "a6f5c18474114586b0ace327bf1fb1a0",
       "timestamp": "2026-08-03T13:37:42.542585+00:00",
-      "description": "Reconstrói o desenho da arquitetura do sistema STDD",
+      "description": "Reconstrói o desenho da arquitetura do sistema Looper",
       "work_types": [
         "implementacao"
       ],

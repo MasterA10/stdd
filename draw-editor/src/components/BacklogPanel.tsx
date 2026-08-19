@@ -15,7 +15,7 @@ interface BacklogPanelProps {
 export const BacklogPanel: React.FC<BacklogPanelProps> = ({ backlog, onClaimTask, onClaimTest, onRefresh, onCompleteTask, onUpdateChecklist }) => {
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   if (!backlog) {
-    return <div className="runs-empty-sidebar backlog-empty"><ListChecks size={22} /><strong>Backlog ainda não gerado</strong><span>Execute <code>stdd backlog generate</code> para criar as tasks.</span></div>;
+    return <div className="runs-empty-sidebar backlog-empty"><ListChecks size={22} /><strong>Backlog ainda não gerado</strong><span>Execute <code>looper backlog generate</code> para criar as tasks.</span></div>;
   }
   const currentTask = backlog.tasks.find((task) => task.id === backlog.execution.current_task_id);
   const remaining = backlog.tasks.filter((task) => task.status !== 'done');

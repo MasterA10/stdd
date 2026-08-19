@@ -2,8 +2,8 @@ import json
 from pathlib import Path
 from urllib.request import Request, urlopen
 
-from stdd.backlog import generate_backlog
-from stdd.draw import create_draw, start_server_for_test
+from looper.backlog import generate_backlog
+from looper.draw import create_draw, start_server_for_test
 
 
 def _create_hierarchical_fixture(root: Path) -> None:
@@ -34,10 +34,10 @@ def _create_hierarchical_fixture(root: Path) -> None:
     test_file = root / "tests" / "test_journey.py"
     test_file.parent.mkdir(parents=True, exist_ok=True)
     test_file.write_text('def test_journey_flow():\n    """Exercita a jornada servida pelo backlog.\n    Confirma o caminho principal da fixture.\n    """\n    assert True\n', encoding="utf-8")
-    kpi_path = root / ".stdd" / "adapters" / "static-analysis-kpis.json"
+    kpi_path = root / ".looper" / "adapters" / "static-analysis-kpis.json"
     kpi_path.parent.mkdir(parents=True, exist_ok=True)
     kpi_path.write_text(json.dumps({"details": {"symbols": [{"qualified_name": "tests.test_journey.test_journey_flow", "file": "tests/test_journey.py", "kind": "function"}]}}), encoding="utf-8")
-    config_path = root / ".stdd" / "config.json"
+    config_path = root / ".looper" / "config.json"
     config = json.loads(config_path.read_text(encoding="utf-8")) if config_path.exists() else {}
     config.setdefault("backlog", {})["bootstrap_task"] = False
     config.setdefault("backlog", {})["bootstrap_opt_out"] = True
@@ -53,17 +53,17 @@ def test_draw_server_serves_backlog_and_claims_and_completes_task(tmp_path: Path
     server, thread = start_server_for_test(tmp_path)
     base_url = f"http://127.0.0.1:{server.server_address[1]}"
     try:
-        document = json.loads(urlopen(f"{base_url}/.stdd/backlog.json").read())
+        document = json.loads(urlopen(f"{base_url}/.looper/backlog.json").read())
         assert document["tasks"][0]["questions"]
-        request = Request(f"{base_url}/__stdd/api/backlog/task", method="POST")
+        request = Request(f"{base_url}/__looper/api/backlog/task", method="POST")
         task = json.loads(urlopen(request).read())
         assert task["kind"] == "backlog-task"
         complete = Request(
-            f"{base_url}/__stdd/api/backlog/tasks/{task['task']['id']}/complete",
+            f"{base_url}/__looper/api/backlog/tasks/{task['task']['id']}/complete",
             method="POST",
         )
         assert json.loads(urlopen(complete).read())["status"] == "done"
-        saved = json.loads(urlopen(f"{base_url}/.stdd/backlog.json").read())
+        saved = json.loads(urlopen(f"{base_url}/.looper/backlog.json").read())
         assert saved["tasks"][0]["status"] == "done"
     finally:
         server.shutdown()
@@ -81,14 +81,14 @@ def test_draw_server_updates_backlog_checklist(tmp_path: Path):
     base_url = f"http://127.0.0.1:{server.server_address[1]}"
     try:
         payload = json.dumps({"task_id": "task:jornada:node:1", "phase": "test", "checked": False}).encode()
-        request = Request(f"{base_url}/__stdd/api/backlog/checklist", data=payload, method="POST", headers={"Content-Type": "application/json"})
+        request = Request(f"{base_url}/__looper/api/backlog/checklist", data=payload, method="POST", headers={"Content-Type": "application/json"})
         updated = json.loads(urlopen(request).read())
         assert updated["kind"] == "backlog-checklist-updated"
-        saved = json.loads(urlopen(f"{base_url}/.stdd/backlog.json").read())
+        saved = json.loads(urlopen(f"{base_url}/.looper/backlog.json").read())
         assert saved["tasks"][0]["checklist_state"]["test"] is False
 
         checked_payload = json.dumps({"task_id": "task:jornada:node:1", "phase": "test", "checked": True}).encode()
-        checked_request = Request(f"{base_url}/__stdd/api/backlog/checklist", data=checked_payload, method="POST", headers={"Content-Type": "application/json"})
+        checked_request = Request(f"{base_url}/__looper/api/backlog/checklist", data=checked_payload, method="POST", headers={"Content-Type": "application/json"})
         assert json.loads(urlopen(checked_request).read())["checked"] is True
     finally:
         server.shutdown()
@@ -101,7 +101,7 @@ def test_draw_server_exposes_test_phase_and_refresh(tmp_path: Path):
     Confirma que testes concluídos liberam a implementação da mesma task.
     """
     _create_hierarchical_fixture(tmp_path)
-    draw_path = tmp_path / ".stdd" / "draws" / "jornada.json"
+    draw_path = tmp_path / ".looper" / "draws" / "jornada.json"
     payload = json.loads(draw_path.read_text(encoding="utf-8"))
     for node in payload["nodes"]:
         node.pop("test_ref", None)
@@ -110,23 +110,23 @@ def test_draw_server_exposes_test_phase_and_refresh(tmp_path: Path):
     server, thread = start_server_for_test(tmp_path)
     base_url = f"http://127.0.0.1:{server.server_address[1]}"
     try:
-        refresh = Request(f"{base_url}/__stdd/api/backlog/refresh", method="POST")
+        refresh = Request(f"{base_url}/__looper/api/backlog/refresh", method="POST")
         refreshed = json.loads(urlopen(refresh).read())
         assert refreshed["kind"] == "backlog-refreshed"
 
-        testing = Request(f"{base_url}/__stdd/api/backlog/test", method="POST")
+        testing = Request(f"{base_url}/__looper/api/backlog/test", method="POST")
         test_task = json.loads(urlopen(testing).read())
         assert test_task["kind"] == "backlog-test-task"
         assert test_task["phase"] == "test"
 
         complete = Request(
-            f"{base_url}/__stdd/api/backlog/tasks/{test_task['task']['id']}/complete",
+            f"{base_url}/__looper/api/backlog/tasks/{test_task['task']['id']}/complete",
             method="POST",
         )
         completed = json.loads(urlopen(complete).read())
         assert completed["kind"] == "backlog-test-complete"
 
-        implementation = Request(f"{base_url}/__stdd/api/backlog/task", method="POST")
+        implementation = Request(f"{base_url}/__looper/api/backlog/task", method="POST")
         next_task = json.loads(urlopen(implementation).read())
         assert next_task["kind"] == "backlog-task"
         assert next_task["phase"] == "implementation"

@@ -39,7 +39,7 @@ from .setup import (
     ensure_stack_gitignore,
 )
 
-app = typer.Typer(help="STDD: CLI de suporte ao desenvolvimento orientado por testes.")
+app = typer.Typer(help="Looper: CLI de suporte ao desenvolvimento orientado por testes.")
 draw_app = typer.Typer(help="Cria e visualiza desenhos JSON do projeto.")
 app.add_typer(draw_app, name="draw")
 backlog_app = typer.Typer(help="Gera e executa tasks derivadas dos Draws.")
@@ -53,8 +53,8 @@ def init(
     all_integrations: bool = typer.Option(False, "--all-integrations", help="Instala as skills para Codex, Claude e Gemini."),
     interactive: bool = typer.Option(False, "--interactive", help="Abre a seleção numérica de integrações e setup."),
 ) -> None:
-    """Inicializa a estrutura do STDD e instala as skills dos agentes.
-    Cria o diretório-alvo quando necessário, depois cria .stdd/ e .agents/skills.
+    """Inicializa a estrutura do Looper e instala as skills dos agentes.
+    Cria o diretório-alvo quando necessário, depois cria .looper/ e .agents/skills.
     """
     target = project.expanduser().resolve()
     if target.exists() and not target.is_dir():
@@ -115,7 +115,7 @@ def setup(
         typer.echo(f"Erro: o destino não é um diretório: {target}", err=True)
         raise typer.Exit(1)
     target.mkdir(parents=True, exist_ok=True)
-    if not (target / ".stdd" / "config.json").exists():
+    if not (target / ".looper" / "config.json").exists():
         init_project(target)
     ensure_gitignore(target)
     stack = configure_project(target)
@@ -160,7 +160,7 @@ def log_work(
         help="Tipo de trabalho em formato texto (bug, teste, implementacao, refactor).",
     ),
 ) -> None:
-    """Registra uma alteração de código com estatísticas do Git em .stdd/runs.
+    """Registra uma alteração de código com estatísticas do Git em .looper/runs.
     Coleta flags de tipo e marca alterações incrementais grandes como retrabalho automaticamente.
     """
     types: list[str] = []
@@ -237,7 +237,7 @@ def backlog_complete(task_id: str = typer.Argument(..., help="ID da task atualme
 def draw_create(
     data_json: str = typer.Option(..., "--data-json", help="Payload JSON inline do desenho."),
 ) -> None:
-    """Valida e grava somente o JSON de um desenho em .stdd/draws.
+    """Valida e grava somente o JSON de um desenho em .looper/draws.
     Atualiza o índice leve e nunca cria HTML individual para o desenho.
     """
     try:
@@ -247,7 +247,7 @@ def draw_create(
         analysis = analyze_draw_structure(root, logical_payload)
         contract_warnings = analyze_draw_contract(
             logical_payload,
-            f".stdd/draws/{logical_payload.get('id', '(novo desenho)')}.json",
+            f".looper/draws/{logical_payload.get('id', '(novo desenho)')}.json",
         )
         created = create_draw(root, payload)
     except (json.JSONDecodeError, ValueError) as error:
@@ -281,7 +281,7 @@ def draw_create(
 def app_create(
     data_json: str = typer.Option(..., "--data-json", help="Payload JSON inline do desenho."),
 ) -> None:
-    """Valida e grava somente o JSON de um desenho em .stdd/draws."""
+    """Valida e grava somente o JSON de um desenho em .looper/draws."""
     draw_create(data_json=data_json)
 
 
@@ -289,7 +289,7 @@ def app_create(
 @draw_app.command("list")
 def draw_list() -> None:
     """Lista os desenhos disponíveis sem carregar seus grafos completos.
-    Lê somente os metadados de .stdd/draws/index.json.
+    Lê somente os metadados de .looper/draws/index.json.
     """
     try:
         entries = read_draw_index(project_root()).get("draws", [])
@@ -314,7 +314,7 @@ def draw_symbols() -> None:
 
 @draw_app.command("questions")
 def draw_questions() -> None:
-    """Localiza perguntas abertas marcadas com @stdd para o Draw Interaction."""
+    """Localiza perguntas abertas marcadas com @looper para o Draw Interaction."""
     try:
         questions = find_addressed_questions(project_root())
     except (OSError, ValueError, RuntimeError) as error:
@@ -340,7 +340,7 @@ def draw_answer() -> None:
 def draw_diff(
     run_id: Optional[str] = typer.Option(None, "--run-id", help="ID do log histórico a consultar."),
 ) -> None:
-    """Exibe mudanças atuais dos JSONs de Draws desde o último stdd log.
+    """Exibe mudanças atuais dos JSONs de Draws desde o último looper log.
     Com --run-id, consulta o diff histórico salvo naquele log.
     """
     root = project_root()

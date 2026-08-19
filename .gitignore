@@ -1,4 +1,4 @@
-# STDD managed rules
+# Looper managed rules
 .env
 .env.*
 !.env.example

@@ -1,6 +1,6 @@
 ---
 name: draw-feature
-description: Cria JSONs de features, fluxos, arquiteturas e trade-offs para o viewer Draw do STDD, sem escrever HTML manualmente.
+description: Cria JSONs de features, fluxos, arquiteturas e trade-offs para o viewer Draw do Looper, sem escrever HTML manualmente.
 ---
 
 # Draw Feature
@@ -26,30 +26,30 @@ Desenhos integrados a essa árvore devem declarar `hierarchy.level`, `hierarchy.
 4. Gere ou atualize somente o JSON usando:
 
 ```bash
-stdd draw create --data-json '<JSON>'
+looper draw create --data-json '<JSON>'
 ```
 
 Depois de criar ou atualizar o JSON, inclusive quando somente o Draw mudou, registre o checkpoint da interação:
 
 ```bash
-stdd log "Atualiza desenho da feature" --impl
+looper log "Atualiza desenho da feature" --impl
 ```
 
 5. Abra o viewer com:
 
 ```bash
-stdd draw serve
+looper draw serve
 ```
 
 6. Selecione o desenho gerado no índice e confira conexões, fluxo e trade-offs.
 
 7. Para editar manualmente, interaja diretamente com o canvas: selecione e mova blocos, altere os controles embutidos ou arraste a porta roxa de saída até o destino. O botão `Conectar blocos` mantém o fluxo alternativo por dois cliques. Toda exclusão pede confirmação.
 8. Para começar do zero, use `Novo desenho`, informe o título e adicione o primeiro bloco. Um canvas sem nós é válido. As mudanças ficam pendentes até o usuário pressionar `Salvar alterações`.
-9. Para iniciar uma feature a partir de um desenho, informe ao Create Tests Agent o ID do JSON; ele deve ler `.stdd/draws/<draw-id>.json` diretamente e interpretar a lógica do desenho.
+9. Para iniciar uma feature a partir de um desenho, informe ao Create Tests Agent o ID do JSON; ele deve ler `.looper/draws/<draw-id>.json` diretamente e interpretar a lógica do desenho.
 
-Antes de persistir um desenho, `stdd draw create` exige que todo nó tenha pelo menos uma conexão por edge, em qualquer direção. `draw_ref`, `flows.steps` e vínculos hierárquicos não substituem uma edge. A análise de repetição de títulos, fluxos, subfluxos e estruturas semelhantes é somente warning: nunca bloqueia a criação e não deve ser tratada como prova de geração por script.
+Antes de persistir um desenho, `looper draw create` exige que todo nó tenha pelo menos uma conexão por edge, em qualquer direção. `draw_ref`, `flows.steps` e vínculos hierárquicos não substituem uma edge. A análise de repetição de títulos, fluxos, subfluxos e estruturas semelhantes é somente warning: nunca bloqueia a criação e não deve ser tratada como prova de geração por script.
 
-Não escreva HTML, CSS ou JavaScript para um desenho individual. O layout e os componentes pertencem ao viewer React Flow empacotado pelo STDD.
+Não escreva HTML, CSS ou JavaScript para um desenho individual. O layout e os componentes pertencem ao viewer React Flow empacotado pelo Looper.
 
 ## Modelo de dados
 
@@ -111,7 +111,7 @@ Ao utilizar subfluxos, observe rigorosamente as regras de **hierarquia de funç�
 
 1. **Separação Clara de Níveis de Abstração**:
    - **Desenho pai**: mantém somente a abstração do nível em que está e aponta para o filho por `draw_ref`.
-   - **Desenho filho**: mantido em arquivo próprio (`.stdd/draws/<subflow-id>.json`), detalha exclusivamente a fronteira interna e declara seu `parent_draw_ref` e `parent_node_id`.
+   - **Desenho filho**: mantido em arquivo próprio (`.looper/draws/<subflow-id>.json`), detalha exclusivamente a fronteira interna e declara seu `parent_draw_ref` e `parent_node_id`.
    - Em sistemas, use nível 1 para arquitetura, nível 2 para jornadas, nível 3 para implementação e nível 4 para codebase. Um desenho de feature pode começar no nível que corresponde ao seu escopo, mas não pode criar um filho sem pai.
 
 2. **Proibição de Duplicação e Poluição**:
@@ -120,7 +120,7 @@ Ao utilizar subfluxos, observe rigorosamente as regras de **hierarquia de funç�
    - **Nunca duplique etapas**: Um processo individual que ocorre dentro do subfluxo **jamais deve aparecer no fluxo principal** (e vice-versa), garantindo que a divisão de escopos seja limpa e modular.
 
 3. **Navegação sob Demanda**:
-   - O valor de `draw_ref` deve ser o ID descritivo de outro JSON em `.stdd/draws/`. O viewer carregará esse subdesenho somente quando o usuário abrir o nó e permitirá voltar ao desenho pai. Não duplique os nós detalhados no desenho abstrato.
+   - O valor de `draw_ref` deve ser o ID descritivo de outro JSON em `.looper/draws/`. O viewer carregará esse subdesenho somente quando o usuário abrir o nó e permitirá voltar ao desenho pai. Não duplique os nós detalhados no desenho abstrato.
 
 ### Perguntas de esclarecimento
 
@@ -191,5 +191,5 @@ Perguntas respondidas permanecem no JSON como histórico. Não invente respostas
 Depois de criar ou atualizar qualquer JSON lógico do Draw, mesmo sem alteração de código, registre a alteração com um único tipo de log apropriado:
 
 ```bash
-stdd log "Atualiza desenho da feature" --impl
+looper log "Atualiza desenho da feature" --impl
 ```

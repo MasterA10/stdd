@@ -1,7 +1,7 @@
-# STDD Draw Editor
+# Looper Draw Editor
 
-Este diretório contém os fontes editáveis do viewer React Flow usado pelo STDD.
-Ele existe para desenvolvimento do editor e não é copiado para os projetos inicializados pelo comando `stdd init`.
+Este diretório contém os fontes editáveis do viewer React Flow usado pelo Looper.
+Ele existe para desenvolvimento do editor e não é copiado para os projetos inicializados pelo comando `looper init`.
 
 ## Desenvolvimento
 
@@ -16,5 +16,5 @@ Para gerar o viewer distribuído pelo pacote Python:
 npm run build
 ```
 
-Depois copie o conteúdo de `dist/` para `src/stdd/draw_assets/` e execute os testes Python do STDD.
-O runtime do usuário continua usando somente os assets compilados do pacote, os Draws em `.stdd/draws/` e os fatos derivados em `.stdd/facts/`.
+Depois copie o conteúdo de `dist/` para `src/looper/draw_assets/` e execute os testes Python do Looper.
+O runtime do usuário continua usando somente os assets compilados do pacote, os Draws em `.looper/draws/` e os fatos derivados em `.looper/facts/`.

@@ -1,6 +1,6 @@
 ---
 name: draw-system-level-4
-description: "Cria sob demanda o nível 4 de um Draw System no STDD: a explicação técnica de baixo nível que liga um comportamento do nível 3 a arquivos, módulos, símbolos, contratos, banco, integrações e testes reais. Não iniciar automaticamente nem inventar fatos."
+description: "Cria sob demanda o nível 4 de um Draw System no Looper: a explicação técnica de baixo nível que liga um comportamento do nível 3 a arquivos, módulos, símbolos, contratos, banco, integrações e testes reais. Não iniciar automaticamente nem inventar fatos."
 ---
 
 # Draw System — Nível 4: Codebase / baixo nível
@@ -13,7 +13,7 @@ Leia sempre o nó de nível 3, seu pai de nível 2, a raiz e os descendentes rel
 
 ## Hierarquia e encapsulamento
 
-Crie o filho com `hierarchy.level: 4`, `role: "codebase"`, `parent_draw_ref` igual ao nível 3, `parent_node_id` igual ao nó/decisão aprofundado e `root_draw_ref` igual à arquitetura. Atualize o nó pai com um único `draw_ref`. Todo descendente precisa de `parent_draw_ref`, `parent_node_id` e `root_draw_ref`; toda cadeia deve ser resolvível em `.stdd/draws/`, chegar ao nível 1 e permanecer sem fluxos órfãos.
+Crie o filho com `hierarchy.level: 4`, `role: "codebase"`, `parent_draw_ref` igual ao nível 3, `parent_node_id` igual ao nó/decisão aprofundado e `root_draw_ref` igual à arquitetura. Atualize o nó pai com um único `draw_ref`. Todo descendente precisa de `parent_draw_ref`, `parent_node_id` e `root_draw_ref`; toda cadeia deve ser resolvível em `.looper/draws/`, chegar ao nível 1 e permanecer sem fluxos órfãos.
 
 O nível 3 permanece como Controller em linguagem simples e o pai permanece como cápsula. Não duplicar regras, navegação ou passos do pai. Não criar fluxo órfão, referência quebrada, continuação fictícia ou arquivo intermediário.
 
@@ -59,14 +59,14 @@ Nunca misture `se` com `ou` na mesma decisão. Nunca misture `ou` com `se`: são
 3. Consultar a análise estática e testes reais antes de associar símbolos.
 4. Criar somente o subfluxo técnico necessário, sem abrir outras partes por simetria.
 5. Usar `groups` para responsabilidades e `flows` para a execução técnica necessária.
-6. Criar o JSON separadamente com IDs estáveis usando `stdd draw create --data-json '<JSON>'`.
+6. Criar o JSON separadamente com IDs estáveis usando `looper draw create --data-json '<JSON>'`.
 7. Validar pais, raiz, referências, relações, condições, `code_refs`, `qualified_name`, `source_dependencies` e terminais.
-8. Revisar com `stdd draw serve`. Manter o nível 4 terminal quando não houver detalhe técnico adicional necessário.
+8. Revisar com `looper draw serve`. Manter o nível 4 terminal quando não houver detalhe técnico adicional necessário.
 
 Ao alterar o desenho, registrar:
 
 ```bash
-stdd log "Rastreia codebase do sistema no nível 4" --type implementacao
+looper log "Rastreia codebase do sistema no nível 4" --type implementacao
 ```
 
 Entregar IDs, arquivos e símbolos resolvidos, referências `unresolved` ou `drift`, queries, contratos, testes, limitações e o recorte para o `$create-tests-backlog`. O `$implement-backlog` só pode seguir após testes vermelhos aprovados.

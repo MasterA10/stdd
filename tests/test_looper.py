@@ -3,8 +3,8 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from stdd.cli import app
-from stdd.core import agent_templates, init_project
+from looper.cli import app
+from looper.core import agent_templates, init_project
 
 
 runner = CliRunner()
@@ -12,14 +12,14 @@ runner = CliRunner()
 
 def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatch):
     """Inicializa a estrutura do projeto e garante idempotência no comando init.
-    Executa stdd init duas vezes e valida se config.json e skills são criados sem erros.
+    Executa looper init duas vezes e valida se config.json e skills são criados sem erros.
     """
     monkeypatch.chdir(tmp_path)
     first = runner.invoke(app, ["init"])
     second = runner.invoke(app, ["init"])
     assert first.exit_code == 0
     assert second.exit_code == 0
-    assert (tmp_path / ".stdd/config.json").exists()
+    assert (tmp_path / ".looper/config.json").exists()
     assert (tmp_path / ".agents/skills/create-tests-backlog/SKILL.md").exists()
     assert not (tmp_path / ".agents/skills/feature").exists()
     assert (tmp_path / ".agents/skills/implement-backlog/SKILL.md").exists()
@@ -34,13 +34,41 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
         assert (tmp_path / ".agents/skills" / f"draw-system-level-{level}" / "agents/openai.yaml").exists()
     assert (tmp_path / ".agents/skills/draw-improve/agents/openai.yaml").exists()
     assert (tmp_path / "AGENTS.md").exists()
-    assert "stdd test" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "looper test" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert "backlog" in (tmp_path / ".agents/skills/create-tests-backlog/SKILL.md").read_text().lower()
     assert not (tmp_path / ".agents/skills/create-tests/SKILL.md").exists()
     assert not (tmp_path / ".agents/skills/implement/SKILL.md").exists()
     for source in agent_templates():
         installed = tmp_path / ".agents" / "skills" / source.parent.name / "SKILL.md"
         assert installed.read_text(encoding="utf-8") == source.read_text(encoding="utf-8")
+
+
+def test_init_migrates_legacy_stdd_state_and_text_references(tmp_path: Path):
+    """Converte um projeto inicializado pelo STDD sem apagar seu estado.
+    Move `.stdd` para `.looper` e atualiza referências textuais em arquivos do projeto.
+    """
+    legacy = tmp_path / ".stdd"
+    (legacy / "draws").mkdir(parents=True)
+    (legacy / "config.json").write_text('{"legacy": true}\n', encoding="utf-8")
+    (legacy / "draws" / "journey.json").write_text(
+        '{"draw_file": ".stdd/draws/journey.json", "tool": "STDD"}\n',
+        encoding="utf-8",
+    )
+    (tmp_path / "AGENTS.md").write_text("Use stdd test e leia .stdd/config.json.\n", encoding="utf-8")
+    (tmp_path / ".gitignore").write_text("# STDD managed rules\n", encoding="utf-8")
+
+    result = runner.invoke(app, ["init", str(tmp_path), "--integration", "codex"])
+    assert result.exit_code == 0, result.output
+
+    assert not legacy.exists()
+    migrated_config = json.loads((tmp_path / ".looper/config.json").read_text(encoding="utf-8"))
+    assert migrated_config["legacy"] is True
+    migrated_draw = (tmp_path / ".looper/draws/journey.json").read_text(encoding="utf-8")
+    assert "looper" in migrated_draw.lower()
+    assert "stdd" not in migrated_draw.lower()
+    assert "looper test" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert ".looper/config.json" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "LOOPER managed rules" in (tmp_path / ".gitignore").read_text(encoding="utf-8")
 
 
 def test_init_always_synchronizes_existing_agent_skills(tmp_path: Path):
@@ -53,7 +81,7 @@ def test_init_always_synchronizes_existing_agent_skills(tmp_path: Path):
 
     init_project(tmp_path)
 
-    assert skill.read_text(encoding="utf-8") == Path("src/stdd/templates/agents/draw-system-level-3/SKILL.md").read_text(encoding="utf-8")
+    assert skill.read_text(encoding="utf-8") == Path("src/looper/templates/agents/draw-system-level-3/SKILL.md").read_text(encoding="utf-8")
 
 
 def test_init_defers_language_specific_test_runner_to_setup(tmp_path: Path):
@@ -61,7 +89,7 @@ def test_init_defers_language_specific_test_runner_to_setup(tmp_path: Path):
     Chama init_project e verifica que a configuração inicial aguarda o setup da stack.
     """
     init_project(tmp_path)
-    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    config = json.loads((tmp_path / ".looper/config.json").read_text())
     assert config["test_commands"] == []
     assert config["testing"]["profile"] == "mvp"
     assert config["backlog"]["bootstrap_task"] is True
@@ -76,7 +104,7 @@ def test_init_creates_static_analysis_without_frontend_policy(tmp_path: Path):
     """
     init_project(tmp_path)
 
-    config = json.loads((tmp_path / ".stdd/config.json").read_text())
+    config = json.loads((tmp_path / ".looper/config.json").read_text())
     assert "frontend" not in config["static_analysis"]
     assert config["static_analysis"]["exceptions"] == []
 
@@ -89,9 +117,9 @@ def test_init_accepts_project_directory_argument(tmp_path: Path, monkeypatch):
     result = runner.invoke(app, ["init", "my-project"])
 
     assert result.exit_code == 0
-    assert (tmp_path / "my-project/.stdd/config.json").exists()
+    assert (tmp_path / "my-project/.looper/config.json").exists()
     assert (tmp_path / "my-project/.agents/skills/create-tests-backlog/SKILL.md").exists()
-    assert not (tmp_path / ".stdd").exists()
+    assert not (tmp_path / ".looper").exists()
 
 
 def test_init_rejects_file_as_project_directory(tmp_path: Path):
@@ -107,23 +135,23 @@ def test_init_rejects_file_as_project_directory(tmp_path: Path):
     assert "diretório" in result.output.lower()
 
 
-def test_init_keeps_framework_artifacts_in_stdd_and_agent_skills_in_agents(tmp_path: Path):
-    """Mantém artefatos do framework em .stdd e skills de agentes em .agents/skills.
+def test_init_keeps_framework_artifacts_in_looper_and_agent_skills_in_agents(tmp_path: Path):
+    """Mantém artefatos do framework em .looper e skills de agentes em .agents/skills.
     Inicializa um projeto vazio e verifica que nenhum outro diretório ou arquivo é criado na raiz.
     """
     init_project(tmp_path)
 
-    assert {path.name for path in tmp_path.iterdir()} == {".stdd", ".agents", ".gitignore", "AGENTS.md"}
+    assert {path.name for path in tmp_path.iterdir()} == {".looper", ".agents", ".gitignore", "AGENTS.md"}
     assert (tmp_path / ".agents/skills/create-tests-backlog/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/implement-backlog/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/setup/SKILL.md").exists()
     assert not (tmp_path / ".agents/config.json").exists()
-    assert (tmp_path / ".stdd/config.json").exists()
-    assert not (tmp_path / ".stdd/draw.html").exists()
-    assert (tmp_path / ".stdd/draws/index.json").exists()
-    assert (tmp_path / ".stdd/draws/demo-inicial.json").exists()
-    assert (tmp_path / ".stdd/runs.html").exists()
-    assert (tmp_path / ".stdd/runs/index.json").exists()
+    assert (tmp_path / ".looper/config.json").exists()
+    assert not (tmp_path / ".looper/draw.html").exists()
+    assert (tmp_path / ".looper/draws/index.json").exists()
+    assert (tmp_path / ".looper/draws/demo-inicial.json").exists()
+    assert (tmp_path / ".looper/runs.html").exists()
+    assert (tmp_path / ".looper/runs/index.json").exists()
     gitignore = (tmp_path / ".gitignore").read_text()
     assert ".env" in gitignore
     assert "*.pyc" in gitignore
@@ -134,7 +162,7 @@ def test_init_keeps_framework_artifacts_in_stdd_and_agent_skills_in_agents(tmp_p
 
 
 def test_init_injects_idempotent_instructions_for_all_agents(tmp_path: Path):
-    """Atualiza os três arquivos locais de instruções sem duplicar o contrato STDD.
+    """Atualiza os três arquivos locais de instruções sem duplicar o contrato Looper.
     Inicializa todas as integrações duas vezes e preserva o conteúdo previamente escrito pelo projeto.
     """
     (tmp_path / "AGENTS.md").write_text("# Regras do projeto\n\nNão remova este texto.\n", encoding="utf-8")
@@ -148,13 +176,13 @@ def test_init_injects_idempotent_instructions_for_all_agents(tmp_path: Path):
 
     for name, content in first.items():
         assert (tmp_path / name).read_text(encoding="utf-8") == content
-        assert content.count("STDD:BEGIN AGENT INSTRUCTIONS") == 1
-        assert "stdd log" in content
+        assert content.count("Looper:BEGIN AGENT INSTRUCTIONS") == 1
+        assert "looper log" in content
         assert "commit" in content
         assert "push" in content
         assert "branch `main`" in content
         assert "uv tool install --force --editable ." in content
-        assert ".stdd/design.md" in content
+        assert ".looper/design.md" in content
         assert "fonte obrigatória de decisões visuais" in content
     assert "Não remova este texto." in first["AGENTS.md"]
 
@@ -169,12 +197,12 @@ def test_init_uses_existing_claude_project_memory_file(tmp_path: Path):
 
     init_project(tmp_path, integrations=("claude",))
 
-    assert "STDD:BEGIN AGENT INSTRUCTIONS" in project_memory.read_text(encoding="utf-8")
+    assert "Looper:BEGIN AGENT INSTRUCTIONS" in project_memory.read_text(encoding="utf-8")
     assert not (tmp_path / "CLAUDE.md").exists()
 
 
 def test_init_preserves_existing_gitignore_and_does_not_duplicate_rules(tmp_path: Path):
-    """Completa o gitignore existente sem apagar regras ou duplicar padrões STDD.
+    """Completa o gitignore existente sem apagar regras ou duplicar padrões Looper.
     Inicializa duas vezes um projeto com regra própria e conta uma ocorrência de cada padrão gerenciado.
     """
     gitignore = tmp_path / ".gitignore"
@@ -210,14 +238,14 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "Etapa 1" in templates["static-analysis"].read_text()
     assert "hardcoded_secret" in templates["static-analysis"].read_text()
     assert "[REDACTED]" in templates["static-analysis"].read_text()
-    assert "stdd:allow-credential" in templates["static-analysis"].read_text()
+    assert "looper:allow-credential" in templates["static-analysis"].read_text()
     assert "allow_marked_test_credentials" in templates["static-analysis"].read_text()
     assert ".env" in templates["static-analysis"].read_text()
     assert "*.pyc" in templates["static-analysis"].read_text()
-    assert "stdd draw create" in templates["draw-feature"].read_text()
-    assert "stdd log" in templates["draw-feature"].read_text()
+    assert "looper draw create" in templates["draw-feature"].read_text()
+    assert "looper log" in templates["draw-feature"].read_text()
     for level in range(1, 5):
-        assert "stdd log" in templates[f"draw-system-level-{level}"].read_text()
+        assert "looper log" in templates[f"draw-system-level-{level}"].read_text()
 
     level_one = templates["draw-system-level-1"].read_text().lower()
     for required in ("nível 1", "parent_draw_ref", "parent_node_id", "root_draw_ref", "jornadas do usuário", "sem fluxos órfãos", "code_refs"):
@@ -232,17 +260,17 @@ def test_agents_are_loaded_from_markdown_templates():
     for required in ("nível 4", "sob demanda", "qualified_name", "rpc", "procedure", "sql", "arquivo", "model"):
         assert required in level_four
 
-    for required in ("supabase", "rpc", "back-end", "external_logic", "technologies", "sql_procedure", "sql_function", "localização da regra", "todos os níveis", "frontend/interface", "static_analysis.exceptions", "stdd:ignore", "draw.level2_missing_code_ref", "draw.level3_min_nodes", "draw.level3_short_description", "menos de quatro nós", "menos de 80 caracteres", "somente `stdd test` aplica o bloqueio"):
+    for required in ("supabase", "rpc", "back-end", "external_logic", "technologies", "sql_procedure", "sql_function", "localização da regra", "todos os níveis", "frontend/interface", "static_analysis.exceptions", "looper:ignore", "draw.level2_missing_code_ref", "draw.level3_min_nodes", "draw.level3_short_description", "menos de quatro nós", "menos de 80 caracteres", "somente `looper test` aplica o bloqueio"):
         assert required in templates["static-analysis"].read_text().lower()
 
     setup_content = templates["setup"].read_text()
-    assert "núcleo do STDD permanece agnóstico" in setup_content
+    assert "núcleo do Looper permanece agnóstico" in setup_content
     assert "algoritmo deve ser próprio da stack detectada" in setup_content
     assert "Não começar pelo formato JSON" in setup_content
     assert "quality_findings" in setup_content
     assert "observed" in setup_content and "resolved" in setup_content and "unresolved" in setup_content
     assert "diretório do próprio projeto analisado" in setup_content
-    assert "<project_root>/.stdd/adapters/" in setup_content
+    assert "<project_root>/.looper/adapters/" in setup_content
     assert "não depender de serviço externo" in setup_content
     assert "personalizado para a linguagem e para a codebase" in setup_content
     assert "frontend-analysis" not in setup_content
@@ -256,14 +284,14 @@ def test_agents_are_loaded_from_markdown_templates():
 
 def test_test_and_implement_skills_require_symbols_and_static_analysis_gate():
     """Exige rastreabilidade de símbolos nas skills de teste e implementação.
-    Confirma que ambas instruem o agente a executar `stdd test` antes de concluir.
+    Confirma que ambas instruem o agente a executar `looper test` antes de concluir.
     """
     for name in ("create-tests-backlog", "implement-backlog"):
-        content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
+        content = Path(f"src/looper/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         assert "associar" in content and "símbolo" in content
         assert "code_refs" in content
-        assert "stdd test" in content
-        assert "stdd draw associate-reference" in content
+        assert "looper test" in content
+        assert "looper draw associate-reference" in content
         assert "draw.level2_missing_code_ref" in content
         assert "draw.empty_node_symbol" in content
 
@@ -273,12 +301,12 @@ def test_test_and_implement_skills_require_explicit_draw_association_each_loop()
     Exige o comando e a verificação em cada ciclo de entrega.
     """
     for name in ("create-tests-backlog", "implement-backlog"):
-        content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
+        content = Path(f"src/looper/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         assert "a associação não é automática" in content
         assert "em todo loop" in content or "neste loop" in content
         assert "cada nó entregue" in content
         assert "qualified_name" in content
-        assert "stdd draw symbols" in content
+        assert "looper draw symbols" in content
         assert "--draw-id <draw-id>" in content
         assert "--node-id <node-id>" in content
         assert "--qualified-name" in content
@@ -291,7 +319,7 @@ def test_implement_skill_requires_real_post_implementation_audit():
     """Impede que a verificação intermediária aprove código apenas por status.
     Exige leitura dos arquivos, comparação com o Draw, testes e evidências reais.
     """
-    content = Path("src/stdd/templates/agents/implement-backlog/SKILL.md").read_text(encoding="utf-8").lower()
+    content = Path("src/looper/templates/agents/implement-backlog/SKILL.md").read_text(encoding="utf-8").lower()
 
     for required in (
         "verificação intermediária da implementação",
@@ -315,10 +343,10 @@ def test_backlog_skills_are_not_for_common_interactions():
     Confirma nomes explícitos, gatilho pelos comandos backlog e a regra de não leitura fora do ciclo.
     """
     for name, trigger in (
-        ("create-tests-backlog", "stdd backlog test"),
-        ("implement-backlog", "stdd backlog task"),
+        ("create-tests-backlog", "looper backlog test"),
+        ("implement-backlog", "looper backlog task"),
     ):
-        content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
+        content = Path(f"src/looper/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         assert "exclusivamente" in content
         assert trigger in content
         assert "não leia esta skill para edições comuns" in content
@@ -327,7 +355,7 @@ def test_backlog_skills_are_not_for_common_interactions():
     assert "$create-tests-backlog" in installed_instructions
     assert "$implement-backlog" in installed_instructions
     assert "não leia essas skills para edições" in installed_instructions
-    assert "stdd backlog complete <task-id>" in installed_instructions
+    assert "looper backlog complete <task-id>" in installed_instructions
     assert "o cursor não avança" in installed_instructions
     assert "implemente e teste ambos" in installed_instructions
     assert "não limita a entrega ao frontend" in installed_instructions
@@ -338,7 +366,7 @@ def test_contextual_memory_routes_durable_rules_to_the_right_document():
     Confirma que as skills orientam o registro durável sem transformar logs em contexto.
     """
     agents = Path("AGENTS.md").read_text(encoding="utf-8").lower()
-    design = Path(".stdd/design.md").read_text(encoding="utf-8").lower()
+    design = Path(".looper/design.md").read_text(encoding="utf-8").lower()
 
     assert "memória contextual seletiva" in agents
     assert "contratos, arquitetura, operação" in agents
@@ -347,9 +375,9 @@ def test_contextual_memory_routes_durable_rules_to_the_right_document():
     assert "ctrl/cmd+c" in design
     assert "nota ponderada" in design
     for name in ("create-tests-backlog", "implement-backlog"):
-        skill = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
+        skill = Path(f"src/looper/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         assert "memória contextual seletiva" in skill
-        assert ".stdd/design.md" in skill
+        assert ".looper/design.md" in skill
         assert "não registre" in skill
 
 
@@ -357,8 +385,8 @@ def test_node_delivery_contract_covers_tests_and_full_implementation():
     """Mantém explícito que `node` entrega a tela e todos os comportamentos internos.
     Confirma a regra nas skills de testes e de implementação do backlog.
     """
-    implement = Path("src/stdd/templates/agents/implement-backlog/SKILL.md").read_text(encoding="utf-8").lower()
-    create_tests = Path("src/stdd/templates/agents/create-tests-backlog/SKILL.md").read_text(encoding="utf-8").lower()
+    implement = Path("src/looper/templates/agents/implement-backlog/SKILL.md").read_text(encoding="utf-8").lower()
+    create_tests = Path("src/looper/templates/agents/create-tests-backlog/SKILL.md").read_text(encoding="utf-8").lower()
     normalized_implement = " ".join(implement.split())
     normalized_create_tests = " ".join(create_tests.split())
 
@@ -376,8 +404,8 @@ def test_loop_skills_honor_disabled_test_phase():
     """Orienta os agentes a pular create-tests quando o init desabilitar testes.
     Mantém o cursor direcionado ao loop de implementação.
     """
-    implement = Path("src/stdd/templates/agents/implement-backlog/SKILL.md").read_text(encoding="utf-8").lower()
-    create_tests = Path("src/stdd/templates/agents/create-tests-backlog/SKILL.md").read_text(encoding="utf-8").lower()
+    implement = Path("src/looper/templates/agents/implement-backlog/SKILL.md").read_text(encoding="utf-8").lower()
+    create_tests = Path("src/looper/templates/agents/create-tests-backlog/SKILL.md").read_text(encoding="utf-8").lower()
     for content in (implement, create_tests):
         assert "test_loop_enabled: false" in content
         assert "loop de implementação" in content or "loop somente de implementação" in content
@@ -389,7 +417,7 @@ def test_draw_system_level_three_splits_complete_detailed_screen_flows_into_phas
     """Mantém o nível 3 em lotes completos, detalhando a tela por inteiro.
     Lê a skill publicada e impede fluxo estático, fase única ou desenho padronizado.
     """
-    content = Path("src/stdd/templates/agents/draw-system-level-3/SKILL.md").read_text(encoding="utf-8").lower()
+    content = Path("src/looper/templates/agents/draw-system-level-3/SKILL.md").read_text(encoding="utf-8").lower()
 
     for required in (
         "dois lotes",
@@ -422,7 +450,7 @@ def test_draw_system_levels_keep_then_compatible_with_one_branch_family():
     Lê cada template publicado e exige a convenção em todos os quatro níveis.
     """
     for level in range(1, 5):
-        content = Path(f"src/stdd/templates/agents/draw-system-level-{level}/SKILL.md").read_text(encoding="utf-8").lower()
+        content = Path(f"src/looper/templates/agents/draw-system-level-{level}/SKILL.md").read_text(encoding="utf-8").lower()
         for required in (
             "convenção lógica de conexões",
             "consequência certa",
@@ -439,11 +467,11 @@ def test_implement_skill_triages_draw_diffs_before_declaring_no_change():
     """Exige que implement considere diffs de desenhos como contrato.
     Também impede concluir implementação sem uma alteração coerente pendente.
     """
-    content = Path("src/stdd/templates/agents/implement-backlog/SKILL.md").read_text(encoding="utf-8").lower()
+    content = Path("src/looper/templates/agents/implement-backlog/SKILL.md").read_text(encoding="utf-8").lower()
 
     for required in (
-        "git diff -- .stdd/draws",
-        "git diff --cached -- .stdd/draws",
+        "git diff -- .looper/draws",
+        "git diff --cached -- .looper/draws",
         "arquivos não rastreados",
         "ler o json atual completo",
         "o diff de desenho é entrada de implementação",
@@ -457,13 +485,13 @@ def test_draw_improve_skill_is_incremental_and_hands_off_through_feature():
     """Limita cada melhoria do desenho e impede salto direto para produção.
     Confirma revisão humana, término sem alteração e sequência feature antes de implement.
     """
-    content = Path("src/stdd/templates/agents/draw-improve/SKILL.md").read_text(encoding="utf-8").lower()
+    content = Path("src/looper/templates/agents/draw-improve/SKILL.md").read_text(encoding="utf-8").lower()
 
     for required in (
-        ".stdd/draws/<draw-id>.json",
-        ".stdd/improvements/",
+        ".looper/draws/<draw-id>.json",
+        ".looper/improvements/",
         "exatamente dez perguntas",
-        "stdd draw improve --pending",
+        "looper draw improve --pending",
         "status `applied`",
         "no máximo 3 novos nós",
         "já está bom",
@@ -472,8 +500,8 @@ def test_draw_improve_skill_is_incremental_and_hands_off_through_feature():
         "$create-tests-backlog",
         "$implement-backlog",
         "estado vermelho",
-        "stdd draw diff",
-        "somente alterações em `.stdd/draws/*.json`",
+        "looper draw diff",
+        "somente alterações em `.looper/draws/*.json`",
     ):
         assert required in content
     assert "não pular" in content
@@ -484,7 +512,7 @@ def test_draw_improve_skill_requires_global_consistency_groups_and_questions():
     """Exige revisão integral, agrupamento e perguntas arquiteturais.
     Impede que a skill apenas acrescente nós sem corrigir o desenho existente.
     """
-    content = Path("src/stdd/templates/agents/draw-improve/SKILL.md").read_text(encoding="utf-8").lower()
+    content = Path("src/looper/templates/agents/draw-improve/SKILL.md").read_text(encoding="utf-8").lower()
 
     for required in (
         "revisão global",
@@ -494,7 +522,7 @@ def test_draw_improve_skill_requires_global_consistency_groups_and_questions():
         "groups",
         "exatamente dez perguntas",
         "opções neutras",
-        "não alterar `.stdd/draws/<draw-id>.json`",
+        "não alterar `.looper/draws/<draw-id>.json`",
     ):
         assert required in content
 
@@ -503,13 +531,13 @@ def test_draw_answer_owns_question_discovery_and_codebase_traceability():
     """Isola respostas endereçadas e exige evidência de símbolos reais.
     Confirma que a skill usa o localizador oficial e separa resposta de associação.
     """
-    content = Path("src/stdd/templates/agents/draw-interaction/SKILL.md").read_text(encoding="utf-8").lower()
+    content = Path("src/looper/templates/agents/draw-interaction/SKILL.md").read_text(encoding="utf-8").lower()
     for required in (
-        "stdd draw questions",
+        "looper draw questions",
         "somente sobre os itens json retornados",
         "draw_file",
         "question_id",
-        "@stdd",
+        "@looper",
         "codebase",
         "símbolos",
         "code_refs",
@@ -518,7 +546,7 @@ def test_draw_answer_owns_question_discovery_and_codebase_traceability():
         "qualified_name",
     ):
         assert required in content
-    improve = Path("src/stdd/templates/agents/draw-improve/SKILL.md").read_text(encoding="utf-8").lower()
+    improve = Path("src/looper/templates/agents/draw-improve/SKILL.md").read_text(encoding="utf-8").lower()
     assert "draw-interaction" in improve
     assert "não responde" in improve
 
@@ -527,7 +555,7 @@ def test_draw_feature_matches_always_interactive_viewer():
     """Mantém a skill base alinhada ao Draw sem modo separado de edição.
     Rejeita instruções antigas sobre ativar edição ou usar inspetor.
     """
-    content = Path("src/stdd/templates/agents/draw-feature/SKILL.md").read_text(encoding="utf-8").lower()
+    content = Path("src/looper/templates/agents/draw-feature/SKILL.md").read_text(encoding="utf-8").lower()
 
     assert "ative `editar desenho`" not in content
     assert "inspetor" not in content
@@ -539,12 +567,12 @@ def test_draw_skills_document_questions_and_answer_history():
     Garante que as skills compartilhadas exponham o contrato da interação.
     """
     for name in ("draw-feature", "draw-improve", "draw-interaction"):
-        content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
+        content = Path(f"src/looper/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         required_items = ("questions", "choice", "boolean", "open", "answer", "histórico")
         if name == "draw-improve":
-            required_items += ("sem resposta", ".stdd/improvements/")
+            required_items += ("sem resposta", ".looper/improvements/")
         if name == "draw-interaction":
-            required_items += ("@stdd", "`false` e `0`")
+            required_items += ("@looper", "`false` e `0`")
         for required in required_items:
             assert required in content, f"{name} não define {required}"
 
@@ -554,7 +582,7 @@ def test_draw_skills_preserve_system_hierarchy_and_terminal_unimplemented_paths(
     Confirma que pai, filho e folhas ainda não implementadas são tratados sem órfãos.
     """
     for name in ("draw-feature", "draw-improve", "draw-system-level-1", "draw-system-level-2", "draw-system-level-3", "draw-system-level-4"):
-        content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
+        content = Path(f"src/looper/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         for required in ("parent_draw_ref", "draw_ref", "órfãos"):
             assert required in content, f"{name} não define {required}"
 
@@ -564,7 +592,7 @@ def test_feature_and_implement_skills_honor_draw_system_boundaries():
     Confirma leitura de pais, filhos, referências e folhas não implementadas.
     """
     for name in ("create-tests-backlog", "implement-backlog", "setup", "static-analysis"):
-        content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
+        content = Path(f"src/looper/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         for required in ("draw-system", "parent_draw_ref", "parent_node_id", "root_draw_ref", "fluxo órfão"):
             assert required in content, f"{name} não define {required}"
 
@@ -574,7 +602,7 @@ def test_traceability_skills_cover_rpc_and_sql_implementations():
     Mantém modelos como dependências opcionais, nunca como implementação principal.
     """
     for name in ("draw-system-level-4", "setup", "static-analysis"):
-        content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
+        content = Path(f"src/looper/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         for required in ("rpc", "procedure", "sql", "arquivo", "model"):
             assert required in content, f"{name} não define {required}"
 
@@ -583,8 +611,8 @@ def test_setup_reports_missing_system_draw_without_creating_it():
     """Mantém setup separado da documentação arquitetural.
     Confirma que a verificação procura uma raiz, recomenda Draw System e não cria/edita o desenho.
     """
-    content = Path("src/stdd/templates/agents/setup/SKILL.md").read_text(encoding="utf-8").lower()
-    for required in (".stdd/draws/", "kind: \"system\"", "hierarchy.level: 1", "$draw-system-level-1", "não houver uma raiz de sistema", "não cria", "não deve editar o draw"):
+    content = Path("src/looper/templates/agents/setup/SKILL.md").read_text(encoding="utf-8").lower()
+    for required in (".looper/draws/", "kind: \"system\"", "hierarchy.level: 1", "$draw-system-level-1", "não houver uma raiz de sistema", "não cria", "não deve editar o draw"):
         assert required in content
 
 
@@ -621,7 +649,7 @@ def test_readme_documents_remote_install_and_interactive_integrations():
     """
     readme = Path("README.md").read_text(encoding="utf-8")
 
-    assert "uv tool install --force --refresh stdd --from git+https://github.com/MasterA10/stdd.git@main" in readme
+    assert "uv tool install --force --refresh looper --from git+https://github.com/MasterA10/looper.git@main" in readme
     assert "--all-integrations" in readme
     assert ".agents/skills/" in readme
     assert ".claude/skills/" in readme
@@ -633,7 +661,7 @@ def test_readme_documents_remote_install_and_interactive_integrations():
 
 def test_readme_documents_codex_skill_invocation():
     """Documenta como chamar as skills instaladas diretamente no terminal do Codex.
-    Confirma que o README relaciona cada comando de skill ao objetivo do fluxo do STDD.
+    Confirma que o README relaciona cada comando de skill ao objetivo do fluxo do Looper.
     """
     readme = Path("README.md").read_text(encoding="utf-8")
 
@@ -646,9 +674,9 @@ def test_feature_skill_uses_tests_and_draw_json_without_markdown_copies():
     """Mantém testes e desenhos como fontes diretas da especificação da feature.
     Impede que a skill volte a criar request.md ou scenarios.md como cópias intermediárias.
     """
-    content = (Path("src/stdd/templates/agents/create-tests-backlog/SKILL.md")).read_text(encoding="utf-8")
+    content = (Path("src/looper/templates/agents/create-tests-backlog/SKILL.md")).read_text(encoding="utf-8")
 
-    assert ".stdd/draws/<draw-id>.json" in content
+    assert ".looper/draws/<draw-id>.json" in content
     assert "request.md" not in content
     assert "scenarios.md" not in content
 
@@ -657,7 +685,7 @@ def test_setup_skill_defines_global_alias_and_database_lifecycle():
     """Exige um alias global que inclua runners com preparação e limpeza de banco.
     Valida que falhas não interrompem as suítes seguintes e aparecem no resultado consolidado.
     """
-    content = Path("src/stdd/templates/agents/setup/SKILL.md").read_text(encoding="utf-8").lower()
+    content = Path("src/looper/templates/agents/setup/SKILL.md").read_text(encoding="utf-8").lower()
 
     for required in ("alias global", "todas as suítes", "migrations", "cleanup", "não interrompe"):
         assert required in content
@@ -668,14 +696,14 @@ def test_agent_skills_require_approval_for_expensive_or_mutating_setup():
     Confirma que setup e implement preservam controle explícito em perfis flexíveis como MVP.
     """
     for name in ("setup", "implement-backlog"):
-        content = Path(f"src/stdd/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
+        content = Path(f"src/looper/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         for required in ("mvp", "aprovação explícita", "instalar", "baixar", "container", "criar banco"):
             assert required in content, f"{name} não define {required}"
 
 
 def test_init_does_not_create_feature_or_implementation_commands():
-    """Garante que a CLI pública do STDD expõe unicamente init e test.
-    Invoca stdd --help e assegura que create-tests e implement não constam na lista de comandos.
+    """Garante que a CLI pública do Looper expõe unicamente init e test.
+    Invoca looper --help e assegura que create-tests e implement não constam na lista de comandos.
     """
     result = runner.invoke(app, ["--help"])
     assert result.exit_code == 0
@@ -689,7 +717,7 @@ def test_runs_viewer_is_read_only_and_uses_incremental_json_documents():
     """Mantém o viewer de runs restrito à leitura dos índices e relatórios JSON.
     Confirma que o template não contém comandos de gravação ou endpoints de alteração.
     """
-    template = Path("src/stdd/templates/runs/runs.html").read_text(encoding="utf-8")
+    template = Path("src/looper/templates/runs/runs.html").read_text(encoding="utf-8")
 
     assert "fetch('runs/index.json')" in template
     assert "fetch(`runs/${day.summary}`)" in template

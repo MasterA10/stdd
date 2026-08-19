@@ -609,7 +609,7 @@
     {
       "run_id": "65c30692e6c74256b59db753ec8899a3",
       "timestamp": "2026-07-31T18:38:07.993820+00:00",
-      "description": "Valida salvamento sem download ao abrir o Draw em .stdd",
+      "description": "Valida salvamento sem download ao abrir o Draw em .looper",
       "work_types": [
         "teste"
       ],

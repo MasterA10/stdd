@@ -20,7 +20,7 @@ VALID_CHECKLIST_PHASES = {"test", "implementation"}
 
 def backlog_path(root: Path) -> Path:
     """Retorna o arquivo agregado e persistente do backlog do projeto."""
-    return root / ".stdd" / "backlog.json"
+    return root / ".looper" / "backlog.json"
 
 
 def _atomic_write(path: Path, payload: dict[str, Any]) -> Path:
@@ -114,7 +114,7 @@ def _normalize_test_ref(node: dict[str, Any]) -> tuple[dict[str, Any] | None, st
 
 def _static_test_symbols(root: Path) -> list[dict[str, Any]] | None:
     """Lê o inventário de símbolos produzido pela análise estática atual."""
-    path = root / ".stdd" / "adapters" / "static-analysis-kpis.json"
+    path = root / ".looper" / "adapters" / "static-analysis-kpis.json"
     if not path.exists():
         return None
     try:

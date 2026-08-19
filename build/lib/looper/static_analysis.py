@@ -1,5 +1,5 @@
 """Contratos e execução segura de adaptadores de análise estática.
-Define o protocolo JSON agnóstico de linguagem usado pelo comando `stdd test`.
+Define o protocolo JSON agnóstico de linguagem usado pelo comando `looper test`.
 """
 
 from __future__ import annotations
@@ -50,7 +50,7 @@ SECRET_SCAN_EXTENSIONS = {
 }
 SECRET_PLACEHOLDERS = {"test", "testing", "example", "dummy", "placeholder", "changeme", "change-me"}
 TEST_FIXTURE_MARKERS = {"test", "fixture", "mock", "fake", "dummy", "example", "placeholder", "invalid"}
-TEST_CREDENTIAL_ALLOW_MARKER = "stdd:allow-credential"
+TEST_CREDENTIAL_ALLOW_MARKER = "looper:allow-credential"
 SECRET_PROTECTED_KINDS = {"hardcoded_secret", "hardcoded_env_value"}
 EXCEPTION_ACTIONS = {"warning", "ignore"}
 
@@ -113,7 +113,7 @@ def _secret_scan_candidates(root: Path, files: list[str] | None) -> list[Path]:
     """Resolve os arquivos candidatos sem atravessar artefatos ignorados."""
     if files is not None:
         return [root / relative for relative in files]
-    ignored_parts = {".git", ".stdd", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache"}
+    ignored_parts = {".git", ".looper", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache"}
     return sorted(
         path for path in root.rglob("*")
         if path.is_file() and path.suffix.lower() in SECRET_SCAN_EXTENSIONS and not ignored_parts.intersection(path.parts)
@@ -685,7 +685,7 @@ def write_static_analysis_kpis(root: Path, report: dict[str, Any], config: dict[
             "changes": report.get("changes", []),
         },
     }
-    output_path = root / ".stdd" / "adapters" / "static-analysis-kpis.json"
+    output_path = root / ".looper" / "adapters" / "static-analysis-kpis.json"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(output, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return output_path

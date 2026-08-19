@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Dispatcher local do STDD para Python, JavaScript/TypeScript e PHP.
+"""Dispatcher local do Looper para Python, JavaScript/TypeScript e PHP.
 
 O dispatcher mantém um contrato único e delega cada linguagem ao parser nativo
 disponível no projeto. Nenhuma mensagem de diagnóstico é escrita no stdout.
@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 EXTENSIONS = {".py", ".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs", ".php"}
-IGNORED = {".git", ".stdd", ".venv", "venv", "node_modules", "vendor", "dist", "build", "coverage", "draw_assets", "__pycache__", ".pytest_cache"}
+IGNORED = {".git", ".looper", ".venv", "venv", "node_modules", "vendor", "dist", "build", "coverage", "draw_assets", "__pycache__", ".pytest_cache"}
 BASE = ("symbols", "dependencies", "technologies", "external_logic", "complexity", "structural_metrics", "quality_findings", "changes")
 
 
@@ -43,7 +43,7 @@ def module_from_path(root: Path, path: Path) -> str:
 
 def quality_config(root: Path):
     try:
-        data = json.loads((root / ".stdd" / "config.json").read_text(encoding="utf-8"))
+        data = json.loads((root / ".looper" / "config.json").read_text(encoding="utf-8"))
         quality = data.get("static_analysis", {}).get("quality", {})
     except (OSError, ValueError, TypeError):
         quality = {}
@@ -157,11 +157,11 @@ def main():
         if any(path.suffix == ".py" for path in source_files(root)):
             py_adapter(root, result)
         js = any(path.suffix in {".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs"} for path in source_files(root))
-        js_adapter = root / ".stdd" / "adapters" / "js_ts_static_adapter.js"
+        js_adapter = root / ".looper" / "adapters" / "js_ts_static_adapter.js"
         if js and js_adapter.exists():
             external_adapter(root, ["node", str(js_adapter)], result, request)
         php = any(path.suffix == ".php" for path in source_files(root))
-        php_adapter = root / ".stdd" / "adapters" / "php_static_adapter.php"
+        php_adapter = root / ".looper" / "adapters" / "php_static_adapter.php"
         if php and php_adapter.exists() and shutil_which("php"):
             external_adapter(root, ["php", str(php_adapter)], result, request)
         result["status"] = "blocked" if result["errors"] else result["status"]

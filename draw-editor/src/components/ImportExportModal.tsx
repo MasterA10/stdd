@@ -40,7 +40,7 @@ export const ImportExportModal: React.FC<ImportExportModalProps> = ({
         <div className="dialog-content">
           <div className="dialog-header">
             <div>
-              <p className="eyebrow">STDD · Contrato JSON</p>
+              <p className="eyebrow">Looper · Contrato JSON</p>
               <h2>{mode === 'import' ? 'Importar Desenho' : 'Exportar Desenho'}</h2>
             </div>
             <button className="close-btn" onClick={onClose}>

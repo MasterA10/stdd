@@ -8,8 +8,8 @@ const { exec } = require('child_process');
 const PORT = 8765;
 const CWD = process.cwd();
 const DIST_DIR = path.join(__dirname, '..', 'dist');
-const DRAWS_DIR = path.join(CWD, '.stdd', 'draws');
-const IMPROVEMENTS_DIR = path.join(CWD, '.stdd', 'improvements');
+const DRAWS_DIR = path.join(CWD, '.looper', 'draws');
+const IMPROVEMENTS_DIR = path.join(CWD, '.looper', 'improvements');
 
 // Ensure the local draws directory exists in the target project workspace
 if (!fs.existsSync(DRAWS_DIR)) {
@@ -56,7 +56,7 @@ const server = http.createServer((req, res) => {
   const pathname = url.pathname;
 
   // --- API Endpoint: Get Draws Index ---
-  if (req.method === 'GET' && pathname === '/.stdd/draws/index.json') {
+  if (req.method === 'GET' && pathname === '/.looper/draws/index.json') {
     fs.readFile(indexFile, 'utf8', (err, data) => {
       if (err) {
         res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -69,7 +69,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  if (req.method === 'GET' && pathname === '/.stdd/improvements/index.json') {
+  if (req.method === 'GET' && pathname === '/.looper/improvements/index.json') {
     fs.readFile(improvementsIndexFile, 'utf8', (err, data) => {
       if (err) {
         res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -83,7 +83,7 @@ const server = http.createServer((req, res) => {
   }
 
   // --- API Endpoint: Get Single Draw ---
-  if (req.method === 'GET' && pathname.startsWith('/.stdd/draws/') && pathname.endsWith('.json')) {
+  if (req.method === 'GET' && pathname.startsWith('/.looper/draws/') && pathname.endsWith('.json')) {
     const filename = path.basename(pathname);
     const filePath = path.join(DRAWS_DIR, filename);
 
@@ -99,7 +99,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  if (req.method === 'GET' && pathname.startsWith('/.stdd/improvements/') && pathname.endsWith('.json')) {
+  if (req.method === 'GET' && pathname.startsWith('/.looper/improvements/') && pathname.endsWith('.json')) {
     const filename = path.basename(pathname);
     const filePath = path.join(IMPROVEMENTS_DIR, filename);
     fs.readFile(filePath, 'utf8', (err, data) => {
@@ -115,7 +115,7 @@ const server = http.createServer((req, res) => {
   }
 
   // --- API Endpoint: Save Single Draw ---
-  if (req.method === 'POST' && (pathname.startsWith('/.stdd/draws/') || pathname.startsWith('/__stdd/api/draws/')) && pathname.endsWith('.json')) {
+  if (req.method === 'POST' && (pathname.startsWith('/.looper/draws/') || pathname.startsWith('/__looper/api/draws/')) && pathname.endsWith('.json')) {
     const filename = path.basename(pathname);
     const filePath = path.join(DRAWS_DIR, filename);
     const drawId = filename.replace('.json', '');
@@ -161,7 +161,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  if (req.method === 'PUT' && pathname.startsWith('/__stdd/api/improvements/') && pathname.endsWith('.json')) {
+  if (req.method === 'PUT' && pathname.startsWith('/__looper/api/improvements/') && pathname.endsWith('.json')) {
     const filename = path.basename(pathname);
     const filePath = path.join(IMPROVEMENTS_DIR, filename);
     const improvementId = filename.replace('.json', '');
@@ -183,7 +183,7 @@ const server = http.createServer((req, res) => {
         indexData.improvements.push({ id: improvementId, file: filename, title: savedPayload.title || improvementId, draw_id: savedPayload.draw_id, status: savedPayload.status, answered_count: answered, question_count: questions.length, updated_at: savedPayload.updated_at });
         fs.writeFileSync(improvementsIndexFile, JSON.stringify(indexData, null, 2));
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ status: 'saved', path: `.stdd/improvements/${filename}` }));
+        res.end(JSON.stringify({ status: 'saved', path: `.looper/improvements/${filename}` }));
       } catch (err) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'Invalid improvement payload' }));
@@ -216,7 +216,7 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, () => {
   const url = `http://localhost:${PORT}`;
-  console.log(`\x1b[32m✔ STDD Flow Editor running globally!\x1b[0m`);
+  console.log(`\x1b[32m✔ Looper Flow Editor running globally!\x1b[0m`);
   console.log(`\x1b[36m📂 Workspace directory:\x1b[0m ${CWD}`);
   console.log(`\x1b[36m📝 Drawings directory:\x1b[0m ${DRAWS_DIR}`);
   console.log(`\x1b[35m🔌 Server URL:\x1b[0m ${url}\n`);

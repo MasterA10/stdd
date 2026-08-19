@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "id": "stdd-journey-draw",
+  "id": "looper-journey-draw",
   "title": "Implementação da jornada de documentação visual",
-  "subtitle": "Como stdd draw cria, serve e persiste a árvore de desenhos",
+  "subtitle": "Como looper draw cria, serve e persiste a árvore de desenhos",
   "kind": "system",
   "hierarchy": {
     "level": 3,
     "role": "implementation",
-    "parent_draw_ref": "stdd-user-journeys",
+    "parent_draw_ref": "looper-user-journeys",
     "parent_node_id": 6,
-    "root_draw_ref": "stdd-system-architecture"
+    "root_draw_ref": "looper-system-architecture"
   },
   "groups": [
     {
@@ -33,10 +33,10 @@
       "description": "O comando draw create recebe o payload sem layout, cores ou HTML.",
       "code_refs": [
         {
-          "symbol": "stdd.cli.draw_create",
+          "symbol": "looper.cli.draw_create",
           "identity": "64fd878f20627d43",
           "source_dependencies": [
-            "stdd.draw.create_draw"
+            "looper.draw.create_draw"
           ]
         }
       ]
@@ -51,14 +51,14 @@
       "id": 3,
       "label": "Persistir desenho e índice",
       "group": 3,
-      "description": "Grava o JSON em .stdd/draws e atualiza o índice.",
+      "description": "Grava o JSON em .looper/draws e atualiza o índice.",
       "code_refs": [
         {
-          "symbol": "stdd.draw.create_draw",
+          "symbol": "looper.draw.create_draw",
           "identity": "8a42d3855073c490",
           "source_dependencies": [
-            "stdd.draw.validate_draw_payload",
-            "stdd.draw.validate_hierarchy_parent"
+            "looper.draw.validate_draw_payload",
+            "looper.draw.validate_hierarchy_parent"
           ]
         }
       ]
@@ -70,17 +70,17 @@
       "description": "O servidor embutido entrega o viewer e endpoints GET/PUT dos desenhos.",
       "code_refs": [
         {
-          "symbol": "stdd.cli.draw_serve",
+          "symbol": "looper.cli.draw_serve",
           "identity": "6fc36dddf6301a84",
           "source_dependencies": [
-            "stdd.draw.serve_draw"
+            "looper.draw.serve_draw"
           ]
         },
         {
-          "symbol": "stdd.draw.serve_draw",
+          "symbol": "looper.draw.serve_draw",
           "identity": "324880b0e1533bd3",
           "source_dependencies": [
-            "stdd.draw.create_draw"
+            "looper.draw.create_draw"
           ]
         }
       ]
@@ -161,6 +161,6 @@
     }
   ],
   "notes": [
-    "Este é o caminho usado para documentar o próprio STDD nesta solicitação."
+    "Este é o caminho usado para documentar o próprio Looper nesta solicitação."
   ]
 }

@@ -2,9 +2,9 @@
   "version": 1,
   "draws": [
     {
-      "id": "stdd-agent-journeys",
-      "file": "stdd-agent-journeys.json",
-      "title": "Agentes e responsabilidades do STDD",
+      "id": "looper-agent-journeys",
+      "file": "looper-agent-journeys.json",
+      "title": "Agentes e responsabilidades do Looper",
       "subtitle": "As skills que conduzem o ciclo de especificação orientada por testes",
       "kind": "system",
       "updated_at": "2026-08-05T00:16:50.083760+00:00",
@@ -13,10 +13,10 @@
       "subdraw_count": 0
     },
     {
-      "id": "stdd-system-architecture",
-      "file": "stdd-system-architecture.json",
-      "title": "Arquitetura do sistema de especificação STDD",
-      "subtitle": "O próprio STDD documentado pelo método que ele oferece aos agentes",
+      "id": "looper-system-architecture",
+      "file": "looper-system-architecture.json",
+      "title": "Arquitetura do sistema de especificação Looper",
+      "subtitle": "O próprio Looper documentado pelo método que ele oferece aos agentes",
       "kind": "system",
       "updated_at": "2026-08-04T23:19:11.279865+00:00",
       "node_count": 11,
@@ -48,7 +48,7 @@
     {
       "id": "demo-inicial",
       "file": "demo-inicial.json",
-      "title": "Exemplo inicial do STDD",
+      "title": "Exemplo inicial do Looper",
       "subtitle": "Fluxo de demonstração para começar a explorar o viewer",
       "kind": "feature",
       "updated_at": "2026-08-04T23:22:08.627565+00:00",
@@ -57,10 +57,10 @@
       "subdraw_count": 0
     },
     {
-      "id": "stdd-journey-draw",
-      "file": "stdd-journey-draw.json",
+      "id": "looper-journey-draw",
+      "file": "looper-journey-draw.json",
       "title": "Implementação da jornada de documentação visual",
-      "subtitle": "Como stdd draw cria, serve e persiste a árvore de desenhos",
+      "subtitle": "Como looper draw cria, serve e persiste a árvore de desenhos",
       "kind": "system",
       "updated_at": "2026-08-04T23:19:11.638189+00:00",
       "node_count": 5,
@@ -68,10 +68,10 @@
       "subdraw_count": 0
     },
     {
-      "id": "stdd-journey-log",
-      "file": "stdd-journey-log.json",
+      "id": "looper-journey-log",
+      "file": "looper-journey-log.json",
       "title": "Implementação da jornada de evidência",
-      "subtitle": "Como stdd log registra o trabalho e o diff incremental",
+      "subtitle": "Como looper log registra o trabalho e o diff incremental",
       "kind": "system",
       "updated_at": "2026-08-04T23:19:11.567372+00:00",
       "node_count": 4,
@@ -79,10 +79,10 @@
       "subdraw_count": 0
     },
     {
-      "id": "stdd-journey-init",
-      "file": "stdd-journey-init.json",
+      "id": "looper-journey-init",
+      "file": "looper-journey-init.json",
       "title": "Implementação da jornada de inicialização",
-      "subtitle": "Como stdd init prepara o projeto para o agente",
+      "subtitle": "Como looper init prepara o projeto para o agente",
       "kind": "system",
       "updated_at": "2026-08-04T23:19:11.424498+00:00",
       "node_count": 4,
@@ -90,10 +90,10 @@
       "subdraw_count": 0
     },
     {
-      "id": "stdd-journey-test",
-      "file": "stdd-journey-test.json",
+      "id": "looper-journey-test",
+      "file": "looper-journey-test.json",
       "title": "Implementação da jornada de verificação",
-      "subtitle": "Como stdd test transforma configuração em evidência de qualidade",
+      "subtitle": "Como looper test transforma configuração em evidência de qualidade",
       "kind": "system",
       "updated_at": "2026-08-04T23:19:11.495365+00:00",
       "node_count": 5,
@@ -101,9 +101,9 @@
       "subdraw_count": 0
     },
     {
-      "id": "stdd-user-journeys",
-      "file": "stdd-user-journeys.json",
-      "title": "Jornadas de uso do STDD",
+      "id": "looper-user-journeys",
+      "file": "looper-user-journeys.json",
+      "title": "Jornadas de uso do Looper",
       "subtitle": "Como agente e desenvolvedor especificam, verificam e documentam o sistema",
       "kind": "system",
       "updated_at": "2026-08-04T23:19:11.352281+00:00",

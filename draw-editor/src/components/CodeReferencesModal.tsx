@@ -33,7 +33,7 @@ export const CodeReferencesModal: React.FC<CodeReferencesModalProps> = ({ node, 
       <dialog className="app-dialog code-references-dialog" open aria-labelledby="code-references-title">
         <div className="dialog-header">
           <div>
-            <p className="eyebrow code-references-eyebrow"><Code2 size={13} /> STDD · Símbolos associados</p>
+            <p className="eyebrow code-references-eyebrow"><Code2 size={13} /> Looper · Símbolos associados</p>
             <h2 id="code-references-title">{node.label}</h2>
             <p className="code-references-node-id">Nó #{node.id}</p>
           </div>

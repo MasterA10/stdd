@@ -1,6 +1,6 @@
 ---
 name: static-analysis
-description: Implementa e conecta adaptadores agnósticos de análise estática ao STDD, produzindo fatos determinísticos sobre símbolos, dependências, complexidade, estrutura e alterações.
+description: Implementa e conecta adaptadores agnósticos de análise estática ao Looper, produzindo fatos determinísticos sobre símbolos, dependências, complexidade, estrutura e alterações.
 ---
 
 # Static Analysis Skill
@@ -13,17 +13,17 @@ Ao produzir fatos para um desenho filho, preservar seu pai e a raiz. Reportar re
 
 ### Qualidade estrutural dos subfluxos de nível 3
 
-Ao analisar os desenhos em `.stdd/draws/`, aplicar uma verificação específica aos documentos com `hierarchy.level: 3`, isto é, aos filhos dos desenhos de jornada de nível 2. Emitir apenas warnings quando o subfluxo tiver menos de quatro nós (`draw.level3_min_nodes`) ou quando qualquer nó tiver `description` ausente, não textual ou com menos de 80 caracteres (`draw.level3_short_description`). O finding deve apontar o arquivo, o ID do nó quando aplicável, o valor observado, o limite e a evidência. Esses achados são informativos e nunca bloqueiam `stdd draw create` ou `stdd test`; não criar nós decorativos nem aprovar lacunas sem evidência.
+Ao analisar os desenhos em `.looper/draws/`, aplicar uma verificação específica aos documentos com `hierarchy.level: 3`, isto é, aos filhos dos desenhos de jornada de nível 2. Emitir apenas warnings quando o subfluxo tiver menos de quatro nós (`draw.level3_min_nodes`) ou quando qualquer nó tiver `description` ausente, não textual ou com menos de 80 caracteres (`draw.level3_short_description`). O finding deve apontar o arquivo, o ID do nó quando aplicável, o valor observado, o limite e a evidência. Esses achados são informativos e nunca bloqueiam `looper draw create` ou `looper test`; não criar nós decorativos nem aprovar lacunas sem evidência.
 
-Para documentos com `hierarchy.level: 2`, `3` ou `4`, emitir `draw.level2_missing_code_ref`, `draw.level3_missing_code_ref` ou `draw.level4_missing_code_ref` como bloqueio para cada nó sem pelo menos um `code_refs` com símbolo válido. Além disso, emitir `draw.empty_node_symbol` como bloqueio quando um nó contiver símbolo ausente, vazio ou genérico (ex: `unnamed`, `(sem nome)`, `placeholder`) e `draw.duplicate_node_symbol` como warning quando o mesmo símbolo for reutilizado mais de 4 vezes no mesmo desenho. O finding deve apontar o arquivo do desenho, os nós afetados, o valor observado, o limite (4) e a evidência. Esses achados aparecem durante `stdd draw create`, mas somente `stdd test` aplica o bloqueio ao exit code.
+Para documentos com `hierarchy.level: 2`, `3` ou `4`, emitir `draw.level2_missing_code_ref`, `draw.level3_missing_code_ref` ou `draw.level4_missing_code_ref` como bloqueio para cada nó sem pelo menos um `code_refs` com símbolo válido. Além disso, emitir `draw.empty_node_symbol` como bloqueio quando um nó contiver símbolo ausente, vazio ou genérico (ex: `unnamed`, `(sem nome)`, `placeholder`) e `draw.duplicate_node_symbol` como warning quando o mesmo símbolo for reutilizado mais de 4 vezes no mesmo desenho. O finding deve apontar o arquivo do desenho, os nós afetados, o valor observado, o limite (4) e a evidência. Esses achados aparecem durante `looper draw create`, mas somente `looper test` aplica o bloqueio ao exit code.
 
-Esta skill orienta a criação de um adaptador específico para a stack do projeto. O adaptador implementa o contrato do STDD; ele não altera o fluxo geral do framework, não inventa fatos e não substitui os gates determinísticos. Quando houver rastreabilidade de autorização, preservar como dependências os símbolos reais de middleware, policies, guards, handlers ou casos de uso; não inferir que cliente e administrador têm as mesmas permissões.
+Esta skill orienta a criação de um adaptador específico para a stack do projeto. O adaptador implementa o contrato do Looper; ele não altera o fluxo geral do framework, não inventa fatos e não substitui os gates determinísticos. Quando houver rastreabilidade de autorização, preservar como dependências os símbolos reais de middleware, policies, guards, handlers ou casos de uso; não inferir que cliente e administrador têm as mesmas permissões.
 
 ## Objetivo
 
-Para verificar exclusivamente a rastreabilidade dos Draws, use `stdd draw symbols`. O comando lista os símbolos associados e os nós sem símbolo, sem executar suítes de teste, contrato, backlog ou adapter; a análise estática completa continua integrada ao `stdd test`.
+Para verificar exclusivamente a rastreabilidade dos Draws, use `looper draw symbols`. O comando lista os símbolos associados e os nós sem símbolo, sem executar suítes de teste, contrato, backlog ou adapter; a análise estática completa continua integrada ao `looper test`.
 
-Conectar um analisador local ao comando `stdd test` para que a execução produza, quando houver capacidade disponível:
+Conectar um analisador local ao comando `looper test` para que a execução produza, quando houver capacidade disponível:
 
 - símbolos e assinaturas;
 - handlers e consumidores de RPC, contratos/IDLs rastreáveis e símbolos de procedure, função, trigger ou view SQL quando a stack os utilizar;
@@ -40,11 +40,11 @@ Conectar um analisador local ao comando `stdd test` para que a execução produz
 
 O agente deve usar a melhor ferramenta da stack, como AST nativo, compiler API ou parser especializado. A skill não presume uma linguagem específica.
 
-## Conexão com o STDD
+## Conexão com o Looper
 
 1. Detecte a linguagem e as ferramentas sem afirmar capacidades não confirmadas.
 2. Crie um comando executável no diretório autorizado pelo projeto.
-3. Configure o comando em `.stdd/config.json`:
+3. Configure o comando em `.looper/config.json`:
 
 ```json
 {
@@ -55,7 +55,7 @@ O agente deve usar a melhor ferramenta da stack, como AST nativo, compiler API o
 }
 ```
 
-4. O STDD enviará JSON via stdin ao comando:
+4. O Looper enviará JSON via stdin ao comando:
 
 ```json
 {
@@ -70,7 +70,7 @@ O agente deve usar a melhor ferramenta da stack, como AST nativo, compiler API o
 5. O adaptador deve escrever somente o relatório JSON no stdout. Mensagens de diagnóstico devem ir para stderr.
 6. O agente deve executar os testes próprios do adaptador antes de habilitá-lo no fluxo principal.
 
-Sem adaptador, o STDD registra `static_analysis.status = "unavailable"`. Não simule uma análise para obter aprovação.
+Sem adaptador, o Looper registra `static_analysis.status = "unavailable"`. Não simule uma análise para obter aprovação.
 
 ## Relatório obrigatório
 
@@ -159,7 +159,7 @@ Use estes padrões como default quando o projeto não configurar limites própri
 | Asserções em um teste | até 8 | 9–15 | acima de 15 |
 | Dependências diretas de um módulo | até 10 | 11–20 | acima de 20 |
 
-Esses limites são sinais de risco, não uma medição de valor humano. Um projeto pode sobrescrevê-los em `.stdd/config.json`, mas o relatório deve registrar os limites efetivamente usados.
+Esses limites são sinais de risco, não uma medição de valor humano. Um projeto pode sobrescrevê-los em `.looper/config.json`, mas o relatório deve registrar os limites efetivamente usados.
 
 Achados obrigatórios em `quality_findings`:
 
@@ -220,7 +220,7 @@ Classifique símbolos criados, removidos, alterados, movidos, assinaturas altera
 - A complexidade ciclomática deve ter casos com valor conhecido.
 - Funções acima do limite devem gerar `long_function` com severidade e valores antes/depois do limite.
 - Testes longos devem gerar `long_test` ou recomendação equivalente para marcar etapas com comentários curtos.
-- Saída JSON inválida, schema incompatível ou exit code diferente de zero bloqueia o `stdd test`.
+- Saída JSON inválida, schema incompatível ou exit code diferente de zero bloqueia o `looper test`.
 - O adaptador não pode escrever fora do diretório autorizado.
 - Não inclua tokens, chaves ou credenciais no relatório, stdout ou stderr.
 
@@ -228,7 +228,7 @@ O relatório factual deve permanecer separado de qualquer explicação ou sugest
 
 ## Exceções controladas
 
-O projeto pode aceitar um achado específico sem desligar a análise inteira. Configure `static_analysis.exceptions` em `.stdd/config.json`:
+O projeto pode aceitar um achado específico sem desligar a análise inteira. Configure `static_analysis.exceptions` em `.looper/config.json`:
 
 ```json
 {
@@ -248,15 +248,15 @@ O projeto pode aceitar um achado específico sem desligar a análise inteira. Co
 
 Cada exceção deve indicar exatamente uma regra e um alvo (`file`, `symbol_id` ou intervalo `lines`), além de `reason` e `expires`. `warning` mantém o achado visível sem bloquear; `ignore` remove o achado dos indicadores ativos, mas deixa evidência da exceção aplicada. Exceções expiradas bloqueiam a análise até serem revisadas. Não usar curingas implícitos.
 
-Adapters podem reconhecer marcadores inline equivalentes à linguagem (`// stdd:ignore`, `<!-- stdd:ignore -->` ou `/* stdd:ignore */`), sempre exigindo regra, motivo e validade. Exceções não podem ignorar falha de contrato, saída inválida, parser quebrado ou achados de segredo hardcoded.
+Adapters podem reconhecer marcadores inline equivalentes à linguagem (`// looper:ignore`, `<!-- looper:ignore -->` ou `/* looper:ignore */`), sempre exigindo regra, motivo e validade. Exceções não podem ignorar falha de contrato, saída inválida, parser quebrado ou achados de segredo hardcoded.
 
 ## Segredos hardcoded e arquivos ignorados
 
-O `stdd test` sempre executa um scanner determinístico interno para procurar credenciais gravadas como literais no código ou em arquivos de configuração. O scanner deve reconhecer atribuições a `PASSWORD`, `PASSWD`, `SECRET`, `API_KEY`, `ACCESS_TOKEN`, `AUTH_TOKEN`, `CLIENT_SECRET` e `PRIVATE_KEY`, inclusive com prefixos como `DATABASE_PASSWORD`, além de tokens conhecidos e cabeçalhos de chaves privadas.
+O `looper test` sempre executa um scanner determinístico interno para procurar credenciais gravadas como literais no código ou em arquivos de configuração. O scanner deve reconhecer atribuições a `PASSWORD`, `PASSWD`, `SECRET`, `API_KEY`, `ACCESS_TOKEN`, `AUTH_TOKEN`, `CLIENT_SECRET` e `PRIVATE_KEY`, inclusive com prefixos como `DATABASE_PASSWORD`, além de tokens conhecidos e cabeçalhos de chaves privadas.
 
-Leituras por ambiente (`os.getenv`, `process.env`, `${TOKEN}`), placeholders (`test`, `example`, `dummy`) e arquivos `.env` não são tratados como segredo hardcoded pelo scanner interno. O valor encontrado nunca pode aparecer no relatório: use `"[REDACTED]"`, informe arquivo, linha, tipo do achado e `severity: "blocking"`. Um achado `kind: "hardcoded_secret"` bloqueia o `stdd test`, mesmo quando não há adaptador externo configurado.
+Leituras por ambiente (`os.getenv`, `process.env`, `${TOKEN}`), placeholders (`test`, `example`, `dummy`) e arquivos `.env` não são tratados como segredo hardcoded pelo scanner interno. O valor encontrado nunca pode aparecer no relatório: use `"[REDACTED]"`, informe arquivo, linha, tipo do achado e `severity: "blocking"`. Um achado `kind: "hardcoded_secret"` bloqueia o `looper test`, mesmo quando não há adaptador externo configurado.
 
-Durante `stdd init`, o framework mantém um `.gitignore` na raiz do projeto e adiciona regras idempotentes para `.env`, `.env.*`, `*.pyc`, `__pycache__/`, ambientes virtuais e `node_modules/`, preservando regras preexistentes. A exceção `!.env.example` permite versionar apenas o modelo sem credenciais. Não crie nem registre arquivos `.env` como evidência.
+Durante `looper init`, o framework mantém um `.gitignore` na raiz do projeto e adiciona regras idempotentes para `.env`, `.env.*`, `*.pyc`, `__pycache__/`, ambientes virtuais e `node_modules/`, preservando regras preexistentes. A exceção `!.env.example` permite versionar apenas o modelo sem credenciais. Não crie nem registre arquivos `.env` como evidência.
 
 Além do valor literal hardcoded, compare os valores dos arquivos `.env`, `.env.local` e variantes locais com o conteúdo do código. Se um valor de ambiente aparecer no código, gere `hardcoded_env_value` com severidade `blocking`, identificando somente a chave, arquivo e linha e redigindo o valor. Se uma variável não tiver referência detectável, gere `unreferenced_env_variable` como `warning`; isso não bloqueia sozinho porque variáveis podem ser consumidas por infraestrutura, scripts ou serviços externos.
 
@@ -265,12 +265,12 @@ Além do valor literal hardcoded, compare os valores dos arquivos `.env`, `.env.
 Fixtures de teste podem conter credenciais sintéticas, CEDs, INVs ou tokens de integração que parecem reais para o scanner. Para permitir conscientemente uma ocorrência específica, marque a própria linha da fixture — ou a linha imediatamente anterior — com:
 
 ```python
-PASSWORD = "ced-ficticia"  # stdd:allow-credential
+PASSWORD = "ced-ficticia"  # looper:allow-credential
 ```
 
-O marcador só funciona em arquivos reconhecidos como teste (`test`, `tests`, `spec`, `specs` ou `fixtures`). A ocorrência continua no relatório como `hardcoded_secret` ou `hardcoded_env_value`, com `severity: "warning"`, `value: "[REDACTED]"` e `exception: "explicit_test_credential_allowlist"`; ela não bloqueia o `stdd test`. O mesmo marcador em código de produção continua `blocking`.
+O marcador só funciona em arquivos reconhecidos como teste (`test`, `tests`, `spec`, `specs` ou `fixtures`). A ocorrência continua no relatório como `hardcoded_secret` ou `hardcoded_env_value`, com `severity: "warning"`, `value: "[REDACTED]"` e `exception: "explicit_test_credential_allowlist"`; ela não bloqueia o `looper test`. O mesmo marcador em código de produção continua `blocking`.
 
-O projeto pode impor a política rígida em `.stdd/config.json`:
+O projeto pode impor a política rígida em `.looper/config.json`:
 
 ```json
 {

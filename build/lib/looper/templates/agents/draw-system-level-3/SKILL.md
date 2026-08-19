@@ -1,6 +1,6 @@
 ---
 name: draw-system-level-3
-description: "Cria o nível 3 de um Draw System no STDD: o Controller detalhado de cada tela ou nó, explicando em linguagem simples todas as funcionalidades, decisões, regras e estados de ponta a ponta. Use depois de draw-system-level-2 e execute em dois ou mais lotes completos, ampliando o número de fases quando houver muitas telas."
+description: "Cria o nível 3 de um Draw System no Looper: o Controller detalhado de cada tela ou nó, explicando em linguagem simples todas as funcionalidades, decisões, regras e estados de ponta a ponta. Use depois de draw-system-level-2 e execute em dois ou mais lotes completos, ampliando o número de fases quando houver muitas telas."
 ---
 
 # Draw System — Nível 3: Comportamento / Controller
@@ -24,7 +24,7 @@ O sucesso desta etapa depende obrigatoriamente da leitura do símbolo associado 
 
 ## Hierarquia e encapsulamento
 
-Para cada tela, crie um desenho filho com `hierarchy.level: 3`, `role: "implementation"`, `parent_draw_ref` igual ao desenho de jornada, `parent_node_id` igual ao nó da tela e `root_draw_ref` igual à arquitetura. Na mesma alteração, preencha o `draw_ref` no nó pai. Toda cadeia deve resolver em `.stdd/draws/`; não criar fluxos órfãos, referências inexistentes, pais duplicados ou continuidades inventadas.
+Para cada tela, crie um desenho filho com `hierarchy.level: 3`, `role: "implementation"`, `parent_draw_ref` igual ao desenho de jornada, `parent_node_id` igual ao nó da tela e `root_draw_ref` igual à arquitetura. Na mesma alteração, preencha o `draw_ref` no nó pai. Toda cadeia deve resolver em `.looper/draws/`; não criar fluxos órfãos, referências inexistentes, pais duplicados ou continuidades inventadas.
 
 O pai mostra apenas a cápsula da tela e aponta para o filho. O filho mostra somente o interior daquela fronteira. Nunca duplicar os passos internos no nível 2, nem a sequência global no nível 3. Alterar sempre o nó que mais se relaciona ao pedido, procurando primeiro uma cápsula existente.
 
@@ -61,7 +61,7 @@ Se a evidência não for suficiente para decidir um passo, registrar a pendênci
 
 Todo desenho filho com `hierarchy.level: 3` deve possuir **no mínimo quatro nós**. Cada nó desse subfluxo deve possuir `description` com **no mínimo 80 caracteres**, contando a string efetivamente gravada no JSON depois de remover espaços no início e no fim. A regra vale para entradas, ações, decisões, validações, estados de erro, sucesso, retry e recuperação quando existirem nesse nível. `label`, `title`, `questions`, `code_refs` e `edge.description` não contam para atingir o mínimo.
 
-A análise estática deve emitir warnings, sem bloquear a criação ou o `stdd test`, quando o subfluxo tiver menos de quatro nós (`draw.level3_min_nodes`) ou quando qualquer `description` estiver ausente, não for string ou tiver menos de 80 caracteres (`draw.level3_short_description`). O finding deve identificar o arquivo do desenho, o ID do nó quando aplicável, o valor observado, o limite e a evidência; não transformar uma lacuna desconhecida em aprovação.
+A análise estática deve emitir warnings, sem bloquear a criação ou o `looper test`, quando o subfluxo tiver menos de quatro nós (`draw.level3_min_nodes`) ou quando qualquer `description` estiver ausente, não for string ou tiver menos de 80 caracteres (`draw.level3_short_description`). O finding deve identificar o arquivo do desenho, o ID do nó quando aplicável, o valor observado, o limite e a evidência; não transformar uma lacuna desconhecida em aprovação.
 
 A descrição não pode ser preenchida com repetição, adjetivos vazios ou texto decorativo. Os 80 caracteres devem explicar a responsabilidade daquele nó e, conforme o caso, sua intenção, papel autorizado, entrada, regra, condição, estado observável, efeito, resultado, falha ou dependência. Em uma tela dinâmica, escrever o contexto do ciclo específico — por exemplo atualização, paginação, concorrência, evento, reconexão ou indisponibilidade — no nó correspondente. Quando a evidência não sustentar esse nível de detalhe, registrar a lacuna em `questions` e manter a descrição factual; nunca inventar comportamento só para alcançar a contagem.
 
@@ -121,16 +121,16 @@ Use `groups` para fronteiras, `flows` para caminhos temporais e `code_refs` nos 
 Para cada lote:
 
 1. Ler pai, jornada, raiz, divisão de lotes, descendentes necessários e realizar a leitura prévia e obrigatória do símbolo associado a cada nó na codebase.
-2. Criar cada JSON separadamente com IDs estáveis usando `stdd draw create --data-json '<JSON>'`.
+2. Criar cada JSON separadamente com IDs estáveis usando `looper draw create --data-json '<JSON>'`.
 3. Validar nós, arestas, fluxos, condições, grupos, `draw_ref`, pais, raiz, terminais e os critérios estáticos de quatro nós e 80 caracteres.
-4. Revisar no viewer com `stdd draw serve`.
+4. Revisar no viewer com `looper draw serve`.
 5. Conferir que cada ação de usuário comprovada possui um nó-gatilho conectado e que nenhum caminho foi reduzido a um fluxo genérico.
 6. Entregar IDs, telas concluídas, regras cobertas, `code_refs` resolvidos/pendentes, folhas não implementadas, perguntas, trade-offs, limitações e próximo lote.
 
 Ao alterar o desenho, registrar:
 
 ```bash
-stdd log "Detalha comportamento do sistema no nível 3" --type implementacao
+looper log "Detalha comportamento do sistema no nível 3" --type implementacao
 ```
 
 Depois da última fase, entregar a árvore completa ao `$create-tests`. O Create Tests Agent deve ler os JSONs diretamente, transformar caminhos implementados em testes e tratar folhas não implementadas como escopo ausente. `$implement` só pode ser chamado depois de testes vermelhos aprovados.

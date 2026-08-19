@@ -14,15 +14,15 @@ Investigar cada marcação endereçada a esta skill e decidir se ela representa 
 Para perguntas, execute:
 
 ```bash
-stdd draw questions
+looper draw questions
 ```
 
-Trabalhe somente sobre os itens JSON retornados por esse comando: o `prompt` contém `@stdd` e o `answer` está ausente, `null` ou vazio (sem resposta). Cada item informa `draw_file`, `node_id`, `question_id` e os símbolos associados ao nó. Respostas existentes, inclusive `false` e `0`, não devem ser reprocessadas.
+Trabalhe somente sobre os itens JSON retornados por esse comando: o `prompt` contém `@looper` e o `answer` está ausente, `null` ou vazio (sem resposta). Cada item informa `draw_file`, `node_id`, `question_id` e os símbolos associados ao nó. Respostas existentes, inclusive `false` e `0`, não devem ser reprocessadas.
 
 Para tarefas, execute também:
 
 ```bash
-stdd backlog missing
+looper backlog missing
 ```
 
 Leia a task, o nó do Draw, suas perguntas e respostas, `code_refs`, símbolos, arquivos, dependências, `test_ref`, testes associados e o subfluxo relacionado. Se a marcação descrever uma ação concreta, regra, bug, integração ou comportamento faltante, trate-a como tarefa de implementação.
@@ -30,7 +30,7 @@ Leia a task, o nó do Draw, suas perguntas e respostas, `code_refs`, símbolos, 
 ## Investigação baseada em evidências
 
 1. Leia o desenho completo, o nó, seus pais, relações, fluxos, grupos e `draw_ref` dos subdesenhos relacionados.
-2. Consulte os fatos disponíveis em `.stdd/facts/` e a análise estática: `qualified_name`, arquivos, posições, dependências e chamadas.
+2. Consulte os fatos disponíveis em `.looper/facts/` e a análise estática: `qualified_name`, arquivos, posições, dependências e chamadas.
 3. Leia os símbolos completos e os testes relevantes antes de decidir. Compare o comportamento descrito com o que a codebase realmente implementa.
 4. Separe fatos observados de inferências. Não invente arquivos, símbolos, respostas, permissões ou comportamento ausente.
 
@@ -38,7 +38,7 @@ Leia a task, o nó do Draw, suas perguntas e respostas, `code_refs`, símbolos, 
 
 - Grave a resposta em `question.answer`, respeitando `choice`, `boolean` ou `open`.
 - Associe no próprio nó os símbolos comprovados em `code_refs`, preservando referências existentes.
-- Remova somente `@stdd` do `question.prompt` quando a resposta estiver comprovada.
+- Remova somente `@looper` do `question.prompt` quando a resposta estiver comprovada.
 - Se não houver evidência, mantenha a pergunta aberta e associe apenas o arquivo/símbolo relevante que puder ser comprovado.
 
 Uma pergunta respondida não deve continuar aberta; uma pergunta sem evidência mantém a pergunta aberta.
@@ -47,11 +47,11 @@ As respostas preenchidas permanecem no Draw como histórico, inclusive `false` e
 
 ## Quando a marcação for uma tarefa
 
-- Execute o fluxo de backlog na ordem: `stdd backlog task`; se retornar `backlog-test-required`, execute `stdd backlog test` e crie somente os testes antes de voltar à implementação.
+- Execute o fluxo de backlog na ordem: `looper backlog task`; se retornar `backlog-test-required`, execute `looper backlog test` e crie somente os testes antes de voltar à implementação.
 - Leia os testes existentes e identifique exatamente o caminho, regra, estado, validação ou erro que falta.
 - Edite a codebase dentro do escopo do nó para implementar o comportamento. Adicione ou ajuste teste de regressão quando necessário, sem enfraquecer asserções ou pré-calcular resultados.
-- Execute os testes específicos, a suíte da área e `stdd test` antes de concluir.
-- Conclua somente o ID retornado, usando `stdd backlog complete <task-id>`, e registre o trabalho com `stdd log`.
+- Execute os testes específicos, a suíte da área e `looper test` antes de concluir.
+- Conclua somente o ID retornado, usando `looper backlog complete <task-id>`, e registre o trabalho com `looper log`.
 - Se houver conflito entre Draw, testes e contrato, pare e informe o conflito; não escolha silenciosamente uma interpretação.
 
 ## Salvamento e rastreabilidade

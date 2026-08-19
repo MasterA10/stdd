@@ -3,7 +3,7 @@
     {
       "name": "all",
       "command": [
-        "/Users/alexalves/Movies/stdd/.venv/bin/python3.14",
+        ".venv/bin/python3.14",
         "-m",
         "pytest"
       ]
@@ -24,7 +24,7 @@
     "enabled": true,
     "adapter_command": [
       "python3",
-      ".stdd/adapters/static_adapter.py"
+      ".looper/adapters/static_adapter.py"
     ],
     "contract_version": "1",
     "allow_marked_test_credentials": true,
@@ -49,56 +49,56 @@
     "exceptions": [
       {
         "rule": "deep_nesting",
-        "symbol_id": "src/stdd/core.py:stdd.core.get_incremental_diff_stats",
+        "symbol_id": "src/looper/core.py:looper.core.get_incremental_diff_stats",
         "action": "warning",
         "reason": "Achado preexistente; refatoração dedicada está fora deste trabalho.",
         "expires": "2027-01-01"
       },
       {
         "rule": "high_complexity",
-        "symbol_id": "src/stdd/core.py:stdd.core.run_tests",
+        "symbol_id": "src/looper/core.py:looper.core.run_tests",
         "action": "warning",
         "reason": "Achado preexistente; refatoração dedicada está fora deste trabalho.",
         "expires": "2027-01-01"
       },
       {
         "rule": "high_complexity",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.create_server",
+        "symbol_id": "src/looper/draw.py:looper.draw.create_server",
         "action": "warning",
         "reason": "Achado preexistente; refatoração dedicada está fora deste trabalho.",
         "expires": "2027-01-01"
       },
       {
         "rule": "long_function",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.create_server",
+        "symbol_id": "src/looper/draw.py:looper.draw.create_server",
         "action": "warning",
         "reason": "Achado preexistente; refatoração dedicada está fora deste trabalho.",
         "expires": "2027-01-01"
       },
       {
         "rule": "high_complexity",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.validate_draw_payload",
+        "symbol_id": "src/looper/draw.py:looper.draw.validate_draw_payload",
         "action": "warning",
         "reason": "Achado preexistente; refatoração dedicada está fora deste trabalho.",
         "expires": "2027-01-01"
       },
       {
         "rule": "long_function",
-        "symbol_id": "src/stdd/draw.py:stdd.draw.validate_draw_payload",
+        "symbol_id": "src/looper/draw.py:looper.draw.validate_draw_payload",
         "action": "warning",
         "reason": "Achado preexistente; refatoração dedicada está fora deste trabalho.",
         "expires": "2027-01-01"
       },
       {
         "rule": "high_complexity",
-        "symbol_id": "src/stdd/setup.py:stdd.setup.detect_stack",
+        "symbol_id": "src/looper/setup.py:looper.setup.detect_stack",
         "action": "warning",
         "reason": "Achado preexistente; refatoração dedicada está fora deste trabalho.",
         "expires": "2027-01-01"
       },
       {
         "rule": "high_complexity",
-        "symbol_id": "src/stdd/traceability.py:stdd.traceability.build_traceability_report",
+        "symbol_id": "src/looper/traceability.py:looper.traceability.build_traceability_report",
         "action": "warning",
         "reason": "Achado preexistente; refatoração dedicada está fora deste trabalho.",
         "expires": "2027-01-01"

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Adapter local de análise estática Python para o protocolo do STDD.
+"""Adapter local de análise estática Python para o protocolo do Looper.
 
 Usa somente ``ast`` e o conteúdo do workspace. Não importa nem executa o código
-analisado; a saída é determinística e contém fatos primários para o STDD derivar
+analisado; a saída é determinística e contém fatos primários para o Looper derivar
 traceabilidade, arquivos e testes.
 """
 
@@ -18,7 +18,7 @@ from typing import Any
 
 
 CONTRACT_VERSION = "1"
-IGNORED_PARTS = {".git", ".stdd", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache"}
+IGNORED_PARTS = {".git", ".looper", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache"}
 
 
 def relative_module(root: Path, path: Path) -> str:
@@ -291,7 +291,7 @@ def main() -> int:
     try:
         request = json.load(sys.stdin)
         root = Path(request["project_path"]).resolve()
-        config_path = root / ".stdd" / "config.json"
+        config_path = root / ".looper" / "config.json"
         config = json.loads(config_path.read_text(encoding="utf-8")) if config_path.exists() else {}
         print(json.dumps(build_analysis(root, config), ensure_ascii=False, sort_keys=True))
         return 0

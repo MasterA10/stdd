@@ -1,25 +1,22 @@
-<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="stdd-flow-gradient" x1="12" y1="52" x2="52" y2="12" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#EF4444"/>
-      <stop offset="1" stop-color="#FB923C"/>
-    </linearGradient>
-    <linearGradient id="stdd-flow-line" x1="16" y1="48" x2="48" y2="16" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FCA5A5"/>
-      <stop offset="1" stop-color="#FDBA74"/>
-    </linearGradient>
-  </defs>
-
-  <rect width="64" height="64" rx="17" fill="#111827"/>
-  <path d="M17 18H47M17 46H47M18 18V46M46 18V46" stroke="#334155" stroke-width="1.5" stroke-linecap="round"/>
-  <path d="M17 46C25 46 24 33 32 32C40 31 39 18 47 18" stroke="url(#stdd-flow-line)" stroke-width="3" stroke-linecap="round"/>
-  <path d="M40 17L47 18L43 24" stroke="url(#stdd-flow-gradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="17" cy="18" r="5" fill="url(#stdd-flow-gradient)"/>
-  <circle cx="47" cy="18" r="5" fill="url(#stdd-flow-gradient)"/>
-  <circle cx="17" cy="46" r="5" fill="#EF4444"/>
-  <circle cx="47" cy="46" r="5" fill="#FB923C"/>
-  <circle cx="17" cy="18" r="2" fill="#FFF7ED"/>
-  <circle cx="47" cy="18" r="2" fill="#FFF7ED"/>
-  <circle cx="17" cy="46" r="2" fill="#FFF7ED"/>
-  <circle cx="47" cy="46" r="2" fill="#FFF7ED"/>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 28.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Camada_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 612 792" style="enable-background:new 0 0 612 792;" xml:space="preserve">
+<g>
+	<path d="M251.1,375.6c-6.1,6.5-12.2,12.9-18.2,19.2c-5.7-5.2-11.2-10.5-16.9-15.5c-8.9-7.9-18.4-14.9-29.4-19.6
+		c-10.7-4.6-21.8-6.9-33.3-4c-16.6,4.1-27.6,14.5-31.6,31.2c-3.8,16.1,0.9,30.2,13.4,41.2c14.6,12.8,31.4,14.3,49.3,8.4
+		c13.2-4.3,24.6-11.9,34.7-21.2c11.5-10.7,22.4-22.1,33.3-33.3c13-13.5,25.9-27.1,41.7-37.5c16.1-10.6,33.5-17.6,53.2-16.9
+		c47.4,1.5,79,51.1,60.3,94.7c-12.6,29.5-41.9,46.6-73.8,43.1c-16.7-1.8-31.3-8.6-45-17.9c-10.5-7.1-19.9-15.5-28.8-24.4
+		c-0.2-0.2-0.4-0.5-0.8-1c6.1-6.4,12.2-12.7,18.4-19.2c2.9,2.8,5.7,5.5,8.5,8.1c10.1,9.4,20.8,17.9,33.7,23.4
+		c14.2,6.1,28.5,7.2,42.8,0.2c15-7.4,25-24.8,23.6-41.2c-1.6-18.5-13.1-32.9-30.2-37.7c-10-2.8-19.9-1.6-29.5,1.9
+		c-10.7,4-19.9,10.3-28.5,17.6c-14,11.9-26,25.7-38.7,39c-13.2,13.8-26.8,27-43.2,37c-16.3,9.9-33.7,15.6-53,15.1
+		c-36.7-0.9-66.9-29.5-69.7-66c-2.1-27.1,15-54.9,40.5-66.1c20-8.8,40.1-8.2,60.2-0.3c18.7,7.4,34.3,19.5,48.7,33.2
+		c2.7,2.6,5.3,5.2,8,7.8C250.9,375.1,250.9,375.3,251.1,375.6z"/>
+	<path d="M364.5,404.9c-2,1.8-3.9,3.6-5.9,5.5c-6.8-7.1-13.7-14.3-20.7-21.6c-7,7.3-13.9,14.6-20.8,21.8c-1.8-1.7-3.6-3.3-5.4-5
+		c0.2-0.3,0.4-0.4,0.5-0.6c6.2-6.6,12.5-13.1,18.7-19.7c1.8-1.9,3.6-3.8,5.4-5.7c0.9-1,2.2-1,3.1-0.1c5.1,5.2,10.2,10.3,15.2,15.5
+		c3.1,3.1,6.2,6.3,9.3,9.4C364.2,404.5,364.3,404.6,364.5,404.9z"/>
+	<path d="M399.3,506.5c-7.1-7.6-14.1-15-21.3-22.8c30-28.8,60.7-58.2,91.6-87.8c-30.6-29.3-61.1-58.6-91.5-87.7
+		c7.7-7.9,15.6-15.8,23.5-23.9c4.7,4.5,9.4,9,14,13.6c30.9,30.4,61.9,60.8,92.8,91.2c3.8,3.7,3.9,9.8,0.1,13.4
+		c-35.4,33.7-70.8,67.5-106.2,101.2C401.5,504.5,400.7,505.3,399.3,506.5z"/>
+</g>
 </svg>

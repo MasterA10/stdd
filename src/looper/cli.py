@@ -49,7 +49,7 @@ from .setup import (
     ensure_stack_gitignore,
 )
 
-app = typer.Typer(help="STDD: CLI de suporte ao desenvolvimento orientado por testes.")
+app = typer.Typer(help="Looper: CLI de suporte ao desenvolvimento orientado por testes.")
 draw_app = typer.Typer(help="Cria e visualiza desenhos JSON do projeto.")
 app.add_typer(draw_app, name="draw")
 backlog_app = typer.Typer(help="Gera e executa tasks derivadas dos Draws.")
@@ -190,7 +190,7 @@ def _format_backlog_response(response: dict[str, object]) -> str:
     if kind == "backlog-test-empty":
         return "Fase de testes concluída. Não há tasks de teste pendentes."
     if kind == "backlog-test-disabled":
-        return "Loop de testes desabilitado. O backlog entrega somente implementação; use stdd backlog task."
+        return "Loop de testes desabilitado. O backlog entrega somente implementação; use looper backlog task."
 
     compact = _compact_backlog_response(response)
     if kind == "backlog-bootstrap-task":
@@ -292,8 +292,8 @@ def init(
     l2_verification_interval: Optional[int] = typer.Option(None, "--l2-verification-interval", "--verification-interval", min=0, help="Insere uma task de conferência a cada N nós L2 concluídos; 0 desabilita."),
     test_loop_enabled: Optional[bool] = typer.Option(None, "--test-loop/--no-test-loop", help="Habilita ou desabilita a fase de testes do backlog; desabilitada entrega somente implementação."),
 ) -> None:
-    """Inicializa a estrutura do STDD e instala as skills dos agentes.
-    Cria o diretório-alvo quando necessário, depois cria .stdd/ e .agents/skills.
+    """Inicializa a estrutura do Looper e instala as skills dos agentes.
+    Cria o diretório-alvo quando necessário, depois cria .looper/ e .agents/skills.
     """
     target = project.expanduser().resolve()
     if target.exists() and not target.is_dir():
@@ -313,7 +313,7 @@ def init(
         typer.echo("Erro: --task-delivery-scope deve ser node ou task.", err=True)
         raise typer.Exit(1)
     created = init_project(target, integrations=requested)
-    typer.echo(f"Projeto inicializado em {target}. {len(created)} itens criados.")
+    typer.echo(f"Projeto inicializado em {target}. {len(created)} itens criados ou atualizados.")
     if interactive or sys.stdin.isatty():
         if typer.confirm("Executar o setup para detectar a stack agora?", default=True):
             ensure_gitignore(target)
@@ -461,7 +461,7 @@ def setup(
         typer.echo(f"Erro: o destino não é um diretório: {target}", err=True)
         raise typer.Exit(1)
     target.mkdir(parents=True, exist_ok=True)
-    if not (target / ".stdd" / "config.json").exists():
+    if not (target / ".looper" / "config.json").exists():
         init_project(target)
     ensure_gitignore(target)
     stack = configure_project(target)
@@ -506,7 +506,7 @@ def log_work(
         help="Tipo de trabalho em formato texto (bug, teste, implementacao, refactor).",
     ),
 ) -> None:
-    """Registra uma alteração de código com estatísticas do Git em .stdd/runs.
+    """Registra uma alteração de código com estatísticas do Git em .looper/runs.
     Coleta flags de tipo e marca alterações incrementais grandes como retrabalho automaticamente.
     """
     types: list[str] = []
@@ -575,7 +575,7 @@ def backlog_config(
     min_task_interval_seconds: Optional[int] = typer.Option(None, "--min-task-interval-seconds", min=0, help="Janela mínima anti-script entre avanços."),
     test_loop_enabled: Optional[bool] = typer.Option(None, "--test-loop/--no-test-loop", help="Habilita ou desabilita o loop de testes."),
 ) -> None:
-    """Exibe ou atualiza as configurações do backlog em .stdd/config.json."""
+    """Exibe ou atualiza as configurações do backlog em .looper/config.json."""
     try:
         root = project_root()
         if interval is not None or bootstrap is not None or final_verification is not None or task_batch_size is not None or task_batch_scope is not None or task_delivery_scope is not None or min_task_interval_seconds is not None or test_loop_enabled is not None:
@@ -623,7 +623,7 @@ def backlog_complete(task_id: str = typer.Argument(..., help="ID da task atualme
 def draw_create(
     data_json: str = typer.Option(..., "--data-json", help="Payload JSON inline do desenho."),
 ) -> None:
-    """Valida e grava somente o JSON de um desenho em .stdd/draws.
+    """Valida e grava somente o JSON de um desenho em .looper/draws.
     Atualiza o índice leve e nunca cria HTML individual para o desenho.
     """
     try:
@@ -633,7 +633,7 @@ def draw_create(
         analysis = analyze_draw_structure(root, logical_payload)
         contract_warnings = analyze_draw_contract(
             logical_payload,
-            f".stdd/draws/{logical_payload.get('id', '(novo desenho)')}.json",
+            f".looper/draws/{logical_payload.get('id', '(novo desenho)')}.json",
         )
         created = create_draw(root, payload)
     except (json.JSONDecodeError, ValueError) as error:
@@ -667,7 +667,7 @@ def draw_create(
 def app_create(
     data_json: str = typer.Option(..., "--data-json", help="Payload JSON inline do desenho."),
 ) -> None:
-    """Valida e grava somente o JSON de um desenho em .stdd/draws."""
+    """Valida e grava somente o JSON de um desenho em .looper/draws."""
     draw_create(data_json=data_json)
 
 
@@ -675,7 +675,7 @@ def app_create(
 @draw_app.command("list")
 def draw_list() -> None:
     """Lista os desenhos disponíveis sem carregar seus grafos completos.
-    Lê somente os metadados de .stdd/draws/index.json.
+    Lê somente os metadados de .looper/draws/index.json.
     """
     try:
         entries = read_draw_index(project_root()).get("draws", [])
@@ -700,10 +700,10 @@ def draw_symbols() -> None:
 
 @draw_app.command("questions")
 def draw_questions(
-    tag: Optional[str] = typer.Option(None, "--tag", "-t", help="Tag a filtrar (@stdd, @obs, @developer, ou todas por padrão)."),
+    tag: Optional[str] = typer.Option(None, "--tag", "-t", help="Tag a filtrar (@looper, @obs, @developer, ou todas por padrão)."),
     answered: bool = typer.Option(False, "--answered", help="Inclui respostas; para observações use com --tag obs."),
 ) -> None:
-    """Localiza perguntas ou anotações abertas marcadas com @stdd, @obs ou @developer."""
+    """Localiza perguntas ou anotações abertas marcadas com @looper, @obs ou @developer."""
     try:
         questions = find_addressed_questions(project_root(), tag=tag, answered=answered)
     except (OSError, ValueError, RuntimeError) as error:
@@ -714,7 +714,7 @@ def draw_questions(
 
 @draw_app.command("answer")
 def draw_answer(
-    tag: Optional[str] = typer.Option(None, "--tag", "-t", help="Tag a filtrar (@stdd, @obs, @developer, ou todas por padrão)."),
+    tag: Optional[str] = typer.Option(None, "--tag", "-t", help="Tag a filtrar (@looper, @obs, @developer, ou todas por padrão)."),
 ) -> None:
     """Entrega perguntas e observações pendentes em linguagem humana, agrupadas por Draw e nó.
     Mostra símbolos associados, arquivos, evidências e limitações sem despejar JSON.
@@ -749,7 +749,7 @@ def draw_consume_observation(
 def draw_diff(
     run_id: Optional[str] = typer.Option(None, "--run-id", help="ID do log histórico a consultar."),
 ) -> None:
-    """Exibe mudanças atuais dos JSONs de Draws desde o último stdd log.
+    """Exibe mudanças atuais dos JSONs de Draws desde o último looper log.
     Com --run-id, consulta o diff histórico salvo naquele log.
     """
     root = project_root()

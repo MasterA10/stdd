@@ -174,8 +174,8 @@ Disponibilizar a estrutura principal da CLI.
 Criar a estrutura dos comandos CLI públicos e registrar os agentes suportados:
 
 ```text
-stdd init (CLI: instala a estrutura .stdd/ e as skills dos agentes em .agents/skills/)
-stdd test (CLI: valida contratos e roda a suíte de testes configurada no terminal)
+looper init (CLI: instala a estrutura .looper/ e as skills dos agentes em .agents/skills/)
+looper test (CLI: valida contratos e roda a suíte de testes configurada no terminal)
 
 Agentes/Skills (em .agents/skills/):
 - setup     (Agente: responsável pela varredura da codebase, diagnósticos, mapeamento e alinhamento de testes)

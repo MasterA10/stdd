@@ -1,6 +1,6 @@
 """Persistência das sessões interativas do Draw Improve.
 
-As sessões ficam fora de ``.stdd/draws`` para que respostas humanas possam ser
+As sessões ficam fora de ``.looper/draws`` para que respostas humanas possam ser
 salvas pelo viewer sem substituir o desenho que será revisado posteriormente
 pelo agente.
 """
@@ -25,7 +25,7 @@ IMPROVEMENT_ID_PATTERN = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$")
 
 def improvements_directory(root: Path) -> Path:
     """Retorna o armazenamento separado das sessões do Draw Improve."""
-    return root / ".stdd" / "improvements"
+    return root / ".looper" / "improvements"
 
 
 def improvement_index_path(root: Path) -> Path:
@@ -257,8 +257,8 @@ def list_ready_improvements(root: Path) -> list[dict[str, Any]]:
         document = read_improvement(root, improvement_id)
         if document.get("status") != "ready":
             continue
-        document["improvement_file"] = f".stdd/improvements/{improvement_id}.json"
-        document["draw_file"] = f".stdd/draws/{document['draw_id']}.json"
+        document["improvement_file"] = f".looper/improvements/{improvement_id}.json"
+        document["draw_file"] = f".looper/draws/{document['draw_id']}.json"
         ready.append(document)
     return ready
 

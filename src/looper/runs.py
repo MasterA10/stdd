@@ -1,4 +1,4 @@
-"""Viewer e índice somente leitura das execuções do STDD."""
+"""Viewer e índice somente leitura das execuções do Looper."""
 
 import json
 from pathlib import Path
@@ -10,16 +10,16 @@ RUNS_TEMPLATE = Path(__file__).parent / "templates" / "runs" / "runs.html"
 
 def runs_directory(root: Path) -> Path:
     """Retorna a pasta que contém os relatórios diários e o índice de runs."""
-    return root / ".stdd" / "runs"
+    return root / ".looper" / "runs"
 
 
 def ensure_runs_workspace(root: Path) -> list[Path]:
     """Instala o viewer somente leitura e cria o índice vazio de execuções."""
-    stdd_path = root / ".stdd"
+    looper_path = root / ".looper"
     runs_path = runs_directory(root)
     created: list[Path] = []
     runs_path.mkdir(parents=True, exist_ok=True)
-    viewer = stdd_path / "runs.html"
+    viewer = looper_path / "runs.html"
     template = RUNS_TEMPLATE.read_text(encoding="utf-8")
     if not viewer.exists() or viewer.read_text(encoding="utf-8") != template:
         viewer.write_text(template, encoding="utf-8")

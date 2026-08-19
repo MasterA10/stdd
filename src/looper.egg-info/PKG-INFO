@@ -1,5 +1,5 @@
 Metadata-Version: 2.4
-Name: stdd
+Name: looper
 Version: 0.1.2
 Summary: Test-driven harness control for Codex
 Requires-Python: >=3.11

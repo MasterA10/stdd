@@ -1,30 +1,30 @@
 {
   "version": 1,
-  "draw_id": "stdd-journey-test",
+  "draw_id": "looper-journey-test",
   "nodes": {
     "3": {
       "node_id": 3,
       "references": [
         {
-          "symbol": "stdd.core.run_tests",
+          "symbol": "looper.core.run_tests",
           "identity": "5d8bef5f73daedc0",
           "status": "drift",
-          "file": "src/stdd/core.py",
+          "file": "src/looper/core.py",
           "kind": "function",
           "source": "python_ast"
         }
       ],
       "source_dependencies": [
-        "stdd.static_analysis.run_static_analysis",
-        "stdd.traceability.refresh_traceability"
+        "looper.static_analysis.run_static_analysis",
+        "looper.traceability.refresh_traceability"
       ],
       "files": [
-        "src/stdd/static_analysis.py",
-        "src/stdd/traceability.py"
+        "src/looper/static_analysis.py",
+        "src/looper/traceability.py"
       ],
       "tests": [],
       "unresolved": [
-        "stdd.core.run_tests"
+        "looper.core.run_tests"
       ],
       "suggestions": []
     }

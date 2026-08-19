@@ -4,8 +4,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="stdd-draw-template" content="5">
-  <title>STDD Draw</title>
+  <meta name="looper-draw-template" content="5">
+  <title>Looper Draw</title>
   <link rel="stylesheet" href="https://esm.sh/@xyflow/react@12.0.4/dist/style.css">
   <style>
     :root {
@@ -913,7 +913,7 @@
 
     async function getJson(url) {
       const requestUrl = window.location.protocol === 'file:'
-        ? new URL(`/.stdd/${url}`, apiOrigin()).toString()
+        ? new URL(`/.looper/${url}`, apiOrigin()).toString()
         : url;
       const response = await fetch(requestUrl, { cache: 'no-store' });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -921,7 +921,7 @@
     }
 
     function apiOrigin() {
-      if (window.STDD_API_ORIGIN) return String(window.STDD_API_ORIGIN).replace(/\/$/, '');
+      if (window.Looper_API_ORIGIN) return String(window.Looper_API_ORIGIN).replace(/\/$/, '');
       if (window.location.protocol === 'file:' || window.location.port === '5500') return 'http://127.0.0.1:8765';
       return window.location.origin;
     }
@@ -1162,7 +1162,7 @@
 
       useEffect(() => {
         // Load presentation styles if saved
-        const presentationKey = `stdd-draw-presentation:${window.currentDrawId}`;
+        const presentationKey = `looper-draw-presentation:${window.currentDrawId}`;
         try {
           const saved = localStorage.getItem(presentationKey);
           if (saved) {
@@ -1217,7 +1217,7 @@
           setVisual(updated);
 
           // Save presentation
-          const presentationKey = `stdd-draw-presentation:${window.currentDrawId}`;
+          const presentationKey = `looper-draw-presentation:${window.currentDrawId}`;
           let parsed = { nodes: {} };
           try {
             const saved = localStorage.getItem(presentationKey);
@@ -1393,7 +1393,7 @@
           setImprovementDirty(false);
 
           // Get presentation positions if any
-          const presentationKey = `stdd-draw-presentation:${id}`;
+          const presentationKey = `looper-draw-presentation:${id}`;
           let savedPositions = {};
           try {
             const saved = localStorage.getItem(presentationKey);
@@ -1481,7 +1481,7 @@
           {}
         );
         setNodes(organized);
-        const key = `stdd-draw-presentation:${current.id}`;
+        const key = `looper-draw-presentation:${current.id}`;
         try {
           const saved = JSON.parse(localStorage.getItem(key) || '{}');
           delete saved.positions;
@@ -1585,7 +1585,7 @@
 
       const onNodeDragStop = useCallback((event, node) => {
         const id = node.id;
-        const presentationKey = `stdd-draw-presentation:${window.currentDrawId}`;
+        const presentationKey = `looper-draw-presentation:${window.currentDrawId}`;
         let parsed = { positions: {} };
         try {
           const saved = localStorage.getItem(presentationKey);
@@ -1612,7 +1612,7 @@
         };
 
         try {
-          const endpoint = new URL(`/__stdd/api/draws/${encodeURIComponent(current.id)}.json`, apiOrigin());
+          const endpoint = new URL(`/__looper/api/draws/${encodeURIComponent(current.id)}.json`, apiOrigin());
           const response = await fetch(endpoint, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -1640,7 +1640,7 @@
         if (!currentImprovement || !improvementDirty || currentImprovement.status === 'applied') return;
         setStatus('Salvando respostas da melhoria...');
         try {
-          const endpoint = new URL(`/__stdd/api/improvements/${encodeURIComponent(currentImprovement.id)}.json`, apiOrigin());
+          const endpoint = new URL(`/__looper/api/improvements/${encodeURIComponent(currentImprovement.id)}.json`, apiOrigin());
           const response = await fetch(endpoint, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -1751,7 +1751,7 @@
           React.createElement('div', { className: 'brand' },
             React.createElement('div', { className: 'brand-mark' }, 'D'),
             React.createElement('div', null,
-              React.createElement('p', { className: 'eyebrow' }, 'STDD · Draw'),
+              React.createElement('p', { className: 'eyebrow' }, 'Looper · Draw'),
               React.createElement('h1', null, 'Desenhos')
             )
           ),
@@ -1830,7 +1830,7 @@
               React.createElement(MiniMap, null)
             )
           ) : currentImprovement ? React.createElement('div', { className: 'improvement-editor' },
-            React.createElement('p', { className: 'eyebrow' }, 'STDD · Draw Improve'),
+            React.createElement('p', { className: 'eyebrow' }, 'Looper · Draw Improve'),
             React.createElement('h2', null, currentImprovement.title),
             React.createElement('p', { className: 'dialog-copy' }, `Sessão associada ao Draw ${currentImprovement.draw_id}. As respostas são salvas separadamente do fluxo.`),
             React.createElement('div', { className: 'improvement-progress' }, `${(currentImprovement.questions || []).filter(question => question.answer !== null && question.answer !== undefined && (typeof question.answer !== 'string' || question.answer.trim())).length}/${(currentImprovement.questions || []).length} respondidas · ${currentImprovement.status}`),
@@ -1866,7 +1866,7 @@
         // Confirm Dialog
         confirmDialog && React.createElement('dialog', { className: 'app-dialog', open: true },
           React.createElement('div', { className: 'dialog-content' },
-            React.createElement('p', { className: 'eyebrow' }, 'STDD · Confirmação'),
+            React.createElement('p', { className: 'eyebrow' }, 'Looper · Confirmação'),
             React.createElement('h2', null, confirmDialog.title),
             React.createElement('p', { className: 'dialog-copy' }, confirmDialog.copy),
             React.createElement('div', { className: 'dialog-actions' },
@@ -1890,7 +1890,7 @@
               formDialog.onSubmit(vals);
             }
           },
-            React.createElement('p', { className: 'eyebrow' }, 'STDD · Editor'),
+            React.createElement('p', { className: 'eyebrow' }, 'Looper · Editor'),
             React.createElement('h2', null, formDialog.title),
             React.createElement('p', { className: 'dialog-copy' }, formDialog.copy),
             React.createElement('div', { className: 'dialog-fields' },
@@ -1912,7 +1912,7 @@
         // Questions Dialog
         questionsDialog && React.createElement('dialog', { className: 'app-dialog', open: true },
           React.createElement('div', { className: 'dialog-content' },
-            React.createElement('p', { className: 'eyebrow' }, 'STDD · Perguntas'),
+            React.createElement('p', { className: 'eyebrow' }, 'Looper · Perguntas'),
             React.createElement('h2', null, `Perguntas: ${questionsDialog.label}`),
             React.createElement('div', { className: 'question-summary' },
               React.createElement('span', { className: 'question-count answered' }, questionsSummary.answered),
@@ -2047,7 +2047,7 @@
     "salvos diretamente no diretório escolhido"
     window.location.protocol === 'file:'
     "Salvamento direto indisponível em file://"
-    new URL(`/__stdd/api/draws/`)
+    new URL(`/__looper/api/draws/`)
     port-out
     port-in
     connection-preview

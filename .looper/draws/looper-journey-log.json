@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "id": "stdd-journey-log",
+  "id": "looper-journey-log",
   "title": "Implementação da jornada de evidência",
-  "subtitle": "Como stdd log registra o trabalho e o diff incremental",
+  "subtitle": "Como looper log registra o trabalho e o diff incremental",
   "kind": "system",
   "hierarchy": {
     "level": 3,
     "role": "implementation",
-    "parent_draw_ref": "stdd-user-journeys",
+    "parent_draw_ref": "looper-user-journeys",
     "parent_node_id": 5,
-    "root_draw_ref": "stdd-system-architecture"
+    "root_draw_ref": "looper-system-architecture"
   },
   "groups": [
     {
@@ -36,7 +36,7 @@
       "id": 2,
       "label": "Coletar diff e snapshot",
       "group": 2,
-      "description": "Compara o estado atual com o checkpoint e salva resumo e snapshot em .stdd/runs."
+      "description": "Compara o estado atual com o checkpoint e salva resumo e snapshot em .looper/runs."
     },
     {
       "id": 3,

@@ -1,8 +1,8 @@
-# Design do STDD
+# Design do Looper
 
 ## Identidade visual
 
-O STDD usa uma identidade editorial e técnica: superfícies claras, cartões com bordas suaves e ações críticas em gradiente vermelho-laranja. A linguagem deve ser direta, humana e orientada a evidências.
+O Looper usa uma identidade editorial e técnica: superfícies claras, cartões com bordas suaves e ações críticas em gradiente vermelho-laranja. A linguagem deve ser direta, humana e orientada a evidências.
 
 ## Tipografia e espaçamento
 

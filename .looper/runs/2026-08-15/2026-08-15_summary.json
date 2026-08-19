@@ -47,7 +47,7 @@
     {
       "run_id": "c06948d70590413c85c1fefb48b905cc",
       "timestamp": "2026-08-15T17:31:56.827802+00:00",
-      "description": "Implementa stdd backlog test e bloqueio da implementação sem evidência",
+      "description": "Implementa looper backlog test e bloqueio da implementação sem evidência",
       "work_types": [
         "implementacao"
       ],

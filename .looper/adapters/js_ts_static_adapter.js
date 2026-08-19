@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-/* STDD JavaScript/TypeScript adapter. Uses the local TypeScript compiler API. */
+/* Looper JavaScript/TypeScript adapter. Uses the local TypeScript compiler API. */
 const fs = require('fs');
 const path = require('path');
 
-const IGNORED = new Set(['.git', '.stdd', 'node_modules', 'vendor', 'dist', 'build', 'coverage', 'draw_assets']);
+const IGNORED = new Set(['.git', '.looper', 'node_modules', 'vendor', 'dist', 'build', 'coverage', 'draw_assets']);
 const EXTENSIONS = new Set(['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs']);
 const result = {
   contract_version: '1', status: 'passed',
@@ -64,7 +64,7 @@ function id(file, qualified, kind) { return `${rel(file)}:${kind}:${qualified}`;
 function isTest(file) { return /(^|\/)(test|tests|spec|specs|fixtures)(\/|$)|(^|\/)[^/]*(test|spec)[^/]*\./i.test(rel(file)); }
 function limits() {
   try {
-    const config = JSON.parse(fs.readFileSync(path.join(root, '.stdd', 'config.json'), 'utf8'));
+    const config = JSON.parse(fs.readFileSync(path.join(root, '.looper', 'config.json'), 'utf8'));
     const q = config.static_analysis?.quality || {};
     return {
       lines: q.functions?.max_lines || { warning: 100, blocking: 150 },

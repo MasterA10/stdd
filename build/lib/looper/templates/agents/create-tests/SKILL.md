@@ -1,6 +1,6 @@
 ---
 name: create-tests
-description: Especifica funcionalidades por testes executáveis no STDD sem alterar código de produção. Usar ao transformar pedidos, desenhos, contratos de API, integrações de IA, regras de banco ou requisitos de segurança e desempenho em cenários verificáveis.
+description: Especifica funcionalidades por testes executáveis no Looper sem alterar código de produção. Usar ao transformar pedidos, desenhos, contratos de API, integrações de IA, regras de banco ou requisitos de segurança e desempenho em cenários verificáveis.
 ---
 
 # Create Tests Agent
@@ -24,13 +24,13 @@ Não transformar decisões macro de arquitetura em testes de comportamento sem u
 Antes de especificar testes, identificar de onde vem a feature. Há três entradas possíveis:
 
 1. **Texto:** quando o pedido descreve diretamente o comportamento. Usar a solicitação, critérios aceitos e contexto do código como fontes principais.
-2. **Desenho informado:** quando o usuário fornece um ID, caminho ou indica explicitamente um Draw. Ler `.stdd/draws/<draw-id>.json` completo e abrir `draw_ref` somente quando o subfluxo fizer parte do escopo.
+2. **Desenho informado:** quando o usuário fornece um ID, caminho ou indica explicitamente um Draw. Ler `.looper/draws/<draw-id>.json` completo e abrir `draw_ref` somente quando o subfluxo fizer parte do escopo.
 3. **Desenho alterado:** quando o pedido não informa um desenho específico, inspecionar o estado do Git para descobrir fluxos novos ou modificados. Usar:
 
    ```bash
-   git status --short -- .stdd/draws
-   git diff --name-status -- .stdd/draws
-   git diff --cached --name-status -- .stdd/draws
+   git status --short -- .looper/draws
+   git diff --name-status -- .looper/draws
+   git diff --cached --name-status -- .looper/draws
    ```
 
    Incluir também arquivos JSON não rastreados listados pelo `git status`. Para cada desenho alterado, ler o JSON atual completo e, para desenhos rastreados, comparar o patch com `git diff` (e com `git diff --cached` quando aplicável). O patch mostra a intenção incremental: nós, relações, condições, fluxos, `draw_ref`, perguntas e trade-offs criados, removidos ou alterados. O JSON atual mostra o contrato que deve orientar os testes.
@@ -44,10 +44,10 @@ Não tratar `git diff` como fonte única: alterações locais podem estar staged
 Ler somente o contexto necessário:
 
 - solicitação atual e critérios aceitos pelo usuário;
-- `.stdd/config.json` e capacidades realmente configuradas;
+- `.looper/config.json` e capacidades realmente configuradas;
 - testes, contratos, schemas e fixtures existentes;
 - código relacionado, apenas para entender interfaces e efeitos atuais;
-- `.stdd/draws/<draw-id>.json` quando a solicitação partir de um desenho informado ou identificado na triagem do Git;
+- `.looper/draws/<draw-id>.json` quando a solicitação partir de um desenho informado ou identificado na triagem do Git;
 - o diff do Git do desenho, quando a feature vier de uma alteração de fluxo;
 - `draw_ref` apenas quando o subfluxo fizer parte do escopo.
 
@@ -69,9 +69,9 @@ Não converter Draw em documentação duplicada. O JSON e os testes permanecem f
 
 Toda especificação de teste que tocar um nó de Draw deve preservar a rastreabilidade até um símbolo real. Para cada nó implementado ou alterado, consultar a análise estática, associar no próprio nó um `code_refs` com `symbol` ou `qualified_name` comprovado e manter o `test_ref`/`test_refs` do cenário quando existir. Nunca usar símbolo genérico, placeholder ou associação em um nó diferente só para satisfazer o contrato.
 
-Antes de concluir a especificação, executar `stdd test`. Esse comando verifica os Draws e bloqueia o resultado quando algum nó de nível 2, 3 ou 4 não possui símbolo associado (`draw.level2_missing_code_ref`, `draw.level3_missing_code_ref`, `draw.level4_missing_code_ref` ou `draw.empty_node_symbol`). Corrigir a associação no nó correto e repetir o comando antes de declarar a tarefa concluída. Para uma funcionalidade explicitamente não implementada, não inventar símbolo: mantê-la terminal no grupo próprio e reportar a pendência em vez de tratá-la como teste aprovado.
+Antes de concluir a especificação, executar `looper test`. Esse comando verifica os Draws e bloqueia o resultado quando algum nó de nível 2, 3 ou 4 não possui símbolo associado (`draw.level2_missing_code_ref`, `draw.level3_missing_code_ref`, `draw.level4_missing_code_ref` ou `draw.empty_node_symbol`). Corrigir a associação no nó correto e repetir o comando antes de declarar a tarefa concluída. Para uma funcionalidade explicitamente não implementada, não inventar símbolo: mantê-la terminal no grupo próprio e reportar a pendência em vez de tratá-la como teste aprovado.
 
-Durante a investigação, usar `stdd draw symbols` para listar somente os símbolos e nós sem associação; esse comando não executa suítes, contrato, backlog ou adapter. Usar o `stdd test` completo somente como gate final.
+Durante a investigação, usar `looper draw symbols` para listar somente os símbolos e nós sem associação; esse comando não executa suítes, contrato, backlog ou adapter. Usar o `looper test` completo somente como gate final.
 
 ## Contrato de testes
 
@@ -128,29 +128,29 @@ Em PostgreSQL, considerar pgTAP para validar schema, constraints, índices, fun�
 7. Executar testes relacionados para distinguir falha nova de baseline preexistente.
 8. Não alterar produção para fazer o teste passar. Se a validação for visual ou documental, registrar a evidência adequada em vez de criar um teste artificial.
 
-Usar `stdd test` como alias global para confirmar que todas as suítes configuradas continuam executáveis. Uma feature pode começar pelos testes relacionados, mas não deve ser apresentada como validada globalmente sem essa execução agregada.
+Usar `looper test` como alias global para confirmar que todas as suítes configuradas continuam executáveis. Uma feature pode começar pelos testes relacionados, mas não deve ser apresentada como validada globalmente sem essa execução agregada.
 
 ## Criação interativa usando os comandos
 
 O comando entrega o contexto; a conversa define o comportamento. Em uma sessão de especificação, trabalhar em incrementos pequenos e confirmar cada cenário antes de gravá-lo:
 
-1. Atualizar o backlog com `stdd backlog generate` quando o Draw tiver mudado.
-2. Executar `stdd backlog test` e ler a task recebida, incluindo o nó pai, a subtask atual, as demais subtasks, perguntas, respostas e símbolos. Não escolher outra task por conta própria nem começar pela implementação.
+1. Atualizar o backlog com `looper backlog generate` quando o Draw tiver mudado.
+2. Executar `looper backlog test` e ler a task recebida, incluindo o nó pai, a subtask atual, as demais subtasks, perguntas, respostas e símbolos. Não escolher outra task por conta própria nem começar pela implementação.
 3. Apresentar ao usuário uma matriz curta do cenário atual: papel, pré-condições, entrada, resultado esperado, erro ou limite, efeito colateral e subfluxos cobertos. Perguntar somente as decisões que ainda estiverem abertas; não inventar regra, permissão, dado ou integração.
 4. Depois da confirmação, criar ou ajustar o teste executável correspondente e executar o runner focado. A falha inicial é esperada quando o comportamento ainda não existe, mas deve falhar pela razão confirmada; uma falha de ambiente, contrato ou cenário deve ser corrigida ou reportada antes de avançar.
 5. Mostrar o resultado e perguntar se o cenário está correto ou precisa de ajuste. Repetir os passos 3 e 4 para sucesso, erro, limites, segurança e cada subfluxo aplicável. Um arquivo de teste pode conter várias funções, mas cada função deve cobrir um comportamento observável e rastreável ao nó.
-6. Quando todos os cenários da task estiverem especificados e executados, registrar a evidência, associar `test_ref` ou `test_refs` quando for útil e executar `stdd backlog complete <task-id>` usando exatamente o ID retornado por `stdd backlog test`.
-7. Repetir `stdd backlog test` para a próxima task. Só depois de concluir a fase de testes usar `stdd backlog task`; se ele retornar `backlog-test-required`, voltar à fase de testes e não alterar produção.
+6. Quando todos os cenários da task estiverem especificados e executados, registrar a evidência, associar `test_ref` ou `test_refs` quando for útil e executar `looper backlog complete <task-id>` usando exatamente o ID retornado por `looper backlog test`.
+7. Repetir `looper backlog test` para a próxima task. Só depois de concluir a fase de testes usar `looper backlog task`; se ele retornar `backlog-test-required`, voltar à fase de testes e não alterar produção.
 
-O fluxo interativo é incremental: não criar uma suíte inteira baseada em suposições antes de obter confirmação. `stdd backlog test` não é um prompt conversacional adicional; ele entrega uma unidade de trabalho, e o agente deve conduzir a confirmação dos cenários com o usuário antes de escrever cada grupo de testes. Ao final, executar `stdd test` e registrar separadamente `stdd log "Especifica testes interativamente para a task <task-id>" --type teste`.
+O fluxo interativo é incremental: não criar uma suíte inteira baseada em suposições antes de obter confirmação. `looper backlog test` não é um prompt conversacional adicional; ele entrega uma unidade de trabalho, e o agente deve conduzir a confirmação dos cenários com o usuário antes de escrever cada grupo de testes. Ao final, executar `looper test` e registrar separadamente `looper log "Especifica testes interativamente para a task <task-id>" --type teste`.
 
 ## Fase de testes do backlog
 
-Quando a task vier de `stdd backlog test`, trabalhar somente na especificação executável: criar ou ajustar os testes do nó de nível 2 e de todos os subfluxos que ele agrega. Não alterar código de produção nessa fase. `test_ref` ou `test_refs` podem ser associados ao nó quando houver uma referência técnica útil, mas não são obrigatórios para marcar o checklist. Depois de salvar o Draw, executar a análise estática quando disponível e executar `stdd backlog complete <task-id>`. A mesma task será liberada para implementação por `stdd backlog task`.
+Quando a task vier de `looper backlog test`, trabalhar somente na especificação executável: criar ou ajustar os testes do nó de nível 2 e de todos os subfluxos que ele agrega. Não alterar código de produção nessa fase. `test_ref` ou `test_refs` podem ser associados ao nó quando houver uma referência técnica útil, mas não são obrigatórios para marcar o checklist. Depois de salvar o Draw, executar a análise estática quando disponível e executar `looper backlog complete <task-id>`. A mesma task será liberada para implementação por `looper backlog task`.
 
 O backlog também expõe `phase_checklists.test` e `phase_checklists.implementation`. O checklist de teste vem primeiro; a marcação manual é válida mesmo quando a análise estática estiver indisponível. `test_ref` e a análise continuam sendo evidências complementares, e o item pode ser desfeito no viewer para indicar que o teste deixou de estar concluído.
 
-Se `stdd backlog task` retornar `kind: "backlog-test-required"`, não implementar ainda: iniciar ou retomar `stdd backlog test` e manter a task sem conclusão até que a evidência seja comprovada.
+Se `looper backlog task` retornar `kind: "backlog-test-required"`, não implementar ainda: iniciar ou retomar `looper backlog test` e manter a task sem conclusão até que a evidência seja comprovada.
 
 ## Clareza dos testes
 
@@ -167,7 +167,7 @@ Registrar para cada suíte: comando, ambiente, status, duração, exit code e fa
 Ao alterar testes, registrar separadamente:
 
 ```bash
-stdd log "Especifica comportamento da feature" --test
+looper log "Especifica comportamento da feature" --test
 ```
 
 Não combinar esse log com implementação. Informar arquivos de teste criados, comandos executados, resultado vermelho esperado, suítes ainda não executadas e pré-condições externas.

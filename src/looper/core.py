@@ -26,7 +26,7 @@ DEFAULT_CODE_EXTENSIONS = {
     ".sh", ".bash",
 }
 GITIGNORE_RULES = (
-    "# STDD managed rules",
+    "# Looper managed rules",
     ".env",
     ".env.*",
     "!.env.example",
@@ -47,14 +47,29 @@ GITIGNORE_RULES = (
     ".LSOverride",
     "Icon\r",
 )
-INTERNAL_STATE_DIRECTORIES = {".stdd"}
+INTERNAL_STATE_DIRECTORIES = {".looper"}
+LEGACY_REFERENCE_PATTERN = re.compile(r"stdd", re.IGNORECASE)
+LEGACY_MIGRATION_IGNORED_PARTS = {
+    ".git",
+    ".venv",
+    "venv",
+    "node_modules",
+    "vendor",
+    "build",
+    "dist",
+    "coverage",
+    "htmlcov",
+    "__pycache__",
+    ".pytest_cache",
+}
+LEGACY_MIGRATION_IGNORED_FILES = {".env", ".env.local", ".env.production", ".env.development"}
 
 
 def get_tracked_extensions(root: Path) -> set[str]:
     """Retorna o conjunto de extensões de arquivo rastreadas na medição de diff.
-    Lê a propriedade tracked_extensions de .stdd/config.json ou utiliza os valores padrão.
+    Lê a propriedade tracked_extensions de .looper/config.json ou utiliza os valores padrão.
     """
-    config_path = stdd_dir(root) / "config.json"
+    config_path = looper_dir(root) / "config.json"
     if config_path.exists():
         try:
             config = json.loads(config_path.read_text(encoding="utf-8"))
@@ -77,11 +92,106 @@ def project_root(path: Path | None = None) -> Path:
     return (path or Path.cwd()).resolve()
 
 
-def stdd_dir(root: Path) -> Path:
-    """Retorna o diretório de estado interno .stdd.
-    Concatena o caminho da raiz informada com a pasta reservada .stdd.
+def looper_dir(root: Path) -> Path:
+    """Retorna o diretório de estado interno .looper.
+    Concatena o caminho da raiz informada com a pasta reservada .looper.
     """
-    return root / ".stdd"
+    return root / ".looper"
+
+
+def _replace_legacy_reference(match: re.Match[str]) -> str:
+    """Troca STDD por Looper preservando a capitalização mais comum."""
+    value = match.group(0)
+    if value.isupper():
+        return "LOOPER"
+    if value[:1].isupper():
+        return "Looper"
+    return "looper"
+
+
+def _append_unique(paths: list[Path], path: Path) -> None:
+    if path not in paths:
+        paths.append(path)
+
+
+def _merge_legacy_state(legacy: Path, current: Path, changed: list[Path]) -> None:
+    """Move somente itens ausentes quando os estados antigo e atual coexistem."""
+    entries = sorted(
+        legacy.rglob("*"),
+        key=lambda path: (len(path.relative_to(legacy).parts), path.as_posix()),
+    )
+    for source in entries:
+        if source.is_symlink():
+            continue
+        destination = current / source.relative_to(legacy)
+        if source.is_dir():
+            if not destination.exists():
+                destination.mkdir(parents=True)
+                _append_unique(changed, destination)
+            continue
+        if source.is_file() and not destination.exists():
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            source.replace(destination)
+            _append_unique(changed, destination)
+
+    for directory in sorted(
+        (path for path in legacy.rglob("*") if path.is_dir() and not path.is_symlink()),
+        key=lambda path: len(path.parts),
+        reverse=True,
+    ):
+        try:
+            directory.rmdir()
+        except OSError:
+            pass
+    try:
+        legacy.rmdir()
+    except OSError:
+        pass
+
+
+def _legacy_text_files(root: Path):
+    for path in root.rglob("*"):
+        if path.is_symlink() or not path.is_file():
+            continue
+        relative_parts = path.relative_to(root).parts
+        if LEGACY_MIGRATION_IGNORED_PARTS.intersection(relative_parts):
+            continue
+        if path.name in LEGACY_MIGRATION_IGNORED_FILES:
+            continue
+        yield path
+
+
+def migrate_legacy_project(root: Path) -> list[Path]:
+    """Migra o estado `.stdd` e referências textuais antigas para o Looper.
+
+    A migração é executada pelo ``looper init``. Um estado legado é renomeado
+    quando `.looper` ainda não existe. Se ambos existirem, somente arquivos que
+    não estão presentes no estado atual são incorporados; conflitos ficam
+    preservados no local antigo para evitar perda silenciosa de dados.
+    """
+    changed: list[Path] = []
+    legacy = root / ".stdd"
+    current = looper_dir(root)
+    if legacy.is_dir() and not legacy.is_symlink():
+        if not current.exists():
+            legacy.rename(current)
+            _append_unique(changed, current)
+        elif current.is_dir():
+            _merge_legacy_state(legacy, current, changed)
+
+    for path in _legacy_text_files(root):
+        try:
+            content = path.read_bytes()
+            if b"stdd" not in content.lower() or b"\x00" in content:
+                continue
+            text = content.decode("utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        updated = LEGACY_REFERENCE_PATTERN.sub(_replace_legacy_reference, text)
+        if updated != text:
+            path.write_text(updated, encoding="utf-8")
+            _append_unique(changed, path)
+    return changed
 
 
 AGENT_SKILL_DIRECTORIES = {
@@ -95,37 +205,37 @@ AGENT_INSTRUCTION_FILES = {
     "claude": ("CLAUDE.md", ".claude/CLAUDE.md"),
     "gemini": ("GEMINI.md",),
 }
-STDD_AGENT_BLOCK_START = "<!-- STDD:BEGIN AGENT INSTRUCTIONS -->"
-STDD_AGENT_BLOCK_END = "<!-- STDD:END AGENT INSTRUCTIONS -->"
-STDD_AGENT_BLOCK = f"""{STDD_AGENT_BLOCK_START}
-## STDD — Harness Control Layer
+Looper_AGENT_BLOCK_START = "<!-- Looper:BEGIN AGENT INSTRUCTIONS -->"
+Looper_AGENT_BLOCK_END = "<!-- Looper:END AGENT INSTRUCTIONS -->"
+Looper_AGENT_BLOCK = f"""{Looper_AGENT_BLOCK_START}
+## Looper — Harness Control Layer
 
-Este projeto usa o STDD para especificação, implementação, testes e evidências.
+Este projeto usa o Looper para especificação, implementação, testes e evidências.
 
-- Registre cada trabalho concluído com `stdd log \"descrição curta\" --type implementacao|teste|bug|refactor`.
-- Execute `stdd test` antes de declarar uma tarefa concluída e trate falhas como bloqueios.
+- Registre cada trabalho concluído com `looper log \"descrição curta\" --type implementacao|teste|bug|refactor`.
+- Execute `looper test` antes de declarar uma tarefa concluída e trate falhas como bloqueios.
 - Preserve o contrato existente, os testes aprovados e os arquivos protegidos.
-- Use `.stdd/` para configuração, desenhos, execuções e evidências; não registre segredos nos logs.
+- Use `.looper/` para configuração, desenhos, execuções e evidências; não registre segredos nos logs.
 - A análise de código deve permanecer separada da análise dos Draws/JSONs; preserve símbolos, referências e métricas gerais quando a stack oferecer essa capacidade.
 - Antes de qualquer commit ou push na branch `main`, confirme que o diff inclui as fontes, templates, skills, assets empacotados, README e testes necessários para o comando de instalação do README reproduzir a versão publicada.
-- Depois de alterar o framework, valide a instalação equivalente com `uv tool install --force --editable .` e confirme que `stdd init` instala as skills atuais; não publique somente uma parte da alteração.
+- Depois de alterar o framework, valide a instalação equivalente com `uv tool install --force --editable .` e confirme que `looper init` instala as skills atuais; não publique somente uma parte da alteração.
 - Ao integrar APIs/apps externos, registre o contrato no `AGENTS.md` e consulte a documentação oficial antes de implementar.
-- O `.stdd/design.md` é a fonte obrigatória de decisões visuais: consulte e respeite identidade, tipografia, espaçamento, estados, acessibilidade e contraste em qualquer alteração ou implementação de interface; seu preenchimento é obrigatório antes de liberar o bootstrap.
-- Mantenha memória contextual seletiva: registre decisões duráveis e aceitas no `AGENTS.md` (contratos, arquitetura, operação e escopo) ou no `.stdd/design.md` (visual e interação); consolide duplicatas e não registre hipóteses, detalhes temporários, IDs de execução ou segredos.
-- `$create-tests-backlog` e `$implement-backlog` pertencem exclusivamente aos loops acionados por `stdd backlog test` e `stdd backlog task`; não leia essas skills para edições, perguntas ou medições comuns fora do backlog.
+- O `.looper/design.md` é a fonte obrigatória de decisões visuais: consulte e respeite identidade, tipografia, espaçamento, estados, acessibilidade e contraste em qualquer alteração ou implementação de interface; seu preenchimento é obrigatório antes de liberar o bootstrap.
+- Mantenha memória contextual seletiva: registre decisões duráveis e aceitas no `AGENTS.md` (contratos, arquitetura, operação e escopo) ou no `.looper/design.md` (visual e interação); consolide duplicatas e não registre hipóteses, detalhes temporários, IDs de execução ou segredos.
+- `$create-tests-backlog` e `$implement-backlog` pertencem exclusivamente aos loops acionados por `looper backlog test` e `looper backlog task`; não leia essas skills para edições, perguntas ou medições comuns fora do backlog.
 - Quando o pedido vier de uma interação comum, trate-o como interação comum e siga somente as instruções necessárias ao pedido; não transforme a edição em task de backlog nem exija o ciclo de testes/implementação do backlog sem que o cursor tenha entregue uma task.
-- No loop do backlog, execute `stdd backlog complete <task-id>` com o mesmo ID recebido somente após validar a task; sem isso, o cursor não avança.
+- No loop do backlog, execute `looper backlog complete <task-id>` com o mesmo ID recebido somente após validar a task; sem isso, o cursor não avança.
 - Quando o backlog entregar o nó e os subfluxos internos juntos, implemente e teste ambos; “Tela” classifica o nível do nó e não limita a entrega ao frontend.
 - Ao relatar o resultado, informe status, arquivos alterados, testes executados, evidências e limitações.
-{STDD_AGENT_BLOCK_END}"""
-_STDD_AGENT_BLOCK_PATTERN = re.compile(
-    rf"{re.escape(STDD_AGENT_BLOCK_START)}.*?{re.escape(STDD_AGENT_BLOCK_END)}\n?",
+{Looper_AGENT_BLOCK_END}"""
+_Looper_AGENT_BLOCK_PATTERN = re.compile(
+    rf"{re.escape(Looper_AGENT_BLOCK_START)}.*?{re.escape(Looper_AGENT_BLOCK_END)}\n?",
     re.DOTALL,
 )
 
 
 def ensure_agent_instructions(root: Path, integrations: tuple[str, ...]) -> list[Path]:
-    """Instala instruções locais do STDD nos arquivos reconhecidos por cada agente.
+    """Instala instruções locais do Looper nos arquivos reconhecidos por cada agente.
     Cria ou atualiza AGENTS.md, CLAUDE.md e GEMINI.md sem tocar em arquivos globais e sem duplicar o bloco.
     """
     changed: list[Path] = []
@@ -136,8 +246,8 @@ def ensure_agent_instructions(root: Path, integrations: tuple[str, ...]) -> list
             root / candidates[0],
         )
         existing = instruction_path.read_text(encoding="utf-8") if instruction_path.exists() else ""
-        without_stdd = _STDD_AGENT_BLOCK_PATTERN.sub("", existing).lstrip("\n")
-        updated = STDD_AGENT_BLOCK + ("\n\n" + without_stdd if without_stdd else "\n")
+        without_looper = _Looper_AGENT_BLOCK_PATTERN.sub("", existing).lstrip("\n")
+        updated = Looper_AGENT_BLOCK + ("\n\n" + without_looper if without_looper else "\n")
         if updated != existing:
             instruction_path.parent.mkdir(parents=True, exist_ok=True)
             instruction_path.write_text(updated, encoding="utf-8")
@@ -149,17 +259,17 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list
     """Inicializa a estrutura do projeto e instala as skills dos agentes.
     Cria as pastas internas de execuções/features e copia os templates Markdown para .agents/skills.
     """
-    created: list[Path] = []
+    created: list[Path] = migrate_legacy_project(root)
     for directory in (
-        stdd_dir(root) / "runs",
-        stdd_dir(root) / "features",
+        looper_dir(root) / "runs",
+        looper_dir(root) / "features",
         *(root / AGENT_SKILL_DIRECTORIES[integration] for integration in integrations),
     ):
         if not directory.exists():
             directory.mkdir(parents=True)
             created.append(directory)
 
-    config = stdd_dir(root) / "config.json"
+    config = looper_dir(root) / "config.json"
     if not config.exists():
         config.write_text(
             json.dumps(
@@ -428,7 +538,7 @@ def run_tests(
     """
     run_id = uuid.uuid4().hex
 
-    config_path = stdd_dir(root) / "config.json"
+    config_path = looper_dir(root) / "config.json"
     config = json.loads(config_path.read_text(encoding="utf-8")) if config_path.exists() else {}
     configured = config.get("test_commands")
     if not configured and config.get("test_command"):
@@ -544,7 +654,7 @@ def _parse_gitignore_dirs(root: Path) -> set[str]:
 
 def get_workspace_snapshot(root: Path) -> dict[str, list[str]]:
     """Mapeia os arquivos rastreados da codebase e seus conteúdos em linhas.
-    Filtra extensões configuradas e exclui o estado operacional do STDD.
+    Filtra extensões configuradas e exclui o estado operacional do Looper.
     """
     tracked_exts = get_tracked_extensions(root)
     ignored_dirs = {".git", ".venv", "venv", "node_modules", *INTERNAL_STATE_DIRECTORIES, ".pytest_cache", "__pycache__"}
@@ -604,7 +714,7 @@ def get_draw_snapshot(root: Path) -> dict[str, list[str]]:
     """Mapeia somente os JSONs lógicos dos desenhos para o histórico de logs.
     Exclui o índice operacional e arquivos fora da pasta direta de Draws.
     """
-    draws_dir = stdd_dir(root) / "draws"
+    draws_dir = looper_dir(root) / "draws"
     snapshot: dict[str, list[str]] = {}
     if not draws_dir.is_dir():
         return snapshot
@@ -746,7 +856,7 @@ def get_previous_workspace_snapshot(root: Path) -> dict[str, list[str]]:
     """Lê o estado da última execução diretamente dos Snapshots diários.
     Não cria arquivo auxiliar e retorna vazio quando ainda não existe uma execução anterior.
     """
-    candidates = sorted((stdd_dir(root) / "runs").glob("*/*_snapshot.json"))
+    candidates = sorted((looper_dir(root) / "runs").glob("*/*_snapshot.json"))
     latest: tuple[str, dict[str, list[str]]] | None = None
     for path in candidates:
         if path.parent.name == "data" or path.name.startswith("._"):
@@ -767,7 +877,7 @@ def get_previous_draw_snapshot(root: Path) -> dict[str, list[str]]:
     """Lê o último snapshot exclusivo dos JSONs lógicos dos desenhos.
     Retorna vazio quando o histórico ainda não possui essa trilha.
     """
-    candidates = sorted((stdd_dir(root) / "runs").glob("*/*_snapshot.json"))
+    candidates = sorted((looper_dir(root) / "runs").glob("*/*_snapshot.json"))
     latest: tuple[str, dict[str, list[str]]] | None = None
     for path in candidates:
         if path.parent.name == "data" or path.name.startswith("._"):
@@ -788,7 +898,7 @@ def get_logged_draw_diff(root: Path, run_id: str | None = None) -> dict[str, Any
     """Retorna o diff de Draws armazenado em um ponto de log.
     Sem ID, seleciona a execução mais recente; nunca calcula o diff da codebase.
     """
-    candidates = sorted((stdd_dir(root) / "runs").glob("*/*_snapshot.json"))
+    candidates = sorted((looper_dir(root) / "runs").glob("*/*_snapshot.json"))
     selected: dict[str, Any] | None = None
     for path in candidates:
         if path.parent.name == "data" or path.name.startswith("._"):
@@ -816,7 +926,7 @@ def get_logged_draw_diff(root: Path, run_id: str | None = None) -> dict[str, Any
 
 
 def record_run_entry(root: Path, description: str, work_types: list[str]) -> Path:
-    """Cria o resumo e o snapshot detalhado do código na pasta .stdd/runs/YYYY-MM-DD/.
+    """Cria o resumo e o snapshot detalhado do código na pasta .looper/runs/YYYY-MM-DD/.
     Valida os tipos de trabalho, calcula os diffs de código e grava os relatórios da execução.
     """
     if not description or not description.strip():
@@ -850,7 +960,7 @@ def record_run_entry(root: Path, description: str, work_types: list[str]) -> Pat
         draw_diffs=draw_diffs,
         draw_snapshot=draw_snapshot,
     )
-    runs_dir = stdd_dir(root) / "runs"
+    runs_dir = looper_dir(root) / "runs"
     summary_file = entry.write(runs_dir)
     update_runs_index(root, summary_file)
     return summary_file

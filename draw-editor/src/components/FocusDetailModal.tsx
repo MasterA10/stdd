@@ -17,7 +17,7 @@ import { CustomNode } from './CustomNode';
 import { FocusLoopEdge } from './FocusLoopEdge';
 import { computeEdgeHandles } from '../layout';
 
-const THEN_EDGE_GRADIENT = 'url(#stdd-then-edge-gradient)';
+const THEN_EDGE_GRADIENT = 'url(#looper-then-edge-gradient)';
 const THEN_EDGE_MARKER_COLOR = '#fb923c';
 
 interface FocusDetailModalProps {
@@ -250,7 +250,7 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
     <>
       <svg className="edge-gradient-definitions" aria-hidden="true">
         <defs>
-          <linearGradient id="stdd-then-edge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <linearGradient id="looper-then-edge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#ef4444" />
             <stop offset="100%" stopColor="#fb923c" />
           </linearGradient>
@@ -263,7 +263,7 @@ export const FocusDetailModal: React.FC<FocusDetailModalProps> = ({
           {/* Header */}
           <div className="dialog-header" style={{ marginBottom: '16px' }}>
             <div>
-              <p className="eyebrow">STDD · Visão de Vizinhança (Zoom)</p>
+              <p className="eyebrow">Looper · Visão de Vizinhança (Zoom)</p>
               <h2>Foco no Bloco: {currentNode.label}</h2>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

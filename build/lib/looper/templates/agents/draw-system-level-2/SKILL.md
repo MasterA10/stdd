@@ -1,6 +1,6 @@
 ---
 name: draw-system-level-2
-description: "Cria o nível 2 de um Draw System no STDD: o mapa exaustivo de jornadas, telas, views e navegação por papel. Use depois de draw-system-level-1; não use para arquitetura macro, regras internas detalhadas ou baixo nível da codebase."
+description: "Cria o nível 2 de um Draw System no Looper: o mapa exaustivo de jornadas, telas, views e navegação por papel. Use depois de draw-system-level-1; não use para arquitetura macro, regras internas detalhadas ou baixo nível da codebase."
 ---
 
 # Draw System — Nível 2: Jornadas do usuário / View
@@ -13,7 +13,7 @@ Leia primeiro a raiz, a cápsula de jornadas e os descendentes relevantes. Para 
 
 ## Hierarquia e handoff
 
-Crie o desenho com `hierarchy.level: 2`, `role: "journey"`, `parent_draw_ref` igual ao ID da raiz, `parent_node_id` igual ao nó-cápsula e `root_draw_ref` igual ao ID da raiz. Atualize o mesmo nó do pai com um único `draw_ref` para o filho. Todo descendente deve declarar `parent_draw_ref`, `parent_node_id` e `root_draw_ref`; o pai e o filho precisam resolver em `.stdd/draws/`. Não criar órfãos, `draw_ref` quebrado ou passos do filho no pai.
+Crie o desenho com `hierarchy.level: 2`, `role: "journey"`, `parent_draw_ref` igual ao ID da raiz, `parent_node_id` igual ao nó-cápsula e `root_draw_ref` igual ao ID da raiz. Atualize o mesmo nó do pai com um único `draw_ref` para o filho. Todo descendente deve declarar `parent_draw_ref`, `parent_node_id` e `root_draw_ref`; o pai e o filho precisam resolver em `.looper/draws/`. Não criar órfãos, `draw_ref` quebrado ou passos do filho no pai.
 
 ## Cada tela é um nó
 
@@ -31,7 +31,7 @@ Para cada tela, registre:
 - dados e estados que o papel consegue observar;
 - `code_refs` dos componentes frontend/interface reais, como React, Vue, HTML, templates, views, `.tsx` e `.jsx`, quando a análise estática os comprovar.
 
-Todo nó de um desenho com `hierarchy.level: 2` deve possuir pelo menos um `code_refs`. A análise estática e o comando `stdd draw create` emitem `draw.level2_missing_code_ref`; a criação visual continua possível, mas `stdd test` bloqueia cada nó sem referência. Se o símbolo ainda não puder ser resolvido, registrar a associação como pendente ou criar uma pergunta, sem inventar arquivo ou componente.
+Todo nó de um desenho com `hierarchy.level: 2` deve possuir pelo menos um `code_refs`. A análise estática e o comando `looper draw create` emitem `draw.level2_missing_code_ref`; a criação visual continua possível, mas `looper test` bloqueia cada nó sem referência. Se o símbolo ainda não puder ser resolvido, registrar a associação como pendente ou criar uma pergunta, sem inventar arquivo ou componente.
 
 ### Exemplo de exaustividade
 
@@ -76,20 +76,20 @@ Nunca misture `se` com `ou` na mesma decisão, em nenhuma direção ou rótulo. 
 
 ## Execução da Fase 1 — Views
 
-1. Inspecione a raiz, stack, `.stdd/config.json`, desenhos existentes, estado do Git e análise estática.
+1. Inspecione a raiz, stack, `.looper/config.json`, desenhos existentes, estado do Git e análise estática.
 2. Crie o JSON de jornadas separadamente, preservando IDs estáveis e o vínculo pai/filho.
 3. Mapeie exaustivamente todas as telas e fluxos por papel; não compactar para reduzir o tamanho.
 4. Consulte análise estática para associar componentes frontend no próprio nó, marcando fatos `resolved`, `unresolved` ou pendentes sem inventar símbolos.
 5. Use `groups` para fronteiras e `flows` para caminhos temporais. Não grave layout, posição, cor, data ou HTML.
 6. Valide nós, relações, etapas de fluxo, grupos de não implementados, perguntas e referências hierárquicas.
-7. Grave com `stdd draw create --data-json '<JSON>'` e confira com `stdd draw serve`.
+7. Grave com `looper draw create --data-json '<JSON>'` e confira com `looper draw serve`.
 8. Revise a árvore, trade-offs, folhas não implementadas e todas as telas que exigem nível 3.
 9. Pare e pergunte se o usuário quer continuar para `$draw-system-level-3`; não crie comportamento antes da aprovação.
 
 Registre a alteração:
 
 ```bash
-stdd log "Cria jornadas do sistema no nível 2" --type implementacao
+looper log "Cria jornadas do sistema no nível 2" --type implementacao
 ```
 
 Entregue raiz, ID da jornada, telas com `draw_ref`, folhas não implementadas, perguntas, trade-offs, arquivos alterados e o comando de revisão visual.

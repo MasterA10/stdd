@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "id": "stdd-agent-journeys",
-  "title": "Agentes e responsabilidades do STDD",
+  "id": "looper-agent-journeys",
+  "title": "Agentes e responsabilidades do Looper",
   "subtitle": "As skills que conduzem o ciclo de especificação orientada por testes",
   "kind": "system",
   "hierarchy": {
     "level": 2,
     "role": "journey",
-    "parent_draw_ref": "stdd-system-architecture",
+    "parent_draw_ref": "looper-system-architecture",
     "parent_node_id": 11,
-    "root_draw_ref": "stdd-system-architecture"
+    "root_draw_ref": "looper-system-architecture"
   },
   "groups": [
     {
@@ -44,7 +44,7 @@
       "id": 2,
       "label": "$setup",
       "group": 1,
-      "description": "Descobre a stack, runners, bancos, provedores e configura o STDD sem inventar capacidades. Encaminha para $draw-system quando falta uma raiz de sistema."
+      "description": "Descobre a stack, runners, bancos, provedores e configura o Looper sem inventar capacidades. Encaminha para $draw-system quando falta uma raiz de sistema."
     },
     {
       "id": 3,
@@ -84,7 +84,7 @@
     },
     {
       "id": 9,
-      "label": "stdd test e stdd log",
+      "label": "looper test e looper log",
       "group": 4,
       "description": "Não são agentes: são gates e evidências operacionais que verificam e registram o trabalho conduzido pelas skills."
     },
@@ -202,7 +202,7 @@
       "kind": "flow",
       "condition": 1,
       "label": "então verifica e registra",
-      "description": "Toda implementação passa por stdd test e stdd log."
+      "description": "Toda implementação passa por looper test e looper log."
     },
     {
       "id": 11,
@@ -342,7 +342,7 @@
     }
   ],
   "notes": [
-    "Os nomes e responsabilidades foram derivados dos templates em src/stdd/templates/agents/.",
+    "Os nomes e responsabilidades foram derivados dos templates em src/looper/templates/agents/.",
     "A árvore atual não cria um nível 3 para cada agente porque os agentes são papéis de orquestração, não endpoints ou casos de uso independentes.",
     "O agente que documenta este sistema é $draw-system; seu resultado é o desenho raiz e seus descendentes."
   ]

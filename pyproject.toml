@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "stdd"
+name = "looper"
 version = "0.1.2"
 description = "Test-driven harness control for Codex"
 requires-python = ">=3.11"
@@ -13,13 +13,13 @@ dependencies = ["typer>=0.12,<1"]
 dev = ["pytest>=8,<9"]
 
 [project.scripts]
-stdd = "stdd.cli:app"
+looper = "looper.cli:app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-stdd = ["draw_assets/**/*", "templates/agents/*/SKILL.md", "templates/agents/*/agents/*.yaml", "templates/adapters/*.php", "templates/adapters/*.py", "templates/adapters/*.js", "templates/draw/*.html", "templates/draw/*.json", "templates/runs/*.html"]
+looper = ["draw_assets/**/*", "templates/agents/*/SKILL.md", "templates/agents/*/agents/*.yaml", "templates/adapters/*.php", "templates/adapters/*.py", "templates/adapters/*.js", "templates/draw/*.html", "templates/draw/*.json", "templates/runs/*.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

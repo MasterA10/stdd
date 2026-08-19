@@ -1,7 +1,7 @@
 import re
 from pathlib import Path
 
-with open('src/stdd/backlog.py', 'r') as f:
+with open('src/looper/backlog.py', 'r') as f:
     content = f.read()
 
 # Add imports
@@ -68,5 +68,5 @@ content = re.sub(old_def_regex, new_def, content, flags=re.DOTALL)
 # Update all calls
 content = re.sub(r'_task_context\(\s*payload,', r'_task_context(root, payload,', content)
 
-with open('src/stdd/backlog.py', 'w') as f:
+with open('src/looper/backlog.py', 'w') as f:
     f.write(content)

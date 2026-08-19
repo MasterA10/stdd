@@ -90,8 +90,8 @@ def _level_semantics(root: Path) -> dict[str, dict[str, Any]]:
 
 
 def _get_backlog_config(root: Path) -> dict[str, Any]:
-    """Lê a configuração da chave 'backlog' em .stdd/config.json."""
-    config_path = root / ".stdd" / "config.json"
+    """Lê a configuração da chave 'backlog' em .looper/config.json."""
+    config_path = root / ".looper" / "config.json"
     if not config_path.exists():
         return {}
     try:
@@ -142,7 +142,7 @@ def _execution_config(root: Path) -> dict[str, Any]:
 
 
 def get_backlog_config(root: Path) -> dict[str, Any]:
-    """Retorna a configuração da seção 'backlog' em .stdd/config.json."""
+    """Retorna a configuração da seção 'backlog' em .looper/config.json."""
     return _get_backlog_config(root)
 
 
@@ -159,8 +159,8 @@ def set_backlog_config(
     level_3_meaning: str | None = None,
     test_loop_enabled: bool | None = None,
 ) -> dict[str, Any]:
-    """Atualiza a seção 'backlog' em .stdd/config.json de forma persistente."""
-    config_path = root / ".stdd" / "config.json"
+    """Atualiza a seção 'backlog' em .looper/config.json de forma persistente."""
+    config_path = root / ".looper" / "config.json"
     data: dict[str, Any] = {}
     if config_path.exists():
         try:
@@ -280,8 +280,8 @@ def bootstrap_report(root: Path) -> dict[str, Any]:
         "system_level_1": {"status": "passed" if root_draw else "blocked", "reason": None if root_draw else "system_level_1_missing"},
         "design": bootstrap_design_status(root),
         "env_example": {"status": "passed" if (root / ".env.example").is_file() else "blocked", "reason": None if (root / ".env.example").is_file() else "env_example_missing"},
-        "stdd_config": {"status": "passed" if (root / ".stdd" / "config.json").is_file() else "blocked", "reason": None if (root / ".stdd" / "config.json").is_file() else "config_missing"},
-        "draw_storage": {"status": "passed" if (root / ".stdd" / "draws" / "index.json").is_file() else "blocked", "reason": None if (root / ".stdd" / "draws" / "index.json").is_file() else "draw_storage_missing"},
+        "looper_config": {"status": "passed" if (root / ".looper" / "config.json").is_file() else "blocked", "reason": None if (root / ".looper" / "config.json").is_file() else "config_missing"},
+        "draw_storage": {"status": "passed" if (root / ".looper" / "draws" / "index.json").is_file() else "blocked", "reason": None if (root / ".looper" / "draws" / "index.json").is_file() else "draw_storage_missing"},
     }
     failures = [name for name, check in checks.items() if check.get("status") != "passed"]
     return {"status": "blocked" if failures else "passed", "checks": checks, "failures": failures}
@@ -410,7 +410,7 @@ def _create_injected_final_task() -> dict[str, Any]:
 
 def backlog_path(root: Path) -> Path:
     """Retorna o arquivo agregado e persistente do backlog do projeto."""
-    return root / ".stdd" / "backlog.json"
+    return root / ".looper" / "backlog.json"
 
 
 def _atomic_write(path: Path, payload: dict[str, Any]) -> Path:
@@ -504,7 +504,7 @@ def _normalize_test_ref(node: dict[str, Any]) -> tuple[dict[str, Any] | None, st
 
 def _static_test_symbols(root: Path) -> list[dict[str, Any]] | None:
     """Lê o inventário de símbolos produzido pela análise estática atual."""
-    path = root / ".stdd" / "adapters" / "static-analysis-kpis.json"
+    path = root / ".looper" / "adapters" / "static-analysis-kpis.json"
     if not path.exists():
         return None
     try:
@@ -930,7 +930,7 @@ def _refresh_test_statuses(
             task["test_status"] = "not-required"
             task["test_evidence"] = {
                 "status": "not-required",
-                "reason": "loop de testes desabilitado no stdd init",
+                "reason": "loop de testes desabilitado no looper init",
             }
         return
     delivery_scope = _execution_config(root)["task_delivery_scope"]
@@ -1624,7 +1624,7 @@ def next_backlog_test(root: Path) -> dict[str, Any]:
             "kind": "backlog-test-disabled",
             "phase": "test",
             "status": "disabled",
-            "instruction": "O loop de testes está desabilitado no stdd init; use stdd backlog task para executar somente implementação.",
+            "instruction": "O loop de testes está desabilitado no looper init; use looper backlog task para executar somente implementação.",
         }
     execution = payload["execution"]
     current_id = execution.get("current_task_id")

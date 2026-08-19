@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Descobre a stack e prepara o STDD para executar testes e análise estática reais do projeto. Usar na inicialização, reconfiguração ou diagnóstico de linguagens, frameworks, bancos, provedores de IA, runners, monorepos e ambientes de teste.
+description: Descobre a stack e prepara o Looper para executar testes e análise estática reais do projeto. Usar na inicialização, reconfiguração ou diagnóstico de linguagens, frameworks, bancos, provedores de IA, runners, monorepos e ambientes de teste.
 ---
 
 # Setup Agent
@@ -11,57 +11,57 @@ O setup deve preservar a hierarquia dos desenhos existentes. Não reclassificar 
 
 Se validar desenhos como parte do diagnóstico, exigir que cada descendente tenha `parent_draw_ref`, `parent_node_id` e `root_draw_ref`, que o pai possua o `draw_ref` correspondente e que folhas não implementadas permaneçam terminais. Um `draw_ref` quebrado ou fluxo órfão é inconsistência a relatar, não motivo para alterar o desenho automaticamente.
 
-Depois de detectar a stack, verificar `.stdd/draws/` procurando ao menos um desenho de sistema com `kind: "system"` e `hierarchy.level: 1`. Se não houver uma raiz de sistema, informar que a documentação arquitetural ainda não existe e recomendar uma chamada separada a `$draw-system-level-1`. O `setup` não cria, edita, completa ou substitui desenhos; ele somente configura a stack, os runners, o contrato e a análise estática. A criação da arquitetura, das jornadas do usuário — incluindo cliente e administrador — e dos níveis de implementação pertence exclusivamente às skills `$draw-system-level-1`, `$draw-system-level-2`, `$draw-system-level-3` e `$draw-system-level-4`.
+Depois de detectar a stack, verificar `.looper/draws/` procurando ao menos um desenho de sistema com `kind: "system"` e `hierarchy.level: 1`. Se não houver uma raiz de sistema, informar que a documentação arquitetural ainda não existe e recomendar uma chamada separada a `$draw-system-level-1`. O `setup` não cria, edita, completa ou substitui desenhos; ele somente configura a stack, os runners, o contrato e a análise estática. A criação da arquitetura, das jornadas do usuário — incluindo cliente e administrador — e dos níveis de implementação pertence exclusivamente às skills `$draw-system-level-1`, `$draw-system-level-2`, `$draw-system-level-3` e `$draw-system-level-4`.
 
 ## Instalação do CLI
 
-Para instalar uma versão publicada no Git e colocar `stdd` no `PATH`, usar `uv`:
+Para instalar uma versão publicada no Git e colocar `looper` no `PATH`, usar `uv`:
 
 ```bash
-uv tool install --force --refresh stdd --from git+https://github.com/MasterA10/stdd.git@main
+uv tool install --force --refresh looper --from git+https://github.com/MasterA10/looper.git@main
 ```
 
 Depois inicializar o repositório pelo caminho, sem copiar o pacote para dentro dele:
 
 ```bash
-stdd init my-project
+looper init my-project
 cd my-project
 ```
 
-O `init` é idempotente e cria os artefatos do framework em `.stdd/` e as skills em `.agents/skills/`.
+O `init` é idempotente e cria os artefatos do framework em `.looper/` e as skills em `.agents/skills/`.
 
 As integrações podem ser instaladas explicitamente:
 
 ```bash
-stdd init . --integration codex
-stdd init . --integration claude --integration gemini
-stdd init . --all-integrations
+looper init . --integration codex
+looper init . --integration claude --integration gemini
+looper init . --all-integrations
 ```
 
-O Codex usa `.agents/skills`, o Claude usa `.claude/skills` e o Gemini usa `.gemini/skills`. A instalação é local e idempotente; não instala o agente nem dependências da aplicação. O CLI pode ser instalado remotamente com `uv tool install --force --refresh stdd --from git+https://github.com/MasterA10/stdd.git@main`.
+O Codex usa `.agents/skills`, o Claude usa `.claude/skills` e o Gemini usa `.gemini/skills`. A instalação é local e idempotente; não instala o agente nem dependências da aplicação. O CLI pode ser instalado remotamente com `uv tool install --force --refresh looper --from git+https://github.com/MasterA10/looper.git@main`.
 
-Depois do init, executar `stdd setup`. Essa etapa descobre a linguagem e gera comandos específicos, como `npm test`, `go test ./...`, `cargo test`, `dotnet test`, `mvn test` ou `python -m pytest` somente quando a evidência local indicar essa stack. O núcleo não assume Python para projetos de outras linguagens.
+Depois do init, executar `looper setup`. Essa etapa descobre a linguagem e gera comandos específicos, como `npm test`, `go test ./...`, `cargo test`, `dotnet test`, `mvn test` ou `python -m pytest` somente quando a evidência local indicar essa stack. O núcleo não assume Python para projetos de outras linguagens.
 
-Na primeira versão, os adapters distribuídos cobrem Python, JavaScript/TypeScript (incluindo JSX/TSX) e PHP. Em monorepos, o setup percorre manifests de subprojetos e usa um dispatcher local em `.stdd/adapters/static_adapter.py`; o parser deve ser encontrado no próprio projeto. Go, Rust, Java e C# podem ser detectados, mas permanecem `unavailable` enquanto não houver adapter comprovado.
+Na primeira versão, os adapters distribuídos cobrem Python, JavaScript/TypeScript (incluindo JSX/TSX) e PHP. Em monorepos, o setup percorre manifests de subprojetos e usa um dispatcher local em `.looper/adapters/static_adapter.py`; o parser deve ser encontrado no próprio projeto. Go, Rust, Java e C# podem ser detectados, mas permanecem `unavailable` enquanto não houver adapter comprovado.
 
 ### Roteiro obrigatório iniciado pelo `init`
 
-Ao iniciar um projeto com `stdd init`, apresentar também o plano de análise estática e rastreabilidade. Não terminar o setup apenas com um runner de testes: explicar quais fatos serão extraídos da codebase, qual adapter será usado e como os nós do Draw serão ligados aos símbolos reais.
+Ao iniciar um projeto com `looper init`, apresentar também o plano de análise estática e rastreabilidade. Não terminar o setup apenas com um runner de testes: explicar quais fatos serão extraídos da codebase, qual adapter será usado e como os nós do Draw serão ligados aos símbolos reais.
 
 Executar esta sequência, adaptando os comandos à stack encontrada:
 
-1. Confirmar que `.stdd/config.json` contém `static_analysis.enabled`, `contract_version` e `adapter_command`. Se `adapter_command` estiver vazio, a capacidade deve permanecer `unavailable`; nunca declarar análise estática pronta sem executar uma chamada real.
+1. Confirmar que `.looper/config.json` contém `static_analysis.enabled`, `contract_version` e `adapter_command`. Se `adapter_command` estiver vazio, a capacidade deve permanecer `unavailable`; nunca declarar análise estática pronta sem executar uma chamada real.
 2. Inventariar a linguagem, o parser ou ferramenta escolhida, extensões analisadas, diretórios ignorados e limitações conhecidas. Preferir APIs estruturadas de compiladores, servidores de linguagem ou analisadores oficiais; usar regex somente para fatos simples e explicitamente limitados.
-3. Criar o adapter dentro de `.stdd/adapters/` ou em um executável da própria aplicação, com entrada JSON por `stdin`, saída JSON por `stdout` e diagnóstico somente em `stderr`. Não embutir comandos em uma string de shell.
+3. Criar o adapter dentro de `.looper/adapters/` ou em um executável da própria aplicação, com entrada JSON por `stdin`, saída JSON por `stdout` e diagnóstico somente em `stderr`. Não embutir comandos em uma string de shell.
 
-Regra de localização: o adapter específico da linguagem deve ficar dentro do diretório do próprio projeto analisado e ser versionável junto com ele, preferencialmente em `<project_root>/.stdd/adapters/`. Nunca colocar esse adapter no diretório de instalação global do STDD, no repositório do framework ou somente no ambiente do agente. O adapter deve ser personalizado para a linguagem e para a codebase, usando parser, tokenizer, AST ou APIs locais; não depender de serviço externo, agente remoto ou adapter genérico instalado fora do projeto para descobrir símbolos e dependências. O `adapter_command` deve apontar para o caminho relativo dentro da codebase, por exemplo `["php", ".stdd/adapters/php_static_adapter.php"]` ou `["python", ".stdd/adapters/static_adapter.py"]`.
+Regra de localização: o adapter específico da linguagem deve ficar dentro do diretório do próprio projeto analisado e ser versionável junto com ele, preferencialmente em `<project_root>/.looper/adapters/`. Nunca colocar esse adapter no diretório de instalação global do Looper, no repositório do framework ou somente no ambiente do agente. O adapter deve ser personalizado para a linguagem e para a codebase, usando parser, tokenizer, AST ou APIs locais; não depender de serviço externo, agente remoto ou adapter genérico instalado fora do projeto para descobrir símbolos e dependências. O `adapter_command` deve apontar para o caminho relativo dentro da codebase, por exemplo `["php", ".looper/adapters/php_static_adapter.php"]` ou `["python", ".looper/adapters/static_adapter.py"]`.
 4. Executar o adapter diretamente com um projeto mínimo e com um caso real. Validar o JSON, o `contract_version`, o status, os símbolos e as dependências antes de configurar o comando.
-5. Configurar o comando em `.stdd/config.json`, executar `stdd test` e registrar em `.stdd/test-discovery.md` a ferramenta, versão, cobertura, limitações e pré-condições.
+5. Configurar o comando em `.looper/config.json`, executar `looper test` e registrar em `.looper/test-discovery.md` a ferramenta, versão, cobertura, limitações e pré-condições.
 6. Depois que os fatos estiverem disponíveis, deixar a associação dos nós do desenho aos símbolos para o agente de desenho/análise responsável. O `setup` pode relatar capacidades e limitações, mas não deve editar o Draw nem inventar que um nó representa um arquivo apenas porque o texto parece semelhante.
 
-O núcleo do STDD permanece agnóstico: ele não escolhe parser, não embute regras de uma linguagem e não cria um adapter genérico que simula fatos. O agente `setup` é responsável por orientar a construção do adapter específico da codebase detectada. Se a stack mudar, o algoritmo, a ferramenta e as limitações devem ser reavaliados; não reutilizar um parser de outra linguagem apenas para preencher o contrato.
+O núcleo do Looper permanece agnóstico: ele não escolhe parser, não embute regras de uma linguagem e não cria um adapter genérico que simula fatos. O agente `setup` é responsável por orientar a construção do adapter específico da codebase detectada. Se a stack mudar, o algoritmo, a ferramenta e as limitações devem ser reavaliados; não reutilizar um parser de outra linguagem apenas para preencher o contrato.
 
-Se o adapter ainda não existir no projeto, o `setup` não pode terminar apenas com `adapter_command: null` quando houver uma linguagem e uma ferramenta local comprovada. Deve criar ou orientar a criação do adapter em `<project_root>/.stdd/adapters/`, testar esse arquivo diretamente e só então configurar o comando. Se não houver parser, runtime ou ferramenta autorizada, registrar explicitamente `unavailable`, explicar a pré-condição ausente e não declarar análise estática pronta.
+Se o adapter ainda não existir no projeto, o `setup` não pode terminar apenas com `adapter_command: null` quando houver uma linguagem e uma ferramenta local comprovada. Deve criar ou orientar a criação do adapter em `<project_root>/.looper/adapters/`, testar esse arquivo diretamente e só então configurar o comando. Se não houver parser, runtime ou ferramenta autorizada, registrar explicitamente `unavailable`, explicar a pré-condição ausente e não declarar análise estática pronta.
 
 ### Exceções
 
@@ -79,7 +79,7 @@ Quando a análise estática ainda não existir, o resultado deve conter um plano
 
 ## Como criar um adapter de análise estática
 
-Criar um adapter como uma fronteira pequena e testável entre a ferramenta de análise da linguagem e o contrato do STDD. O adapter não decide arquitetura nem interpreta o desenho: ele coleta fatos reproduzíveis.
+Criar um adapter como uma fronteira pequena e testável entre a ferramenta de análise da linguagem e o contrato do Looper. O adapter não decide arquitetura nem interpreta o desenho: ele coleta fatos reproduzíveis.
 
 ### 1. Definir a fonte de verdade e o algoritmo da linguagem
 
@@ -101,7 +101,7 @@ Descrever antes de implementar como a linguagem representa cada fato. O algoritm
 
 O plano do adapter deve mapear explicitamente:
 
-| Fato do STDD | Estratégia específica da linguagem | Evidência mínima |
+| Fato do Looper | Estratégia específica da linguagem | Evidência mínima |
 | --- | --- | --- |
 | símbolo | AST/compiler API/LSP ou tokenizer limitado | nome qualificado, tipo, arquivo e posição |
 | dependência | grafo de imports, referências ou chamadas resolvidas | origem, destino, tipo e arquivo |
@@ -110,13 +110,13 @@ O plano do adapter deve mapear explicitamente:
 | qualidade | limites aplicados aos fatos coletados | `kind`, `severity`, `value`, `limit` e evidência |
 | mudança | diff do Git cruzado com identidades estáveis | símbolo criado, removido ou alterado |
 
-Não começar pelo formato JSON. Primeiro provar a coleta em uma fixture mínima da linguagem e só então fazer o mapeamento para o contrato do STDD.
+Não começar pelo formato JSON. Primeiro provar a coleta em uma fixture mínima da linguagem e só então fazer o mapeamento para o contrato do Looper.
 
 Registrar limitações por capacidade. Um adapter que resolve funções, mas não consegue resolver macros ou geração de código, deve informar isso em `capabilities` e produzir `warnings`; não deve preencher fatos falsos.
 
 ### 2. Implementar o protocolo do adapter
 
-O STDD envia uma requisição semelhante a:
+O Looper envia uma requisição semelhante a:
 
 ```json
 {
@@ -144,7 +144,7 @@ Não registrar conteúdo de `.env`, tokens, chaves, prompts privados ou payloads
 
 ### 3. Separar fatos primários de fatos derivados
 
-O adapter deve produzir fatos primários: símbolos, relações de dependência, complexidade, métricas de estrutura, achados e mudanças. O STDD deriva desses fatos o impacto de um nó, os arquivos envolvidos, testes relacionados e sugestões de revisão.
+O adapter deve produzir fatos primários: símbolos, relações de dependência, complexidade, métricas de estrutura, achados e mudanças. O Looper deriva desses fatos o impacto de um nó, os arquivos envolvidos, testes relacionados e sugestões de revisão.
 
 Não colocar no adapter conclusões como “este nó é o fluxo de pagamento” sem uma regra explícita. O desenho pode conter intenção humana, mas a ligação com a codebase deve ser baseada em referências declaradas e nos nomes retornados pelo analisador.
 
@@ -160,7 +160,7 @@ Criar fixtures pequenas contendo pelo menos uma função ou classe, uma importa�
 - arquivos ignorados não aparecendo nos fatos;
 - timeout, ferramenta ausente e código inválido resultando em `unavailable`, `blocked` ou `failed`, nunca em `passed` falso.
 
-Só depois desses testes configurar `static_analysis.adapter_command`. Executar o adapter diretamente, depois `stdd test`, e guardar evidências sem segredos.
+Só depois desses testes configurar `static_analysis.adapter_command`. Executar o adapter diretamente, depois `looper test`, e guardar evidências sem segredos.
 
 ### 5. Validar qualidade de código por linguagem
 
@@ -175,7 +175,7 @@ Para cada função, método, closure ou equivalente que a linguagem realmente ex
 - tamanho e complexidade de testes, identificando testes pela convenção comprovada da stack;
 - duplicação, código morto, tipos ausentes ou problemas de lint apenas quando houver ferramenta determinística disponível.
 
-Aplicar os limites configurados em `.stdd/config.json` e produzir `long_function`, `long_test`, `high_complexity`, `too_many_parameters`, `deep_nesting`, `high_fan_out` e `god_class_candidate` somente quando os fatos exigidos pelo achado estiverem disponíveis. Um limite não suportado pela linguagem deve aparecer em `capabilities`/`warnings`, não como zero ou como aprovação falsa.
+Aplicar os limites configurados em `.looper/config.json` e produzir `long_function`, `long_test`, `high_complexity`, `too_many_parameters`, `deep_nesting`, `high_fan_out` e `god_class_candidate` somente quando os fatos exigidos pelo achado estiverem disponíveis. Um limite não suportado pela linguagem deve aparecer em `capabilities`/`warnings`, não como zero ou como aprovação falsa.
 
 O adapter deve separar três níveis no relatório:
 
@@ -190,7 +190,7 @@ O agente `setup` deve registrar essa matriz de cobertura no diagnóstico e expli
 O vínculo começa com uma associação mínima fornecida pelo usuário ou pelo agente após inspecionar a codebase: `node_id`, `qualified_name` e pelo menos um `source_dependency`. O comando canônico é:
 
 ```bash
-stdd draw associate-reference \
+looper draw associate-reference \
   --draw-id nome-do-desenho \
   --node-id 42 \
   --qualified-name 'orders.OrderService.create' \
@@ -200,7 +200,7 @@ stdd draw associate-reference \
 
 Para vários vínculos, usar `--batch-json` com uma lista de objetos que contenham `node_id`, `qualified_name` e `source_dependencies`. Validar que o desenho existe, que o nó existe e que o nome qualificado é o formato usado pelo adapter. Não associar pelo texto visual, posição, índice do array ou nome curto isolado.
 
-O comando grava a referência declarada no desenho. Ele não calcula fatos derivados nem deve substituir uma associação explícita por uma sugestão. Em cada nova execução da análise estática, o STDD cruza as referências com `symbols` e `dependencies` e gera um relatório separado em `.stdd/facts/<draw-id>.facts.json`. Esse relatório pode indicar:
+O comando grava a referência declarada no desenho. Ele não calcula fatos derivados nem deve substituir uma associação explícita por uma sugestão. Em cada nova execução da análise estática, o Looper cruza as referências com `symbols` e `dependencies` e gera um relatório separado em `.looper/facts/<draw-id>.facts.json`. Esse relatório pode indicar:
 
 - `resolved`: o símbolo foi encontrado;
 - `unresolved`: o símbolo não apareceu nos fatos atuais;
@@ -217,7 +217,7 @@ Ao concluir o setup, mostrar uma tabela ou resumo equivalente com `node_id`, `qu
 
 ## Responsabilidade
 
-Mapear a codebase e configurar capacidades comprovadas para `stdd test`. Detectar em vez de presumir. Criar adapters e scripts específicos da stack somente quando necessários e testá-los antes da ativação. Não alterar regras de negócio da aplicação.
+Mapear a codebase e configurar capacidades comprovadas para `looper test`. Detectar em vez de presumir. Criar adapters e scripts específicos da stack somente quando necessários e testá-los antes da ativação. Não alterar regras de negócio da aplicação.
 
 ## Descoberta
 
@@ -230,7 +230,7 @@ Inspecionar, com evidência:
 - filas, caches, APIs, storage e serviços externos;
 - SDKs e provedores de inteligência artificial;
 - agente local e executáveis disponíveis;
-- configuração atual em `.stdd/config.json`.
+- configuração atual em `.looper/config.json`.
 
 Registrar capacidade como `available` somente após localizar e validar o comando. Usar `unavailable` ou `detected` quando a execução ainda não foi comprovada. Nunca ler ou persistir valores de credenciais; registrar apenas nomes de variáveis.
 
@@ -238,7 +238,7 @@ O setup também constrói e revisa o `.gitignore` da raiz. Deve preservar regras
 
 ## Configuração dos runners
 
-Configurar `.stdd/config.json` com arrays de argumentos, sem shell concatenado:
+Configurar `.looper/config.json` com arrays de argumentos, sem shell concatenado:
 
 ```json
 {
@@ -253,7 +253,7 @@ Preservar comandos existentes até provar que estão obsoletos. Para suites que 
 
 ### Alias global
 
-Tratar `stdd test` como o alias global canônico. Todas as suítes aplicáveis, existentes e configuradas em `test_commands` devem ser executadas uma vez na mesma chamada. Isso pode incluir unitários, integração, contrato, banco, end-to-end, segurança, performance e teste live quando a superfície e a política justificarem. Não criar ou exigir suíte para cada arquivo: frontend visual normalmente usa revisão humana, e Markdown puramente documental não precisa de teste. Uma falha não interrompe as suítes seguintes: o alias termina todas as execuções e devolve resultado consolidado com status, duração e exit code por suíte.
+Tratar `looper test` como o alias global canônico. Todas as suítes aplicáveis, existentes e configuradas em `test_commands` devem ser executadas uma vez na mesma chamada. Isso pode incluir unitários, integração, contrato, banco, end-to-end, segurança, performance e teste live quando a superfície e a política justificarem. Não criar ou exigir suíte para cada arquivo: frontend visual normalmente usa revisão humana, e Markdown puramente documental não precisa de teste. Uma falha não interrompe as suítes seguintes: o alias termina todas as execuções e devolve resultado consolidado com status, duração e exit code por suíte.
 
 Cada runner encapsula seu próprio ciclo de vida. Um runner de banco deve criar ou selecionar o banco isolado, aplicar migrations, preparar dados quando necessário, executar os testes e realizar cleanup mesmo após falha. O alias global apenas orquestra esses runners; não deve reproduzir comandos internos nem apontar para produção.
 
@@ -266,10 +266,10 @@ Antes de instalar pacote ou blocker, baixar ferramenta ou imagem, iniciar ou rec
 Exemplo de suíte controlada:
 
 ```json
-{"name":"database","command":[".stdd/adapters/tests/run-database"],"profiles":["product","critical"],"requires_approval":true,"required":false}
+{"name":"database","command":[".looper/adapters/tests/run-database"],"profiles":["product","critical"],"requires_approval":true,"required":false}
 ```
 
-Manter scripts gerados pelo framework dentro de `.stdd/adapters/` ou outro diretório explicitamente autorizado. Todo adapter deve possuir teste determinístico, timeout, comandos conhecidos, stdout estruturado e stderr para diagnóstico.
+Manter scripts gerados pelo framework dentro de `.looper/adapters/` ou outro diretório explicitamente autorizado. Todo adapter deve possuir teste determinístico, timeout, comandos conhecidos, stdout estruturado e stderr para diagnóstico.
 
 ## Matriz mínima de descoberta de testes
 
@@ -325,14 +325,14 @@ Configurar somente contra alvo local ou ambiente explicitamente autorizado. Defi
 
 ## Análise estática
 
-Detectar a melhor ferramenta da linguagem e conectar um adapter ao contrato `static_analysis` do STDD. Validar símbolos, dependências, complexidade, funções longas e mudanças antes de habilitar o comando. Sem adapter, manter `status = unavailable`.
+Detectar a melhor ferramenta da linguagem e conectar um adapter ao contrato `static_analysis` do Looper. Validar símbolos, dependências, complexidade, funções longas e mudanças antes de habilitar o comando. Sem adapter, manter `status = unavailable`.
 
 ## Validação do setup
 
 1. Executar cada runner específico em ambiente seguro.
 2. Registrar comando, versão, duração, exit code e status.
-3. Executar `stdd test` por último.
-4. Gravar diagnóstico em `.stdd/test-discovery.md`, sem segredos.
+3. Executar `looper test` por último.
+4. Gravar diagnóstico em `.looper/test-discovery.md`, sem segredos.
 5. Distinguir `passed`, `failed`, `blocked` e `not_executed`.
 
 ## Clareza e logs
@@ -342,12 +342,12 @@ Testes novos seguem o padrão da stack. Em Python, cada função de teste deve t
 Registrar testes e configuração separadamente quando forem trabalhos distintos:
 
 ```bash
-stdd log "Configura runners detectados" --impl
-stdd log "Adiciona validações da stack" --test
+looper log "Configura runners detectados" --impl
+looper log "Adiciona validações da stack" --test
 ```
 
 Usar `--refactor` para retrabalho ou falta de planejamento prévio. Não combinar WorkTypes por conveniência. Ao concluir, informar capacidades disponíveis, indisponíveis, comandos configurados, evidências e pré-condições externas.
 
 ## Loop e design
 
-O setup cria `.stdd/design.md` com identidade visual, tipografia, espaçamento, estados, acessibilidade e contraste mínimo; o template não preenchido bloqueia o bootstrap. Registre APIs/apps externos no `AGENTS.md` e consulte a documentação oficial. Trabalhe uma task por interação, com `backlog test` antes de produção e `backlog complete` por ID.
+O setup cria `.looper/design.md` com identidade visual, tipografia, espaçamento, estados, acessibilidade e contraste mínimo; o template não preenchido bloqueia o bootstrap. Registre APIs/apps externos no `AGENTS.md` e consulte a documentação oficial. Trabalhe uma task por interação, com `backlog test` antes de produção e `backlog complete` por ID.

@@ -26,7 +26,7 @@
     {
       "run_id": "199455a60acf49bd896a557c1820ac45",
       "timestamp": "2026-08-18T00:10:02.109008+00:00",
-      "description": "Valida contratos, tags, bootstrap, contexto e execução do STDD",
+      "description": "Valida contratos, tags, bootstrap, contexto e execução do Looper",
       "work_types": [
         "teste"
       ],
@@ -89,7 +89,7 @@
     {
       "run_id": "b9902de2f911470685820f58c5267d2d",
       "timestamp": "2026-08-18T13:58:02.790548+00:00",
-      "description": "Enxuga implement e create-tests para percorrer o loop do STDD",
+      "description": "Enxuga implement e create-tests para percorrer o loop do Looper",
       "work_types": [
         "refactor"
       ],
@@ -341,7 +341,7 @@
     {
       "run_id": "42f89420ebec4462b667ac7a40681aaa",
       "timestamp": "2026-08-18T15:43:30.268487+00:00",
-      "description": "Atualiza instalação global do STDD a partir do checkout atual",
+      "description": "Atualiza instalação global do Looper a partir do checkout atual",
       "work_types": [
         "refactor"
       ],
@@ -425,7 +425,7 @@
     {
       "run_id": "8d4252405a384578b3ac223e16d853af",
       "timestamp": "2026-08-18T15:53:17.942238+00:00",
-      "description": "Atualiza novamente a instalação global do STDD",
+      "description": "Atualiza novamente a instalação global do Looper",
       "work_types": [
         "refactor"
       ],
@@ -488,7 +488,7 @@
     {
       "run_id": "e772b970bdad44f593a2a2f43a722c05",
       "timestamp": "2026-08-18T16:18:16.200083+00:00",
-      "description": "Adiciona intervalo configuravel de verificacao ao stdd init",
+      "description": "Adiciona intervalo configuravel de verificacao ao looper init",
       "work_types": [
         "implementacao"
       ],

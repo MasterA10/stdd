@@ -3,8 +3,8 @@ import runpy
 from pathlib import Path
 import sys
 
-from stdd.core import run_tests
-from stdd.static_analysis import run_static_analysis, scan_hardcoded_secrets, write_static_analysis_kpis
+from looper.core import run_tests
+from looper.static_analysis import run_static_analysis, scan_hardcoded_secrets, write_static_analysis_kpis
 
 
 def _adapter_command(result: dict) -> list[str]:
@@ -69,7 +69,7 @@ def test_secret_scanner_warns_for_explicitly_allowed_test_credential(tmp_path: P
     """
     source = tmp_path / "tests/credentials_test.py"
     source.parent.mkdir()
-    source.write_text('PASSWORD = "ced-ficticia-123456"  # stdd:allow-credential\n')
+    source.write_text('PASSWORD = "ced-ficticia-123456"  # looper:allow-credential\n')
 
     findings = scan_hardcoded_secrets(tmp_path, ["tests/credentials_test.py"])
 
@@ -86,7 +86,7 @@ def test_secret_scanner_does_not_allow_marker_in_production_file(tmp_path: Path)
     """
     source = tmp_path / "src/settings.py"
     source.parent.mkdir()
-    source.write_text('PASSWORD = "ced-ficticia-123456"  # stdd:allow-credential\n')
+    source.write_text('PASSWORD = "ced-ficticia-123456"  # looper:allow-credential\n')
 
     findings = scan_hardcoded_secrets(tmp_path, ["src/settings.py"])
 
@@ -100,7 +100,7 @@ def test_static_analysis_can_disable_marked_test_credential_exceptions(tmp_path:
     """
     source = tmp_path / "tests/credentials_test.py"
     source.parent.mkdir()
-    source.write_text('PASSWORD = "ced-ficticia-123456"  # stdd:allow-credential\n')
+    source.write_text('PASSWORD = "ced-ficticia-123456"  # looper:allow-credential\n')
 
     report = run_static_analysis(
         tmp_path,
@@ -119,7 +119,7 @@ def test_static_analysis_passes_gate_for_marked_test_credential(tmp_path: Path):
     """
     source = tmp_path / "tests/credentials_test.py"
     source.parent.mkdir()
-    source.write_text('PASSWORD = "ced-ficticia-123456"  # stdd:allow-credential\n')
+    source.write_text('PASSWORD = "ced-ficticia-123456"  # looper:allow-credential\n')
 
     report = run_static_analysis(
         tmp_path,
@@ -132,15 +132,15 @@ def test_static_analysis_passes_gate_for_marked_test_credential(tmp_path: Path):
     assert report["quality_findings"][0]["severity"] == "warning"
 
 
-def test_stdd_test_passes_with_marked_test_credential_and_keeps_warning(tmp_path: Path):
+def test_looper_test_passes_with_marked_test_credential_and_keeps_warning(tmp_path: Path):
     """Confirma o comportamento completo do gate global, não apenas do scanner.
     Executa uma suíte fake e preserva o warning de credencial permitido.
     """
     source = tmp_path / "tests/credentials_test.py"
     source.parent.mkdir()
-    source.write_text('PASSWORD = "ced-ficticia-123456"  # stdd:allow-credential\n')
-    (tmp_path / ".stdd").mkdir()
-    (tmp_path / ".stdd/config.json").write_text(json.dumps({
+    source.write_text('PASSWORD = "ced-ficticia-123456"  # looper:allow-credential\n')
+    (tmp_path / ".looper").mkdir()
+    (tmp_path / ".looper/config.json").write_text(json.dumps({
         "test_commands": [{"name": "unit", "command": ["python3", "-c", "print('unit')"]}],
         "static_analysis": {
             "enabled": True,
@@ -175,7 +175,7 @@ def test_static_analysis_warns_for_level_two_nodes_without_code_refs(tmp_path: P
     """Inclui o contrato de rastreabilidade do nível 2 no relatório estático.
     O achado é produzido pelo núcleo mesmo sem adapter externo e bloqueia o gate.
     """
-    draws = tmp_path / ".stdd" / "draws"
+    draws = tmp_path / ".looper" / "draws"
     draws.mkdir(parents=True)
     payload = {
         "id": "journey-contract",
@@ -194,11 +194,11 @@ def test_static_analysis_warns_for_level_two_nodes_without_code_refs(tmp_path: P
     assert report["quality_findings"][0]["severity"] == "blocking"
 
 
-def test_stdd_test_blocks_frontend_flow_without_symbols(tmp_path: Path):
+def test_looper_test_blocks_frontend_flow_without_symbols(tmp_path: Path):
     """Bloqueia o gate global quando uma jornada frontend não possui símbolos.
     Executa uma suíte válida e confirma que o Draw inválido impede o sucesso silencioso.
     """
-    draws = tmp_path / ".stdd" / "draws"
+    draws = tmp_path / ".looper" / "draws"
     draws.mkdir(parents=True)
     payload = {
         "id": "frontend-sem-simbolos",
@@ -209,7 +209,7 @@ def test_stdd_test_blocks_frontend_flow_without_symbols(tmp_path: Path):
         "edges": [],
     }
     (draws / "frontend-sem-simbolos.json").write_text(json.dumps(payload), encoding="utf-8")
-    (tmp_path / ".stdd" / "config.json").write_text(json.dumps({
+    (tmp_path / ".looper" / "config.json").write_text(json.dumps({
         "test_commands": [{"name": "unit", "command": [sys.executable, "-c", "print('unit')"]}],
         "static_analysis": {"enabled": True, "adapter_command": None},
     }), encoding="utf-8")
@@ -228,11 +228,11 @@ def test_static_adapter_keeps_tsx_filename_when_extracting_symbols(tmp_path: Pat
     """Extrai símbolos de uma classe TSX sem remover parte do nome do arquivo.
     Executa o dispatcher e o adapter TypeScript com ErroImportacaoView.tsx.
     """
-    adapters = tmp_path / ".stdd" / "adapters"
+    adapters = tmp_path / ".looper" / "adapters"
     adapters.mkdir(parents=True)
     dispatcher = adapters / "static_adapter.py"
-    dispatcher.write_text(Path("src/stdd/templates/adapters/static_adapter.py").read_text(encoding="utf-8"), encoding="utf-8")
-    (adapters / "js_ts_static_adapter.js").write_text(Path("src/stdd/templates/adapters/js_ts_static_adapter.js").read_text(encoding="utf-8"), encoding="utf-8")
+    dispatcher.write_text(Path("src/looper/templates/adapters/static_adapter.py").read_text(encoding="utf-8"), encoding="utf-8")
+    (adapters / "js_ts_static_adapter.js").write_text(Path("src/looper/templates/adapters/js_ts_static_adapter.js").read_text(encoding="utf-8"), encoding="utf-8")
     source = tmp_path / "src" / "views" / "ErroImportacaoView.tsx"
     source.parent.mkdir(parents=True)
     source.write_text(
@@ -242,7 +242,7 @@ def test_static_adapter_keeps_tsx_filename_when_extracting_symbols(tmp_path: Pat
         "}\n",
         encoding="utf-8",
     )
-    adapter_module = runpy.run_path("src/stdd/templates/adapters/static_adapter.py")
+    adapter_module = runpy.run_path("src/looper/templates/adapters/static_adapter.py")
     assert adapter_module["module_from_path"](tmp_path, source) == "views.ErroImportacaoView"
     monkeypatch.setenv("NODE_PATH", str(Path("draw-editor/node_modules").resolve()))
 
@@ -265,7 +265,7 @@ def test_static_analysis_includes_draw_node_symbol_warnings(tmp_path: Path):
     """Inclui achados de símbolos de nós vazios e duplicados no relatório estático.
     Executa a análise e confirma bloqueio para ausência e aviso para duplicação.
     """
-    draws = tmp_path / ".stdd" / "draws"
+    draws = tmp_path / ".looper" / "draws"
     draws.mkdir(parents=True)
     payload = {
         "version": 1,
@@ -316,12 +316,12 @@ def test_static_analysis_writes_kpi_snapshot_next_to_adapter_directory(tmp_path:
 
     output = write_static_analysis_kpis(tmp_path, report, {"static_analysis": {"adapter_command": ["python", "adapter.py"]}})
 
-    assert output == tmp_path / ".stdd/adapters/static-analysis-kpis.json"
+    assert output == tmp_path / ".looper/adapters/static-analysis-kpis.json"
     saved = json.loads(output.read_text(encoding="utf-8"))
     assert saved["indicators"][0]["value"] == 1
     assert saved["summary"]["severity"]["blocking"] == 1
     assert saved["details"]["quality_findings"][0]["kind"] == "long_function"
-    assert not (tmp_path / ".stdd/draws").exists()
+    assert not (tmp_path / ".looper/draws").exists()
 
 
 def test_secret_scanner_detects_env_value_copied_into_source_without_leaking_value(tmp_path: Path):

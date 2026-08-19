@@ -4,10 +4,10 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from stdd.backlog import bootstrap_report, build_backlog, check_backlog, complete_backlog_task, generate_backlog, next_backlog_task, next_backlog_test, read_backlog, update_backlog_checklist, write_backlog
-from stdd.cli import _format_backlog_response, app
-from stdd.core import init_project, run_tests
-from stdd.draw import create_draw
+from looper.backlog import bootstrap_report, build_backlog, check_backlog, complete_backlog_task, generate_backlog, next_backlog_task, next_backlog_test, read_backlog, update_backlog_checklist, write_backlog
+from looper.cli import _format_backlog_response, app
+from looper.core import init_project, run_tests
+from looper.draw import create_draw
 
 
 runner = CliRunner()
@@ -74,7 +74,7 @@ def _create_hierarchical_fixture(root: Path, bootstrap: bool = False) -> None:
         },
     )
     _write_test_evidence(root)
-    config_path = root / ".stdd" / "config.json"
+    config_path = root / ".looper" / "config.json"
     config = json.loads(config_path.read_text(encoding="utf-8")) if config_path.exists() else {}
     config.setdefault("backlog", {})["bootstrap_task"] = bootstrap
     config.setdefault("backlog", {})["bootstrap_opt_out"] = not bootstrap
@@ -92,7 +92,7 @@ def _write_test_evidence(root: Path) -> None:
     test_file = root / "tests" / "test_journey.py"
     test_file.parent.mkdir(parents=True, exist_ok=True)
     test_file.write_text('def test_journey_flow():\n    """Exercita a jornada criada pela fixture.\n    Confirma o caminho principal sem depender da aplicação.\n    """\n    assert True\n', encoding="utf-8")
-    kpi_path = root / ".stdd" / "adapters" / "static-analysis-kpis.json"
+    kpi_path = root / ".looper" / "adapters" / "static-analysis-kpis.json"
     kpi_path.parent.mkdir(parents=True, exist_ok=True)
     kpi_path.write_text(json.dumps({"details": {"symbols": [{"qualified_name": "tests.test_journey.test_journey_flow", "file": "tests/test_journey.py", "kind": "function"}]}}), encoding="utf-8")
 
@@ -101,7 +101,7 @@ def _remove_test_refs(root: Path) -> None:
     """Remove as associações de teste para exercitar o bloqueio do backlog.
     Regrava somente o Draw de nível 2 e preserva o restante da fixture.
     """
-    path = root / ".stdd" / "draws" / "jornada.json"
+    path = root / ".looper" / "draws" / "jornada.json"
     payload = json.loads(path.read_text(encoding="utf-8"))
     for node in payload["nodes"]:
         node.pop("test_ref", None)
@@ -113,7 +113,7 @@ def _add_test_refs(root: Path, as_list: bool = False) -> None:
     """Adiciona referências válidas de teste ao Draw de nível 2.
     Permite validar o formato singular e o formato compatível em lista.
     """
-    path = root / ".stdd" / "draws" / "jornada.json"
+    path = root / ".looper" / "draws" / "jornada.json"
     payload = json.loads(path.read_text(encoding="utf-8"))
     for node in payload["nodes"]:
         reference = {"file": "tests/test_journey.py", "symbols": ["tests.test_journey.test_journey_flow"]}
@@ -130,11 +130,11 @@ def _create_nested_hierarchical_fixture(root: Path, delivery_scope: str | None =
     """
     _create_hierarchical_fixture(root)
     if delivery_scope is not None:
-        config_path = root / ".stdd" / "config.json"
+        config_path = root / ".looper" / "config.json"
         config = json.loads(config_path.read_text(encoding="utf-8")) if config_path.exists() else {}
         config.setdefault("backlog", {})["task_delivery_scope"] = delivery_scope
         config_path.write_text(json.dumps(config), encoding="utf-8")
-    parent_path = root / ".stdd" / "draws" / "jornada.json"
+    parent_path = root / ".looper" / "draws" / "jornada.json"
     parent = json.loads(parent_path.read_text(encoding="utf-8"))
     parent["nodes"][0]["draw_ref"] = "subjornada"
     parent_path.write_text(json.dumps(parent), encoding="utf-8")
@@ -208,7 +208,7 @@ def test_disabled_test_loop_delivers_only_implementation_tasks(tmp_path: Path):
     """
     _create_hierarchical_fixture(tmp_path)
     _remove_test_refs(tmp_path)
-    config_path = tmp_path / ".stdd" / "config.json"
+    config_path = tmp_path / ".looper" / "config.json"
     config = json.loads(config_path.read_text(encoding="utf-8"))
     config["backlog"]["test_loop_enabled"] = False
     config_path.write_text(json.dumps(config), encoding="utf-8")
@@ -289,7 +289,7 @@ def test_legacy_false_bootstrap_setting_does_not_skip_first_task(tmp_path: Path)
     Mantém o bootstrap como primeira task quando não existe opt-out explícito.
     """
     _create_hierarchical_fixture(tmp_path)
-    config_path = tmp_path / ".stdd" / "config.json"
+    config_path = tmp_path / ".looper" / "config.json"
     config = json.loads(config_path.read_text(encoding="utf-8"))
     config["backlog"].pop("bootstrap_opt_out", None)
     config["backlog"]["bootstrap_task"] = False
@@ -356,7 +356,7 @@ def test_backlog_delivery_scope_can_deliver_internal_subflows_separately(tmp_pat
     """
     _create_nested_hierarchical_fixture(tmp_path)
     _remove_test_refs(tmp_path)
-    config_path = tmp_path / ".stdd" / "config.json"
+    config_path = tmp_path / ".looper" / "config.json"
     config = json.loads(config_path.read_text(encoding="utf-8"))
     config["backlog"]["bootstrap_task"] = True
     config["backlog"]["bootstrap_opt_out"] = False
@@ -386,7 +386,7 @@ def test_separate_delivery_does_not_inherit_l2_test_status_to_l3(tmp_path: Path)
     """Mantém os L3 pendentes quando o L2 é entregue separadamente."""
     _create_nested_hierarchical_fixture(tmp_path)
     _remove_test_refs(tmp_path)
-    config_path = tmp_path / ".stdd" / "config.json"
+    config_path = tmp_path / ".looper" / "config.json"
     config = json.loads(config_path.read_text(encoding="utf-8"))
     config["backlog"].pop("task_delivery_scope", None)
     config_path.write_text(json.dumps(config), encoding="utf-8")
@@ -408,7 +408,7 @@ def test_backlog_delivery_scope_groups_tests_and_implementation_by_node(tmp_path
     """
     _create_nested_hierarchical_fixture(tmp_path)
     _remove_test_refs(tmp_path)
-    config_path = tmp_path / ".stdd" / "config.json"
+    config_path = tmp_path / ".looper" / "config.json"
     config = json.loads(config_path.read_text(encoding="utf-8"))
     config["backlog"]["task_delivery_scope"] = "node"
     config_path.write_text(json.dumps(config), encoding="utf-8")
@@ -480,7 +480,7 @@ def test_backlog_test_accepts_test_refs_list_and_requires_one_file(tmp_path: Pat
     valid = build_backlog(tmp_path)
     assert valid["tasks"][0]["test_status"] == "done"
 
-    path = tmp_path / ".stdd" / "draws" / "jornada.json"
+    path = tmp_path / ".looper" / "draws" / "jornada.json"
     payload = json.loads(path.read_text(encoding="utf-8"))
     payload["nodes"][0]["test_refs"] = [
         {"file": "tests/test_journey.py", "symbols": ["tests.test_journey.test_journey_flow"]},
@@ -624,7 +624,7 @@ def test_backlog_preserves_shared_steps_in_explicit_flow_paths(tmp_path: Path):
     Não remove um nó compartilhado só porque ele já apareceu em outro flow.
     """
     _create_hierarchical_fixture(tmp_path)
-    draw_path = tmp_path / ".stdd" / "draws" / "jornada.json"
+    draw_path = tmp_path / ".looper" / "draws" / "jornada.json"
     document = json.loads(draw_path.read_text(encoding="utf-8"))
     document["flows"] = [
         {"id": 1, "label": "sucesso", "steps": [{"node": 1}, {"node": 2}]},
@@ -644,13 +644,13 @@ def test_backlog_includes_nodes_missing_from_explicit_flows_and_children(tmp_pat
     Mantém a associação pai-filho quando flows.steps omite nós.
     """
     _create_nested_hierarchical_fixture(tmp_path)
-    journey_path = tmp_path / ".stdd" / "draws" / "jornada.json"
+    journey_path = tmp_path / ".looper" / "draws" / "jornada.json"
     journey = json.loads(journey_path.read_text(encoding="utf-8"))
     journey["flows"] = [
         {"id": 1, "label": "sucesso", "steps": [{"node": 1}, {"node": 2}]},
     ]
     journey_path.write_text(json.dumps(journey), encoding="utf-8")
-    child_path = tmp_path / ".stdd" / "draws" / "subjornada.json"
+    child_path = tmp_path / ".looper" / "draws" / "subjornada.json"
     child = json.loads(child_path.read_text(encoding="utf-8"))
     child["flows"] = [{"id": 1, "label": "interno", "steps": [{"node": 1}]}]
     child_path.write_text(json.dumps(child), encoding="utf-8")
@@ -680,7 +680,7 @@ def test_backlog_marks_every_branch_complete_when_shared_terminal_is_done(tmp_pa
     Atualiza branches derivadas mesmo quando a task pertence à primeira branch.
     """
     _create_hierarchical_fixture(tmp_path)
-    draw_path = tmp_path / ".stdd" / "draws" / "jornada.json"
+    draw_path = tmp_path / ".looper" / "draws" / "jornada.json"
     document = json.loads(draw_path.read_text(encoding="utf-8"))
     document["flows"] = [
         {"id": 1, "label": "sucesso", "steps": [{"node": 1}, {"node": 2}, {"node": 3}]},
@@ -818,7 +818,7 @@ def test_backlog_cli_describes_all_screen_entry_transitions(tmp_path: Path, monk
     init_project(tmp_path)
     _create_hierarchical_fixture(tmp_path)
 
-    draw_path = tmp_path / ".stdd" / "draws" / "jornada.json"
+    draw_path = tmp_path / ".looper" / "draws" / "jornada.json"
     document = json.loads(draw_path.read_text(encoding="utf-8"))
     document["edges"].append({
         "id": 4,
@@ -852,11 +852,11 @@ def test_backlog_cli_describes_all_screen_entry_transitions(tmp_path: Path, monk
     assert "Caminho de acesso:" not in result.stdout
 
 
-def test_stdd_test_blocks_when_backlog_has_unchecked_implementation(tmp_path: Path):
+def test_looper_test_blocks_when_backlog_has_unchecked_implementation(tmp_path: Path):
     """Bloqueia o teste global enquanto existir uma task sem check de conclusão.
     Libera o gate somente depois que o agente percorre e conclui todas as tasks.
     """
-    (tmp_path / ".stdd").mkdir()
+    (tmp_path / ".looper").mkdir()
     analysis = {
         "contract_version": "1",
         "status": "passed",
@@ -866,7 +866,7 @@ def test_stdd_test_blocks_when_backlog_has_unchecked_implementation(tmp_path: Pa
         "structural_metrics": [], "quality_findings": [], "changes": [], "warnings": [], "errors": [],
     }
     analysis_code = f"import json; print({json.dumps(analysis)!r})"
-    (tmp_path / ".stdd/config.json").write_text(json.dumps({
+    (tmp_path / ".looper/config.json").write_text(json.dumps({
         "test_commands": [{"name": "unit", "command": [sys.executable, "-c", "print('ok')"]}],
         "static_analysis": {"enabled": True, "adapter_command": [sys.executable, "-c", analysis_code]},
     }), encoding="utf-8")
@@ -896,8 +896,8 @@ def test_backlog_injected_bootstrap_and_final_verification_tasks(tmp_path: Path)
     """Injeta bootstrap e verificação final no ciclo operacional do backlog.
     Configura bootstrap e final verification e valida a entrega sequencial e conclusão.
     """
-    (tmp_path / ".stdd").mkdir()
-    (tmp_path / ".stdd/config.json").write_text(json.dumps({
+    (tmp_path / ".looper").mkdir()
+    (tmp_path / ".looper/config.json").write_text(json.dumps({
         "backlog": {
             "bootstrap_task": True,
             "final_verification_task": True,
@@ -945,8 +945,8 @@ def test_backlog_injected_l2_verification_tasks_per_node(tmp_path: Path):
     """Injeta verificação funcional ao concluir o escopo de cada nó de nível 2.
     Conclui as tasks normais e confirma que a verificação intermediária é exigida antes do próximo nó.
     """
-    (tmp_path / ".stdd").mkdir()
-    (tmp_path / ".stdd/config.json").write_text(json.dumps({
+    (tmp_path / ".looper").mkdir()
+    (tmp_path / ".looper/config.json").write_text(json.dumps({
         "backlog": {
             "l2_verification_interval": 1,
         }
@@ -1001,8 +1001,8 @@ def test_backlog_injected_l2_verification_interval_configurable(tmp_path: Path):
     """Respeita o intervalo configurável para injeção de verificações de nós L2.
     Configura intervalo de 2 nós e confirma que a verificação acumula e dispara na cadência correta.
     """
-    (tmp_path / ".stdd").mkdir()
-    (tmp_path / ".stdd/config.json").write_text(json.dumps({
+    (tmp_path / ".looper").mkdir()
+    (tmp_path / ".looper/config.json").write_text(json.dumps({
         "backlog": {
             "l2_verification_interval": 2,
         }
@@ -1088,8 +1088,8 @@ def test_backlog_context_batch_and_claim_window_are_explicit(tmp_path: Path):
     """Entrega predecessor, condição e lote sem permitir avanço rápido configurado.
     Confirma que o cursor preserva contexto e que cada task continua sendo concluída por ID.
     """
-    (tmp_path / ".stdd").mkdir()
-    (tmp_path / ".stdd/config.json").write_text(json.dumps({"backlog": {"task_batch_size": 2, "task_batch_scope": "task", "min_task_interval_seconds": 3}}), encoding="utf-8")
+    (tmp_path / ".looper").mkdir()
+    (tmp_path / ".looper/config.json").write_text(json.dumps({"backlog": {"task_batch_size": 2, "task_batch_scope": "task", "min_task_interval_seconds": 3}}), encoding="utf-8")
     _create_hierarchical_fixture(tmp_path)
     generate_backlog(tmp_path)
 
@@ -1113,4 +1113,4 @@ def test_bootstrap_report_requires_design_and_environment_contract(tmp_path: Pat
     report = bootstrap_report(tmp_path)
 
     assert report["status"] == "blocked"
-    assert {"system_level_1", "design", "env_example", "stdd_config", "draw_storage"}.issubset(report["failures"])
+    assert {"system_level_1", "design", "env_example", "looper_config", "draw_storage"}.issubset(report["failures"])

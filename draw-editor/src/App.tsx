@@ -42,7 +42,7 @@ const edgeTypes: EdgeTypes = {
 };
 
 const DEFAULT_CONDITION = 1;
-const THEN_EDGE_GRADIENT = 'url(#stdd-then-edge-gradient)';
+const THEN_EDGE_GRADIENT = 'url(#looper-then-edge-gradient)';
 const THEN_EDGE_MARKER_COLOR = '#fb923c';
 
 const DEFAULT_DRAW_SERVER_ORIGIN = 'http://127.0.0.1:8765';
@@ -89,7 +89,7 @@ interface DrawSearchResult {
 const checkBackendAvailable = async (): Promise<string | null> => {
   for (const origin of getApiOrigins()) {
     try {
-      const response = await fetch(`${origin}/.stdd/draws/index.json`, { method: 'GET', cache: 'no-store' });
+      const response = await fetch(`${origin}/.looper/draws/index.json`, { method: 'GET', cache: 'no-store' });
       if (response.ok) return origin;
     } catch (_) {
       // Tenta a próxima origem, especialmente o Draw Server em outra porta.
@@ -158,7 +158,7 @@ export const App: React.FC = () => {
     const origins = [...new Set([getApiOrigin(), ...getApiOrigins()])];
     for (const origin of origins) {
       try {
-        const response = await fetch(`${origin}/.stdd/backlog.json`, { cache: 'no-store' });
+        const response = await fetch(`${origin}/.looper/backlog.json`, { cache: 'no-store' });
         if (response.ok) {
           setBacklog(await response.json() as BacklogDocument);
           return;
@@ -166,7 +166,7 @@ export const App: React.FC = () => {
       } catch (_) {}
     }
     try {
-      const saved = localStorage.getItem('stdd-backlog');
+      const saved = localStorage.getItem('looper-backlog');
       setBacklog(saved ? JSON.parse(saved) as BacklogDocument : null);
     } catch (_) {
       setBacklog(null);
@@ -179,7 +179,7 @@ export const App: React.FC = () => {
     setBacklog((previous) => {
       if (!previous) return previous;
       const next = updater(previous);
-      localStorage.setItem('stdd-backlog', JSON.stringify(next));
+      localStorage.setItem('looper-backlog', JSON.stringify(next));
       return next;
     });
   }, []);
@@ -187,7 +187,7 @@ export const App: React.FC = () => {
   const claimBacklogTask = async () => {
     if (storageMode === 'backend') {
       try {
-        const response = await fetch(`${getApiOrigin()}/__stdd/api/backlog/task`, { method: 'POST' });
+        const response = await fetch(`${getApiOrigin()}/__looper/api/backlog/task`, { method: 'POST' });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         await loadBacklog();
         return;
@@ -206,7 +206,7 @@ export const App: React.FC = () => {
   const claimBacklogTest = async () => {
     if (storageMode === 'backend') {
       try {
-        const response = await fetch(`${getApiOrigin()}/__stdd/api/backlog/test`, { method: 'POST' });
+        const response = await fetch(`${getApiOrigin()}/__looper/api/backlog/test`, { method: 'POST' });
         const result = await response.json().catch(() => ({})) as BacklogActionResponse;
         if (!response.ok) throw new Error((result as any).error || `HTTP ${response.status}`);
         await loadBacklog();
@@ -238,7 +238,7 @@ export const App: React.FC = () => {
   const refreshBacklog = async () => {
     if (storageMode === 'backend') {
       try {
-        const response = await fetch(`${getApiOrigin()}/__stdd/api/backlog/refresh`, { method: 'POST' });
+        const response = await fetch(`${getApiOrigin()}/__looper/api/backlog/refresh`, { method: 'POST' });
         const result = await response.json().catch(() => ({})) as BacklogActionResponse;
         if (!response.ok) throw new Error((result as any).error || `HTTP ${response.status}`);
         setBacklog(result.backlog || null);
@@ -251,7 +251,7 @@ export const App: React.FC = () => {
   const completeBacklogTask = async (taskId: string) => {
     if (storageMode === 'backend') {
       try {
-        const response = await fetch(`${getApiOrigin()}/__stdd/api/backlog/tasks/${encodeURIComponent(taskId)}/complete`, { method: 'POST' });
+        const response = await fetch(`${getApiOrigin()}/__looper/api/backlog/tasks/${encodeURIComponent(taskId)}/complete`, { method: 'POST' });
         if (!response.ok) { const result = await response.json().catch(() => ({})); throw new Error(result.error || `HTTP ${response.status}`); }
         await loadBacklog();
         return;
@@ -299,7 +299,7 @@ export const App: React.FC = () => {
   const updateBacklogChecklist = useCallback(async (taskId: string, phase: 'test' | 'implementation', checked: boolean) => {
     if (storageMode === 'backend') {
       try {
-        const response = await fetch(`${getApiOrigin()}/__stdd/api/backlog/checklist`, {
+        const response = await fetch(`${getApiOrigin()}/__looper/api/backlog/checklist`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ task_id: taskId, phase, checked })
@@ -350,14 +350,14 @@ export const App: React.FC = () => {
     const loadRuns = async () => {
       try {
         const origin = getApiOrigin();
-        const indexResponse = await fetch(`${origin}/.stdd/runs/index.json`, { cache: 'no-store' });
+        const indexResponse = await fetch(`${origin}/.looper/runs/index.json`, { cache: 'no-store' });
         if (!indexResponse.ok) return;
 
         const index = await indexResponse.json();
         const days = Array.isArray(index.days) ? index.days : [];
         const summaries = await Promise.all(days.map(async (day: { summary?: string }) => {
           if (!day.summary) return null;
-          const response = await fetch(`${origin}/.stdd/runs/${day.summary}`, { cache: 'no-store' });
+          const response = await fetch(`${origin}/.looper/runs/${day.summary}`, { cache: 'no-store' });
           return response.ok ? response.json() : null;
         }));
         const records = summaries.flatMap((summary) => (
@@ -401,7 +401,7 @@ export const App: React.FC = () => {
 
   const readPresentationPositions = (id: string) => {
     try {
-      const saved = localStorage.getItem(`stdd-draw-presentation:${id}`);
+      const saved = localStorage.getItem(`looper-draw-presentation:${id}`);
       return saved ? JSON.parse(saved).positions || {} : {};
     } catch (_) {
       return {};
@@ -427,7 +427,7 @@ export const App: React.FC = () => {
       let document: Partial<Contract> | null = null;
 
       if (mode === 'local') {
-        const saved = localStorage.getItem(`stdd-draw:${entry.id}`);
+        const saved = localStorage.getItem(`looper-draw:${entry.id}`);
         if (saved) {
           try {
             document = JSON.parse(saved) as Partial<Contract>;
@@ -440,7 +440,7 @@ export const App: React.FC = () => {
       if (!document) {
         for (const origin of uniqueOrigins) {
           try {
-            const response = await fetch(`${origin}/.stdd/draws/${encodeURIComponent(entry.id)}.json`, { cache: 'no-store' });
+            const response = await fetch(`${origin}/.looper/draws/${encodeURIComponent(entry.id)}.json`, { cache: 'no-store' });
             if (!response.ok) continue;
             document = await response.json() as Partial<Contract>;
             break;
@@ -488,7 +488,7 @@ export const App: React.FC = () => {
     const loadFacts = async () => {
       for (const origin of getApiOrigins()) {
         try {
-          const response = await fetch(`${origin}/.stdd/facts/${encodeURIComponent(contract.id)}.facts.json`, { cache: 'no-store' });
+          const response = await fetch(`${origin}/.looper/facts/${encodeURIComponent(contract.id)}.facts.json`, { cache: 'no-store' });
           if (!response.ok) continue;
           const data = await response.json();
           if (!cancelled) setTraceabilityFacts(data as TraceabilityFacts);
@@ -507,7 +507,7 @@ export const App: React.FC = () => {
     const loadKpis = async () => {
       for (const origin of getApiOrigins()) {
         try {
-          const response = await fetch(`${origin}/.stdd/adapters/static-analysis-kpis.json`, { cache: 'no-store' });
+          const response = await fetch(`${origin}/.looper/adapters/static-analysis-kpis.json`, { cache: 'no-store' });
           if (!response.ok) continue;
           const data = await response.json();
           if (!cancelled) setStaticAnalysisKpis(data as StaticAnalysisKpiReport);
@@ -550,14 +550,14 @@ export const App: React.FC = () => {
       if (backendOrigin) {
         try {
           const origin = getApiOrigin();
-          const response = await fetch(`${origin}/.stdd/draws/index.json`, { cache: 'no-store' });
+          const response = await fetch(`${origin}/.looper/draws/index.json`, { cache: 'no-store' });
           if (response.ok) {
             const data = await response.json();
             indexData = data.draws || [];
           }
         } catch (_) {}
       } else {
-        const savedIndex = localStorage.getItem('stdd-draws-index');
+        const savedIndex = localStorage.getItem('looper-draws-index');
         if (savedIndex) {
           try {
             indexData = JSON.parse(savedIndex).draws || [];
@@ -581,8 +581,8 @@ export const App: React.FC = () => {
             subdraw_count: typedDefaultContract.nodes.filter((n) => !!n.draw_ref).length
           }
         ];
-        localStorage.setItem('stdd-draws-index', JSON.stringify({ version: 1, draws: initialIndex }));
-        localStorage.setItem(`stdd-draw:${defaultId}`, JSON.stringify(typedDefaultContract));
+        localStorage.setItem('looper-draws-index', JSON.stringify({ version: 1, draws: initialIndex }));
+        localStorage.setItem(`looper-draw:${defaultId}`, JSON.stringify(typedDefaultContract));
         indexData = initialIndex;
       }
 
@@ -593,12 +593,12 @@ export const App: React.FC = () => {
       let improvementData: ImprovementIndexEntry[] = [];
       if (mode === 'backend') {
         try {
-          const response = await fetch(`${getApiOrigin()}/.stdd/improvements/index.json`, { cache: 'no-store' });
+          const response = await fetch(`${getApiOrigin()}/.looper/improvements/index.json`, { cache: 'no-store' });
           if (response.ok) improvementData = (await response.json()).improvements || [];
         } catch (_) {}
       } else {
         try {
-          improvementData = JSON.parse(localStorage.getItem('stdd-improvements-index') || '{"improvements":[]}').improvements || [];
+          improvementData = JSON.parse(localStorage.getItem('looper-improvements-index') || '{"improvements":[]}').improvements || [];
         } catch (_) {}
       }
       setImprovementsIndex(improvementData);
@@ -625,14 +625,14 @@ export const App: React.FC = () => {
     if (storageMode === 'backend') {
       try {
         const origin = getApiOrigin();
-        const response = await fetch(`${origin}/.stdd/draws/index.json`, { cache: 'no-store' });
+        const response = await fetch(`${origin}/.looper/draws/index.json`, { cache: 'no-store' });
         if (response.ok) {
           const data = await response.json();
           indexData = data.draws || [];
         }
       } catch (_) {}
     } else {
-      const savedIndex = localStorage.getItem('stdd-draws-index');
+      const savedIndex = localStorage.getItem('looper-draws-index');
       if (savedIndex) {
         try {
           const data = JSON.parse(savedIndex);
@@ -648,12 +648,12 @@ export const App: React.FC = () => {
     let indexData: ImprovementIndexEntry[] = [];
     if (storageMode === 'backend') {
       try {
-        const response = await fetch(`${getApiOrigin()}/.stdd/improvements/index.json`, { cache: 'no-store' });
+        const response = await fetch(`${getApiOrigin()}/.looper/improvements/index.json`, { cache: 'no-store' });
         if (response.ok) indexData = (await response.json()).improvements || [];
       } catch (_) {}
     } else {
       try {
-        indexData = JSON.parse(localStorage.getItem('stdd-improvements-index') || '{"improvements":[]}').improvements || [];
+        indexData = JSON.parse(localStorage.getItem('looper-improvements-index') || '{"improvements":[]}').improvements || [];
       } catch (_) {}
     }
     setImprovementsIndex(indexData);
@@ -661,7 +661,7 @@ export const App: React.FC = () => {
 
   const loadContractForSearch = async (entry: DrawIndexEntry, mode: 'backend' | 'local'): Promise<Contract | null> => {
     if (mode === 'local') {
-      const saved = localStorage.getItem(`stdd-draw:${entry.id}`);
+      const saved = localStorage.getItem(`looper-draw:${entry.id}`);
       if (saved) {
         try {
           return JSON.parse(saved) as Contract;
@@ -676,7 +676,7 @@ export const App: React.FC = () => {
       : getApiOrigins();
     for (const origin of [...new Set(origins)]) {
       try {
-        const response = await fetch(`${origin}/.stdd/draws/${encodeURIComponent(entry.id)}.json`, { cache: 'no-store' });
+        const response = await fetch(`${origin}/.looper/draws/${encodeURIComponent(entry.id)}.json`, { cache: 'no-store' });
         if (response.ok) return await response.json() as Contract;
       } catch (_) {
         // Um Draw indisponível não deve impedir a busca nos demais.
@@ -798,7 +798,7 @@ export const App: React.FC = () => {
     if (activeMode === 'backend') {
       try {
         const origin = getApiOrigin();
-        const response = await fetch(`${origin}/.stdd/draws/${encodeURIComponent(id)}.json`, { cache: 'no-store' });
+        const response = await fetch(`${origin}/.looper/draws/${encodeURIComponent(id)}.json`, { cache: 'no-store' });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         if (!isCurrentRequest()) return;
@@ -816,7 +816,7 @@ export const App: React.FC = () => {
         alert(`Erro ao carregar desenho do backend: ${err.message}`);
       }
     } else {
-      const saved = localStorage.getItem(`stdd-draw:${id}`);
+      const saved = localStorage.getItem(`looper-draw:${id}`);
       if (saved) {
         try {
           const data = JSON.parse(saved);
@@ -852,7 +852,7 @@ export const App: React.FC = () => {
         // de concluir que o desenho não existe no modo offline.
         for (const origin of getApiOrigins()) {
           try {
-            const response = await fetch(`${origin}/.stdd/draws/${encodeURIComponent(id)}.json`, { cache: 'no-store' });
+            const response = await fetch(`${origin}/.looper/draws/${encodeURIComponent(id)}.json`, { cache: 'no-store' });
             if (!response.ok) continue;
             const data = await response.json();
             if (!isCurrentRequest()) return;
@@ -892,11 +892,11 @@ export const App: React.FC = () => {
     try {
       let session: ImprovementSession | null = null;
       if (mode === 'backend') {
-        const response = await fetch(`${getApiOrigin()}/.stdd/improvements/${encodeURIComponent(id)}.json`, { cache: 'no-store' });
+        const response = await fetch(`${getApiOrigin()}/.looper/improvements/${encodeURIComponent(id)}.json`, { cache: 'no-store' });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         session = await response.json() as ImprovementSession;
       } else {
-        const saved = localStorage.getItem(`stdd-improvement:${id}`);
+        const saved = localStorage.getItem(`looper-improvement:${id}`);
         if (saved) session = JSON.parse(saved) as ImprovementSession;
       }
       if (!session) throw new Error('sessão não encontrada');
@@ -947,7 +947,7 @@ export const App: React.FC = () => {
   const performSave = async (contractToSave: Contract) => {
     const id = contractToSave.id;
     const cleanPayload = cleanLogicalPayload(contractToSave);
-    const presentationKey = `stdd-draw-presentation:${id}`;
+    const presentationKey = `looper-draw-presentation:${id}`;
     try {
       const saved = localStorage.getItem(presentationKey);
       const presentation = saved ? JSON.parse(saved) : {};
@@ -958,7 +958,7 @@ export const App: React.FC = () => {
     if (storageMode === 'backend') {
       try {
         const origin = getApiOrigin();
-        const response = await fetch(`${origin}/__stdd/api/draws/${encodeURIComponent(id)}.json`, {
+        const response = await fetch(`${origin}/__looper/api/draws/${encodeURIComponent(id)}.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(cleanPayload)
@@ -974,7 +974,7 @@ export const App: React.FC = () => {
       }
     } else {
       // Local Storage
-      const savedLogicalPayload = localStorage.getItem(`stdd-draw:${id}`);
+      const savedLogicalPayload = localStorage.getItem(`looper-draw:${id}`);
       if (savedLogicalPayload) {
         try {
           if (JSON.stringify(JSON.parse(savedLogicalPayload)) === JSON.stringify(cleanPayload)) {
@@ -983,7 +983,7 @@ export const App: React.FC = () => {
           }
         } catch (_) {}
       }
-      localStorage.setItem(`stdd-draw:${id}`, JSON.stringify(cleanPayload));
+      localStorage.setItem(`looper-draw:${id}`, JSON.stringify(cleanPayload));
       
       // Update index
       const timestamp = new Date().toISOString();
@@ -1009,7 +1009,7 @@ export const App: React.FC = () => {
       }
 
       drawings.sort((a, b) => a.title.localeCompare(b.title));
-      localStorage.setItem('stdd-draws-index', JSON.stringify({ version: 1, draws: drawings }));
+      localStorage.setItem('looper-draws-index', JSON.stringify({ version: 1, draws: drawings }));
       setDrawingsIndex(drawings);
       setIsDirty(false);
     }
@@ -1029,7 +1029,7 @@ export const App: React.FC = () => {
 
     if (storageMode === 'backend') {
       try {
-        const response = await fetch(`${getApiOrigin()}/__stdd/api/improvements/${encodeURIComponent(payload.id)}.json`, {
+        const response = await fetch(`${getApiOrigin()}/__looper/api/improvements/${encodeURIComponent(payload.id)}.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -1038,7 +1038,7 @@ export const App: React.FC = () => {
           const result = await response.json().catch(() => ({}));
           throw new Error(result.error || `HTTP ${response.status}`);
         }
-        const refreshed = await fetch(`${getApiOrigin()}/.stdd/improvements/${encodeURIComponent(payload.id)}.json`, { cache: 'no-store' });
+        const refreshed = await fetch(`${getApiOrigin()}/.looper/improvements/${encodeURIComponent(payload.id)}.json`, { cache: 'no-store' });
         if (refreshed.ok) setCurrentImprovement(await refreshed.json() as ImprovementSession);
         setIsImprovementDirty(false);
         await loadImprovementsIndex();
@@ -1050,7 +1050,7 @@ export const App: React.FC = () => {
 
     const timestamp = new Date().toISOString();
     const savedPayload = { ...payload, updated_at: timestamp };
-    localStorage.setItem(`stdd-improvement:${payload.id}`, JSON.stringify(savedPayload));
+    localStorage.setItem(`looper-improvement:${payload.id}`, JSON.stringify(savedPayload));
     const nextIndex: ImprovementIndexEntry = {
       id: payload.id,
       file: `${payload.id}.json`,
@@ -1063,7 +1063,7 @@ export const App: React.FC = () => {
     };
     const updatedIndex = [...improvementsIndex.filter((item) => item.id !== payload.id), nextIndex];
     updatedIndex.sort((left, right) => left.title.localeCompare(right.title));
-    localStorage.setItem('stdd-improvements-index', JSON.stringify({ version: 1, improvements: updatedIndex }));
+    localStorage.setItem('looper-improvements-index', JSON.stringify({ version: 1, improvements: updatedIndex }));
     setCurrentImprovement(savedPayload);
     setImprovementsIndex(updatedIndex);
     setIsImprovementDirty(false);
@@ -1217,7 +1217,7 @@ export const App: React.FC = () => {
 
   // --- Node & Edge Mappings ---
   const presentationPositions = useMemo(() => {
-    const presentationKey = `stdd-draw-presentation:${contract.id}`;
+    const presentationKey = `looper-draw-presentation:${contract.id}`;
     try {
       const saved = localStorage.getItem(presentationKey);
       if (saved) {
@@ -1518,11 +1518,11 @@ export const App: React.FC = () => {
     selectionOrderRef.current = [];
     setIsFocusMode(false);
     setSelectionRevision((value) => value + 1);
-    window.dispatchEvent(new Event('stdd:edit-edge'));
+    window.dispatchEvent(new Event('looper:edit-edge'));
   };
 
   const onPaneClick = () => {
-    window.dispatchEvent(new Event('stdd:clear-node-editing'));
+    window.dispatchEvent(new Event('looper:clear-node-editing'));
     selectionOrderRef.current = [];
     // React Flow mantém `selected` dentro do array controlado de nós. Limpar
     // apenas a ordem local deixa a seleção visual reaparecer no próximo
@@ -1813,7 +1813,7 @@ export const App: React.FC = () => {
   const onNodeDragStop = useCallback(
     (_: any, node: Node) => {
       if (!Number.isFinite(node.position.x) || !Number.isFinite(node.position.y)) return;
-      const presentationKey = `stdd-draw-presentation:${contractRef.current.id}`;
+      const presentationKey = `looper-draw-presentation:${contractRef.current.id}`;
       let parsed = { positions: {} as { [key: string]: { x: number; y: number } }, nodes: {} as any };
       try {
         const saved = localStorage.getItem(presentationKey);
@@ -1948,8 +1948,8 @@ export const App: React.FC = () => {
       if (storageMode === 'backend') {
         loadDrawingById(contract.id);
       } else {
-        localStorage.removeItem(`stdd-draw:${contract.id}`);
-        const presentationKey = `stdd-draw-presentation:${contract.id}`;
+        localStorage.removeItem(`looper-draw:${contract.id}`);
+        const presentationKey = `looper-draw-presentation:${contract.id}`;
         localStorage.removeItem(presentationKey);
         presentationPositionsRef.current = {};
         setPresentationPositionsState({});
@@ -1968,7 +1968,7 @@ export const App: React.FC = () => {
   };
 
   const handleOrganize = () => {
-    const presentationKey = `stdd-draw-presentation:${contract.id}`;
+    const presentationKey = `looper-draw-presentation:${contract.id}`;
     localStorage.removeItem(presentationKey);
     presentationPositionsRef.current = {};
     setPresentationPositionsState({});
@@ -2078,7 +2078,7 @@ export const App: React.FC = () => {
     <div className={`app-container ${theme}-theme`}>
       <svg className="edge-gradient-definitions" aria-hidden="true">
         <defs>
-          <linearGradient id="stdd-then-edge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <linearGradient id="looper-then-edge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#ef4444" />
             <stop offset="100%" stopColor="#fb923c" />
           </linearGradient>

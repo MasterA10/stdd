@@ -1,6 +1,6 @@
 ---
 name: draw-system-level-1
-description: "Cria o nível 1 de um Draw System no STDD: a arquitetura macro em volta da codebase, com fronteiras, tecnologias, integrações e símbolos reais de configuração/infraestrutura. Use para iniciar ou corrigir a raiz de um sistema; use draw-system-level-2 para jornadas e telas."
+description: "Cria o nível 1 de um Draw System no Looper: a arquitetura macro em volta da codebase, com fronteiras, tecnologias, integrações e símbolos reais de configuração/infraestrutura. Use para iniciar ou corrigir a raiz de um sistema; use draw-system-level-2 para jornadas e telas."
 ---
 
 # Draw System — Nível 1: Arquitetura
@@ -34,7 +34,7 @@ A raiz usa `level: 1`, `role: "architecture"`, `parent_draw_ref: null`, `parent_
 }
 ```
 
-Todo filho declara `parent_draw_ref`, `parent_node_id` e `root_draw_ref`. O pai contém um único bloco-cápsula com `draw_ref` para o filho. O `draw_ref` do pai, o `parent_draw_ref` do filho e o `root_draw_ref` devem formar uma cadeia resolvível em `.stdd/draws/`. A árvore permanece sem fluxos órfãos: nunca crie referência para arquivo inexistente, fluxo sem pai ou passos do filho duplicados no pai.
+Todo filho declara `parent_draw_ref`, `parent_node_id` e `root_draw_ref`. O pai contém um único bloco-cápsula com `draw_ref` para o filho. O `draw_ref` do pai, o `parent_draw_ref` do filho e o `root_draw_ref` devem formar uma cadeia resolvível em `.looper/draws/`. A árvore permanece sem fluxos órfãos: nunca crie referência para arquivo inexistente, fluxo sem pai ou passos do filho duplicados no pai.
 
 ## Escopo arquitetural
 
@@ -76,19 +76,19 @@ O `então` pode acompanhar qualquer uma das duas famílias, pois representa a co
 
 ## Execução da Fase 1 — raiz
 
-1. Inspecione o pedido, a stack disponível, `.stdd/config.json`, desenhos existentes, análise estática e `git status`.
+1. Inspecione o pedido, a stack disponível, `.looper/config.json`, desenhos existentes, análise estática e `git status`.
 2. Crie a raiz com IDs estáveis e o conjunto de escolhas macro confirmado.
 3. Associe símbolos de configuração e infraestrutura nos próprios nós, usando `qualified_name`, `identity` e `source_dependencies` apenas quando disponíveis.
 4. Crie a cápsula das jornadas e identifique os papéis conhecidos; deixe perguntas abertas para papéis, tenant ou permissões ainda não confirmados.
-5. Crie cada JSON separadamente em `.stdd/draws/`, começando pela raiz. O JSON é a fonte de verdade; não crie `request.md`, `scenarios.md` ou cópias intermediárias.
-6. Valide que relações apontam para nós existentes e que a raiz não possui pai. Grave com `stdd draw create --data-json '<JSON>'`.
-7. Confira o desenho no viewer com `stdd draw serve` e revise fronteiras, trade-offs, perguntas e o ponto de entrada para jornadas.
+5. Crie cada JSON separadamente em `.looper/draws/`, começando pela raiz. O JSON é a fonte de verdade; não crie `request.md`, `scenarios.md` ou cópias intermediárias.
+6. Valide que relações apontam para nós existentes e que a raiz não possui pai. Grave com `looper draw create --data-json '<JSON>'`.
+7. Confira o desenho no viewer com `looper draw serve` e revise fronteiras, trade-offs, perguntas e o ponto de entrada para jornadas.
 8. Entregue o ID da raiz e pare. Informe que `$draw-system-level-2` deve ser executado para continuar; não produza telas nesta fase.
 
 Se houver alteração, registre:
 
 ```bash
-stdd log "Cria arquitetura do sistema no nível 1" --type implementacao
+looper log "Cria arquitetura do sistema no nível 1" --type implementacao
 ```
 
 Ao concluir, informe raiz, escolhas macro, símbolos resolvidos ou pendentes, perguntas, trade-offs, arquivos alterados e o comando de revisão visual. O `$create-tests` deve receber o ID da árvore somente depois de o usuário aprovar a continuação.

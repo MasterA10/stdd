@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "id": "stdd-journey-test",
+  "id": "looper-journey-test",
   "title": "Implementação da jornada de verificação",
-  "subtitle": "Como stdd test transforma configuração em evidência de qualidade",
+  "subtitle": "Como looper test transforma configuração em evidência de qualidade",
   "kind": "system",
   "hierarchy": {
     "level": 3,
     "role": "implementation",
-    "parent_draw_ref": "stdd-user-journeys",
+    "parent_draw_ref": "looper-user-journeys",
     "parent_node_id": 4,
-    "root_draw_ref": "stdd-system-architecture"
+    "root_draw_ref": "looper-system-architecture"
   },
   "groups": [
     {
@@ -45,11 +45,11 @@
       "description": "O adapter gera símbolos, dependências e métricas; fatos de rastreabilidade são atualizados.",
       "code_refs": [
         {
-          "symbol": "stdd.core.run_tests",
+          "symbol": "looper.core.run_tests",
           "identity": "5d8bef5f73daedc0",
           "source_dependencies": [
-            "stdd.static_analysis.run_static_analysis",
-            "stdd.traceability.refresh_traceability"
+            "looper.static_analysis.run_static_analysis",
+            "looper.traceability.refresh_traceability"
           ]
         }
       ]
@@ -109,7 +109,7 @@
     {
       "id": 1,
       "label": "Verificação",
-      "title": "Gates do STDD",
+      "title": "Gates do Looper",
       "summary": "Runners, contrato e análise consolidam o resultado.",
       "steps": [
         {

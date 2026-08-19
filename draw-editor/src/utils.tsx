@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 
 export function renderWithMentions(text: string) {
   if (!text) return text;
-  const regex = /(@stdd|@developer|@obs)/gi;
+  const regex = /(@looper|@developer|@obs)/gi;
   const parts = text.split(regex);
   return parts.map((part, i) => {
     if (part.match(regex)) {
@@ -15,7 +15,7 @@ export function renderWithMentions(text: string) {
 export const MentionTextarea = ({ value, onChange, placeholder, className, rows = 2, 'aria-label': ariaLabel, required }: any) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isFocused, setIsFocused] = useState(false);
-  const hasMentions = /(@stdd|@developer|@obs)/i.test(value || '');
+  const hasMentions = /(@looper|@developer|@obs)/i.test(value || '');
   const useHighlightLayer = hasMentions && !isFocused;
 
   const handleInput = () => {

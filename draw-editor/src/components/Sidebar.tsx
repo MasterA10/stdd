@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import type { BacklogDocument, Contract, DrawIndexEntry, ImprovementIndexEntry, NodeData, EdgeData, Group, FlowPath, FlowStep, RunRecord, StaticAnalysisKpiReport } from '../types';
 import { BacklogPanel } from './BacklogPanel';
 import { Plus, Trash2, FolderPlus, List, Info, ChevronRight, Activity, Settings, BarChart3 } from 'lucide-react';
-import brandLogo from '../assets/stdd-flow-logo.svg';
+import brandLogo from '../assets/looper-logo.svg';
 
 interface SidebarProps {
   contract: Contract;
@@ -173,8 +173,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   useEffect(() => {
     const openEdgeEditor = () => setActiveTab('blocks');
-    window.addEventListener('stdd:edit-edge', openEdgeEditor);
-    return () => window.removeEventListener('stdd:edit-edge', openEdgeEditor);
+    window.addEventListener('looper:edit-edge', openEdgeEditor);
+    return () => window.removeEventListener('looper:edit-edge', openEdgeEditor);
   }, []);
 
   const filteredDrawings = drawingsIndex.filter((draw) =>
@@ -456,9 +456,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <aside className="sidebar">
       {/* Brand Section */}
       <div className="brand">
-        <img className="brand-mark brand-logo" src={brandLogo} alt="STDD Flow" />
+        <img className="brand-mark brand-logo" src={brandLogo} alt="Looper" />
         <div>
-          <h1 className="brand-title">STDD Flow</h1>
+          <h1 className="brand-title">Looper</h1>
           <p className="brand-tagline">Architecture & Design Visualizer</p>
         </div>
       </div>
@@ -722,7 +722,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="runs-empty-sidebar static-analysis-empty">
                 <BarChart3 size={22} />
                 <strong>Análise ainda não executada</strong>
-                <span>Execute <code>stdd test</code> para atualizar os indicadores da base.</span>
+                <span>Execute <code>looper test</code> para atualizar os indicadores da base.</span>
               </div>
             ) : (
               <>
@@ -880,7 +880,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <Activity size={22} />
                 <strong>{periodRuns.length === 0 ? (showAllRuns ? 'Nenhum registro encontrado' : 'Nenhuma run hoje') : 'Nenhuma run visível'}</strong>
                 <span>{periodRuns.length === 0
-                  ? (showAllRuns ? 'As execuções aparecerão aqui quando o STDD registrar um summary.' : 'Alterne para todas as alterações para consultar o histórico completo.')
+                  ? (showAllRuns ? 'As execuções aparecerão aqui quando o Looper registrar um summary.' : 'Alterne para todas as alterações para consultar o histórico completo.')
                   : 'Desative o filtro para mostrar os checkpoints de 0 linhas.'}</span>
               </div>
             ) : (

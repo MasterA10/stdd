@@ -1358,7 +1358,7 @@ body:has(.improvement-dialog) { overflow: hidden; }
   background-size: 175% 175%;
   background-position: 0% 50%;
   isolation: isolate;
-  animation: stdd-backlog-task-gradient-drift 3.4s ease-in-out infinite;
+  animation: looper-backlog-task-gradient-drift 3.4s ease-in-out infinite;
 }
 
 .custom-flow-node.backlog-task-in-progress::after {
@@ -1377,7 +1377,7 @@ body:has(.improvement-dialog) { overflow: hidden; }
   background-size: 235% 100%;
   content: '';
   pointer-events: none;
-  animation: stdd-backlog-task-light-sweep 2.6s ease-in-out infinite;
+  animation: looper-backlog-task-light-sweep 2.6s ease-in-out infinite;
 }
 
 .custom-flow-node.backlog-task-done {
@@ -1410,17 +1410,17 @@ body:has(.improvement-dialog) { overflow: hidden; }
   border-color: rgba(255, 255, 255, .36);
 }
 
-@keyframes stdd-backlog-task-light-sweep {
+@keyframes looper-backlog-task-light-sweep {
   0%, 100% { background-position: 135% 0; }
   48%, 62% { background-position: -35% 0; }
 }
 
-@keyframes stdd-backlog-task-gradient-drift {
+@keyframes looper-backlog-task-gradient-drift {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
 }
 
-@keyframes stdd-associated-test-glow {
+@keyframes looper-associated-test-glow {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
 }
@@ -1518,7 +1518,7 @@ body:has(.improvement-dialog) { overflow: hidden; }
   background: linear-gradient(135deg, #f97316 0%, #ea580c 48%, #dc2626 100%);
   background-size: 220% 220%;
   box-shadow: inset 0 1px 2px rgba(255, 255, 255, .28), 0 0 0 2px rgba(249, 115, 22, .18), 0 4px 14px rgba(127, 29, 29, .36);
-  animation: stdd-associated-test-glow 2.8s ease-in-out infinite;
+  animation: looper-associated-test-glow 2.8s ease-in-out infinite;
 }
 
 .node-associated-test svg {

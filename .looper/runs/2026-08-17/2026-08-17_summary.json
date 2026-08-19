@@ -89,7 +89,7 @@
     {
       "run_id": "13d0e215e34d495fb746b1b9dec71bce",
       "timestamp": "2026-08-17T23:13:19.518066+00:00",
-      "description": "Configuração do intervalo de verificação de nós L2 via CLI (stdd backlog config e stdd backlog task --interval)",
+      "description": "Configuração do intervalo de verificação de nós L2 via CLI (looper backlog config e looper backlog task --interval)",
       "work_types": [
         "implementacao"
       ],
@@ -173,7 +173,7 @@
     {
       "run_id": "30a1d925cd6a4a87a35d8dff9dd538da",
       "timestamp": "2026-08-17T23:28:11.202093+00:00",
-      "description": "Filtro de tags @obs, @developer e @stdd nos comandos stdd draw questions e stdd draw answer",
+      "description": "Filtro de tags @obs, @developer e @looper nos comandos looper draw questions e looper draw answer",
       "work_types": [
         "implementacao"
       ],
@@ -194,7 +194,7 @@
     {
       "run_id": "5ff048c6d8d84c5fbbfe613b09a3a0a3",
       "timestamp": "2026-08-17T23:30:29.071157+00:00",
-      "description": "stdd draw answer agora exibe anotações @obs e ações @developer por padrão junto com perguntas @stdd",
+      "description": "looper draw answer agora exibe anotações @obs e ações @developer por padrão junto com perguntas @looper",
       "work_types": [
         "implementacao"
       ],

@@ -102,9 +102,9 @@ def test_draw_editor_exposes_separate_improvement_sessions_and_answers():
     for required in (
         "improvementsIndex",
         "loadImprovementById",
-        "/.stdd/improvements/index.json",
-        "/.stdd/improvements/",
-        "/__stdd/api/improvements/",
+        "/.looper/improvements/index.json",
+        "/.looper/improvements/",
+        "/__looper/api/improvements/",
         "isImprovementDirty",
         "performImprovementSave",
     ):
@@ -339,7 +339,7 @@ def test_editor_does_not_update_local_index_for_an_unchanged_drawing():
     """
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
 
-    assert "savedLogicalPayload = localStorage.getItem(`stdd-draw:${id}`)" in app
+    assert "savedLogicalPayload = localStorage.getItem(`looper-draw:${id}`)" in app
     assert "JSON.stringify(JSON.parse(savedLogicalPayload)) === JSON.stringify(cleanPayload)" in app
     assert "setIsDirty(false);\n            return;" in app
 
@@ -409,13 +409,13 @@ def test_edge_conditions_keep_labels_separate_from_connection_colors():
     loop = (EDITOR_ROOT / "src/components/LoopEdge.tsx").read_text(encoding="utf-8")
     focus_loop = (EDITOR_ROOT / "src/components/FocusLoopEdge.tsx").read_text(encoding="utf-8")
 
-    assert "const THEN_EDGE_GRADIENT = 'url(#stdd-then-edge-gradient)'" in app
+    assert "const THEN_EDGE_GRADIENT = 'url(#looper-then-edge-gradient)'" in app
     assert "1: { color: theme === 'light' ? '#1e293b' : '#94a3b8', edgeStroke: THEN_EDGE_GRADIENT" in app
     assert "2: { color: '#22c55e', edgeStroke: '#22c55e'" in app
     assert "stroke: isHighlighted ? '#10b981' : visual.edgeStroke" in app
     assert "fill: isHighlighted" in app
-    assert "<linearGradient id=\"stdd-then-edge-gradient\"" in app
-    assert "const THEN_EDGE_GRADIENT = 'url(#stdd-then-edge-gradient)'" in focus
+    assert "<linearGradient id=\"looper-then-edge-gradient\"" in app
+    assert "const THEN_EDGE_GRADIENT = 'url(#looper-then-edge-gradient)'" in focus
     assert "stroke: visual.edgeStroke" in focus
     assert "color: visual.markerColor" in focus
     assert "const edgeData = data as" in loop
@@ -535,7 +535,7 @@ def test_question_textareas_keep_normal_text_visible_and_highlight_mentions_only
     utils = (EDITOR_ROOT / "src/utils.tsx").read_text(encoding="utf-8")
     styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
 
-    assert "const hasMentions = /(@stdd|@developer|@obs)/i.test(value || '')" in utils
+    assert "const hasMentions = /(@looper|@developer|@obs)/i.test(value || '')" in utils
     assert "const useHighlightLayer = hasMentions && !isFocused" in utils
     assert "color: useHighlightLayer ? 'transparent' : 'var(--ink)'" in utils
     assert "background: useHighlightLayer ? 'transparent' : 'var(--input-bg)'" in utils
@@ -760,7 +760,7 @@ def test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal():
     styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
 
     assert "RunRecord" in app
-    assert "/.stdd/runs/index.json" in app
+    assert "/.looper/runs/index.json" in app
     assert "runs={runs}" in app
     assert "activeTab === 'runs'" in sidebar
     assert sidebar.index("<span>Runs</span>") < sidebar.index("<span>Desenhos</span>")
@@ -810,7 +810,7 @@ def test_blocks_use_groups_instead_of_structural_types():
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
     node = (EDITOR_ROOT / "src/components/CustomNode.tsx").read_text(encoding="utf-8")
     sidebar = (EDITOR_ROOT / "src/components/Sidebar.tsx").read_text(encoding="utf-8")
-    draw = Path("src/stdd/draw.py").read_text(encoding="utf-8")
+    draw = Path("src/looper/draw.py").read_text(encoding="utf-8")
 
     assert "NODE_KINDS" not in node
     assert "type: 'process'" not in app
@@ -861,14 +861,14 @@ def test_backlog_task_states_style_in_progress_and_done_nodes():
     assert "Boolean(data.test_ref)" in node
     assert "data.test_refs.length > 0" in node
     assert "node-associated-test" in node
-    assert "stdd-associated-test-glow" in styles
+    assert "looper-associated-test-glow" in styles
     assert "background: linear-gradient(135deg, #f97316 0%, #ea580c 48%, #dc2626 100%)" in styles
     assert "width: 24px" in styles
     assert "height: 18px" in styles
     assert "title={isBacklogTaskInProgress ? 'Task em andamento' : isBacklogTaskDone ? 'Task pronta' : undefined}" in node
     assert ".custom-flow-node.backlog-task-in-progress::after" in styles
-    assert "stdd-backlog-task-light-sweep" in styles
-    assert "stdd-backlog-task-gradient-drift" in styles
+    assert "looper-backlog-task-light-sweep" in styles
+    assert "looper-backlog-task-gradient-drift" in styles
     assert "background-size: 175% 175%" in styles
     assert "linear-gradient(135deg, #fffaf5 0%, #fed7aa 58%, #fb923c 100%)" in node
     assert "linear-gradient(135deg, #f97316 0%, #ef4444 100%)" in node
@@ -888,8 +888,8 @@ def test_double_click_changes_group_and_canvas_click_exits_editing():
 
     assert "onDoubleClick={handleNodeDoubleClick}" in node
     assert "window.updateNodeGroup?." in node
-    assert "stdd:clear-node-editing" in node
-    assert "window.dispatchEvent(new Event('stdd:clear-node-editing'))" in app
+    assert "looper:clear-node-editing" in node
+    assert "window.dispatchEvent(new Event('looper:clear-node-editing'))" in app
 
 
 def test_new_drawing_button_persists_a_new_json_document():
@@ -897,7 +897,7 @@ def test_new_drawing_button_persists_a_new_json_document():
     Confirma que o novo ID é salvo e indexado pelo mesmo fluxo do autosave.
     """
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
-    draw = Path("src/stdd/draw.py").read_text(encoding="utf-8")
+    draw = Path("src/looper/draw.py").read_text(encoding="utf-8")
 
     create_block = app.split("const handleCreateDrawing", 1)[1].split("// --- Subdraw Navigation", 1)[0]
     assert "const newContract: Contract" in create_block
@@ -953,10 +953,10 @@ def test_sidebar_exposes_backlog_tasks_with_questions_and_symbols():
     panel = (EDITOR_ROOT / "src/components/BacklogPanel.tsx").read_text(encoding="utf-8")
 
     assert "backlog={backlog}" in app
-    assert "__stdd/api/backlog/task" in app
-    assert "__stdd/api/backlog/test" in app
-    assert "__stdd/api/backlog/refresh" in app
-    assert "__stdd/api/backlog/tasks/" in app
+    assert "__looper/api/backlog/task" in app
+    assert "__looper/api/backlog/test" in app
+    assert "__looper/api/backlog/refresh" in app
+    assert "__looper/api/backlog/tasks/" in app
     assert "activeTab === 'backlog'" in sidebar
     assert "Perguntas e respostas" in panel
     assert "Símbolos associados" in panel
@@ -989,8 +989,8 @@ def test_editor_loads_the_persisted_backlog_from_the_draw_server():
     """
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
 
-    assert "/.stdd/backlog.json" in app
-    assert "stdd-backlog" in app
+    assert "/.looper/backlog.json" in app
+    assert "looper-backlog" in app
     assert "BacklogDocument" in app
 
 
@@ -1003,7 +1003,7 @@ def test_editor_allows_node_checklists_and_persists_them_through_backlog_api():
     panel = (EDITOR_ROOT / "src/components/BacklogPanel.tsx").read_text(encoding="utf-8")
     types = (EDITOR_ROOT / "src/types.ts").read_text(encoding="utf-8")
 
-    assert "/__stdd/api/backlog/checklist" in app
+    assert "/__looper/api/backlog/checklist" in app
     assert "phase_checklists" in types
     assert "Checklist do backlog" in sidebar
     assert "Checklist de teste" in panel

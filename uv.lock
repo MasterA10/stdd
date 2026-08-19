@@ -116,7 +116,7 @@ wheels = [
 ]
 
 [[package]]
-name = "stdd"
+name = "looper"
 version = "0.1.2"
 source = { editable = "." }
 dependencies = [

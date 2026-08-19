@@ -1,2 +1,2 @@
 [console_scripts]
-stdd = stdd.cli:app
+looper = looper.cli:app
