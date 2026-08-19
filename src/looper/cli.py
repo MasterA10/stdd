@@ -25,6 +25,7 @@ from .backlog import (
     missing_backlog,
     next_backlog_task,
     next_backlog_test,
+    next_backlog_change,
     set_backlog_config,
     VALID_TASK_DELIVERY_SCOPES,
 )
@@ -187,6 +188,8 @@ def _format_backlog_response(response: dict[str, object]) -> str:
     kind = response.get("kind")
     if kind == "backlog-empty":
         return "Backlog concluído. Não há tasks pendentes."
+    if kind == "backlog-change-empty":
+        return "Loop de alterações concluído. Não há pedidos pendentes."
     if kind == "backlog-test-empty":
         return "Fase de testes concluída. Não há tasks de teste pendentes."
     if kind == "backlog-test-disabled":
@@ -201,6 +204,8 @@ def _format_backlog_response(response: dict[str, object]) -> str:
         title = "Task de teste"
     elif kind == "backlog-verification-task":
         title = "Verificação obrigatória da implementação"
+    elif kind == "backlog-change-task":
+        title = "Task de alteração"
     else:
         title = "Task de implementação"
 
@@ -604,6 +609,16 @@ def backlog_test() -> None:
     """Entrega uma task incremental para criação dos testes do nó e subfluxos."""
     try:
         typer.echo(_format_backlog_response(next_backlog_test(project_root())))
+    except (OSError, ValueError) as error:
+        typer.echo(f"Erro: {error}", err=True)
+        raise typer.Exit(1)
+
+
+@backlog_app.command("change")
+def backlog_change() -> None:
+    """Entrega um pedido de alteração registrado no ícone de loop de um nó."""
+    try:
+        typer.echo(_format_backlog_response(next_backlog_change(project_root())))
     except (OSError, ValueError) as error:
         typer.echo(f"Erro: {error}", err=True)
         raise typer.Exit(1)

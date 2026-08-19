@@ -249,6 +249,24 @@ def validate_draw_payload(payload: Any) -> list[str]:
                 if answer is not None and not isinstance(answer, str):
                     violations.append(f"{prefix}.answer deve ser texto ou nulo")
 
+        changes = node.get("changes", [])
+        if not isinstance(changes, list):
+            violations.append(f"nodes[{index}].changes deve ser uma lista")
+            changes = []
+        change_ids: set[int] = set()
+        for change_index, change in enumerate(changes):
+            prefix = f"nodes[{index}].changes[{change_index}]"
+            if not isinstance(change, dict) or not _is_numeric_id(change.get("id")):
+                violations.append(f"{prefix} precisa de id numérico")
+                continue
+            if change["id"] in change_ids:
+                violations.append(f"alteração duplicada no nó {node['id']}: {change['id']}")
+            change_ids.add(change["id"])
+            if not isinstance(change.get("prompt"), str) or not change["prompt"].strip():
+                violations.append(f"{prefix}.prompt é obrigatório")
+            if change.get("status", "pending") not in {"pending", "in_progress", "done"}:
+                violations.append(f"{prefix}.status deve ser pending, in_progress ou done")
+
     general_questions = payload.get("questions", [])
     if not isinstance(general_questions, list):
         violations.append("questions deve ser uma lista")
@@ -1571,7 +1589,7 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
 
         def do_POST(self) -> None:
             """Reserva ou conclui uma task do backlog pelo servidor local."""
-            from .backlog import complete_backlog_task, generate_backlog, next_backlog_task, next_backlog_test, update_backlog_checklist
+            from .backlog import complete_backlog_task, generate_backlog, next_backlog_change, next_backlog_task, next_backlog_test, update_backlog_checklist
 
             path = urlparse(self.path).path
             if path == "/__looper/api/backlog/task":
@@ -1583,6 +1601,12 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
             if path == "/__looper/api/backlog/test":
                 try:
                     self._send_json(next_backlog_test(root))
+                except (OSError, ValueError) as error:
+                    self._send_json({"status": "blocked", "error": str(error)}, 400)
+                return
+            if path == "/__looper/api/backlog/change":
+                try:
+                    self._send_json(next_backlog_change(root))
                 except (OSError, ValueError) as error:
                     self._send_json({"status": "blocked", "error": str(error)}, 400)
                 return

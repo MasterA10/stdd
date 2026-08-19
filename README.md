@@ -225,6 +225,8 @@ O bootstrap é a primeira task por padrão e é agnóstico de framework: prepara
 
 `looper backlog task` e `looper backlog test` mostram somente o contexto acionável em linguagem humana: task, fluxo, nó, uma decisão respondida, os símbolos associados e a diretriz do nível. Não há saída JSON nesses comandos. Tasks de nível 2 recebem a definição escolhida para classificar o nó como tela; quando o escopo é `node`, a saída também exige o nó inteiro e todos os subfluxos, incluindo as camadas não visuais descritas neles. Tasks de nível 3 recebem a definição escolhida para orientar regras de negócio e/ou detalhes da tela.
 
+O ícone de loop em cada nó abre pedidos de alteração (`changes`). Registre uma mudança que possa alcançar vários arquivos ou nós e execute `looper backlog change`; ele reserva um pedido por vez com o contexto e os símbolos do nó. Depois de implementar, testar e registrar as evidências, conclua pelo mesmo `looper backlog complete <task-id>`. Esse cursor é independente das fases de teste e implementação para permitir correções incrementais sem reordenar o backlog de produto.
+
 O contexto de navegação agora identifica explicitamente a tela de destino e todas as entradas possíveis. Para cada entrada, a saída mostra a tela de origem, sua descrição, a condição (`então`, `ou`, `se`), a ação registrada e a transição completa (`origem → destino`). O primeiro nó não recebe uma origem artificial: ele informa que é o início do fluxo. Em subtasks de nível 3, a saída separa a tela relacionada da etapa interna. Os estados distinguem testes ausentes, testes prontos, implementação em andamento e backlog concluído.
 
 Quando o loop de testes está habilitado, antes da implementação crie incrementalmente o teste da jornada:
@@ -333,7 +335,7 @@ O cabeçalho do desenho pode ser editado com duplo clique. Setas selecionadas ex
 
 Um bloco pode declarar opcionalmente `questions` no JSON lógico. Cada pergunta usa `type: "choice"`, `"boolean"` ou `"open"`, e pode manter `answer: null` até uma decisão ser tomada. O badge numérico no bloco mostra quantas perguntas ainda estão sem resposta; quando todas forem respondidas, ele permanece visível com `0` para preservar o histórico. Clique no badge para responder diretamente no bloco. Perguntas respondidas continuam no JSON e no painel, inclusive respostas booleanas `false`.
 
-As tags são case-insensitive: `@looper` representa ação do agente, `@developer` representa resposta humana e `@obs` registra contexto que o agente deve consumir. O comando canônico para pendências é:
+As tags são case-insensitive: `@looper` representa ação do agente, `@developer` representa resposta humana e `@obs` registra contexto que o agente deve consumir. `@looper` não é somente uma solicitação de resposta: se o texto ordenar uma mudança concreta, o agente deve executá-la, validá-la e registrar o resultado. O comando canônico para pendências é:
 
 ```bash
 looper draw questions

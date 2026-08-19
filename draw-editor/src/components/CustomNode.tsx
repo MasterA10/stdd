@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import type { NodeProps, Node } from '@xyflow/react';
-import type { NodeData, Question } from '../types';
-import { Trash2, ClipboardList, Eye, Code2 } from 'lucide-react';
+import type { NodeData, Question, ChangeRequest } from '../types';
+import { Trash2, ClipboardList, Eye, Code2, Repeat2 } from 'lucide-react';
 import { renderWithMentions } from '../utils';
 
 const FALLBACK_GROUP_COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f97316', '#ec4899', '#3b82f6'];
@@ -59,6 +59,7 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
   const unansweredQuestions = unansweredQuestionCount(data.questions);
   const answeredQuestions = totalQuestions - unansweredQuestions;
   const codeReferenceCount = Array.isArray(data.code_refs) ? data.code_refs.length : 0;
+  const pendingChangeCount = (data.changes || []).filter((change: ChangeRequest) => change.status !== 'done').length;
   const backlogChecklist = data.backlogChecklist;
   const backlogTaskStatus = backlogChecklist?.status;
   const isBacklogTaskInProgress = backlogTaskStatus === 'in_progress';
@@ -140,6 +141,11 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
     }
   };
 
+  const onOpenChanges = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.openChangesModal?.(data);
+  };
+
   const onOpenCodeReferences = (e: React.MouseEvent) => {
     e.stopPropagation();
     window.openCodeReferencesModal?.(data);
@@ -211,6 +217,14 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
             type="button"
           >
             <ClipboardList size={12} />
+          </button>
+          <button
+            className="action-circle-btn info"
+            onClick={onOpenChanges}
+            title={pendingChangeCount ? `${pendingChangeCount} alteração(ões) pendente(s)` : 'Pedidos de alteração do bloco'}
+            type="button"
+          >
+            <Repeat2 size={12} />
           </button>
           <button
             className="action-circle-btn info"
@@ -443,6 +457,7 @@ declare global {
     updateNodeField?: (id: number, field: 'label' | 'description', value: string) => void;
     deleteNode?: (id: number) => void;
     openQuestionsModal?: (node: NodeData) => void;
+    openChangesModal?: (node: NodeData) => void;
     openCodeReferencesModal?: (node: NodeData) => void;
     getGroupName?: (groupId: number) => string;
     getGroupInfo?: (groupId: number) => any;

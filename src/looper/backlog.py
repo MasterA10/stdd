@@ -8,13 +8,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from .draw import EDGE_CONDITIONS, draw_directory, facts_directory, read_draw, read_draw_index
+from .draw import EDGE_CONDITIONS, create_draw, draw_directory, facts_directory, read_draw, read_draw_index
 
 
 BACKLOG_VERSION = 1
 VALID_TASK_STATUSES = {"pending", "in_progress", "done"}
 VALID_TEST_STATUSES = {"missing", "in_progress", "done"}
-VALID_EXECUTION_PHASES = {None, "bootstrap", "test", "implementation"}
+VALID_EXECUTION_PHASES = {None, "bootstrap", "test", "implementation", "change"}
 VALID_CHECKLIST_PHASES = {"test", "implementation"}
 DEFAULT_MIN_TASK_INTERVAL_SECONDS = 0
 DEFAULT_TASK_BATCH_SIZE = 1
@@ -1052,7 +1052,12 @@ def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]
     current_phase = previous_execution.get("current_phase")
     valid_task_ids = {task["id"] for task in tasks}
     prev_id = previous_execution.get("current_task_id")
-    is_injected_id = bool(prev_id and (prev_id == "task:bootstrap" or prev_id.startswith("task:verify:") or prev_id == "task:final:verification"))
+    is_injected_id = bool(prev_id and (
+        prev_id == "task:bootstrap"
+        or prev_id.startswith("task:verify:")
+        or prev_id == "task:final:verification"
+        or prev_id.startswith("change:")
+    ))
     current_task_id = prev_id if (prev_id in valid_task_ids or is_injected_id) else None
     if not _test_loop_enabled(root) and current_phase == "test":
         current = next((task for task in tasks if task["id"] == current_task_id), None)
@@ -1288,6 +1293,101 @@ def missing_backlog(root: Path) -> dict[str, Any]:
         "summary": {"total": len(payload["tasks"]), "missing": len(items), "done": done},
         "items": items,
     }
+
+
+def _change_task_id(draw_id: str, node_id: int, change_id: int) -> str:
+    return f"change:{draw_id}:node:{node_id}:request:{change_id}"
+
+
+def _find_change_requests(root: Path) -> list[dict[str, Any]]:
+    """Localiza pedidos de alteração persistidos nos nós dos Draws."""
+    requests: list[dict[str, Any]] = []
+    for entry in read_draw_index(root).get("draws", []):
+        draw_id = entry.get("id") if isinstance(entry, dict) else None
+        if not isinstance(draw_id, str):
+            continue
+        document = read_draw(root, draw_id)
+        for node in document.get("nodes", []):
+            if not isinstance(node, dict) or not isinstance(node.get("id"), int):
+                continue
+            for change in node.get("changes", []):
+                if not isinstance(change, dict) or not isinstance(change.get("id"), int):
+                    continue
+                status = change.get("status", "pending")
+                if status not in {"pending", "in_progress"}:
+                    continue
+                symbols, dependencies, references = _reference_symbols(node)
+                requests.append({
+                    "id": _change_task_id(draw_id, node["id"], change["id"]),
+                    "draw_id": draw_id,
+                    "draw_title": document.get("title", draw_id),
+                    "node_id": node["id"],
+                    "label": f"Alteração: {node.get('label', node['id'])}",
+                    "description": change.get("prompt", ""),
+                    "change_id": change["id"],
+                    "status": status,
+                    "questions": deepcopy(node.get("questions", [])),
+                    "symbols": symbols,
+                    "code_refs": references,
+                    "source_dependencies": dependencies,
+                })
+    return requests
+
+
+def _change_context(change: dict[str, Any], kind: str = "backlog-change-task") -> dict[str, Any]:
+    """Formata o pedido de alteração como task independente do backlog normal."""
+    return {
+        "kind": kind,
+        "phase": "change",
+        "status": "in_progress" if kind == "backlog-change-task" else "done",
+        "task": change,
+        "instruction": (
+            "Implemente este pedido de alteração no nó e em todos os locais necessários da codebase. "
+            "Leia os símbolos e testes associados, crie ou ajuste regressões quando necessário, execute os gates e só então conclua a alteração."
+        ),
+        "remaining": None,
+    }
+
+
+def next_backlog_change(root: Path) -> dict[str, Any]:
+    """Reserva um pedido de alteração do Draw sem bloquear os loops de teste e task."""
+    payload = generate_backlog(root)
+    execution = payload["execution"]
+    current_id = execution.get("current_task_id")
+    requests = _find_change_requests(root)
+    if execution.get("current_phase") == "change" and isinstance(current_id, str):
+        current = next((request for request in requests if request["id"] == current_id), None)
+        if current is not None:
+            return _change_context(current)
+        _clear_execution_cursor(execution)
+
+    if execution.get("current_task_id"):
+        raise ValueError("há uma task de backlog em andamento; conclua-a antes de reservar uma alteração")
+    request = next((item for item in requests if item.get("status") == "pending"), None)
+    if request is None:
+        write_backlog(root, payload)
+        return {"kind": "backlog-change-empty", "phase": "change", "status": "complete", "remaining": 0}
+
+    document = read_draw(root, request["draw_id"])
+    for node in document.get("nodes", []):
+        if node.get("id") != request["node_id"]:
+            continue
+        for change in node.get("changes", []):
+            if change.get("id") == request["change_id"]:
+                change["status"] = "in_progress"
+                break
+    create_draw(root, document)
+    request["status"] = "in_progress"
+    execution["current_task_id"] = request["id"]
+    execution["current_phase"] = "change"
+    execution["current_backlog_id"] = request["draw_id"]
+    execution["current_branch_id"] = None
+    execution["branch_position"] = None
+    execution["current_parent_task_id"] = None
+    execution["current_subtask_id"] = None
+    _mark_claim(execution)
+    write_backlog(root, payload)
+    return _change_context(request)
 
 
 def _clear_execution_cursor(execution: dict[str, Any]) -> None:
@@ -1880,6 +1980,27 @@ def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
     payload = generate_backlog(root)
     execution = payload["execution"]
     current_id = execution.get("current_task_id")
+
+    if task_id.startswith("change:"):
+        if execution.get("current_phase") != "change" or current_id != task_id:
+            raise ValueError("a alteração indicada não é a task atual")
+        request = next((item for item in _find_change_requests(root) if item["id"] == task_id), None)
+        if request is None:
+            raise ValueError("pedido de alteração não encontrado ou já concluído")
+        document = read_draw(root, request["draw_id"])
+        for node in document.get("nodes", []):
+            if node.get("id") != request["node_id"]:
+                continue
+            for change in node.get("changes", []):
+                if change.get("id") == request["change_id"]:
+                    change["status"] = "done"
+                    break
+        create_draw(root, document)
+        _clear_execution_cursor(execution)
+        write_backlog(root, payload)
+        response = _change_context({**request, "status": "done"}, "backlog-change-complete")
+        response["remaining"] = len(_find_change_requests(root))
+        return response
 
     # Tratamento para Bootstrap Task
     if task_id == "task:bootstrap":

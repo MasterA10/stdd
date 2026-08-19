@@ -7,7 +7,7 @@ description: Responde perguntas de um desenho marcadas explicitamente com @loope
 
 ## Responsabilidade
 
-Responder perguntas de Draw endereçadas explicitamente a este agente. Esta skill investiga a codebase; ela não melhora a arquitetura, cria produção ou adivinha decisões.
+Responder perguntas de Draw endereçadas explicitamente a este agente. `@looper` é uma pendência do agente, não apenas um pedido de texto: se a marcação ordenar uma mudança concreta, execute-a pelo cursor apropriado (`looper backlog change` para pedidos no ícone de loop do nó; `looper backlog task` para task derivada do fluxo), valide e conclua a task. Esta skill não adivinha decisões.
 
 Primeiro execute o localizador oficial de perguntas pendentes:
 
@@ -36,7 +36,7 @@ Para cada item retornado:
 
 ## Resposta e rastreabilidade
 
-Quando houver evidência suficiente para responder:
+Quando o texto for uma pergunta, e houver evidência suficiente para responder:
 
 - gravar a resposta em `question.answer`, respeitando o tipo (`choice`, `boolean` ou `open`);
 - marcar no próprio nó todos os símbolos relevantes comprovados em `code_refs`, preservando referências existentes e usando `symbol`, `qualified_name`, `identity`, `file` e `source_dependencies` quando disponíveis;
@@ -77,7 +77,7 @@ Informe somente as incertezas que afetam a conclusão. Se não houver limitaçõ
 
 ## Limites, gravação e encerramento
 
-Não criar ou editar código de produção, testes, Markdown paralelo ou subdesenhos. Preservar `draw_ref`, `parent_draw_ref`, `parent_node_id` e `root_draw_ref`. Validar IDs, referências e tipos de resposta antes de salvar o JSON completo, preferencialmente com:
+Para perguntas puras, não criar ou editar código de produção, testes, Markdown paralelo ou subdesenhos. Para uma ordem concreta marcada com `@looper`, não responda como se ela fosse só uma dúvida: siga o cursor de backlog, implemente, teste e conclua o ID entregue. Preservar `draw_ref`, `parent_draw_ref`, `parent_node_id` e `root_draw_ref`. Validar IDs, referências e tipos de resposta antes de salvar o JSON completo, preferencialmente com:
 
 ```bash
 looper draw create --data-json '<JSON_COMPLETO_ATUALIZADO>'

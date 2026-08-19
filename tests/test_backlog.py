@@ -4,7 +4,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from looper.backlog import bootstrap_report, build_backlog, check_backlog, complete_backlog_task, generate_backlog, next_backlog_task, next_backlog_test, read_backlog, update_backlog_checklist, write_backlog
+from looper.backlog import bootstrap_report, build_backlog, check_backlog, complete_backlog_task, generate_backlog, next_backlog_change, next_backlog_task, next_backlog_test, read_backlog, update_backlog_checklist, write_backlog
 from looper.cli import _format_backlog_response, app
 from looper.core import init_project, run_tests
 from looper.draw import create_draw
@@ -225,6 +225,32 @@ def test_disabled_test_loop_delivers_only_implementation_tasks(tmp_path: Path):
 
     completed = complete_backlog_task(tmp_path, implementation["task"]["id"])
     assert completed["status"] == "done"
+
+
+def test_backlog_change_reserves_and_completes_node_change_request(tmp_path: Path):
+    """Entrega alterações do Draw em cursor próprio sem tocar no backlog normal."""
+    _create_hierarchical_fixture(tmp_path)
+    draw_path = tmp_path / ".looper" / "draws" / "jornada.json"
+    draw = json.loads(draw_path.read_text(encoding="utf-8"))
+    draw["nodes"][0]["changes"] = [
+        {"id": 1, "prompt": "Atualize a entrada em todos os pontos necessários.", "status": "pending"}
+    ]
+    create_draw(tmp_path, draw)
+
+    claimed = next_backlog_change(tmp_path)
+
+    assert claimed["kind"] == "backlog-change-task"
+    assert claimed["phase"] == "change"
+    assert claimed["task"]["id"] == "change:jornada:node:1:request:1"
+    assert claimed["task"]["symbols"] == ["Audit.record", "Journey.start"]
+    assert json.loads(draw_path.read_text(encoding="utf-8"))["nodes"][0]["changes"][0]["status"] == "in_progress"
+
+    completed = complete_backlog_task(tmp_path, claimed["task"]["id"])
+
+    assert completed["kind"] == "backlog-change-complete"
+    assert completed["status"] == "done"
+    assert json.loads(draw_path.read_text(encoding="utf-8"))["nodes"][0]["changes"][0]["status"] == "done"
+    assert next_backlog_change(tmp_path)["kind"] == "backlog-change-empty"
 
 
 def test_backlog_test_creates_test_phase_then_releases_same_task_for_implementation(tmp_path: Path):

@@ -18,6 +18,7 @@ import { CustomNode } from './components/CustomNode';
 import { LoopEdge } from './components/LoopEdge';
 import { Sidebar } from './components/Sidebar';
 import { QuestionsModal } from './components/QuestionsModal';
+import { ChangesModal } from './components/ChangesModal';
 import { CodeReferencesModal } from './components/CodeReferencesModal';
 import { ImportExportModal } from './components/ImportExportModal';
 import { MetadataModal } from './components/MetadataModal';
@@ -126,6 +127,7 @@ export const App: React.FC = () => {
 
   // --- Dialogs & Modals States ---
   const [questionsNode, setQuestionsNode] = useState<NodeData | null>(null);
+  const [changesNode, setChangesNode] = useState<NodeData | null>(null);
   const [showImprovementModal, setShowImprovementModal] = useState(false);
   const [codeReferencesNode, setCodeReferencesNode] = useState<NodeData | null>(null);
   const [traceabilityFacts, setTraceabilityFacts] = useState<TraceabilityFacts | null>(null);
@@ -1871,6 +1873,10 @@ export const App: React.FC = () => {
       setQuestionsNode(node);
     };
 
+    window.openChangesModal = (node: NodeData) => {
+      setChangesNode(node);
+    };
+
     window.openCodeReferencesModal = (node: NodeData) => {
       setCodeReferencesNode(node);
     };
@@ -1982,6 +1988,15 @@ export const App: React.FC = () => {
       nodes: prev.nodes.map((node) => node.id === nodeId ? { ...node, questions } : node)
     }));
     setQuestionsNode((prev) => prev && prev.id === nodeId ? { ...prev, questions } : prev);
+    setIsDirty(true);
+  };
+
+  const handleUpdateChanges = (nodeId: number, changes: NonNullable<NodeData['changes']>) => {
+    setContract((prev) => ({
+      ...prev,
+      nodes: prev.nodes.map((node) => node.id === nodeId ? { ...node, changes } : node)
+    }));
+    setChangesNode((prev) => prev && prev.id === nodeId ? { ...prev, changes } : prev);
     setIsDirty(true);
   };
 
@@ -2283,6 +2298,13 @@ export const App: React.FC = () => {
           node={questionsNode}
           onClose={() => setQuestionsNode(null)}
           onUpdateQuestions={handleUpdateQuestions}
+        />
+      )}
+      {changesNode && (
+        <ChangesModal
+          node={changesNode}
+          onClose={() => setChangesNode(null)}
+          onUpdateChanges={handleUpdateChanges}
         />
       )}
 

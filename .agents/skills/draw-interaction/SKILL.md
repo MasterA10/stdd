@@ -12,7 +12,7 @@ Investigar cada marcação endereçada a esta skill e decidir se ela representa 
 ## Sistema de menções (@tags)
 
 As marcações nos Draws utilizam um sistema de tags com comportamentos específicos:
-- `@Looper`: indica uma pendência a ser resolvida pelo agente autônomo.
+- `@Looper`: indica uma pendência a ser resolvida pelo agente autônomo. Não significa apenas “responda”: quando o texto pedir uma ação concreta, o agente deve executá-la na codebase ou no Draw, validar o resultado e só então registrar a conclusão.
 - `@developer`: indica uma pendência que necessita intervenção humana.
 - `@OBS`: indica uma decisão arquitetural respondida que o agente deve ler e incorporar ao contexto; remova a tag somente com `looper draw consume-observation` depois do consumo explícito.
 - Quando a pergunta tiver resposta, o backend remove automaticamente somente `@looper` e `@developer`; `@obs` permanece como contexto até ser consumida.
@@ -35,6 +35,8 @@ looper backlog missing
 
 Leia a task, o nó do Draw, suas perguntas e respostas, `code_refs`, símbolos, arquivos, dependências, `test_ref`, testes associados e o subfluxo relacionado. Se a marcação descrever uma ação concreta, regra, bug, integração ou comportamento faltante, trate-a como tarefa de implementação.
 
+Pedidos criados pelo ícone de loop do nó ficam em `changes`. Para consumi-los, execute `looper backlog change`. O comando reserva um pedido por vez com o nó e seus símbolos; conclua-o com `looper backlog complete <task-id>` depois de implementar, testar e registrar as evidências.
+
 ## Investigação baseada em evidências
 
 1. Leia o desenho completo, o nó, seus pais, relações, fluxos, grupos e `draw_ref` dos subdesenhos relacionados.
@@ -55,7 +57,7 @@ As respostas preenchidas permanecem no Draw como histórico, inclusive `false` e
 
 ## Quando a marcação for uma tarefa
 
-- Execute o fluxo de backlog na ordem: `looper backlog task`; se retornar `backlog-test-required`, execute `looper backlog test` e crie somente os testes antes de voltar à implementação.
+- Execute o fluxo apropriado: pedidos do ícone de loop usam `looper backlog change`; demais tarefas usam `looper backlog task`. Se `backlog task` retornar `backlog-test-required`, execute `looper backlog test` e crie somente os testes antes de voltar à implementação.
 - Leia os testes existentes e identifique exatamente o caminho, regra, estado, validação ou erro que falta.
 - Edite a codebase dentro do escopo do nó para implementar o comportamento. Adicione ou ajuste teste de regressão quando necessário, sem enfraquecer asserções ou pré-calcular resultados.
 - Execute os testes específicos, a suíte da área e `looper test` antes de concluir.
@@ -90,4 +92,4 @@ Informe incertezas relevantes. Se não houver, escreva `Nenhuma limitação rele
 
 ## Execução incremental
 
-Consuma exatamente uma task por interação: `backlog test`/`backlog task`, leitura do contexto, mudança comprovada, testes e `backlog complete <task-id>`. Erros são caminhos condicionais (`se`/`ou`) e validações ficam antes de efeitos críticos. Use o grupo terminal `Não implementado` para escopo planejado, sem inventar sequência. APIs e apps externos devem ser registrados no `AGENTS.md` e consultados na documentação oficial.
+Consuma exatamente uma task por interação: `backlog test`, `backlog task` ou `backlog change`, leitura do contexto, mudança comprovada, testes e `backlog complete <task-id>`. Erros são caminhos condicionais (`se`/`ou`) e validações ficam antes de efeitos críticos. Use o grupo terminal `Não implementado` para escopo planejado, sem inventar sequência. APIs e apps externos devem ser registrados no `AGENTS.md` e consultados na documentação oficial.

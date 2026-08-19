@@ -11,6 +11,12 @@ export interface Question {
   answer: string | boolean | number | null;
 }
 
+export interface ChangeRequest {
+  id: number;
+  prompt: string;
+  status: 'pending' | 'in_progress' | 'done';
+}
+
 export interface ImprovementSession {
   version: number;
   id: string;
@@ -43,6 +49,7 @@ export interface NodeData {
   test_ref?: { file: string; symbols: string[] } | null;
   test_refs?: Array<{ file: string; symbols: string[] }>;
   questions?: Question[];
+  changes?: ChangeRequest[];
   isHighlighted?: boolean;
   isDimmed?: boolean;
   background?: string;

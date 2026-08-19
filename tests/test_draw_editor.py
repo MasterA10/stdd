@@ -14,6 +14,20 @@ def test_empty_draw_editor_exposes_block_creation_action():
     assert "if (isEmptyDrawing) setActiveTab('info')" in sidebar
 
 
+def test_draw_editor_exposes_loop_icon_and_modal_for_change_requests():
+    """Mantém o pedido de alteração ao lado do atalho de perguntas do nó."""
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    node = (EDITOR_ROOT / "src/components/CustomNode.tsx").read_text(encoding="utf-8")
+    modal = (EDITOR_ROOT / "src/components/ChangesModal.tsx").read_text(encoding="utf-8")
+
+    for required in ("ChangesModal", "changesNode", "handleUpdateChanges", "openChangesModal"):
+        assert required in app
+    for required in ("Repeat2", "onOpenChanges", "openChangesModal"):
+        assert required in node
+    for required in ("Pedido de alteração", "status: 'pending'", "changes: ChangeRequest[]"):
+        assert required in modal
+
+
 def test_drawings_index_enriches_entries_with_hierarchy_metadata():
     """Carrega a hierarquia real de cada desenho para a navegação.
     Confirma que o índice visual conhece nível, pai e raiz do fluxo.

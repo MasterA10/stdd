@@ -2594,6 +2594,14 @@ body:has(.improvement-dialog) { overflow: hidden; }
   max-height: min(820px, calc(100vh - 32px));
 }
 
+.change-request-prompt {
+  margin: 0;
+  white-space: pre-wrap;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 .questions-modal-content {
   display: grid;
   gap: 4px;
