@@ -25,6 +25,7 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert (tmp_path / ".agents/skills/implement-backlog/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/setup/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/static-analysis/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/modern-web-guidance/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-feature/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-improve/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-interaction/SKILL.md").exists()
@@ -223,7 +224,7 @@ def test_agents_are_loaded_from_markdown_templates():
     Chama agent_templates e valida a presença dos títulos dos agentes create-tests, implement e setup.
     """
     templates = {template.parent.name: template for template in agent_templates()}
-    assert set(templates) == {"create-tests-backlog", "draw-interaction", "draw-feature", "draw-improve", "draw-system-level-1", "draw-system-level-2", "draw-system-level-3", "draw-system-level-4", "implement-backlog", "missing", "setup", "static-analysis"}
+    assert set(templates) == {"create-tests-backlog", "draw-interaction", "draw-feature", "draw-improve", "draw-system-level-1", "draw-system-level-2", "draw-system-level-3", "draw-system-level-4", "implement-backlog", "missing", "modern-web-guidance", "setup", "static-analysis"}
     assert "# Create Tests Backlog Agent" in templates["create-tests-backlog"].read_text()
     assert "# Implement Backlog Agent" in templates["implement-backlog"].read_text()
     assert "# Missing Agent" in templates["missing"].read_text()
@@ -231,6 +232,7 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "testes associados" in templates["missing"].read_text()
     assert "corrija a produção" in templates["missing"].read_text()
     assert "# Setup Agent" in templates["setup"].read_text()
+    assert "# Modern Web Guidance" in templates["modern-web-guidance"].read_text()
     assert "complexidade ciclomática" in templates["static-analysis"].read_text()
     assert "long_function" in templates["static-analysis"].read_text()
     assert "acima de 150" in templates["static-analysis"].read_text()

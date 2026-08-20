@@ -48,6 +48,8 @@ O viewer comunica apenas com o Draw Server local. Qualquer API, app ou SDK adici
 - `Ctrl/Cmd+C` copia o JSON lógico do nó selecionado, preservando referências, símbolos, perguntas e campos adicionais; `Ctrl/Cmd+V` cria um novo nó com novo ID e não copia conexões.
 - A barra de progresso de Runs usa exatamente a mesma nota ponderada exibida no resumo, inclusive quando não há alterações.
 - Ao carregar o viewer, a barra lateral inicia na aba Runs; as demais abas continuam disponíveis para troca manual.
+- O cabeçalho preserva títulos em uma linha com truncamento por reticências; em telas estreitas, prioriza o título atual e oculta breadcrumbs auxiliares, busca e metadados antes de permitir quebra vertical.
+- A barra lateral pode ser ocultada e alternada entre encaixe lateral e inferior. No encaixe inferior, abas e cartões priorizam rolagem horizontal para preservar a área vertical do canvas; a roda vertical é convertida em deslocamento lateral e os grupos de cartões são apresentados em sequência horizontal.
 
 ## Regra de evolução visual
 

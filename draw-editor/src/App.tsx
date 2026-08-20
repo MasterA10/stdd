@@ -28,7 +28,7 @@ import { ImprovementEditor } from './components/ImprovementEditor';
 import { NodeEditModal } from './components/NodeEditModal';
 import { ParentNavigationModal, type ParentNavigationOption } from './components/ParentNavigationModal';
 import { layoutCurvedGraph, computeEdgeHandles, getCycleEdges } from './layout';
-import { ArrowUp, RotateCcw, Save, Download, Sun, Moon, Contrast, Sparkles, ClipboardList, X } from 'lucide-react';
+import { ArrowUp, RotateCcw, Save, Download, Sun, Moon, Contrast, Sparkles, ClipboardList, X, PanelBottom, PanelLeft } from 'lucide-react';
 
 import defaultContract from '../contract.json';
 
@@ -116,6 +116,8 @@ export const App: React.FC = () => {
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [activeFlowId, setActiveFlowId] = useState<number | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark' | 'black'>('black');
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
+  const [sidebarDock, setSidebarDock] = useState<'side' | 'bottom'>('side');
   const [isDirty, setIsDirty] = useState(false);
   const [isImprovementDirty, setIsImprovementDirty] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -2158,6 +2160,29 @@ export const App: React.FC = () => {
 
         <div className="header-actions">
           <button
+            className="icon-btn sidebar-layout-btn"
+            type="button"
+            onClick={() => setIsSidebarVisible((visible) => !visible)}
+            title={isSidebarVisible ? 'Ocultar barra lateral' : 'Mostrar barra lateral'}
+            aria-label={isSidebarVisible ? 'Ocultar barra lateral' : 'Mostrar barra lateral'}
+            aria-pressed={isSidebarVisible}
+          >
+            <PanelLeft size={16} />
+            <span>{isSidebarVisible ? 'Ocultar painel' : 'Mostrar painel'}</span>
+          </button>
+          <button
+            className="icon-btn sidebar-layout-btn"
+            type="button"
+            onClick={() => setSidebarDock((dock) => dock === 'side' ? 'bottom' : 'side')}
+            title={sidebarDock === 'side' ? 'Mover barra lateral para baixo' : 'Mover barra lateral para o lado'}
+            aria-label={sidebarDock === 'side' ? 'Mover barra lateral para baixo' : 'Mover barra lateral para o lado'}
+            aria-pressed={sidebarDock === 'bottom'}
+            disabled={!isSidebarVisible}
+          >
+            {sidebarDock === 'side' ? <PanelBottom size={16} /> : <PanelLeft size={16} />}
+            <span>{sidebarDock === 'side' ? 'Painel embaixo' : 'Painel ao lado'}</span>
+          </button>
+          <button
             className="theme-toggle-btn"
             onClick={() => setTheme((prev) => prev === 'light' ? 'dark' : prev === 'dark' ? 'black' : 'light')}
             title={`Tema atual: ${theme === 'light' ? 'claro' : theme === 'dark' ? 'escuro' : 'preto'}. Clique para alternar.`}
@@ -2203,9 +2228,10 @@ export const App: React.FC = () => {
       </header>
 
       {/* Main Layout Grid */}
-      <div className="app-workspace-layout">
+      <div className={`app-workspace-layout sidebar-${sidebarDock} ${isSidebarVisible ? 'sidebar-visible' : 'sidebar-hidden'}`}>
         {/* Sidebar */}
         <Sidebar
+          dock={sidebarDock}
           contract={contract}
           selectedNode={selectedNodeData}
           selectedEdge={selectedEdgeData}

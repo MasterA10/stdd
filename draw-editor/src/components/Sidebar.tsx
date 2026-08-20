@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { BacklogDocument, Contract, DrawIndexEntry, ImprovementIndexEntry, NodeData, EdgeData, Group, FlowPath, FlowStep, RunRecord, StaticAnalysisKpiReport } from '../types';
 import { BacklogPanel } from './BacklogPanel';
 import { Plus, Trash2, FolderPlus, List, Info, ChevronRight, Activity, Settings, BarChart3 } from 'lucide-react';
 import brandLogo from '../assets/looper-logo.svg';
 
 interface SidebarProps {
+  dock: 'side' | 'bottom';
   contract: Contract;
   selectedNode: NodeData | null;
   selectedEdge: EdgeData | null;
@@ -97,6 +98,7 @@ const calculateWeightedRunScore = (linesAdded: number, linesRemoved: number): nu
 };
 
 export const Sidebar: React.FC<SidebarProps> = ({
+  dock,
   contract,
   selectedNode,
   selectedEdge,
@@ -122,6 +124,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onCompleteBacklogTask,
   onUpdateBacklogChecklist
 }) => {
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const redirectBottomWheel = (event: React.WheelEvent<HTMLElement>) => {
+    if (dock !== 'bottom' || Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+    const content = contentRef.current;
+    if (!content) return;
+    event.preventDefault();
+    content.scrollLeft += event.deltaY;
+  };
+
   const formatRunDate = (timestamp: string) => {
     const date = new Date(timestamp);
     if (Number.isNaN(date.getTime())) return timestamp;
@@ -453,7 +465,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside className="sidebar">
+    <aside className="sidebar" onWheelCapture={redirectBottomWheel}>
       {/* Brand Section */}
       <div className="brand">
         <img className="brand-mark brand-logo" src={brandLogo} alt="Looper" />
@@ -525,7 +537,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </button>
       </div>
 
-      <div className="sidebar-content">
+      <div className="sidebar-content" ref={contentRef}>
         {activeTab === 'backlog' && (
           <BacklogPanel backlog={backlog} onClaimTask={onClaimBacklogTask} onClaimTest={onClaimBacklogTest} onRefresh={onRefreshBacklog} onCompleteTask={onCompleteBacklogTask} onUpdateChecklist={onUpdateBacklogChecklist} />
         )}

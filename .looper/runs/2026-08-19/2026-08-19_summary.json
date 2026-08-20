@@ -253,8 +253,50 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "2ce108ca15c0457a9c06c3ccee7736c4",
+      "timestamp": "2026-08-19T17:33:45.626838+00:00",
+      "description": "Ajusta cabeçalho responsivo e sidebar recolhível",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 53,
+        "lines_deleted": 2,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "8e14875bcf18443e9df1db853df711e7",
+      "timestamp": "2026-08-19T17:42:39.098532+00:00",
+      "description": "Converte rolagem vertical da sidebar inferior em horizontal",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 34,
+        "lines_deleted": 3,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 12,
-  "last_run_id": "384b50bfde9b401490a69a6c90938ade"
+  "run_count": 14,
+  "last_run_id": "8e14875bcf18443e9df1db853df711e7"
 }

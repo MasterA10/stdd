@@ -28,6 +28,20 @@ def test_draw_editor_exposes_loop_icon_and_modal_for_change_requests():
         assert required in modal
 
 
+def test_draw_editor_keeps_header_titles_compact_and_sidebar_responsive():
+    """Evita título alto e permite preservar o canvas em telas estreitas."""
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    for required in ("isSidebarVisible", "sidebarDock", "sidebar-hidden", "PanelBottom"):
+        assert required in app
+    for required in ("text-overflow: ellipsis", "white-space: nowrap", ".app-workspace-layout.sidebar-bottom", ".sidebar-bottom :is(.sidebar-content)", "overflow-x: auto"):
+        assert required in styles
+    sidebar = (EDITOR_ROOT / "src/components/Sidebar.tsx").read_text(encoding="utf-8")
+    for required in ("dock: 'side' | 'bottom'", "onWheelCapture={redirectBottomWheel}", "content.scrollLeft += event.deltaY"):
+        assert required in sidebar
+
+
 def test_drawings_index_enriches_entries_with_hierarchy_metadata():
     """Carrega a hierarquia real de cada desenho para a navegação.
     Confirma que o índice visual conhece nível, pai e raiz do fluxo.
