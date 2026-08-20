@@ -26,6 +26,7 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert (tmp_path / ".agents/skills/setup/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/static-analysis/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/modern-web-guidance/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/open-design/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-feature/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-improve/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-interaction/SKILL.md").exists()
@@ -36,6 +37,11 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert (tmp_path / ".agents/skills/draw-improve/agents/openai.yaml").exists()
     assert (tmp_path / "AGENTS.md").exists()
     assert "looper test" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "$open-design" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    open_design = (tmp_path / ".agents/skills/open-design/SKILL.md").read_text(encoding="utf-8")
+    assert "OPEN_DESIGN_ROOT" in open_design
+    assert "/Volumes" in open_design
+    assert "must not be copied" in open_design
     assert "backlog" in (tmp_path / ".agents/skills/create-tests-backlog/SKILL.md").read_text().lower()
     assert not (tmp_path / ".agents/skills/create-tests/SKILL.md").exists()
     assert not (tmp_path / ".agents/skills/implement/SKILL.md").exists()
@@ -224,7 +230,7 @@ def test_agents_are_loaded_from_markdown_templates():
     Chama agent_templates e valida a presença dos títulos dos agentes create-tests, implement e setup.
     """
     templates = {template.parent.name: template for template in agent_templates()}
-    assert set(templates) == {"create-tests-backlog", "draw-interaction", "draw-feature", "draw-improve", "draw-system-level-1", "draw-system-level-2", "draw-system-level-3", "draw-system-level-4", "implement-backlog", "missing", "modern-web-guidance", "setup", "static-analysis"}
+    assert set(templates) == {"create-tests-backlog", "draw-interaction", "draw-feature", "draw-improve", "draw-system-level-1", "draw-system-level-2", "draw-system-level-3", "draw-system-level-4", "implement-backlog", "missing", "modern-web-guidance", "open-design", "setup", "static-analysis"}
     assert "# Create Tests Backlog Agent" in templates["create-tests-backlog"].read_text()
     assert "# Implement Backlog Agent" in templates["implement-backlog"].read_text()
     assert "# Missing Agent" in templates["missing"].read_text()

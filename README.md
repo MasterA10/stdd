@@ -55,6 +55,8 @@ looper init meu-projeto --all-integrations
 
 O `looper init` sempre sincroniza as skills já instaladas com os templates desta versão, adicionando agentes novos e atualizando instruções existentes. Se o comando ainda não reconhecer `draw-system-level-1` até `draw-system-level-4`, reinstale o CLI a partir deste checkout com `uv tool install --force --editable .` e execute o init novamente.
 
+O init também instala a skill-guia `$open-design` em `.agents/skills/open-design/` (e no diretório equivalente de Claude/Gemini). Ela localiza, de forma generalizada no macOS, a biblioteca Open Design externa em `$HOME` ou `/Volumes/*/N-DOWNLOADS/arquitetura-migracao/.agents/skills/open-design`; os assets pesados não são copiados para o projeto.
+
 Para substituir as skills de um projeto já existente pela versão mais recente publicada na `main`:
 
 ```bash

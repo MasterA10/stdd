@@ -40,6 +40,7 @@ def test_init_can_install_skills_for_all_supported_agents(tmp_path: Path):
     for directory in (".agents", ".claude", ".gemini"):
         assert (tmp_path / directory / "skills" / "setup" / "SKILL.md").exists()
         assert (tmp_path / directory / "skills" / "modern-web-guidance" / "SKILL.md").exists()
+        assert (tmp_path / directory / "skills" / "open-design" / "SKILL.md").exists()
         assert (tmp_path / directory / "skills" / "draw-interaction" / "SKILL.md").exists()
         assert (tmp_path / directory / "skills" / "draw-improve" / "SKILL.md").exists()
         for level in range(1, 5):

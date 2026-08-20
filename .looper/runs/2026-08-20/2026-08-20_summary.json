@@ -43,8 +43,71 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "4985d80a34bd47f89088933e5ead0a9f",
+      "timestamp": "2026-08-20T16:40:56.193015+00:00",
+      "description": "injeta a skill open-design no init e nas instrucoes dos agentes",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 5,
+        "lines_deleted": 1,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "3af35d53fb0040cf9abe0a4e389469a6",
+      "timestamp": "2026-08-20T16:58:38.323211+00:00",
+      "description": "torna open-design uma skill-guia para biblioteca externa local no macOS",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 4,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "492e268016f84ad79ddbc2ad57926f8e",
+      "timestamp": "2026-08-20T17:09:25.042033+00:00",
+      "description": "sincroniza a skill open-design no .agents local",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 2,
-  "last_run_id": "98d2ecd184514d3d8653e9330cfbc3fb"
+  "run_count": 5,
+  "last_run_id": "492e268016f84ad79ddbc2ad57926f8e"
 }
