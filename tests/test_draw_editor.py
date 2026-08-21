@@ -349,6 +349,19 @@ def test_editor_persists_pending_layout_and_deletions_until_save():
     assert "customPos?.x !== undefined ? customPos.x : calcPos.x" in layout
 
 
+def test_editor_saves_structural_drafts_without_weakening_cli_validation():
+    """O editor sinaliza rascunhos ao backend e exclui passos de flows junto com o nó."""
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    draw = Path("src/looper/draw.py").read_text(encoding="utf-8")
+
+    assert "X-Looper-Editor-Draft" in app
+    assert "removeNodesFromContract" in app
+    assert "steps: flow.steps.filter((step) => !deleted.has(step.node))" in app
+    assert "allow_disconnected_nodes: bool = False" in draw
+    assert "if structural_analysis[\"isolated_nodes\"] and not allow_disconnected_nodes" in draw
+    assert "editor_draft = self.headers.get(\"X-Looper-Editor-Draft\", \"\").lower() == \"true\"" in draw
+
+
 def test_editor_discovers_draw_server_when_running_on_another_local_origin():
     """Mantém subfluxos acessíveis quando o editor roda em outra porta.
     O backend local padrão precisa ser descoberto antes de cair no localStorage.

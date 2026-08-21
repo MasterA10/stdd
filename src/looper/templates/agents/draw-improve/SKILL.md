@@ -106,7 +106,7 @@ Perguntas marcadas com `@looper` pertencem exclusivamente ao `$draw-interaction`
 O desenho não autoriza alteração direta de produção.
 
 - `$create-tests-backlog` deve ler o Draw aprovado e criar testes executáveis em estado vermelho pelo motivo esperado.
-- `$implement-backlog` deve executar primeiro o contrato de `$create-tests-backlog` e somente depois alterar produção.
+- `$implement-backend` (e `$implement-frontend`) devem executar primeiro o contrato de `$create-tests-backlog` e somente depois alterar produção.
 - Não pular a etapa de testes nem tratar Draw aprovado como teste aprovado.
 
 ## Regras do ciclo interativo
@@ -123,4 +123,4 @@ Informar:
 - nós, relações, grupos ou subdesenhos adicionados/alterados, quando houver aplicação;
 - o que ficou deliberadamente fora;
 - comando ou URL para revisão visual;
-- próxima opção: responder a sessão, revisar manualmente, chamar `$draw-improve` novamente, seguir com `$create-tests-backlog` ou iniciar `$implement-backlog` pela etapa de create-tests-backlog.
+- próxima opção: responder a sessão, revisar manualmente, chamar `$draw-improve` novamente, seguir com `$create-tests-backlog` ou iniciar `$implement-backend` pela etapa de create-tests-backlog.

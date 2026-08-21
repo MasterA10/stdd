@@ -88,7 +88,7 @@ e não altera dependências vendorizadas, caches ou arquivos de segredo `.env`.
 
 ## Usar as skills no Codex
 
-Depois de inicializar o projeto, abra o Codex dentro do repositório. As skills ficam em `.agents/skills/<skill>/SKILL.md` e podem ser chamadas diretamente pelo nome, no formato de skills do Codex. As skills `$create-tests-backlog` e `$implement-backlog` são exclusivas do backlog: só devem ser lidas quando `looper backlog test` ou `looper backlog task` entregar uma task. Para uma edição comum, pergunta ou medição fora do backlog, não leia nem invoque essas duas skills.
+Depois de inicializar o projeto, abra o Codex dentro do repositório. As skills ficam em `.agents/skills/<skill>/SKILL.md` e podem ser chamadas diretamente pelo nome, no formato de skills do Codex. As skills `$create-tests-backlog`, `$implement-frontend` e `$implement-backend` são exclusivas do backlog: só devem ser lidas quando `looper backlog test`, `looper backlog frontend` ou `looper backlog backend` entregar uma task. Para uma edição comum, pergunta ou medição fora do backlog, não leia nem invoque essas skills.
 
 ```text
 $setup Detecte a stack deste repositório e configure os runners sem instalar dependências.
@@ -101,9 +101,12 @@ $draw-system-level-2 Desenhe jornadas, telas e navegação por papel a partir da
 $draw-system-level-3 Detalhe o comportamento completo de uma tela ou nó, em lotes aprovados.
 $draw-system-level-4 Rastreie sob demanda uma decisão até a codebase real.
 $static-analysis Analise dependências, complexidade, funções longas e segredos hardcoded.
+$open-design Consulte o design system, identidade visual, craft navigator e componentes de UI.
+$modern-web-guidance Consulte padrões modernos da web para interface, layouts, animações e CSS.
 $backend-developer Implemente backend modular com logging transversal e integrações externas testadas.
 $missing Execute as tasks pendentes do backlog até não haver mais tasks; leia símbolos e testes e corrija o comportamento marcado como ausente.
-$implement-backlog Execute a task entregue por looper backlog task e rode os gates do Looper.
+$implement-frontend Construa a tela/view (Nível 2) entregue por looper backlog frontend.
+$implement-backend Implemente controllers, models, regras e integrações (Nível 3) entregues por looper backlog backend.
 ```
 
 Também é possível chamar a skill sem instrução adicional quando o objetivo já estiver claro:
@@ -114,7 +117,8 @@ $create-tests-backlog
 $draw-improve
 $draw-interaction
 $missing
-$implement-backlog
+$implement-frontend
+$implement-backend
 ```
 
 O agente deve ler o `SKILL.md` correspondente antes de agir. A skill define o contrato, os diretórios permitidos, os testes e os gates; a mensagem enviada no terminal fornece o contexto da tarefa. O processo recomendado é:
@@ -128,7 +132,8 @@ $draw-system-level-3 Modele de ponta a ponta o comportamento das telas que exige
 $draw-system-level-4 Abra somente o recorte de codebase que exija rastreabilidade técnica.
 $draw-feature Mostre a arquitetura e as decisões dessa feature.
 $draw-improve Evolua o desenho em um ciclo curto e pare para minha revisão.
-$implement-backlog Execute somente a task de implementação entregue por looper backlog task.
+$implement-frontend Construa a view/tela da task entregue por looper backlog frontend.
+$implement-backend Implemente o controller/model da task entregue por looper backlog backend.
 ```
 
 `$draw-improve` trabalha em duas fases sobre um JSON existente em `.looper/draws/`. A primeira revisa o Draw e cria exatamente dez perguntas em uma sessão separada de `.looper/improvements/`, sem alterar o fluxo. Responda as perguntas no viewer e salve a sessão; em uma nova chamada, o agente executa `looper draw improve --pending`, consome somente sessões completas e aplica um único incremento coerente no Draw. Depois de salvar o fluxo, a sessão recebe status `applied` e permanece imutável como histórico. Quando o desenho estiver aprovado, `$create-tests-backlog` transforma sua lógica em testes. Mesmo que o próximo pedido seja apenas `$implement-backlog`, o agente deve passar primeiro pela etapa de create-tests-backlog e confirmar os testes vermelhos antes de alterar produção.

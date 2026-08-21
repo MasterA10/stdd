@@ -218,6 +218,7 @@ def set_backlog_config(
         backlog_cfg = {}
         data["backlog"] = backlog_cfg
     if verification_interval is not None:
+        backlog_cfg["verification_interval"] = int(verification_interval)
         backlog_cfg["l2_verification_interval"] = int(verification_interval)
     if bootstrap_task is not None:
         backlog_cfg["bootstrap_task"] = bool(bootstrap_task)
@@ -1313,21 +1314,29 @@ def check_backlog(root: Path) -> dict[str, Any]:
     bootstrap_pending = bool(tasks and _bootstrap_enabled(config) and not execution.get("bootstrap_done", False))
     final_pending = bool(tasks and config.get("final_verification_task", config.get("final_verification_enabled", False)) and not execution.get("final_verification_done", False))
     
-    interval = config.get("l2_verification_interval", config.get("verification_interval", 0))
-    l2_pending = False
+    interval = config.get("verification_interval", config.get("l2_verification_interval", 0))
+    verify_pending = False
     if interval > 0:
         tasks_by_id = {t.get("id"): t for t in tasks}
-        l2_tasks = [t for t in tasks if t.get("level") == 2]
-        verified_ids = set(execution.get("verified_l2_task_ids", []))
-        completed_l2 = [
-            t for t in l2_tasks
-            if t.get("status") == "done" and all(tasks_by_id.get(cid, {}).get("status") == "done" for cid in t.get("child_task_ids", []))
-        ]
-        unverified = [t for t in completed_l2 if t.get("id") not in verified_ids]
-        if unverified and (len(unverified) >= interval or not remaining):
-            l2_pending = True
+        if payload.get("execution", {}).get("development_mode") == "separated":
+            l3_tasks = [t for t in tasks if t.get("level") == 3]
+            verified_ids = set(execution.get("verified_l3_task_ids", execution.get("verified_l2_task_ids", [])))
+            completed_l3 = [t for t in l3_tasks if t.get("status") == "done"]
+            unverified = [t for t in completed_l3 if t.get("id") not in verified_ids]
+            if unverified and (len(unverified) >= interval or not remaining):
+                verify_pending = True
+        else:
+            l2_tasks = [t for t in tasks if t.get("level") == 2]
+            verified_ids = set(execution.get("verified_l2_task_ids", []))
+            completed_l2 = [
+                t for t in l2_tasks
+                if t.get("status") == "done" and all(tasks_by_id.get(cid, {}).get("status") == "done" for cid in t.get("child_task_ids", []))
+            ]
+            unverified = [t for t in completed_l2 if t.get("id") not in verified_ids]
+            if unverified and (len(unverified) >= interval or not remaining):
+                verify_pending = True
 
-    injected_pending_count = (1 if bootstrap_pending else 0) + (1 if final_pending else 0) + (1 if l2_pending else 0)
+    injected_pending_count = (1 if bootstrap_pending else 0) + (1 if final_pending else 0) + (1 if verify_pending else 0)
     has_pending = bool(remaining or blocked_by_tests or injected_pending_count > 0)
 
     return {
@@ -1644,6 +1653,28 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
     else:
         state = "tests_ready"
 
+    is_first_l3_for_screen = False
+    parent_screen_context: dict[str, Any] | None = None
+    if task.get("level") == 3 and parent.get("level") == 2:
+        if descendants and descendants[0].get("id") == task.get("id"):
+            is_first_l3_for_screen = True
+            parent_draw_id = parent.get("draw_id")
+            parent_node_id = parent.get("node_id")
+            parent_nav = _draw_navigation_context(root, parent_draw_id, parent_node_id, parent.get("label", ""))
+            parent_screen_context = {
+                "id": parent.get("id"),
+                "node_id": parent_node_id,
+                "label": parent.get("label", ""),
+                "description": parent.get("description", ""),
+                "draw_title": parent.get("draw_title") or parent.get("draw_id"),
+                "symbols": list(parent.get("symbols", [])),
+                "questions": deepcopy(parent.get("questions", [])),
+                "navigation_entries": parent_nav.get("navigation_entries", []),
+                "access_paths": parent_nav.get("access_paths", []),
+            }
+
+    development_mode = payload.get("execution", {}).get("development_mode", "sequential")
+    subtasks_list = [] if (development_mode == "separated" and task.get("level") == 2) else descendants
     response: dict[str, Any] = {
         "kind": kind,
         "phase": phase,
@@ -1651,7 +1682,7 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
         "task": task,
         "parent_task": parent,
         "subtask": subtask,
-        "subtasks": descendants,
+        "subtasks": subtasks_list,
         "origin_nodes": navigation["origin_nodes"],
         "origin_edges": navigation["origin_edges"],
         "access_paths": navigation["access_paths"],
@@ -1661,9 +1692,10 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
         "connection": navigation["connection"],
         "condition": navigation["connection"].get("condition_label") if navigation["connection"] else None,
         "path": navigation["access_paths"][0] if navigation["access_paths"] else None,
+        "is_first_l3_for_screen": is_first_l3_for_screen,
+        "parent_screen_context": parent_screen_context,
     }
     delivery_scope = _task_delivery_scope(payload)
-    development_mode = payload.get("execution", {}).get("development_mode", "sequential")
     is_node_delivery = delivery_scope == "node" and task.get("level") == 2 and task.get("id") == parent.get("id")
     node_delivery_note = _node_delivery_note() if is_node_delivery else None
     if is_node_delivery:
@@ -1708,13 +1740,18 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
     if node_delivery_note:
         response["delivery_scope_note"] = node_delivery_note
     options = _execution_config(root)
-    if options["task_batch_size"] > 1 and task.get("id") in [item.get("id") for item in tasks]:
+    allow_batch = (development_mode != "separated" or task.get("level") == 3)
+    if allow_batch and options["task_batch_size"] > 1 and task.get("id") in [item.get("id") for item in tasks]:
         start = next(index for index, item in enumerate(tasks) if item.get("id") == task.get("id"))
-        candidates = [item for item in tasks[start:] if item.get("status") != "done"]
+        candidates = [
+            item for item in tasks[start:]
+            if item.get("status") != "done" and (development_mode != "separated" or item.get("level") == 3)
+        ]
         if options["task_batch_scope"] == "node":
             candidates = [item for item in candidates if item.get("node_id") == task.get("node_id")]
-        response["batch"] = [{"id": item.get("id"), "label": item.get("label", "")} for item in candidates[:options["task_batch_size"]]]
-        response["batch_size"] = len(response["batch"])
+        if len(candidates) > 1:
+            response["batch"] = [{"id": item.get("id"), "label": item.get("label", "")} for item in candidates[:options["task_batch_size"]]]
+            response["batch_size"] = len(response["batch"])
     if instruction is not None:
         response["instruction"] = instruction
     return response
@@ -2048,36 +2085,61 @@ def next_backlog_task(root: Path, verification_interval: int | None = None, laye
         response.update({"status": "blocked", "reason": "test_missing" if pending_task.get("test_status") == "missing" else "test_not_complete"})
         return response
 
-    # 4. Verifica se há verificação de nó L2 pendente que deve rodar antes das próximas tasks
-    interval = config.get("l2_verification_interval", config.get("verification_interval", 0))
-    if interval > 0 and layer != "backend":
+    # 4. Verifica se há verificação de nó pendente que deve rodar antes das próximas tasks
+    interval = config.get("verification_interval", config.get("l2_verification_interval", 0))
+    if interval > 0 and layer != "frontend":
         tasks_by_id = {t["id"]: t for t in payload["tasks"]}
-        l2_tasks = [t for t in payload["tasks"] if t.get("level") == 2]
-        verified_ids = set(execution.get("verified_l2_task_ids", []))
-        completed_l2 = [
-            t for t in l2_tasks
-            if t.get("status") == "done" and all(tasks_by_id.get(cid, {}).get("status") == "done" for cid in t.get("child_task_ids", []))
-        ]
-        unverified = [t for t in completed_l2 if t["id"] not in verified_ids]
-        all_normal_tasks_done = not any(item.get("status") != "done" for item in payload["tasks"])
-        if unverified and (len(unverified) >= interval or all_normal_tasks_done):
-            batch_count = interval if len(unverified) >= interval else len(unverified)
-            target_nodes = unverified[:batch_count]
-            task = _create_injected_l2_batch_verify_task(target_nodes)
-            execution["current_task_id"] = task["id"]
-            _mark_claim(execution)
-            execution["current_verified_batch_node_ids"] = [n["id"] for n in target_nodes]
-            execution["current_backlog_id"] = target_nodes[0].get("backlog_id")
-            execution["current_phase"] = "implementation"
-            write_backlog(root, payload)
-            return _task_context(
-                root,
-                payload,
-                task,
-                "implementation",
-                "backlog-verification-task",
-                task["verification_instruction"],
-            )
+        if payload.get("execution", {}).get("development_mode") == "separated":
+            l3_tasks = [t for t in payload["tasks"] if t.get("level") == 3]
+            verified_ids = set(execution.get("verified_l3_task_ids", execution.get("verified_l2_task_ids", [])))
+            completed_l3 = [t for t in l3_tasks if t.get("status") == "done"]
+            unverified = [t for t in completed_l3 if t["id"] not in verified_ids]
+            all_l3_done = bool(l3_tasks) and all(t.get("status") == "done" for t in l3_tasks)
+            if unverified and (len(unverified) >= interval or all_l3_done):
+                batch_count = interval if len(unverified) >= interval else len(unverified)
+                target_nodes = unverified[:batch_count]
+                task = _create_injected_l2_batch_verify_task(target_nodes)
+                execution["current_task_id"] = task["id"]
+                _mark_claim(execution)
+                execution["current_verified_batch_node_ids"] = [n["id"] for n in target_nodes]
+                execution["current_backlog_id"] = target_nodes[0].get("backlog_id")
+                execution["current_phase"] = "implementation"
+                write_backlog(root, payload)
+                return _task_context(
+                    root,
+                    payload,
+                    task,
+                    "implementation",
+                    "backlog-verification-task",
+                    task["verification_instruction"],
+                )
+        else:
+            l2_tasks = [t for t in payload["tasks"] if t.get("level") == 2]
+            verified_ids = set(execution.get("verified_l2_task_ids", []))
+            completed_l2 = [
+                t for t in l2_tasks
+                if t.get("status") == "done" and all(tasks_by_id.get(cid, {}).get("status") == "done" for cid in t.get("child_task_ids", []))
+            ]
+            unverified = [t for t in completed_l2 if t["id"] not in verified_ids]
+            all_normal_tasks_done = not any(item.get("status") != "done" for item in payload["tasks"])
+            if unverified and (len(unverified) >= interval or all_normal_tasks_done):
+                batch_count = interval if len(unverified) >= interval else len(unverified)
+                target_nodes = unverified[:batch_count]
+                task = _create_injected_l2_batch_verify_task(target_nodes)
+                execution["current_task_id"] = task["id"]
+                _mark_claim(execution)
+                execution["current_verified_batch_node_ids"] = [n["id"] for n in target_nodes]
+                execution["current_backlog_id"] = target_nodes[0].get("backlog_id")
+                execution["current_phase"] = "implementation"
+                write_backlog(root, payload)
+                return _task_context(
+                    root,
+                    payload,
+                    task,
+                    "implementation",
+                    "backlog-verification-task",
+                    task["verification_instruction"],
+                )
 
     # 5. Busca a próxima task normal do backlog
     task = _next_implementation_task(payload, layer)
@@ -2190,10 +2252,14 @@ def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
                 if t.get("level") == 2 and (f"task:verify:{t.get('draw_id')}:node:{t.get('node_id')}" == task_id or str(t.get("node_id")) in task_id):
                     target_nodes.append(t)
 
-        verified = execution.setdefault("verified_l2_task_ids", [])
+        verified_l2 = execution.setdefault("verified_l2_task_ids", [])
+        verified_l3 = execution.setdefault("verified_l3_task_ids", [])
         for n in target_nodes:
-            if n["id"] not in verified:
-                verified.append(n["id"])
+            if n.get("level") == 3:
+                if n["id"] not in verified_l3:
+                    verified_l3.append(n["id"])
+            elif n["id"] not in verified_l2:
+                verified_l2.append(n["id"])
 
         execution.pop("current_verified_batch_node_ids", None)
         if _get_backlog_config(root).get("l2_post_verification_tasks", False):

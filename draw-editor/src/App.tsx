@@ -964,7 +964,10 @@ export const App: React.FC = () => {
         const origin = getApiOrigin();
         const response = await fetch(`${origin}/__looper/api/draws/${encodeURIComponent(id)}.json`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          // O editor precisa conseguir persistir estados intermediários. A
+          // API ainda valida o schema e todas as referências; somente a
+          // conectividade pode ficar pendente até a próxima edição.
+          headers: { 'Content-Type': 'application/json', 'X-Looper-Editor-Draft': 'true' },
           body: JSON.stringify(cleanPayload)
         });
         if (!response.ok) {
@@ -1554,15 +1557,21 @@ export const App: React.FC = () => {
     onEdgesChange(changes);
   }, [onEdgesChange]);
 
+  const removeNodesFromContract = useCallback((previous: Contract, deleted: Set<number>): Contract => ({
+    ...previous,
+    nodes: previous.nodes.filter((node) => !deleted.has(node.id)),
+    edges: previous.edges.filter((edge) => !deleted.has(edge.from) && !deleted.has(edge.to)),
+    flows: previous.flows?.map((flow) => ({
+      ...flow,
+      steps: flow.steps.filter((step) => !deleted.has(step.node))
+    }))
+  }), []);
+
   const deleteSelectedItems = useCallback(() => {
     const selectedIds = getOrderedSelectedNodeIds();
     if (selectedIds.length > 0) {
       const deleted = new Set(selectedIds);
-      setContract((prev) => ({
-        ...prev,
-        nodes: prev.nodes.filter((node) => !deleted.has(node.id)),
-        edges: prev.edges.filter((edge) => !deleted.has(edge.from) && !deleted.has(edge.to))
-      }));
+      setContract((prev) => removeNodesFromContract(prev, deleted));
       const remainingPositions = { ...presentationPositionsRef.current };
       selectedIds.forEach((id) => delete remainingPositions[String(id)]);
       presentationPositionsRef.current = remainingPositions;
@@ -1582,7 +1591,7 @@ export const App: React.FC = () => {
       return true;
     }
     return false;
-  }, [getOrderedSelectedNodeIds, selectedEdgeId]);
+  }, [getOrderedSelectedNodeIds, removeNodesFromContract, selectedEdgeId]);
 
   const connectSelectedNodes = useCallback((condition: number) => {
     const ordered = getOrderedSelectedNodeIds();
@@ -1782,6 +1791,10 @@ export const App: React.FC = () => {
 
   const onConnect = useCallback(
     (params: Connection) => {
+      const source = Number(params.source);
+      const target = Number(params.target);
+      const nodeIds = new Set(contractRef.current.nodes.map((node) => node.id));
+      if (!Number.isInteger(source) || !Number.isInteger(target) || !nodeIds.has(source) || !nodeIds.has(target)) return;
       let condition = DEFAULT_CONDITION;
       if (params.sourceHandle) {
         const parts = params.sourceHandle.split('-');
@@ -1797,8 +1810,8 @@ export const App: React.FC = () => {
           : 1;
         const newEdge: EdgeData = {
           id: nextId,
-          from: Number(params.source),
-          to: Number(params.target),
+          from: source,
+          to: target,
           kind: 'flow',
           condition,
           label: '',
@@ -1859,11 +1872,7 @@ export const App: React.FC = () => {
         true
       );
       if (proceed) {
-        setContract((prev) => ({
-          ...prev,
-          nodes: prev.nodes.filter((n) => n.id !== id),
-          edges: prev.edges.filter((e) => e.from !== id && e.to !== id)
-        }));
+        setContract((prev) => removeNodesFromContract(prev, new Set([id])));
         setSelectedNodeId(null);
         selectionOrderRef.current = [];
         setSelectionRevision((value) => value + 1);
@@ -1909,7 +1918,7 @@ export const App: React.FC = () => {
       loadDrawingById(id);
     };
 
-  }, []);
+  }, [removeNodesFromContract]);
 
   useEffect(() => {
     window.updateBacklogChecklist = updateBacklogChecklist;

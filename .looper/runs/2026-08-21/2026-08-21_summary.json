@@ -253,8 +253,71 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "0629dc536f454c668946dba78a93d369",
+      "timestamp": "2026-08-21T16:33:37.800611+00:00",
+      "description": "separar rascunhos estruturais do editor da validação estrita da CLI",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 90,
+        "lines_deleted": 19,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "79a30c450308432dbeafe90f1fcdb9fd",
+      "timestamp": "2026-08-21T20:19:55.906945+00:00",
+      "description": "exclusividade de camadas frontend e backend com injeção de contexto L2 no 1o L3",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 485,
+        "lines_deleted": 69,
+        "files_changed": 6
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "2b0a9c954add4768b961c2b72e9c2a01",
+      "timestamp": "2026-08-21T20:39:42.835467+00:00",
+      "description": "remove skill implement-backlog e consolida implement-frontend e implement-backend",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 71,
+        "lines_deleted": 39,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 12,
-  "last_run_id": "6aabd869ef404129903f19c51e694cd7"
+  "run_count": 15,
+  "last_run_id": "2b0a9c954add4768b961c2b72e9c2a01"
 }

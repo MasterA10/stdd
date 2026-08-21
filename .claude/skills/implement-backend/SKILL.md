@@ -1,98 +1,58 @@
 ---
-name: implement-backlog
-description: "Percorre exclusivamente o loop de implementação do backlog Looper: recebe uma task liberada por looper backlog task, implementa apenas o escopo recebido, valida, audita quando exigido e conclui pelo backlog complete."
+name: implement-backend
+description: "Desenvolve e implementa regras de negócio, controllers, models, APIs, persistência e integrações (Nível 3) no backlog Looper; use para tasks de backend liberadas por looper backlog backend ou looper backlog task --backend."
 ---
 
-# Implement Backlog Agent
+# Implement Backend Agent
 
-Esta skill pertence exclusivamente ao loop de implementação do backlog. Leia-a somente
-quando `looper backlog task` entregar uma resposta acionável (`backlog-task`,
-`backlog-bootstrap-task` ou `backlog-verification-task`). Não leia esta skill para edições comuns, perguntas, medições, revisões livres ou qualquer pedido que não tenha
-sido entregue pelo comando `looper backlog task`.
+Esta skill pertence exclusivamente ao loop de implementação backend do backlog (Nível 3 — Controllers, Models, Regras de Negócio e Integrações).
+Leia-a quando `looper backlog backend` ou `looper backlog task --backend` entregar uma task de Nível 3 (`backlog-task` ou `backlog-verification-task`).
+Não leia esta skill para edições comuns, perguntas, medições, refatorações livres ou qualquer pedido que não tenha sido entregue pelo cursor do backlog.
+
+Se `.looper/config.json` tiver `backlog.test_loop_enabled: false`, esta skill não depende da execução prévia de `$create-tests-backlog`: o projeto optou pelo loop somente de implementação.
 
 ## Objetivo
 
-Percorrer o backlog até o terminal, uma task por vez. O loop é:
+Percorrer o backlog de regras e backend (L3) até a conclusão da camada backend:
 
 ```text
-looper backlog task
-  -> ler o contexto da task
-  -> implementar somente essa task
-  -> executar testes focados e o gate global
+looper backlog backend
+  -> ler o contexto da regra L3 (e da tela L2 pai no 1º nó L3)
+  -> consultar $backend-developer e contratos da aplicação
+  -> implementar controller, model, validações, persistência e integrações
+  -> executar testes de backend e looper test
+  -> associar referências de código (looper draw associate-reference)
   -> looper backlog complete <task-id>
-  -> repetir até backlog-empty
+  -> repetir até backlog-layer-empty
 ```
 
-Não declarar conclusão no meio do loop. `backlog-empty` é o único sinal de que não há
-outra task de implementação.
+## Contexto da Tela L2 Pai
 
-Se `.looper/config.json` tiver `backlog.test_loop_enabled: false`, a fase de testes está
-intencionalmente desabilitada: não execute `$create-tests-backlog` nem trate
-`backlog-test-required` como bloqueio. Use diretamente `looper backlog task` e percorra
-somente o loop de implementação.
+- Ao receber o **primeiro nó L3** de uma tela, o backlog injetará automaticamente o bloco `parent_screen_context` (dados da tela L2 pai, sua descrição, entradas de navegação e símbolos).
+- Utilize esse contexto para entender como a regra se acopla à view/tela construída na fase frontend.
+- Nos nós L3 seguintes da mesma tela, o contexto de tela não é repetido para manter o foco na lógica específica da etapa.
 
-## Cursor obrigatório
+## Regras de Engenharia Backend Obrigatórias
 
-O cursor do backlog é a fonte de verdade da ordem de execução. Nunca escolha uma task
-manualmente, pule a task retornada ou avance pelo arquivo JSON.
-
-1. Execute `looper backlog task` e trabalhe exatamente na task e no `task-id` retornados.
-2. Retome a task que o cursor indicar como `in_progress` antes de buscar qualquer outra.
-3. Depois de implementar e validar a task, execute obrigatoriamente `looper backlog complete <task-id>` usando o mesmo ID recebido.
-4. Só procure a próxima task depois que o `backlog complete` terminar com sucesso; esse comando libera e avança o cursor.
-5. Repita o ciclo. Termine somente quando `looper backlog task` retornar `kind: "backlog-empty"`.
-
-Concluir o código ou passar nos testes não conclui a task operacionalmente. Sem
-`backlog complete`, a task continua aberta no cursor.
-
-## Escopo de entrega
-
-Quando `backlog.development_mode` for `separated`, o nível define a camada:
-
-- L2 é frontend/view. Implemente a tela, seus estados, interações e os links/transições entre telas descritos no Draw. Isso inclui a navegação funcional da jornada; não implemente controller, model, regra de negócio, persistência ou integração de backend.
-- L3 é backend. Implemente controller, model, regras, persistência e integrações necessárias ao comportamento. O L3 vem depois que todas as telas L2 forem concluídas.
-
-Nesse modo, siga a camada informada na resposta do backlog mesmo que o nível L2 tenha
-descrições de comportamento: o comportamento de apresentação e navegação pertence ao
-frontend, enquanto o efeito de negócio pertence ao L3.
-
-Se a entrega precisar ser restrita a uma camada, use o filtro recebido ou solicite a
-próxima task com `looper backlog task --frontend`/`--backend` (ou `--layer`). O filtro é
-transitório: não conclua o backlog quando a camada escolhida estiver vazia e não pule uma
-task já reservada em outra camada.
-
-Leia `backlog.task_delivery_scope` em `.looper/config.json`:
-
-- `task`: implemente somente o ID recebido; os subfluxos serão entregues em chamadas posteriores.
-- `node`: implemente o nó pai e os subfluxos listados no mesmo contexto; conclua o conjunto usando o ID do nó pai.
-
-Essa configuração é a mesma usada por `looper backlog test`. Em qualquer modo, siga o
-cursor e não escolha IDs manualmente.
-
-### Entrega de nó: tela e funcionamento completo
-
-Quando a resposta mostrar `Escopo obrigatório` ou `Escopo entregue: nó e ... subfluxo(s)
-interno(s)`, a entrega é um pacote completo. Implemente o nó L2 e todos os subfluxos
-internos listados no mesmo contexto. A palavra `Tela` apenas classifica o nível do nó; não autoriza
-implementar somente o frontend. Leia os Draws L2/L3 e entregue todas as camadas exigidas
-por eles: apresentação, regras, estados, validações, endpoints/handlers, persistência,
-hooks, integrações, permissões, notificações, recuperação e testes, quando aplicáveis.
-Não deixe endpoint, persistência ou integração descritos nos subfluxos para outra task.
-Conclua usando o ID do nó pai somente depois de validar o pacote inteiro.
+Ao implementar regras, APIs e integrações de backend:
+1. **`$backend-developer` (`.agents/skills/backend-developer/SKILL.md`)**:
+   - **Logging Transversal e Incondicional**: Registre eventos nos quatro níveis operacionais (`error`, `warn`, `info`, `debug`). Erros devem ser capturados e registrados incondicionalmente em qualquer ambiente, sem mascarar ou resumir exceções.
+   - **Sem Truncamento Arbitrário e Redaction Cirúrgico**: Nunca aplique redaction genérico que esconda payloads úteis para depuração.
+   - **Testes de Contrato para APIs Externas**: Toda integração externa deve ter teste de contrato executando endpoint real com credenciais deliberadamente inválidas para comprovar conexão e transporte.
+   - **Modularidade**: Separe controllers, casos de uso, repositórios e adaptadores.
 
 ## Regras do loop
 
-1. Leia a resposta em linguagem natural de `looper backlog task`, incluindo task, ID, predecessor, condição, pai, subfluxos, perguntas respondidas, símbolos e testes entregues pelo comando.
-2. Se a resposta for `kind: "backlog-test-required"`, não implemente: volte para `$create-tests-backlog`/`looper backlog test`.
-3. Se a resposta for `kind: "backlog-bootstrap-task"`, prepare somente a estrutura mínima do projeto com as evidências locais; não implemente funcionalidade de produto.
-4. Implemente apenas a task recebida, preservando contratos, autorização, dados e alterações locais do usuário.
-5. Execute o teste mais específico, as suítes afetadas e `looper test`. Falha é bloqueio; não execute `backlog complete` para avançar com validação quebrada.
-6. Se houver bloqueio, deixe a task aberta e informe o motivo, a evidência e a ação necessária.
+1. Execute `looper backlog backend` (ou `looper backlog task --backend`) para obter a próxima task.
+2. Se a resposta for `kind: "backlog-bootstrap-task"`, prepare somente a estrutura mínima do projeto com as evidências locais; não implemente funcionalidade de produto.
+3. Implemente apenas a task recebida, preservando contratos, autorização, dados e alterações locais do usuário.
+4. Execute o teste mais específico, as suítes afetadas e `looper test`. Falha é bloqueio; não execute `backlog complete` para avançar com validação quebrada.
+5. Se houver bloqueio, deixe a task aberta e informe o motivo, a evidência e a ação necessária.
 
 ## Verificação intermediária da implementação
 
-Quando `looper backlog task` entregar uma task de verificação criada por
-`l2_verification_interval`, ela é uma auditoria obrigatória do comportamento já
+Quando `looper backlog backend` entregar uma task de verificação criada por
+`verification_interval` (ou `l2_verification_interval`), ela é uma auditoria obrigatória do comportamento já
 implementado. O agente não pode concluir essa task apenas porque a task anterior está
 `done`, existem arquivos, há símbolos associados ou algum teste superficial passa.
 
@@ -101,7 +61,7 @@ Para cada nó listado em `Alvos da verificação`:
 1. Leia o Draw, as decisões respondidas, o nó L2 e todos os subfluxos relacionados.
 2. Use as referências de código fornecidas para localizar os arquivos e símbolos reais.
 3. Carregue esses arquivos no contexto e leia o código relevante antes de formar uma conclusão; não presuma o conteúdo a partir do nome do arquivo ou do símbolo.
-4. Compare a implementação com a especificação completa: tela alcançável, regras de negócio, estados, validações, persistência, integrações, permissões e efeitos observáveis.
+4. Compare a implementação com a especificação completa: tela alcançável, regras de negócio, estados, validações, endpoints/handlers, persistência, integrações, permissões e efeitos observáveis.
 5. Execute os testes aplicáveis e confirme que o caminho funciona de fato, incluindo as falhas e estados relevantes quando fizerem parte do Draw.
 6. Só conclua pelo `backlog complete` quando houver evidência de conformidade no código e de funcionamento real. Se a implementação estiver ausente, parcial, desconectada, simulada ou quebrada, deixe a task de verificação aberta e relate os arquivos, símbolos, testes e lacunas encontrados.
 
@@ -190,7 +150,7 @@ exigem escopo e evidência antes de uma mudança maior.
 Testes verdes são condição necessária, não suficiente. Verifique também que:
 
 1. a feature é alcançável pelo caminho descrito no Draw;
-2. todas as camadas exigidas foram entregues;
+2. todas as camadas exigidas foram entregues (incluindo todos os subfluxos internos quando aplicável);
 3. os `code_refs` apontam para os artefatos relevantes;
 4. `looper test` passou;
 5. o cursor foi avançado pelo ID correto.

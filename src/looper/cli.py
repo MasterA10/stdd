@@ -107,6 +107,10 @@ def _compact_backlog_response(response: dict[str, object]) -> dict[str, object]:
         "development_mode": response.get("development_mode"),
         "implementation_layer": response.get("implementation_layer"),
         "tests_required": response.get("tests_required"),
+        "is_first_l3_for_screen": response.get("is_first_l3_for_screen"),
+        "parent_screen_context": response.get("parent_screen_context"),
+        "batch": response.get("batch"),
+        "batch_size": response.get("batch_size"),
     }
     if parent.get("id") and parent.get("id") != task.get("id"):
         compact["parent"] = parent.get("label")
@@ -245,6 +249,20 @@ def _format_backlog_response(response: dict[str, object]) -> str:
         note = compact.get("delivery_scope_note")
         if note:
             lines.append(f"Regra do escopo: {note}")
+    parent_screen = compact.get("parent_screen_context")
+    if isinstance(parent_screen, dict):
+        lines.append("Tela pai correspondente (L2):")
+        lines.append(f"  • Tela: {parent_screen.get('label', parent_screen.get('node_id'))} (Nó {parent_screen.get('node_id')})")
+        if parent_screen.get("description"):
+            lines.append(f"    Descrição: {parent_screen.get('description')}")
+        screen_syms = parent_screen.get("symbols")
+        if isinstance(screen_syms, list) and screen_syms:
+            lines.append(f"    Símbolos da tela: {', '.join(screen_syms)}")
+    batch_items = compact.get("batch")
+    if isinstance(batch_items, list) and len(batch_items) > 1:
+        lines.append(f"Nós no lote ({len(batch_items)}):")
+        for b_item in batch_items:
+            lines.append(f"  • {b_item.get('label', b_item.get('id'))} (ID: {b_item.get('id')})")
     lines.extend(_format_level_context(compact.get("level_context")))
     lines.extend(_format_navigation_context(compact))
     verified_nodes = compact.get("verified_nodes")
@@ -307,8 +325,13 @@ def init(
     interactive: bool = typer.Option(False, "--interactive", help="Abre a seleção numérica de integrações e setup."),
     task_delivery_scope: Optional[str] = typer.Option(None, "--task-delivery-scope", help="Como entregar as tasks em testes e implementação: node (tela, funcionamento e internos juntos) ou task (uma por vez)."),
     development_mode: Optional[str] = typer.Option(None, "--development-mode", help="Ordem arquitetural: sequential ou separated (todas as telas L2 antes do backend L3)."),
-    l2_verification_interval: Optional[int] = typer.Option(None, "--l2-verification-interval", "--verification-interval", min=0, help="Insere uma task de conferência a cada N nós L2 concluídos; 0 desabilita."),
+    l2_verification_interval: Optional[int] = typer.Option(None, "--l2-verification-interval", "--verification-interval", min=0, help="Insere uma task de conferência a cada N nós concluídos; 0 desabilita."),
     test_loop_enabled: Optional[bool] = typer.Option(None, "--test-loop/--no-test-loop", help="Habilita ou desabilita a fase de testes do backlog; desabilitada entrega somente implementação."),
+    task_batch_size: Optional[int] = typer.Option(None, "--task-batch-size", min=1, max=5, help="Quantidade de tasks entregues no lote para o backend (1 a 5)."),
+    task_batch_scope: Optional[str] = typer.Option(None, "--task-batch-scope", help="Escopo do lote: task ou node."),
+    bootstrap: Optional[bool] = typer.Option(None, "--bootstrap/--no-bootstrap", help="Habilita ou desabilita a task de bootstrap inicial."),
+    final_verification: Optional[bool] = typer.Option(None, "--final-verification/--no-final-verification", help="Habilita ou desabilita a task de verificação final E2E."),
+    min_task_interval_seconds: Optional[int] = typer.Option(None, "--min-task-interval-seconds", min=0, help="Janela mínima anti-script entre avanços."),
 ) -> None:
     """Inicializa a estrutura do Looper e instala as skills dos agentes.
     Cria o diretório-alvo quando necessário, depois cria .looper/ e .agents/skills.
@@ -362,14 +385,24 @@ def init(
             verification_interval=selected_l2_verification_interval,
             test_loop_enabled=selected_test_loop_enabled,
             development_mode=selected_development_mode,
+            task_batch_size=task_batch_size,
+            task_batch_scope=task_batch_scope,
+            bootstrap_task=bootstrap,
+            final_verification_task=final_verification,
+            min_task_interval_seconds=min_task_interval_seconds,
         )
-    elif task_delivery_scope is not None or l2_verification_interval is not None or test_loop_enabled is not None or development_mode is not None:
+    elif task_delivery_scope is not None or l2_verification_interval is not None or test_loop_enabled is not None or development_mode is not None or task_batch_size is not None or task_batch_scope is not None or bootstrap is not None or final_verification is not None or min_task_interval_seconds is not None:
         set_backlog_config(
             target,
             task_delivery_scope=task_delivery_scope,
             verification_interval=l2_verification_interval,
             test_loop_enabled=test_loop_enabled,
             development_mode=development_mode,
+            task_batch_size=task_batch_size,
+            task_batch_scope=task_batch_scope,
+            bootstrap_task=bootstrap,
+            final_verification_task=final_verification,
+            min_task_interval_seconds=min_task_interval_seconds,
         )
     unavailable = [name for name, found in available_integrations().items() if name in requested and not found]
     if unavailable:
@@ -575,7 +608,7 @@ def backlog_missing() -> None:
 
 @backlog_app.command("task")
 def backlog_task(
-    interval: Optional[int] = typer.Option(None, "--interval", "--verification-interval", help="Sobrescreve o intervalo de nós L2 para injeção de tarefas de verificação."),
+    interval: Optional[int] = typer.Option(None, "--interval", "--verification-interval", help="Sobrescreve o intervalo de nós para injeção de tarefas de verificação."),
     layer: Optional[str] = typer.Option(None, "--layer", help="Filtra a entrega: frontend, backend ou all."),
     frontend: bool = typer.Option(False, "--frontend", help="Entrega somente tasks frontend/L2."),
     backend: bool = typer.Option(False, "--backend", help="Entrega somente tasks backend/L3."),
@@ -588,6 +621,32 @@ def backlog_task(
             raise ValueError("--frontend e --backend não podem ser usados juntos")
         selected_layer = "frontend" if frontend else "backend" if backend else layer
         response = next_backlog_task(project_root(), verification_interval=interval, layer=selected_layer)
+        typer.echo(_format_backlog_response(response))
+    except (OSError, ValueError) as error:
+        typer.echo(f"Erro: {error}", err=True)
+        raise typer.Exit(1)
+
+
+@backlog_app.command("frontend")
+def backlog_frontend(
+    interval: Optional[int] = typer.Option(None, "--interval", "--verification-interval", help="Sobrescreve o intervalo de nós para injeção de tarefas de verificação."),
+) -> None:
+    """Entrega a próxima task frontend (nível 2 — telas/views)."""
+    try:
+        response = next_backlog_task(project_root(), verification_interval=interval, layer="frontend")
+        typer.echo(_format_backlog_response(response))
+    except (OSError, ValueError) as error:
+        typer.echo(f"Erro: {error}", err=True)
+        raise typer.Exit(1)
+
+
+@backlog_app.command("backend")
+def backlog_backend(
+    interval: Optional[int] = typer.Option(None, "--interval", "--verification-interval", help="Sobrescreve o intervalo de nós L3 para injeção de tarefas de verificação."),
+) -> None:
+    """Entrega a próxima task backend (nível 3 — controllers, rules, models e integrações)."""
+    try:
+        response = next_backlog_task(project_root(), verification_interval=interval, layer="backend")
         typer.echo(_format_backlog_response(response))
     except (OSError, ValueError) as error:
         typer.echo(f"Erro: {error}", err=True)

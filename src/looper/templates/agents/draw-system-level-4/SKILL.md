@@ -69,7 +69,7 @@ Ao alterar o desenho, registrar:
 looper log "Rastreia codebase do sistema no nível 4" --type implementacao
 ```
 
-Entregar IDs, arquivos e símbolos resolvidos, referências `unresolved` ou `drift`, queries, contratos, testes, limitações e o recorte para o `$create-tests-backlog`. O `$implement-backlog` só pode seguir após testes vermelhos aprovados.
+Entregar IDs, arquivos e símbolos resolvidos, referências `unresolved` ou `drift`, queries, contratos, testes, limitações e o recorte para o `$create-tests-backlog`. O `$implement-backend` (e `$implement-frontend`) só podem seguir após testes vermelhos aprovados ou quando a camada dispensar testes.
 
 ## Regras do ciclo interativo
 

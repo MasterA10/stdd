@@ -1356,6 +1356,34 @@ def test_draw_server_saves_edited_json_and_rejects_mismatched_id(tmp_path: Path)
         thread.join(timeout=2)
 
 
+def test_draw_server_allows_editor_draft_with_isolated_nodes_but_cli_stays_strict(tmp_path: Path):
+    """O editor pode salvar a edição intermediária; a CLI continua bloqueando o mesmo contrato."""
+    payload = draw_payload()
+    payload["nodes"].append({"id": 3, "label": "Nó em edição", "group": 1})
+    server, thread = start_server_for_test(tmp_path)
+    base_url = f"http://127.0.0.1:{server.server_address[1]}"
+    try:
+        request = Request(
+            f"{base_url}/__looper/api/draws/checkout.json",
+            data=json.dumps(payload).encode(),
+            headers={"Content-Type": "application/json", "X-Looper-Editor-Draft": "true"},
+            method="PUT",
+        )
+        assert json.loads(urlopen(request).read())["status"] == "saved"
+        assert json.loads((tmp_path / ".looper/draws/checkout.json").read_text())["nodes"][-1]["id"] == 3
+
+        try:
+            create_draw(tmp_path / "cli", payload)
+        except ValueError as error:
+            assert "sem conexão" in str(error)
+        else:
+            raise AssertionError("a criação pela CLI deveria rejeitar nó isolado")
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
 def test_draw_server_serves_and_saves_improvement_sessions_separately(tmp_path: Path):
     """Permite responder uma sessão sem passar pelo endpoint de Draws.
     O endpoint de melhoria não deve alterar o arquivo do fluxo associado.

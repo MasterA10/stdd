@@ -1275,9 +1275,14 @@ def consume_observation(root: Path, draw_id: str, question_id: int, node_id: int
     return selected
 
 
-def create_draw(root: Path, payload: dict[str, Any]) -> Path:
+def create_draw(root: Path, payload: dict[str, Any], *, allow_disconnected_nodes: bool = False) -> Path:
     """Valida e grava um desenho JSON, atualizando somente o índice leve.
     Sobrescreve o mesmo ID de forma atômica e nunca produz HTML individual.
+
+    A CLI mantém a regra de conectividade por padrão. O editor visual pode
+    gravar um rascunho durante uma edição estrutural (por exemplo, depois de
+    excluir um nó e antes de religar seus vizinhos), mas continua sujeito a
+    toda a validação de schema e referências.
     """
     logical_payload = logical_draw_payload(payload)
     if isinstance(logical_payload.get("nodes"), list):
@@ -1288,7 +1293,7 @@ def create_draw(root: Path, payload: dict[str, Any]) -> Path:
     if violations:
         raise ValueError("Desenho inválido: " + "; ".join(violations))
     structural_analysis = analyze_draw_structure(root, logical_payload)
-    if structural_analysis["isolated_nodes"]:
+    if structural_analysis["isolated_nodes"] and not allow_disconnected_nodes:
         isolated = ", ".join(
             f"id={node['id']} label={node['label']!r}"
             for node in structural_analysis["isolated_nodes"]
@@ -1575,7 +1580,7 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                 return
             self.send_response(204)
             self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS")
-            self.send_header("Access-Control-Allow-Headers", "Content-Type")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Looper-Editor-Draft")
             self.end_headers()
 
         def _send_json(self, payload: dict[str, Any], status: int = 200) -> None:
@@ -1688,7 +1693,8 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                 payload = json.loads(self.rfile.read(length).decode("utf-8"))
                 if not isinstance(payload, dict) or str(payload.get("id")) != draw_id:
                     raise ValueError("id da rota e do JSON devem ser iguais")
-                output = create_draw(root, payload)
+                editor_draft = self.headers.get("X-Looper-Editor-Draft", "").lower() == "true"
+                output = create_draw(root, payload, allow_disconnected_nodes=editor_draft)
                 body = json.dumps({"status": "saved", "path": str(output.relative_to(root))}).encode("utf-8")
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json; charset=utf-8")

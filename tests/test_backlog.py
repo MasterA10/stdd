@@ -4,7 +4,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from looper.backlog import bootstrap_report, build_backlog, check_backlog, complete_backlog_task, generate_backlog, next_backlog_change, next_backlog_task, next_backlog_test, read_backlog, update_backlog_checklist, write_backlog
+from looper.backlog import bootstrap_report, build_backlog, check_backlog, complete_backlog_task, generate_backlog, next_backlog_change, next_backlog_task, next_backlog_test, read_backlog, set_backlog_config, update_backlog_checklist, write_backlog
 from looper.cli import _format_backlog_response, app
 from looper.core import init_project, run_tests
 from looper.draw import create_draw
@@ -1272,3 +1272,152 @@ def test_bootstrap_report_requires_design_and_environment_contract(tmp_path: Pat
 
     assert report["status"] == "blocked"
     assert {"system_level_1", "design", "env_example", "looper_config", "draw_storage"}.issubset(report["failures"])
+
+
+def test_backlog_separated_mode_layer_exclusivity_and_first_l3_parent_context(tmp_path: Path):
+    """Garante exclusividade de camadas e injeção do nó L2 pai apenas no 1º nó L3."""
+    _create_nested_hierarchical_fixture(tmp_path)
+    set_backlog_config(tmp_path, development_mode="separated", bootstrap_task=False, test_loop_enabled=False)
+
+    # 1. Frontend layer entrega apenas tarefas L2 (sem subtasks e sem batch)
+    front_task = next_backlog_task(tmp_path, layer="frontend")
+    assert front_task["kind"] == "backlog-task"
+    assert front_task["task"]["level"] == 2
+    assert front_task["task"]["id"] == "task:jornada:node:1"
+    assert front_task["implementation_layer"] == "frontend"
+    assert front_task["subtasks"] == []
+    assert "batch" not in front_task
+
+    complete_backlog_task(tmp_path, "task:jornada:node:1")
+
+    # Conclui as demais tasks L2 de frontend
+    while True:
+        res = next_backlog_task(tmp_path, layer="frontend")
+        if res.get("kind") == "backlog-layer-empty":
+            break
+        assert res["task"]["level"] == 2
+        complete_backlog_task(tmp_path, res["task"]["id"])
+
+    # 2. Backend layer entrega tarefas L3
+    # O 1º L3 deve receber parent_screen_context
+    back_task_1 = next_backlog_task(tmp_path, layer="backend")
+    assert back_task_1["task"]["level"] == 3
+    assert back_task_1["task"]["id"] == "task:subjornada:node:1"
+    assert back_task_1["implementation_layer"] == "backend"
+    assert back_task_1["is_first_l3_for_screen"] is True
+    assert back_task_1["parent_screen_context"] is not None
+    assert back_task_1["parent_screen_context"]["id"] == "task:jornada:node:1"
+    assert back_task_1["parent_screen_context"]["label"] == "Iniciar"
+    assert "symbols" in back_task_1["parent_screen_context"]
+
+    complete_backlog_task(tmp_path, "task:subjornada:node:1")
+
+    # O 2º L3 NÃO deve receber parent_screen_context
+    back_task_2 = next_backlog_task(tmp_path, layer="backend")
+    assert back_task_2["task"]["level"] == 3
+    assert back_task_2["task"]["id"] == "task:subjornada:node:2"
+    assert back_task_2["is_first_l3_for_screen"] is False
+    assert back_task_2["parent_screen_context"] is None
+
+    complete_backlog_task(tmp_path, "task:subjornada:node:2")
+
+
+def test_backlog_backend_batching_and_l3_verification_intervals(tmp_path: Path):
+    """Testa entrega em lote de L3 e injeção de verificação a cada N nós L3 concluídos."""
+    _create_nested_hierarchical_fixture(tmp_path)
+    set_backlog_config(
+        tmp_path,
+        development_mode="separated",
+        bootstrap_task=False,
+        test_loop_enabled=False,
+        task_batch_size=2,
+        verification_interval=2,
+    )
+
+    # Conclui todas as tasks de frontend L2
+    while True:
+        front_task = next_backlog_task(tmp_path, layer="frontend")
+        if front_task.get("kind") == "backlog-layer-empty":
+            break
+        complete_backlog_task(tmp_path, front_task["task"]["id"])
+
+    # Backend: 1º L3 é entregue em lote de 2 nós L3
+    back_task_1 = next_backlog_task(tmp_path, layer="backend")
+    assert back_task_1["task"]["id"] == "task:subjornada:node:1"
+    assert "batch" in back_task_1
+    assert len(back_task_1["batch"]) == 2
+    assert [item["id"] for item in back_task_1["batch"]] == ["task:subjornada:node:1", "task:subjornada:node:2"]
+
+    complete_backlog_task(tmp_path, "task:subjornada:node:1")
+
+    # 2º L3
+    back_task_2 = next_backlog_task(tmp_path, layer="backend")
+    complete_backlog_task(tmp_path, "task:subjornada:node:2")
+
+    # Após 2 nós L3 concluídos, deve injetar verificação em lote para os 2 L3
+    verify_task = next_backlog_task(tmp_path, layer="backend")
+    assert verify_task["kind"] == "backlog-verification-task"
+    assert "batch" in verify_task["task"]["id"] or "verify" in verify_task["task"]["id"]
+    complete_backlog_task(tmp_path, verify_task["task"]["id"])
+
+    backlog = read_backlog(tmp_path)
+    assert "task:subjornada:node:1" in backlog["execution"].get("verified_l3_task_ids", [])
+    assert "task:subjornada:node:2" in backlog["execution"].get("verified_l3_task_ids", [])
+
+
+def test_cli_backlog_frontend_and_backend_commands(tmp_path: Path, monkeypatch):
+    """Testa os comandos looper backlog frontend e looper backlog backend na CLI."""
+    monkeypatch.chdir(tmp_path)
+    _create_nested_hierarchical_fixture(tmp_path)
+    set_backlog_config(tmp_path, development_mode="separated", bootstrap_task=False, test_loop_enabled=False)
+
+    front_res = runner.invoke(app, ["backlog", "frontend"])
+    assert front_res.exit_code == 0
+    assert "Iniciar" in front_res.stdout
+    assert "frontend" in front_res.stdout.lower()
+
+    complete_backlog_task(tmp_path, "task:jornada:node:1")
+    while True:
+        res = next_backlog_task(tmp_path, layer="frontend")
+        if res.get("kind") == "backlog-layer-empty":
+            break
+        complete_backlog_task(tmp_path, res["task"]["id"])
+
+    back_res = runner.invoke(app, ["backlog", "backend"])
+    assert back_res.exit_code == 0
+    assert "Tela pai correspondente (L2):" in back_res.stdout
+    assert "Iniciar" in back_res.stdout
+
+
+def test_init_configures_all_backlog_options(tmp_path: Path):
+    """Testa passagem de todos os parâmetros configuráveis no comando looper init."""
+    result = runner.invoke(
+        app,
+        [
+            "init",
+            str(tmp_path),
+            "--integration",
+            "codex",
+            "--development-mode",
+            "separated",
+            "--verification-interval",
+            "3",
+            "--task-batch-size",
+            "2",
+            "--task-batch-scope",
+            "node",
+            "--bootstrap",
+            "--final-verification",
+            "--min-task-interval-seconds",
+            "5",
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    config = json.loads((tmp_path / ".looper/config.json").read_text(encoding="utf-8"))["backlog"]
+    assert config["development_mode"] == "separated"
+    assert config["verification_interval"] == 3
+    assert config["task_batch_size"] == 2
+    assert config["task_batch_scope"] == "node"
+    assert config["bootstrap_task"] is True
+    assert config["final_verification_task"] is True
+    assert config["min_task_interval_seconds"] == 5

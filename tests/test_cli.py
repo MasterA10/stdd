@@ -983,3 +983,125 @@ def test_log_marks_draw_only_changes_as_zero_line_checkpoint(tmp_path: Path, mon
     assert latest["diff_stats"]["lines_added"] == 0
     assert latest["diff_stats"]["lines_deleted"] == 0
     assert latest["draw_diff_stats"]["files_changed"] == 1
+
+
+def test_init_configures_all_backlog_options_via_cli(tmp_path: Path):
+    """Inicializa projeto com todas as opções de backlog e valida config.json."""
+    result = runner.invoke(
+        app,
+        [
+            "init",
+            str(tmp_path),
+            "--development-mode",
+            "separated",
+            "--verification-interval",
+            "4",
+            "--task-batch-size",
+            "3",
+            "--task-batch-scope",
+            "task",
+            "--bootstrap",
+            "--final-verification",
+            "--min-task-interval-seconds",
+            "10",
+        ],
+    )
+    assert result.exit_code == 0
+    config = json.loads((tmp_path / ".looper/config.json").read_text(encoding="utf-8"))["backlog"]
+    assert config["development_mode"] == "separated"
+    assert config["verification_interval"] == 4
+    assert config["task_batch_size"] == 3
+    assert config["task_batch_scope"] == "task"
+    assert config["bootstrap_task"] is True
+    assert config["final_verification_task"] is True
+    assert config["min_task_interval_seconds"] == 10
+
+
+def test_cli_backlog_frontend_and_backend_subcommands(tmp_path: Path, monkeypatch):
+    """Executa os subcomandos looper backlog frontend e looper backlog backend."""
+    monkeypatch.chdir(tmp_path)
+    runner.invoke(
+        app,
+        [
+            "init",
+            "--development-mode",
+            "separated",
+            "--no-bootstrap",
+            "--no-test-loop",
+        ],
+    )
+    from looper.draw import create_draw
+    create_draw(
+        tmp_path,
+        {
+            "id": "sistema",
+            "title": "Sistema",
+            "kind": "system",
+            "hierarchy": {"level": 1, "role": "architecture", "root_draw_ref": "sistema"},
+            "groups": [],
+            "nodes": [
+                {"id": 1, "label": "Jornada", "description": "Jornada principal.", "draw_ref": "jornada"},
+                {"id": 2, "label": "Fim", "description": "Fim do fluxo."},
+            ],
+            "edges": [{"id": 1, "from": 1, "to": 2, "kind": "flow", "condition": 1}],
+            "flows": [],
+        },
+    )
+    create_draw(
+        tmp_path,
+        {
+            "id": "jornada",
+            "title": "Jornada do usuário",
+            "kind": "flow",
+            "hierarchy": {
+                "level": 2,
+                "role": "journey",
+                "parent_draw_ref": "sistema",
+                "parent_node_id": 1,
+                "root_draw_ref": "sistema",
+            },
+            "groups": [],
+            "nodes": [
+                {"id": 1, "label": "Tela Principal", "description": "Tela da home.", "draw_ref": "subjornada"},
+                {"id": 2, "label": "Tela Conclusão", "description": "Conclusão."},
+            ],
+            "edges": [{"id": 1, "from": 1, "to": 2, "kind": "flow", "condition": 1}],
+            "flows": [],
+        },
+    )
+    create_draw(
+        tmp_path,
+        {
+            "id": "subjornada",
+            "title": "Subjornada interna",
+            "kind": "flow",
+            "hierarchy": {
+                "level": 3,
+                "role": "implementation",
+                "parent_draw_ref": "jornada",
+                "parent_node_id": 1,
+                "root_draw_ref": "sistema",
+            },
+            "groups": [],
+            "nodes": [
+                {"id": 1, "label": "Processar Dados", "description": "Processa dados no backend."},
+                {"id": 2, "label": "Finalizar Processamento", "description": "Finaliza backend."},
+            ],
+            "edges": [{"id": 1, "from": 1, "to": 2, "kind": "flow", "condition": 1}],
+            "flows": [],
+        },
+    )
+
+    front = runner.invoke(app, ["backlog", "frontend"])
+    assert front.exit_code == 0
+    assert "Tela Principal" in front.stdout
+    assert "frontend" in front.stdout.lower()
+
+    from looper.backlog import complete_backlog_task
+    complete_backlog_task(tmp_path, "task:jornada:node:1")
+
+    back = runner.invoke(app, ["backlog", "backend"])
+    assert back.exit_code == 0
+    assert "Processar Dados" in back.stdout
+    assert "Tela pai correspondente (L2):" in back.stdout
+    assert "Tela Principal" in back.stdout

@@ -1,6 +1,7 @@
 import difflib
 import json
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -48,7 +49,7 @@ GITIGNORE_RULES = (
     "Icon\r",
 )
 INTERNAL_STATE_DIRECTORIES = {".looper"}
-LEGACY_REFERENCE_PATTERN = re.compile(r"looper", re.IGNORECASE)
+LEGACY_REFERENCE_PATTERN = re.compile(r"stdd", re.IGNORECASE)
 LEGACY_MIGRATION_IGNORED_PARTS = {
     ".git",
     ".venv",
@@ -61,6 +62,11 @@ LEGACY_MIGRATION_IGNORED_PARTS = {
     "htmlcov",
     "__pycache__",
     ".pytest_cache",
+    "tests",
+    "src",
+    ".agents",
+    ".claude",
+    ".gemini",
 }
 LEGACY_MIGRATION_IGNORED_FILES = {".env", ".env.local", ".env.production", ".env.development"}
 
@@ -170,7 +176,7 @@ def migrate_legacy_project(root: Path) -> list[Path]:
     preservados no local antigo para evitar perda silenciosa de dados.
     """
     changed: list[Path] = []
-    legacy = root / ".looper"
+    legacy = root / ".stdd"
     current = looper_dir(root)
     if legacy.is_dir() and not legacy.is_symlink():
         if not current.exists():
@@ -182,7 +188,7 @@ def migrate_legacy_project(root: Path) -> list[Path]:
     for path in _legacy_text_files(root):
         try:
             content = path.read_bytes()
-            if b"looper" not in content.lower() or b"\x00" in content:
+            if b"stdd" not in content.lower() or b"\x00" in content:
                 continue
             text = content.decode("utf-8")
         except (OSError, UnicodeDecodeError):
@@ -199,6 +205,8 @@ AGENT_SKILL_DIRECTORIES = {
     "claude": ".claude/skills",
     "gemini": ".gemini/skills",
 }
+
+RETIRED_AGENT_SKILLS = {"implement", "implement-backlog", "create-tests", "feature"}
 
 AGENT_INSTRUCTION_FILES = {
     "codex": ("AGENTS.md",),
@@ -223,7 +231,7 @@ Este projeto usa o Looper para especificação, implementação, testes e evidê
 - O `.looper/design.md` é a fonte obrigatória de decisões visuais: consulte e respeite identidade, tipografia, espaçamento, estados, acessibilidade e contraste em qualquer alteração ou implementação de interface; seu preenchimento é obrigatório antes de liberar o bootstrap.
 - Ao construir, refinar ou revisar interfaces, leia e use a skill `$open-design` instalada em `.agents/skills/open-design/SKILL.md`, consultando seus recursos sob demanda.
 - Mantenha memória contextual seletiva: registre decisões duráveis e aceitas no `AGENTS.md` (contratos, arquitetura, operação e escopo) ou no `.looper/design.md` (visual e interação); consolide duplicatas e não registre hipóteses, detalhes temporários, IDs de execução ou segredos.
-- `$create-tests-backlog` e `$implement-backlog` pertencem exclusivamente aos loops acionados por `looper backlog test` e `looper backlog task`; não leia essas skills para edições, perguntas ou medições comuns fora do backlog.
+- `$create-tests-backlog`, `$implement-frontend` e `$implement-backend` pertencem exclusivamente aos loops acionados por `looper backlog test`, `looper backlog frontend`, `looper backlog backend` e `looper backlog task`; não leia essas skills para edições, perguntas ou medições comuns fora do backlog.
 - Quando o pedido vier de uma interação comum, trate-o como interação comum e siga somente as instruções necessárias ao pedido; não transforme a edição em task de backlog nem exija o ciclo de testes/implementação do backlog sem que o cursor tenha entregue uma task.
 - No loop do backlog, execute `looper backlog complete <task-id>` com o mesmo ID recebido somente após validar a task; sem isso, o cursor não avança.
 - Quando o backlog entregar o nó e os subfluxos internos juntos, implemente e teste ambos; “Tela” classifica o nível do nó e não limita a entrega ao frontend.
@@ -385,6 +393,11 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
     created.extend(ensure_gitignore(root))
 
     for integration in integrations:
+        skill_dir = root / AGENT_SKILL_DIRECTORIES[integration]
+        for retired in RETIRED_AGENT_SKILLS:
+            retired_dir = skill_dir / retired
+            if retired_dir.exists():
+                shutil.rmtree(retired_dir, ignore_errors=True)
         for source in agent_templates():
             name = source.parent.name
             sources = [source]
@@ -393,7 +406,7 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
                 sources.append(openai_metadata)
             for skill_source in sources:
                 relative = skill_source.relative_to(source.parent)
-                target = root / AGENT_SKILL_DIRECTORIES[integration] / name / relative
+                target = skill_dir / name / relative
                 source_text = skill_source.read_text(encoding="utf-8")
                 if not target.exists() or target.read_text(encoding="utf-8") != source_text:
                     target.parent.mkdir(parents=True, exist_ok=True)

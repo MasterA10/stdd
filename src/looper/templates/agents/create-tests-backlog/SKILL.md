@@ -12,8 +12,8 @@ medições, revisões livres ou qualquer pedido que não tenha sido entregue
 pelo comando `looper backlog test`.
 
 Se `.looper/config.json` tiver `backlog.test_loop_enabled: false`, esta skill não deve ser executada:
-o projeto optou pelo loop somente de implementação. Use `looper backlog task` e a skill
-`$implement-backlog` quando o cursor liberar a implementação.
+o projeto optou pelo loop somente de implementação. Use `looper backlog frontend` ou `looper backlog backend` e as skills
+`$implement-frontend` ou `$implement-backend` quando o cursor liberar a implementação.
 
 ## Objetivo
 
@@ -29,7 +29,7 @@ looper backlog test
   -> repetir até terminar a fase de testes
 ```
 
-Depois que a fase terminar, o próximo passo é `$implement-backlog`. Não implementar
+Depois que a fase terminar, o próximo passo é `$implement-backend` (ou `$implement-frontend` para telas). Não implementar
 código de produção nesta skill.
 
 ## Regras do loop
@@ -69,9 +69,9 @@ fila/view; o contrato completo do nó e dos subfluxos precisa estar coberto. Est
 testes e não implementa produção.
 
 `backlog-test-empty` encerra somente a fila de testes. Antes de declarar a fase concluída,
-execute `looper backlog task`: se retornar `backlog-test-required`, a fase ainda está
+execute `looper backlog backend` (ou `looper backlog task`): se retornar `backlog-test-required`, a fase ainda está
 bloqueada e deve voltar ao `backlog test`; se retornar `backlog-task`, os testes foram
-liberados e a próxima etapa é `$implement-backlog`; só `backlog-empty` indica que não há
+liberados e a próxima etapa é `$implement-backend`; só `backlog-empty` indica que não há
 implementação restante.
 
 ## Escopo e Draws
@@ -137,7 +137,7 @@ e pré-condições ausentes. Registre a fase de testes separadamente:
 looper log "Especifica testes da task <task-id>" --type teste
 ```
 
-Só entregue a fase para `$implement-backlog` quando cada task tiver teste executável,
+Só entregue a fase para `$implement-backend` (ou `$implement-frontend`) quando cada task tiver teste executável,
 evidência da falha esperada e `backlog complete` pelo ID correto. O `looper test` deve ser
 executado antes de declarar a fase concluída.
 
