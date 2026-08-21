@@ -543,6 +543,119 @@ def test_separated_development_mode_delivers_frontend_then_backend_and_tests_onl
     assert next_backlog_task(tmp_path)["task"]["level"] == 3
 
 
+def test_l2_children_context_does_not_change_independent_l3_loop(tmp_path: Path):
+    """Injeta os filhos no L2 sem reservar ou remover a fila L3."""
+    _create_nested_hierarchical_fixture(tmp_path)
+    set_backlog_config(
+        tmp_path,
+        bootstrap_task=False,
+        test_loop_enabled=False,
+        l2_children_mode="context",
+        l3_loop_enabled=True,
+        l3_include_parent=True,
+    )
+
+    frontend = next_backlog_task(tmp_path, layer="frontend")
+    assert frontend["children_delivery_mode"] == "context"
+    assert {item["id"] for item in frontend["children_context"]} == {
+        "task:subjornada:node:1", "task:subjornada:node:2"
+    }
+    complete_backlog_task(tmp_path, frontend["task"]["id"])
+
+    backend = next_backlog_task(tmp_path, layer="backend")
+    assert backend["task"]["id"] == "task:subjornada:node:1"
+    assert backend["context_parent"]["id"] == "task:jornada:node:1"
+
+
+def test_l2_children_owned_disables_l3_and_completes_children(tmp_path: Path):
+    """Permite que o L2 seja a única entrega e conclua seus filhos L3."""
+    _create_nested_hierarchical_fixture(tmp_path)
+    set_backlog_config(
+        tmp_path,
+        bootstrap_task=False,
+        test_loop_enabled=False,
+        l2_children_mode="owned",
+        l3_loop_enabled=True,
+    )
+
+    frontend = next_backlog_task(tmp_path, layer="frontend")
+    assert frontend["children_delivery_mode"] == "owned"
+    assert frontend["l3_loop_enabled"] is False
+    completed = complete_backlog_task(tmp_path, frontend["task"]["id"])
+    assert set(completed["completed_task_ids"]) == {
+        "task:jornada:node:1", "task:subjornada:node:1", "task:subjornada:node:2"
+    }
+
+    backend = next_backlog_task(tmp_path, layer="backend")
+    assert backend["kind"] == "backlog-layer-empty"
+    statuses = {item["id"]: item["status"] for item in read_backlog(tmp_path)["tasks"]}
+    assert statuses["task:subjornada:node:1"] == "done"
+    assert statuses["task:subjornada:node:2"] == "done"
+
+
+def test_frontend_and_backend_lanes_reserve_and_complete_independently(tmp_path: Path):
+    """Permite agentes L2 e L3 simultâneos sem compartilhar o cursor global."""
+    _create_nested_hierarchical_fixture(tmp_path)
+    set_backlog_config(tmp_path, bootstrap_task=False, test_loop_enabled=False, l2_children_mode="context")
+
+    frontend = next_backlog_task(tmp_path, layer="frontend")
+    backend = next_backlog_task(tmp_path, layer="backend")
+    assert frontend["task"]["level"] == 2
+    assert backend["task"]["level"] == 3
+    assert frontend["task"]["id"] != backend["task"]["id"]
+
+    complete_backlog_task(tmp_path, backend["task"]["id"])
+    complete_backlog_task(tmp_path, frontend["task"]["id"])
+    state = read_backlog(tmp_path)["execution"]
+    assert state["lanes"]["implementation:frontend"]["current_task_id"] is None
+    assert state["lanes"]["implementation:backend"]["current_task_id"] is None
+
+
+def test_loop_instructions_are_injected_in_natural_language_for_every_task(tmp_path: Path):
+    """Repete a informação crítica no contexto textual sem alterar a fila."""
+    _create_nested_hierarchical_fixture(tmp_path)
+    instructions = tmp_path / ".looper" / "loop-instructions.md"
+    instructions.write_text("Nunca pule a validação de permissões.", encoding="utf-8")
+    set_backlog_config(tmp_path, bootstrap_task=False, test_loop_enabled=False)
+
+    response = next_backlog_task(tmp_path)
+    assert response["critical_information"]["content"] == "Nunca pule a validação de permissões."
+    assert "INFORMAÇÃO CRÍTICA DO PROJETO" in response["instruction"]
+    assert "Nunca pule a validação de permissões." in response["instruction"]
+    assert "Nunca pule a validação de permissões." in _format_backlog_response(response)
+
+
+def test_loop_instructions_update_on_next_delivery_and_do_not_block_when_empty(tmp_path: Path):
+    """Relê o arquivo a cada entrega e aceita arquivo vazio."""
+    _create_nested_hierarchical_fixture(tmp_path)
+    instructions = tmp_path / ".looper" / "loop-instructions.md"
+    instructions.write_text("Primeira regra.", encoding="utf-8")
+    set_backlog_config(tmp_path, bootstrap_task=False, test_loop_enabled=False)
+    first = next_backlog_task(tmp_path)
+    complete_backlog_task(tmp_path, first["task"]["id"])
+    instructions.write_text("Segunda regra.", encoding="utf-8")
+    second = next_backlog_task(tmp_path)
+    assert "Segunda regra." in second["instruction"]
+    instructions.write_text("", encoding="utf-8")
+    complete_backlog_task(tmp_path, second["task"]["id"])
+    third = next_backlog_task(tmp_path)
+    assert third["critical_information"]["present"] is False
+    assert "INFORMAÇÃO CRÍTICA" not in third.get("instruction", "")
+
+
+def test_backlog_complete_is_human_language_and_includes_critical_information(tmp_path: Path, monkeypatch):
+    """A confirmação do loop não expõe JSON ao agente."""
+    _create_nested_hierarchical_fixture(tmp_path)
+    (tmp_path / ".looper" / "loop-instructions.md").write_text("Regra de conclusão.", encoding="utf-8")
+    set_backlog_config(tmp_path, bootstrap_task=False, test_loop_enabled=False)
+    task = next_backlog_task(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    result = runner.invoke(app, ["backlog", "complete", task["task"]["id"]])
+    assert result.exit_code == 0, result.output
+    assert "Regra de conclusão." in result.output
+    assert not result.output.lstrip().startswith("{")
+
+
 def test_development_mode_is_configurable_from_cli(tmp_path: Path, monkeypatch):
     """Persiste o modo separado pelo init e pelo comando de configuração."""
     result = runner.invoke(app, ["init", str(tmp_path), "--development-mode", "separated"])

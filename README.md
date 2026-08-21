@@ -43,7 +43,7 @@ Selecione as integrações do agente (ex.: 1,3 ou 4 para todos):
   4. Todos
 ```
 
-Depois da escolha, o CLI pergunta se deve executar o setup da stack. O setup não instala dependências nem inicia serviços sem autorização; ele apenas detecta arquivos e comandos locais. Em seguida, no modo interativo, o init pergunta o significado operacional do nível 2 e do nível 3: nível 2 pode ser `Tela` ou uma definição personalizada; nível 3 pode ser `Regra de negócio`, `Detalhes da tela` ou uma definição personalizada. Também pergunta como o backlog deve entregar as tasks, tanto em testes quanto em implementação: o nó L2 com seus internos juntos ou cada task separadamente; e se o loop de testes deve ser executado. Quando o loop de testes é desabilitado, `looper backlog test` informa que foi desativado e `looper backlog task` libera somente implementação. Por fim, pergunta a frequência das tasks automáticas de verificação da implementação dos nós L2; `0` desabilita e `1` insere uma auditoria após cada nó L2. Essa auditoria exige leitura dos arquivos e símbolos reais, comparação com o Draw e confirmação do funcionamento por testes e evidências; ela não aprova a implementação automaticamente pelo status da task. A ordem arquitetural também é configurável no próprio init por `--development-mode sequential|separated`; essas escolhas ficam em `.looper/config.json` e podem ser atualizadas com `looper backlog config`. O init injeta no bloco gerenciado do `AGENTS.md` a estratégia correspondente ao modo conjunto ou separado, atualizando-a sem duplicar nem apagar as regras próprias do projeto.
+Depois da escolha, o CLI pergunta se deve executar o setup da stack. O setup não instala dependências nem inicia serviços sem autorização; ele apenas detecta arquivos e comandos locais. Os níveis têm semântica fixa: L1 é Arquitetura, L2 é Tela/experiência do usuário, L3 é Use case e L4 é informação de baixo nível. O backlog aceita presets de loop (`task_order`, `node_complete`, `node_then_children` e `all_level2_then_level3`) e pode manter filas L2/L3 independentes para agentes paralelos. `--l2-children-mode none|context|owned` controla se o L2 recebe os filhos L3, se os recebe apenas como contexto ou se assume também sua conclusão; em `owned`, o loop L3 é desabilitado nessa fase. `--l3-parent-context/--no-l3-parent-context` controla a inclusão do pai L2 no contexto do L3. Os loops de testes e implementação têm modo e tamanho de lote próprios; essas escolhas ficam em `.looper/config.json` e podem ser atualizadas com `looper backlog config`. Quando o loop de testes é desabilitado, `looper backlog test` informa que foi desativado e `looper backlog task` libera somente implementação. O init injeta no bloco gerenciado do `AGENTS.md` a estratégia correspondente, atualizando-a sem duplicar nem apagar as regras próprias do projeto.
 
 Para automação sem perguntas:
 
@@ -173,6 +173,12 @@ Exceções devem ser específicas e temporárias. Cada item precisa informar uma
 
 O `looper log` registra diffs incrementais e ignora snapshots AppleDouble `._*` e arquivos históricos que não sejam UTF-8, evitando que metadados binários gerados pelo macOS interrompam o registro de uma execução.
 
+As runs relêem o `.gitignore` em tempo real em toda criação de snapshot. As
+regras atuais são aplicadas tanto aos arquivos presentes quanto à snapshot
+anterior, evitando falsos deletes quando um arquivo passa a ser ignorado. Se a
+regra for removida em uma execução posterior, o arquivo volta a ser considerado
+automaticamente.
+
 Para revisar somente as alterações atuais dos JSONs lógicos dos Draws desde o último log, use:
 
 ```bash
@@ -207,6 +213,8 @@ Cada execução de `looper test` também atualiza `.looper/adapters/static-analy
 ## Executar o backlog
 
 O backlog é derivado dos Draws e fica consolidado em `.looper/backlog.json`. Cada task operacional corresponde a um nó de nível 2 ou a uma etapa de subfluxo associado e inclui perguntas, respostas, símbolos associados, arquivos e dependências. A task pai mantém `draw_ref`, `child_backlog_id` e a relação com as tasks internas.
+
+O arquivo `.looper/loop-instructions.md` é a informação crítica persistente dos loops. Todo conteúdo não vazio é repetido em linguagem natural em cada entrega de teste, implementação, L2, L3, alteração, bootstrap, verificação, bloqueio ou resposta de fila vazia. O arquivo é relido a cada comando, portanto alterações valem a partir da próxima entrega. O `looper init` cria o arquivo vazio sem sobrescrever conteúdo existente; não coloque senhas, tokens ou credenciais nele.
 
 Gere ou atualize o documento agregado:
 
@@ -286,6 +294,19 @@ looper test --approve-actions
 ## Abrir e editar o Draw
 
 O Draw Server é o processo responsável por ler e salvar os desenhos. O viewer React Flow compilado vem dentro do pacote Python do Looper; o projeto do usuário não recebe HTML, JavaScript, CSS ou dependências Node. O servidor mantém os Draws em `.looper/draws/` e os relatórios derivados da análise em `.looper/facts/`.
+
+O editor consulta `GET /.looper/api/draws/<draw-id>/revision` a cada 2 segundos
+quando está conectado ao Draw Server. A consulta retorna somente a revisão leve
+do JSON; o fluxo completo é recarregado automaticamente quando a revisão muda.
+Alterações locais não salvas nunca são sobrescritas: nesse caso, a interface
+mostra que existe uma atualização pendente e só recarrega depois que o rascunho
+for salvo ou descartado.
+
+O botão `Observar` ativa o modo Observador. Ele consulta o backlog a cada 2
+segundos, identifica a implementação em andamento e navega automaticamente para
+o Draw e o nó correspondentes, inclusive quando a task muda para outro fluxo ou
+subfluxo. Nesse modo o canvas, os atalhos e as ações de edição ficam somente para
+leitura; o modo não salva nem altera o desenho.
 
 No diretório raiz do projeto, execute:
 

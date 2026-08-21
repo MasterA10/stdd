@@ -28,6 +28,11 @@ def test_test_command_returns_execution_report(tmp_path: Path, monkeypatch):
     process, report = run_tests(tmp_path)
     assert process.returncode != 0  # no tests exist in the empty project
     assert report["status"] == "blocked"
+    test_report = next((tmp_path / ".looper/runs").glob("*/*_tests.json"))
+    saved = json.loads(test_report.read_text(encoding="utf-8"))
+    assert saved["status"] == "blocked"
+    index = json.loads((tmp_path / ".looper/runs/index.json").read_text(encoding="utf-8"))
+    assert index["days"][0]["test_report"].endswith("_tests.json")
 
 
 def test_init_can_install_skills_for_all_supported_agents(tmp_path: Path):
@@ -740,6 +745,56 @@ def test_workspace_snapshot_excludes_looper_draw_and_run_json_documents(tmp_path
 
     assert "feature.py" in snapshot
     assert all(not path.startswith(".looper/") for path in snapshot)
+
+
+def test_workspace_snapshot_respects_gitignore_exceptions_in_git_checkout(tmp_path: Path):
+    """Mantém arquivos liberados por exceções após um padrão global ``*``."""
+    subprocess.run(["git", "init"], cwd=tmp_path, capture_output=True, text=True, check=True)
+    (tmp_path / ".gitignore").write_text(
+        "*\n"
+        "!.looper/\n"
+        "!.looper/**\n"
+        "!wp-content/\n"
+        "!wp-content/plugins/\n"
+        "!wp-content/plugins/example/\n"
+        "!wp-content/plugins/example/**\n",
+        encoding="utf-8",
+    )
+    plugin_file = tmp_path / "wp-content/plugins/example/example.php"
+    plugin_file.parent.mkdir(parents=True)
+    plugin_file.write_text("<?php\nreturn true;\n", encoding="utf-8")
+    (tmp_path / "outside.php").write_text("<?php\nreturn false;\n", encoding="utf-8")
+
+    snapshot = get_workspace_snapshot(tmp_path)
+
+    assert "wp-content/plugins/example/example.php" in snapshot
+    assert "outside.php" not in snapshot
+
+
+def test_runs_apply_current_gitignore_to_previous_snapshot_in_real_time(tmp_path: Path, monkeypatch):
+    """Não transforma mudanças no gitignore em falso delete ou falso restore."""
+    monkeypatch.chdir(tmp_path)
+    runner.invoke(app, ["init"])
+    tracked = tmp_path / "temporary.py"
+    tracked.write_text("value = 1\n", encoding="utf-8")
+    first = runner.invoke(app, ["log", "Registra arquivo", "-i"])
+    assert first.exit_code == 0
+
+    gitignore = tmp_path / ".gitignore"
+    gitignore.write_text(gitignore.read_text(encoding="utf-8") + "\ntemporary.py\n", encoding="utf-8")
+    tracked.write_text("value = 2\n", encoding="utf-8")
+    second = runner.invoke(app, ["log", "Passa a ignorar arquivo", "-i"])
+    assert second.exit_code == 0
+    day_folder = next(path for path in (tmp_path / ".looper/runs").iterdir() if path.is_dir() and path.name != "data")
+    snapshot = json.loads((day_folder / f"{day_folder.name}_snapshot.json").read_text(encoding="utf-8"))
+    assert all(file["path"] != "temporary.py" for file in snapshot["runs"][-1]["files"])
+
+    gitignore.write_text(gitignore.read_text(encoding="utf-8").replace("\ntemporary.py\n", "\n"), encoding="utf-8")
+    tracked.write_text("value = 3\n", encoding="utf-8")
+    third = runner.invoke(app, ["log", "Volta a observar arquivo", "-i"])
+    assert third.exit_code == 0
+    snapshot = json.loads((day_folder / f"{day_folder.name}_snapshot.json").read_text(encoding="utf-8"))
+    assert any(file["path"] == "temporary.py" for file in snapshot["runs"][-1]["files"])
 
 
 def test_log_accumulates_runs_in_one_summary_and_snapshot_per_day(tmp_path: Path, monkeypatch):

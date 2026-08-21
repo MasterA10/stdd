@@ -4,6 +4,7 @@ Mantém os dados dos desenhos separados do HTML reutilizável e carregado sob de
 
 from __future__ import annotations
 
+import hashlib
 import json
 import mimetypes
 import re
@@ -64,6 +65,25 @@ def _is_draw_id(value: Any) -> bool:
     Usa slug seguro para permitir carregamento de subdesenhos sem caminhos arbitrários.
     """
     return isinstance(value, str) and bool(DRAW_ID_PATTERN.fullmatch(value))
+
+
+def draw_revision(root: Path, draw_id: str) -> dict[str, Any]:
+    """Retorna uma revisão estável e leve para polling do editor."""
+    if not _is_draw_id(draw_id):
+        raise ValueError("id de desenho inválido")
+    draws_root = draw_directory(root).resolve()
+    draw_path = (draws_root / f"{draw_id}.json").resolve()
+    draw_path.relative_to(draws_root)
+    try:
+        content = draw_path.read_bytes()
+        updated_at = datetime.fromtimestamp(draw_path.stat().st_mtime, timezone.utc).isoformat()
+    except OSError as error:
+        raise ValueError("desenho não encontrado") from error
+    return {
+        "draw_id": draw_id,
+        "revision": hashlib.sha256(content).hexdigest(),
+        "updated_at": updated_at,
+    }
 
 
 def logical_draw_payload(payload: dict[str, Any]) -> dict[str, Any]:
@@ -1455,6 +1475,13 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                     return
                 self._send_bytes(body, "application/json; charset=utf-8")
                 return
+            if path == "/.looper/runs.html":
+                runs_viewer = root / ".looper" / "runs.html"
+                if not runs_viewer.is_file():
+                    self._send_json_error(404, "viewer de execuções indisponível")
+                    return
+                self._send_bytes(runs_viewer.read_bytes(), "text/html; charset=utf-8")
+                return
             if path == "/.looper/improvements/index.json":
                 from .improvements import read_improvement_index
 
@@ -1474,6 +1501,16 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                     self._send_json_error(404, "backlog não encontrado")
                     return
                 self._send_bytes(body, "application/json; charset=utf-8")
+                return
+            revision_prefix = "/.looper/api/draws/"
+            revision_suffix = "/revision"
+            if path.startswith(revision_prefix) and path.endswith(revision_suffix):
+                draw_id = unquote(path[len(revision_prefix):-len(revision_suffix)])
+                try:
+                    body = json.dumps(draw_revision(root, draw_id), ensure_ascii=False).encode("utf-8")
+                    self._send_bytes(body, "application/json; charset=utf-8")
+                except ValueError as error:
+                    self._send_json_error(404, str(error))
                 return
             if path == "/.looper/runs/index.json":
                 runs_index = root / ".looper" / "runs" / "index.json"

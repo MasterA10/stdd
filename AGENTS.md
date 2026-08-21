@@ -45,6 +45,7 @@ ou por um padrão que o loop passou a exigir repetidamente.
 - `backlog.development_mode` aceita `sequential` (padrão) ou `separated`; no modo separado, o cursor conclui todos os L2 como frontend/view — incluindo links e navegação entre telas — antes de liberar os L3 como backend/controller/model, e o loop de testes cobre somente L3.
 - `looper backlog task`, `looper backlog test` e `looper backlog change` aceitam `--frontend`, `--backend` ou `--layer frontend|backend|all` para consultar uma camada por vez; o filtro é transitório e não conclui o restante do backlog.
 - O editor visual pode persistir rascunhos estruturais durante a edição (inclusive com nós temporariamente desconectados) pelo endpoint local marcado com `X-Looper-Editor-Draft: true`; schema, IDs, grupos, referências e passos de fluxos continuam obrigatórios. A criação pela CLI (`looper draw create`) mantém a exigência de que todo nó tenha conexão.
+- `.looper/loop-instructions.md` contém informação crítica persistente enviada em linguagem natural a todos os loops; deve ser relido a cada entrega e nunca conter segredos.
 
 ## Regras de edição dos Draws
 

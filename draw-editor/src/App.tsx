@@ -28,7 +28,7 @@ import { ImprovementEditor } from './components/ImprovementEditor';
 import { NodeEditModal } from './components/NodeEditModal';
 import { ParentNavigationModal, type ParentNavigationOption } from './components/ParentNavigationModal';
 import { layoutCurvedGraph, computeEdgeHandles, getCycleEdges } from './layout';
-import { ArrowUp, RotateCcw, Save, Download, Sun, Moon, Contrast, Sparkles, ClipboardList, X, PanelBottom, PanelLeft } from 'lucide-react';
+import { ArrowUp, RotateCcw, Save, Download, Sun, Moon, Contrast, Sparkles, ClipboardList, X, PanelBottom, PanelLeft, Eye, EyeOff } from 'lucide-react';
 
 import defaultContract from '../contract.json';
 
@@ -120,6 +120,10 @@ export const App: React.FC = () => {
   const [sidebarDock, setSidebarDock] = useState<'side' | 'bottom'>('side');
   const [isDirty, setIsDirty] = useState(false);
   const [isImprovementDirty, setIsImprovementDirty] = useState(false);
+  const [drawSyncState, setDrawSyncState] = useState<'local' | 'checking' | 'synced' | 'pending' | 'error'>('local');
+  const [observerMode, setObserverMode] = useState(false);
+  const [observerStatus, setObserverStatus] = useState('Desativado');
+  const [observerTarget, setObserverTarget] = useState<{ taskId: string; drawId: string; nodeId: number; label: string } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<DrawSearchResult[]>([]);
   const [isSearchLoading, setIsSearchLoading] = useState(false);
@@ -178,6 +182,25 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => { loadBacklog(); }, [loadBacklog, storageMode]);
+
+  useEffect(() => {
+    if (!observerMode) return;
+    let cancelled = false;
+    const pollBacklog = async () => {
+      if (document.visibilityState === 'hidden') return;
+      await loadBacklog();
+      if (!cancelled) setObserverStatus('Observando o backlog');
+    };
+    void pollBacklog();
+    const interval = window.setInterval(pollBacklog, 2000);
+    const handleVisibility = () => { if (document.visibilityState === 'visible') void pollBacklog(); };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [loadBacklog, observerMode]);
 
   const updateLocalBacklog = useCallback((updater: (previous: BacklogDocument) => BacklogDocument) => {
     setBacklog((previous) => {
@@ -388,11 +411,18 @@ export const App: React.FC = () => {
   const searchRequestRef = useRef(0);
   const drawingLoadRequestRef = useRef(0);
   const pendingSearchFocusRef = useRef<{ drawId: string; nodeId: number } | null>(null);
+  const drawRevisionRef = useRef<string | null>(null);
+  const pendingExternalRevisionRef = useRef<string | null>(null);
+  const dirtyStateRef = useRef({ isDirty: false, isImprovementDirty: false });
   const pendingAutoFitDrawRef = useRef<string | null>(null);
+  const observerTargetRef = useRef<string | null>(null);
+  const observerFocusedKeyRef = useRef<string | null>(null);
   const reactFlowInstanceRef = useRef<any>(null);
   const lastAutoFitKeyRef = useRef<string | null>(null);
   const [renderedDrawId, setRenderedDrawId] = useState<string | null>(null);
   const [autoFitRevision, setAutoFitRevision] = useState(0);
+
+  dirtyStateRef.current = { isDirty, isImprovementDirty };
 
   const flowNodeSignature = useMemo(
     () => nodes.map((node) => `${String(node.id)}:${node.data.label}:${node.data.description}`).join('|'),
@@ -881,6 +911,115 @@ export const App: React.FC = () => {
       }
     }
   };
+
+  // Mantém o fluxo aberto atualizado sem substituir rascunhos locais.
+  useEffect(() => {
+    if (storageMode !== 'backend' || currentImprovement) {
+      setDrawSyncState(storageMode === 'backend' ? 'synced' : 'local');
+      return;
+    }
+
+    drawRevisionRef.current = null;
+    pendingExternalRevisionRef.current = null;
+    let cancelled = false;
+    const checkRevision = async () => {
+      if (document.visibilityState === 'hidden' || cancelled) return;
+      setDrawSyncState((state) => state === 'pending' ? state : 'checking');
+      try {
+        const response = await fetch(
+          `${getApiOrigin()}/.looper/api/draws/${encodeURIComponent(contract.id)}/revision`,
+          { cache: 'no-store' }
+        );
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const revision = await response.json() as { revision?: string };
+        if (!revision.revision || cancelled) return;
+        if (drawRevisionRef.current === null) {
+          drawRevisionRef.current = revision.revision;
+          setDrawSyncState('synced');
+          return;
+        }
+        if (revision.revision === drawRevisionRef.current) {
+          if (pendingExternalRevisionRef.current && !dirtyStateRef.current.isDirty && !dirtyStateRef.current.isImprovementDirty) {
+            pendingExternalRevisionRef.current = null;
+            await loadDrawingById(contract.id, { mode: 'backend' });
+            if (!cancelled) setDrawSyncState('synced');
+          } else {
+            setDrawSyncState((state) => state === 'pending' ? state : 'synced');
+          }
+          return;
+        }
+        drawRevisionRef.current = revision.revision;
+        if (dirtyStateRef.current.isDirty || dirtyStateRef.current.isImprovementDirty) {
+          pendingExternalRevisionRef.current = revision.revision;
+          setDrawSyncState('pending');
+          return;
+        }
+        if (pendingExternalRevisionRef.current === revision.revision) return;
+        pendingExternalRevisionRef.current = revision.revision;
+        await loadDrawingById(contract.id, { mode: 'backend' });
+        if (!cancelled) {
+          pendingExternalRevisionRef.current = null;
+          setDrawSyncState('synced');
+        }
+      } catch (_) {
+        if (!cancelled) setDrawSyncState('error');
+      }
+    };
+
+    void checkRevision();
+    const interval = window.setInterval(checkRevision, 2000);
+    const handleVisibility = () => { if (document.visibilityState === 'visible') void checkRevision(); };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [contract.id, currentImprovement, storageMode]);
+
+  useEffect(() => {
+    if (!observerMode || currentImprovement || !backlog) return;
+    const execution = backlog.execution;
+    const task = execution.current_phase === 'implementation' && execution.current_task_id
+      ? backlog.tasks.find((item) => item.id === execution.current_task_id && item.status === 'in_progress')
+      : undefined;
+
+    if (!task) {
+      observerTargetRef.current = null;
+      setObserverTarget(null);
+      setObserverStatus(execution.current_phase === 'test' ? 'Aguardando implementação' : 'Nenhuma implementação em andamento');
+      return;
+    }
+
+    const target = { taskId: task.id, drawId: task.draw_id, nodeId: task.node_id, label: task.label };
+    const targetKey = `${target.taskId}:${target.drawId}:${target.nodeId}`;
+    setObserverTarget(target);
+    setObserverStatus(`Observando: ${task.label}`);
+    if (observerTargetRef.current === targetKey) return;
+
+    observerTargetRef.current = targetKey;
+    observerFocusedKeyRef.current = null;
+    if (contract.id !== target.drawId) {
+      void loadDrawingById(target.drawId, { resetNavigation: true, mode: storageMode });
+    }
+  }, [backlog, contract.id, currentImprovement, observerMode, storageMode]);
+
+  useEffect(() => {
+    if (!observerMode || !observerTarget || observerTarget.drawId !== contract.id || renderedDrawId !== contract.id) return;
+    const focusKey = `${observerTarget.taskId}:${observerTarget.drawId}:${observerTarget.nodeId}`;
+    if (observerFocusedKeyRef.current === focusKey) return;
+    const targetNode = nodes.find((node) => Number(node.id) === observerTarget.nodeId);
+    if (!targetNode) return;
+
+    observerFocusedKeyRef.current = focusKey;
+    selectionOrderRef.current = [observerTarget.nodeId];
+    setSelectedNodeId(observerTarget.nodeId);
+    setSelectedEdgeId(null);
+    setSelectionRevision((value) => value + 1);
+    const x = targetNode.position.x + (targetNode.measured?.width || targetNode.width || 220) / 2;
+    const y = targetNode.position.y + (targetNode.measured?.height || targetNode.height || 120) / 2;
+    reactFlowInstanceRef.current?.setCenter(x, y, { zoom: 1.05, duration: 650 });
+  }, [contract.id, nodes, observerMode, observerTarget, renderedDrawId]);
 
   const loadImprovementById = async (id: string, mode = storageMode) => {
     if (isDirty || isImprovementDirty) {
@@ -1719,6 +1858,7 @@ export const App: React.FC = () => {
     };
 
     const handleKeyboardShortcuts = (event: KeyboardEvent) => {
+      if (observerMode) return;
       if (isEditableTarget(event.target)) return;
       const key = event.key.toLowerCase();
       const modifier = event.metaKey || event.ctrlKey;
@@ -1787,7 +1927,7 @@ export const App: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyboardShortcuts);
     return () => window.removeEventListener('keydown', handleKeyboardShortcuts);
-  }, [connectSelectedNodes, copySelectedNodesAsJson, createInstantNode, deleteSelectedItems, duplicateSelectedNodes, getOrderedSelectedNodeIds, pasteNodesFromJsonClipboard, selectedNodeId]);
+  }, [connectSelectedNodes, copySelectedNodesAsJson, createInstantNode, deleteSelectedItems, duplicateSelectedNodes, getOrderedSelectedNodeIds, observerMode, pasteNodesFromJsonClipboard, selectedNodeId]);
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -2099,9 +2239,23 @@ export const App: React.FC = () => {
   const canGoUp = !currentImprovement && Boolean(
     navigation.length > 0 || contract.hierarchy?.parent_draw_ref || (contract.hierarchy?.level && contract.hierarchy.level > 1)
   );
+  const observerToggleDisabled = Boolean(currentImprovement || isDirty || isImprovementDirty);
+  const toggleObserverMode = () => {
+    if (observerToggleDisabled && !observerMode) return;
+    setObserverMode((enabled) => !enabled);
+    if (observerMode) {
+      observerTargetRef.current = null;
+      observerFocusedKeyRef.current = null;
+      setObserverTarget(null);
+      setObserverStatus('Desativado');
+      setSelectedNodeId(null);
+      selectionOrderRef.current = [];
+      setSelectionRevision((value) => value + 1);
+    }
+  };
 
   return (
-    <div className={`app-container ${theme}-theme`}>
+    <div className={`app-container ${theme}-theme ${observerMode ? 'observer-mode' : ''}`}>
       <svg className="edge-gradient-definitions" aria-hidden="true">
         <defs>
           <linearGradient id="looper-then-edge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -2127,6 +2281,25 @@ export const App: React.FC = () => {
           )}
           {renderBreadcrumbs()}
           <span className="doc-type-badge">{currentImprovement ? 'IMPROVEMENT' : contract.kind.toUpperCase()}</span>
+          <button
+            className={`observer-toggle ${observerMode ? 'active' : ''}`}
+            type="button"
+            onClick={toggleObserverMode}
+            disabled={observerToggleDisabled && !observerMode}
+            title={observerToggleDisabled && !observerMode ? 'Salve ou descarte as alterações antes de observar' : `${observerMode ? 'Desativar' : 'Ativar'} modo Observador`}
+            aria-label={`${observerMode ? 'Desativar' : 'Ativar'} modo Observador`}
+            aria-pressed={observerMode}
+          >
+            {observerMode ? <EyeOff size={14} /> : <Eye size={14} />}
+            <span>{observerMode ? 'Observador ativo' : 'Observar'}</span>
+          </button>
+          {observerMode && <span className="observer-status" title={observerStatus}>{observerStatus}</span>}
+          {!currentImprovement && storageMode === 'backend' && (
+            <span className={`draw-sync-status ${drawSyncState}`} title="Sincronização do fluxo">
+              <span aria-hidden="true" />
+              {drawSyncState === 'checking' ? 'Verificando' : drawSyncState === 'pending' ? 'Atualização pendente' : drawSyncState === 'error' ? 'Servidor indisponível' : 'Sincronizado'}
+            </span>
+          )}
           {(isDirty || isImprovementDirty) && <span className="dirty-dot-indicator" title="Alterações pendentes de salvamento" />}
         </div>
 

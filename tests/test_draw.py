@@ -6,7 +6,7 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from looper.cli import app
-from looper.draw import analyze_draw_contract, analyze_draw_structure, consume_observation, create_draw, create_server, find_addressed_questions, read_draw_index, start_server_for_test
+from looper.draw import analyze_draw_contract, analyze_draw_structure, consume_observation, create_draw, create_server, draw_revision, find_addressed_questions, read_draw_index, start_server_for_test
 from looper.improvements import create_improvement, list_ready_improvements, mark_improvement_applied, read_improvement
 
 
@@ -93,6 +93,19 @@ def test_create_draw_writes_only_json_and_light_index(tmp_path: Path):
     saved = json.loads(path.read_text(encoding="utf-8"))
     assert saved["flows"][0]["id"] == 1
     assert saved["edges"][0]["condition"] == 3
+
+
+def test_draw_revision_changes_when_the_document_changes(tmp_path: Path):
+    """Expõe uma revisão leve para o polling sem transferir o Draw inteiro."""
+    create_draw(tmp_path, draw_payload())
+    first = draw_revision(tmp_path, "checkout")
+    updated = draw_payload()
+    updated["title"] = "Checkout atualizado"
+    create_draw(tmp_path, updated)
+    second = draw_revision(tmp_path, "checkout")
+    assert first["draw_id"] == "checkout"
+    assert first["revision"] != second["revision"]
+    assert second["updated_at"]
 
 
 def test_create_draw_preserves_optional_questions_and_answers(tmp_path: Path):
@@ -1234,6 +1247,9 @@ def test_draw_server_serves_viewer_index_and_selected_json(tmp_path: Path):
         assert 'id="root"' in viewer_html
         assert "Checkout" in urlopen(f"{base_url}/.looper/draws/index.json").read().decode()
         assert "Carrinho" in urlopen(f"{base_url}/.looper/draws/checkout.json").read().decode()
+        revision = json.loads(urlopen(f"{base_url}/.looper/api/draws/checkout/revision").read().decode())
+        assert revision["draw_id"] == "checkout"
+        assert revision["revision"] == draw_revision(tmp_path, "checkout")["revision"]
         assert json.loads(urlopen(f"{base_url}/.looper/facts/checkout.facts.json").read().decode()) == facts
         assert "assets/" in viewer_html
         script_path = next(part.split('"', 1)[0] for part in viewer_html.split('src="') if part.startswith("/assets/") and ".js" in part)

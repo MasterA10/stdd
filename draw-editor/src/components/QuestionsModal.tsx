@@ -25,7 +25,7 @@ export const QuestionsModal: React.FC<QuestionsModalProps> = ({
   const [prompt, setPrompt] = useState('');
   const [questionType, setQuestionType] = useState<Question['type']>('open');
   const [options, setOptions] = useState<string[]>(emptyOptions());
-  const [showDiscardDraftConfirm, setShowDiscardDraftConfirm] = useState(false);
+  const [showSaveDraftConfirm, setShowSaveDraftConfirm] = useState(false);
 
   useEffect(() => {
     setQuestions(node.questions || []);
@@ -42,23 +42,28 @@ export const QuestionsModal: React.FC<QuestionsModalProps> = ({
     )));
   };
 
-  const addQuestion = (event: React.FormEvent) => {
-    event.preventDefault();
+  const buildDraftQuestion = (): Question | null => {
     const cleanPrompt = prompt.trim();
-    if (!cleanPrompt) return;
+    if (!cleanPrompt) return null;
 
     const nextId = questions.length ? Math.max(...questions.map((question) => question.id)) + 1 : 1;
     const cleanOptions = options.map((option) => option.trim()).filter(Boolean)
       .map((label, index) => ({ id: index + 1, label }));
-    if (questionType === 'choice' && cleanOptions.length < 2) return;
+    if (questionType === 'choice' && cleanOptions.length < 2) return null;
 
-    const newQuestion: Question = {
+    return {
       id: nextId,
       type: questionType,
       prompt: cleanPrompt,
       answer: null,
       ...(questionType === 'choice' ? { options: cleanOptions } : {})
     };
+  };
+
+  const addQuestion = (event: React.FormEvent) => {
+    event.preventDefault();
+    const newQuestion = buildDraftQuestion();
+    if (!newQuestion) return;
     commit([...questions, newQuestion]);
     setPrompt('');
     setQuestionType('open');
@@ -69,22 +74,27 @@ export const QuestionsModal: React.FC<QuestionsModalProps> = ({
     setOptions(options.map((option, optionIndex) => optionIndex === index ? value : option));
   };
 
-  const hasUnsavedQuestionDraft = prompt.trim().length > 0 || options.some((option) => option.trim().length > 0);
+  const hasUnsavedQuestionDraft = prompt.trim().length > 0;
   const requestClose = () => {
     if (hasUnsavedQuestionDraft) {
-      setShowDiscardDraftConfirm(true);
+      setShowSaveDraftConfirm(true);
       return;
     }
     onClose();
   };
-  const discardDraftAndClose = () => {
-    setShowDiscardDraftConfirm(false);
+  const saveDraftAndClose = () => {
+    const newQuestion = buildDraftQuestion();
+    if (!newQuestion) {
+      alert(questionType === 'choice' ? 'Adicione pelo menos duas opções para salvar a pergunta.' : 'Digite o texto da pergunta para salvá-la.');
+      return;
+    }
+    commit([...questions, newQuestion]);
+    setShowSaveDraftConfirm(false);
     setPrompt('');
     setQuestionType('open');
     setOptions(emptyOptions());
     onClose();
   };
-
   return (
     <>
       <div className="dialog-overlay">
@@ -232,20 +242,19 @@ export const QuestionsModal: React.FC<QuestionsModalProps> = ({
           </form>
 
           <div className="dialog-actions">
-            <button className="primary" onClick={onClose} type="button">Concluído</button>
+            <button className="primary" onClick={requestClose} type="button">Concluído</button>
           </div>
         </div>
         </dialog>
       </div>
       <ConfirmModal
-        isOpen={showDiscardDraftConfirm}
-        title="Descartar pergunta?"
-        message="A pergunta e as respostas digitadas ainda não foram adicionadas. Deseja sair sem salvar?"
-        confirmLabel="Sair sem salvar"
+        isOpen={showSaveDraftConfirm}
+        title="Salvar pergunta?"
+        message="Você digitou uma pergunta, mas ainda não clicou em adicionar. Deseja gravá-la antes de fechar?"
+        confirmLabel="Salvar pergunta"
         cancelLabel="Continuar editando"
-        isDanger
-        onConfirm={discardDraftAndClose}
-        onCancel={() => setShowDiscardDraftConfirm(false)}
+        onConfirm={saveDraftAndClose}
+        onCancel={() => setShowSaveDraftConfirm(false)}
       />
     </>
   );

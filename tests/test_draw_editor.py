@@ -558,7 +558,9 @@ def test_v_opens_question_editor_from_the_block_and_footer_documents_it():
     assert "onUpdateQuestions" in modal
     assert "hasUnsavedQuestionDraft" in modal
     assert "requestClose" in modal
-    assert "Sair sem salvar" in modal
+    assert "Salvar pergunta" in modal
+    assert "saveDraftAndClose" in modal
+    assert "onClick={requestClose}" in modal
     assert "Continuar editando" in modal
     assert "onCancel={(event)" in modal
     assert "CUSTOM_ANSWER_VALUE" in modal
@@ -778,6 +780,35 @@ def test_logical_save_is_manual_but_positions_use_presentation_cache():
     assert "setIsDirty(false);" not in drag_handler
     assert "...parsed.positions" in drag_handler
     assert "...presentationPositionsRef.current" in drag_handler
+
+
+def test_draw_editor_polls_revision_and_preserves_unsaved_changes():
+    """Atualiza fluxos modificados externamente sem apagar rascunhos locais."""
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+
+    assert "/.looper/api/draws/${encodeURIComponent(contract.id)}/revision" in app
+    assert "window.setInterval(checkRevision, 2000)" in app
+    assert "document.visibilityState === 'hidden'" in app
+    assert "setDrawSyncState('pending')" in app
+    assert "dirtyStateRef.current.isDirty" in app
+    assert "loadDrawingById(contract.id, { mode: 'backend' })" in app
+
+
+def test_draw_editor_observer_follows_current_implementation_without_editing():
+    """Acompanha a task de implementação e torna o canvas somente leitura."""
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    assert "observerMode" in app
+    assert "execution.current_phase === 'implementation'" in app
+    assert "execution.current_task_id" in app
+    assert "task.draw_id" in app
+    assert "task.node_id" in app
+    assert "setCenter(x, y" in app
+    assert "window.setInterval(pollBacklog, 2000)" in app
+    assert ".observer-mode .app-workspace-layout" in styles
+    assert "pointer-events: none" in styles
+    assert "Observador ativo" in app
 
 
 def test_manual_save_button_persists_the_logical_contract():

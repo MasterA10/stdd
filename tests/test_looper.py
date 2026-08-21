@@ -144,6 +144,17 @@ def test_init_creates_static_analysis_without_frontend_policy(tmp_path: Path):
     assert config["static_analysis"]["exceptions"] == []
 
 
+def test_init_creates_persistent_loop_instructions_without_overwriting_it(tmp_path: Path):
+    """Cria a mensagem crítica vazia e preserva edição do projeto."""
+    init_project(tmp_path)
+    instructions = tmp_path / ".looper/loop-instructions.md"
+    assert instructions.exists()
+    assert instructions.read_text(encoding="utf-8") == ""
+    instructions.write_text("Regra durável.", encoding="utf-8")
+    init_project(tmp_path)
+    assert instructions.read_text(encoding="utf-8") == "Regra durável."
+
+
 def test_init_accepts_project_directory_argument(tmp_path: Path, monkeypatch):
     """Inicializa um projeto novo no diretório informado pelo usuário.
     Executa init com caminho relativo a outro diretório e confirma os artefatos no alvo.

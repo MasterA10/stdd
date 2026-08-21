@@ -29,6 +29,8 @@ from .backlog import (
     set_backlog_config,
     VALID_TASK_DELIVERY_SCOPES,
     VALID_DEVELOPMENT_MODES,
+    VALID_LOOP_MODES,
+    VALID_CHILDREN_MODES,
 )
 from .draw import (
     analyze_draw_contract,
@@ -111,6 +113,12 @@ def _compact_backlog_response(response: dict[str, object]) -> dict[str, object]:
         "parent_screen_context": response.get("parent_screen_context"),
         "batch": response.get("batch"),
         "batch_size": response.get("batch_size"),
+        "children_delivery_mode": response.get("children_delivery_mode"),
+        "children_context": response.get("children_context"),
+        "context_parent": response.get("context_parent"),
+        "owned_child_task_ids": response.get("owned_child_task_ids"),
+        "l3_loop_enabled": response.get("l3_loop_enabled"),
+        "critical_information": response.get("critical_information"),
     }
     if parent.get("id") and parent.get("id") != task.get("id"):
         compact["parent"] = parent.get("label")
@@ -194,16 +202,32 @@ def _format_navigation_context(compact: dict[str, object]) -> list[str]:
 def _format_backlog_response(response: dict[str, object]) -> str:
     """Renderiza uma task sem o ruído do payload completo do backlog."""
     kind = response.get("kind")
+    compact_preview = response.get("critical_information")
+    critical = compact_preview if compact_preview is not None else response.get("critical_information")
+    if isinstance(critical, dict):
+        critical_content = str(critical.get("content") or "").strip()
+    else:
+        try:
+            critical_content = (project_root() / ".looper" / "loop-instructions.md").read_text(encoding="utf-8").strip()
+        except (OSError, UnicodeError):
+            critical_content = ""
+
+    def with_critical(text: str) -> str:
+        return (
+            f"INFORMAÇÃO CRÍTICA DO PROJETO:\n{critical_content}\nFIM DA INFORMAÇÃO CRÍTICA.\n\n{text}"
+            if critical_content else text
+        )
+
     if kind == "backlog-empty":
-        return "Backlog concluído. Não há tasks pendentes."
+        return with_critical("Backlog concluído. Não há tasks pendentes.")
     if kind == "backlog-change-empty":
-        return "Loop de alterações concluído. Não há pedidos pendentes."
+        return with_critical("Loop de alterações concluído. Não há pedidos pendentes.")
     if kind == "backlog-test-empty":
-        return "Fase de testes concluída. Não há tasks de teste pendentes."
+        return with_critical("Fase de testes concluída. Não há tasks de teste pendentes.")
     if kind == "backlog-test-disabled":
-        return "Loop de testes desabilitado. O backlog entrega somente implementação; use looper backlog task."
+        return with_critical("Loop de testes desabilitado. O backlog entrega somente implementação; use looper backlog task.")
     if kind == "backlog-layer-empty":
-        return f"Não há tasks pendentes para a camada {response.get('layer', 'solicitada')}. O restante do backlog continua disponível."
+        return with_critical(f"Não há tasks pendentes para a camada {response.get('layer', 'solicitada')}. O restante do backlog continua disponível.")
 
     compact = _compact_backlog_response(response)
     if kind == "backlog-bootstrap-task":
@@ -220,6 +244,8 @@ def _format_backlog_response(response: dict[str, object]) -> str:
         title = "Task de implementação"
 
     lines = [title]
+    if critical_content:
+        lines.extend(["INFORMAÇÃO CRÍTICA DO PROJETO:", critical_content, "FIM DA INFORMAÇÃO CRÍTICA."])
     if compact.get("task"):
         lines.append(f"Task: {compact['task']}")
     if compact.get("draw"):
@@ -263,6 +289,14 @@ def _format_backlog_response(response: dict[str, object]) -> str:
         lines.append(f"Nós no lote ({len(batch_items)}):")
         for b_item in batch_items:
             lines.append(f"  • {b_item.get('label', b_item.get('id'))} (ID: {b_item.get('id')})")
+    if compact.get("children_delivery_mode"):
+        lines.append(f"Filhos L3: {compact['children_delivery_mode']}")
+    if isinstance(compact.get("children_context"), list):
+        lines.append(f"Contexto L3 associado: {len(compact['children_context'])} nó(s)")
+    if compact.get("context_parent"):
+        lines.append("Contexto L2 pai: incluído")
+    if compact.get("l3_loop_enabled") is False:
+        lines.append("Loop L3: desabilitado nesta fase")
     lines.extend(_format_level_context(compact.get("level_context")))
     lines.extend(_format_navigation_context(compact))
     verified_nodes = compact.get("verified_nodes")
@@ -332,6 +366,13 @@ def init(
     bootstrap: Optional[bool] = typer.Option(None, "--bootstrap/--no-bootstrap", help="Habilita ou desabilita a task de bootstrap inicial."),
     final_verification: Optional[bool] = typer.Option(None, "--final-verification/--no-final-verification", help="Habilita ou desabilita a task de verificação final E2E."),
     min_task_interval_seconds: Optional[int] = typer.Option(None, "--min-task-interval-seconds", min=0, help="Janela mínima anti-script entre avanços."),
+    test_loop_mode: Optional[str] = typer.Option(None, "--test-loop-mode", help="Preset do loop de testes."),
+    implementation_loop_mode: Optional[str] = typer.Option(None, "--implementation-loop-mode", help="Preset do loop de implementação."),
+    test_batch_size: Optional[int] = typer.Option(None, "--test-batch-size", min=1, help="Quantidade de unidades por avanço no loop de testes."),
+    implementation_batch_size: Optional[int] = typer.Option(None, "--implementation-batch-size", min=1, help="Quantidade de unidades por avanço no loop de implementação."),
+    l2_children_mode: Optional[str] = typer.Option(None, "--l2-children-mode", help="Filhos L3 no L2: none, context ou owned."),
+    l3_loop_enabled: Optional[bool] = typer.Option(None, "--l3-loop/--no-l3-loop", help="Habilita ou desabilita o loop L3."),
+    l3_include_parent: Optional[bool] = typer.Option(None, "--l3-parent-context/--no-l3-parent-context", help="Inclui o L2 pai no contexto do L3."),
 ) -> None:
     """Inicializa a estrutura do Looper e instala as skills dos agentes.
     Cria o diretório-alvo quando necessário, depois cria .looper/ e .agents/skills.
@@ -355,6 +396,15 @@ def init(
         raise typer.Exit(1)
     if development_mode is not None and development_mode not in VALID_DEVELOPMENT_MODES:
         typer.echo("Erro: --development-mode deve ser sequential ou separated.", err=True)
+        raise typer.Exit(1)
+    if test_loop_mode is not None and test_loop_mode not in VALID_LOOP_MODES:
+        typer.echo("Erro: --test-loop-mode inválido.", err=True)
+        raise typer.Exit(1)
+    if implementation_loop_mode is not None and implementation_loop_mode not in VALID_LOOP_MODES:
+        typer.echo("Erro: --implementation-loop-mode inválido.", err=True)
+        raise typer.Exit(1)
+    if l2_children_mode is not None and l2_children_mode not in VALID_CHILDREN_MODES:
+        typer.echo("Erro: --l2-children-mode deve ser none, context ou owned.", err=True)
         raise typer.Exit(1)
     created = init_project(target, integrations=requested, development_mode=development_mode)
     typer.echo(f"Projeto inicializado em {target}. {len(created)} itens criados ou atualizados.")
@@ -390,8 +440,15 @@ def init(
             bootstrap_task=bootstrap,
             final_verification_task=final_verification,
             min_task_interval_seconds=min_task_interval_seconds,
+            test_loop_mode=test_loop_mode,
+            implementation_loop_mode=implementation_loop_mode,
+            test_batch_size=test_batch_size,
+            implementation_batch_size=implementation_batch_size,
+            l2_children_mode=l2_children_mode,
+            l3_loop_enabled=l3_loop_enabled,
+            l3_include_parent=l3_include_parent,
         )
-    elif task_delivery_scope is not None or l2_verification_interval is not None or test_loop_enabled is not None or development_mode is not None or task_batch_size is not None or task_batch_scope is not None or bootstrap is not None or final_verification is not None or min_task_interval_seconds is not None:
+    elif task_delivery_scope is not None or l2_verification_interval is not None or test_loop_enabled is not None or development_mode is not None or task_batch_size is not None or task_batch_scope is not None or bootstrap is not None or final_verification is not None or min_task_interval_seconds is not None or test_loop_mode is not None or implementation_loop_mode is not None or test_batch_size is not None or implementation_batch_size is not None or l2_children_mode is not None or l3_loop_enabled is not None or l3_include_parent is not None:
         set_backlog_config(
             target,
             task_delivery_scope=task_delivery_scope,
@@ -403,6 +460,13 @@ def init(
             bootstrap_task=bootstrap,
             final_verification_task=final_verification,
             min_task_interval_seconds=min_task_interval_seconds,
+            test_loop_mode=test_loop_mode,
+            implementation_loop_mode=implementation_loop_mode,
+            test_batch_size=test_batch_size,
+            implementation_batch_size=implementation_batch_size,
+            l2_children_mode=l2_children_mode,
+            l3_loop_enabled=l3_loop_enabled,
+            l3_include_parent=l3_include_parent,
         )
     unavailable = [name for name, found in available_integrations().items() if name in requested and not found]
     if unavailable:
@@ -545,6 +609,7 @@ def test_all(
     )
     typer.echo(process.stdout, nl=False)
     typer.echo(f"\nResultado: {result['status']}")
+    typer.echo("Relatório visual: execute `looper draw serve` e abra /.looper/runs.html")
     if result["status"] != "passed":
         typer.echo(process.stderr, err=True)
         raise typer.Exit(process.returncode or 1)
@@ -664,11 +729,18 @@ def backlog_config(
     development_mode: Optional[str] = typer.Option(None, "--development-mode", help="Ordem arquitetural: sequential ou separated (frontend L2 antes de backend L3)."),
     min_task_interval_seconds: Optional[int] = typer.Option(None, "--min-task-interval-seconds", min=0, help="Janela mínima anti-script entre avanços."),
     test_loop_enabled: Optional[bool] = typer.Option(None, "--test-loop/--no-test-loop", help="Habilita ou desabilita o loop de testes."),
+    test_loop_mode: Optional[str] = typer.Option(None, "--test-loop-mode", help="Preset do loop de testes."),
+    implementation_loop_mode: Optional[str] = typer.Option(None, "--implementation-loop-mode", help="Preset do loop de implementação."),
+    test_batch_size: Optional[int] = typer.Option(None, "--test-batch-size", min=1, help="Quantidade de unidades por avanço no loop de testes."),
+    implementation_batch_size: Optional[int] = typer.Option(None, "--implementation-batch-size", min=1, help="Quantidade de unidades por avanço no loop de implementação."),
+    l2_children_mode: Optional[str] = typer.Option(None, "--l2-children-mode", help="Filhos L3 no L2: none, context ou owned."),
+    l3_loop_enabled: Optional[bool] = typer.Option(None, "--l3-loop/--no-l3-loop", help="Habilita ou desabilita o loop L3."),
+    l3_include_parent: Optional[bool] = typer.Option(None, "--l3-parent-context/--no-l3-parent-context", help="Inclui o L2 pai no contexto do L3."),
 ) -> None:
     """Exibe ou atualiza as configurações do backlog em .looper/config.json."""
     try:
         root = project_root()
-        if interval is not None or bootstrap is not None or final_verification is not None or task_batch_size is not None or task_batch_scope is not None or task_delivery_scope is not None or development_mode is not None or min_task_interval_seconds is not None or test_loop_enabled is not None:
+        if interval is not None or bootstrap is not None or final_verification is not None or task_batch_size is not None or task_batch_scope is not None or task_delivery_scope is not None or development_mode is not None or min_task_interval_seconds is not None or test_loop_enabled is not None or test_loop_mode is not None or implementation_loop_mode is not None or test_batch_size is not None or implementation_batch_size is not None or l2_children_mode is not None or l3_loop_enabled is not None or l3_include_parent is not None:
             updated = set_backlog_config(
                 root,
                 verification_interval=interval,
@@ -680,6 +752,13 @@ def backlog_config(
                 development_mode=development_mode,
                 min_task_interval_seconds=min_task_interval_seconds,
                 test_loop_enabled=test_loop_enabled,
+                test_loop_mode=test_loop_mode,
+                implementation_loop_mode=implementation_loop_mode,
+                test_batch_size=test_batch_size,
+                implementation_batch_size=implementation_batch_size,
+                l2_children_mode=l2_children_mode,
+                l3_loop_enabled=l3_loop_enabled,
+                l3_include_parent=l3_include_parent,
             )
             typer.echo(f"Configuração do backlog atualizada: {json.dumps(updated, ensure_ascii=False)}")
         else:
@@ -726,9 +805,9 @@ def backlog_change(
 
 @backlog_app.command("complete")
 def backlog_complete(task_id: str = typer.Argument(..., help="ID da task atualmente em andamento.")) -> None:
-    """Conclui a task atual e avança o cursor da jornada."""
+    """Conclui a task atual e avança o cursor da jornada em linguagem natural."""
     try:
-        typer.echo(json.dumps(complete_backlog_task(project_root(), task_id), ensure_ascii=False, indent=2))
+        typer.echo(_format_backlog_response(complete_backlog_task(project_root(), task_id)))
     except (OSError, ValueError) as error:
         typer.echo(f"Erro: {error}", err=True)
         raise typer.Exit(1)

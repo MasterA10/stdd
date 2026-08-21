@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import MutableMapping
 from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
@@ -22,10 +23,137 @@ VALID_TASK_BATCH_SCOPES = {"task", "node"}
 VALID_TASK_DELIVERY_SCOPES = {"task", "node"}
 VALID_DEVELOPMENT_MODES = {"sequential", "separated"}
 VALID_TASK_LAYERS = {"frontend", "backend"}
+VALID_LOOP_MODES = {"task_order", "node_complete", "node_then_children", "all_level2_then_level3"}
+VALID_CHILDREN_MODES = {"none", "context", "owned"}
+LANE_CURSOR_KEYS = {
+    "current_task_id", "current_backlog_id", "current_branch_id", "branch_position",
+    "current_phase", "current_parent_task_id", "current_subtask_id", "lease_id",
+    "lease_started_at", "lease_expires_at", "current_verified_batch_node_ids",
+    "current_association_node_ids",
+}
 DEFAULT_LEVEL_MEANINGS = {
     "2": "Tela",
     "3": "Regra de negócio e detalhes da tela",
 }
+CRITICAL_INFORMATION_FILE = ".looper/loop-instructions.md"
+
+
+def _critical_information(root: Path) -> str:
+    """Lê a orientação persistente enviada em linguagem natural a cada loop."""
+    path = root / "loop-instructions.md" if root.name == ".looper" else root / ".looper" / "loop-instructions.md"
+    try:
+        return path.read_text(encoding="utf-8").strip()
+    except (OSError, UnicodeError):
+        return ""
+
+
+def _with_critical_instruction(instruction: str | None, content: str) -> str | None:
+    """Prefixa a orientação persistente sem substituir a instrução da task."""
+    if not content:
+        return instruction
+    block = f"INFORMAÇÃO CRÍTICA DO PROJETO:\n{content}\nFIM DA INFORMAÇÃO CRÍTICA."
+    return f"{block}\n\n{instruction}" if instruction else block
+
+
+class _LaneExecution(MutableMapping[str, Any]):
+    """Visão compatível do execution global com cursor isolado por lane."""
+
+    def __init__(self, execution: dict[str, Any], lane: dict[str, Any]):
+        self._execution = execution
+        self._lane = lane
+
+    def __getitem__(self, key: str) -> Any:
+        if key in LANE_CURSOR_KEYS:
+            return self._lane.get(key)
+        return self._execution[key]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        if key in LANE_CURSOR_KEYS:
+            self._lane[key] = value
+        else:
+            self._execution[key] = value
+
+    def __delitem__(self, key: str) -> None:
+        if key in LANE_CURSOR_KEYS:
+            del self._lane[key]
+        else:
+            del self._execution[key]
+
+    def __iter__(self):
+        return iter(set(self._execution) | set(self._lane))
+
+    def __len__(self) -> int:
+        return len(set(self._execution) | set(self._lane))
+
+
+def _lane_execution(execution: dict[str, Any], phase: str, layer: str | None) -> MutableMapping[str, Any]:
+    """Seleciona o cursor independente; sem camada, mantém o contrato legado."""
+    if layer is None:
+        return execution
+    lanes = execution.setdefault("lanes", {})
+    lane = lanes.setdefault(f"{phase}:{layer}", {})
+    return _LaneExecution(execution, lane)
+
+
+def _lane_for_task(execution: dict[str, Any], task_id: str) -> MutableMapping[str, Any]:
+    """Localiza a lane que reservou uma task para permitir conclusão paralela."""
+    for lane in execution.get("lanes", {}).values():
+        if isinstance(lane, dict) and lane.get("current_task_id") == task_id:
+            return _LaneExecution(execution, lane)
+    return execution
+
+
+def _normalize_loop_mode(value: object, fallback: str = "task_order") -> str:
+    """Normaliza um preset de fila, preservando configurações antigas."""
+    aliases = {
+        "sequential": "task_order",
+        "separated": "all_level2_then_level3",
+        "node": "node_complete",
+        "children": "node_then_children",
+        "level2_then_level3": "all_level2_then_level3",
+    }
+    normalized = aliases.get(str(value or "").strip().casefold(), str(value or "").strip().casefold())
+    return normalized if normalized in VALID_LOOP_MODES else fallback
+
+
+def _loop_options(root: Path, phase: str) -> dict[str, Any]:
+    """Retorna a política da fila para uma fase, com migração dos campos legados."""
+    config = _get_backlog_config(root)
+    legacy_mode = _development_mode(root)
+    legacy_scope = config.get("task_delivery_scope", "task")
+    default_mode = "all_level2_then_level3" if legacy_mode == "separated" else (
+        "node_complete" if legacy_scope == "node" else "task_order"
+    )
+    section_name = "test_loop" if phase == "test" else "implementation_loop"
+    section = config.get(section_name)
+    section = section if isinstance(section, dict) else {}
+    mode = _normalize_loop_mode(section.get("mode"), default_mode)
+    try:
+        batch_size = max(1, int(section.get("batch_size", config.get("task_batch_size", DEFAULT_TASK_BATCH_SIZE))))
+    except (TypeError, ValueError):
+        batch_size = DEFAULT_TASK_BATCH_SIZE
+    include_level_2 = section.get("include_level_2", legacy_mode != "separated")
+    if not isinstance(include_level_2, bool):
+        include_level_2 = True
+    children_mode = section.get("l2_children_mode", "context" if section.get("include_children_context") else "none")
+    if children_mode not in VALID_CHILDREN_MODES:
+        children_mode = "none"
+    l3_enabled = section.get("l3_loop_enabled", True)
+    if not isinstance(l3_enabled, bool):
+        l3_enabled = True
+    if l3_enabled is False and children_mode == "context":
+        # Sem loop L3, os filhos não podem ficar órfãos: o L2 assume a entrega.
+        children_mode = "owned"
+    if children_mode == "owned":
+        l3_enabled = False
+    return {
+        "mode": mode,
+        "batch_size": batch_size,
+        "include_level_2": include_level_2,
+        "l2_children_mode": children_mode,
+        "l3_loop_enabled": l3_enabled,
+        "l3_include_parent": bool(section.get("l3_include_parent", True)),
+    }
 
 
 def _development_mode(root: Path) -> str:
@@ -179,6 +307,8 @@ def _execution_config(root: Path) -> dict[str, Any]:
         "task_batch_scope": scope,
         "task_delivery_scope": delivery_scope,
         "development_mode": _development_mode(root),
+        "test_loop": _loop_options(root, "test"),
+        "implementation_loop": _loop_options(root, "implementation"),
         "min_task_interval_seconds": interval,
         "lease_seconds": max(3, int(config.get("lease_seconds", 900) or 900)),
     }
@@ -202,6 +332,13 @@ def set_backlog_config(
     level_3_meaning: str | None = None,
     test_loop_enabled: bool | None = None,
     development_mode: str | None = None,
+    test_loop_mode: str | None = None,
+    implementation_loop_mode: str | None = None,
+    test_batch_size: int | None = None,
+    implementation_batch_size: int | None = None,
+    l2_children_mode: str | None = None,
+    l3_loop_enabled: bool | None = None,
+    l3_include_parent: bool | None = None,
 ) -> dict[str, Any]:
     """Atualiza a seção 'backlog' em .looper/config.json de forma persistente."""
     config_path = root / ".looper" / "config.json"
@@ -257,6 +394,34 @@ def set_backlog_config(
         if normalized_mode not in VALID_DEVELOPMENT_MODES:
             raise ValueError("development_mode deve ser sequential ou separated")
         backlog_cfg["development_mode"] = normalized_mode
+    loop_updates = (
+        ("test_loop", test_loop_mode, test_batch_size),
+        ("implementation_loop", implementation_loop_mode, implementation_batch_size),
+    )
+    for section_name, mode, batch_size in loop_updates:
+        if mode is not None:
+            normalized_loop = _normalize_loop_mode(mode)
+            if normalized_loop not in VALID_LOOP_MODES:
+                raise ValueError("modo do loop inválido")
+            backlog_cfg.setdefault(section_name, {})["mode"] = normalized_loop
+        if batch_size is not None:
+            if int(batch_size) < 1:
+                raise ValueError("batch_size deve ser maior ou igual a 1")
+            backlog_cfg.setdefault(section_name, {})["batch_size"] = int(batch_size)
+    if l2_children_mode is not None:
+        if l2_children_mode not in VALID_CHILDREN_MODES:
+            raise ValueError("l2_children_mode deve ser none, context ou owned")
+        for section_name in ("test_loop", "implementation_loop"):
+            backlog_cfg.setdefault(section_name, {})["l2_children_mode"] = l2_children_mode
+    if l3_loop_enabled is not None:
+        for section_name in ("test_loop", "implementation_loop"):
+            section = backlog_cfg.setdefault(section_name, {})
+            section["l3_loop_enabled"] = bool(l3_loop_enabled)
+            if not l3_loop_enabled and section.get("l2_children_mode", "none") in {"none", "context"}:
+                section["l2_children_mode"] = "owned"
+    if l3_include_parent is not None:
+        for section_name in ("test_loop", "implementation_loop"):
+            backlog_cfg.setdefault(section_name, {})["l3_include_parent"] = bool(l3_include_parent)
     for level, meaning in ((2, level_2_meaning), (3, level_3_meaning)):
         if meaning is not None:
             normalized = str(meaning).strip()
@@ -1170,6 +1335,7 @@ def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]
         "tasks": tasks,
         "execution": {
             "current_task_id": current_task_id,
+            "lanes": deepcopy(previous_execution.get("lanes", {})) if isinstance(previous_execution.get("lanes", {}), dict) else {},
             "current_backlog_id": current_task.get("backlog_id") if current_task else previous_execution.get("current_backlog_id"),
             "current_branch_id": previous_execution.get("current_branch_id"),
             "branch_position": previous_execution.get("branch_position"),
@@ -1192,6 +1358,8 @@ def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]
             "task_batch_scope": execution_config["task_batch_scope"],
             "task_delivery_scope": execution_config["task_delivery_scope"],
             "development_mode": execution_config["development_mode"],
+            "test_loop": execution_config["test_loop"],
+            "implementation_loop": execution_config["implementation_loop"],
             "completed_branches": [],
             "branches": execution_branches,
         },
@@ -1417,17 +1585,23 @@ def _find_change_requests(root: Path) -> list[dict[str, Any]]:
     return requests
 
 
-def _change_context(change: dict[str, Any], kind: str = "backlog-change-task") -> dict[str, Any]:
+def _change_context(change: dict[str, Any], kind: str = "backlog-change-task", critical_information: str = "") -> dict[str, Any]:
     """Formata o pedido de alteração como task independente do backlog normal."""
+    instruction = (
+        "Implemente este pedido de alteração no nó e em todos os locais necessários da codebase. "
+        "Leia os símbolos e testes associados, crie ou ajuste regressões quando necessário, execute os gates e só então conclua a alteração."
+    )
     return {
         "kind": kind,
         "phase": "change",
         "status": "in_progress" if kind == "backlog-change-task" else "done",
         "task": change,
-        "instruction": (
-            "Implemente este pedido de alteração no nó e em todos os locais necessários da codebase. "
-            "Leia os símbolos e testes associados, crie ou ajuste regressões quando necessário, execute os gates e só então conclua a alteração."
-        ),
+        "instruction": _with_critical_instruction(instruction, critical_information),
+        "critical_information": {
+            "file": CRITICAL_INFORMATION_FILE,
+            "content": critical_information,
+            "present": bool(critical_information),
+        },
         "remaining": None,
     }
 
@@ -1444,7 +1618,7 @@ def next_backlog_change(root: Path, layer: str | None = None) -> dict[str, Any]:
         if current is not None:
             if layer is not None and current.get("implementation_layer") != layer:
                 raise ValueError(f"a alteração atual pertence à camada {current.get('implementation_layer')}; conclua-a antes de pedir somente {layer}")
-            return _change_context(current)
+            return _change_context(current, critical_information=_critical_information(root))
         _clear_execution_cursor(execution)
 
     if execution.get("current_task_id"):
@@ -1475,7 +1649,7 @@ def next_backlog_change(root: Path, layer: str | None = None) -> dict[str, Any]:
     execution["current_subtask_id"] = None
     _mark_claim(execution)
     write_backlog(root, payload)
-    return _change_context(request)
+    return _change_context(request, critical_information=_critical_information(root))
 
 
 def _clear_execution_cursor(execution: dict[str, Any]) -> None:
@@ -1695,6 +1869,26 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
         "is_first_l3_for_screen": is_first_l3_for_screen,
         "parent_screen_context": parent_screen_context,
     }
+    loop_options = payload.get("execution", {}).get("test_loop" if phase == "test" else "implementation_loop", {})
+    if not isinstance(loop_options, dict):
+        loop_options = {}
+    children_mode = loop_options.get("l2_children_mode", "none")
+    if task.get("level") == 2 and descendants and children_mode in {"context", "owned"}:
+        response["children_delivery_mode"] = children_mode
+        response["children_context"] = deepcopy(descendants)
+        response["context_only"] = children_mode == "context"
+        response["owned_child_task_ids"] = [item.get("id") for item in descendants] if children_mode == "owned" else []
+        response["l3_loop_enabled"] = bool(loop_options.get("l3_loop_enabled", True))
+        response["instruction"] = (
+            f"{response.get('instruction', '').rstrip()} "
+            + ("Os L3 abaixo são somente contexto; o loop L3 continua responsável por eles."
+               if children_mode == "context" else
+               "Os L3 abaixo fazem parte desta entrega e serão concluídos com o L2; não há loop L3 nesta fase.")
+        ).strip()
+    if task.get("level") == 3 and loop_options.get("l3_include_parent", True) and parent.get("level") == 2:
+        response["context_parent"] = deepcopy(parent)
+        response["context_only"] = True
+        response["parent_context_injected"] = True
     delivery_scope = _task_delivery_scope(payload)
     is_node_delivery = delivery_scope == "node" and task.get("level") == 2 and task.get("id") == parent.get("id")
     node_delivery_note = _node_delivery_note() if is_node_delivery else None
@@ -1752,6 +1946,14 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
         if len(candidates) > 1:
             response["batch"] = [{"id": item.get("id"), "label": item.get("label", "")} for item in candidates[:options["task_batch_size"]]]
             response["batch_size"] = len(response["batch"])
+    critical_information = _critical_information(root)
+    response["critical_information"] = {
+        "file": CRITICAL_INFORMATION_FILE,
+        "content": critical_information,
+        "present": bool(critical_information),
+    }
+    instruction = instruction if instruction is not None else response.get("instruction")
+    instruction = _with_critical_instruction(instruction, critical_information)
     if instruction is not None:
         response["instruction"] = instruction
     return response
@@ -1786,10 +1988,19 @@ def _task_delivery_scope(payload: dict[str, Any]) -> str:
     return scope if scope in VALID_TASK_DELIVERY_SCOPES else "task"
 
 
+def _phase_loop_options(payload: dict[str, Any], phase: str) -> dict[str, Any]:
+    """Retorna a política persistida para a fase atual."""
+    value = payload.get("execution", {}).get("test_loop" if phase == "test" else "implementation_loop", {})
+    return value if isinstance(value, dict) else {}
+
+
 def _test_scope_complete(payload: dict[str, Any], task: dict[str, Any]) -> bool:
     """Verifica evidência e marcação de teste para pai e todos os subfluxos."""
     if payload.get("execution", {}).get("test_loop_enabled", True) is False:
         return True
+    options = _phase_loop_options(payload, "test")
+    if task.get("level") == 2 and options.get("l2_children_mode") == "owned":
+        return all(_task_test_complete(item) for item in _test_scope_tasks(payload, task))
     if payload.get("execution", {}).get("development_mode") == "separated":
         return task.get("level") != 3 or _task_test_complete(task)
     if _task_delivery_scope(payload) == "task":
@@ -1803,14 +2014,22 @@ def _pending_test_tasks(payload: dict[str, Any], layer: str | None = None) -> li
     layer = _normalize_task_layer(layer)
     if payload.get("execution", {}).get("test_loop_enabled", True) is False:
         return []
-    if payload.get("execution", {}).get("development_mode") == "separated" and layer == "frontend":
+    options = _phase_loop_options(payload, "test")
+    if layer == "frontend" and options.get("include_level_2") is False:
+        return []
+    if layer == "backend" and options.get("l3_loop_enabled") is False:
         return []
     if layer is not None:
         return [
             item for item in payload.get("tasks", [])
             if _layer_matches(item, layer) and not _task_test_complete(item)
         ]
-    if payload.get("execution", {}).get("development_mode") == "separated":
+    if options.get("l3_loop_enabled") is False:
+        return [
+            item for item in payload.get("tasks", [])
+            if item.get("level") == 2 and options.get("include_level_2", True) and not _test_scope_complete(payload, item)
+        ]
+    if options.get("include_level_2") is False:
         return [
             item for item in payload.get("tasks", [])
             if item.get("level") == 3 and not _task_test_complete(item)
@@ -1830,7 +2049,7 @@ def _implementation_delivery_task(payload: dict[str, Any], task: dict[str, Any],
     """Agrupa subfluxos na task pai quando o escopo de entrega é `node`."""
     if layer is not None or payload.get("execution", {}).get("development_mode") == "separated":
         return task
-    if _task_delivery_scope(payload) != "node":
+    if _task_delivery_scope(payload) != "node" or _phase_loop_options(payload, "implementation").get("l2_children_mode") == "context":
         return task
     parent = _parent_task(payload.get("tasks", []), task)
     return parent if parent.get("status") != "done" else task
@@ -1843,6 +2062,9 @@ def _next_implementation_task(payload: dict[str, Any], layer: str | None = None)
         item for item in payload.get("tasks", [])
         if item.get("status") != "done" and _layer_matches(item, layer)
     ]
+    options = _phase_loop_options(payload, "implementation")
+    if options.get("l3_loop_enabled") is False:
+        pending = [item for item in pending if item.get("level") != 3]
     if layer is not None:
         return pending[0] if pending else None
     if payload.get("execution", {}).get("development_mode") != "separated":
@@ -1909,7 +2131,7 @@ def next_backlog_test(root: Path, layer: str | None = None) -> dict[str, Any]:
             "status": "disabled",
             "instruction": "O loop de testes está desabilitado no looper init; use looper backlog task para executar somente implementação.",
         }
-    execution = payload["execution"]
+    execution = _lane_execution(payload["execution"], "test", layer)
     current_id = execution.get("current_task_id")
     current = next((task for task in payload["tasks"] if task["id"] == current_id), None)
     if layer is not None and current is not None and not _layer_matches(current, layer):
@@ -1991,7 +2213,7 @@ def next_backlog_task(root: Path, verification_interval: int | None = None, laye
     """Entrega e persiste a próxima task da ordem de branches."""
     layer = _normalize_task_layer(layer)
     payload = generate_backlog(root)
-    execution = payload["execution"]
+    execution = _lane_execution(payload["execution"], "implementation", layer)
     current_id = execution.get("current_task_id")
     current_phase = execution.get("current_phase")
     config = _get_backlog_config(root)
@@ -2197,7 +2419,7 @@ def next_backlog_task(root: Path, verification_interval: int | None = None, laye
 def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
     """Conclui somente a task atualmente reservada para o agente."""
     payload = generate_backlog(root)
-    execution = payload["execution"]
+    execution = _lane_for_task(payload["execution"], task_id)
     current_id = execution.get("current_task_id")
 
     if task_id.startswith("change:"):
@@ -2217,7 +2439,7 @@ def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
         create_draw(root, document)
         _clear_execution_cursor(execution)
         write_backlog(root, payload)
-        response = _change_context({**request, "status": "done"}, "backlog-change-complete")
+        response = _change_context({**request, "status": "done"}, "backlog-change-complete", _critical_information(root))
         response["remaining"] = len(_find_change_requests(root))
         return response
 
@@ -2337,6 +2559,8 @@ def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
         if _task_delivery_scope(payload) == "task":
             task["test_completed_independently"] = True
         scope_tasks = [task] if _task_delivery_scope(payload) == "task" else _test_scope_tasks(payload, task)
+        if task.get("level") == 2 and _phase_loop_options(payload, "test").get("l2_children_mode") == "owned":
+            scope_tasks = _test_scope_tasks(payload, task)
         for scope_task in scope_tasks:
             scope_task.setdefault("checklist_state", _default_checklist_state(scope_task))["test"] = True
         if previous_status == "pending":
@@ -2351,7 +2575,24 @@ def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
         raise ValueError("task atual não está em andamento")
     if _test_loop_enabled(root) and not _test_scope_complete(payload, task):
         raise ValueError("teste da task ainda não foi comprovado")
-    if _task_delivery_scope(payload) == "node":
+    if _phase_loop_options(payload, "implementation").get("l2_children_mode") == "owned" and task.get("level") == 2:
+        scope_tasks = _test_scope_tasks(payload, task)
+        for scope_task in scope_tasks:
+            scope_task["status"] = "done"
+            scope_task.setdefault("checklist_state", _default_checklist_state(scope_task))["implementation"] = True
+        _clear_execution_cursor(execution)
+        _refresh_branch_completion(payload)
+        _refresh_task_checklist_items(payload)
+        write_backlog(root, payload)
+        response = _task_context(root, payload, task, "implementation", "backlog-complete")
+        response.update({
+            "status": "done",
+            "completed_task_ids": [scope_task.get("id") for scope_task in scope_tasks],
+            "owned_child_task_ids": [scope_task.get("id") for scope_task in scope_tasks[1:]],
+            "remaining": sum(1 for item in payload["tasks"] if item.get("status") != "done"),
+        })
+        return response
+    if _task_delivery_scope(payload) == "node" and _phase_loop_options(payload, "implementation").get("l2_children_mode") != "context":
         scope_tasks = _test_scope_tasks(payload, task)
         for scope_task in scope_tasks:
             scope_task["status"] = "done"

@@ -15,7 +15,7 @@ from .contract import check_contract
 from .draw import ensure_draw_workspace
 from .improvements import ensure_improvement_workspace
 from .models import REWORK_LINE_THRESHOLD, RunLogEntry
-from .runs import ensure_runs_workspace, update_runs_index
+from .runs import ensure_runs_workspace, update_runs_index, write_test_report
 from .static_analysis import run_static_analysis, write_static_analysis_kpis
 from .traceability import refresh_traceability
 from .setup import ensure_design_document
@@ -368,6 +368,21 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
                         "task_batch_scope": "task",
                         "task_delivery_scope": "task",
                         "development_mode": "sequential",
+                        "test_loop": {
+                            "mode": "task_order",
+                            "batch_size": 1,
+                            "include_level_2": True,
+                            "l2_children_mode": "none",
+                            "l3_loop_enabled": True,
+                            "l3_include_parent": True,
+                        },
+                        "implementation_loop": {
+                            "mode": "task_order",
+                            "batch_size": 1,
+                            "l2_children_mode": "none",
+                            "l3_loop_enabled": True,
+                            "l3_include_parent": True,
+                        },
                         "min_task_interval_seconds": 0,
                         "l2_post_verification_tasks": False,
                         "level_2_meaning": "Tela",
@@ -387,6 +402,10 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
     created.extend(ensure_draw_workspace(root, include_example=True))
     created.extend(ensure_improvement_workspace(root))
     created.extend(ensure_runs_workspace(root))
+    loop_instructions = looper_dir(root) / "loop-instructions.md"
+    if not loop_instructions.exists():
+        loop_instructions.write_text("", encoding="utf-8")
+        created.append(loop_instructions)
     design_path = ensure_design_document(root)
     if design_path not in created:
         created.append(design_path)
@@ -701,6 +720,7 @@ def run_tests(
         "profile": active_profile,
         "started_at": datetime.now(timezone.utc).isoformat(),
     }
+    write_test_report(root, result)
     return process, result
 
 
@@ -720,6 +740,63 @@ def _parse_gitignore_dirs(root: Path) -> set[str]:
     return ignored_patterns
 
 
+def _gitignored_paths(root: Path, relative_paths: list[str]) -> set[str]:
+    """Resolve as regras atuais do ``.gitignore`` sem manter cache entre runs."""
+    if not relative_paths:
+        return set()
+    ignored: set[str] = set()
+    try:
+        checked = subprocess.run(
+            ["git", "check-ignore", "--no-index", "-z", "--stdin"],
+            cwd=root,
+            input="\0".join(relative_paths) + "\0",
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        ignored.update(item for item in checked.stdout.split("\0") if item)
+
+        # Dentro de um checkout, o Git já interpreta a precedência completa
+        # das regras, inclusive padrões globais e exceções iniciadas por ``!``.
+        # O fallback abaixo é somente para diretórios sem Git; aplicá-lo aqui
+        # também faria um padrão como ``*`` ignorar arquivos liberados depois.
+        worktree = subprocess.run(
+            ["git", "rev-parse", "--is-inside-work-tree"],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if worktree.returncode == 0 and worktree.stdout.strip() == "true":
+            return ignored
+    except OSError:
+        pass
+
+    import fnmatch
+
+    patterns = _parse_gitignore_dirs(root)
+    ignored_directories = {pattern[:-1].rstrip("/") for pattern in patterns if pattern.endswith("/")}
+    for relative_path in relative_paths:
+        path = Path(relative_path)
+        if any(part in ignored_directories for part in path.parts):
+            ignored.add(relative_path)
+            continue
+        for pattern in patterns:
+            if pattern.endswith("/"):
+                continue
+            candidate_pattern = pattern.lstrip("/")
+            if fnmatch.fnmatch(relative_path, candidate_pattern) or fnmatch.fnmatch(path.name, candidate_pattern):
+                ignored.add(relative_path)
+                break
+    return ignored
+
+
+def _filter_snapshot_by_gitignore(root: Path, snapshot: dict[str, list[str]]) -> dict[str, list[str]]:
+    """Aplica o ``.gitignore`` atual também à snapshot histórica."""
+    ignored = _gitignored_paths(root, sorted(snapshot))
+    return {path: lines for path, lines in snapshot.items() if path not in ignored}
+
+
 def get_workspace_snapshot(root: Path) -> dict[str, list[str]]:
     """Mapeia os arquivos rastreados da codebase e seus conteúdos em linhas.
     Filtra extensões configuradas e exclui o estado operacional do Looper.
@@ -732,8 +809,6 @@ def get_workspace_snapshot(root: Path) -> dict[str, list[str]]:
         if pattern.endswith("/"):
             ignored_dirs.add(pattern[:-1].split("/")[-1])
             
-    import fnmatch
-
     candidates = [
         path for path in sorted(root.rglob("*"))
         if path.is_file()
@@ -741,35 +816,11 @@ def get_workspace_snapshot(root: Path) -> dict[str, list[str]]:
         and not ignored_dirs.intersection(path.parts)
     ]
     relative_candidates = [path.relative_to(root).as_posix() for path in candidates]
-    ignored_by_git: set[str] = set()
-    if relative_candidates:
-        try:
-            checked = subprocess.run(
-                ["git", "check-ignore", "--no-index", "-z", "--stdin"],
-                cwd=root,
-                input="\0".join(relative_candidates) + "\0",
-                text=True,
-                capture_output=True,
-                check=False,
-            )
-            ignored_by_git = {item for item in checked.stdout.split("\0") if item}
-        except OSError:
-            ignored_by_git = set()
+    ignored_by_git = _gitignored_paths(root, relative_candidates)
 
     snapshot: dict[str, list[str]] = {}
     for path, rel_path in zip(candidates, relative_candidates):
         ignored_by_file = rel_path in ignored_by_git
-        if not ignored_by_file:
-            # Fallback for directories outside a Git checkout.  Match the
-            # complete relative path as well as the basename, preserving
-            # common patterns such as ``generated/*.py``.
-            for pattern in gitignore_patterns:
-                if pattern.endswith("/"):
-                    continue
-                candidate_pattern = pattern.lstrip("/")
-                if fnmatch.fnmatch(rel_path, candidate_pattern) or fnmatch.fnmatch(path.name, candidate_pattern):
-                    ignored_by_file = True
-                    break
         if not ignored_by_file:
             try:
                 snapshot[rel_path] = path.read_text(encoding="utf-8").splitlines()
@@ -861,7 +912,7 @@ def get_incremental_diff_stats(root: Path) -> tuple[dict[str, Any], list[dict[st
     """Calcula estatísticas agregadas e detalhadas por arquivo de código alterado na execução.
     Compara o estado atual com o snapshot da execução anterior e gera resumo e detalhamento.
     """
-    previous_snapshot = get_previous_workspace_snapshot(root)
+    previous_snapshot = _filter_snapshot_by_gitignore(root, get_previous_workspace_snapshot(root))
 
     current_snapshot = get_workspace_snapshot(root)
 

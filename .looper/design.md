@@ -28,6 +28,17 @@ O Looper usa uma identidade editorial e técnica: superfícies claras, cartões 
 
 Todo painel deve representar loading, vazio, erro, sucesso, foco e bloqueio. Modais são responsivos, possuem foco visível, textarea auto dimensionável e rolagem interna. Erros são consequências condicionais e nunca uma etapa inevitável.
 
+O editor de fluxos consulta por HTTP a revisão do Draw a cada 2 segundos e
+recarrega alterações externas automaticamente quando não há rascunho local.
+Com alterações não salvas, mostra o estado de atualização pendente e preserva
+o conteúdo local. Ao fechar o editor de perguntas com texto ainda não adicionado,
+abre confirmação explícita para salvar a pergunta antes de sair.
+
+O modo Observador é uma visualização somente leitura ativada pelo botão `Observar`.
+Ele acompanha o backlog por polling, centraliza a câmera no nó da implementação
+atual e pode trocar automaticamente entre Draws e subfluxos. Enquanto ativo,
+canvas, atalhos e ações de edição ficam bloqueados.
+
 - Nós em implementação usam o mesmo degradê oficial dos botões de salvar, texto branco e uma faixa laranja clara que percorre o nó continuamente; em `prefers-reduced-motion`, a faixa e o movimento são desativados.
 - Nós concluídos usam o mesmo degradê oficial, texto branco e contorno de 2px na cor do grupo.
 - A diferenciação de andamento não depende apenas de cor: o movimento, o texto de estado e os títulos acessíveis também comunicam a situação.

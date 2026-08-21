@@ -316,8 +316,197 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "a4306399626b4c8ca3c18a5957ae517d",
+      "timestamp": "2026-08-21T22:04:24.165773+00:00",
+      "description": "Exibe resultados do looper test em relatório visual humanizado",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 83,
+        "lines_deleted": 1,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "5764deef35a24238ad5c808e25762f25",
+      "timestamp": "2026-08-21T22:46:15.923692+00:00",
+      "description": "Adiciona polling HTTP dos fluxos e confirma salvamento de perguntas pendentes",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 183,
+        "lines_deleted": 22,
+        "files_changed": 6
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d7316abf26444cc39e530f6e3bc506a1",
+      "timestamp": "2026-08-21T23:02:35.831497+00:00",
+      "description": "Configura lanes L2/L3, contexto de filhos e modo owned",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 360,
+        "lines_deleted": 9,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d855431cd0274475815f2dddd0a9e416",
+      "timestamp": "2026-08-21T23:02:39.708071+00:00",
+      "description": "Valida filas L2/L3 independentes e escopos context/owned",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "8be6bf8a2a2548e9b13475ef318e8d2a",
+      "timestamp": "2026-08-21T23:09:22.116706+00:00",
+      "description": "Implementa modo Observador para acompanhar a implementação atual",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 149,
+        "lines_deleted": 3,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "381e6afd3da841e397ac4fb425193a1e",
+      "timestamp": "2026-08-21T23:13:02.365879+00:00",
+      "description": "Adiciona informação crítica persistente em linguagem natural aos loops",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 180,
+        "lines_deleted": 44,
+        "files_changed": 6
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "c99987f2202e4250b80c73d7e374928f",
+      "timestamp": "2026-08-21T23:13:06.230047+00:00",
+      "description": "Valida instruções persistentes, atualização dinâmica e saída textual",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "810da5342a404480aadb52eae2c9b98e",
+      "timestamp": "2026-08-21T23:13:21.776914+00:00",
+      "description": "Torna o cálculo das runs sensível ao gitignore atual",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "f91800d0ebec43ec8a390c6ac57545a6",
+      "timestamp": "2026-08-21T23:22:30.592805+00:00",
+      "description": "Corrige snapshot do gitignore com exceções",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 38,
+        "lines_deleted": 0,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 15,
-  "last_run_id": "2b0a9c954add4768b961c2b72e9c2a01"
+  "run_count": 24,
+  "last_run_id": "f91800d0ebec43ec8a390c6ac57545a6"
 }
