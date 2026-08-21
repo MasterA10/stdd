@@ -47,6 +47,20 @@ Concluir o código ou passar nos testes não conclui a task operacionalmente. Se
 
 ## Escopo de entrega
 
+Quando `backlog.development_mode` for `separated`, o nível define a camada:
+
+- L2 é frontend/view. Implemente a tela, seus estados, interações e os links/transições entre telas descritos no Draw. Isso inclui a navegação funcional da jornada; não implemente controller, model, regra de negócio, persistência ou integração de backend.
+- L3 é backend. Implemente controller, model, regras, persistência e integrações necessárias ao comportamento. O L3 vem depois que todas as telas L2 forem concluídas.
+
+Nesse modo, siga a camada informada na resposta do backlog mesmo que o nível L2 tenha
+descrições de comportamento: o comportamento de apresentação e navegação pertence ao
+frontend, enquanto o efeito de negócio pertence ao L3.
+
+Se a entrega precisar ser restrita a uma camada, use o filtro recebido ou solicite a
+próxima task com `looper backlog task --frontend`/`--backend` (ou `--layer`). O filtro é
+transitório: não conclua o backlog quando a camada escolhida estiver vazia e não pule uma
+task já reservada em outra camada.
+
 Leia `backlog.task_delivery_scope` em `.looper/config.json`:
 
 - `task`: implemente somente o ID recebido; os subfluxos serão entregues em chamadas posteriores.

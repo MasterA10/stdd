@@ -1,7 +1,7 @@
 {
   "version": 1,
   "kind": "backlog",
-  "generated_at": "2026-08-18T17:29:22.303349+00:00",
+  "generated_at": "2026-08-21T01:14:20.438053+00:00",
   "system": {
     "root_draw_ids": [
       "looper-system-architecture"
@@ -222,17 +222,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-agent-journeys:node:1",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": true
             },
             "child_checklist_id": null,
@@ -291,17 +289,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-agent-journeys:node:2",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": true
             },
             "child_checklist_id": null,
@@ -353,17 +349,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-agent-journeys:node:3",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": true
             },
             "child_checklist_id": null,
@@ -422,17 +416,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-agent-journeys:node:4",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": true
             },
             "child_checklist_id": null,
@@ -484,17 +476,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-agent-journeys:node:5",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": true
             },
             "child_checklist_id": null,
@@ -546,17 +536,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-agent-journeys:node:6",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": true
             },
             "child_checklist_id": null,
@@ -622,17 +610,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-agent-journeys:node:7",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": true
             },
             "child_checklist_id": null,
@@ -684,17 +670,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-agent-journeys:node:8",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -746,17 +730,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-agent-journeys:node:9",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": true
             },
             "child_checklist_id": null,
@@ -815,17 +797,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-agent-journeys:node:10",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -877,17 +857,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-agent-journeys:node:11",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -939,17 +917,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-agent-journeys:node:12",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -1001,17 +977,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-agent-journeys:node:13",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": true
             },
             "child_checklist_id": null,
@@ -1079,17 +1053,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:1",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": true
             },
             "child_checklist_id": null,
@@ -1141,17 +1113,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:2",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": "looper-journey-init",
@@ -1213,17 +1183,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:3",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": true
             },
             "child_checklist_id": null,
@@ -1282,17 +1250,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:4",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": true
             },
             "child_checklist_id": "looper-journey-test",
@@ -1363,17 +1329,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:5",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": true
             },
             "child_checklist_id": "looper-journey-log",
@@ -1435,17 +1399,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:6",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": true
             },
             "child_checklist_id": "looper-journey-draw",
@@ -1508,17 +1470,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:7",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": true
             },
             "child_checklist_id": null,
@@ -1570,17 +1530,15 @@
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": "test_ref ausente",
+            "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:8",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "file": null,
-              "symbols": [],
-              "reason": "test_ref ausente"
+              "status": "not-required",
+              "reason": "modo separado: telas L2 não entram no loop de testes"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -3478,8 +3436,8 @@
         "node_id": 1,
         "label": "Pedido do usuário",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-agent-journeys:node:2",
@@ -3488,8 +3446,8 @@
         "node_id": 2,
         "label": "$setup",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-agent-journeys:node:3",
@@ -3498,8 +3456,8 @@
         "node_id": 3,
         "label": "$draw-system",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-agent-journeys:node:6",
@@ -3508,8 +3466,8 @@
         "node_id": 6,
         "label": "$create-tests",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-agent-journeys:node:7",
@@ -3518,8 +3476,8 @@
         "node_id": 7,
         "label": "$implement",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-agent-journeys:node:9",
@@ -3528,8 +3486,8 @@
         "node_id": 9,
         "label": "looper test e looper log",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-agent-journeys:node:13",
@@ -3538,8 +3496,8 @@
         "node_id": 13,
         "label": "Entrega documentada",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-agent-journeys:node:4",
@@ -3548,8 +3506,8 @@
         "node_id": 4,
         "label": "$draw-feature",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-agent-journeys:node:5",
@@ -3558,8 +3516,8 @@
         "node_id": 5,
         "label": "$draw-improve",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-agent-journeys:node:8",
@@ -3568,8 +3526,8 @@
         "node_id": 8,
         "label": "$static-analysis",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-agent-journeys:node:10",
@@ -3578,8 +3536,8 @@
         "node_id": 10,
         "label": "Codex",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-agent-journeys:node:11",
@@ -3588,8 +3546,8 @@
         "node_id": 11,
         "label": "Claude",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-agent-journeys:node:12",
@@ -3598,8 +3556,8 @@
         "node_id": 12,
         "label": "Gemini",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-user-journeys:node:1",
@@ -3608,8 +3566,8 @@
         "node_id": 1,
         "label": "Entrada: projeto e pedido",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-user-journeys:node:3",
@@ -3618,8 +3576,8 @@
         "node_id": 3,
         "label": "Especificar e desenhar",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-user-journeys:node:4",
@@ -3628,8 +3586,8 @@
         "node_id": 4,
         "label": "Executar gates",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-journey-test:node:1",
@@ -3688,8 +3646,8 @@
         "node_id": 5,
         "label": "Registrar evidência",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-journey-log:node:1",
@@ -3738,8 +3696,8 @@
         "node_id": 6,
         "label": "Revisar no Draw",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-journey-draw:node:1",
@@ -3798,8 +3756,8 @@
         "node_id": 7,
         "label": "Bloqueado ou pendente",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-user-journeys:node:2",
@@ -3808,8 +3766,8 @@
         "node_id": 2,
         "label": "Inicializar e instalar skills",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-journey-init:node:1",
@@ -3858,8 +3816,8 @@
         "node_id": 8,
         "label": "Entrega rastreável",
         "parent_task_id": null,
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       }
     ],
     "implementation": [
@@ -4361,17 +4319,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-agent-journeys:node:1",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": true
       },
       "child_checklist_id": null,
@@ -4416,17 +4372,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-agent-journeys:node:2",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": true
       },
       "child_checklist_id": null,
@@ -4464,17 +4418,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-agent-journeys:node:3",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": true
       },
       "child_checklist_id": null,
@@ -4519,17 +4471,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-agent-journeys:node:6",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": true
       },
       "child_checklist_id": null,
@@ -4581,17 +4531,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-agent-journeys:node:7",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": true
       },
       "child_checklist_id": null,
@@ -4629,17 +4577,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-agent-journeys:node:9",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": true
       },
       "child_checklist_id": null,
@@ -4684,17 +4630,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-agent-journeys:node:13",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": true
       },
       "child_checklist_id": null,
@@ -4732,17 +4676,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-agent-journeys:node:4",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": true
       },
       "child_checklist_id": null,
@@ -4780,17 +4722,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-agent-journeys:node:5",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": true
       },
       "child_checklist_id": null,
@@ -4828,17 +4768,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-agent-journeys:node:8",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -4876,17 +4814,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-agent-journeys:node:10",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -4924,17 +4860,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-agent-journeys:node:11",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -4972,17 +4906,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-agent-journeys:node:12",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -5020,17 +4952,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:1",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": true
       },
       "child_checklist_id": null,
@@ -5068,17 +4998,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:3",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": true
       },
       "child_checklist_id": null,
@@ -5123,17 +5051,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:4",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": true
       },
       "child_checklist_id": "looper-journey-test",
@@ -5443,17 +5369,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:5",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": true
       },
       "child_checklist_id": "looper-journey-log",
@@ -5685,17 +5609,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:6",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": true
       },
       "child_checklist_id": "looper-journey-draw",
@@ -6056,17 +5978,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:7",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": true
       },
       "child_checklist_id": null,
@@ -6104,17 +6024,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:2",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": "looper-journey-init",
@@ -6371,17 +6289,15 @@
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": "test_ref ausente",
+      "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:8",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "file": null,
-        "symbols": [],
-        "reason": "test_ref ausente"
+        "status": "not-required",
+        "reason": "modo separado: telas L2 não entram no loop de testes"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -6427,6 +6343,7 @@
     "task_batch_size": 1,
     "task_batch_scope": "task",
     "task_delivery_scope": "task",
+    "development_mode": "separated",
     "completed_branches": [
       "looper-agent-journeys:branch:1",
       "looper-agent-journeys:branch:2",

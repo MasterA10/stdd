@@ -9,33 +9,33 @@ Implementação das melhorias especificadas, dividida em **4 frentes paralelas**
 ## Frente A — Frontend: Sistema de @tags e UI/UX (draw-editor)
 
 ### A1. Estilização Visual de @tags (gradiente vermelho→laranja)
-- **Arquivo:** [`CustomNode.tsx`](file:///Users/alexalves/Movies/stdd/draw-editor/src/components/CustomNode.tsx)
-- **Arquivo:** [`QuestionsModal.tsx`](file:///Users/alexalves/Movies/stdd/draw-editor/src/components/QuestionsModal.tsx)
-- **Arquivo:** [`index.css`](file:///Users/alexalves/Movies/stdd/draw-editor/src/index.css)
+- **Arquivo:** [`CustomNode.tsx`](file:///Users/alexalves/Movies/looper/draw-editor/src/components/CustomNode.tsx)
+- **Arquivo:** [`QuestionsModal.tsx`](file:///Users/alexalves/Movies/looper/draw-editor/src/components/QuestionsModal.tsx)
+- **Arquivo:** [`index.css`](file:///Users/alexalves/Movies/looper/draw-editor/src/index.css)
 - **O que fazer:**
   - Criar função `renderMentions(text)` que detecta `@Looper`, `@developer`, `@OBS` em strings e retorna JSX com `<span className="mention-tag">`
   - CSS: gradiente `background: linear-gradient(135deg, #ef4444, #f97316)` com `-webkit-background-clip: text`
   - Aplicar nos prompts das perguntas, descrições de nós e labels
 
 ### A2. Quebra de Linha em Perguntas Longas
-- **Arquivo:** [`index.css`](file:///Users/alexalves/Movies/stdd/draw-editor/src/index.css) (`.question-prompt-input`)
+- **Arquivo:** [`index.css`](file:///Users/alexalves/Movies/looper/draw-editor/src/index.css) (`.question-prompt-input`)
 - **O que fazer:**
   - Trocar o `<input>` do prompt de pergunta por `<textarea>` com auto-resize
   - Aplicar `word-wrap: break-word; overflow-wrap: anywhere;` no campo de prompt
   - Garantir que o texto não fique truncado
 
 ### A3. Modal de Edição de Descrição (Nível 2)
-- **Arquivo:** Novo componente [`NodeEditModal.tsx`](file:///Users/alexalves/Movies/stdd/draw-editor/src/components/NodeEditModal.tsx)
-- **Arquivo:** [`CustomNode.tsx`](file:///Users/alexalves/Movies/stdd/draw-editor/src/components/CustomNode.tsx)
-- **Arquivo:** [`App.tsx`](file:///Users/alexalves/Movies/stdd/draw-editor/src/App.tsx)
-- **Arquivo:** [`index.css`](file:///Users/alexalves/Movies/stdd/draw-editor/src/index.css)
+- **Arquivo:** Novo componente [`NodeEditModal.tsx`](file:///Users/alexalves/Movies/looper/draw-editor/src/components/NodeEditModal.tsx)
+- **Arquivo:** [`CustomNode.tsx`](file:///Users/alexalves/Movies/looper/draw-editor/src/components/CustomNode.tsx)
+- **Arquivo:** [`App.tsx`](file:///Users/alexalves/Movies/looper/draw-editor/src/App.tsx)
+- **Arquivo:** [`index.css`](file:///Users/alexalves/Movies/looper/draw-editor/src/index.css)
 - **O que fazer:**
   - Duplo clique na descrição abre modal estilizado com textarea amplo
   - Modal usa o design system existente (`.app-dialog`, `.dialog-content`, etc.)
   - Exibir label (editável) + descrição (textarea expandido) + metadados do nó
 
 ### A4. Melhorias no Auto-Layout
-- **Arquivo:** [`layout.ts`](file:///Users/alexalves/Movies/stdd/draw-editor/src/layout.ts)
+- **Arquivo:** [`layout.ts`](file:///Users/alexalves/Movies/looper/draw-editor/src/layout.ts)
 - **O que fazer:**
   - Aumentar `V_GAP` e `H_GAP` para fluxogramas grandes
   - Adicionar detecção de sobreposição pós-layout com nudge iterativo
@@ -46,19 +46,19 @@ Implementação das melhorias especificadas, dividida em **4 frentes paralelas**
 ## Frente B — Backend: Processamento de @tags e .gitignore
 
 ### B1. Auto-remoção de @tags quando pergunta é respondida
-- **Arquivo:** [`draw.py`](file:///Users/alexalves/Movies/stdd/src/looper/draw.py)
+- **Arquivo:** [`draw.py`](file:///Users/alexalves/Movies/looper/src/looper/draw.py)
 - **O que fazer:**
   - Na função de persistência de draws, ao salvar perguntas com resposta preenchida, remover `@Looper` e `@developer` do prompt automaticamente
   - Para `@OBS`: ler a observação, incorporar no contexto e remover a tag
 
 ### B2. Respeito ao .gitignore na contagem de linhas
-- **Arquivo:** [`core.py`](file:///Users/alexalves/Movies/stdd/src/looper/core.py)
+- **Arquivo:** [`core.py`](file:///Users/alexalves/Movies/looper/src/looper/core.py)
 - **O que fazer:**
   - Na função de contagem de linhas de diff, usar `git ls-files` ou parsear `.gitignore` para excluir `node_modules/`, `.venv/`, etc.
   - Estado atual já ignora esses diretórios na constante `INTERNAL_STATE_DIRECTORIES` e no set `ignored` — validar que `runs` respeita
 
 ### B3. Remoção da chave `tradeoffs` obsoleta do contrato
-- **Arquivos:** [`draw.py`](file:///Users/alexalves/Movies/stdd/src/looper/draw.py), [`types.ts`](file:///Users/alexalves/Movies/stdd/draw-editor/src/types.ts)
+- **Arquivos:** [`draw.py`](file:///Users/alexalves/Movies/looper/src/looper/draw.py), [`types.ts`](file:///Users/alexalves/Movies/looper/draw-editor/src/types.ts)
 - **Decisão:** A chave `tradeoffs` existe em 9 draws e no tipo TS. Avaliar se:
   - (a) Remover completamente e migrar dados existentes
   - (b) Depreciar mas manter retrocompatibilidade
@@ -99,13 +99,13 @@ Implementação das melhorias especificadas, dividida em **4 frentes paralelas**
 ## Frente D — Backlog Backend: Contexto de Navegação e Contraste
 
 ### D1. Parser de Contexto de Navegação
-- **Arquivo:** [`backlog.py`](file:///Users/alexalves/Movies/stdd/src/looper/backlog.py)
+- **Arquivo:** [`backlog.py`](file:///Users/alexalves/Movies/looper/src/looper/backlog.py)
 - **O que fazer:**
   - Ao gerar task do backlog, incluir `origin_node` (nó anterior), `origin_edge` (tipo de conexão), e `access_paths` (todas as telas que dão acesso)
   - Extrair do grafo de edges qual nó "from" aponta para o nó da task atual
 
 ### D2. Script de Contraste Visual (Acessibilidade)
-- **Arquivo:** Novo script em [`.looper/adapters/`](file:///Users/alexalves/Movies/stdd/.looper/adapters/)
+- **Arquivo:** Novo script em [`.looper/adapters/`](file:///Users/alexalves/Movies/looper/.looper/adapters/)
 - **O que fazer:**
   - Script headless que checa contraste básico (texto branco sobre fundo branco, etc.)
   - Integrar como capability opcional no `config.json`

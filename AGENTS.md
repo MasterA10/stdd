@@ -19,6 +19,12 @@ Este projeto usa o Looper para especificação, implementação, testes e evidê
 - No loop do backlog, execute `looper backlog complete <task-id>` com o mesmo ID recebido somente após validar a task; sem isso, o cursor não avança.
 - Quando o backlog entregar o nó e os subfluxos internos juntos, implemente e teste ambos; “Tela” classifica o nível do nó e não limita a entrega ao frontend.
 - Ao relatar o resultado, informe status, arquivos alterados, testes executados, evidências e limitações.
+### Estratégia de desenvolvimento do backlog
+
+- O modo é separado: conclua todos os nós L2 como frontend/view antes de liberar qualquer L3.
+- Nas tasks L2, implemente a tela, estados, interações e links/transições entre telas; não implemente controller, model, regra de negócio, persistência ou integrações de backend.
+- Nas tasks L3, implemente o backend/controller/model e seus testes; o loop de testes não cria testes para L2.
+- Os filtros `--frontend` e `--backend` são transitórios e não concluem a outra camada.
 <!-- Looper:END AGENT INSTRUCTIONS -->
 
 ## Memória contextual seletiva
@@ -36,6 +42,8 @@ ou por um padrão que o loop passou a exigir repetidamente.
 
 - O viewer servido por `looper draw serve` usa os assets empacotados em `src/looper/draw_assets`; o build de `draw-editor` precisa ser sincronizado para essa pasta antes da validação fora deste repositório.
 - Quando o backlog entregar um nó com seus subfluxos, a entrega cobre o nó L2 e todos os L3 listados; o nível “Tela” não limita a implementação ao frontend.
+- `backlog.development_mode` aceita `sequential` (padrão) ou `separated`; no modo separado, o cursor conclui todos os L2 como frontend/view — incluindo links e navegação entre telas — antes de liberar os L3 como backend/controller/model, e o loop de testes cobre somente L3.
+- `looper backlog task`, `looper backlog test` e `looper backlog change` aceitam `--frontend`, `--backend` ou `--layer frontend|backend|all` para consultar uma camada por vez; o filtro é transitório e não conclui o restante do backlog.
 
 ## Regras de edição dos Draws
 

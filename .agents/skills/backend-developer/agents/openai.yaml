@@ -1,0 +1,6 @@
+interface:
+  display_name: "Backend Developer"
+  short_description: "Backend modular com logging transversal"
+  default_prompt: "Use $backend-developer para implementar este backend com logging transversal e módulos bem separados."
+policy:
+  allow_implicit_invocation: true

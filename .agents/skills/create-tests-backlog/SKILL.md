@@ -34,6 +34,15 @@ código de produção nesta skill.
 
 ## Regras do loop
 
+Quando `backlog.development_mode` for `separated`, o loop de testes cobre somente os
+subfluxos L3 (backend). Não crie testes para os nós L2 de tela; a implementação L2 deve
+ser validada pela navegação e pelos estados visíveis da jornada. Os testes do L3 devem
+exercitar controller, model, regras, persistência e integrações descritos no Draw.
+
+Para consumir uma fila específica, use `looper backlog test --frontend` ou
+`looper backlog test --backend` (também disponível como `--layer`). Uma fila vazia de uma
+camada não encerra a fase global de testes; consulte a outra camada ou remova o filtro.
+
 1. Execute `looper backlog test` antes de criar testes. Quando o bootstrap estiver habilitado, a primeira resposta será sempre `task:bootstrap`; conclua essa preparação pelo ID recebido antes de consumir qualquer task de teste L2 ou de subfluxo interno. Trabalhe somente na task retornada e retome uma task `in_progress` antes de buscar outra.
 2. Se receber `kind: "backlog-bootstrap-task"`, prepare apenas a estrutura mínima do projeto com base nas evidências locais; não crie testes nem produção. Conclua pelo ID recebido e retome o loop.
 3. Leia o nó, predecessor, condição, pai, subfluxos, perguntas respondidas, símbolos e contratos relevantes.

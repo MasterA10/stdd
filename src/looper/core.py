@@ -48,7 +48,7 @@ GITIGNORE_RULES = (
     "Icon\r",
 )
 INTERNAL_STATE_DIRECTORIES = {".looper"}
-LEGACY_REFERENCE_PATTERN = re.compile(r"stdd", re.IGNORECASE)
+LEGACY_REFERENCE_PATTERN = re.compile(r"looper", re.IGNORECASE)
 LEGACY_MIGRATION_IGNORED_PARTS = {
     ".git",
     ".venv",
@@ -100,7 +100,7 @@ def looper_dir(root: Path) -> Path:
 
 
 def _replace_legacy_reference(match: re.Match[str]) -> str:
-    """Troca STDD por Looper preservando a capitalização mais comum."""
+    """Troca LOOPER por Looper preservando a capitalização mais comum."""
     value = match.group(0)
     if value.isupper():
         return "LOOPER"
@@ -162,7 +162,7 @@ def _legacy_text_files(root: Path):
 
 
 def migrate_legacy_project(root: Path) -> list[Path]:
-    """Migra o estado `.stdd` e referências textuais antigas para o Looper.
+    """Migra o estado `.looper` e referências textuais antigas para o Looper.
 
     A migração é executada pelo ``looper init``. Um estado legado é renomeado
     quando `.looper` ainda não existe. Se ambos existirem, somente arquivos que
@@ -170,7 +170,7 @@ def migrate_legacy_project(root: Path) -> list[Path]:
     preservados no local antigo para evitar perda silenciosa de dados.
     """
     changed: list[Path] = []
-    legacy = root / ".stdd"
+    legacy = root / ".looper"
     current = looper_dir(root)
     if legacy.is_dir() and not legacy.is_symlink():
         if not current.exists():
@@ -182,7 +182,7 @@ def migrate_legacy_project(root: Path) -> list[Path]:
     for path in _legacy_text_files(root):
         try:
             content = path.read_bytes()
-            if b"stdd" not in content.lower() or b"\x00" in content:
+            if b"looper" not in content.lower() or b"\x00" in content:
                 continue
             text = content.decode("utf-8")
         except (OSError, UnicodeDecodeError):
@@ -207,7 +207,7 @@ AGENT_INSTRUCTION_FILES = {
 }
 Looper_AGENT_BLOCK_START = "<!-- Looper:BEGIN AGENT INSTRUCTIONS -->"
 Looper_AGENT_BLOCK_END = "<!-- Looper:END AGENT INSTRUCTIONS -->"
-Looper_AGENT_BLOCK = f"""{Looper_AGENT_BLOCK_START}
+_LOOPER_AGENT_SHARED_BLOCK = f"""{Looper_AGENT_BLOCK_START}
 ## Looper — Harness Control Layer
 
 Este projeto usa o Looper para especificação, implementação, testes e evidências.
@@ -228,6 +228,7 @@ Este projeto usa o Looper para especificação, implementação, testes e evidê
 - No loop do backlog, execute `looper backlog complete <task-id>` com o mesmo ID recebido somente após validar a task; sem isso, o cursor não avança.
 - Quando o backlog entregar o nó e os subfluxos internos juntos, implemente e teste ambos; “Tela” classifica o nível do nó e não limita a entrega ao frontend.
 - Ao relatar o resultado, informe status, arquivos alterados, testes executados, evidências e limitações.
+{{mode_instruction}}
 {Looper_AGENT_BLOCK_END}"""
 _Looper_AGENT_BLOCK_PATTERN = re.compile(
     rf"{re.escape(Looper_AGENT_BLOCK_START)}.*?{re.escape(Looper_AGENT_BLOCK_END)}\n?",
@@ -235,7 +236,34 @@ _Looper_AGENT_BLOCK_PATTERN = re.compile(
 )
 
 
-def ensure_agent_instructions(root: Path, integrations: tuple[str, ...]) -> list[Path]:
+def _agent_mode_instruction(development_mode: str) -> str:
+    """Renderiza a regra arquitetural persistida no bloco do agente."""
+    if development_mode == "separated":
+        return (
+            "### Estratégia de desenvolvimento do backlog\n\n"
+            "- O modo é separado: conclua todos os nós L2 como frontend/view antes de liberar qualquer L3.\n"
+            "- Nas tasks L2, implemente a tela, estados, interações e links/transições entre telas; não implemente controller, model, regra de negócio, persistência ou integrações de backend.\n"
+            "- Nas tasks L3, implemente o backend/controller/model e seus testes; o loop de testes não cria testes para L2.\n"
+            "- Os filtros `--frontend` e `--backend` são transitórios e não concluem a outra camada."
+        )
+    return (
+        "### Estratégia de desenvolvimento do backlog\n\n"
+        "- O modo é conjunto: cada task segue a ordem do cursor e implementa a tela/view e o comportamento funcional descritos no nó e nos subfluxos.\n"
+        "- Preserve a navegação entre telas e implemente as camadas de backend quando elas fizerem parte do escopo entregue.\n"
+        "- Os filtros `--frontend` e `--backend` permitem consultar uma camada por vez sem alterar a ordem ou concluir o restante do backlog."
+    )
+
+
+def _agent_block(development_mode: str | None = None) -> str:
+    """Monta o bloco gerenciado pelo Looper para o modo efetivo."""
+    mode = development_mode if development_mode in {"sequential", "separated"} else "sequential"
+    return _LOOPER_AGENT_SHARED_BLOCK.replace("{mode_instruction}", _agent_mode_instruction(mode))
+
+
+Looper_AGENT_BLOCK = _agent_block("sequential")
+
+
+def ensure_agent_instructions(root: Path, integrations: tuple[str, ...], development_mode: str | None = None) -> list[Path]:
     """Instala instruções locais do Looper nos arquivos reconhecidos por cada agente.
     Cria ou atualiza AGENTS.md, CLAUDE.md e GEMINI.md sem tocar em arquivos globais e sem duplicar o bloco.
     """
@@ -248,7 +276,7 @@ def ensure_agent_instructions(root: Path, integrations: tuple[str, ...]) -> list
         )
         existing = instruction_path.read_text(encoding="utf-8") if instruction_path.exists() else ""
         without_looper = _Looper_AGENT_BLOCK_PATTERN.sub("", existing).lstrip("\n")
-        updated = Looper_AGENT_BLOCK + ("\n\n" + without_looper if without_looper else "\n")
+        updated = _agent_block(development_mode) + ("\n\n" + without_looper if without_looper else "\n")
         if updated != existing:
             instruction_path.parent.mkdir(parents=True, exist_ok=True)
             instruction_path.write_text(updated, encoding="utf-8")
@@ -256,7 +284,29 @@ def ensure_agent_instructions(root: Path, integrations: tuple[str, ...]) -> list
     return changed
 
 
-def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list[Path]:
+def _resolve_init_development_mode(config: Path, requested: str | None) -> tuple[str, bool]:
+    """Lê, normaliza e persiste o modo antes de instalar instruções de agente."""
+    try:
+        config_data = json.loads(config.read_text(encoding="utf-8"))
+        if not isinstance(config_data, dict):
+            config_data = {}
+    except (OSError, json.JSONDecodeError):
+        config_data = {}
+    backlog_config = config_data.setdefault("backlog", {})
+    if not isinstance(backlog_config, dict):
+        backlog_config = {}
+        config_data["backlog"] = backlog_config
+    mode = requested if requested in {"sequential", "separated"} else backlog_config.get("development_mode")
+    if mode not in {"sequential", "separated"}:
+        mode = "sequential"
+    changed = backlog_config.get("development_mode") != mode
+    if changed:
+        backlog_config["development_mode"] = mode
+        config.write_text(json.dumps(config_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return mode, changed
+
+
+def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), development_mode: str | None = None) -> list[Path]:
     """Inicializa a estrutura do projeto e instala as skills dos agentes.
     Cria as pastas internas de execuções/features e copia os templates Markdown para .agents/skills.
     """
@@ -309,6 +359,7 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list
                         "task_batch_size": 1,
                         "task_batch_scope": "task",
                         "task_delivery_scope": "task",
+                        "development_mode": "sequential",
                         "min_task_interval_seconds": 0,
                         "l2_post_verification_tasks": False,
                         "level_2_meaning": "Tela",
@@ -349,7 +400,10 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",)) -> list
                     target.write_text(source_text, encoding="utf-8")
                     if target not in created:
                         created.append(target)
-    created.extend(ensure_agent_instructions(root, integrations))
+    config_mode, config_changed = _resolve_init_development_mode(config, development_mode)
+    if config_changed and config not in created:
+        created.append(config)
+    created.extend(ensure_agent_instructions(root, integrations, config_mode))
     return created
 
 

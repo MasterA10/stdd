@@ -18,7 +18,8 @@
   "backlog": {
     "bootstrap_task": true,
     "l2_verification_interval": 1,
-    "final_verification_task": true
+    "final_verification_task": true,
+    "development_mode": "separated"
   },
   "static_analysis": {
     "enabled": true,

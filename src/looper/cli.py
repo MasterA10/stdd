@@ -28,6 +28,7 @@ from .backlog import (
     next_backlog_change,
     set_backlog_config,
     VALID_TASK_DELIVERY_SCOPES,
+    VALID_DEVELOPMENT_MODES,
 )
 from .draw import (
     analyze_draw_contract,
@@ -103,6 +104,9 @@ def _compact_backlog_response(response: dict[str, object]) -> dict[str, object]:
         "path": response.get("path"),
         "state": response.get("state"),
         "task_delivery_scope": response.get("task_delivery_scope"),
+        "development_mode": response.get("development_mode"),
+        "implementation_layer": response.get("implementation_layer"),
+        "tests_required": response.get("tests_required"),
     }
     if parent.get("id") and parent.get("id") != task.get("id"):
         compact["parent"] = parent.get("label")
@@ -194,6 +198,8 @@ def _format_backlog_response(response: dict[str, object]) -> str:
         return "Fase de testes concluída. Não há tasks de teste pendentes."
     if kind == "backlog-test-disabled":
         return "Loop de testes desabilitado. O backlog entrega somente implementação; use looper backlog task."
+    if kind == "backlog-layer-empty":
+        return f"Não há tasks pendentes para a camada {response.get('layer', 'solicitada')}. O restante do backlog continua disponível."
 
     compact = _compact_backlog_response(response)
     if kind == "backlog-bootstrap-task":
@@ -220,6 +226,12 @@ def _format_backlog_response(response: dict[str, object]) -> str:
         lines.append(f"Nó: {compact['node_id']}")
     if compact.get("task_id"):
         lines.append(f"ID: {compact['task_id']}")
+    if compact.get("development_mode"):
+        lines.append(f"Arquitetura do loop: {compact['development_mode']}")
+    if compact.get("implementation_layer"):
+        lines.append(f"Camada: {compact['implementation_layer']}")
+    if compact.get("tests_required") is False:
+        lines.append("Testes: não aplicáveis nesta fase de frontend")
     if compact.get("description"):
         lines.append(f"Descrição: {compact['description']}")
     delivery_subtasks = compact.get("delivery_subtasks")
@@ -294,6 +306,7 @@ def init(
     all_integrations: bool = typer.Option(False, "--all-integrations", help="Instala as skills para Codex, Claude e Gemini."),
     interactive: bool = typer.Option(False, "--interactive", help="Abre a seleção numérica de integrações e setup."),
     task_delivery_scope: Optional[str] = typer.Option(None, "--task-delivery-scope", help="Como entregar as tasks em testes e implementação: node (tela, funcionamento e internos juntos) ou task (uma por vez)."),
+    development_mode: Optional[str] = typer.Option(None, "--development-mode", help="Ordem arquitetural: sequential ou separated (todas as telas L2 antes do backend L3)."),
     l2_verification_interval: Optional[int] = typer.Option(None, "--l2-verification-interval", "--verification-interval", min=0, help="Insere uma task de conferência a cada N nós L2 concluídos; 0 desabilita."),
     test_loop_enabled: Optional[bool] = typer.Option(None, "--test-loop/--no-test-loop", help="Habilita ou desabilita a fase de testes do backlog; desabilitada entrega somente implementação."),
 ) -> None:
@@ -317,7 +330,10 @@ def init(
     if task_delivery_scope is not None and task_delivery_scope not in VALID_TASK_DELIVERY_SCOPES:
         typer.echo("Erro: --task-delivery-scope deve ser node ou task.", err=True)
         raise typer.Exit(1)
-    created = init_project(target, integrations=requested)
+    if development_mode is not None and development_mode not in VALID_DEVELOPMENT_MODES:
+        typer.echo("Erro: --development-mode deve ser sequential ou separated.", err=True)
+        raise typer.Exit(1)
+    created = init_project(target, integrations=requested, development_mode=development_mode)
     typer.echo(f"Projeto inicializado em {target}. {len(created)} itens criados ou atualizados.")
     if interactive or sys.stdin.isatty():
         if typer.confirm("Executar o setup para detectar a stack agora?", default=True):
@@ -337,6 +353,7 @@ def init(
             if test_loop_enabled is not None
             else choose_test_loop_enabled()
         )
+        selected_development_mode = development_mode or get_backlog_config(target).get("development_mode", "sequential")
         set_backlog_config(
             target,
             level_2_meaning=level_2_meaning,
@@ -344,13 +361,15 @@ def init(
             task_delivery_scope=selected_task_delivery_scope,
             verification_interval=selected_l2_verification_interval,
             test_loop_enabled=selected_test_loop_enabled,
+            development_mode=selected_development_mode,
         )
-    elif task_delivery_scope is not None or l2_verification_interval is not None or test_loop_enabled is not None:
+    elif task_delivery_scope is not None or l2_verification_interval is not None or test_loop_enabled is not None or development_mode is not None:
         set_backlog_config(
             target,
             task_delivery_scope=task_delivery_scope,
             verification_interval=l2_verification_interval,
             test_loop_enabled=test_loop_enabled,
+            development_mode=development_mode,
         )
     unavailable = [name for name, found in available_integrations().items() if name in requested and not found]
     if unavailable:
@@ -557,12 +576,18 @@ def backlog_missing() -> None:
 @backlog_app.command("task")
 def backlog_task(
     interval: Optional[int] = typer.Option(None, "--interval", "--verification-interval", help="Sobrescreve o intervalo de nós L2 para injeção de tarefas de verificação."),
+    layer: Optional[str] = typer.Option(None, "--layer", help="Filtra a entrega: frontend, backend ou all."),
+    frontend: bool = typer.Option(False, "--frontend", help="Entrega somente tasks frontend/L2."),
+    backend: bool = typer.Option(False, "--backend", help="Entrega somente tasks backend/L3."),
 ) -> None:
     """Entrega uma única task e a reserva para o agente atual.
     Exibe somente o contexto acionável em linguagem humana.
     """
     try:
-        response = next_backlog_task(project_root(), verification_interval=interval)
+        if frontend and backend:
+            raise ValueError("--frontend e --backend não podem ser usados juntos")
+        selected_layer = "frontend" if frontend else "backend" if backend else layer
+        response = next_backlog_task(project_root(), verification_interval=interval, layer=selected_layer)
         typer.echo(_format_backlog_response(response))
     except (OSError, ValueError) as error:
         typer.echo(f"Erro: {error}", err=True)
@@ -577,13 +602,14 @@ def backlog_config(
     task_batch_size: Optional[int] = typer.Option(None, "--task-batch-size", min=1, max=5, help="Quantidade de tasks entregues no lote (1 a 5)."),
     task_batch_scope: Optional[str] = typer.Option(None, "--task-batch-scope", help="Escopo do lote: task ou node."),
     task_delivery_scope: Optional[str] = typer.Option(None, "--task-delivery-scope", help="Escopo comum de testes e implementação: task ou node (tela e funcionamento com os subfluxos)."),
+    development_mode: Optional[str] = typer.Option(None, "--development-mode", help="Ordem arquitetural: sequential ou separated (frontend L2 antes de backend L3)."),
     min_task_interval_seconds: Optional[int] = typer.Option(None, "--min-task-interval-seconds", min=0, help="Janela mínima anti-script entre avanços."),
     test_loop_enabled: Optional[bool] = typer.Option(None, "--test-loop/--no-test-loop", help="Habilita ou desabilita o loop de testes."),
 ) -> None:
     """Exibe ou atualiza as configurações do backlog em .looper/config.json."""
     try:
         root = project_root()
-        if interval is not None or bootstrap is not None or final_verification is not None or task_batch_size is not None or task_batch_scope is not None or task_delivery_scope is not None or min_task_interval_seconds is not None or test_loop_enabled is not None:
+        if interval is not None or bootstrap is not None or final_verification is not None or task_batch_size is not None or task_batch_scope is not None or task_delivery_scope is not None or development_mode is not None or min_task_interval_seconds is not None or test_loop_enabled is not None:
             updated = set_backlog_config(
                 root,
                 verification_interval=interval,
@@ -592,6 +618,7 @@ def backlog_config(
                 task_batch_size=task_batch_size,
                 task_batch_scope=task_batch_scope,
                 task_delivery_scope=task_delivery_scope,
+                development_mode=development_mode,
                 min_task_interval_seconds=min_task_interval_seconds,
                 test_loop_enabled=test_loop_enabled,
             )
@@ -605,20 +632,34 @@ def backlog_config(
 
 
 @backlog_app.command("test")
-def backlog_test() -> None:
+def backlog_test(
+    layer: Optional[str] = typer.Option(None, "--layer", help="Filtra a entrega: frontend, backend ou all."),
+    frontend: bool = typer.Option(False, "--frontend", help="Entrega somente testes frontend/L2."),
+    backend: bool = typer.Option(False, "--backend", help="Entrega somente testes backend/L3."),
+) -> None:
     """Entrega uma task incremental para criação dos testes do nó e subfluxos."""
     try:
-        typer.echo(_format_backlog_response(next_backlog_test(project_root())))
+        if frontend and backend:
+            raise ValueError("--frontend e --backend não podem ser usados juntos")
+        selected_layer = "frontend" if frontend else "backend" if backend else layer
+        typer.echo(_format_backlog_response(next_backlog_test(project_root(), layer=selected_layer)))
     except (OSError, ValueError) as error:
         typer.echo(f"Erro: {error}", err=True)
         raise typer.Exit(1)
 
 
 @backlog_app.command("change")
-def backlog_change() -> None:
+def backlog_change(
+    layer: Optional[str] = typer.Option(None, "--layer", help="Filtra a entrega: frontend, backend ou all."),
+    frontend: bool = typer.Option(False, "--frontend", help="Entrega somente alterações frontend/L2."),
+    backend: bool = typer.Option(False, "--backend", help="Entrega somente alterações backend/L3."),
+) -> None:
     """Entrega um pedido de alteração registrado no ícone de loop de um nó."""
     try:
-        typer.echo(_format_backlog_response(next_backlog_change(project_root())))
+        if frontend and backend:
+            raise ValueError("--frontend e --backend não podem ser usados juntos")
+        selected_layer = "frontend" if frontend else "backend" if backend else layer
+        typer.echo(_format_backlog_response(next_backlog_change(project_root(), layer=selected_layer)))
     except (OSError, ValueError) as error:
         typer.echo(f"Erro: {error}", err=True)
         raise typer.Exit(1)

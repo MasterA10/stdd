@@ -20,10 +20,52 @@ DEFAULT_MIN_TASK_INTERVAL_SECONDS = 0
 DEFAULT_TASK_BATCH_SIZE = 1
 VALID_TASK_BATCH_SCOPES = {"task", "node"}
 VALID_TASK_DELIVERY_SCOPES = {"task", "node"}
+VALID_DEVELOPMENT_MODES = {"sequential", "separated"}
+VALID_TASK_LAYERS = {"frontend", "backend"}
 DEFAULT_LEVEL_MEANINGS = {
     "2": "Tela",
     "3": "Regra de negócio e detalhes da tela",
 }
+
+
+def _development_mode(root: Path) -> str:
+    """Retorna a ordem arquitetural do loop de desenvolvimento.
+
+    ``sequential`` preserva o fluxo histórico. ``separated`` executa primeiro
+    todas as telas L2 e depois o backend L3, sem exigir testes para as telas.
+    Alguns aliases são aceitos para facilitar a migração de configurações
+    escritas manualmente.
+    """
+    config = _get_backlog_config(root)
+    configured = config.get("development_mode", config.get("implementation_mode", "sequential"))
+    aliases = {
+        "separate": "separated",
+        "frontend_backend": "separated",
+        "frontend-then-backend": "separated",
+        "frontend_then_backend": "separated",
+        "all": "sequential",
+    }
+    normalized = aliases.get(str(configured).strip().casefold(), str(configured).strip().casefold())
+    return normalized if normalized in VALID_DEVELOPMENT_MODES else "sequential"
+
+
+def _normalize_task_layer(layer: str | None) -> str | None:
+    """Normaliza o filtro opcional de tasks por camada."""
+    if layer is None:
+        return None
+    normalized = str(layer).strip().casefold()
+    if normalized in {"", "all", "todas", "todos"}:
+        return None
+    if normalized not in VALID_TASK_LAYERS:
+        raise ValueError("layer deve ser frontend ou backend")
+    return normalized
+
+
+def _layer_matches(task: dict[str, Any], layer: str | None) -> bool:
+    """Confirma se uma task pertence à camada solicitada."""
+    if layer is None:
+        return True
+    return ("frontend" if task.get("level") == 2 else "backend" if task.get("level") == 3 else None) == layer
 
 
 def _test_loop_enabled(root: Path) -> bool:
@@ -136,6 +178,7 @@ def _execution_config(root: Path) -> dict[str, Any]:
         "task_batch_size": size,
         "task_batch_scope": scope,
         "task_delivery_scope": delivery_scope,
+        "development_mode": _development_mode(root),
         "min_task_interval_seconds": interval,
         "lease_seconds": max(3, int(config.get("lease_seconds", 900) or 900)),
     }
@@ -158,6 +201,7 @@ def set_backlog_config(
     level_2_meaning: str | None = None,
     level_3_meaning: str | None = None,
     test_loop_enabled: bool | None = None,
+    development_mode: str | None = None,
 ) -> dict[str, Any]:
     """Atualiza a seção 'backlog' em .looper/config.json de forma persistente."""
     config_path = root / ".looper" / "config.json"
@@ -199,6 +243,19 @@ def set_backlog_config(
         backlog_cfg["min_task_interval_seconds"] = int(min_task_interval_seconds)
     if test_loop_enabled is not None:
         backlog_cfg["test_loop_enabled"] = bool(test_loop_enabled)
+    if development_mode is not None:
+        normalized_mode = str(development_mode).strip().casefold()
+        aliases = {
+            "separate": "separated",
+            "frontend_backend": "separated",
+            "frontend-then-backend": "separated",
+            "frontend_then_backend": "separated",
+            "all": "sequential",
+        }
+        normalized_mode = aliases.get(normalized_mode, normalized_mode)
+        if normalized_mode not in VALID_DEVELOPMENT_MODES:
+            raise ValueError("development_mode deve ser sequential ou separated")
+        backlog_cfg["development_mode"] = normalized_mode
     for level, meaning in ((2, level_2_meaning), (3, level_3_meaning)):
         if meaning is not None:
             normalized = str(meaning).strip()
@@ -934,12 +991,22 @@ def _refresh_test_statuses(
             }
         return
     delivery_scope = _execution_config(root)["task_delivery_scope"]
+    separated = _development_mode(root) == "separated"
     owners = {
         task["id"]: task
         for task in tasks
         if task.get("level") == 2
     }
     for task in owners.values():
+        if separated:
+            task["test_status"] = "not-required"
+            task["test_evidence"] = {
+                "status": "not-required",
+                "reason": "modo separado: telas L2 não entram no loop de testes",
+            }
+            task["test_ref"] = None
+            task["test_ref_error"] = None
+            continue
         reference, error = _normalize_test_ref(task)
         error = task.get("test_ref_error") or error
         evidence = _test_reference_status(root, reference, error)
@@ -959,7 +1026,7 @@ def _refresh_test_statuses(
         if task.get("level") == 2 or not owner_id:
             continue
         previous = previous_tasks.get(task["id"], {})
-        if delivery_scope == "task":
+        if separated or delivery_scope == "task":
             # Em entregas separadas, um L3 não pode ser liberado só porque o
             # teste do L2 foi concluído. Preserve apenas conclusões que já
             # pertenciam ao próprio L3 (sem a referência herdada do L2).
@@ -999,6 +1066,8 @@ def _refresh_checklist_states(tasks: list[dict[str, Any]], previous_tasks: dict[
                 state["test"] = _valid_checklist_state(owner.get("checklist_state")) is not None and owner["checklist_state"]["test"]
         task["checklist_state"] = state
         if task.get("test_status") == "not-required":
+            task["checklist_state"]["test"] = True
+        if task.get("level") == 2 and task.get("test_evidence", {}).get("reason", "").startswith("modo separado"):
             task["checklist_state"]["test"] = True
         if task.get("level") != 2 and task.get("test_status") == "missing" and not task.get("test_manual"):
             task["checklist_state"]["test"] = False
@@ -1121,6 +1190,7 @@ def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]
             "task_batch_size": execution_config["task_batch_size"],
             "task_batch_scope": execution_config["task_batch_scope"],
             "task_delivery_scope": execution_config["task_delivery_scope"],
+            "development_mode": execution_config["development_mode"],
             "completed_branches": [],
             "branches": execution_branches,
         },
@@ -1317,11 +1387,15 @@ def _find_change_requests(root: Path) -> list[dict[str, Any]]:
                 if status not in {"pending", "in_progress"}:
                     continue
                 symbols, dependencies, references = _reference_symbols(node)
+                hierarchy = document.get("_hierarchy", document.get("hierarchy", {}))
+                level = hierarchy.get("level") if isinstance(hierarchy, dict) else None
                 requests.append({
                     "id": _change_task_id(draw_id, node["id"], change["id"]),
                     "draw_id": draw_id,
                     "draw_title": document.get("title", draw_id),
                     "node_id": node["id"],
+                    "level": level,
+                    "implementation_layer": "frontend" if level == 2 else "backend" if level == 3 else None,
                     "label": f"Alteração: {node.get('label', node['id'])}",
                     "description": change.get("prompt", ""),
                     "change_id": change["id"],
@@ -1349,8 +1423,9 @@ def _change_context(change: dict[str, Any], kind: str = "backlog-change-task") -
     }
 
 
-def next_backlog_change(root: Path) -> dict[str, Any]:
+def next_backlog_change(root: Path, layer: str | None = None) -> dict[str, Any]:
     """Reserva um pedido de alteração do Draw sem bloquear os loops de teste e task."""
+    layer = _normalize_task_layer(layer)
     payload = generate_backlog(root)
     execution = payload["execution"]
     current_id = execution.get("current_task_id")
@@ -1358,14 +1433,18 @@ def next_backlog_change(root: Path) -> dict[str, Any]:
     if execution.get("current_phase") == "change" and isinstance(current_id, str):
         current = next((request for request in requests if request["id"] == current_id), None)
         if current is not None:
+            if layer is not None and current.get("implementation_layer") != layer:
+                raise ValueError(f"a alteração atual pertence à camada {current.get('implementation_layer')}; conclua-a antes de pedir somente {layer}")
             return _change_context(current)
         _clear_execution_cursor(execution)
 
     if execution.get("current_task_id"):
         raise ValueError("há uma task de backlog em andamento; conclua-a antes de reservar uma alteração")
-    request = next((item for item in requests if item.get("status") == "pending"), None)
+    request = next((item for item in requests if item.get("status") == "pending" and _layer_matches(item, layer)), None)
     if request is None:
         write_backlog(root, payload)
+        if layer is not None:
+            return {"kind": "backlog-layer-empty", "phase": "change", "status": "complete", "layer": layer, "remaining": 0}
         return {"kind": "backlog-change-empty", "phase": "change", "status": "complete", "remaining": 0}
 
     document = read_draw(root, request["draw_id"])
@@ -1584,6 +1663,7 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
         "path": navigation["access_paths"][0] if navigation["access_paths"] else None,
     }
     delivery_scope = _task_delivery_scope(payload)
+    development_mode = payload.get("execution", {}).get("development_mode", "sequential")
     is_node_delivery = delivery_scope == "node" and task.get("level") == 2 and task.get("id") == parent.get("id")
     node_delivery_note = _node_delivery_note() if is_node_delivery else None
     if is_node_delivery:
@@ -1595,7 +1675,34 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
         response["level_context"] = deepcopy(level_context)
         if is_node_delivery:
             response["level_context"]["guidance"] = node_delivery_note
+    if development_mode == "separated" and task.get("level") in {2, 3}:
+        if task.get("level") == 2:
+            response["implementation_layer"] = "frontend"
+            response["tests_required"] = False
+            response["level_context"] = {
+                "level": 2,
+                "meaning": "Frontend / view",
+                "guidance": "Fase frontend: implemente a view/tela, seus estados visuais, interações e a navegação/links entre telas descritos no fluxo. Deixe controller, model, regras de negócio, persistência e integrações para a fase backend L3.",
+            }
+            if phase == "implementation":
+                instruction = f"{instruction.rstrip()} " if instruction else ""
+                instruction += "Fase frontend: construa a tela/view, os estados e o link/navegação para as telas de destino descritos no Draw; não implemente controller, model, regra de negócio, persistência ou backend."
+        else:
+            response["implementation_layer"] = "backend"
+            response["tests_required"] = True
+            response["level_context"] = {
+                "level": 3,
+                "meaning": "Backend / controller e model",
+                "guidance": "Fase backend: implemente controller, model, regras, persistência e integrações necessárias para o comportamento do L3.",
+            }
+            if phase == "test":
+                instruction = f"{instruction.rstrip()} " if instruction else ""
+                instruction += "Fase backend: crie testes para controller, model e regras deste L3; não crie testes de tela."
+            elif phase == "implementation":
+                instruction = f"{instruction.rstrip()} " if instruction else ""
+                instruction += "Fase backend: implemente controller, model e o comportamento funcional deste L3; a tela já foi tratada na fase frontend."
     response["task_delivery_scope"] = delivery_scope
+    response["development_mode"] = development_mode
     if response["task_delivery_scope"] == "node" and task.get("id") == parent.get("id"):
         response["delivery_subtasks"] = deepcopy(descendants)
     if node_delivery_note:
@@ -1632,6 +1739,10 @@ def _test_scope_tasks(payload: dict[str, Any], task: dict[str, Any]) -> list[dic
 
 def _task_delivery_scope(payload: dict[str, Any]) -> str:
     """Retorna o escopo comum de entrega das fases de teste e implementação."""
+    if payload.get("execution", {}).get("development_mode") == "separated":
+        # A separação por camada não pode agrupar L2 e L3 no mesmo pacote,
+        # mesmo que uma configuração antiga tenha task_delivery_scope=node.
+        return "task"
     scope = payload.get("execution", {}).get("task_delivery_scope")
     if scope not in VALID_TASK_DELIVERY_SCOPES:
         scope = payload.get("execution", {}).get("test_task_scope", "task")
@@ -1642,16 +1753,31 @@ def _test_scope_complete(payload: dict[str, Any], task: dict[str, Any]) -> bool:
     """Verifica evidência e marcação de teste para pai e todos os subfluxos."""
     if payload.get("execution", {}).get("test_loop_enabled", True) is False:
         return True
+    if payload.get("execution", {}).get("development_mode") == "separated":
+        return task.get("level") != 3 or _task_test_complete(task)
     if _task_delivery_scope(payload) == "task":
         return _task_test_complete(task)
     scope = _test_scope_tasks(payload, task)
     return all(_task_test_complete(item) for item in scope)
 
 
-def _pending_test_tasks(payload: dict[str, Any]) -> list[dict[str, Any]]:
+def _pending_test_tasks(payload: dict[str, Any], layer: str | None = None) -> list[dict[str, Any]]:
     """Retorna as tasks que ainda precisam passar pela fase de testes."""
+    layer = _normalize_task_layer(layer)
     if payload.get("execution", {}).get("test_loop_enabled", True) is False:
         return []
+    if payload.get("execution", {}).get("development_mode") == "separated" and layer == "frontend":
+        return []
+    if layer is not None:
+        return [
+            item for item in payload.get("tasks", [])
+            if _layer_matches(item, layer) and not _task_test_complete(item)
+        ]
+    if payload.get("execution", {}).get("development_mode") == "separated":
+        return [
+            item for item in payload.get("tasks", [])
+            if item.get("level") == 3 and not _task_test_complete(item)
+        ]
     if _task_delivery_scope(payload) == "task":
         return [
             item for item in payload.get("tasks", [])
@@ -1663,12 +1789,31 @@ def _pending_test_tasks(payload: dict[str, Any]) -> list[dict[str, Any]]:
     ]
 
 
-def _implementation_delivery_task(payload: dict[str, Any], task: dict[str, Any]) -> dict[str, Any]:
+def _implementation_delivery_task(payload: dict[str, Any], task: dict[str, Any], layer: str | None = None) -> dict[str, Any]:
     """Agrupa subfluxos na task pai quando o escopo de entrega é `node`."""
+    if layer is not None or payload.get("execution", {}).get("development_mode") == "separated":
+        return task
     if _task_delivery_scope(payload) != "node":
         return task
     parent = _parent_task(payload.get("tasks", []), task)
     return parent if parent.get("status") != "done" else task
+
+
+def _next_implementation_task(payload: dict[str, Any], layer: str | None = None) -> dict[str, Any] | None:
+    """Escolhe a próxima task respeitando a ordem arquitetural configurada."""
+    layer = _normalize_task_layer(layer)
+    pending = [
+        item for item in payload.get("tasks", [])
+        if item.get("status") != "done" and _layer_matches(item, layer)
+    ]
+    if layer is not None:
+        return pending[0] if pending else None
+    if payload.get("execution", {}).get("development_mode") != "separated":
+        return pending[0] if pending else None
+    screens = [item for item in pending if item.get("level") == 2]
+    if screens:
+        return screens[0]
+    return next((item for item in pending if item.get("level") == 3), None)
 
 
 def _refresh_task_checklist_items(payload: dict[str, Any]) -> None:
@@ -1714,10 +1859,11 @@ def update_backlog_checklist(root: Path, task_id: str, phase: str, checked: bool
     return {"kind": "backlog-checklist-updated", "phase": phase, "checked": checked, "task": task, "backlog": payload}
 
 
-def next_backlog_test(root: Path) -> dict[str, Any]:
+def next_backlog_test(root: Path, layer: str | None = None) -> dict[str, Any]:
     """Entrega a próxima task de teste antes da implementação.
     Mantém a reserva incremental e agrega os subfluxos na task de nível 2.
     """
+    layer = _normalize_task_layer(layer)
     payload = generate_backlog(root)
     if not _test_loop_enabled(root):
         return {
@@ -1729,6 +1875,9 @@ def next_backlog_test(root: Path) -> dict[str, Any]:
     execution = payload["execution"]
     current_id = execution.get("current_task_id")
     current = next((task for task in payload["tasks"] if task["id"] == current_id), None)
+    if layer is not None and current is not None and not _layer_matches(current, layer):
+        current_layer = "frontend" if current.get("level") == 2 else "backend"
+        raise ValueError(f"a task atual pertence à camada {current_layer}; conclua-a antes de pedir somente {layer}")
     if current_id == "task:bootstrap":
         return _task_context(root, payload, _create_injected_bootstrap_task(), "bootstrap", "backlog-bootstrap-task", _bootstrap_instruction())
 
@@ -1769,10 +1918,12 @@ def next_backlog_test(root: Path) -> dict[str, Any]:
         return _task_context(root, payload, current, "test", "backlog-test-task")
     if execution.get("current_phase") in {"bootstrap", "implementation"} and current is not None:
         raise ValueError("a task atual já está na fase de implementação")
-    task = next(iter(_pending_test_tasks(payload)), None)
+    task = next(iter(_pending_test_tasks(payload, layer)), None)
     if task is None:
         _clear_execution_cursor(execution)
         write_backlog(root, payload)
+        if layer is not None:
+            return {"kind": "backlog-layer-empty", "phase": "test", "status": "complete", "layer": layer, "remaining": 0}
         return {"kind": "backlog-test-empty", "status": "complete", "remaining": 0}
     task["test_status"] = "in_progress"
     task["test_previous_status"] = task.get("status")
@@ -1799,8 +1950,9 @@ def next_backlog_test(root: Path) -> dict[str, Any]:
     )
 
 
-def next_backlog_task(root: Path, verification_interval: int | None = None) -> dict[str, Any]:
+def next_backlog_task(root: Path, verification_interval: int | None = None, layer: str | None = None) -> dict[str, Any]:
     """Entrega e persiste a próxima task da ordem de branches."""
+    layer = _normalize_task_layer(layer)
     payload = generate_backlog(root)
     execution = payload["execution"]
     current_id = execution.get("current_task_id")
@@ -1864,6 +2016,9 @@ def next_backlog_task(root: Path, verification_interval: int | None = None) -> d
             )
 
         current = next((task for task in payload["tasks"] if task["id"] == current_id), None)
+        if layer is not None and current is not None and not _layer_matches(current, layer):
+            current_layer = "frontend" if current.get("level") == 2 else "backend"
+            raise ValueError(f"a task atual pertence à camada {current_layer}; conclua-a antes de pedir somente {layer}")
         if tests_enabled and current_phase == "test" and current and not _test_scope_complete(payload, current):
             response = _task_context(root, payload, current, "test", "backlog-test-required")
             response.update({"status": "blocked", "reason": "test_in_progress"})
@@ -1887,7 +2042,7 @@ def next_backlog_task(root: Path, verification_interval: int | None = None) -> d
         return _task_context(root, payload, task, "implementation", "backlog-task", _bootstrap_instruction())
 
     # 3. Se o próximo nó L2 ainda não tem testes comprovados, bloqueia avisando backlog-test-required
-    pending_task = next((item for item in payload["tasks"] if item.get("status") != "done"), None)
+    pending_task = _next_implementation_task(payload, layer)
     if tests_enabled and pending_task and not _test_scope_complete(payload, pending_task):
         response = _task_context(root, payload, pending_task, "test", "backlog-test-required")
         response.update({"status": "blocked", "reason": "test_missing" if pending_task.get("test_status") == "missing" else "test_not_complete"})
@@ -1895,7 +2050,7 @@ def next_backlog_task(root: Path, verification_interval: int | None = None) -> d
 
     # 4. Verifica se há verificação de nó L2 pendente que deve rodar antes das próximas tasks
     interval = config.get("l2_verification_interval", config.get("verification_interval", 0))
-    if interval > 0:
+    if interval > 0 and layer != "backend":
         tasks_by_id = {t["id"]: t for t in payload["tasks"]}
         l2_tasks = [t for t in payload["tasks"] if t.get("level") == 2]
         verified_ids = set(execution.get("verified_l2_task_ids", []))
@@ -1925,11 +2080,11 @@ def next_backlog_task(root: Path, verification_interval: int | None = None) -> d
             )
 
     # 5. Busca a próxima task normal do backlog
-    task = next((item for item in payload["tasks"] if item.get("status") != "done"), None)
+    task = _next_implementation_task(payload, layer)
     if task is None:
         # Se todas as tasks normais foram concluídas, verifica se precisamos da Task Final
         final_enabled = config.get("final_verification_task", config.get("final_verification_enabled", False))
-        if has_tasks and final_enabled and not execution.get("final_verification_done", False):
+        if has_tasks and layer is None and final_enabled and not execution.get("final_verification_done", False):
             final_task = _create_injected_final_task()
             execution["current_task_id"] = final_task["id"]
             _mark_claim(execution)
@@ -1947,9 +2102,11 @@ def next_backlog_task(root: Path, verification_interval: int | None = None) -> d
 
         _clear_execution_cursor(execution)
         write_backlog(root, payload)
+        if layer is not None:
+            return {"kind": "backlog-layer-empty", "status": "complete", "layer": layer, "remaining": 0}
         return {"kind": "backlog-empty", "status": "complete", "remaining": 0}
 
-    task = _implementation_delivery_task(payload, task)
+    task = _implementation_delivery_task(payload, task, layer)
 
     # 6. Se for nó L2 sem teste comprovado, bloqueia avisando
     if tests_enabled and not _test_scope_complete(payload, task):

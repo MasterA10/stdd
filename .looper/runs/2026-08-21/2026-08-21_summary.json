@@ -1,0 +1,260 @@
+{
+  "version": 1,
+  "date": "2026-08-21",
+  "runs": [
+    {
+      "run_id": "ac42180ab2234ce69ff26a3555fb875f",
+      "timestamp": "2026-08-21T00:39:34.381321+00:00",
+      "description": "Adiciona modo separado frontend L2 e backend L3 no loop de backlog",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 182,
+        "lines_deleted": 5,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "74e215dd0187449ba9673096b110b106",
+      "timestamp": "2026-08-21T00:39:52.114854+00:00",
+      "description": "Valida separação L2/L3 e configuração no init",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d7c380e508bc4310b34452716a67997d",
+      "timestamp": "2026-08-21T00:53:24.933770+00:00",
+      "description": "Valida flags de camada nas filas de task e teste",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 126,
+        "lines_deleted": 16,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "78ab747b06c943dc9ca01b240391d527",
+      "timestamp": "2026-08-21T00:53:24.934752+00:00",
+      "description": "Adiciona filtros frontend e backend ao backlog",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 126,
+        "lines_deleted": 16,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "4c0b77ed96c9431aa32503dec7801c36",
+      "timestamp": "2026-08-21T00:55:35.897969+00:00",
+      "description": "Adiciona filtros de camada ao backlog change",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 48,
+        "lines_deleted": 4,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "a256767b69794c8d863b981cd2341cec",
+      "timestamp": "2026-08-21T00:55:39.554491+00:00",
+      "description": "Valida filtros frontend/backend no cursor de alterações",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "2724485adbe54306920d2f93773aa3f8",
+      "timestamp": "2026-08-21T01:04:09.463281+00:00",
+      "description": "Cria skill Backend Developer com logging transversal e testes de APIs externas",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 91,
+        "lines_deleted": 7,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "21b86dc66d794ebcbc5a8b7cf1e06b3f",
+      "timestamp": "2026-08-21T01:04:13.158889+00:00",
+      "description": "Valida skill Backend Developer e instalação das skills",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "e90e2027abfe4a3b809c83c5f314bfc8",
+      "timestamp": "2026-08-21T01:04:15.524085+00:00",
+      "description": "Cria skill Backend Developer com logging transversal e testes de APIs externas",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "f76425558db84e729d6e69f640e3e085",
+      "timestamp": "2026-08-21T01:04:19.152621+00:00",
+      "description": "Valida skill Backend Developer e instalação das skills",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "5ed6e37090ee47e0a4f94fd16a5fa22b",
+      "timestamp": "2026-08-21T01:06:17.637311+00:00",
+      "description": "Atualiza Backend Developer para os níveis error, warn, info e debug",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 2,
+        "lines_deleted": 1,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "6aabd869ef404129903f19c51e694cd7",
+      "timestamp": "2026-08-21T01:06:21.326955+00:00",
+      "description": "Valida a skill com os quatro níveis de log",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    }
+  ],
+  "run_count": 12,
+  "last_run_id": "6aabd869ef404129903f19c51e694cd7"
+}

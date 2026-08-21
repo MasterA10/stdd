@@ -50,19 +50,19 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
         assert installed.read_text(encoding="utf-8") == source.read_text(encoding="utf-8")
 
 
-def test_init_migrates_legacy_stdd_state_and_text_references(tmp_path: Path):
-    """Converte um projeto inicializado pelo STDD sem apagar seu estado.
-    Move `.stdd` para `.looper` e atualiza referências textuais em arquivos do projeto.
+def test_init_migrates_legacy_looper_state_and_text_references(tmp_path: Path):
+    """Converte um projeto inicializado pelo LOOPER sem apagar seu estado.
+    Move `.looper` para `.looper` e atualiza referências textuais em arquivos do projeto.
     """
-    legacy = tmp_path / ".stdd"
+    legacy = tmp_path / ".looper"
     (legacy / "draws").mkdir(parents=True)
     (legacy / "config.json").write_text('{"legacy": true}\n', encoding="utf-8")
     (legacy / "draws" / "journey.json").write_text(
-        '{"draw_file": ".stdd/draws/journey.json", "tool": "STDD"}\n',
+        '{"draw_file": ".looper/draws/journey.json", "tool": "LOOPER"}\n',
         encoding="utf-8",
     )
-    (tmp_path / "AGENTS.md").write_text("Use stdd test e leia .stdd/config.json.\n", encoding="utf-8")
-    (tmp_path / ".gitignore").write_text("# STDD managed rules\n", encoding="utf-8")
+    (tmp_path / "AGENTS.md").write_text("Use looper test e leia .looper/config.json.\n", encoding="utf-8")
+    (tmp_path / ".gitignore").write_text("# LOOPER managed rules\n", encoding="utf-8")
 
     result = runner.invoke(app, ["init", str(tmp_path), "--integration", "codex"])
     assert result.exit_code == 0, result.output
@@ -72,7 +72,7 @@ def test_init_migrates_legacy_stdd_state_and_text_references(tmp_path: Path):
     assert migrated_config["legacy"] is True
     migrated_draw = (tmp_path / ".looper/draws/journey.json").read_text(encoding="utf-8")
     assert "looper" in migrated_draw.lower()
-    assert "stdd" not in migrated_draw.lower()
+    assert "looper" not in migrated_draw.lower()
     assert "looper test" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert ".looper/config.json" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert "LOOPER managed rules" in (tmp_path / ".gitignore").read_text(encoding="utf-8")
@@ -103,6 +103,32 @@ def test_init_defers_language_specific_test_runner_to_setup(tmp_path: Path):
     assert config["backlog"]["task_delivery_scope"] == "task"
     assert config["backlog"]["level_2_meaning"] == "Tela"
     assert config["backlog"]["level_3_meaning"] == "Regra de negócio e detalhes da tela"
+
+
+def test_init_injects_agent_instruction_for_effective_development_mode(tmp_path: Path):
+    """Renderiza no AGENTS.md a estratégia correspondente ao modo do init."""
+    init_project(tmp_path, development_mode="separated")
+    agents = (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "O modo é separado" in agents
+    assert "todos os nós L2 como frontend/view" in agents
+    assert "o loop de testes não cria testes para L2" in agents
+    assert "O modo é conjunto" not in agents
+
+    init_project(tmp_path, development_mode="sequential")
+    agents = (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "O modo é conjunto" in agents
+    assert "O modo é separado" not in agents
+
+
+def test_init_cli_persists_mode_before_installing_agent_instructions(tmp_path: Path):
+    """A flag do init atualiza config e AGENTS.md na mesma inicialização."""
+    result = runner.invoke(app, ["init", str(tmp_path), "--development-mode", "separated"])
+
+    assert result.exit_code == 0, result.output
+    config = json.loads((tmp_path / ".looper/config.json").read_text(encoding="utf-8"))
+    agents = (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert config["backlog"]["development_mode"] == "separated"
+    assert "O modo é separado" in agents
 
 
 def test_init_creates_static_analysis_without_frontend_policy(tmp_path: Path):
@@ -230,8 +256,14 @@ def test_agents_are_loaded_from_markdown_templates():
     Chama agent_templates e valida a presença dos títulos dos agentes create-tests, implement e setup.
     """
     templates = {template.parent.name: template for template in agent_templates()}
-    assert set(templates) == {"create-tests-backlog", "draw-interaction", "draw-feature", "draw-improve", "draw-system-level-1", "draw-system-level-2", "draw-system-level-3", "draw-system-level-4", "implement-backlog", "missing", "modern-web-guidance", "open-design", "setup", "static-analysis"}
+    assert set(templates) == {"backend-developer", "create-tests-backlog", "draw-interaction", "draw-feature", "draw-improve", "draw-system-level-1", "draw-system-level-2", "draw-system-level-3", "draw-system-level-4", "implement-backlog", "missing", "modern-web-guidance", "open-design", "setup", "static-analysis"}
     assert "# Create Tests Backlog Agent" in templates["create-tests-backlog"].read_text()
+    assert "# Backend Developer" in templates["backend-developer"].read_text()
+    backend_skill = templates["backend-developer"].read_text().lower()
+    assert "exatamente quatro níveis" in backend_skill
+    assert "`warn`" in backend_skill and "`info`" in backend_skill
+    assert "credenciais deliberadamente inválidas" in backend_skill
+    assert "console" in backend_skill and "banco de dados" in backend_skill
     assert "# Implement Backlog Agent" in templates["implement-backlog"].read_text()
     assert "# Missing Agent" in templates["missing"].read_text()
     assert "lendo símbolos" in templates["missing"].read_text().lower()

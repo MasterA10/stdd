@@ -253,6 +253,34 @@ def test_backlog_change_reserves_and_completes_node_change_request(tmp_path: Pat
     assert next_backlog_change(tmp_path)["kind"] == "backlog-change-empty"
 
 
+def test_backlog_change_layer_flags_filter_l2_and_l3_requests(tmp_path: Path, monkeypatch):
+    """Aplica os filtros frontend/backend também ao cursor de alterações."""
+    _create_nested_hierarchical_fixture(tmp_path)
+    parent_path = tmp_path / ".looper" / "draws" / "jornada.json"
+    child_path = tmp_path / ".looper" / "draws" / "subjornada.json"
+    parent = json.loads(parent_path.read_text(encoding="utf-8"))
+    child = json.loads(child_path.read_text(encoding="utf-8"))
+    parent["nodes"][0]["changes"] = [{"id": 1, "prompt": "Ajuste visual da tela.", "status": "pending"}]
+    child["nodes"][0]["changes"] = [{"id": 1, "prompt": "Ajuste de regra do backend.", "status": "pending"}]
+    create_draw(tmp_path, parent)
+    create_draw(tmp_path, child)
+    monkeypatch.chdir(tmp_path)
+
+    frontend = runner.invoke(app, ["backlog", "change", "--frontend"])
+    assert frontend.exit_code == 0, frontend.output
+    assert "change:jornada:node:1:request:1" in frontend.output
+    complete_backlog_task(tmp_path, "change:jornada:node:1:request:1")
+
+    backend = runner.invoke(app, ["backlog", "change", "--backend"])
+    assert backend.exit_code == 0, backend.output
+    assert "change:subjornada:node:1:request:1" in backend.output
+    complete_backlog_task(tmp_path, "change:subjornada:node:1:request:1")
+
+    empty = runner.invoke(app, ["backlog", "change", "--frontend"])
+    assert empty.exit_code == 0, empty.output
+    assert "Não há tasks pendentes para a camada frontend" in empty.output
+
+
 def test_backlog_test_creates_test_phase_then_releases_same_task_for_implementation(tmp_path: Path):
     """Executa a fase de testes antes da fase de implementação da mesma task.
     Completa o teste, reserva a implementação e mantém o ID operacional.
@@ -472,6 +500,110 @@ def test_backlog_delivery_scope_groups_tests_and_implementation_by_node(tmp_path
 
     next_implementation = next_backlog_task(tmp_path)
     assert next_implementation["task"]["id"] == "task:jornada:node:2"
+
+
+def test_separated_development_mode_delivers_frontend_then_backend_and_tests_only_l3(tmp_path: Path):
+    """Executa todas as telas antes do backend e injeta testes apenas para L3.
+    A instrução frontend mantém navegação entre telas e exclui lógica de negócio.
+    """
+    _create_nested_hierarchical_fixture(tmp_path, delivery_scope="node")
+    config_path = tmp_path / ".looper" / "config.json"
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    config["backlog"]["development_mode"] = "separated"
+    config_path.write_text(json.dumps(config), encoding="utf-8")
+
+    test_task = next_backlog_test(tmp_path)
+    assert test_task["task"]["level"] == 3
+    assert test_task["implementation_layer"] == "backend"
+    assert test_task["tests_required"] is True
+    complete_backlog_task(tmp_path, test_task["task"]["id"])
+    second_test = next_backlog_test(tmp_path)
+    assert second_test["task"]["level"] == 3
+    complete_backlog_task(tmp_path, second_test["task"]["id"])
+    assert next_backlog_test(tmp_path)["kind"] == "backlog-test-empty"
+
+    payload = read_backlog(tmp_path)
+    assert all(task["test_status"] == "not-required" for task in payload["tasks"] if task["level"] == 2)
+
+    frontend_ids = []
+    for expected_id in ("task:jornada:node:1", "task:jornada:node:2", "task:jornada:node:3"):
+        frontend = next_backlog_task(tmp_path)
+        assert frontend["task"]["id"] == expected_id
+        assert frontend["implementation_layer"] == "frontend"
+        assert frontend["tests_required"] is False
+        assert "link/navegação" in frontend["instruction"]
+        assert "não implemente controller" in frontend["instruction"]
+        frontend_ids.append(frontend["task"]["id"])
+        complete_backlog_task(tmp_path, frontend["task"]["id"])
+
+    backend = next_backlog_task(tmp_path)
+    assert backend["task"]["level"] == 3
+    assert backend["implementation_layer"] == "backend"
+    complete_backlog_task(tmp_path, backend["task"]["id"])
+    assert next_backlog_task(tmp_path)["task"]["level"] == 3
+
+
+def test_development_mode_is_configurable_from_cli(tmp_path: Path, monkeypatch):
+    """Persiste o modo separado pelo init e pelo comando de configuração."""
+    result = runner.invoke(app, ["init", str(tmp_path), "--development-mode", "separated"])
+    assert result.exit_code == 0, result.output
+    config = json.loads((tmp_path / ".looper/config.json").read_text(encoding="utf-8"))
+    assert config["backlog"]["development_mode"] == "separated"
+
+    monkeypatch.chdir(tmp_path)
+    result = runner.invoke(app, ["backlog", "config", "--development-mode", "sequential"])
+    assert result.exit_code == 0, result.output
+    config = json.loads((tmp_path / ".looper/config.json").read_text(encoding="utf-8"))
+    assert config["backlog"]["development_mode"] == "sequential"
+
+
+def test_backlog_layer_flags_request_only_frontend_or_backend(tmp_path: Path, monkeypatch):
+    """Filtra o cursor por L2/L3 sem declarar o backlog inteiro concluído."""
+    _create_nested_hierarchical_fixture(tmp_path)
+    config_path = tmp_path / ".looper" / "config.json"
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    config["backlog"]["development_mode"] = "separated"
+    config["backlog"]["test_loop_enabled"] = False
+    config_path.write_text(json.dumps(config), encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+
+    frontend = runner.invoke(app, ["backlog", "task", "--frontend"])
+    assert frontend.exit_code == 0, frontend.output
+    assert "task:jornada:node:1" in frontend.output
+    complete_backlog_task(tmp_path, "task:jornada:node:1")
+
+    backend = runner.invoke(app, ["backlog", "task", "--backend"])
+    assert backend.exit_code == 0, backend.output
+    assert "task:subjornada:node:1" in backend.output
+    assert "Camada: backend" in backend.output
+    complete_backlog_task(tmp_path, "task:subjornada:node:1")
+
+    for expected_id in ("task:jornada:node:2", "task:jornada:node:3"):
+        next_frontend = runner.invoke(app, ["backlog", "task", "--frontend"])
+        assert expected_id in next_frontend.output
+        complete_backlog_task(tmp_path, expected_id)
+    no_frontend = runner.invoke(app, ["backlog", "task", "--frontend"])
+    assert no_frontend.exit_code == 0, no_frontend.output
+    assert "Não há tasks pendentes para a camada frontend" in no_frontend.output
+
+
+def test_backlog_test_layer_flags_filter_test_queue(tmp_path: Path, monkeypatch):
+    """Permite consultar somente a fila de testes da camada solicitada."""
+    _create_nested_hierarchical_fixture(tmp_path)
+    config_path = tmp_path / ".looper" / "config.json"
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    config["backlog"]["development_mode"] = "separated"
+    config_path.write_text(json.dumps(config), encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+
+    frontend = runner.invoke(app, ["backlog", "test", "--frontend"])
+    assert frontend.exit_code == 0, frontend.output
+    assert "Não há tasks pendentes para a camada frontend" in frontend.output
+
+    backend = runner.invoke(app, ["backlog", "test", "--backend"])
+    assert backend.exit_code == 0, backend.output
+    assert "task:subjornada:node:1" in backend.output
+    assert "Camada: backend" in backend.output
 
 
 def test_backlog_reopens_stale_test_checklists_when_evidence_is_missing(tmp_path: Path):
