@@ -43,7 +43,7 @@ Selecione as integrações do agente (ex.: 1,3 ou 4 para todos):
   4. Todos
 ```
 
-Depois da escolha, o CLI pergunta se deve executar o setup da stack. O setup não instala dependências nem inicia serviços sem autorização; ele apenas detecta arquivos e comandos locais. Os níveis têm semântica fixa: L1 é Arquitetura, L2 é Tela/experiência do usuário, L3 é Use case e L4 é informação de baixo nível. O backlog aceita presets de loop (`task_order`, `node_complete`, `node_then_children` e `all_level2_then_level3`) e pode manter filas L2/L3 independentes para agentes paralelos. `--l2-children-mode none|context|owned` controla se o L2 recebe os filhos L3, se os recebe apenas como contexto ou se assume também sua conclusão; em `owned`, o loop L3 é desabilitado nessa fase. `--l3-parent-context/--no-l3-parent-context` controla a inclusão do pai L2 no contexto do L3. Os loops de testes e implementação têm modo e tamanho de lote próprios; essas escolhas ficam em `.looper/config.json` e podem ser atualizadas com `looper backlog config`. Quando o loop de testes é desabilitado, `looper backlog test` informa que foi desativado e `looper backlog task` libera somente implementação. O init injeta no bloco gerenciado do `AGENTS.md` a estratégia correspondente, atualizando-a sem duplicar nem apagar as regras próprias do projeto.
+Depois da escolha, o CLI pergunta se deve executar o setup da stack. O setup não instala dependências nem inicia serviços sem autorização; ele apenas detecta arquivos e comandos locais. Os níveis têm semântica fixa: L1 é Arquitetura, L2 é Tela/experiência do usuário, L3 é Use case e L4 é informação de baixo nível. O backlog aceita presets de loop (`task_order`, `node_complete`, `node_then_children` e `all_level2_then_level3`) e pode manter filas L2/L3 independentes para agentes paralelos. `--l2-children-mode none|context|owned` controla se o L2 recebe os filhos L3, se os recebe apenas como contexto ou se assume também sua conclusão; em `owned`, o loop L3 é desabilitado nessa fase. `--l3-parent-context/--no-l3-parent-context` controla a inclusão do pai L2 no contexto do L3. Os loops de testes e implementação têm modo e tamanho de lote próprios; essas escolhas ficam em `.looper/config.yaml` e podem ser atualizadas com `looper backlog config`. Quando o loop de testes é desabilitado, `looper backlog test` informa que foi desativado e `looper backlog task` libera somente implementação. O init injeta no bloco gerenciado do `AGENTS.md` a estratégia correspondente, atualizando-a sem duplicar nem apagar as regras próprias do projeto.
 
 Para automação sem perguntas:
 
@@ -57,9 +57,9 @@ O `looper init` sempre sincroniza as skills já instaladas com os templates dest
 
 O init também instala a skill-guia `$open-design` em `.agents/skills/open-design/` (e no diretório equivalente de Claude/Gemini). Ela localiza, de forma generalizada no macOS, a biblioteca Open Design externa em `$HOME` ou `/Volumes/*/N-DOWNLOADS/arquitetura-migracao/.agents/skills/open-design`; os assets pesados não são copiados para o projeto.
 
-### Configuração pela TUI
+### Configuração por YAML
 
-Use `looper tui` ou `looper config tui` para editar as configurações do Looper em uma interface de terminal. A TUI cobre `.looper/config.json`, `.looper/review-agents.json` e `.looper/loop-instructions.md`, além das opções do `looper init`: integrações, atualização das skills e setup da stack. Todas as alterações são feitas por opções selecionáveis, sem editor de texto. `Salvar` grava os documentos de forma atômica; `R/F5` recarrega e descarta alterações não salvas. O tema usa fundo preto, fontes brancas e destaque laranja. Use `1` a `5` para trocar de aba, `?`/`H` para ver o que a opção selecionada muda e `Esc` para destravar e voltar à seleção inicial.
+Use `.looper/config.yaml` para editar as configurações do Looper. O arquivo único reúne opções operacionais, revisão e o campo `instructions` com as orientações persistentes dos loops. Projetos existentes são migrados automaticamente de `.looper/config.json`, `.looper/review-agents.json` e `.looper/loop-instructions.md` na próxima inicialização.
 
 Para substituir as skills de um projeto já existente pela versão mais recente publicada na `main`:
 
@@ -165,7 +165,7 @@ O comando identifica manifests e runners sem presumir Python. Exemplos de runner
 - Java: `mvn test` ou `./mvnw test`
 - .NET: `dotnet test`
 
-A configuração fica em `.looper/config.json`. O setup também adiciona padrões de ambiente, dependências, builds e caches ao `.gitignore`, preservando regras existentes.
+A configuração fica em `.looper/config.yaml`. O setup também adiciona padrões de ambiente, dependências, builds e caches ao `.gitignore`, preservando regras existentes.
 
 ### Adapter de análise estática
 
@@ -218,11 +218,11 @@ Cada execução de `looper test` também atualiza `.looper/adapters/static-analy
 
 O backlog é derivado dos Draws e fica consolidado em `.looper/backlog.json`. Cada task operacional corresponde a um nó de nível 2 ou a uma etapa de subfluxo associado e inclui perguntas, respostas, símbolos associados, arquivos e dependências. A task pai mantém `draw_ref`, `child_backlog_id` e a relação com as tasks internas.
 
-O arquivo `.looper/loop-instructions.md` é a informação crítica persistente dos loops. Todo conteúdo não vazio é repetido em linguagem natural em cada entrega de teste, implementação, L2, L3, alteração, bootstrap, verificação, bloqueio ou resposta de fila vazia. O arquivo é relido a cada comando, portanto alterações valem a partir da próxima entrega. O `looper init` cria o arquivo vazio sem sobrescrever conteúdo existente; não coloque senhas, tokens ou credenciais nele.
+O campo `.looper/config.yaml:instructions` é a informação crítica persistente dos loops. Todo conteúdo não vazio é repetido em linguagem natural em cada entrega de teste, implementação, L2, L3, alteração, bootstrap, verificação, bloqueio ou resposta de fila vazia. O arquivo é relido a cada comando; não coloque senhas, tokens ou credenciais nele.
 
 ### Revisão automática por subagente
 
-Após uma task concluída, a revisão opcional pode chamar Codex, Claude, Gemini ou um comando customizado (incluindo Antigravity) pelo arquivo `.looper/review-agents.json`. Configure `enabled`, os gatilhos por fase (`test`, `implementation`, `change`) e escopo (`l2`, `l3`, `l2_and_l3`, `all`), além do modelo, reasoning, prompt e comando. A revisão é executada com `looper backlog complete` ou manualmente:
+Após uma task concluída, a revisão opcional pode chamar Codex, Claude, Gemini ou um comando customizado (incluindo Antigravity) pela seção `review` de `.looper/config.yaml`. Configure `enabled`, os gatilhos por fase (`test`, `implementation`, `change`) e escopo (`l2`, `l3`, `l2_and_l3`, `all`), além do modelo, reasoning, prompt e comando. A revisão é executada com `looper backlog complete` ou manualmente:
 
 ```bash
 looper backlog review task:meu-draw:node:1 --agent codex --scope l2_and_l3

@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from .draw import EDGE_CONDITIONS, create_draw, draw_directory, facts_directory, read_draw, read_draw_index
+from .config import instructions, load_config, save_config
 
 
 BACKLOG_VERSION = 1
@@ -35,16 +36,13 @@ DEFAULT_LEVEL_MEANINGS = {
     "2": "Tela",
     "3": "Regra de negócio e detalhes da tela",
 }
-CRITICAL_INFORMATION_FILE = ".looper/loop-instructions.md"
+CRITICAL_INFORMATION_FILE = ".looper/config.yaml#instructions"
 
 
 def _critical_information(root: Path) -> str:
     """Lê a orientação persistente enviada em linguagem natural a cada loop."""
-    path = root / "loop-instructions.md" if root.name == ".looper" else root / ".looper" / "loop-instructions.md"
-    try:
-        return path.read_text(encoding="utf-8").strip()
-    except (OSError, UnicodeError):
-        return ""
+    project = root.parent if root.name == ".looper" else root
+    return instructions(load_config(project)).strip()
 
 
 def _with_critical_instruction(instruction: str | None, content: str) -> str | None:
@@ -261,11 +259,8 @@ def _level_semantics(root: Path) -> dict[str, dict[str, Any]]:
 
 def _get_backlog_config(root: Path) -> dict[str, Any]:
     """Lê a configuração da chave 'backlog' em .looper/config.json."""
-    config_path = root / ".looper" / "config.json"
-    if not config_path.exists():
-        return {}
     try:
-        data = json.loads(config_path.read_text(encoding="utf-8"))
+        data = load_config(root)
         if isinstance(data, dict):
             backlog_cfg = data.get("backlog")
             if isinstance(backlog_cfg, dict):
@@ -341,15 +336,7 @@ def set_backlog_config(
     l3_include_parent: bool | None = None,
 ) -> dict[str, Any]:
     """Atualiza a seção 'backlog' em .looper/config.json de forma persistente."""
-    config_path = root / ".looper" / "config.json"
-    data: dict[str, Any] = {}
-    if config_path.exists():
-        try:
-            data = json.loads(config_path.read_text(encoding="utf-8"))
-            if not isinstance(data, dict):
-                data = {}
-        except Exception:
-            data = {}
+    data: dict[str, Any] = load_config(root)
     backlog_cfg = data.setdefault("backlog", {})
     if not isinstance(backlog_cfg, dict):
         backlog_cfg = {}
@@ -428,8 +415,7 @@ def set_backlog_config(
             if not normalized:
                 raise ValueError(f"level_{level}_meaning não pode ser vazio")
             backlog_cfg[f"level_{level}_meaning"] = normalized
-    config_path.parent.mkdir(parents=True, exist_ok=True)
-    config_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    save_config(root, data)
     return backlog_cfg
 
 
@@ -503,7 +489,7 @@ def bootstrap_report(root: Path) -> dict[str, Any]:
         "system_level_1": {"status": "passed" if root_draw else "blocked", "reason": None if root_draw else "system_level_1_missing"},
         "design": bootstrap_design_status(root),
         "env_example": {"status": "passed" if (root / ".env.example").is_file() else "blocked", "reason": None if (root / ".env.example").is_file() else "env_example_missing"},
-        "looper_config": {"status": "passed" if (root / ".looper" / "config.json").is_file() else "blocked", "reason": None if (root / ".looper" / "config.json").is_file() else "config_missing"},
+        "looper_config": {"status": "passed" if (root / ".looper" / "config.yaml").is_file() else "blocked", "reason": None if (root / ".looper" / "config.yaml").is_file() else "config_missing"},
         "draw_storage": {"status": "passed" if (root / ".looper" / "draws" / "index.json").is_file() else "blocked", "reason": None if (root / ".looper" / "draws" / "index.json").is_file() else "draw_storage_missing"},
     }
     failures = [name for name, check in checks.items() if check.get("status") != "passed"]

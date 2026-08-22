@@ -7,7 +7,7 @@ name = "looper"
 version = "0.1.2"
 description = "Test-driven harness control for Codex"
 requires-python = ">=3.11"
-dependencies = ["typer>=0.12,<1"]
+dependencies = ["typer>=0.12,<1", "PyYAML>=6,<7"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<9"]

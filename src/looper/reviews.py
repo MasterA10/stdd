@@ -15,8 +15,9 @@ from pathlib import Path
 from typing import Any
 
 from .draw import add_draw_change, draw_directory, read_draw
+from .config import load_config, save_config
 
-REVIEW_CONFIG_FILE = ".looper/review-agents.json"
+REVIEW_CONFIG_FILE = ".looper/config.yaml"
 REVIEW_HISTORY_DIRECTORY = ".looper/reviews"
 VALID_REVIEW_AGENTS = {"codex", "claude", "gemini", "antigravity"}
 VALID_REVIEW_SCOPES = {"l2", "l3", "l2_and_l3", "all"}
@@ -62,19 +63,19 @@ def ensure_review_workspace(root: Path) -> list[Path]:
     if not directory.exists():
         directory.mkdir(parents=True)
         changed.append(directory)
-    path = review_config_path(root)
-    if not path.exists():
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(DEFAULT_REVIEW_CONFIG, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-        changed.append(path)
+    data = load_config(root)
+    if not isinstance(data.get("review"), dict) or not data["review"]:
+        data["review"] = json.loads(json.dumps(DEFAULT_REVIEW_CONFIG))
+        save_config(root, data)
+        changed.append(review_config_path(root))
     return changed
 
 
 def load_review_config(root: Path) -> dict[str, Any]:
     ensure_review_workspace(root)
     try:
-        data = json.loads(review_config_path(root).read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as error:
+        data = load_config(root).get("review", {})
+    except (OSError, ValueError) as error:
         raise ValueError(f"configuração de revisão inválida: {error}") from error
     if not isinstance(data, dict):
         raise ValueError("configuração de revisão deve ser um objeto")
@@ -83,9 +84,11 @@ def load_review_config(root: Path) -> dict[str, Any]:
 
 def set_review_enabled(root: Path, enabled: bool) -> dict[str, Any]:
     """Ativa ou desativa o acionamento automático das revisões."""
+    data = load_config(root)
     config = load_review_config(root)
     config["enabled"] = bool(enabled)
-    review_config_path(root).write_text(json.dumps(config, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    data["review"] = config
+    save_config(root, data)
     return config
 
 

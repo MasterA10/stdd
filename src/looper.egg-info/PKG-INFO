@@ -4,5 +4,6 @@ Version: 0.1.2
 Summary: Test-driven harness control for Codex
 Requires-Python: >=3.11
 Requires-Dist: typer<1,>=0.12
+Requires-Dist: PyYAML<7,>=6
 Provides-Extra: dev
 Requires-Dist: pytest<9,>=8; extra == "dev"

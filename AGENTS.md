@@ -21,10 +21,9 @@ Este projeto usa o Looper para especificação, implementação, testes e evidê
 - Ao relatar o resultado, informe status, arquivos alterados, testes executados, evidências e limitações.
 ### Estratégia de desenvolvimento do backlog
 
-- O modo é separado: conclua todos os nós L2 como frontend/view antes de liberar qualquer L3.
-- Nas tasks L2, implemente a tela, estados, interações e links/transições entre telas; não implemente controller, model, regra de negócio, persistência ou integrações de backend.
-- Nas tasks L3, implemente o backend/controller/model e seus testes; o loop de testes não cria testes para L2.
-- Os filtros `--frontend` e `--backend` são transitórios e não concluem a outra camada.
+- O modo é conjunto: cada task segue a ordem do cursor e implementa a tela/view e o comportamento funcional descritos no nó e nos subfluxos.
+- Preserve a navegação entre telas e implemente as camadas de backend quando elas fizerem parte do escopo entregue.
+- Os filtros `--frontend` e `--backend` permitem consultar uma camada por vez sem alterar a ordem ou concluir o restante do backlog.
 <!-- Looper:END AGENT INSTRUCTIONS -->
 
 ## Memória contextual seletiva
@@ -45,11 +44,11 @@ ou por um padrão que o loop passou a exigir repetidamente.
 - `backlog.development_mode` aceita `sequential` (padrão) ou `separated`; no modo separado, o cursor conclui todos os L2 como frontend/view — incluindo links e navegação entre telas — antes de liberar os L3 como backend/controller/model, e o loop de testes cobre somente L3.
 - `looper backlog task`, `looper backlog test` e `looper backlog change` aceitam `--frontend`, `--backend` ou `--layer frontend|backend|all` para consultar uma camada por vez; o filtro é transitório e não conclui o restante do backlog.
 - O editor visual pode persistir rascunhos estruturais durante a edição (inclusive com nós temporariamente desconectados) pelo endpoint local marcado com `X-Looper-Editor-Draft: true`; schema, IDs, grupos, referências e passos de fluxos continuam obrigatórios. A criação pela CLI (`looper draw create`) mantém a exigência de que todo nó tenha conexão.
-- `.looper/loop-instructions.md` contém informação crítica persistente enviada em linguagem natural a todos os loops; deve ser relido a cada entrega e nunca conter segredos.
-- `.looper/review-agents.json` configura a revisão opcional após uma task concluída; a ausência de uma change significa aprovação, e falhas deixam a task concluída para nova tentativa.
-- As integrações de revisão são subprocessos locais: Codex usa `codex exec`, Claude usa `claude -p`, Gemini usa `gemini -p`, e Antigravity é um slot configurável. Os comandos, modelo, reasoning e prompt são editáveis em `.looper/review-agents.json`; exigem que o CLI escolhido esteja instalado e autenticado no ambiente.
+- `.looper/config.yaml:instructions` contém informação crítica persistente enviada em linguagem natural a todos os loops; deve ser relida a cada entrega e nunca conter segredos.
+- A seção `review` de `.looper/config.yaml` configura a revisão opcional após uma task concluída; a ausência de uma change significa aprovação, e falhas deixam a task concluída para nova tentativa.
+- As integrações de revisão são subprocessos locais: Codex usa `codex exec`, Claude usa `claude -p`, Gemini usa `gemini -p`, e Antigravity é um slot configurável. Os comandos, modelo, reasoning e prompt são editáveis na seção `review`; exigem que o CLI escolhido esteja instalado e autenticado no ambiente.
 - Contratos oficiais consultados: [Codex non-interactive mode](https://www.mintlify.com/openai/codex/concepts/non-interactive-mode), [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code/cli-usage) e [Gemini CLI](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/cli-reference.md). O Looper não chama APIs remotas diretamente.
-- A TUI de configuração é iniciada por `looper tui` ou `looper config tui`, edita `.looper/config.json`, `.looper/review-agents.json` e `.looper/loop-instructions.md`, preserva chaves desconhecidas e deve manter a CLI como fonte operacional compatível.
+- A configuração é mantida em `.looper/config.yaml`, um único documento YAML que reúne opções operacionais, revisão e `instructions`; o loader preserva chaves desconhecidas e migra automaticamente os três arquivos legados.
 - A TUI também cobre o fluxo do `looper init` — integrações, skills e setup da stack — e mantém o tema obrigatório de fundo preto, fontes brancas e destaque laranja. Todas as alterações são seleções de teclado; `1`–`5` trocam abas, `?`/`H` abre ajuda contextual, `Esc` reinicia a seleção e `R`/`F5` recarrega os arquivos.
 
 ## Regras de edição dos Draws

@@ -10,6 +10,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from .config import load_config, save_config
+
 
 SUPPORTED_INTEGRATIONS = ("codex", "claude", "gemini")
 DESIGN_TEMPLATE = """# Design do projeto
@@ -163,8 +165,7 @@ def configure_project(root: Path) -> dict[str, Any]:
     """Atualiza a configuração com a stack detectada e seu runner nativo.
     Mantém comandos previamente configurados e só adiciona um runner quando há evidência.
     """
-    config_path = root / ".looper" / "config.json"
-    config = json.loads(config_path.read_text(encoding="utf-8")) if config_path.exists() else {}
+    config = load_config(root)
     stack = detect_stack(root)
     config["stack"] = {key: value for key, value in stack.items() if key != "test_command"}
     if stack["test_command"] and not config.get("test_commands"):
@@ -187,8 +188,7 @@ def configure_project(root: Path) -> dict[str, Any]:
             adapter = ensure_php_adapter(root)
             if adapter:
                 static_config["adapter_command"] = ["php", str(adapter.relative_to(root))]
-    config_path.parent.mkdir(parents=True, exist_ok=True)
-    config_path.write_text(json.dumps(config, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    save_config(root, config)
     return stack
 
 

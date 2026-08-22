@@ -3,6 +3,7 @@ pyproject.toml
 src/looper/__init__.py
 src/looper/backlog.py
 src/looper/cli.py
+src/looper/config.py
 src/looper/contract.py
 src/looper/core.py
 src/looper/draw.py
@@ -13,7 +14,6 @@ src/looper/runs.py
 src/looper/setup.py
 src/looper/static_analysis.py
 src/looper/traceability.py
-src/looper/tui.py
 src/looper.egg-info/PKG-INFO
 src/looper.egg-info/SOURCES.txt
 src/looper.egg-info/dependency_links.txt
@@ -175,4 +175,3 @@ tests/test_multilanguage_static_analysis.py
 tests/test_reviews.py
 tests/test_static_analysis.py
 tests/test_traceability.py
-tests/test_tui.py

@@ -1,0 +1,345 @@
+# Suítes executadas por `looper test`; cada item aceita name, command e timeout.
+test_commands:
+# Opção `- name` da configuração.
+- name: all
+  # Opção `- name.command` da configuração.
+  command:
+  - .venv/bin/python3.14
+  - -m
+  - pytest
+# Regras de documentação e contrato dos testes.
+contract:
+  # Ativa ou desativa a validação de contrato.
+  enabled: true
+  # Linguagem cujo contrato será analisado.
+  code_language: python
+  # Idioma esperado nas descrições dos testes.
+  description_language: pt-BR
+  # Limite de caracteres para descrições curtas.
+  short_description_max_chars: 160
+# Ordem, lotes e comportamento dos loops do backlog.
+backlog:
+  # Habilita a task inicial de preparação do projeto.
+  bootstrap_task: true
+  # Opção `backlog.l2_verification_interval` da configuração.
+  l2_verification_interval: 1
+  # Cria uma verificação final após as tasks do backlog.
+  final_verification_task: true
+  # `sequential` mistura fases; `separated` conclui L2 antes de L3.
+  development_mode: separated
+# Configuração do adaptador e dos gates de análise estática.
+static_analysis:
+  # Ativa ou desativa a análise estática.
+  enabled: true
+  # Comando do adaptador; use uma lista de argumentos.
+  adapter_command:
+  - python3
+  - .looper/adapters/static_adapter.py
+  # Versão do contrato retornado pelo adaptador.
+  contract_version: '1'
+  # Permite que credenciais marcadas em fixtures sejam apenas warnings.
+  allow_marked_test_credentials: true
+  # Limites de qualidade que geram warnings ou bloqueios.
+  quality:
+    # Opção `static_analysis.quality.functions` da configuração.
+    functions:
+      # Opção `static_analysis.quality.functions.max_lines` da configuração.
+      max_lines:
+        # Opção `static_analysis.quality.functions.max_lines.warning` da configuração.
+        warning: 40
+        # Opção `static_analysis.quality.functions.max_lines.blocking` da configuração.
+        blocking: 100
+      # Opção `static_analysis.quality.functions.max_complexity` da configuração.
+      max_complexity:
+        # Opção `static_analysis.quality.functions.max_complexity.warning` da configuração.
+        warning: 10
+        # Opção `static_analysis.quality.functions.max_complexity.blocking` da configuração.
+        blocking: 25
+    # Opção `static_analysis.quality.tests` da configuração.
+    tests:
+      # Opção `static_analysis.quality.tests.max_lines` da configuração.
+      max_lines:
+        # Opção `static_analysis.quality.tests.max_lines.warning` da configuração.
+        warning: 80
+        # Opção `static_analysis.quality.tests.max_lines.blocking` da configuração.
+        blocking: 160
+  # Exceções temporárias e rastreáveis para achados específicos.
+  exceptions:
+  # Opção `static_analysis.- rule` da configuração.
+  - rule: deep_nesting
+    # Opção `static_analysis.- rule.symbol_id` da configuração.
+    symbol_id: src/looper/core.py:looper.core.get_incremental_diff_stats
+    # Opção `static_analysis.- rule.action` da configuração.
+    action: warning
+    # Opção `static_analysis.- rule.reason` da configuração.
+    reason: Achado preexistente; refatoração dedicada está fora deste trabalho.
+    # Opção `static_analysis.- rule.expires` da configuração.
+    expires: '2027-01-01'
+  # Opção `static_analysis.- rule` da configuração.
+  - rule: high_complexity
+    # Opção `static_analysis.- rule.symbol_id` da configuração.
+    symbol_id: src/looper/core.py:looper.core.run_tests
+    # Opção `static_analysis.- rule.action` da configuração.
+    action: warning
+    # Opção `static_analysis.- rule.reason` da configuração.
+    reason: Achado preexistente; refatoração dedicada está fora deste trabalho.
+    # Opção `static_analysis.- rule.expires` da configuração.
+    expires: '2027-01-01'
+  # Opção `static_analysis.- rule` da configuração.
+  - rule: high_complexity
+    # Opção `static_analysis.- rule.symbol_id` da configuração.
+    symbol_id: src/looper/draw.py:looper.draw.create_server
+    # Opção `static_analysis.- rule.action` da configuração.
+    action: warning
+    # Opção `static_analysis.- rule.reason` da configuração.
+    reason: Achado preexistente; refatoração dedicada está fora deste trabalho.
+    # Opção `static_analysis.- rule.expires` da configuração.
+    expires: '2027-01-01'
+  # Opção `static_analysis.- rule` da configuração.
+  - rule: long_function
+    # Opção `static_analysis.- rule.symbol_id` da configuração.
+    symbol_id: src/looper/draw.py:looper.draw.create_server
+    # Opção `static_analysis.- rule.action` da configuração.
+    action: warning
+    # Opção `static_analysis.- rule.reason` da configuração.
+    reason: Achado preexistente; refatoração dedicada está fora deste trabalho.
+    # Opção `static_analysis.- rule.expires` da configuração.
+    expires: '2027-01-01'
+  # Opção `static_analysis.- rule` da configuração.
+  - rule: high_complexity
+    # Opção `static_analysis.- rule.symbol_id` da configuração.
+    symbol_id: src/looper/draw.py:looper.draw.validate_draw_payload
+    # Opção `static_analysis.- rule.action` da configuração.
+    action: warning
+    # Opção `static_analysis.- rule.reason` da configuração.
+    reason: Achado preexistente; refatoração dedicada está fora deste trabalho.
+    # Opção `static_analysis.- rule.expires` da configuração.
+    expires: '2027-01-01'
+  # Opção `static_analysis.- rule` da configuração.
+  - rule: long_function
+    # Opção `static_analysis.- rule.symbol_id` da configuração.
+    symbol_id: src/looper/draw.py:looper.draw.validate_draw_payload
+    # Opção `static_analysis.- rule.action` da configuração.
+    action: warning
+    # Opção `static_analysis.- rule.reason` da configuração.
+    reason: Achado preexistente; refatoração dedicada está fora deste trabalho.
+    # Opção `static_analysis.- rule.expires` da configuração.
+    expires: '2027-01-01'
+  # Opção `static_analysis.- rule` da configuração.
+  - rule: high_complexity
+    # Opção `static_analysis.- rule.symbol_id` da configuração.
+    symbol_id: src/looper/setup.py:looper.setup.detect_stack
+    # Opção `static_analysis.- rule.action` da configuração.
+    action: warning
+    # Opção `static_analysis.- rule.reason` da configuração.
+    reason: Achado preexistente; refatoração dedicada está fora deste trabalho.
+    # Opção `static_analysis.- rule.expires` da configuração.
+    expires: '2027-01-01'
+  # Opção `static_analysis.- rule` da configuração.
+  - rule: high_complexity
+    # Opção `static_analysis.- rule.symbol_id` da configuração.
+    symbol_id: src/looper/traceability.py:looper.traceability.build_traceability_report
+    # Opção `static_analysis.- rule.action` da configuração.
+    action: warning
+    # Opção `static_analysis.- rule.reason` da configuração.
+    reason: Achado preexistente; refatoração dedicada está fora deste trabalho.
+    # Opção `static_analysis.- rule.expires` da configuração.
+    expires: '2027-01-01'
+  # Opção `static_analysis.- rule` da configuração.
+  - rule: high_complexity
+    # Opção `static_analysis.- rule.symbol_id` da configuração.
+    symbol_id: draw-editor/src/components/AvoidEdge.tsx:function:findGridPath
+    # Opção `static_analysis.- rule.action` da configuração.
+    action: warning
+    # Opção `static_analysis.- rule.reason` da configuração.
+    reason: Achado preexistente no editor; refatoração dedicada está fora deste trabalho.
+    # Opção `static_analysis.- rule.expires` da configuração.
+    expires: '2027-01-01'
+  # Opção `static_analysis.- rule` da configuração.
+  - rule: long_function
+    # Opção `static_analysis.- rule.symbol_id` da configuração.
+    symbol_id: draw-editor/src/components/AvoidEdge.tsx:function:findGridPath
+    # Opção `static_analysis.- rule.action` da configuração.
+    action: warning
+    # Opção `static_analysis.- rule.reason` da configuração.
+    reason: Achado preexistente no editor; refatoração dedicada está fora deste trabalho.
+    # Opção `static_analysis.- rule.expires` da configuração.
+    expires: '2027-01-01'
+  # Opção `static_analysis.- rule` da configuração.
+  - rule: high_complexity
+    # Opção `static_analysis.- rule.symbol_id` da configuração.
+    symbol_id: draw-editor/src/layout.ts:function:layoutCurvedGraph
+    # Opção `static_analysis.- rule.action` da configuração.
+    action: warning
+    # Opção `static_analysis.- rule.reason` da configuração.
+    reason: Achado preexistente no editor; refatoração dedicada está fora deste trabalho.
+    # Opção `static_analysis.- rule.expires` da configuração.
+    expires: '2027-01-01'
+  # Opção `static_analysis.- rule` da configuração.
+  - rule: long_function
+    # Opção `static_analysis.- rule.symbol_id` da configuração.
+    symbol_id: draw-editor/src/layout.ts:function:layoutCurvedGraph
+    # Opção `static_analysis.- rule.action` da configuração.
+    action: warning
+    # Opção `static_analysis.- rule.reason` da configuração.
+    reason: Achado preexistente no editor; refatoração dedicada está fora deste trabalho.
+    # Opção `static_analysis.- rule.expires` da configuração.
+    expires: '2027-01-01'
+  # Opção `static_analysis.- rule` da configuração.
+  - rule: high_complexity
+    # Opção `static_analysis.- rule.symbol_id` da configuração.
+    symbol_id: draw-editor/src/layout.ts:function:layoutGraph
+    # Opção `static_analysis.- rule.action` da configuração.
+    action: warning
+    # Opção `static_analysis.- rule.reason` da configuração.
+    reason: Achado preexistente no editor; refatoração dedicada está fora deste trabalho.
+    # Opção `static_analysis.- rule.expires` da configuração.
+    expires: '2027-01-01'
+  # Opção `static_analysis.- rule` da configuração.
+  - rule: high_complexity
+    # Opção `static_analysis.- rule.symbol_id` da configuração.
+    symbol_id: draw-editor/src/layout.ts:function:computeEdgeHandles
+    # Opção `static_analysis.- rule.action` da configuração.
+    action: warning
+    # Opção `static_analysis.- rule.reason` da configuração.
+    reason: Achado preexistente no editor; refatoração dedicada está fora deste trabalho.
+    # Opção `static_analysis.- rule.expires` da configuração.
+    expires: '2027-01-01'
+  # Opção `static_analysis.- rule` da configuração.
+  - rule: long_function
+    # Opção `static_analysis.- rule.symbol_id` da configuração.
+    symbol_id: draw-editor/src/layout.ts:function:layoutGraph
+    # Opção `static_analysis.- rule.action` da configuração.
+    action: warning
+    # Opção `static_analysis.- rule.reason` da configuração.
+    reason: Achado preexistente no editor; refatoração dedicada está fora deste trabalho.
+    # Opção `static_analysis.- rule.expires` da configuração.
+    expires: '2027-01-01'
+# Extensões consideradas no cálculo de alterações do projeto.
+tracked_extensions:
+- .bash
+- .c
+- .cpp
+- .cs
+- .go
+- .h
+- .hpp
+- .java
+- .js
+- .jsx
+- .kt
+- .php
+- .py
+- .rb
+- .rs
+- .scala
+- .sh
+- .swift
+- .ts
+- .tsx
+# Versão do esquema da configuração.
+version: 1
+# Stack detectada localmente; normalmente atualizada por `looper setup`.
+stack:
+  # Opção `stack.languages` da configuração.
+  languages:
+  - typescript
+  - python
+  # Opção `stack.frameworks` da configuração.
+  frameworks:
+  - react
+  # Opção `stack.test_runners` da configuração.
+  test_runners:
+  - draw-editor:javascript
+  - pytest
+  # Opção `stack.evidence` da configuração.
+  evidence:
+  - pyproject.toml
+  # Opção `stack.status` da configuração.
+  status: detected
+# Orientações persistentes enviadas ao agente em todas as entregas.
+instructions: ''
+# Revisão automática opcional após tasks concluídas.
+review:
+  # Ativa a execução automática de revisões.
+  enabled: false
+  # Agente padrão: `codex`, `claude`, `gemini` ou `antigravity`.
+  default_agent: codex
+  # Modelo passado ao agente de revisão.
+  model: ''
+  # Nível de reasoning usado quando o agente aceitar essa opção.
+  reasoning: high
+  # Tempo máximo da revisão em segundos.
+  timeout_seconds: 900
+  # Prompt base enviado ao agente de revisão.
+  standard_prompt: Confira a task aprovada abaixo usando o Draw e os arquivos reais
+    do projeto. Não implemente código. Se faltar algo, crie uma change pendente no
+    nó exato usando `looper draw change add`; se estiver completa, não crie nenhuma
+    change.
+  # Define em quais fases e escopos a revisão é acionada.
+  triggers:
+    # Opção `review.triggers.test` da configuração.
+    test:
+      # Opção `review.triggers.test.l2` da configuração.
+      l2: false
+      # Opção `review.triggers.test.l3` da configuração.
+      l3: false
+      # Opção `review.triggers.test.l2_and_l3` da configuração.
+      l2_and_l3: false
+      # Opção `review.triggers.test.all` da configuração.
+      all: false
+    # Opção `review.triggers.implementation` da configuração.
+    implementation:
+      # Opção `review.triggers.implementation.l2` da configuração.
+      l2: true
+      # Opção `review.triggers.implementation.l3` da configuração.
+      l3: true
+      # Opção `review.triggers.implementation.l2_and_l3` da configuração.
+      l2_and_l3: false
+      # Opção `review.triggers.implementation.all` da configuração.
+      all: false
+    # Opção `review.triggers.change` da configuração.
+    change:
+      # Opção `review.triggers.change.l2` da configuração.
+      l2: false
+      # Opção `review.triggers.change.l3` da configuração.
+      l3: false
+      # Opção `review.triggers.change.l2_and_l3` da configuração.
+      l2_and_l3: false
+      # Opção `review.triggers.change.all` da configuração.
+      all: false
+  # Comandos locais disponíveis para cada agente.
+  agents:
+    # Opção `review.agents.codex` da configuração.
+    codex:
+      # Opção `review.agents.codex.command` da configuração.
+      command:
+      - codex
+      - exec
+      - --model
+      - '{model}'
+      - -c
+      - model_reasoning_effort={reasoning}
+      - '{prompt}'
+    # Opção `review.agents.claude` da configuração.
+    claude:
+      # Opção `review.agents.claude.command` da configuração.
+      command:
+      - claude
+      - -p
+      - --model
+      - '{model}'
+      - '{prompt}'
+    # Opção `review.agents.gemini` da configuração.
+    gemini:
+      # Opção `review.agents.gemini.command` da configuração.
+      command:
+      - gemini
+      - -p
+      - '{prompt}'
+      - --model
+      - '{model}'
+    # Opção `review.agents.antigravity` da configuração.
+    antigravity:
+      # Opção `review.agents.antigravity.command` da configuração.
+      command: []

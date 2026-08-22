@@ -20,6 +20,7 @@ from .static_analysis import run_static_analysis, write_static_analysis_kpis
 from .traceability import refresh_traceability
 from .setup import ensure_design_document
 from .reviews import ensure_review_workspace
+from .config import config_path, load_config, save_config
 
 VALID_WORK_TYPES = {"bug", "teste", "implementacao", "refactor"}
 DEFAULT_CODE_EXTENSIONS = {
@@ -76,10 +77,10 @@ def get_tracked_extensions(root: Path) -> set[str]:
     """Retorna o conjunto de extensões de arquivo rastreadas na medição de diff.
     Lê a propriedade tracked_extensions de .looper/config.json ou utiliza os valores padrão.
     """
-    config_path = looper_dir(root) / "config.json"
-    if config_path.exists():
+    path = config_path(root)
+    if path.exists() or (looper_dir(root) / "config.json").exists():
         try:
-            config = json.loads(config_path.read_text(encoding="utf-8"))
+            config = load_config(root)
             custom_extensions = config.get("tracked_extensions")
             if isinstance(custom_extensions, list) and custom_extensions:
                 return {
@@ -296,10 +297,9 @@ def ensure_agent_instructions(root: Path, integrations: tuple[str, ...], develop
 def _resolve_init_development_mode(config: Path, requested: str | None) -> tuple[str, bool]:
     """Lê, normaliza e persiste o modo antes de instalar instruções de agente."""
     try:
-        config_data = json.loads(config.read_text(encoding="utf-8"))
-        if not isinstance(config_data, dict):
-            config_data = {}
-    except (OSError, json.JSONDecodeError):
+        config_data = load_config(config.parent.parent)
+    except (OSError, UnicodeError, ValueError):
+        config_data = {}
         config_data = {}
     backlog_config = config_data.setdefault("backlog", {})
     if not isinstance(backlog_config, dict):
@@ -311,7 +311,7 @@ def _resolve_init_development_mode(config: Path, requested: str | None) -> tuple
     changed = backlog_config.get("development_mode") != mode
     if changed:
         backlog_config["development_mode"] = mode
-        config.write_text(json.dumps(config_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        save_config(config.parent.parent, config_data)
     return mode, changed
 
 
@@ -329,11 +329,9 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
             directory.mkdir(parents=True)
             created.append(directory)
 
-    config = looper_dir(root) / "config.json"
+    config = config_path(root)
     if not config.exists():
-        config.write_text(
-            json.dumps(
-                {
+        save_config(root, {
                     "test_commands": [],
                     "testing": {"profile": "mvp"},
                     "contract": {
@@ -390,12 +388,7 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
                         "level_3_meaning": "Regra de negócio e detalhes da tela",
                     },
                     "version": 1,
-                },
-                indent=2,
-            )
-            + "\n",
-            encoding="utf-8",
-        )
+                })
         created.append(config)
 
     created.extend(ensure_static_analysis_defaults(config))
@@ -403,10 +396,17 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
     created.extend(ensure_draw_workspace(root, include_example=True))
     created.extend(ensure_improvement_workspace(root))
     created.extend(ensure_runs_workspace(root))
-    loop_instructions = looper_dir(root) / "loop-instructions.md"
-    if not loop_instructions.exists():
-        loop_instructions.write_text("", encoding="utf-8")
-        created.append(loop_instructions)
+    data = load_config(root)
+    changed = False
+    if "instructions" not in data:
+        data["instructions"] = ""
+        changed = True
+    if "review" not in data:
+        data["review"] = {}
+        changed = True
+    if changed:
+        save_config(root, data)
+        created.append(config)
     created.extend(ensure_review_workspace(root))
     design_path = ensure_design_document(root)
     if design_path not in created:
@@ -444,7 +444,7 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
 def ensure_static_analysis_defaults(config_path: Path) -> list[Path]:
     """Completa configurações antigas sem substituir escolhas existentes."""
     try:
-        config_data = json.loads(config_path.read_text(encoding="utf-8"))
+        config_data = load_config(config_path.parent.parent)
     except (OSError, UnicodeDecodeError, json.JSONDecodeError):
         return []
     if not isinstance(config_data, dict):
@@ -471,7 +471,7 @@ def ensure_static_analysis_defaults(config_path: Path) -> list[Path]:
             static_config[key] = value
             changed = True
     if changed:
-        config_path.write_text(json.dumps(config_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        save_config(config_path.parent.parent, config_data)
         return [config_path]
     return []
 
@@ -627,8 +627,7 @@ def run_tests(
     """
     run_id = uuid.uuid4().hex
 
-    config_path = looper_dir(root) / "config.json"
-    config = json.loads(config_path.read_text(encoding="utf-8")) if config_path.exists() else {}
+    config = load_config(root)
     configured = config.get("test_commands")
     if not configured and config.get("test_command"):
         configured = [{"name": "all", "command": config["test_command"]}]

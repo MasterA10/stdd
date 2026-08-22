@@ -253,8 +253,50 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "68984a36ebdf4fc29c8523d1e80ca892",
+      "timestamp": "2026-08-22T11:43:00.349357+00:00",
+      "description": "Substitui a TUI por configuração YAML consolidada",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 210,
+        "lines_deleted": 658,
+        "files_changed": 12
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "df9fbd5603a74c728858ce09cf1e2ea6",
+      "timestamp": "2026-08-22T12:04:04.591821+00:00",
+      "description": "Documenta variáveis da configuração YAML com comentários",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 66,
+        "lines_deleted": 2,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 12,
-  "last_run_id": "e9dcc76978e647a0b6f8acefca7e46eb"
+  "run_count": 14,
+  "last_run_id": "df9fbd5603a74c728858ce09cf1e2ea6"
 }

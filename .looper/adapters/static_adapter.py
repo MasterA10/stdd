@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import ast
 import json
+import yaml
 import os
 import subprocess
 import sys
@@ -43,7 +44,7 @@ def module_from_path(root: Path, path: Path) -> str:
 
 def quality_config(root: Path):
     try:
-        data = json.loads((root / ".looper" / "config.json").read_text(encoding="utf-8"))
+        data = yaml.safe_load((root / ".looper" / "config.yaml").read_text(encoding="utf-8"))
         quality = data.get("static_analysis", {}).get("quality", {})
     except (OSError, ValueError, TypeError):
         quality = {}

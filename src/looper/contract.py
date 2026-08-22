@@ -1,18 +1,15 @@
 from __future__ import annotations
 
 import ast
-import json
 from pathlib import Path
+from .config import load_config
 
 
 def contract_config(root: Path) -> dict:
     """Lê a configuração do contrato do projeto.
     Carrega o arquivo .looper/config.json e retorna a seção contract.
     """
-    config_path = root / ".looper" / "config.json"
-    if not config_path.exists():
-        return {"enabled": True, "code_language": "python", "description_language": "pt-BR"}
-    config = json.loads(config_path.read_text(encoding="utf-8"))
+    config = load_config(root)
     return config.get("contract", {"enabled": True, "code_language": "python", "description_language": "pt-BR"})
 
 

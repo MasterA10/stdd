@@ -46,6 +46,7 @@ from .draw import (
     serve_draw,
 )
 from .reviews import maybe_review_completed_task, run_review, set_review_enabled
+from .config import config_path, instructions
 from .improvements import create_improvement, list_ready_improvements, mark_improvement_applied
 from .traceability import associate_node_reference, associate_node_references
 from .setup import (
@@ -64,27 +65,6 @@ draw_change_app = typer.Typer(help="Gerencia changes pendentes dos nós.")
 draw_app.add_typer(draw_change_app, name="change")
 backlog_app = typer.Typer(help="Gera e executa tasks derivadas dos Draws.")
 app.add_typer(backlog_app, name="backlog")
-
-
-def _launch_tui() -> None:
-    try:
-        from .tui import run_tui
-        run_tui(project_root())
-    except RuntimeError as error:
-        typer.echo(f"Erro ao abrir a TUI: {error}", err=True)
-        raise typer.Exit(1) from error
-
-
-@app.command("tui")
-def tui() -> None:
-    """Abre a interface interativa de todas as configurações do Looper."""
-    _launch_tui()
-
-
-@config_app.command("tui")
-def config_tui() -> None:
-    """Abre a interface interativa de todas as configurações do Looper."""
-    _launch_tui()
 
 
 def _human_answer(value: object) -> str:
@@ -235,7 +215,8 @@ def _format_backlog_response(response: dict[str, object]) -> str:
         critical_content = str(critical.get("content") or "").strip()
     else:
         try:
-            critical_content = (project_root() / ".looper" / "loop-instructions.md").read_text(encoding="utf-8").strip()
+            from .config import load_config
+            critical_content = instructions(load_config(project_root())).strip()
         except (OSError, UnicodeError):
             critical_content = ""
 
@@ -612,7 +593,7 @@ def setup(
         typer.echo(f"Erro: o destino não é um diretório: {target}", err=True)
         raise typer.Exit(1)
     target.mkdir(parents=True, exist_ok=True)
-    if not (target / ".looper" / "config.json").exists():
+    if not config_path(target).exists():
         init_project(target)
     ensure_gitignore(target)
     stack = configure_project(target)
@@ -768,7 +749,7 @@ def backlog_config(
     l3_include_parent: Optional[bool] = typer.Option(None, "--l3-parent-context/--no-l3-parent-context", help="Inclui o L2 pai no contexto do L3."),
     review_enabled: Optional[bool] = typer.Option(None, "--review/--no-review", help="Habilita ou desabilita a revisão automática por subagente."),
 ) -> None:
-    """Exibe ou atualiza as configurações do backlog em .looper/config.json."""
+    """Exibe ou atualiza as configurações do backlog em .looper/config.yaml."""
     try:
         root = project_root()
         if interval is not None or bootstrap is not None or final_verification is not None or task_batch_size is not None or task_batch_scope is not None or task_delivery_scope is not None or development_mode is not None or min_task_interval_seconds is not None or test_loop_enabled is not None or test_loop_mode is not None or implementation_loop_mode is not None or test_batch_size is not None or implementation_batch_size is not None or l2_children_mode is not None or l3_loop_enabled is not None or l3_include_parent is not None or review_enabled is not None:
