@@ -1,0 +1,260 @@
+{
+  "version": 1,
+  "date": "2026-08-22",
+  "runs": [
+    {
+      "run_id": "a967312038674ab8958318ccf3f73c0e",
+      "timestamp": "2026-08-22T00:14:40.170673+00:00",
+      "description": "Integra fluxo looper init e tema laranja branco sobre fundo preto na TUI",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 122,
+        "lines_deleted": 22,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "b7c4b5f64dd1442497250b8638ac820b",
+      "timestamp": "2026-08-22T00:14:44.100045+00:00",
+      "description": "Valida edição real de campos, ações de init e navegação da TUI",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "169f228916e2404492d172457a4ab1c3",
+      "timestamp": "2026-08-22T00:23:09.373974+00:00",
+      "description": "Substitui TUI Textual por curses nativo controlado por teclado",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 230,
+        "lines_deleted": 294,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "9ab7154c7e454993b4196ef4fd4581d8",
+      "timestamp": "2026-08-22T00:23:13.516424+00:00",
+      "description": "Valida navegação sem mouse, edição, init e instalação sem dependências extras",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d721ad3b39a94177beb76aa3050daa3a",
+      "timestamp": "2026-08-22T00:50:09.198965+00:00",
+      "description": "Corrige abertura da TUI curses em terminais estreitos",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 2,
+        "lines_deleted": 1,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "574b3d6e4cca4d1cbf7b722da4b39bf1",
+      "timestamp": "2026-08-22T00:50:13.586399+00:00",
+      "description": "Valida renderização curses e navegação sem mouse",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "71b4c0ef7ded4d099e74b43ca32e5e68",
+      "timestamp": "2026-08-22T00:56:43.418507+00:00",
+      "description": "Substitui entrada curses getstr por editor de linha Unicode com backspace e navegação",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 89,
+        "lines_deleted": 27,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "48e409d0a99842d09b9806323abef902",
+      "timestamp": "2026-08-22T00:56:47.719333+00:00",
+      "description": "Valida persistência real de valores via PTY e atalho S/F2",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "9bf3a211acfc4c90aa57a74fdd1f6a7e",
+      "timestamp": "2026-08-22T01:22:20.173080+00:00",
+      "description": "Remove campos L2/L3 e transforma configurações da TUI em seletores",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 90,
+        "lines_deleted": 89,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "1b16ae50db1c4c66a2dc8997cf592917",
+      "timestamp": "2026-08-22T01:22:24.415223+00:00",
+      "description": "Valida TUI sem entrada textual e seleção de configurações",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "a38b992dd1b2411d91cb4d0d04e2706b",
+      "timestamp": "2026-08-22T01:37:48.995977+00:00",
+      "description": "Corrige atalho 5 e adiciona recuperação e ajuda contextual na TUI",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 120,
+        "lines_deleted": 7,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "e9dcc76978e647a0b6f8acefca7e46eb",
+      "timestamp": "2026-08-22T01:37:53.357075+00:00",
+      "description": "Valida atalhos 1-5, Esc, recarregar e ajuda da TUI",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    }
+  ],
+  "run_count": 12,
+  "last_run_id": "e9dcc76978e647a0b6f8acefca7e46eb"
+}

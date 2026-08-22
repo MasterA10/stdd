@@ -8,10 +8,12 @@ src/looper/core.py
 src/looper/draw.py
 src/looper/improvements.py
 src/looper/models.py
+src/looper/reviews.py
 src/looper/runs.py
 src/looper/setup.py
 src/looper/static_analysis.py
 src/looper/traceability.py
+src/looper/tui.py
 src/looper.egg-info/PKG-INFO
 src/looper.egg-info/SOURCES.txt
 src/looper.egg-info/dependency_links.txt
@@ -43,6 +45,7 @@ src/looper/draw_assets/assets/index-BRVoz9Qn.js
 src/looper/draw_assets/assets/index-BRkMgLj4.css
 src/looper/draw_assets/assets/index-BSeGky7D.css
 src/looper/draw_assets/assets/index-BVmp7Bfx.js
+src/looper/draw_assets/assets/index-BYvuLHmk.css
 src/looper/draw_assets/assets/index-BaHY1yly.js
 src/looper/draw_assets/assets/index-Bl9V-yDf.css
 src/looper/draw_assets/assets/index-BlBGrfae.js
@@ -76,6 +79,7 @@ src/looper/draw_assets/assets/index-Cq_DjS2k.js
 src/looper/draw_assets/assets/index-Ctm9gt2G.css
 src/looper/draw_assets/assets/index-CzxQ5ebz.js
 src/looper/draw_assets/assets/index-D2X_X4gF.js
+src/looper/draw_assets/assets/index-D2ffRAuY.js
 src/looper/draw_assets/assets/index-D4dr9bFh.css
 src/looper/draw_assets/assets/index-DABtvu7w.js
 src/looper/draw_assets/assets/index-DAdO_xca.css
@@ -104,6 +108,7 @@ src/looper/draw_assets/assets/index-DfhXD4K9.css
 src/looper/draw_assets/assets/index-DgHCd4JR.js
 src/looper/draw_assets/assets/index-Dh03WHyB.js
 src/looper/draw_assets/assets/index-DiRwdrb-.js
+src/looper/draw_assets/assets/index-DlGF8pRV.css
 src/looper/draw_assets/assets/index-DmzBu_dr.js
 src/looper/draw_assets/assets/index-Dp_rLJy_.js
 src/looper/draw_assets/assets/index-DpuZ5Mq4.css
@@ -116,7 +121,9 @@ src/looper/draw_assets/assets/index-Kisb3kpz.css
 src/looper/draw_assets/assets/index-L6mJIIxN.css
 src/looper/draw_assets/assets/index-LxPmJWY5.css
 src/looper/draw_assets/assets/index-MVhRrwHq.js
+src/looper/draw_assets/assets/index-NDpbrr0E.js
 src/looper/draw_assets/assets/index-NxDloMts.css
+src/looper/draw_assets/assets/index-R81nMvsN.js
 src/looper/draw_assets/assets/index-TTcgVG5G.css
 src/looper/draw_assets/assets/index-UuS6b7Sb.js
 src/looper/draw_assets/assets/index-Wx950KNX.js
@@ -132,6 +139,8 @@ src/looper/draw_assets/assets/index-zrpfFhuw.css
 src/looper/templates/adapters/js_ts_static_adapter.js
 src/looper/templates/adapters/php_static_adapter.php
 src/looper/templates/adapters/static_adapter.py
+src/looper/templates/agents/backend-developer/SKILL.md
+src/looper/templates/agents/backend-developer/agents/openai.yaml
 src/looper/templates/agents/create-tests-backlog/SKILL.md
 src/looper/templates/agents/draw-feature/SKILL.md
 src/looper/templates/agents/draw-improve/SKILL.md
@@ -146,7 +155,8 @@ src/looper/templates/agents/draw-system-level-3/SKILL.md
 src/looper/templates/agents/draw-system-level-3/agents/openai.yaml
 src/looper/templates/agents/draw-system-level-4/SKILL.md
 src/looper/templates/agents/draw-system-level-4/agents/openai.yaml
-src/looper/templates/agents/implement-backlog/SKILL.md
+src/looper/templates/agents/implement-backend/SKILL.md
+src/looper/templates/agents/implement-frontend/SKILL.md
 src/looper/templates/agents/missing/SKILL.md
 src/looper/templates/agents/modern-web-guidance/SKILL.md
 src/looper/templates/agents/open-design/SKILL.md
@@ -162,5 +172,7 @@ tests/test_draw.py
 tests/test_draw_editor.py
 tests/test_looper.py
 tests/test_multilanguage_static_analysis.py
+tests/test_reviews.py
 tests/test_static_analysis.py
 tests/test_traceability.py
+tests/test_tui.py

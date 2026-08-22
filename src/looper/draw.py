@@ -1385,6 +1385,31 @@ def read_draw(root: Path, draw_id: str) -> dict[str, Any]:
     return payload
 
 
+def add_draw_change(
+    root: Path,
+    draw_id: str,
+    node_id: int,
+    prompt: str,
+    *,
+    metadata: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Registra uma alteração pendente no nó exato indicado pelo revisor."""
+    if not isinstance(prompt, str) or not prompt.strip():
+        raise ValueError("a alteração precisa descrever o que falta")
+    document = read_draw(root, draw_id)
+    node = next((item for item in document.get("nodes", []) if item.get("id") == node_id), None)
+    if node is None:
+        raise ValueError(f"nó não encontrado: {draw_id}:{node_id}")
+    changes = node.setdefault("changes", [])
+    next_id = max((item.get("id", -1) for item in changes if isinstance(item, dict) and isinstance(item.get("id"), int)), default=-1) + 1
+    change: dict[str, Any] = {"id": next_id, "prompt": prompt.strip(), "status": "pending"}
+    if metadata:
+        change.update({key: value for key, value in metadata.items() if key not in {"id", "prompt", "status"}})
+    changes.append(change)
+    create_draw(root, document)
+    return {"draw_id": draw_id, "node_id": node_id, "change": deepcopy(change)}
+
+
 def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> ThreadingHTTPServer:
     """Cria um servidor HTTP local para permitir fetch dos JSONs pelo viewer.
     Serve a raiz do projeto sem expor o servidor para interfaces externas por padrão.

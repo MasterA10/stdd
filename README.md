@@ -57,6 +57,10 @@ O `looper init` sempre sincroniza as skills já instaladas com os templates dest
 
 O init também instala a skill-guia `$open-design` em `.agents/skills/open-design/` (e no diretório equivalente de Claude/Gemini). Ela localiza, de forma generalizada no macOS, a biblioteca Open Design externa em `$HOME` ou `/Volumes/*/N-DOWNLOADS/arquitetura-migracao/.agents/skills/open-design`; os assets pesados não são copiados para o projeto.
 
+### Configuração pela TUI
+
+Use `looper tui` ou `looper config tui` para editar as configurações do Looper em uma interface de terminal. A TUI cobre `.looper/config.json`, `.looper/review-agents.json` e `.looper/loop-instructions.md`, além das opções do `looper init`: integrações, atualização das skills e setup da stack. Todas as alterações são feitas por opções selecionáveis, sem editor de texto. `Salvar` grava os documentos de forma atômica; `R/F5` recarrega e descarta alterações não salvas. O tema usa fundo preto, fontes brancas e destaque laranja. Use `1` a `5` para trocar de aba, `?`/`H` para ver o que a opção selecionada muda e `Esc` para destravar e voltar à seleção inicial.
+
 Para substituir as skills de um projeto já existente pela versão mais recente publicada na `main`:
 
 ```bash
@@ -215,6 +219,18 @@ Cada execução de `looper test` também atualiza `.looper/adapters/static-analy
 O backlog é derivado dos Draws e fica consolidado em `.looper/backlog.json`. Cada task operacional corresponde a um nó de nível 2 ou a uma etapa de subfluxo associado e inclui perguntas, respostas, símbolos associados, arquivos e dependências. A task pai mantém `draw_ref`, `child_backlog_id` e a relação com as tasks internas.
 
 O arquivo `.looper/loop-instructions.md` é a informação crítica persistente dos loops. Todo conteúdo não vazio é repetido em linguagem natural em cada entrega de teste, implementação, L2, L3, alteração, bootstrap, verificação, bloqueio ou resposta de fila vazia. O arquivo é relido a cada comando, portanto alterações valem a partir da próxima entrega. O `looper init` cria o arquivo vazio sem sobrescrever conteúdo existente; não coloque senhas, tokens ou credenciais nele.
+
+### Revisão automática por subagente
+
+Após uma task concluída, a revisão opcional pode chamar Codex, Claude, Gemini ou um comando customizado (incluindo Antigravity) pelo arquivo `.looper/review-agents.json`. Configure `enabled`, os gatilhos por fase (`test`, `implementation`, `change`) e escopo (`l2`, `l3`, `l2_and_l3`, `all`), além do modelo, reasoning, prompt e comando. A revisão é executada com `looper backlog complete` ou manualmente:
+
+```bash
+looper backlog review task:meu-draw:node:1 --agent codex --scope l2_and_l3
+```
+
+O agente deve criar changes diretamente no nó correspondente quando encontrar lacunas, usando `looper draw change add --draw-id ... --node-id ... --prompt ...`. Se nenhuma change for criada, a task é considerada aprovada. Cada revisão fica registrada em `.looper/reviews/`; uma falha não reabre a task e pode ser repetida.
+
+Para desligar ou religar o acionamento automático sem editar JSON, use `looper backlog config --no-review` ou `looper backlog config --review`. Com a opção desligada, o `backlog complete` não chama nenhum agente de revisão.
 
 Gere ou atualize o documento agregado:
 

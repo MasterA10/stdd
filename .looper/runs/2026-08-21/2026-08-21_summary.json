@@ -505,8 +505,134 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "8e24e492b32e4bb0addbd67266704092",
+      "timestamp": "2026-08-21T23:42:31.143668+00:00",
+      "description": "Adiciona revisão pós-task por subagentes CLI e loop de changes configurável",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 382,
+        "lines_deleted": 1,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "c2c9d41ef81940a09479ade1f5e78433",
+      "timestamp": "2026-08-21T23:42:35.009937+00:00",
+      "description": "Valida aprovação por ausência de changes, histórico e falhas recuperáveis",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d7497756017a4cd0aa296c80a245c635",
+      "timestamp": "2026-08-21T23:48:49.194000+00:00",
+      "description": "Adiciona chave e comando explícito para desativar a revisão automática",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 27,
+        "lines_deleted": 3,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "381334a3a5604ac7bf96ee5f4c3e2e6b",
+      "timestamp": "2026-08-21T23:48:53.050392+00:00",
+      "description": "Valida que revisão desativada não chama subagente",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "748fd76a9aae44009b36b0c2cd01e7c6",
+      "timestamp": "2026-08-21T23:59:49.451316+00:00",
+      "description": "Implementa TUI completa para configuração do Looper",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 367,
+        "lines_deleted": 0,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "0b4f9bf8b5194c008c39fbbf53217602",
+      "timestamp": "2026-08-21T23:59:53.334159+00:00",
+      "description": "Valida TUI, persistência atômica, aliases e compatibilidade de configurações",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 24,
-  "last_run_id": "f91800d0ebec43ec8a390c6ac57545a6"
+  "run_count": 30,
+  "last_run_id": "0b4f9bf8b5194c008c39fbbf53217602"
 }

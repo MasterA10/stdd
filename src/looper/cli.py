@@ -42,8 +42,10 @@ from .draw import (
     format_draw_answers,
     logical_draw_payload,
     read_draw_index,
+    add_draw_change,
     serve_draw,
 )
+from .reviews import maybe_review_completed_task, run_review, set_review_enabled
 from .improvements import create_improvement, list_ready_improvements, mark_improvement_applied
 from .traceability import associate_node_reference, associate_node_references
 from .setup import (
@@ -54,10 +56,35 @@ from .setup import (
 )
 
 app = typer.Typer(help="Looper: CLI de suporte ao desenvolvimento orientado por testes.")
+config_app = typer.Typer(help="Configurações interativas do Looper.")
+app.add_typer(config_app, name="config")
 draw_app = typer.Typer(help="Cria e visualiza desenhos JSON do projeto.")
 app.add_typer(draw_app, name="draw")
+draw_change_app = typer.Typer(help="Gerencia changes pendentes dos nós.")
+draw_app.add_typer(draw_change_app, name="change")
 backlog_app = typer.Typer(help="Gera e executa tasks derivadas dos Draws.")
 app.add_typer(backlog_app, name="backlog")
+
+
+def _launch_tui() -> None:
+    try:
+        from .tui import run_tui
+        run_tui(project_root())
+    except RuntimeError as error:
+        typer.echo(f"Erro ao abrir a TUI: {error}", err=True)
+        raise typer.Exit(1) from error
+
+
+@app.command("tui")
+def tui() -> None:
+    """Abre a interface interativa de todas as configurações do Looper."""
+    _launch_tui()
+
+
+@config_app.command("tui")
+def config_tui() -> None:
+    """Abre a interface interativa de todas as configurações do Looper."""
+    _launch_tui()
 
 
 def _human_answer(value: object) -> str:
@@ -373,6 +400,7 @@ def init(
     l2_children_mode: Optional[str] = typer.Option(None, "--l2-children-mode", help="Filhos L3 no L2: none, context ou owned."),
     l3_loop_enabled: Optional[bool] = typer.Option(None, "--l3-loop/--no-l3-loop", help="Habilita ou desabilita o loop L3."),
     l3_include_parent: Optional[bool] = typer.Option(None, "--l3-parent-context/--no-l3-parent-context", help="Inclui o L2 pai no contexto do L3."),
+    review_enabled: Optional[bool] = typer.Option(None, "--review/--no-review", help="Habilita ou desabilita a revisão automática por subagente."),
 ) -> None:
     """Inicializa a estrutura do Looper e instala as skills dos agentes.
     Cria o diretório-alvo quando necessário, depois cria .looper/ e .agents/skills.
@@ -407,6 +435,8 @@ def init(
         typer.echo("Erro: --l2-children-mode deve ser none, context ou owned.", err=True)
         raise typer.Exit(1)
     created = init_project(target, integrations=requested, development_mode=development_mode)
+    if review_enabled is not None:
+        set_review_enabled(target, review_enabled)
     typer.echo(f"Projeto inicializado em {target}. {len(created)} itens criados ou atualizados.")
     if interactive or sys.stdin.isatty():
         if typer.confirm("Executar o setup para detectar a stack agora?", default=True):
@@ -736,11 +766,14 @@ def backlog_config(
     l2_children_mode: Optional[str] = typer.Option(None, "--l2-children-mode", help="Filhos L3 no L2: none, context ou owned."),
     l3_loop_enabled: Optional[bool] = typer.Option(None, "--l3-loop/--no-l3-loop", help="Habilita ou desabilita o loop L3."),
     l3_include_parent: Optional[bool] = typer.Option(None, "--l3-parent-context/--no-l3-parent-context", help="Inclui o L2 pai no contexto do L3."),
+    review_enabled: Optional[bool] = typer.Option(None, "--review/--no-review", help="Habilita ou desabilita a revisão automática por subagente."),
 ) -> None:
     """Exibe ou atualiza as configurações do backlog em .looper/config.json."""
     try:
         root = project_root()
-        if interval is not None or bootstrap is not None or final_verification is not None or task_batch_size is not None or task_batch_scope is not None or task_delivery_scope is not None or development_mode is not None or min_task_interval_seconds is not None or test_loop_enabled is not None or test_loop_mode is not None or implementation_loop_mode is not None or test_batch_size is not None or implementation_batch_size is not None or l2_children_mode is not None or l3_loop_enabled is not None or l3_include_parent is not None:
+        if interval is not None or bootstrap is not None or final_verification is not None or task_batch_size is not None or task_batch_scope is not None or task_delivery_scope is not None or development_mode is not None or min_task_interval_seconds is not None or test_loop_enabled is not None or test_loop_mode is not None or implementation_loop_mode is not None or test_batch_size is not None or implementation_batch_size is not None or l2_children_mode is not None or l3_loop_enabled is not None or l3_include_parent is not None or review_enabled is not None:
+            if review_enabled is not None:
+                set_review_enabled(root, review_enabled)
             updated = set_backlog_config(
                 root,
                 verification_interval=interval,
@@ -760,6 +793,8 @@ def backlog_config(
                 l3_loop_enabled=l3_loop_enabled,
                 l3_include_parent=l3_include_parent,
             )
+            if review_enabled is not None:
+                updated["review_enabled"] = review_enabled
             typer.echo(f"Configuração do backlog atualizada: {json.dumps(updated, ensure_ascii=False)}")
         else:
             current = get_backlog_config(root)
@@ -807,7 +842,64 @@ def backlog_change(
 def backlog_complete(task_id: str = typer.Argument(..., help="ID da task atualmente em andamento.")) -> None:
     """Conclui a task atual e avança o cursor da jornada em linguagem natural."""
     try:
-        typer.echo(_format_backlog_response(complete_backlog_task(project_root(), task_id)))
+        root = project_root()
+        response = complete_backlog_task(root, task_id)
+        review = maybe_review_completed_task(root, response)
+        output = _format_backlog_response(response)
+        if review:
+            if review["status"] == "changes_created":
+                output += f"\nRevisão concluída: {len(review['changes'])} change(s) registrada(s) para o próximo loop de alterações."
+            elif review["status"] == "approved":
+                output += "\nRevisão concluída: nenhuma lacuna foi encontrada; a task está aprovada."
+            else:
+                output += "\nRevisão não concluída: a task permanece concluída e a revisão pode ser repetida."
+        typer.echo(output)
+    except (OSError, ValueError) as error:
+        typer.echo(f"Erro: {error}", err=True)
+        raise typer.Exit(1)
+
+
+@backlog_app.command("review")
+def backlog_review(
+    task_id: str = typer.Argument(..., help="ID da task concluída que será revisada."),
+    agent: Optional[str] = typer.Option(None, "--agent", help="codex, claude, gemini ou antigravity."),
+    scope: Optional[str] = typer.Option(None, "--scope", help="l2, l3, l2_and_l3 ou all."),
+    model: Optional[str] = typer.Option(None, "--model"),
+    reasoning: Optional[str] = typer.Option(None, "--reasoning"),
+) -> None:
+    """Revisa uma task concluída e cria changes pendentes quando necessário."""
+    try:
+        root = project_root()
+        response = generate_backlog(root)
+        task = next((item for item in response.get("tasks", []) if item.get("id") == task_id), None)
+        if task is None:
+            raise ValueError("task-id não existe no backlog")
+        result = run_review(root, task, agent=agent, scope=scope, model=model, reasoning=reasoning)
+        if result["status"] == "changes_created":
+            typer.echo(f"Revisão concluída: {len(result['changes'])} change(s) registrada(s) para o próximo loop.")
+        elif result["status"] == "approved":
+            typer.echo("Revisão concluída: nenhuma lacuna foi encontrada; a task está aprovada.")
+        else:
+            typer.echo("Revisão pendente: o agente não concluiu; a task permanece concluída e pode ser revisada novamente.")
+    except (OSError, ValueError) as error:
+        typer.echo(f"Erro: {error}", err=True)
+        raise typer.Exit(1)
+
+
+@draw_change_app.command("add")
+def draw_change_add(
+    draw_id: str = typer.Option(..., "--draw-id"),
+    node_id: int = typer.Option(..., "--node-id"),
+    prompt: str = typer.Option(..., "--prompt"),
+    review_id: Optional[str] = typer.Option(None, "--review-id"),
+    task_id: Optional[str] = typer.Option(None, "--task-id"),
+    agent: Optional[str] = typer.Option(None, "--agent"),
+) -> None:
+    """Cria uma change pendente no nó correspondente, em linguagem natural."""
+    try:
+        metadata = {key: value for key, value in {"source": "review", "review_id": review_id, "task_id": task_id, "agent": agent}.items() if value}
+        created = add_draw_change(project_root(), draw_id, node_id, prompt, metadata=metadata)
+        typer.echo(f"Change criada no Draw {draw_id}, nó {node_id}: {created['change']['prompt']}")
     except (OSError, ValueError) as error:
         typer.echo(f"Erro: {error}", err=True)
         raise typer.Exit(1)

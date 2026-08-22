@@ -19,6 +19,7 @@ from .runs import ensure_runs_workspace, update_runs_index, write_test_report
 from .static_analysis import run_static_analysis, write_static_analysis_kpis
 from .traceability import refresh_traceability
 from .setup import ensure_design_document
+from .reviews import ensure_review_workspace
 
 VALID_WORK_TYPES = {"bug", "teste", "implementacao", "refactor"}
 DEFAULT_CODE_EXTENSIONS = {
@@ -406,6 +407,7 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
     if not loop_instructions.exists():
         loop_instructions.write_text("", encoding="utf-8")
         created.append(loop_instructions)
+    created.extend(ensure_review_workspace(root))
     design_path = ensure_design_document(root)
     if design_path not in created:
         created.append(design_path)

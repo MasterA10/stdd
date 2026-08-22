@@ -1,0 +1,62 @@
+{
+  "enabled": false,
+  "default_agent": "codex",
+  "model": "",
+  "reasoning": "high",
+  "timeout_seconds": 900,
+  "standard_prompt": "Confira a task aprovada usando o Draw e os arquivos reais. Não implemente código. Se faltar algo, crie uma change pendente no nó exato usando looper draw change add; se estiver completa, não crie nenhuma change.",
+  "triggers": {
+    "test": {
+      "l2": false,
+      "l3": false,
+      "l2_and_l3": false,
+      "all": false
+    },
+    "implementation": {
+      "l2": true,
+      "l3": true,
+      "l2_and_l3": false,
+      "all": false
+    },
+    "change": {
+      "l2": false,
+      "l3": false,
+      "l2_and_l3": false,
+      "all": false
+    }
+  },
+  "agents": {
+    "codex": {
+      "command": [
+        "codex",
+        "exec",
+        "--model",
+        "{model}",
+        "-c",
+        "model_reasoning_effort={reasoning}",
+        "{prompt}"
+      ]
+    },
+    "claude": {
+      "command": [
+        "claude",
+        "-p",
+        "--model",
+        "{model}",
+        "{prompt}"
+      ]
+    },
+    "gemini": {
+      "command": [
+        "gemini",
+        "-p",
+        "{prompt}",
+        "--model",
+        "{model}"
+      ]
+    },
+    "antigravity": {
+      "command": []
+    }
+  }
+}
