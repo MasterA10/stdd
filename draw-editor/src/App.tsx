@@ -850,8 +850,11 @@ export const App: React.FC = () => {
       // Não deixe o viewport do desenho pai disputar com o fit do desenho
       // filho enquanto o React Flow troca os nós controlados.
       setRenderedDrawId(null);
-      setNodes([]);
-      setEdges([]);
+      // Mantém o último frame válido até o novo contrato ser renderizado.
+      // Limpar os arrays aqui podia deixar a tela vazia se a assinatura do
+      // novo Draw coincidisse com a anterior.
+      renderedNodesSignatureRef.current = '';
+      renderedEdgesSignatureRef.current = '';
     };
 
     if (isDirty || isImprovementDirty) {
@@ -1512,7 +1515,7 @@ export const App: React.FC = () => {
       selected: selectedNodeIds.has(Number(node.id))
     }));
     const nextNodesSignature = nodesWithSelection.map((node) => (
-      `${node.id}:${node.position.x}:${node.position.y}:${node.selected ? 1 : 0}:${node.data.isHighlighted ? 1 : 0}:${node.data.isDimmed ? 1 : 0}:${node.data.backlogChecklist?.status || ''}`
+      `${contract.id}:${node.id}:${node.position.x}:${node.position.y}:${node.selected ? 1 : 0}:${node.data.isHighlighted ? 1 : 0}:${node.data.isDimmed ? 1 : 0}:${node.data.backlogChecklist?.status || ''}`
     )).join('|');
     if (renderedNodesSignatureRef.current !== nextNodesSignature) {
       renderedNodesSignatureRef.current = nextNodesSignature;
@@ -1606,7 +1609,7 @@ export const App: React.FC = () => {
     });
 
     const nextEdgesSignature = formattedEdges.map((edge) => (
-      `${edge.id}:${edge.source}:${edge.target}:${edge.animated ? 1 : 0}:${edge.style?.opacity || 1}:${edge.data?.labelColor || ''}`
+      `${contract.id}:${edge.id}:${edge.source}:${edge.target}:${edge.animated ? 1 : 0}:${edge.style?.opacity || 1}:${edge.data?.labelColor || ''}`
     )).join('|');
     if (renderedEdgesSignatureRef.current !== nextEdgesSignature) {
       renderedEdgesSignatureRef.current = nextEdgesSignature;

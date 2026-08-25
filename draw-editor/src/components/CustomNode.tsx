@@ -375,6 +375,8 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
           <label className="node-success-criteria-field">
             <span>Sucesso</span>
             <textarea
+              id={`node-${id}-success-criteria`}
+              name={`node-${id}-success-criteria`}
               value={successCriteriaDraft}
               onChange={(e) => setSuccessCriteriaDraft(e.target.value)}
               placeholder="Como saberemos que este nó funcionou?"
@@ -384,6 +386,8 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
           <label className="node-success-criteria-field">
             <span>Falha</span>
             <textarea
+              id={`node-${id}-failure-criteria`}
+              name={`node-${id}-failure-criteria`}
               value={failureCriteriaDraft}
               onChange={(e) => setFailureCriteriaDraft(e.target.value)}
               placeholder="Qual cenário indica que este nó falhou?"
@@ -401,6 +405,8 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
           <input
             className="inline-node-input"
             ref={inputRef}
+            id={`node-${id}-label`}
+            name={`node-${id}-label`}
             type="text"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
@@ -421,6 +427,8 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
           <textarea
             className="inline-node-textarea"
             ref={textareaRef}
+            id={`node-${id}-description`}
+            name={`node-${id}-description`}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onBlur={finishEdit}
