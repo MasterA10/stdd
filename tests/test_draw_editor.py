@@ -840,6 +840,18 @@ def test_draw_editor_exposes_optional_node_success_and_failure_criteria():
     assert "name=\"success_criteria\"" in modal
 
 
+def test_custom_node_exposes_success_criteria_indicator_when_configured():
+    """Mostra o indicador acionável de aceite diretamente no bloco."""
+    node = (EDITOR_ROOT / "src/components/CustomNode.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    assert "hasSuccessCriteria" in node
+    assert "node-success-criteria-indicator" in node
+    assert "Abrir critérios de sucesso e falha" in node
+    assert "node-success-criteria-popover" in node
+    assert ".node-success-criteria-indicator:focus-visible" in styles
+
+
 def test_manual_save_button_persists_the_logical_contract():
     """Mantém o botão Salvar como persistência do contrato lógico.
     Confirma que o autosave lógico não é disparado por timer.

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import type { NodeProps, Node } from '@xyflow/react';
 import type { NodeData, Question, ChangeRequest } from '../types';
-import { Trash2, ClipboardList, Eye, Code2, Repeat2 } from 'lucide-react';
+import { Trash2, ClipboardList, Eye, Code2, Repeat2, CircleCheck } from 'lucide-react';
 import { renderWithMentions } from '../utils';
 
 const FALLBACK_GROUP_COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f97316', '#ec4899', '#3b82f6'];
@@ -68,6 +68,8 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
   const hasAssociatedTest = backlogChecklist?.test === true
     || Boolean(data.test_ref)
     || (Array.isArray(data.test_refs) && data.test_refs.length > 0);
+  const hasSuccessCriteria = Boolean(data.success_criteria?.trim() || data.failure_criteria?.trim());
+  const [showSuccessCriteria, setShowSuccessCriteria] = useState(false);
 
   const isHighlighted = data.isHighlighted;
   const isDimmed = data.isDimmed;
@@ -150,6 +152,11 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
   const onOpenCodeReferences = (e: React.MouseEvent) => {
     e.stopPropagation();
     window.openCodeReferencesModal?.(data);
+  };
+
+  const onOpenSuccessCriteria = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowSuccessCriteria((visible) => !visible);
   };
 
   const onToggleBacklogChecklist = (phase: 'test' | 'implementation', checked: boolean) => (e: React.SyntheticEvent) => {
@@ -324,8 +331,48 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
               </svg>
             </span>
           )}
+          {hasSuccessCriteria && (
+            <button
+              className="node-success-criteria-indicator nodrag nopan"
+              type="button"
+              onClick={onOpenSuccessCriteria}
+              onPointerDown={(e) => e.stopPropagation()}
+              aria-label="Abrir critérios de sucesso e falha"
+              aria-expanded={showSuccessCriteria}
+              title="Critérios de sucesso e falha definidos"
+            >
+              <CircleCheck size={17} aria-hidden="true" />
+            </button>
+          )}
         </span>
       </div>
+
+      {showSuccessCriteria && hasSuccessCriteria && (
+        <div
+          className="node-success-criteria-popover nodrag nopan"
+          role="dialog"
+          aria-label="Critérios de sucesso e falha do bloco"
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          <div className="node-success-criteria-popover-heading">
+            <strong>Critérios de aceite</strong>
+            <button type="button" onClick={() => setShowSuccessCriteria(false)} aria-label="Fechar critérios">×</button>
+          </div>
+          {data.success_criteria?.trim() && (
+            <div className="node-success-criteria-copy success">
+              <span>Sucesso</span>
+              <p>{data.success_criteria}</p>
+            </div>
+          )}
+          {data.failure_criteria?.trim() && (
+            <div className="node-success-criteria-copy failure">
+              <span>Falha</span>
+              <p>{data.failure_criteria}</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="node-body">
