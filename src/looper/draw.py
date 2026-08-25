@@ -1721,6 +1721,8 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                         body.get("task_id"),
                         body.get("phase"),
                         body.get("checked"),
+                        body.get("draw_id"),
+                        body.get("node_id"),
                     )
                     self._send_json(result)
                 except (OSError, ValueError, UnicodeDecodeError, json.JSONDecodeError) as error:

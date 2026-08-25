@@ -177,7 +177,7 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
   const onToggleBacklogChecklist = (phase: 'test' | 'implementation', checked: boolean) => (e: React.SyntheticEvent) => {
     e.stopPropagation();
     if (backlogChecklist && window.updateBacklogChecklist) {
-      void window.updateBacklogChecklist(backlogChecklist.taskId, phase, checked);
+      void window.updateBacklogChecklist(backlogChecklist.taskId, phase, checked, window.currentDrawId, Number(id));
     }
   };
 
@@ -536,7 +536,7 @@ declare global {
     getGroupInfo?: (groupId: number) => any;
     currentDrawId?: string;
     updateNodeGroup?: (id: number, groupId?: number) => void;
-    updateBacklogChecklist?: (taskId: string, phase: 'test' | 'implementation', checked: boolean) => void;
+    updateBacklogChecklist?: (taskId: string, phase: 'test' | 'implementation', checked: boolean, drawId?: string, nodeId?: number) => void;
     openSubdraw?: (id: string) => void;
     openDetailViewer?: (id: number) => void;
     openNodeEditModal?: (node: NodeData) => void;

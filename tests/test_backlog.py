@@ -934,6 +934,24 @@ def test_backlog_checklist_can_mark_without_static_evidence_and_uncheck(tmp_path
     assert next_backlog_task(tmp_path)["kind"] == "backlog-task"
 
 
+def test_backlog_checklist_resolves_stale_task_id_by_draw_and_node(tmp_path: Path):
+    """Aceita o identificador estável do nó quando a UI envia um id antigo."""
+    _create_hierarchical_fixture(tmp_path)
+    generate_backlog(tmp_path)
+
+    update_backlog_checklist(
+        tmp_path,
+        "task:stale-snapshot:node:1",
+        "test",
+        False,
+        draw_id="jornada",
+        node_id=1,
+    )
+
+    task = next(item for item in read_backlog(tmp_path)["tasks"] if item["id"] == "task:jornada:node:1")
+    assert task["checklist_state"]["test"] is False
+
+
 def test_backlog_parent_and_subtask_can_be_completed_independently(tmp_path: Path):
     """Permite concluir o pai e a subtask pelo próprio ID.
     Depois da primeira subtask, a resposta avança para a segunda mantendo o pai.

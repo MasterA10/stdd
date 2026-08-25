@@ -2036,9 +2036,29 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
     return response
 
 
-def _task_for_update(payload: dict[str, Any], task_id: str) -> dict[str, Any]:
-    """Obtém uma task do backlog ou retorna um erro acionável."""
+def _task_for_update(
+    payload: dict[str, Any],
+    task_id: str,
+    draw_id: str | None = None,
+    node_id: Any = None,
+) -> dict[str, Any]:
+    """Obtém uma task, aceitando a identidade estável do nó como fallback.
+
+    O editor pode manter um checklist renderizado enquanto o backlog é
+    regenerado depois de salvar um Draw. Nesse intervalo, o id antigo pode
+    não estar mais no snapshot persistido, mas ``draw_id`` + ``node_id`` ainda
+    identificam a mesma task sem ambiguidade.
+    """
     task = next((item for item in payload.get("tasks", []) if item.get("id") == task_id), None)
+    if task is None and isinstance(draw_id, str) and draw_id.strip() and node_id is not None:
+        task = next(
+            (
+                item
+                for item in payload.get("tasks", [])
+                if str(item.get("draw_id")) == draw_id and item.get("node_id") == node_id
+            ),
+            None,
+        )
     if task is None:
         raise ValueError("task-id não existe no backlog")
     return task
@@ -2221,14 +2241,21 @@ def _refresh_task_checklist_items(payload: dict[str, Any]) -> None:
     _refresh_branch_completion(payload)
 
 
-def update_backlog_checklist(root: Path, task_id: str, phase: str, checked: bool) -> dict[str, Any]:
+def update_backlog_checklist(
+    root: Path,
+    task_id: str,
+    phase: str,
+    checked: bool,
+    draw_id: str | None = None,
+    node_id: Any = None,
+) -> dict[str, Any]:
     """Atualiza um checkbox do backlog pela API local do viewer."""
     if phase not in VALID_CHECKLIST_PHASES:
         raise ValueError("fase de checklist inválida")
     if not isinstance(checked, bool):
         raise ValueError("checked deve ser booleano")
     payload = generate_backlog(root)
-    task = _task_for_update(payload, task_id)
+    task = _task_for_update(payload, task_id, draw_id, node_id)
     state = task.setdefault("checklist_state", _default_checklist_state(task))
     if phase == "implementation" and checked and not _test_scope_complete(payload, task):
         raise ValueError("checklist de teste do nó e dos subfluxos ainda não foi concluído")

@@ -341,13 +341,16 @@ export const App: React.FC = () => {
     });
   };
 
-  const updateBacklogChecklist = useCallback(async (taskId: string, phase: 'test' | 'implementation', checked: boolean) => {
+  const updateBacklogChecklist = useCallback(async (taskId: string, phase: 'test' | 'implementation', checked: boolean, drawId?: string, nodeId?: number) => {
     if (storageMode === 'backend') {
+      const stableIdentity = /^task:(.+):node:(\d+)$/.exec(taskId);
+      const resolvedDrawId = drawId || stableIdentity?.[1];
+      const resolvedNodeId = nodeId ?? (stableIdentity ? Number(stableIdentity[2]) : undefined);
       try {
         const response = await fetch(`${getApiOrigin()}/__looper/api/backlog/checklist`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ task_id: taskId, phase, checked })
+          body: JSON.stringify({ task_id: taskId, phase, checked, draw_id: resolvedDrawId, node_id: resolvedNodeId })
         });
         const result = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
