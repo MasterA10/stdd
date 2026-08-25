@@ -44,6 +44,7 @@ CONFIG_COMMENTS = {
     "backlog.bootstrap_task": "Habilita a task inicial de preparação do projeto.",
     "backlog.final_verification_task": "Cria uma verificação final após as tasks do backlog.",
     "backlog.task_batch_size": "Quantidade máxima de itens entregues em cada avanço.",
+    "backlog.l4_group_size": "Quantidade de nós L4 entregues junto com o pai L3; padrão 3.",
     "backlog.task_batch_scope": "Escopo do lote: `task` ou `node`.",
     "backlog.task_delivery_scope": "Escopo comum da entrega: task individual ou nó completo.",
     "backlog.test_loop_enabled": "Habilita o loop que cria e libera testes.",
@@ -153,7 +154,7 @@ def save_config(root: Path, data: dict[str, Any]) -> Path:
 
 
 def default_config() -> dict[str, Any]:
-    return {"test_commands": [], "testing": {"profile": "mvp"}, "contract": {"enabled": True}, "static_analysis": {"enabled": True}, "tracked_extensions": [], "backlog": {"development_mode": "sequential"}, "version": 1}
+    return {"test_commands": [], "testing": {"profile": "mvp"}, "contract": {"enabled": True}, "static_analysis": {"enabled": True}, "tracked_extensions": [], "backlog": {"development_mode": "sequential", "l4_group_size": 3}, "version": 1}
 
 
 def review_config(data: dict[str, Any]) -> dict[str, Any]:

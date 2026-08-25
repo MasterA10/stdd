@@ -120,6 +120,10 @@ def _compact_backlog_response(response: dict[str, object]) -> dict[str, object]:
         "parent_screen_context": response.get("parent_screen_context"),
         "batch": response.get("batch"),
         "batch_size": response.get("batch_size"),
+        "l4_group_size": response.get("l4_group_size"),
+        "l4_group": response.get("l4_group"),
+        "l4_parent": response.get("l4_parent"),
+        "l4_delivery_note": response.get("l4_delivery_note"),
         "children_delivery_mode": response.get("children_delivery_mode"),
         "children_context": response.get("children_context"),
         "context_parent": response.get("context_parent"),
@@ -297,6 +301,17 @@ def _format_backlog_response(response: dict[str, object]) -> str:
         lines.append(f"Nós no lote ({len(batch_items)}):")
         for b_item in batch_items:
             lines.append(f"  • {b_item.get('label', b_item.get('id'))} (ID: {b_item.get('id')})")
+    l4_parent = compact.get("l4_parent")
+    l4_group = compact.get("l4_group")
+    if isinstance(l4_parent, dict):
+        lines.append(f"Pai L3: {l4_parent.get('label', l4_parent.get('id'))} (ID: {l4_parent.get('id')})")
+    if isinstance(l4_group, list):
+        lines.append(f"Nós L4 no grupo ({len(l4_group)}):")
+        for l4_item in l4_group:
+            if isinstance(l4_item, dict):
+                lines.append(f"  • {l4_item.get('label', l4_item.get('id'))} (ID: {l4_item.get('id')})")
+    if compact.get("l4_delivery_note"):
+        lines.append(f"Regra L4: {compact['l4_delivery_note']}")
     if compact.get("children_delivery_mode"):
         lines.append(f"Filhos L3: {compact['children_delivery_mode']}")
     if isinstance(compact.get("children_context"), list):
@@ -370,6 +385,7 @@ def init(
     l2_verification_interval: Optional[int] = typer.Option(None, "--l2-verification-interval", "--verification-interval", min=0, help="Insere uma task de conferência a cada N nós concluídos; 0 desabilita."),
     test_loop_enabled: Optional[bool] = typer.Option(None, "--test-loop/--no-test-loop", help="Habilita ou desabilita a fase de testes do backlog; desabilitada entrega somente implementação."),
     task_batch_size: Optional[int] = typer.Option(None, "--task-batch-size", min=1, max=5, help="Quantidade de tasks entregues no lote para o backend (1 a 5)."),
+    l4_group_size: Optional[int] = typer.Option(None, "--l4-group-size", min=1, max=50, help="Quantidade de nós L4 entregues junto com cada pai L3 (1 a 50)."),
     task_batch_scope: Optional[str] = typer.Option(None, "--task-batch-scope", help="Escopo do lote: task ou node."),
     bootstrap: Optional[bool] = typer.Option(None, "--bootstrap/--no-bootstrap", help="Habilita ou desabilita a task de bootstrap inicial."),
     final_verification: Optional[bool] = typer.Option(None, "--final-verification/--no-final-verification", help="Habilita ou desabilita a task de verificação final E2E."),
@@ -447,6 +463,7 @@ def init(
             test_loop_enabled=selected_test_loop_enabled,
             development_mode=selected_development_mode,
             task_batch_size=task_batch_size,
+            l4_group_size=l4_group_size,
             task_batch_scope=task_batch_scope,
             bootstrap_task=bootstrap,
             final_verification_task=final_verification,
@@ -459,7 +476,7 @@ def init(
             l3_loop_enabled=l3_loop_enabled,
             l3_include_parent=l3_include_parent,
         )
-    elif task_delivery_scope is not None or l2_verification_interval is not None or test_loop_enabled is not None or development_mode is not None or task_batch_size is not None or task_batch_scope is not None or bootstrap is not None or final_verification is not None or min_task_interval_seconds is not None or test_loop_mode is not None or implementation_loop_mode is not None or test_batch_size is not None or implementation_batch_size is not None or l2_children_mode is not None or l3_loop_enabled is not None or l3_include_parent is not None:
+    elif task_delivery_scope is not None or l2_verification_interval is not None or test_loop_enabled is not None or development_mode is not None or task_batch_size is not None or l4_group_size is not None or task_batch_scope is not None or bootstrap is not None or final_verification is not None or min_task_interval_seconds is not None or test_loop_mode is not None or implementation_loop_mode is not None or test_batch_size is not None or implementation_batch_size is not None or l2_children_mode is not None or l3_loop_enabled is not None or l3_include_parent is not None:
         set_backlog_config(
             target,
             task_delivery_scope=task_delivery_scope,
@@ -467,6 +484,7 @@ def init(
             test_loop_enabled=test_loop_enabled,
             development_mode=development_mode,
             task_batch_size=task_batch_size,
+            l4_group_size=l4_group_size,
             task_batch_scope=task_batch_scope,
             bootstrap_task=bootstrap,
             final_verification_task=final_verification,
@@ -735,6 +753,7 @@ def backlog_config(
     bootstrap: Optional[bool] = typer.Option(None, "--bootstrap/--no-bootstrap", help="Habilita ou desabilita a task de bootstrap inicial."),
     final_verification: Optional[bool] = typer.Option(None, "--final-verification/--no-final-verification", help="Habilita ou desabilita a task de verificação final E2E."),
     task_batch_size: Optional[int] = typer.Option(None, "--task-batch-size", min=1, max=5, help="Quantidade de tasks entregues no lote (1 a 5)."),
+    l4_group_size: Optional[int] = typer.Option(None, "--l4-group-size", min=1, max=50, help="Quantidade de nós L4 entregues junto com cada pai L3 (1 a 50)."),
     task_batch_scope: Optional[str] = typer.Option(None, "--task-batch-scope", help="Escopo do lote: task ou node."),
     task_delivery_scope: Optional[str] = typer.Option(None, "--task-delivery-scope", help="Escopo comum de testes e implementação: task ou node (tela e funcionamento com os subfluxos)."),
     development_mode: Optional[str] = typer.Option(None, "--development-mode", help="Ordem arquitetural: sequential ou separated (frontend L2 antes de backend L3)."),
@@ -752,7 +771,7 @@ def backlog_config(
     """Exibe ou atualiza as configurações do backlog em .looper/config.yaml."""
     try:
         root = project_root()
-        if interval is not None or bootstrap is not None or final_verification is not None or task_batch_size is not None or task_batch_scope is not None or task_delivery_scope is not None or development_mode is not None or min_task_interval_seconds is not None or test_loop_enabled is not None or test_loop_mode is not None or implementation_loop_mode is not None or test_batch_size is not None or implementation_batch_size is not None or l2_children_mode is not None or l3_loop_enabled is not None or l3_include_parent is not None or review_enabled is not None:
+        if interval is not None or bootstrap is not None or final_verification is not None or task_batch_size is not None or l4_group_size is not None or task_batch_scope is not None or task_delivery_scope is not None or development_mode is not None or min_task_interval_seconds is not None or test_loop_enabled is not None or test_loop_mode is not None or implementation_loop_mode is not None or test_batch_size is not None or implementation_batch_size is not None or l2_children_mode is not None or l3_loop_enabled is not None or l3_include_parent is not None or review_enabled is not None:
             if review_enabled is not None:
                 set_review_enabled(root, review_enabled)
             updated = set_backlog_config(
@@ -761,6 +780,7 @@ def backlog_config(
                 bootstrap_task=bootstrap,
                 final_verification_task=final_verification,
                 task_batch_size=task_batch_size,
+                l4_group_size=l4_group_size,
                 task_batch_scope=task_batch_scope,
                 task_delivery_scope=task_delivery_scope,
                 development_mode=development_mode,

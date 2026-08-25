@@ -4,7 +4,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from looper.backlog import bootstrap_report, build_backlog, check_backlog, complete_backlog_task, generate_backlog, next_backlog_change, next_backlog_task, next_backlog_test, read_backlog, set_backlog_config, update_backlog_checklist, write_backlog
+from looper.backlog import bootstrap_report, build_backlog, check_backlog, complete_backlog_task, generate_backlog, get_backlog_config, next_backlog_change, next_backlog_task, next_backlog_test, read_backlog, set_backlog_config, update_backlog_checklist, write_backlog
 from looper.cli import _format_backlog_response, app
 from looper.core import init_project, run_tests
 from looper.draw import create_draw
@@ -160,6 +160,98 @@ def _create_nested_hierarchical_fixture(root: Path, delivery_scope: str | None =
             "flows": [],
         },
     )
+
+
+def _add_l4_fixture(root: Path, count: int = 9) -> None:
+    """Anexa codebase L4 ao primeiro nó do subfluxo L3."""
+    path = root / ".looper" / "draws" / "subjornada.json"
+    parent = json.loads(path.read_text(encoding="utf-8"))
+    parent["nodes"][0]["draw_ref"] = "codebase"
+    create_draw(root, parent)
+    create_draw(
+        root,
+        {
+            "id": "codebase",
+            "title": "Detalhamento técnico",
+            "kind": "flow",
+            "hierarchy": {
+                "level": 4,
+                "role": "codebase",
+                "parent_draw_ref": "subjornada",
+                "parent_node_id": 1,
+                "root_draw_ref": "sistema",
+            },
+            "groups": [],
+            "nodes": [
+                {"id": index, "label": f"Símbolo L4 {index}", "description": "Detalhamento técnico real."}
+                for index in range(1, count + 1)
+            ],
+            "edges": [
+                {"id": index, "from": index, "to": index + 1, "kind": "flow", "condition": 1}
+                for index in range(1, count)
+            ],
+            "flows": [],
+        },
+    )
+
+
+def test_l4_is_delivered_with_l3_in_configurable_groups(tmp_path: Path):
+    """Entrega o pai L3 e até três L4 por avanço, com o tamanho editável."""
+    _create_nested_hierarchical_fixture(tmp_path)
+    _add_l4_fixture(tmp_path)
+    set_backlog_config(
+        tmp_path,
+        bootstrap_task=False,
+        test_loop_enabled=False,
+        development_mode="separated",
+        l4_group_size=3,
+    )
+
+    while True:
+        frontend = next_backlog_task(tmp_path, layer="frontend")
+        if frontend["kind"] == "backlog-layer-empty":
+            break
+        complete_backlog_task(tmp_path, frontend["task"]["id"])
+
+    first = next_backlog_task(tmp_path, layer="backend")
+    assert first["task"]["id"] == "task:subjornada:node:1"
+    assert first["l4_group_size"] == 3
+    assert [item["id"] for item in first["l4_group"]] == [
+        "task:codebase:node:1", "task:codebase:node:2", "task:codebase:node:3"
+    ]
+    assert first["l4_parent"]["id"] == first["task"]["id"]
+    complete_backlog_task(tmp_path, first["task"]["id"])
+
+    second = next_backlog_task(tmp_path, layer="backend")
+    assert second["task"]["id"] == "task:subjornada:node:1"
+    assert [item["id"] for item in second["l4_group"]] == [
+        "task:codebase:node:4", "task:codebase:node:5", "task:codebase:node:6"
+    ]
+    complete_backlog_task(tmp_path, second["task"]["id"])
+
+    third = next_backlog_task(tmp_path, layer="backend")
+    assert third["task"]["id"] == "task:subjornada:node:1"
+    assert [item["id"] for item in third["l4_group"]] == [
+        "task:codebase:node:7", "task:codebase:node:8", "task:codebase:node:9"
+    ]
+    complete_backlog_task(tmp_path, third["task"]["id"])
+
+    second_l3 = next_backlog_task(tmp_path, layer="backend")
+    assert second_l3["task"]["id"] == "task:subjornada:node:2"
+    complete_backlog_task(tmp_path, second_l3["task"]["id"])
+
+    assert next_backlog_task(tmp_path, layer="backend")["kind"] == "backlog-layer-empty"
+    statuses = {item["id"]: item["status"] for item in read_backlog(tmp_path)["tasks"]}
+    assert all(statuses[f"task:codebase:node:{index}"] == "done" for index in range(1, 10))
+
+
+def test_l4_group_size_is_editable_from_backlog_cli(tmp_path: Path, monkeypatch):
+    """Persiste o tamanho de grupo L4 pelo comando público de configuração."""
+    monkeypatch.chdir(tmp_path)
+    init_project(tmp_path)
+    result = runner.invoke(app, ["backlog", "config", "--l4-group-size", "5"])
+    assert result.exit_code == 0
+    assert get_backlog_config(tmp_path)["l4_group_size"] == 5
 
 
 def test_build_backlog_copies_level_two_questions_symbols_and_branches(tmp_path: Path):

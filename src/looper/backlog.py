@@ -20,6 +20,7 @@ VALID_EXECUTION_PHASES = {None, "bootstrap", "test", "implementation", "change"}
 VALID_CHECKLIST_PHASES = {"test", "implementation"}
 DEFAULT_MIN_TASK_INTERVAL_SECONDS = 0
 DEFAULT_TASK_BATCH_SIZE = 1
+DEFAULT_L4_GROUP_SIZE = 3
 VALID_TASK_BATCH_SCOPES = {"task", "node"}
 VALID_TASK_DELIVERY_SCOPES = {"task", "node"}
 VALID_DEVELOPMENT_MODES = {"sequential", "separated"}
@@ -30,11 +31,12 @@ LANE_CURSOR_KEYS = {
     "current_task_id", "current_backlog_id", "current_branch_id", "branch_position",
     "current_phase", "current_parent_task_id", "current_subtask_id", "lease_id",
     "lease_started_at", "lease_expires_at", "current_verified_batch_node_ids",
-    "current_association_node_ids",
+    "current_association_node_ids", "current_l4_group_task_ids",
 }
 DEFAULT_LEVEL_MEANINGS = {
     "2": "Tela",
     "3": "Regra de negócio e detalhes da tela",
+    "4": "Codebase / baixo nível",
 }
 CRITICAL_INFORMATION_FILE = ".looper/config.yaml#instructions"
 
@@ -191,7 +193,7 @@ def _layer_matches(task: dict[str, Any], layer: str | None) -> bool:
     """Confirma se uma task pertence à camada solicitada."""
     if layer is None:
         return True
-    return ("frontend" if task.get("level") == 2 else "backend" if task.get("level") == 3 else None) == layer
+    return ("frontend" if task.get("level") == 2 else "backend" if task.get("level") in {3, 4} else None) == layer
 
 
 def _test_loop_enabled(root: Path) -> bool:
@@ -214,6 +216,8 @@ def _level_guidance(level: str, meaning: str) -> str:
         "regra de negocio e detalhes da tela",
     }:
         return "Trate este fluxo como regra de negócio e detalhes da tela: implemente decisões, validações, estados, interações e efeitos necessários."
+    if level == "4":
+        return "Trate este fluxo como rastreabilidade técnica: ligue o comportamento do L3 a arquivos, módulos, símbolos, contratos, persistência, integrações e testes reais."
     return f"Use esta definição como orientação de escopo para o nível {level}: {meaning}."
 
 
@@ -285,6 +289,11 @@ def _execution_config(root: Path) -> dict[str, Any]:
         size = max(1, min(5, int(size)))
     except (TypeError, ValueError):
         size = DEFAULT_TASK_BATCH_SIZE
+    l4_group_size = config.get("l4_group_size", DEFAULT_L4_GROUP_SIZE)
+    try:
+        l4_group_size = max(1, min(50, int(l4_group_size)))
+    except (TypeError, ValueError):
+        l4_group_size = DEFAULT_L4_GROUP_SIZE
     scope = config.get("task_batch_scope", "task")
     if scope not in VALID_TASK_BATCH_SCOPES:
         scope = "task"
@@ -299,6 +308,7 @@ def _execution_config(root: Path) -> dict[str, Any]:
     return {
         "test_loop_enabled": _test_loop_enabled(root),
         "task_batch_size": size,
+        "l4_group_size": l4_group_size,
         "task_batch_scope": scope,
         "task_delivery_scope": delivery_scope,
         "development_mode": _development_mode(root),
@@ -334,6 +344,7 @@ def set_backlog_config(
     l2_children_mode: str | None = None,
     l3_loop_enabled: bool | None = None,
     l3_include_parent: bool | None = None,
+    l4_group_size: int | None = None,
 ) -> dict[str, Any]:
     """Atualiza a seção 'backlog' em .looper/config.json de forma persistente."""
     data: dict[str, Any] = load_config(root)
@@ -409,7 +420,11 @@ def set_backlog_config(
     if l3_include_parent is not None:
         for section_name in ("test_loop", "implementation_loop"):
             backlog_cfg.setdefault(section_name, {})["l3_include_parent"] = bool(l3_include_parent)
-    for level, meaning in ((2, level_2_meaning), (3, level_3_meaning)):
+    if l4_group_size is not None:
+        if not 1 <= int(l4_group_size) <= 50:
+            raise ValueError("l4_group_size deve estar entre 1 e 50")
+        backlog_cfg["l4_group_size"] = int(l4_group_size)
+    for level, meaning in ((2, level_2_meaning), (3, level_3_meaning), (4, None)):
         if meaning is not None:
             normalized = str(meaning).strip()
             if not normalized:
@@ -1329,6 +1344,7 @@ def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]
             "test_loop_enabled": execution_config["test_loop_enabled"],
             "current_parent_task_id": previous_execution.get("current_parent_task_id"),
             "current_subtask_id": previous_execution.get("current_subtask_id"),
+            "current_l4_group_task_ids": previous_execution.get("current_l4_group_task_ids"),
             "bootstrap_done": previous_execution.get("bootstrap_done", False),
             "verified_l2_task_ids": previous_execution.get("verified_l2_task_ids", []),
             "current_verified_batch_node_ids": previous_execution.get("current_verified_batch_node_ids", []),
@@ -1341,6 +1357,7 @@ def build_backlog(root: Path, generated_at: str | None = None) -> dict[str, Any]
             "last_transition_at": previous_execution.get("last_transition_at"),
             "lease_seconds": execution_config["lease_seconds"],
             "task_batch_size": execution_config["task_batch_size"],
+            "l4_group_size": execution_config["l4_group_size"],
             "task_batch_scope": execution_config["task_batch_scope"],
             "task_delivery_scope": execution_config["task_delivery_scope"],
             "development_mode": execution_config["development_mode"],
@@ -1647,6 +1664,7 @@ def _clear_execution_cursor(execution: dict[str, Any]) -> None:
     execution["current_phase"] = None
     execution["current_parent_task_id"] = None
     execution["current_subtask_id"] = None
+    execution["current_l4_group_task_ids"] = None
     execution["lease_id"] = None
     execution["lease_started_at"] = None
     execution["lease_expires_at"] = None
@@ -1833,6 +1851,9 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
                 "access_paths": parent_nav.get("access_paths", []),
             }
 
+    l3_parent = _l3_parent_task(payload, task)
+    l4_group = _l4_group_tasks(payload, task)
+
     development_mode = payload.get("execution", {}).get("development_mode", "sequential")
     subtasks_list = [] if (development_mode == "separated" and task.get("level") == 2) else descendants
     response: dict[str, Any] = {
@@ -1855,6 +1876,14 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
         "is_first_l3_for_screen": is_first_l3_for_screen,
         "parent_screen_context": parent_screen_context,
     }
+    if l3_parent is not None:
+        response["l4_parent"] = deepcopy(l3_parent)
+        response["l4_group"] = deepcopy(l4_group)
+        response["l4_group_size"] = len(l4_group)
+        response["l4_delivery_note"] = (
+            "Entregue o pai L3 junto com este grupo de nós L4. "
+            "Valide e implemente todos os nós do grupo nesta mesma interação."
+        )
     loop_options = payload.get("execution", {}).get("test_loop" if phase == "test" else "implementation_loop", {})
     if not isinstance(loop_options, dict):
         loop_options = {}
@@ -1887,7 +1916,7 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
         response["level_context"] = deepcopy(level_context)
         if is_node_delivery:
             response["level_context"]["guidance"] = node_delivery_note
-    if development_mode == "separated" and task.get("level") in {2, 3}:
+    if development_mode == "separated" and task.get("level") in {2, 3, 4}:
         if task.get("level") == 2:
             response["implementation_layer"] = "frontend"
             response["tests_required"] = False
@@ -1903,16 +1932,16 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
             response["implementation_layer"] = "backend"
             response["tests_required"] = True
             response["level_context"] = {
-                "level": 3,
-                "meaning": "Backend / controller e model",
-                "guidance": "Fase backend: implemente controller, model, regras, persistência e integrações necessárias para o comportamento do L3.",
+                "level": task.get("level"),
+                "meaning": "Backend / controller, model e codebase L4" if task.get("level") == 4 else "Backend / controller e model",
+                "guidance": "Fase backend: implemente a ligação técnica de baixo nível do L4 aos arquivos, símbolos, contratos, persistência e testes reais." if task.get("level") == 4 else "Fase backend: implemente controller, model, regras, persistência e integrações necessárias para o comportamento do L3.",
             }
             if phase == "test":
                 instruction = f"{instruction.rstrip()} " if instruction else ""
-                instruction += "Fase backend: crie testes para controller, model e regras deste L3; não crie testes de tela."
+                instruction += "Fase backend: crie testes para os contratos e símbolos deste L4; não crie testes de tela." if task.get("level") == 4 else "Fase backend: crie testes para controller, model e regras deste L3; não crie testes de tela."
             elif phase == "implementation":
                 instruction = f"{instruction.rstrip()} " if instruction else ""
-                instruction += "Fase backend: implemente controller, model e o comportamento funcional deste L3; a tela já foi tratada na fase frontend."
+                instruction += "Fase backend: implemente o detalhamento técnico deste L4 e sua rastreabilidade na codebase; a regra L3 e a tela já foram tratadas." if task.get("level") == 4 else "Fase backend: implemente controller, model e o comportamento funcional deste L3; a tela já foi tratada na fase frontend."
     response["task_delivery_scope"] = delivery_scope
     response["development_mode"] = development_mode
     if response["task_delivery_scope"] == "node" and task.get("id") == parent.get("id"):
@@ -1953,8 +1982,63 @@ def _task_for_update(payload: dict[str, Any], task_id: str) -> dict[str, Any]:
     return task
 
 
+def _l3_parent_task(payload: dict[str, Any], task: dict[str, Any]) -> dict[str, Any] | None:
+    """Retorna o L3 que possui diretamente a task L4."""
+    tasks = payload.get("tasks", [])
+    if task.get("level") == 3:
+        return task
+    if task.get("level") != 4:
+        return None
+    by_id = {item.get("id"): item for item in tasks}
+    parent = by_id.get(task.get("parent_task_id"))
+    return parent if isinstance(parent, dict) and parent.get("level") == 3 else None
+
+
+def _l4_group_tasks(payload: dict[str, Any], task: dict[str, Any], include_done: bool = False) -> list[dict[str, Any]]:
+    """Seleciona um grupo estável de L4 diretos do L3 atual."""
+    parent = _l3_parent_task(payload, task)
+    if parent is None:
+        return []
+    tasks_by_id = {item.get("id"): item for item in payload.get("tasks", [])}
+    children = [
+        tasks_by_id[item_id]
+        for item_id in parent.get("child_task_ids", [])
+        if item_id in tasks_by_id and tasks_by_id[item_id].get("level") == 4
+    ]
+    if not include_done:
+        children = [item for item in children if item.get("status") != "done"]
+    group_size = payload.get("execution", {}).get("l4_group_size", DEFAULT_L4_GROUP_SIZE)
+    try:
+        group_size = max(1, int(group_size))
+    except (TypeError, ValueError):
+        group_size = DEFAULT_L4_GROUP_SIZE
+    if task.get("level") == 4:
+        ids = [item.get("id") for item in children]
+        try:
+            start = ids.index(task.get("id"))
+        except ValueError:
+            start = 0
+        return children[start:start + group_size]
+    return children[:group_size]
+
+
+def _l4_delivery_tasks(payload: dict[str, Any], task: dict[str, Any]) -> list[dict[str, Any]]:
+    """Retorna o L3 e o grupo L4 que devem ser tratados na mesma entrega."""
+    parent = _l3_parent_task(payload, task)
+    if parent is None:
+        return [task]
+    group = _l4_group_tasks(payload, task)
+    result = [parent] if parent.get("status") != "done" else []
+    if task.get("id") != parent.get("id") and task.get("status") != "done" and task not in result:
+        result.append(task)
+    result.extend(item for item in group if item not in result)
+    return result or [task]
+
+
 def _test_scope_tasks(payload: dict[str, Any], task: dict[str, Any]) -> list[dict[str, Any]]:
     """Retorna o pai e todos os subfluxos cobertos pelo teste agregado."""
+    if task.get("level") in {3, 4} and _l3_parent_task(payload, task) is not None:
+        return _l4_delivery_tasks(payload, task)
     parent = _parent_task(payload.get("tasks", []), task)
     return [parent] + [
         item for item in payload.get("tasks", [])
@@ -1984,6 +2068,8 @@ def _test_scope_complete(payload: dict[str, Any], task: dict[str, Any]) -> bool:
     """Verifica evidência e marcação de teste para pai e todos os subfluxos."""
     if payload.get("execution", {}).get("test_loop_enabled", True) is False:
         return True
+    if task.get("level") in {3, 4} and _l3_parent_task(payload, task) is not None:
+        return all(_task_test_complete(item) for item in _test_scope_tasks(payload, task))
     options = _phase_loop_options(payload, "test")
     if task.get("level") == 2 and options.get("l2_children_mode") == "owned":
         return all(_task_test_complete(item) for item in _test_scope_tasks(payload, task))
@@ -2018,12 +2104,12 @@ def _pending_test_tasks(payload: dict[str, Any], layer: str | None = None) -> li
     if options.get("include_level_2") is False:
         return [
             item for item in payload.get("tasks", [])
-            if item.get("level") == 3 and not _task_test_complete(item)
+            if item.get("level") in {3, 4} and not _task_test_complete(item)
         ]
     if _task_delivery_scope(payload) == "task":
         return [
             item for item in payload.get("tasks", [])
-            if item.get("level") in {2, 3} and not _test_scope_complete(payload, item)
+            if item.get("level") in {2, 3, 4} and not _test_scope_complete(payload, item)
         ]
     return [
         item for item in payload.get("tasks", [])
@@ -2058,7 +2144,7 @@ def _next_implementation_task(payload: dict[str, Any], layer: str | None = None)
     screens = [item for item in pending if item.get("level") == 2]
     if screens:
         return screens[0]
-    return next((item for item in pending if item.get("level") == 3), None)
+    return next((item for item in pending if item.get("level") in {3, 4}), None)
 
 
 def _refresh_task_checklist_items(payload: dict[str, Any]) -> None:
@@ -2182,6 +2268,7 @@ def next_backlog_test(root: Path, layer: str | None = None) -> dict[str, Any]:
     execution["current_phase"] = "test"
     execution["current_parent_task_id"] = _parent_task(payload["tasks"], task).get("id")
     execution["current_subtask_id"] = task.get("id") if task.get("parent_task_id") else None
+    execution["current_l4_group_task_ids"] = [item["id"] for item in _l4_group_tasks(payload, task)] or None
     write_backlog(root, payload)
     return _task_context(root, payload,
         task,
@@ -2394,6 +2481,7 @@ def next_backlog_task(root: Path, verification_interval: int | None = None, laye
     execution["current_phase"] = "implementation"
     execution["current_parent_task_id"] = _parent_task(payload["tasks"], task).get("id")
     execution["current_subtask_id"] = task.get("id") if task.get("parent_task_id") else None
+    execution["current_l4_group_task_ids"] = [item["id"] for item in _l4_group_tasks(payload, task)] or None
     for checklist in payload["checklists"]:
         for item in checklist.get("items", []):
             if item.get("id") == task["id"]:
@@ -2544,10 +2632,15 @@ def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
         task.pop("test_manual", None)
         if _task_delivery_scope(payload) == "task":
             task["test_completed_independently"] = True
-        scope_tasks = [task] if _task_delivery_scope(payload) == "task" else _test_scope_tasks(payload, task)
+        if task.get("level") in {3, 4} and _l3_parent_task(payload, task) is not None:
+            scope_tasks = _test_scope_tasks(payload, task)
+        else:
+            scope_tasks = [task] if _task_delivery_scope(payload) == "task" else _test_scope_tasks(payload, task)
         if task.get("level") == 2 and _phase_loop_options(payload, "test").get("l2_children_mode") == "owned":
             scope_tasks = _test_scope_tasks(payload, task)
         for scope_task in scope_tasks:
+            scope_task["test_status"] = "done"
+            scope_task["test_completed_independently"] = True
             scope_task.setdefault("checklist_state", _default_checklist_state(scope_task))["test"] = True
         if previous_status == "pending":
             task["status"] = "pending"
@@ -2561,6 +2654,29 @@ def complete_backlog_task(root: Path, task_id: str) -> dict[str, Any]:
         raise ValueError("task atual não está em andamento")
     if _test_loop_enabled(root) and not _test_scope_complete(payload, task):
         raise ValueError("teste da task ainda não foi comprovado")
+    if task.get("level") in {3, 4} and _l3_parent_task(payload, task) is not None:
+        scope_tasks = _l4_delivery_tasks(payload, task)
+        for scope_task in scope_tasks:
+            if scope_task.get("level") == 4:
+                scope_task["status"] = "done"
+            scope_task.setdefault("checklist_state", _default_checklist_state(scope_task))["implementation"] = True
+        l3_parent = _l3_parent_task(payload, task)
+        remaining_l4 = _l4_group_tasks(payload, l3_parent or task)
+        if l3_parent is not None:
+            l3_parent["status"] = "pending" if remaining_l4 else "done"
+            l3_parent.setdefault("checklist_state", _default_checklist_state(l3_parent))["implementation"] = not remaining_l4
+        _clear_execution_cursor(execution)
+        _refresh_branch_completion(payload)
+        _refresh_task_checklist_items(payload)
+        write_backlog(root, payload)
+        response = _task_context(root, payload, task, "implementation", "backlog-complete")
+        response.update({
+            "status": "done",
+            "completed_task_ids": [scope_task.get("id") for scope_task in scope_tasks],
+            "l4_group_task_ids": [scope_task.get("id") for scope_task in scope_tasks if scope_task.get("level") == 4],
+            "remaining": sum(1 for item in payload["tasks"] if item.get("status") != "done"),
+        })
+        return response
     if _phase_loop_options(payload, "implementation").get("l2_children_mode") == "owned" and task.get("level") == 2:
         scope_tasks = _test_scope_tasks(payload, task)
         for scope_task in scope_tasks:

@@ -58,6 +58,7 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
   const totalQuestions = Array.isArray(data.questions) ? data.questions.length : 0;
   const unansweredQuestions = unansweredQuestionCount(data.questions);
   const answeredQuestions = totalQuestions - unansweredQuestions;
+  const subdrawRefs = data.draw_refs?.length ? data.draw_refs : (data.draw_ref ? [data.draw_ref] : []);
   const codeReferenceCount = Array.isArray(data.code_refs) ? data.code_refs.length : 0;
   const pendingChangeCount = (data.changes || []).filter((change: ChangeRequest) => change.status !== 'done').length;
   const backlogChecklist = data.backlogChecklist;
@@ -372,23 +373,26 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
       </div>
 
       {/* Node Footer Row (Questions or Subdraw link) */}
-      {(totalQuestions > 0 || data.draw_ref || codeReferenceCount > 0) && (
+      {(totalQuestions > 0 || subdrawRefs.length > 0 || codeReferenceCount > 0) && (
         <>
           <div className="node-divider-line" />
           <div className="node-footer-row">
-            {data.draw_ref ? (
-              <span
-                className="node-footer-subdraw"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (window.openSubdraw) {
-                    window.openSubdraw(data.draw_ref!);
-                  }
-                }}
-                title="Abrir subdesenho"
-              >
-                Detalhes: {data.draw_ref} ↗
-              </span>
+            {subdrawRefs.length > 0 ? (
+              <div className="node-footer-subdraw-list">
+                {subdrawRefs.map((subdrawRef) => (
+                  <span
+                    key={subdrawRef}
+                    className="node-footer-subdraw"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.openSubdraw?.(subdrawRef);
+                    }}
+                    title="Abrir subdesenho"
+                  >
+                    Detalhes: {subdrawRef} ↗
+                  </span>
+                ))}
+              </div>
             ) : totalQuestions > 0 ? (
               <span className="node-footer-questions" onClick={onOpenQuestions}>
                 Perguntas

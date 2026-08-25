@@ -21,6 +21,8 @@ contract:
 backlog:
   # Habilita a task inicial de preparação do projeto.
   bootstrap_task: true
+  # Quantidade de nós L4 entregues junto com cada pai L3.
+  l4_group_size: 3
   # Opção `backlog.l2_verification_interval` da configuração.
   l2_verification_interval: 1
   # Cria uma verificação final após todas as tasks do backlog terminarem

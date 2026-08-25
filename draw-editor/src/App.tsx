@@ -612,7 +612,7 @@ export const App: React.FC = () => {
             updated_at: new Date().toISOString(),
             node_count: typedDefaultContract.nodes.length,
             edge_count: typedDefaultContract.edges.length,
-            subdraw_count: typedDefaultContract.nodes.filter((n) => !!n.draw_ref).length
+            subdraw_count: typedDefaultContract.nodes.reduce((total, n) => total + (n.draw_refs?.length || (n.draw_ref ? 1 : 0)), 0)
           }
         ];
         localStorage.setItem('looper-draws-index', JSON.stringify({ version: 1, draws: initialIndex }));
@@ -1144,7 +1144,7 @@ export const App: React.FC = () => {
         updated_at: timestamp,
         node_count: contractToSave.nodes.length,
         edge_count: contractToSave.edges.length,
-        subdraw_count: contractToSave.nodes.filter((n) => !!n.draw_ref).length,
+        subdraw_count: contractToSave.nodes.reduce((total, n) => total + (n.draw_refs?.length || (n.draw_ref ? 1 : 0)), 0),
         hierarchy: contractToSave.hierarchy
       };
 

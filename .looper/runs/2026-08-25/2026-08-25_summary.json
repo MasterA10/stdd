@@ -106,8 +106,71 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "b2163b97348d4d01819480ca9cc88efe",
+      "timestamp": "2026-08-25T16:06:31.046815+00:00",
+      "description": "Adiciona entrega configurável de grupos L4 junto ao pai L3",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 305,
+        "lines_deleted": 42,
+        "files_changed": 9
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "fa192132c3f240758c604ac25678f136",
+      "timestamp": "2026-08-25T16:10:59.981123+00:00",
+      "description": "Declara l4_group_size no YAML e no config padrão",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 1,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "b41546da4a824379ba1c6477a840e455",
+      "timestamp": "2026-08-25T16:12:26.435061+00:00",
+      "description": "Reentrega o L3 a cada grupo de três nós L4",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 14,
+        "lines_deleted": 6,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 5,
-  "last_run_id": "4d3fa10d411d4444bb16a42645a4fead"
+  "run_count": 8,
+  "last_run_id": "b41546da4a824379ba1c6477a840e455"
 }

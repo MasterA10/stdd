@@ -67,6 +67,18 @@ def _is_draw_id(value: Any) -> bool:
     return isinstance(value, str) and bool(DRAW_ID_PATTERN.fullmatch(value))
 
 
+def _node_draw_refs(node: dict[str, Any]) -> list[str]:
+    """Retorna referências de subdesenhos no formato legado ou múltiplo."""
+    refs: list[str] = []
+    draw_ref = node.get("draw_ref")
+    if _is_draw_id(draw_ref):
+        refs.append(draw_ref)
+    draw_refs = node.get("draw_refs")
+    if isinstance(draw_refs, list):
+        refs.extend(ref for ref in draw_refs if _is_draw_id(ref) and ref not in refs)
+    return refs
+
+
 def draw_revision(root: Path, draw_id: str) -> dict[str, Any]:
     """Retorna uma revisão estável e leve para polling do editor."""
     if not _is_draw_id(draw_id):
@@ -212,6 +224,12 @@ def validate_draw_payload(payload: Any) -> list[str]:
         draw_ref = node.get("draw_ref")
         if draw_ref is not None and not _is_draw_id(draw_ref):
             violations.append(f"nodes[{index}].draw_ref deve ser o ID descritivo de outro desenho")
+        draw_refs = node.get("draw_refs")
+        if draw_refs is not None:
+            if not isinstance(draw_refs, list) or not draw_refs or any(not _is_draw_id(ref) for ref in draw_refs):
+                violations.append(f"nodes[{index}].draw_refs deve ser uma lista não vazia de IDs de desenhos seguros")
+            if draw_ref is not None:
+                violations.append(f"nodes[{index}] deve usar draw_ref ou draw_refs, não ambos")
         questions = node.get("questions", [])
         if not isinstance(questions, list):
             violations.append(f"nodes[{index}].questions deve ser uma lista")
@@ -546,11 +564,13 @@ def _analysis_subflow_entities(draw_id: str, payload: dict[str, Any], documents:
     """Extrai títulos e fingerprints dos subfluxos referenciados por nós."""
     entities = []
     for node in payload.get("nodes", []):
-        if not isinstance(node, dict) or node.get("draw_ref") not in documents:
+        if not isinstance(node, dict):
             continue
-        child_id = node["draw_ref"]
-        child = documents[child_id]
-        entities.append(_analysis_entity("subflow", str(child.get("title", "")), f"{draw_id}:node:{node.get('id')}->{child_id}", _analysis_draw_signature(child)))
+        for child_id in _node_draw_refs(node):
+            if child_id not in documents:
+                continue
+            child = documents[child_id]
+            entities.append(_analysis_entity("subflow", str(child.get("title", "")), f"{draw_id}:node:{node.get('id')}->{child_id}", _analysis_draw_signature(child)))
     return entities
 
 
@@ -888,7 +908,7 @@ def validate_hierarchy_parent(root: Path, payload: dict[str, Any]) -> list[str]:
     parent_node = next((node for node in parent.get("nodes", []) if isinstance(node, dict) and node.get("id") == parent_node_id), None)
     if parent_node is None:
         return [f"hierarchy.parent_node_id não encontrado no pai: {parent_node_id}"]
-    if parent_node.get("draw_ref") != payload.get("id"):
+    if payload.get("id") not in _node_draw_refs(parent_node):
         return ["o nó pai deve apontar para o filho com draw_ref"]
     return []
 
@@ -902,7 +922,7 @@ def _validate_index_metadata(entry: dict[str, Any], payload: dict[str, Any], dra
     counts = {
         "node_count": len(nodes) if isinstance(nodes, list) else None,
         "edge_count": len(edges) if isinstance(edges, list) else None,
-        "subdraw_count": sum(1 for node in nodes if isinstance(node, dict) and node.get("draw_ref") is not None)
+        "subdraw_count": sum(len(_node_draw_refs(node)) for node in nodes if isinstance(node, dict))
         if isinstance(nodes, list) else None,
     }
     return [
@@ -974,8 +994,10 @@ def validate_draw_workspace(root: Path) -> list[str]:
     available_ids = set(documents)
     for draw_id, payload in documents.items():
         for node_index, node in enumerate(payload.get("nodes", [])):
-            if isinstance(node, dict) and node.get("draw_ref") is not None and node["draw_ref"] not in available_ids:
-                violations.append(f"{draw_id}.json nodes[{node_index}].draw_ref aponta para desenho inexistente: {node['draw_ref']}")
+            if isinstance(node, dict):
+                for child_id in _node_draw_refs(node):
+                    if child_id not in available_ids:
+                        violations.append(f"{draw_id}.json nodes[{node_index}].draw_ref aponta para desenho inexistente: {child_id}")
     return violations
 
 
@@ -1348,7 +1370,7 @@ def create_draw(root: Path, payload: dict[str, Any], *, allow_disconnected_nodes
         "updated_at": timestamp,
         "node_count": len(logical_payload["nodes"]),
         "edge_count": len(logical_payload.get("edges", [])),
-        "subdraw_count": sum(1 for node in logical_payload["nodes"] if node.get("draw_ref") is not None),
+        "subdraw_count": sum(len(_node_draw_refs(node)) for node in logical_payload["nodes"]),
     }
     entries = [entry for entry in index["draws"] if str(entry.get("id")) != str(draw_id)]
     entries.append(metadata)

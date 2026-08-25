@@ -55,6 +55,7 @@ export interface NodeData {
   background?: string;
   text?: string;
   draw_ref?: string;
+  draw_refs?: string[];
   backlogChecklist?: {
     taskId: string;
     test: boolean;
