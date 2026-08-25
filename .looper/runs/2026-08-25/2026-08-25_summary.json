@@ -64,8 +64,50 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "17ab3f07a4d64a99b6483b3993991851",
+      "timestamp": "2026-08-25T01:09:18.753266+00:00",
+      "description": "Atualiza implement-change para reconciliar o Draw após cada change",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "4d3fa10d411d4444bb16a42645a4fead",
+      "timestamp": "2026-08-25T01:14:48.872990+00:00",
+      "description": "Exibe implementações concluídas em dropdown com seta e aplica degradê vermelho-laranja aos botões",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 43,
+        "lines_deleted": 38,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 3,
-  "last_run_id": "32467e6a190e4049bfb92c978a51a18c"
+  "run_count": 5,
+  "last_run_id": "4d3fa10d411d4444bb16a42645a4fead"
 }

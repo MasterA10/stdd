@@ -1,11 +1,13 @@
 ---
 name: implement-change
-description: Implementa em loop as changes pendentes entregues por `looper backlog change`, valida cada correção e conclui somente o ID reservado.
+description: Implementa em loop as changes pendentes entregues por `looper backlog change`, reconcilia o Draw com a implementação real e conclui somente o ID reservado.
 ---
 
 # Implement Change Agent
 
 Executa exclusivamente o loop de alterações do Draw. Cada change é um pedido de correção ou evolução registrado em um nó, normalmente criado por revisão, interação ou manutenção do desenho. A change entregue pelo cursor é a autorização e o escopo da implementação; não buscar tasks comuns com `looper backlog task`.
+
+O objetivo da skill não é apenas alterar arquivos: é deixar a implementação e o desenho consistentes depois da change. O Draw é uma representação executável da arquitetura e do comportamento; portanto, uma alteração que torne nós, conexões, referências ou subfluxos incompatíveis exige a reconciliação do desenho no mesmo ciclo.
 
 ## Ciclo obrigatório
 
@@ -15,10 +17,17 @@ Executa exclusivamente o loop de alterações do Draw. Cada change é um pedido 
 4. Leia o Draw e o nó indicados, o pedido da change, perguntas e respostas, `code_refs`, símbolos, arquivos, dependências e a informação crítica fornecida pelo backlog.
 5. Compare o pedido com a codebase real e determine todos os pontos necessários para corrigir o comportamento, preservando contratos e evitando mudanças fora do escopo.
 6. Implemente a change nos arquivos reais. Não marque a alteração como concluída apenas editando o Draw, criando um teste superficial ou descrevendo uma solução futura.
-7. Execute os testes aplicáveis, a análise estática e `looper test`. Trate falhas como bloqueios; não force resultados nem use asserções vazias ou valores pré-calculados.
-8. Registre a implementação com `looper log "Implementa a change <task-id>" --type implementacao`.
-9. Somente depois da validação, execute `looper backlog complete <task-id>` usando exatamente o ID recebido.
-10. Repita a partir de `looper backlog change`.
+7. Faça a reconciliação do Draw após a implementação:
+   - verifique se cada nó afetado continua compatível com a change, com os nós vizinhos, com o pai, com os subfluxos, com as referências e com o comportamento implementado;
+   - crie os nós necessários quando a implementação introduzir uma etapa, decisão, integração, estado ou responsabilidade que o fluxo precisa representar;
+   - desconecte e remova nós, conexões ou referências que se tornarem obsoletos, contraditórios ou sem função. Preserve o histórico somente quando o schema do Draw tiver um local explícito para isso;
+   - ajuste grupos, terminais, entradas, saídas e navegação para que o fluxo continue válido e compreensível. Nós planejados e não implementados devem seguir as regras de grupo e terminal do projeto;
+   - não use uma mudança cosmética no Draw para mascarar uma incompatibilidade da implementação, nem altere nós genéricos quando houver um nó específico mais adequado.
+8. Releia o fluxo completo afetado de ponta a ponta e confirme que, depois da change, não há nó isolado indevidamente, conexão apontando para nó inexistente, referência quebrada, caminho impossível, duplicação contraditória ou descrição que promete comportamento ausente. Se a mudança exigir uma decisão não definida, trate como bloqueio.
+9. Execute os testes aplicáveis, a análise estática e `looper test`. Trate falhas como bloqueios; não force resultados nem use asserções vazias ou valores pré-calculados.
+10. Registre a implementação e a reconciliação com `looper log "Implementa e reconcilia a change <task-id>" --type implementacao`.
+11. Somente depois da validação, execute `looper backlog complete <task-id>` usando exatamente o ID recebido.
+12. Repita a partir de `looper backlog change`.
 
 ## Camadas e ordem
 
@@ -30,6 +39,7 @@ Se houver uma change em andamento, conclua-a antes de solicitar outra. Não conc
 
 - Não implemente uma task normal, uma lacuna não registrada ou uma funcionalidade planejada sem change.
 - Não invente arquivos, símbolos, endpoints, payloads ou comportamento ausente no contrato.
+- Não conclua a change se o Draw continuar incompatível com a implementação. A change pode exigir criar, reconectar, desconectar ou apagar nós, arestas, grupos e referências; faça somente os ajustes necessários e rastreáveis ao pedido.
 - Se a change exigir uma decisão de produto ou arquitetural que o pedido não define, mantenha o ID em andamento, explique o bloqueio e peça a decisão; não marque como concluída.
 - Se a implementação revelar uma lacuna adicional, registre-a no ponto correto do Draw como nova change ou informe o bloqueio antes de concluir a change atual.
 - Preserve mudanças existentes e não use comandos destrutivos para limpar o workspace.

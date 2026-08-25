@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle2, CircleDot, ListChecks, Play, RefreshCw } from 'lucide-react';
+import { CheckCircle2, ChevronDown, CircleDot, ListChecks, Play, RefreshCw } from 'lucide-react';
 import type { BacklogDocument, BacklogTask } from '../types';
 import { deliveryScopeFor, parentTaskFor, pendingTestTasks, phaseStatusLabel, taskImplementationStatus, taskTestStatus, testScopeFor } from '../backlog-status';
 
@@ -30,25 +30,7 @@ export const BacklogPanel: React.FC<BacklogPanelProps> = ({ backlog, onClaimTask
     counts[taskImplementationStatus(task)] += 1;
     return counts;
   }, { pending: 0, in_progress: 0, done: 0 });
-  const visibleTaskItems: Array<
-    | { type: 'task'; task: BacklogTask }
-    | { type: 'separator'; hiddenCompletedCount: number }
-  > = [];
-  let hiddenCompletedCount = 0;
-  backlog.tasks.forEach((task) => {
-    if (!showCompletedTasks && task.status === 'done') {
-      hiddenCompletedCount += 1;
-      return;
-    }
-    if (!showCompletedTasks && hiddenCompletedCount > 0) {
-      visibleTaskItems.push({ type: 'separator', hiddenCompletedCount });
-    }
-    visibleTaskItems.push({ type: 'task', task });
-    hiddenCompletedCount = 0;
-  });
-  if (!showCompletedTasks && hiddenCompletedCount > 0) {
-    visibleTaskItems.push({ type: 'separator', hiddenCompletedCount });
-  }
+  const activeTasks = backlog.tasks.filter((task) => task.status !== 'done');
   const branch = currentTask?.branch;
   const branchOccurrences = currentTask?.branches || (branch ? [branch] : []);
   const parentTask = currentTask ? parentTaskFor(backlog, currentTask) : undefined;
@@ -102,30 +84,38 @@ export const BacklogPanel: React.FC<BacklogPanelProps> = ({ backlog, onClaimTask
       <div className="backlog-task-list">
         <div className="backlog-task-list-heading">
           <span className="eyebrow">Tasks</span>
-          <button type="button" className="backlog-completed-toggle" onClick={() => setShowCompletedTasks((current) => !current)}>
-            {showCompletedTasks ? 'Ocultar concluídas' : `Mostrar concluídas (${completedTasks.length})`}
-          </button>
-        </div>
-        {visibleTaskItems.map((item, index) => item.type === 'separator' ? (
           <button
             type="button"
-            className="backlog-completed-divider"
-            key={`completed-divider-${index}`}
-            title={`${item.hiddenCompletedCount} task(s) concluída(s) oculta(s) neste intervalo`}
-            aria-label={`Mostrar ${item.hiddenCompletedCount} task(s) concluída(s) oculta(s) neste intervalo`}
-            onClick={() => setShowCompletedTasks(true)}
+            className={`backlog-completed-toggle ${showCompletedTasks ? 'open' : ''}`}
+            aria-expanded={showCompletedTasks}
+            aria-controls="backlog-completed-tasks"
+            onClick={() => setShowCompletedTasks((current) => !current)}
           >
-            <span aria-hidden="true" />
+            <span>{showCompletedTasks ? 'Ocultar concluídas' : `Concluídas (${completedTasks.length})`}</span>
+            <ChevronDown size={14} aria-hidden="true" />
           </button>
-        ) : (
-          <div className={`backlog-task-row ${item.task.status}`} key={item.task.id}>
-            <div className="backlog-task-label"><span>{item.task.label}</span><small>Nível {item.task.level || '—'}</small></div>
+        </div>
+        {activeTasks.map((task) => (
+          <div className={`backlog-task-row ${task.status}`} key={task.id}>
+            <div className="backlog-task-label"><span>{task.label}</span><small>Nível {task.level || '—'}</small></div>
             <div className="backlog-task-statuses">
-              <small className={`backlog-phase-badge test ${taskTestStatus(item.task)}`}>Teste: {phaseStatusLabel(taskTestStatus(item.task))}</small>
-              <small className={`backlog-phase-badge implementation ${taskImplementationStatus(item.task)}`}>Impl.: {phaseStatusLabel(taskImplementationStatus(item.task))}</small>
+              <small className={`backlog-phase-badge test ${taskTestStatus(task)}`}>Teste: {phaseStatusLabel(taskTestStatus(task))}</small>
+              <small className={`backlog-phase-badge implementation ${taskImplementationStatus(task)}`}>Impl.: {phaseStatusLabel(taskImplementationStatus(task))}</small>
             </div>
           </div>
         ))}
+        {activeTasks.length === 0 && completedTasks.length === 0 && <span className="backlog-task-list-empty">Nenhuma task registrada.</span>}
+        {showCompletedTasks && <div id="backlog-completed-tasks" className="backlog-completed-tasks" aria-label="Tasks concluídas">
+          {completedTasks.length === 0 ? <span className="backlog-task-list-empty">Nenhuma implementação concluída ainda.</span> : completedTasks.map((task) => (
+            <div className="backlog-task-row done" key={task.id}>
+              <div className="backlog-task-label"><span>{task.label}</span><small>Nível {task.level || '—'}</small></div>
+              <div className="backlog-task-statuses">
+                <small className={`backlog-phase-badge test ${taskTestStatus(task)}`}>Teste: {phaseStatusLabel(taskTestStatus(task))}</small>
+                <small className="backlog-phase-badge implementation done">Impl.: concluída</small>
+              </div>
+            </div>
+          ))}
+        </div>}
       </div>
     </div>
   );

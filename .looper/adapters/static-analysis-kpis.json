@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-08-25T00:27:02.560470+00:00",
+  "generated_at": "2026-08-25T01:14:25.769324+00:00",
   "status": "blocked",
   "reason": "quality_gate_blocked",
   "adapter_command": [
@@ -34,7 +34,7 @@
     {
       "id": "dependencies",
       "label": "Dependências",
-      "value": 646,
+      "value": 647,
       "unit": "relações"
     },
     {
@@ -74,7 +74,7 @@
   ],
   "summary": {
     "symbols": 750,
-    "dependencies": 646,
+    "dependencies": 647,
     "complexity": 744,
     "structural_metrics": 53,
     "files": [
@@ -2225,17 +2225,6 @@
         "qualified_name": "<anonymous>",
         "source": "typescript_compiler_api",
         "symbol_id": "draw-editor/src/backlog-status.ts:function:<anonymous>"
-      },
-      {
-        "cyclomatic": 1,
-        "file": "draw-editor/src/components/BacklogPanel.tsx",
-        "line": 116,
-        "lines": 1,
-        "max_depth": 0,
-        "parameters": 0,
-        "qualified_name": "<anonymous>",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/components/BacklogPanel.tsx:function:<anonymous>"
       },
       {
         "cyclomatic": 1,
@@ -6130,6 +6119,17 @@
         "qualified_name": "looper.draw.format_draw_answers",
         "source": "python_ast",
         "symbol_id": "src/looper/draw.py:looper.draw.format_draw_answers"
+      },
+      {
+        "cyclomatic": 2,
+        "file": "draw-editor/src/components/BacklogPanel.tsx",
+        "line": 109,
+        "lines": 9,
+        "max_depth": 0,
+        "parameters": 1,
+        "qualified_name": "<anonymous>",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/components/BacklogPanel.tsx:function:<anonymous>"
       },
       {
         "cyclomatic": 2,
@@ -10427,7 +10427,7 @@
         "file": "draw-editor/src/components/BacklogPanel.tsx",
         "functions": 1,
         "imports": 4,
-        "lines": 133,
+        "lines": 123,
         "source": "typescript_compiler_api"
       },
       {
@@ -11392,17 +11392,6 @@
         "symbol_id": "src/looper/draw.py:looper.draw.find_addressed_questions"
       },
       {
-        "end_line": 116,
-        "file": "draw-editor/src/components/BacklogPanel.tsx",
-        "kind": "function",
-        "line": 116,
-        "name": "<anonymous>",
-        "qualified_name": "<anonymous>",
-        "signature": "() => setShowCompletedTasks(true)",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/components/BacklogPanel.tsx:function:<anonymous>"
-      },
-      {
         "end_line": 1162,
         "file": "tests/test_cli.py",
         "kind": "function",
@@ -11431,6 +11420,17 @@
         "qualified_name": "tests.test_backlog.test_looper_test_blocks_when_backlog_has_unchecked_implementation",
         "source": "python_ast",
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_looper_test_blocks_when_backlog_has_unchecked_implementation"
+      },
+      {
+        "end_line": 117,
+        "file": "draw-editor/src/components/BacklogPanel.tsx",
+        "kind": "function",
+        "line": 109,
+        "name": "<anonymous>",
+        "qualified_name": "<anonymous>",
+        "signature": "(task) => (",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/components/BacklogPanel.tsx:function:<anonymous>"
       },
       {
         "end_line": 117,
@@ -18901,7 +18901,16 @@
         "source": "<anonymous>",
         "source_file": "draw-editor/src/components/BacklogPanel.tsx",
         "source_tool": "typescript_compiler_api",
-        "target": "setShowCompletedTasks"
+        "target": "phaseStatusLabel"
+      },
+      {
+        "file": "draw-editor/src/components/BacklogPanel.tsx",
+        "kind": "calls",
+        "resolution": "unresolved",
+        "source": "<anonymous>",
+        "source_file": "draw-editor/src/components/BacklogPanel.tsx",
+        "source_tool": "typescript_compiler_api",
+        "target": "taskTestStatus"
       },
       {
         "file": "draw-editor/src/components/BacklogPanel.tsx",

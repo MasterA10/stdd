@@ -3289,8 +3289,11 @@ summary:focus-visible {
 .backlog-complete-btn { justify-content: center; margin-top: 3px; }
 .backlog-task-list { display: grid; gap: 6px; padding-top: 3px; }
 .backlog-task-list-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.backlog-completed-toggle { border: 1px solid var(--line); border-radius: 7px; padding: 5px 7px; background: var(--paper); color: var(--muted); font: inherit; font-size: 8px; font-weight: 850; cursor: pointer; }
-.backlog-completed-toggle:hover { border-color: var(--accent); color: var(--accent-strong); }
+.backlog-completed-toggle { display: inline-flex; align-items: center; gap: 5px; border: 0; border-radius: 8px; padding: 6px 8px; background: var(--brand-gradient); color: #fff; font: inherit; font-size: 8px; font-weight: 850; cursor: pointer; box-shadow: 0 5px 12px rgba(239, 68, 68, .16); }
+.backlog-completed-toggle:hover { background: var(--brand-gradient-hover); }
+.backlog-completed-toggle:focus-visible { outline: 3px solid color-mix(in srgb, var(--brand-orange) 48%, transparent); outline-offset: 2px; }
+.backlog-completed-toggle svg { transition: transform .18s ease; }
+.backlog-completed-toggle.open svg { transform: rotate(180deg); }
 .backlog-task-row { padding: 8px 9px; border: 1px solid var(--line); border-radius: 9px; font-size: 10px; }
 .backlog-task-row small { color: var(--muted); font-size: 8px; font-weight: 800; text-transform: uppercase; }
 .backlog-task-row.done { opacity: .55; }
@@ -3299,9 +3302,9 @@ summary:focus-visible {
 .backlog-refresh-btn:hover { color: var(--text); border-color: var(--accent); }
 .backlog-status.testing { color: #f59e0b; }
 .backlog-task-row.in_progress { border-color: var(--accent); background: var(--accent-light); }
-.backlog-completed-divider { display: block; width: 100%; height: 8px; border: 0; padding: 3px 0; background: transparent; cursor: pointer; }
-.backlog-completed-divider span { display: block; width: 100%; height: 2px; border-radius: 99px; background: var(--danger); opacity: .82; transition: height .16s ease, opacity .16s ease; }
-.backlog-completed-divider:hover span { height: 3px; opacity: 1; }
+.backlog-completed-tasks { display: grid; gap: 6px; padding: 7px; border: 1px solid color-mix(in srgb, var(--brand-orange) 28%, var(--line)); border-radius: 12px; background: color-mix(in srgb, var(--accent-light) 35%, var(--paper)); }
+.backlog-completed-tasks .backlog-task-row { background: var(--paper); }
+.backlog-task-list-empty { padding: 10px; color: var(--muted); font-size: 10px; text-align: center; }
 .backlog-empty { margin-top: 4px; }
 
 /* Primary actions share the same filled red-to-orange visual language. */

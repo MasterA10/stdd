@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "run_id": "968854269db5452ca5fa1581d217257a",
-  "started_at": "2026-08-25T00:27:18.777141+00:00",
+  "run_id": "a06da76ca6074082875adde07719fe52",
+  "started_at": "2026-08-25T01:14:42.097864+00:00",
   "status": "blocked",
   "profile": "mvp",
   "summary": {
@@ -20,7 +20,7 @@
       ],
       "exit_code": 1,
       "status": "failed",
-      "duration_seconds": 16.20952
+      "duration_seconds": 16.320071
     }
   ],
   "contract": {
@@ -648,17 +648,6 @@
         "symbol_id": "src/looper/draw.py:looper.draw.find_addressed_questions"
       },
       {
-        "end_line": 116,
-        "file": "draw-editor/src/components/BacklogPanel.tsx",
-        "kind": "function",
-        "line": 116,
-        "name": "<anonymous>",
-        "qualified_name": "<anonymous>",
-        "signature": "() => setShowCompletedTasks(true)",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/components/BacklogPanel.tsx:function:<anonymous>"
-      },
-      {
         "end_line": 1162,
         "file": "tests/test_cli.py",
         "kind": "function",
@@ -687,6 +676,17 @@
         "qualified_name": "tests.test_backlog.test_looper_test_blocks_when_backlog_has_unchecked_implementation",
         "source": "python_ast",
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_looper_test_blocks_when_backlog_has_unchecked_implementation"
+      },
+      {
+        "end_line": 117,
+        "file": "draw-editor/src/components/BacklogPanel.tsx",
+        "kind": "function",
+        "line": 109,
+        "name": "<anonymous>",
+        "qualified_name": "<anonymous>",
+        "signature": "(task) => (",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/components/BacklogPanel.tsx:function:<anonymous>"
       },
       {
         "end_line": 117,
@@ -8157,7 +8157,16 @@
         "source": "<anonymous>",
         "source_file": "draw-editor/src/components/BacklogPanel.tsx",
         "source_tool": "typescript_compiler_api",
-        "target": "setShowCompletedTasks"
+        "target": "phaseStatusLabel"
+      },
+      {
+        "file": "draw-editor/src/components/BacklogPanel.tsx",
+        "kind": "calls",
+        "resolution": "unresolved",
+        "source": "<anonymous>",
+        "source_file": "draw-editor/src/components/BacklogPanel.tsx",
+        "source_tool": "typescript_compiler_api",
+        "target": "taskTestStatus"
       },
       {
         "file": "draw-editor/src/components/BacklogPanel.tsx",
