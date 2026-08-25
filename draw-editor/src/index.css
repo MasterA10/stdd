@@ -1701,10 +1701,15 @@ body:has(.improvement-dialog) { overflow: hidden; }
   padding: 0;
   border: 0;
   border-radius: 8px;
-  color: #fff;
-  background: #047857;
+  color: var(--muted);
+  background: var(--paper);
   cursor: pointer;
   box-shadow: inset 0 1px 2px rgba(255, 255, 255, .16), 0 0 0 2px rgba(16, 185, 129, .2), 0 4px 14px rgba(0, 0, 0, .28);
+}
+
+.node-success-criteria-indicator.configured {
+  color: #fff;
+  background: #047857;
 }
 
 .node-success-criteria-indicator:hover,
@@ -1759,6 +1764,13 @@ body:has(.improvement-dialog) { overflow: hidden; }
 .node-success-criteria-copy.failure { border-left-color: var(--danger); }
 .node-success-criteria-copy span { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; }
 .node-success-criteria-copy p { font-size: 11px; line-height: 1.4; overflow-wrap: anywhere; }
+.node-success-criteria-empty { color: var(--muted); font-size: 11px; line-height: 1.4; }
+.node-success-criteria-field { display: grid; gap: 4px; }
+.node-success-criteria-field span { color: var(--muted); font-size: 9px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+.node-success-criteria-field textarea { width: 100%; min-height: 58px; padding: 7px 8px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: var(--input-bg); font: inherit; font-size: 11px; line-height: 1.35; resize: vertical; }
+.node-success-criteria-field textarea:focus { border-color: var(--accent); outline: 2px solid var(--accent-light); }
+.node-success-criteria-save { width: 100%; padding: 8px 10px; border: 0; border-radius: 8px; color: #fff; background: var(--brand-gradient); cursor: pointer; font: inherit; font-size: 11px; font-weight: 800; }
+.node-success-criteria-save:hover { background: var(--brand-gradient-hover); }
 
 .node-body-title {
   font-size: 14px;

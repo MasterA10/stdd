@@ -847,8 +847,11 @@ def test_custom_node_exposes_success_criteria_indicator_when_configured():
 
     assert "hasSuccessCriteria" in node
     assert "node-success-criteria-indicator" in node
+    assert "Nenhum critério definido para este bloco." in node
     assert "Abrir critérios de sucesso e falha" in node
     assert "node-success-criteria-popover" in node
+    assert "Salvar critérios" in node
+    assert "onSaveSuccessCriteria" in node
     assert ".node-success-criteria-indicator:focus-visible" in styles
 
 

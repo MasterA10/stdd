@@ -70,6 +70,8 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
     || (Array.isArray(data.test_refs) && data.test_refs.length > 0);
   const hasSuccessCriteria = Boolean(data.success_criteria?.trim() || data.failure_criteria?.trim());
   const [showSuccessCriteria, setShowSuccessCriteria] = useState(false);
+  const [successCriteriaDraft, setSuccessCriteriaDraft] = useState(data.success_criteria || '');
+  const [failureCriteriaDraft, setFailureCriteriaDraft] = useState(data.failure_criteria || '');
 
   const isHighlighted = data.isHighlighted;
   const isDimmed = data.isDimmed;
@@ -156,7 +158,16 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
 
   const onOpenSuccessCriteria = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setSuccessCriteriaDraft(data.success_criteria || '');
+    setFailureCriteriaDraft(data.failure_criteria || '');
     setShowSuccessCriteria((visible) => !visible);
+  };
+
+  const onSaveSuccessCriteria = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.updateNodeField?.(Number(id), 'success_criteria', successCriteriaDraft.trim());
+    window.updateNodeField?.(Number(id), 'failure_criteria', failureCriteriaDraft.trim());
+    setShowSuccessCriteria(false);
   };
 
   const onToggleBacklogChecklist = (phase: 'test' | 'implementation', checked: boolean) => (e: React.SyntheticEvent) => {
@@ -331,23 +342,21 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
               </svg>
             </span>
           )}
-          {hasSuccessCriteria && (
-            <button
-              className="node-success-criteria-indicator nodrag nopan"
+          <button
+              className={`node-success-criteria-indicator nodrag nopan${hasSuccessCriteria ? ' configured' : ''}`}
               type="button"
               onClick={onOpenSuccessCriteria}
               onPointerDown={(e) => e.stopPropagation()}
               aria-label="Abrir critérios de sucesso e falha"
               aria-expanded={showSuccessCriteria}
-              title="Critérios de sucesso e falha definidos"
+              title={hasSuccessCriteria ? 'Critérios de sucesso e falha definidos' : 'Nenhum critério de sucesso ou falha definido'}
             >
               <CircleCheck size={17} aria-hidden="true" />
-            </button>
-          )}
+          </button>
         </span>
       </div>
 
-      {showSuccessCriteria && hasSuccessCriteria && (
+      {showSuccessCriteria && (
         <div
           className="node-success-criteria-popover nodrag nopan"
           role="dialog"
@@ -359,18 +368,26 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
             <strong>Critérios de aceite</strong>
             <button type="button" onClick={() => setShowSuccessCriteria(false)} aria-label="Fechar critérios">×</button>
           </div>
-          {data.success_criteria?.trim() && (
-            <div className="node-success-criteria-copy success">
-              <span>Sucesso</span>
-              <p>{data.success_criteria}</p>
-            </div>
-          )}
-          {data.failure_criteria?.trim() && (
-            <div className="node-success-criteria-copy failure">
-              <span>Falha</span>
-              <p>{data.failure_criteria}</p>
-            </div>
-          )}
+          <label className="node-success-criteria-field">
+            <span>Sucesso</span>
+            <textarea
+              value={successCriteriaDraft}
+              onChange={(e) => setSuccessCriteriaDraft(e.target.value)}
+              placeholder="Como saberemos que este nó funcionou?"
+              rows={3}
+            />
+          </label>
+          <label className="node-success-criteria-field">
+            <span>Falha</span>
+            <textarea
+              value={failureCriteriaDraft}
+              onChange={(e) => setFailureCriteriaDraft(e.target.value)}
+              placeholder="Qual cenário indica que este nó falhou?"
+              rows={3}
+            />
+          </label>
+          {!hasSuccessCriteria && !successCriteriaDraft.trim() && !failureCriteriaDraft.trim() && <p className="node-success-criteria-empty">Nenhum critério definido para este bloco.</p>}
+          <button className="node-success-criteria-save" type="button" onClick={onSaveSuccessCriteria}>Salvar critérios</button>
         </div>
       )}
 
