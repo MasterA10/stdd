@@ -11,6 +11,7 @@ export const taskTestStatus = (task: BacklogTask): BacklogPhaseStatus => {
 export const taskImplementationStatus = (task: BacklogTask): BacklogPhaseStatus => task.status;
 
 export const currentExecutionTask = (backlog: BacklogDocument, phase?: 'test' | 'implementation'): BacklogTask | undefined => {
+  if (!backlog || !Array.isArray(backlog.tasks) || !backlog.execution || typeof backlog.execution !== 'object') return undefined;
   const { execution } = backlog;
   const candidates: Array<{ id: string; phase: 'test' | 'implementation' }> = [];
   const addCandidate = (id: string | null | undefined, candidatePhase: 'test' | 'implementation' | null | undefined) => {
@@ -19,9 +20,14 @@ export const currentExecutionTask = (backlog: BacklogDocument, phase?: 'test' | 
 
   addCandidate(execution.current_task_id, execution.current_phase);
   addCandidate(execution.current_subtask_id, execution.current_phase);
-  Object.values(execution.lanes || {}).forEach((lane) => {
-    addCandidate(lane.current_task_id, lane.current_phase);
-    addCandidate(lane.current_subtask_id, lane.current_phase);
+  const lanes = execution.lanes && typeof execution.lanes === 'object' && !Array.isArray(execution.lanes)
+    ? execution.lanes
+    : {};
+  Object.entries(lanes).forEach(([laneId, lane]) => {
+    if (!lane || typeof lane !== 'object') return;
+    const lanePhase = lane.current_phase || (laneId.startsWith('test:') ? 'test' : laneId.startsWith('implementation:') ? 'implementation' : null);
+    addCandidate(lane.current_task_id, lanePhase);
+    addCandidate(lane.current_subtask_id, lanePhase);
   });
 
   const byId = new Map(backlog.tasks.map((task) => [task.id, task]));

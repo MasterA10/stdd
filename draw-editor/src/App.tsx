@@ -161,23 +161,36 @@ export const App: React.FC = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<NodeData>>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const nodesInitialized = useNodesInitialized({ includeHiddenNodes: true });
+  const backlogRequestRef = useRef(0);
+  const backlogPollInFlightRef = useRef(false);
+  const renderedNodesSignatureRef = useRef<string | null>(null);
+  const renderedEdgesSignatureRef = useRef<string | null>(null);
 
   const loadBacklog = useCallback(async () => {
+    const requestId = backlogRequestRef.current + 1;
+    backlogRequestRef.current = requestId;
+    const applyBacklog = (value: unknown): boolean => {
+      if (!value || typeof value !== 'object') return false;
+      const candidate = value as Partial<BacklogDocument>;
+      if (!Array.isArray(candidate.tasks) || !candidate.execution || typeof candidate.execution !== 'object') return false;
+      if (requestId === backlogRequestRef.current) setBacklog(candidate as BacklogDocument);
+      return true;
+    };
+
     const origins = [...new Set([getApiOrigin(), ...getApiOrigins()])];
     for (const origin of origins) {
       try {
         const response = await fetch(`${origin}/.looper/backlog.json`, { cache: 'no-store' });
         if (response.ok) {
-          setBacklog(await response.json() as BacklogDocument);
-          return;
+          if (applyBacklog(await response.json())) return;
         }
       } catch (_) {}
     }
     try {
       const saved = localStorage.getItem('looper-backlog');
-      setBacklog(saved ? JSON.parse(saved) as BacklogDocument : null);
+      if (saved && applyBacklog(JSON.parse(saved))) return;
     } catch (_) {
-      setBacklog(null);
+      // Preserve the last valid snapshot while the producer is updating it.
     }
   }, []);
 
@@ -187,9 +200,14 @@ export const App: React.FC = () => {
     if (!observerMode) return;
     let cancelled = false;
     const pollBacklog = async () => {
-      if (document.visibilityState === 'hidden') return;
-      await loadBacklog();
-      if (!cancelled) setObserverStatus('Observando o backlog');
+      if (cancelled || document.visibilityState === 'hidden' || backlogPollInFlightRef.current) return;
+      backlogPollInFlightRef.current = true;
+      try {
+        await loadBacklog();
+        if (!cancelled) setObserverStatus('Observando o backlog');
+      } finally {
+        backlogPollInFlightRef.current = false;
+      }
     };
     void pollBacklog();
     const interval = window.setInterval(pollBacklog, 2000);
@@ -519,6 +537,8 @@ export const App: React.FC = () => {
   useEffect(() => {
     let cancelled = false;
     setTraceabilityFacts(null);
+    const needsTraceabilityFacts = contract.nodes.some((node) => Array.isArray(node.code_refs) && node.code_refs.length > 0);
+    if (!needsTraceabilityFacts) return () => { cancelled = true; };
     const loadFacts = async () => {
       for (const origin of getApiOrigins()) {
         try {
@@ -1480,7 +1500,13 @@ export const App: React.FC = () => {
       ...node,
       selected: selectedNodeIds.has(Number(node.id))
     }));
-    setNodes(nodesWithSelection);
+    const nextNodesSignature = nodesWithSelection.map((node) => (
+      `${node.id}:${node.position.x}:${node.position.y}:${node.selected ? 1 : 0}:${node.data.isHighlighted ? 1 : 0}:${node.data.isDimmed ? 1 : 0}:${node.data.backlogChecklist?.status || ''}`
+    )).join('|');
+    if (renderedNodesSignatureRef.current !== nextNodesSignature) {
+      renderedNodesSignatureRef.current = nextNodesSignature;
+      setNodes(nodesWithSelection);
+    }
     setRenderedDrawId(contract.id);
     if (pendingAutoFitDrawRef.current === contract.id) {
       pendingAutoFitDrawRef.current = null;
@@ -1568,7 +1594,13 @@ export const App: React.FC = () => {
       };
     });
 
-    setEdges(formattedEdges);
+    const nextEdgesSignature = formattedEdges.map((edge) => (
+      `${edge.id}:${edge.source}:${edge.target}:${edge.animated ? 1 : 0}:${edge.style?.opacity || 1}:${edge.data?.labelColor || ''}`
+    )).join('|');
+    if (renderedEdgesSignatureRef.current !== nextEdgesSignature) {
+      renderedEdgesSignatureRef.current = nextEdgesSignature;
+      setEdges(formattedEdges);
+    }
   }, [backlog, contract, activeFlowId, presentationPositions, theme, selectedNodeId, isFocusMode, selectionRevision, cycleEdges]);
 
   useEffect(() => {

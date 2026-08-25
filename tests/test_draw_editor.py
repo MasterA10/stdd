@@ -816,6 +816,10 @@ def test_draw_editor_observer_follows_current_implementation_without_editing():
     assert "!nodesInitialized" in app
     assert "loadDrawingById(target.drawId, { resetNavigation: true, mode: storageMode })" in app
     assert "window.setInterval(pollBacklog, 2000)" in app
+    assert "backlogPollInFlightRef" in app
+    assert "backlogRequestRef" in app
+    assert "renderedNodesSignatureRef" in app
+    assert "const applyBacklog = (value: unknown): boolean" in app
     assert ".observer-mode .app-workspace-layout" in styles
     assert "pointer-events: none" in styles
     assert "Observador ativo" in app

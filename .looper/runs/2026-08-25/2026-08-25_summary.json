@@ -253,8 +253,29 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "e500d29e9c3f442cb70b191b336ecaab",
+      "timestamp": "2026-08-25T17:18:08.601678+00:00",
+      "description": "Evita consulta de facts inexistentes e estabiliza atualizações do observer",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 69,
+        "lines_deleted": 27,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 12,
-  "last_run_id": "860dc15bc0284be583ef87db7fe19569"
+  "run_count": 13,
+  "last_run_id": "e500d29e9c3f442cb70b191b336ecaab"
 }
