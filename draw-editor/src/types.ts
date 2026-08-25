@@ -249,6 +249,10 @@ export interface BacklogDocument {
     current_subtask_id?: string | null;
     completed_branches?: string[];
     branches?: Array<{ id: string; completed?: boolean; terminal_reason?: string; task_ids?: string[]; node_ids?: number[]; edges?: EdgeData[]; flow_id?: number | null; backlog_id?: string; parent_task_id?: string; scope?: string }>;
+    lanes?: Record<string, {
+      current_task_id?: string | null;
+      current_phase?: 'test' | 'implementation' | null;
+    }>;
   };
 }
 

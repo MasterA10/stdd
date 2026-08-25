@@ -802,6 +802,8 @@ def test_draw_editor_observer_follows_current_implementation_without_editing():
     assert "observerMode" in app
     assert "execution.current_phase === 'implementation'" in app
     assert "execution.current_task_id" in app
+    assert "execution.lanes" in app
+    assert "implementation:" in app
     assert "task.draw_id" in app
     assert "task.node_id" in app
     assert "instance.fitView({" in app

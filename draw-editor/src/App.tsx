@@ -61,6 +61,24 @@ const getApiOrigin = () => detectedBackendOrigin || getApiOrigins()[0];
 const isImprovementAnswer = (answer: ImprovementSession['questions'][number]['answer']) =>
   answer !== null && !(typeof answer === 'string' && answer.trim() === '');
 
+const currentImplementationTask = (backlog: BacklogDocument) => {
+  const { execution } = backlog;
+  const taskIds: string[] = [];
+
+  if (execution.current_phase === 'implementation' && execution.current_task_id) {
+    taskIds.push(execution.current_task_id);
+  }
+
+  Object.entries(execution.lanes || {}).forEach(([laneId, lane]) => {
+    if (!laneId.startsWith('implementation:') || lane.current_phase !== 'implementation' || !lane.current_task_id) return;
+    taskIds.push(lane.current_task_id);
+  });
+
+  return taskIds
+    .map((taskId) => backlog.tasks.find((task) => task.id === taskId && task.status === 'in_progress'))
+    .find(Boolean);
+};
+
 function parseClipboardNodeJson(text: string): NodeData[] {
   const parsed: unknown = JSON.parse(text);
   const candidates = Array.isArray(parsed) ? parsed : [parsed];
@@ -980,9 +998,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     if (!observerMode || currentImprovement || !backlog) return;
     const execution = backlog.execution;
-    const task = execution.current_phase === 'implementation' && execution.current_task_id
-      ? backlog.tasks.find((item) => item.id === execution.current_task_id && item.status === 'in_progress')
-      : undefined;
+    const task = currentImplementationTask(backlog);
 
     if (!task) {
       observerTargetRef.current = null;
