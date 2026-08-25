@@ -1,6 +1,6 @@
 ---
 name: draw-improve
-description: Identifica lacunas arquiteturais em um Draw existente por meio de dez perguntas iniciais, abre somente as perguntas necessárias para lacunas descobertas depois e aplica as respostas em ciclos posteriores, preservando o JSON do fluxo enquanto as perguntas estão abertas.
+description: Identifica lacunas arquiteturais em um Draw existente por meio de perguntas, abre somente as perguntas necessárias para lacunas descobertas depois e, após a clarificação, aplica as respostas e enriquece os nós correspondentes com o contexto consolidado.
 ---
 
 # Draw Improve
@@ -10,7 +10,7 @@ description: Identifica lacunas arquiteturais em um Draw existente por meio de d
 O `$draw-improve` trabalha em duas fases explícitas:
 
 1. **Perguntar:** revisar o Draw inteiro, criar exatamente dez perguntas arquiteturais em uma sessão separada de `.looper/improvements/` e parar para a resposta humana. Nesta fase não alterar `.looper/draws/<draw-id>.json`, não criar nós e não criar conexões.
-2. **Aplicar:** em uma nova invocação, localizar sessões completas com `looper draw improve --pending`, ler as respostas, revisar novamente o Draw associado e aplicar somente o próximo incremento coerente. Depois de salvar o Draw, marcar a sessão como `applied`.
+2. **Aplicar:** em uma nova invocação, localizar sessões completas com `looper draw improve --pending`, ler as respostas, revisar novamente o Draw associado e aplicar somente o próximo incremento coerente. Quando o gate final confirmar que não existem mais lacunas abertas pelas respostas, consolidar cada pergunta e resposta no nó correspondente, salvar o Draw enriquecido e só então marcar a sessão como `applied`.
 
 O ciclo só termina depois de apresentar o resultado e pedir revisão. `Já está bom` continua sendo uma conclusão válida quando não houver lacuna relevante, mas a fase de perguntas deve existir sempre que uma decisão arquitetural depender da pessoa. Uma nova invocação inicia um ciclo posterior; não repetir automaticamente o ciclo atual.
 
@@ -61,21 +61,31 @@ Para cada sessão pronta:
 3. Antes de alterar qualquer fluxo, executar o **gate de lacunas abertas pelas respostas**: revisar novamente todos os nós, relações, grupos, flows, subdraws, perguntas e decisões do Draw e verificar se cada resposta criou uma nova regra, exceção, dependência, conflito, caminho incompleto ou decisão arquitetural ainda sem resposta.
 4. Se o gate encontrar uma lacuna que exija decisão humana, não alterar o Draw, não marcar a sessão atual como `applied` e não inventar a decisão. Criar uma nova sessão de acompanhamento com somente a quantidade de perguntas necessária para resolver as lacunas recém-criadas, com pelo menos uma pergunta, e parar para a resposta humana. Enquanto essa sessão derivada estiver aberta, a sessão anterior não pode ser aplicada isoladamente.
 5. Somente se nenhuma nova lacuna relevante for encontrada, fazer uma única melhoria coerente, podendo alterar nós, relações, grupos, flows ou um subdraw quando isso for consequência direta das respostas.
-6. Preservar IDs e significado existentes salvo quando houver inconsistência objetiva.
-7. Usar `condition: 1` para `então`, `condition: 2` para `ou` e `condition: 3` para `se`.
-8. Persistir o Draw completo com:
+6. Depois que o gate confirmar que não há mais lacunas, enriquecer os nós com a memória da clarificação:
+   - associar cada pergunta ao nó cujo assunto, descrição, decisões, símbolos, `draw_ref` ou papel arquitetural corresponda diretamente ao tema da pergunta;
+   - preferir um único nó específico a um nó genérico; se o assunto atravessar nós, associar ao nó que possui a decisão ou responsabilidade principal;
+   - injetar em `node.questions` a pergunta original, o tipo, as opções quando existirem e a resposta final, preservando o texto humano e o contexto da decisão;
+   - manter a origem com `source_improvement_id` e `source_question_id` quando esses campos não existirem, para auditoria e para impedir duplicação em reaplicações;
+   - atualizar uma associação existente pela origem em vez de criar outra cópia; não apagar perguntas anteriores nem substituir respostas de outra sessão;
+   - se não houver correspondência inequívoca, não descartar a resposta nem inventar um vínculo: registrar a pendência para revisão humana e não marcar a sessão como `applied`.
+7. Preservar IDs e significado existentes salvo quando houver inconsistência objetiva.
+8. Usar `condition: 1` para `então`, `condition: 2` para `ou` e `condition: 3` para `se`.
+9. Validar o JSON e as referências do Draw, inclusive os IDs das perguntas injetadas e a associação de cada resposta a um nó real.
+10. Persistir o Draw completo com:
 
    ```bash
    looper draw create --data-json '<JSON_COMPLETO_ATUALIZADO>'
    ```
 
-9. Somente depois de o Draw ser salvo com sucesso, executar:
+11. Somente depois de o Draw ser salvo com sucesso, executar:
 
    ```bash
    looper draw improve --mark-applied --id <improvement-id>
    ```
 
 Uma sessão `applied` é histórica e imutável. Não reaplicá-la nem apagar suas perguntas e respostas.
+
+Uma sessão não pode ser considerada aplicada enquanto suas respostas estiverem somente em `.looper/improvements/`; a aplicação exige que a pergunta e a resposta estejam também persistidas no `node.questions` correspondente do Draw.
 
 O gate de lacunas é obrigatório mesmo quando todas as perguntas da sessão já foram respondidas. Responder uma pergunta pode revelar outra pergunta; nesse caso, a prioridade é abrir um novo ciclo com a quantidade necessária de perguntas, não gravar uma alteração parcial. Se as respostas apenas esclarecem decisões já suficientes e nenhuma lacuna nova surgir, seguir normalmente para o incremento único.
 

@@ -1005,21 +1005,43 @@ export const App: React.FC = () => {
   }, [backlog, contract.id, currentImprovement, observerMode, storageMode]);
 
   useEffect(() => {
-    if (!observerMode || !observerTarget || observerTarget.drawId !== contract.id || renderedDrawId !== contract.id) return;
+    if (
+      !observerMode ||
+      !observerTarget ||
+      observerTarget.drawId !== contract.id ||
+      renderedDrawId !== contract.id ||
+      !nodesInitialized ||
+      !reactFlowInstanceRef.current
+    ) return;
     const focusKey = `${observerTarget.taskId}:${observerTarget.drawId}:${observerTarget.nodeId}`;
     if (observerFocusedKeyRef.current === focusKey) return;
     const targetNode = nodes.find((node) => Number(node.id) === observerTarget.nodeId);
     if (!targetNode) return;
 
-    observerFocusedKeyRef.current = focusKey;
     selectionOrderRef.current = [observerTarget.nodeId];
     setSelectedNodeId(observerTarget.nodeId);
     setSelectedEdgeId(null);
+    setIsFocusMode(false);
     setSelectionRevision((value) => value + 1);
-    const x = targetNode.position.x + (targetNode.measured?.width || targetNode.width || 220) / 2;
-    const y = targetNode.position.y + (targetNode.measured?.height || targetNode.height || 120) / 2;
-    reactFlowInstanceRef.current?.setCenter(x, y, { zoom: 1.05, duration: 650 });
-  }, [contract.id, nodes, observerMode, observerTarget, renderedDrawId]);
+
+    // O alvo só é considerado focado depois que a instância e as dimensões
+    // reais do nó estão disponíveis. Assim a troca de draw não perde o zoom
+    // por ocorrer durante a desmontagem do fluxo anterior.
+    const frame = requestAnimationFrame(() => {
+      const instance = reactFlowInstanceRef.current;
+      if (!instance) return;
+      instance.fitView({
+        nodes: [{ id: String(targetNode.id) }],
+        padding: 0.42,
+        minZoom: 0.85,
+        maxZoom: 1.8,
+        duration: 650
+      });
+      observerFocusedKeyRef.current = focusKey;
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [contract.id, nodes, nodesInitialized, observerMode, observerTarget, reactFlowReady, renderedDrawId]);
 
   const loadImprovementById = async (id: string, mode = storageMode) => {
     if (isDirty || isImprovementDirty) {

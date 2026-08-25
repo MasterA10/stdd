@@ -804,7 +804,12 @@ def test_draw_editor_observer_follows_current_implementation_without_editing():
     assert "execution.current_task_id" in app
     assert "task.draw_id" in app
     assert "task.node_id" in app
-    assert "setCenter(x, y" in app
+    assert "instance.fitView({" in app
+    assert "nodes: [{ id: String(targetNode.id) }]" in app
+    assert "minZoom: 0.85" in app
+    assert "maxZoom: 1.8" in app
+    assert "!nodesInitialized" in app
+    assert "loadDrawingById(target.drawId, { resetNavigation: true, mode: storageMode })" in app
     assert "window.setInterval(pollBacklog, 2000)" in app
     assert ".observer-mode .app-workspace-layout" in styles
     assert "pointer-events: none" in styles
