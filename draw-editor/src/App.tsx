@@ -430,6 +430,7 @@ export const App: React.FC = () => {
   const drawingLoadRequestRef = useRef(0);
   const pendingSearchFocusRef = useRef<{ drawId: string; nodeId: number } | null>(null);
   const drawRevisionRef = useRef<string | null>(null);
+  const savingContractRef = useRef(false);
   const pendingExternalRevisionRef = useRef<string | null>(null);
   const dirtyStateRef = useRef({ isDirty: false, isImprovementDirty: false });
   const pendingAutoFitDrawRef = useRef<string | null>(null);
@@ -962,7 +963,7 @@ export const App: React.FC = () => {
     pendingExternalRevisionRef.current = null;
     let cancelled = false;
     const checkRevision = async () => {
-      if (document.visibilityState === 'hidden' || cancelled) return;
+      if (document.visibilityState === 'hidden' || cancelled || savingContractRef.current) return;
       setDrawSyncState((state) => state === 'pending' ? state : 'checking');
       try {
         const response = await fetch(
@@ -972,6 +973,10 @@ export const App: React.FC = () => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const revision = await response.json() as { revision?: string };
         if (!revision.revision || cancelled) return;
+        if (savingContractRef.current) {
+          drawRevisionRef.current = revision.revision;
+          return;
+        }
         if (drawRevisionRef.current === null) {
           drawRevisionRef.current = revision.revision;
           setDrawSyncState('synced');
@@ -1146,7 +1151,7 @@ export const App: React.FC = () => {
     return doc;
   };
 
-  const performSave = async (contractToSave: Contract) => {
+  const performSave = async (contractToSave: Contract): Promise<boolean> => {
     const id = contractToSave.id;
     const cleanPayload = cleanLogicalPayload(contractToSave);
     const presentationKey = `looper-draw-presentation:${id}`;
@@ -1174,8 +1179,10 @@ export const App: React.FC = () => {
         }
         setIsDirty(false);
         await loadDrawingsIndex();
+        return true;
       } catch (err: any) {
         alert(`Erro ao salvar no backend: ${err.message}`);
+        return false;
       }
     } else {
       // Local Storage
@@ -1184,7 +1191,7 @@ export const App: React.FC = () => {
         try {
           if (JSON.stringify(JSON.parse(savedLogicalPayload)) === JSON.stringify(cleanPayload)) {
             setIsDirty(false);
-            return;
+            return true;
           }
         } catch (_) {}
       }
@@ -1217,6 +1224,7 @@ export const App: React.FC = () => {
       localStorage.setItem('looper-draws-index', JSON.stringify({ version: 1, draws: drawings }));
       setDrawingsIndex(drawings);
       setIsDirty(false);
+      return true;
     }
   };
 
@@ -2081,8 +2089,20 @@ export const App: React.FC = () => {
           ? { ...node, success_criteria: successCriteria || undefined, failure_criteria: failureCriteria || undefined }
           : node)
       };
-      setContract(nextContract);
-      await performSave(nextContract);
+      savingContractRef.current = true;
+      try {
+        const saved = await performSave(nextContract);
+        if (saved) {
+          setContract(nextContract);
+          // O próximo poll apenas estabelece a nova revisão; não recarrega o
+          // desenho e não desmonta o canvas recém-editado.
+          drawRevisionRef.current = null;
+        } else {
+          setIsDirty(true);
+        }
+      } finally {
+        savingContractRef.current = false;
+      }
     };
 
     window.deleteNode = async (id: number) => {
