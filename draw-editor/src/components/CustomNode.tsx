@@ -165,8 +165,12 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
 
   const onSaveSuccessCriteria = (e: React.MouseEvent) => {
     e.stopPropagation();
-    window.updateNodeField?.(Number(id), 'success_criteria', successCriteriaDraft.trim());
-    window.updateNodeField?.(Number(id), 'failure_criteria', failureCriteriaDraft.trim());
+    if (window.saveNodeCriteria) {
+      void window.saveNodeCriteria(Number(id), successCriteriaDraft.trim(), failureCriteriaDraft.trim());
+    } else {
+      window.updateNodeField?.(Number(id), 'success_criteria', successCriteriaDraft.trim());
+      window.updateNodeField?.(Number(id), 'failure_criteria', failureCriteriaDraft.trim());
+    }
     setShowSuccessCriteria(false);
   };
 
@@ -523,6 +527,7 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
 declare global {
   interface Window {
     updateNodeField?: (id: number, field: 'label' | 'description' | 'success_criteria' | 'failure_criteria', value: string) => void;
+    saveNodeCriteria?: (id: number, successCriteria: string, failureCriteria: string) => Promise<void>;
     deleteNode?: (id: number) => void;
     openQuestionsModal?: (node: NodeData) => void;
     openChangesModal?: (node: NodeData) => void;

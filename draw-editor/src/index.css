@@ -1709,7 +1709,7 @@ body:has(.improvement-dialog) { overflow: hidden; }
 
 .node-success-criteria-indicator.configured {
   color: #fff;
-  background: #047857;
+  background: var(--brand-orange);
 }
 
 .node-success-criteria-indicator:hover,

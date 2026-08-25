@@ -843,6 +843,7 @@ def test_draw_editor_exposes_optional_node_success_and_failure_criteria():
 def test_custom_node_exposes_success_criteria_indicator_when_configured():
     """Mostra o indicador acionável de aceite diretamente no bloco."""
     node = (EDITOR_ROOT / "src/components/CustomNode.tsx").read_text(encoding="utf-8")
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
     styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
 
     assert "hasSuccessCriteria" in node
@@ -852,6 +853,9 @@ def test_custom_node_exposes_success_criteria_indicator_when_configured():
     assert "node-success-criteria-popover" in node
     assert "Salvar critérios" in node
     assert "onSaveSuccessCriteria" in node
+    assert "saveNodeCriteria" in node
+    assert "await performSave(nextContract)" in app
+    assert "background: var(--brand-orange)" in styles
     assert ".node-success-criteria-indicator:focus-visible" in styles
 
 

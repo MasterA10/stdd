@@ -2074,6 +2074,16 @@ export const App: React.FC = () => {
       }));
       setIsDirty(true);
     };
+    window.saveNodeCriteria = async (id: number, successCriteria: string, failureCriteria: string) => {
+      const nextContract = {
+        ...contract,
+        nodes: contract.nodes.map((node) => node.id === id
+          ? { ...node, success_criteria: successCriteria || undefined, failure_criteria: failureCriteria || undefined }
+          : node)
+      };
+      setContract(nextContract);
+      await performSave(nextContract);
+    };
 
     window.deleteNode = async (id: number) => {
       const proceed = await askConfirm(
@@ -2129,7 +2139,7 @@ export const App: React.FC = () => {
       loadDrawingById(id);
     };
 
-  }, [removeNodesFromContract]);
+  }, [contract, removeNodesFromContract]);
 
   useEffect(() => {
     window.updateBacklogChecklist = updateBacklogChecklist;
