@@ -153,8 +153,8 @@ def validate_improvement_payload(payload: Any, *, allow_applied: bool = True) ->
         violations.append("status deve ser draft, ready ou applied")
 
     questions = payload.get("questions")
-    if not isinstance(questions, list) or len(questions) != IMPROVEMENT_QUESTION_COUNT:
-        violations.append(f"questions deve conter exatamente {IMPROVEMENT_QUESTION_COUNT} perguntas")
+    if not isinstance(questions, list) or len(questions) < 1:
+        violations.append("questions deve conter pelo menos uma pergunta")
         questions = questions if isinstance(questions, list) else []
 
     question_ids: set[int] = set()
@@ -162,11 +162,11 @@ def validate_improvement_payload(payload: Any, *, allow_applied: bool = True) ->
         violations.extend(_validate_question(f"questions[{index}]", question, question_ids))
 
     if questions and status == "ready" and _session_status(questions) != "ready":
-        violations.append("status ready exige as dez perguntas respondidas")
+        violations.append("status ready exige todas as perguntas respondidas")
     if questions and status == "draft" and _session_status(questions) == "ready":
         violations.append("status draft não pode conter as dez perguntas respondidas")
     if questions and status == "applied" and _session_status(questions) != "ready":
-        violations.append("status applied exige as dez perguntas respondidas")
+        violations.append("status applied exige todas as perguntas respondidas")
     return violations
 
 
@@ -199,7 +199,7 @@ def create_improvement(root: Path, payload: dict[str, Any]) -> Path:
     document = deepcopy(payload)
     document.setdefault("version", IMPROVEMENT_VERSION)
     document.setdefault("status", "draft")
-    if isinstance(document.get("questions"), list) and len(document["questions"]) == IMPROVEMENT_QUESTION_COUNT:
+    if isinstance(document.get("questions"), list) and document["questions"]:
         if document.get("status") != "applied":
             document["status"] = _session_status(document["questions"])
     violations = validate_improvement_payload(document, allow_applied=False)

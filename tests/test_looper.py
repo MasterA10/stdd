@@ -32,7 +32,8 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert (tmp_path / ".agents/skills/draw-feature/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-improve/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-interaction/SKILL.md").exists()
-    assert (tmp_path / ".agents/skills/missing/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/implement-change/SKILL.md").exists()
+    assert not (tmp_path / ".agents/skills/missing/SKILL.md").exists()
     for level in range(1, 5):
         assert (tmp_path / ".agents/skills" / f"draw-system-level-{level}" / "SKILL.md").exists()
         assert (tmp_path / ".agents/skills" / f"draw-system-level-{level}" / "agents/openai.yaml").exists()
@@ -283,7 +284,7 @@ def test_agents_are_loaded_from_markdown_templates():
         "draw-system-level-4",
         "implement-backend",
         "implement-frontend",
-        "missing",
+        "implement-change",
         "modern-web-guidance",
         "open-design",
         "setup",
@@ -298,10 +299,10 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "`warn`" in backend_skill and "`info`" in backend_skill
     assert "credenciais deliberadamente inválidas" in backend_skill
     assert "console" in backend_skill and "banco de dados" in backend_skill
-    assert "# Missing Agent" in templates["missing"].read_text()
-    assert "lendo símbolos" in templates["missing"].read_text().lower()
-    assert "testes associados" in templates["missing"].read_text()
-    assert "corrija a produção" in templates["missing"].read_text()
+    assert "# Implement Change Agent" in templates["implement-change"].read_text()
+    assert "looper backlog change" in templates["implement-change"].read_text().lower()
+    assert "looper backlog complete <task-id>" in templates["implement-change"].read_text()
+    assert "backlog-change-empty" in templates["implement-change"].read_text()
     assert "# Setup Agent" in templates["setup"].read_text()
     assert "# Modern Web Guidance" in templates["modern-web-guidance"].read_text()
     assert "complexidade ciclomática" in templates["static-analysis"].read_text()
@@ -575,6 +576,10 @@ def test_draw_improve_skill_is_incremental_and_hands_off_through_feature():
         "estado vermelho",
         "looper draw diff",
         "somente alterações em `.looper/draws/*.json`",
+        "gate de lacunas abertas pelas respostas",
+        "nova sessão de acompanhamento",
+        "quantidade necessária",
+        "não marcar a sessão atual como `applied`",
     ):
         assert required in content
     assert "não pular" in content

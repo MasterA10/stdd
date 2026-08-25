@@ -157,7 +157,7 @@ src/looper/templates/agents/draw-system-level-4/SKILL.md
 src/looper/templates/agents/draw-system-level-4/agents/openai.yaml
 src/looper/templates/agents/implement-backend/SKILL.md
 src/looper/templates/agents/implement-frontend/SKILL.md
-src/looper/templates/agents/missing/SKILL.md
+src/looper/templates/agents/implement-change/SKILL.md
 src/looper/templates/agents/modern-web-guidance/SKILL.md
 src/looper/templates/agents/open-design/SKILL.md
 src/looper/templates/agents/setup/SKILL.md

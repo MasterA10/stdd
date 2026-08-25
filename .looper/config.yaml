@@ -23,7 +23,7 @@ backlog:
   bootstrap_task: true
   # Opção `backlog.l2_verification_interval` da configuração.
   l2_verification_interval: 1
-  # Cria uma verificação final após as tasks do backlog.
+  # Cria uma verificação final após todas as tasks do backlog terminarem
   final_verification_task: true
   # `sequential` mistura fases; `separated` conclui L2 antes de L3.
   development_mode: separated
@@ -262,11 +262,9 @@ instructions: ''
 # Revisão automática opcional após tasks concluídas.
 review:
   # Ativa a execução automática de revisões.
-  enabled: false
-  # Agente padrão: `codex`, `claude`, `gemini` ou `antigravity`.
-  default_agent: codex
-  # Modelo passado ao agente de revisão.
-  model: ''
+  enabled: true
+  # Agente padrão: `codex`, `claude` ou `antigravity`.
+  default_agent: antigravity
   # Nível de reasoning usado quando o agente aceitar essa opção.
   reasoning: high
   # Tempo máximo da revisão em segundos.
@@ -291,11 +289,11 @@ review:
     # Opção `review.triggers.implementation` da configuração.
     implementation:
       # Opção `review.triggers.implementation.l2` da configuração.
-      l2: true
+      l2: false
       # Opção `review.triggers.implementation.l3` da configuração.
-      l3: true
+      l3: false
       # Opção `review.triggers.implementation.l2_and_l3` da configuração.
-      l2_and_l3: false
+      l2_and_l3: true
       # Opção `review.triggers.implementation.all` da configuração.
       all: false
     # Opção `review.triggers.change` da configuração.
@@ -312,6 +310,8 @@ review:
   agents:
     # Opção `review.agents.codex` da configuração.
     codex:
+      # Modelo usado pelo agente Codex.
+      model: ''
       # Opção `review.agents.codex.command` da configuração.
       command:
       - codex
@@ -323,6 +323,8 @@ review:
       - '{prompt}'
     # Opção `review.agents.claude` da configuração.
     claude:
+      # Modelo usado pelo agente Claude.
+      model: ''
       # Opção `review.agents.claude.command` da configuração.
       command:
       - claude
@@ -330,16 +332,14 @@ review:
       - --model
       - '{model}'
       - '{prompt}'
-    # Opção `review.agents.gemini` da configuração.
-    gemini:
-      # Opção `review.agents.gemini.command` da configuração.
+    # Opção `review.agents.antigravity` da configuração.
+    antigravity:
+      # Modelo usado pelo agente Antigravity.
+      model: ''
+      # Opção `review.agents.antigravity.command` da configuração.
       command:
-      - gemini
+      - agy
       - -p
       - '{prompt}'
       - --model
       - '{model}'
-    # Opção `review.agents.antigravity` da configuração.
-    antigravity:
-      # Opção `review.agents.antigravity.command` da configuração.
-      command: []

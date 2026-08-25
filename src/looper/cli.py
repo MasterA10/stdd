@@ -843,7 +843,7 @@ def backlog_complete(task_id: str = typer.Argument(..., help="ID da task atualme
 @backlog_app.command("review")
 def backlog_review(
     task_id: str = typer.Argument(..., help="ID da task concluída que será revisada."),
-    agent: Optional[str] = typer.Option(None, "--agent", help="codex, claude, gemini ou antigravity."),
+    agent: Optional[str] = typer.Option(None, "--agent", help="codex, claude ou antigravity."),
     scope: Optional[str] = typer.Option(None, "--scope", help="l2, l3, l2_and_l3 ou all."),
     model: Optional[str] = typer.Option(None, "--model"),
     reasoning: Optional[str] = typer.Option(None, "--reasoning"),

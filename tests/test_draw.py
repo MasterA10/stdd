@@ -206,6 +206,25 @@ def test_improvement_accepts_custom_answers_for_choice_and_boolean(tmp_path: Pat
     assert saved["questions"][1]["answer"] == "Resposta de escolha personalizada"
 
 
+def test_follow_up_improvement_session_can_use_only_needed_questions(tmp_path: Path):
+    """Aceita uma sessão de acompanhamento menor que a sessão inicial.
+    Todas as perguntas do recorte precisam ser respondidas antes de liberar a sessão.
+    """
+    create_draw(tmp_path, draw_payload())
+    session = improvement_payload("checkout", "melhoria-checkout-follow-up")
+    session["kind"] = "draw-improvement-follow-up"
+    session["questions"] = session["questions"][:2]
+    session["questions"][0]["answer"] = True
+    session["questions"][1]["answer"] = 0
+    session["status"] = "ready"
+
+    create_improvement(tmp_path, session)
+
+    ready = list_ready_improvements(tmp_path)
+    assert len(ready) == 1
+    assert len(ready[0]["questions"]) == 2
+
+
 def test_applied_improvement_is_immutable_and_keeps_history(tmp_path: Path):
     """Marca uma sessão pronta uma única vez sem apagar perguntas ou respostas.
     A reaplicação é rejeitada para preservar o histórico operacional.

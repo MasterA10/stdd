@@ -19,14 +19,13 @@ from .config import load_config, save_config
 
 REVIEW_CONFIG_FILE = ".looper/config.yaml"
 REVIEW_HISTORY_DIRECTORY = ".looper/reviews"
-VALID_REVIEW_AGENTS = {"codex", "claude", "gemini", "antigravity"}
+VALID_REVIEW_AGENTS = {"codex", "claude", "antigravity"}
 VALID_REVIEW_SCOPES = {"l2", "l3", "l2_and_l3", "all"}
 VALID_REVIEW_EVENTS = {"test", "implementation", "change"}
 
 DEFAULT_REVIEW_CONFIG: dict[str, Any] = {
     "enabled": False,
-    "default_agent": "codex",
-    "model": "",
+    "default_agent": "antigravity",
     "reasoning": "high",
     "timeout_seconds": 900,
     "standard_prompt": (
@@ -40,10 +39,9 @@ DEFAULT_REVIEW_CONFIG: dict[str, Any] = {
         "change": {"l2": False, "l3": False, "l2_and_l3": False, "all": False},
     },
     "agents": {
-        "codex": {"command": ["codex", "exec", "--model", "{model}", "-c", "model_reasoning_effort={reasoning}", "{prompt}"]},
-        "claude": {"command": ["claude", "-p", "--model", "{model}", "{prompt}"]},
-        "gemini": {"command": ["gemini", "-p", "{prompt}", "--model", "{model}"]},
-        "antigravity": {"command": []},
+        "codex": {"model": "", "command": ["codex", "exec", "--model", "{model}", "-c", "model_reasoning_effort={reasoning}", "{prompt}"]},
+        "claude": {"model": "", "command": ["claude", "-p", "--model", "{model}", "{prompt}"]},
+        "antigravity": {"model": "", "command": ["agy", "-p", "{prompt}", "--model", "{model}"]},
     },
 }
 
@@ -186,14 +184,16 @@ def run_review(
     if event not in VALID_REVIEW_EVENTS:
         raise ValueError("fase de revisão inválida")
     config = load_review_config(root)
-    selected_agent = agent or config.get("default_agent", "codex")
+    selected_agent = agent or config.get("default_agent", "antigravity")
     if selected_agent not in VALID_REVIEW_AGENTS:
-        raise ValueError("agente inválido; use codex, claude, gemini ou antigravity")
+        raise ValueError("agente inválido; use codex, claude ou antigravity")
     selected_scope = _task_scope(task, scope)
     trigger = config.get("triggers", {}).get(event, {}).get(selected_scope, False)
     if not force and not (config.get("enabled", False) and trigger):
         return {"status": "skipped", "reason": "gatilho desabilitado", "scope": selected_scope}
-    selected_model = model if model is not None else str(config.get("model", ""))
+    agent_config = config.get("agents", {}).get(selected_agent, {})
+    configured_model = agent_config.get("model", config.get("model", "")) if isinstance(agent_config, dict) else config.get("model", "")
+    selected_model = model if model is not None else str(configured_model)
     selected_reasoning = reasoning if reasoning is not None else str(config.get("reasoning", ""))
     targets = _target_context(root, task, selected_scope)
     prompt = _prompt(config, task, selected_scope, targets)

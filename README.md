@@ -108,7 +108,7 @@ $static-analysis Analise dependências, complexidade, funções longas e segredo
 $open-design Consulte o design system, identidade visual, craft navigator e componentes de UI.
 $modern-web-guidance Consulte padrões modernos da web para interface, layouts, animações e CSS.
 $backend-developer Implemente backend modular com logging transversal e integrações externas testadas.
-$missing Execute as tasks pendentes do backlog até não haver mais tasks; leia símbolos e testes e corrija o comportamento marcado como ausente.
+$implement-change Execute em loop as changes pendentes entregues por `looper backlog change`, leia o contexto real, implemente, teste e conclua cada ID.
 $implement-frontend Construa a tela/view (Nível 2) entregue por looper backlog frontend.
 $implement-backend Implemente controllers, models, regras e integrações (Nível 3) entregues por looper backlog backend.
 ```
@@ -120,7 +120,7 @@ $setup
 $create-tests-backlog
 $draw-improve
 $draw-interaction
-$missing
+$implement-change
 $implement-frontend
 $implement-backend
 ```
@@ -140,9 +140,9 @@ $implement-frontend Construa a view/tela da task entregue por looper backlog fro
 $implement-backend Implemente o controller/model da task entregue por looper backlog backend.
 ```
 
-`$draw-improve` trabalha em duas fases sobre um JSON existente em `.looper/draws/`. A primeira revisa o Draw e cria exatamente dez perguntas em uma sessão separada de `.looper/improvements/`, sem alterar o fluxo. Responda as perguntas no viewer e salve a sessão; em uma nova chamada, o agente executa `looper draw improve --pending`, consome somente sessões completas e aplica um único incremento coerente no Draw. Depois de salvar o fluxo, a sessão recebe status `applied` e permanece imutável como histórico. Quando o desenho estiver aprovado, `$create-tests-backlog` transforma sua lógica em testes. Mesmo que o próximo pedido seja apenas `$implement-backlog`, o agente deve passar primeiro pela etapa de create-tests-backlog e confirmar os testes vermelhos antes de alterar produção.
+`$draw-improve` trabalha em duas fases sobre um JSON existente em `.looper/draws/`. A primeira revisa o Draw e cria exatamente dez perguntas em uma sessão separada de `.looper/improvements/`, sem alterar o fluxo. Responda as perguntas no viewer e salve a sessão; em uma nova chamada, o agente executa `looper draw improve --pending`, consome somente sessões completas e, antes de alterar o fluxo, procura lacunas arquiteturais abertas pelas respostas. Se surgir uma nova decisão, regra, exceção ou caminho incompleto, cria outra sessão com somente a quantidade necessária de perguntas e aguarda; não aplica uma alteração parcial nem marca a sessão anterior como `applied`. Somente quando não houver nova lacuna aplica um único incremento coerente no Draw. Depois de salvar o fluxo, a sessão recebe status `applied` e permanece imutável como histórico. Quando o desenho estiver aprovado, `$create-tests-backlog` transforma sua lógica em testes. Mesmo que o próximo pedido seja apenas `$implement-backlog`, o agente deve passar primeiro pela etapa de create-tests-backlog e confirmar os testes vermelhos antes de alterar produção.
 
-O `$draw-interaction` lê as marcações do Draw e identifica se cada uma é uma pergunta ou uma tarefa. Para perguntas com `@looper` e `answer` ausente, executa `looper draw questions`, consulta a codebase e os símbolos associados; se houver evidência, grava a resposta, marca os símbolos relevantes e remove o marcador. Para tarefas, consulta `looper backlog missing`, lê os símbolos e testes e implementa o comportamento faltante na codebase, com regressão e gates quando necessário. Sem `@looper`, a pergunta pertence ao usuário ou a um revisor humano; respostas já preenchidas, inclusive `false` e `0`, não geram nova ação. O `$draw-improve` preserva essa responsabilidade separada.
+O `$draw-interaction` lê as marcações do Draw e identifica se cada uma é uma pergunta ou uma tarefa. Para perguntas com `@looper` e `answer` ausente, executa `looper draw questions`, consulta a codebase e os símbolos associados; se houver evidência, grava a resposta, marca os símbolos relevantes e remove o marcador. Para pedidos de alteração, consulta `looper backlog change`; o `$implement-change` lê os símbolos e testes, implementa a change e conclui o ID reservado depois da validação. Sem `@looper`, a pergunta pertence ao usuário ou a um revisor humano; respostas já preenchidas, inclusive `false` e `0`, não geram nova ação. O `$draw-improve` preserva essa responsabilidade separada.
 
 As skills `$draw-system-level-1` a `$draw-system-level-4` criam uma árvore sem fluxos órfãos: nível 1 contém somente arquitetura macro, nível 2 acompanha jornadas e navegação por papel, nível 3 detalha de ponta a ponta as ações possíveis de cada tela em dois ou mais lotes aprovados e nível 4 liga a codebase sob demanda. No nível 2, cada nó deve ter ao menos um `code_refs`; `looper draw create` informa a lacuna e `looper test` bloqueia com `draw.level2_missing_code_ref`. O mesmo gate bloqueia `draw.level3_missing_code_ref`, `draw.level4_missing_code_ref` e `draw.empty_node_symbol`; duplicação de símbolo continua sendo warning. No nível 3, cada ação comprovada da tela inicia um nó próprio conectado ao comportamento de caso de uso; a tela não é substituída por um fluxo genérico. A análise estática avisa quando um subfluxo de nível 3 tem menos de quatro nós ou quando alguma descrição tem menos de 80 caracteres; esses avisos continuam informativos. Cada filho declara seu pai e cada pai aponta para o filho com `draw_ref`; caminhos ainda não implementados terminam no próprio nó, sem continuação fictícia.
 
@@ -222,7 +222,7 @@ O campo `.looper/config.yaml:instructions` é a informação crítica persistent
 
 ### Revisão automática por subagente
 
-Após uma task concluída, a revisão opcional pode chamar Codex, Claude, Gemini ou um comando customizado (incluindo Antigravity) pela seção `review` de `.looper/config.yaml`. Configure `enabled`, os gatilhos por fase (`test`, `implementation`, `change`) e escopo (`l2`, `l3`, `l2_and_l3`, `all`), além do modelo, reasoning, prompt e comando. A revisão é executada com `looper backlog complete` ou manualmente:
+Após uma task concluída, a revisão opcional pode chamar Codex, Claude, Antigravity ou um comando customizado pela seção `review` de `.looper/config.yaml`. Configure `enabled`, os gatilhos por fase (`test`, `implementation`, `change`) e escopo (`l2`, `l3`, `l2_and_l3`, `all`), além do modelo dentro de cada agente em `review.agents`, reasoning, prompt e comando. A revisão é executada com `looper backlog complete` ou manualmente:
 
 ```bash
 looper backlog review task:meu-draw:node:1 --agent codex --scope l2_and_l3
@@ -276,7 +276,7 @@ Um nó de nível 2 pode declarar `test_ref` — ou `test_refs` compatíveis — 
 
 O backlog mantém dois checklists centrais em `phase_checklists`: `test` vem antes de `implementation`, e os itens são derivados das tasks e subfluxos. No Draw, ao selecionar um nó, a Sidebar permite marcar ou desmarcar esses itens. A marcação é persistida no `.looper/backlog.json` pelo servidor local, sem validação obrigatória de análise estática; a implementação continua bloqueada enquanto o checklist de teste do nó e de seus subfluxos estiver pendente.
 
-Se `backlog task` for chamado antes da marcação do checklist de teste, ele mostra o bloqueio em linguagem humana e não reserva a implementação. O `$missing` e o `$implement-backlog` devem atender essa resposta com a etapa de testes ou com a marcação manual do fluxo já existente. Ao desmarcar a implementação, o `$missing` deve ler símbolos, dependências e testes, localizar o comportamento faltante e corrigi-lo antes de concluir a task. Com `backlog.test_loop_enabled: false`, essa barreira é removida intencionalmente e o cursor entrega somente tasks de implementação. Self-loops são terminais; ciclos diferentes de self-loop são bloqueados para evitar execução infinita. A aba `Backlog` do viewer mostra a task atual, perguntas, respostas, símbolos e a evidência opcional do teste quando o Draw Server está ativo.
+Se `backlog task` for chamado antes da marcação do checklist de teste, ele mostra o bloqueio em linguagem humana e não reserva a implementação. `$implement-frontend` e `$implement-backend` devem atender essa resposta com a etapa de testes ou com a marcação manual do fluxo já existente. Changes criadas por revisão ou interação seguem o cursor separado `looper backlog change` e a skill `$implement-change`. Com `backlog.test_loop_enabled: false`, essa barreira é removida intencionalmente e o cursor entrega somente tasks de implementação. Self-loops são terminais; ciclos diferentes de self-loop são bloqueados para evitar execução infinita. A aba `Backlog` do viewer mostra a task atual, perguntas, respostas, símbolos e a evidência opcional do teste quando o Draw Server está ativo.
 
 Quando uma task possui subfluxo, a saída humana mostra o contexto do pai e a task atual. Pai e subtasks são independentes e devem ser concluídos pelos seus próprios IDs; a resposta mantém o contexto do pai enquanto avança pela primeira, segunda e demais subtasks.
 

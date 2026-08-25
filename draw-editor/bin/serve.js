@@ -175,7 +175,7 @@ const server = http.createServer((req, res) => {
         }
         const questions = Array.isArray(payload.questions) ? payload.questions : [];
         const answered = questions.filter((question) => question.answer !== null && question.answer !== undefined && (typeof question.answer !== 'string' || question.answer.trim() !== '')).length;
-        const savedPayload = { ...payload, status: questions.length === 10 && answered === 10 ? 'ready' : 'draft', updated_at: new Date().toISOString() };
+        const savedPayload = { ...payload, status: questions.length > 0 && answered === questions.length ? 'ready' : 'draft', updated_at: new Date().toISOString() };
         fs.writeFileSync(filePath, JSON.stringify(savedPayload, null, 2));
         let indexData = { version: 1, improvements: [] };
         try { indexData = JSON.parse(fs.readFileSync(improvementsIndexFile, 'utf8')); } catch (_) {}
