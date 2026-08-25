@@ -221,6 +221,9 @@ def validate_draw_payload(payload: Any) -> list[str]:
         node_ids.add(node["id"])
         if not isinstance(node.get("label"), str) or not node["label"].strip():
             violations.append(f"nodes[{index}] precisa de label")
+        for criteria_key, criteria_label in (("success_criteria", "critério de sucesso"), ("failure_criteria", "critério de falha")):
+            if criteria_key in node and not isinstance(node.get(criteria_key), str):
+                violations.append(f"nodes[{index}].{criteria_key} deve ser texto ({criteria_label})")
         draw_ref = node.get("draw_ref")
         if draw_ref is not None and not _is_draw_id(draw_ref):
             violations.append(f"nodes[{index}].draw_ref deve ser o ID descritivo de outro desenho")

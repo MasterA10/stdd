@@ -103,6 +103,8 @@ def _compact_backlog_response(response: dict[str, object]) -> dict[str, object]:
         "draw": task.get("draw_title") or task.get("draw_id"),
         "node_id": task.get("node_id"),
         "description": task.get("description"),
+        "success_criteria": response.get("success_criteria") or task.get("success_criteria") or None,
+        "failure_criteria": response.get("failure_criteria") or task.get("failure_criteria") or None,
         "symbols": task.get("symbols") or [],
         "verification_requirements": task.get("verification_requirements") or [],
         "navigation_target": response.get("navigation_target"),
@@ -130,6 +132,7 @@ def _compact_backlog_response(response: dict[str, object]) -> dict[str, object]:
         "owned_child_task_ids": response.get("owned_child_task_ids"),
         "l3_loop_enabled": response.get("l3_loop_enabled"),
         "critical_information": response.get("critical_information"),
+        "instruction": response.get("instruction"),
     }
     if parent.get("id") and parent.get("id") != task.get("id"):
         compact["parent"] = parent.get("label")
@@ -276,6 +279,10 @@ def _format_backlog_response(response: dict[str, object]) -> str:
         lines.append("Testes: não aplicáveis nesta fase de frontend")
     if compact.get("description"):
         lines.append(f"Descrição: {compact['description']}")
+    if compact.get("success_criteria"):
+        lines.append(f"Critério de sucesso: {compact['success_criteria']}")
+    if compact.get("failure_criteria"):
+        lines.append(f"Critério de falha: {compact['failure_criteria']}")
     delivery_subtasks = compact.get("delivery_subtasks")
     if isinstance(delivery_subtasks, list):
         scope_action = "criar testes para" if kind in {"backlog-test-task", "backlog-test-required"} else "implementar"

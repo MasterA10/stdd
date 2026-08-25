@@ -55,6 +55,27 @@ def _with_critical_instruction(instruction: str | None, content: str) -> str | N
     return f"{block}\n\n{instruction}" if instruction else block
 
 
+def _node_criteria_instruction(task: dict[str, Any]) -> str | None:
+    """Transforma os critérios opcionais do nó em uma regra de aceite do loop."""
+    success = str(task.get("success_criteria") or "").strip()
+    failure = str(task.get("failure_criteria") or "").strip()
+    if not success and not failure:
+        return None
+    lines = [
+        "REGRA OBRIGATÓRIA DE ACEITE DO NÓ:",
+        "Só termine a implementação e declare a task concluída depois de comprovar o critério de sucesso abaixo.",
+    ]
+    if success:
+        lines.append(f"Critério de sucesso: {success}")
+    if failure:
+        lines.extend([
+            f"Critério de falha: {failure}",
+            "Se o cenário de falha ocorrer, considere o comportamento não implementado, corrija-o e não declare sucesso.",
+        ])
+    lines.append("Registre no resultado as evidências objetivas da verificação; não substitua o critério por uma suposição ou pela simples existência de código.")
+    return " ".join(lines)
+
+
 class _LaneExecution(MutableMapping[str, Any]):
     """Visão compatível do execution global com cursor isolado por lane."""
 
@@ -827,6 +848,8 @@ def _checklist_item(root: Path, document: dict[str, Any], node: dict[str, Any], 
         "node_id": node["id"],
         "label": node.get("label", ""),
         "description": node.get("description", ""),
+        "success_criteria": node.get("success_criteria", ""),
+        "failure_criteria": node.get("failure_criteria", ""),
         "status": "pending",
         "questions": deepcopy(node.get("questions", [])) if isinstance(node.get("questions", []), list) else [],
         "code_refs": code_refs,
@@ -961,6 +984,8 @@ def _task_for_node(root: Path, document: dict[str, Any], node: dict[str, Any], b
         "level": level,
         "label": node.get("label", ""),
         "description": node.get("description", ""),
+        "success_criteria": node.get("success_criteria", ""),
+        "failure_criteria": node.get("failure_criteria", ""),
         "questions": deepcopy(node.get("questions", [])) if isinstance(node.get("questions", []), list) else [],
         "code_refs": code_refs,
         "symbols": symbols,
@@ -1799,6 +1824,8 @@ def _draw_navigation_context(root: Path, draw_id: Any, node_id: Any, task_label:
                     "node_id": from_id,
                     "label": from_node.get("label", ""),
                     "description": from_node.get("description", ""),
+                    "success_criteria": from_node.get("success_criteria", ""),
+                    "failure_criteria": from_node.get("failure_criteria", ""),
                     "questions": deepcopy(from_node.get("questions", [])),
                     "symbols": _reference_symbols(from_node)[0],
                 }
@@ -1872,6 +1899,8 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
                 "node_id": parent_node_id,
                 "label": parent.get("label", ""),
                 "description": parent.get("description", ""),
+                "success_criteria": parent.get("success_criteria", ""),
+                "failure_criteria": parent.get("failure_criteria", ""),
                 "draw_title": parent.get("draw_title") or parent.get("draw_id"),
                 "symbols": list(parent.get("symbols", [])),
                 "questions": deepcopy(parent.get("questions", [])),
@@ -1996,6 +2025,11 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
         "present": bool(critical_information),
     }
     instruction = instruction if instruction is not None else response.get("instruction")
+    criteria_instruction = _node_criteria_instruction(task)
+    response["success_criteria"] = task.get("success_criteria") or None
+    response["failure_criteria"] = task.get("failure_criteria") or None
+    if criteria_instruction:
+        instruction = f"{instruction.rstrip()} {criteria_instruction}" if instruction else criteria_instruction
     instruction = _with_critical_instruction(instruction, critical_information)
     if instruction is not None:
         response["instruction"] = instruction

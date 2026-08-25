@@ -825,6 +825,21 @@ def test_draw_editor_observer_follows_current_implementation_without_editing():
     assert "Observador ativo" in app
 
 
+def test_draw_editor_exposes_optional_node_success_and_failure_criteria():
+    """Permite definir critérios no nó e preserva o contrato que o loop consome."""
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    sidebar = (EDITOR_ROOT / "src/components/Sidebar.tsx").read_text(encoding="utf-8")
+    modal = (EDITOR_ROOT / "src/components/NodeEditModal.tsx").read_text(encoding="utf-8")
+    types = (EDITOR_ROOT / "src/types.ts").read_text(encoding="utf-8")
+
+    for content in (app, sidebar, modal, types):
+        assert "success_criteria" in content
+        assert "failure_criteria" in content
+    assert "Critério de sucesso" in sidebar
+    assert "Critério de falha" in sidebar
+    assert "name=\"success_criteria\"" in modal
+
+
 def test_manual_save_button_persists_the_logical_contract():
     """Mantém o botão Salvar como persistência do contrato lógico.
     Confirma que o autosave lógico não é disparado por timer.

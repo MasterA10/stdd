@@ -294,6 +294,32 @@ def test_backlog_task_reports_missing_test_without_claiming_implementation(tmp_p
     assert read_backlog(tmp_path)["execution"]["current_task_id"] is None
 
 
+def test_backlog_injects_node_success_and_failure_criteria(tmp_path: Path):
+    """Passa os critérios definidos no nó para o contexto entregue ao loop."""
+    _create_hierarchical_fixture(tmp_path)
+    draw_path = tmp_path / ".looper" / "draws" / "jornada.json"
+    draw = json.loads(draw_path.read_text(encoding="utf-8"))
+    draw["nodes"][0]["success_criteria"] = "A sessão é criada e retorna um identificador válido."
+    draw["nodes"][0]["failure_criteria"] = "A sessão não é criada ou o identificador não é retornado."
+    draw_path.write_text(json.dumps(draw), encoding="utf-8")
+    config_path = tmp_path / ".looper" / "config.json"
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    config["backlog"]["test_loop_enabled"] = False
+    config_path.write_text(json.dumps(config), encoding="utf-8")
+
+    response = next_backlog_task(tmp_path)
+    task = response["task"]
+    compact = _format_backlog_response(response)
+
+    assert task["success_criteria"] == draw["nodes"][0]["success_criteria"]
+    assert task["failure_criteria"] == draw["nodes"][0]["failure_criteria"]
+    assert "Só termine a implementação" in response["instruction"]
+    assert "não declare sucesso" in response["instruction"]
+    assert task["success_criteria"] in compact
+    assert task["failure_criteria"] in compact
+    assert response["instruction"] in compact
+
+
 def test_disabled_test_loop_delivers_only_implementation_tasks(tmp_path: Path):
     """Permite implementar diretamente quando o loop de testes está desabilitado.
     Confirma que o cursor não cria bloqueio nem tasks de teste.

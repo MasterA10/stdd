@@ -458,7 +458,7 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
 // Inject types on window object for node execution context
 declare global {
   interface Window {
-    updateNodeField?: (id: number, field: 'label' | 'description', value: string) => void;
+    updateNodeField?: (id: number, field: 'label' | 'description' | 'success_criteria' | 'failure_criteria', value: string) => void;
     deleteNode?: (id: number) => void;
     openQuestionsModal?: (node: NodeData) => void;
     openChangesModal?: (node: NodeData) => void;
