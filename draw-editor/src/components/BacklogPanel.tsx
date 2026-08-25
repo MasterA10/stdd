@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { CheckCircle2, ChevronDown, CircleDot, ListChecks, Play, RefreshCw } from 'lucide-react';
 import type { BacklogDocument, BacklogTask } from '../types';
-import { deliveryScopeFor, parentTaskFor, pendingTestTasks, phaseStatusLabel, taskImplementationStatus, taskTestStatus, testScopeFor } from '../backlog-status';
+import { currentExecutionTask, deliveryScopeFor, parentTaskFor, pendingTestTasks, phaseStatusLabel, taskImplementationStatus, taskTestStatus, testScopeFor } from '../backlog-status';
 
 interface BacklogPanelProps {
   backlog: BacklogDocument | null;
@@ -17,7 +17,7 @@ export const BacklogPanel: React.FC<BacklogPanelProps> = ({ backlog, onClaimTask
   if (!backlog) {
     return <div className="runs-empty-sidebar backlog-empty"><ListChecks size={22} /><strong>Backlog ainda não gerado</strong><span>Execute <code>looper backlog generate</code> para criar as tasks.</span></div>;
   }
-  const currentTask = backlog.tasks.find((task) => task.id === backlog.execution.current_task_id);
+  const currentTask = currentExecutionTask(backlog, backlog.execution.current_phase === 'test' ? 'test' : 'implementation');
   const remaining = backlog.tasks.filter((task) => task.status !== 'done');
   const completedTasks = backlog.tasks.filter((task) => task.status === 'done');
   const pendingTests = pendingTestTasks(backlog);
@@ -67,7 +67,7 @@ export const BacklogPanel: React.FC<BacklogPanelProps> = ({ backlog, onClaimTask
           {nextSubtask && nextSubtask.id !== currentTask.id && <div className="backlog-parent-context"><strong>Próxima subtask</strong><span>{nextSubtask.label}</span><code>{nextSubtask.id}</code></div>}
           {currentTask.child_task_ids && currentTask.child_task_ids.length > 0 && <div className="backlog-parent-context"><strong>Subtasks</strong><span>{currentTask.child_task_ids.length} subtasks no contexto desta task</span></div>}
           <div className="backlog-branch-meta">Branch {branch?.id} · posição {branch?.position}{branch?.terminal ? ' · terminal' : ''}{branchOccurrences.length > 1 ? ` · presente em ${branchOccurrences.length} caminhos` : ''}</div>
-          {currentTask.child_backlog_id && <div className="backlog-branch-meta">Backlog interno: {currentTask.child_backlog_id} · {(currentTask.child_task_ids || []).length} task(s)</div>}
+          {(currentTask.child_backlog_ids?.length || currentTask.child_backlog_id) && <div className="backlog-branch-meta">Backlog{(currentTask.child_backlog_ids || (currentTask.child_backlog_id ? [currentTask.child_backlog_id] : [])).length > 1 ? 's' : ''} interno{(currentTask.child_backlog_ids || (currentTask.child_backlog_id ? [currentTask.child_backlog_id] : [])).length > 1 ? 's' : ''}: {(currentTask.child_backlog_ids || (currentTask.child_backlog_id ? [currentTask.child_backlog_id] : [])).join(', ')} · {(currentTask.child_task_ids || []).length} task(s)</div>}
           <div className="backlog-detail-section"><strong>Perguntas e respostas</strong>{(currentTask.questions || []).length === 0 ? <span>Nenhuma pergunta.</span> : (currentTask.questions || []).map((question) => <div className="backlog-question" key={question.id}><span>{question.prompt}</span><code>{question.answer === null || question.answer === '' ? 'sem resposta' : String(question.answer)}</code></div>)}</div>
           <div className="backlog-detail-section"><strong>Símbolos associados</strong>{(currentTask.symbols || []).length === 0 ? <span>Nenhum símbolo associado.</span> : (currentTask.symbols || []).map((symbol) => <div className="backlog-symbol" key={symbol}><code>{symbol}</code><small>{referenceStatus(currentTask)}</small></div>)}</div>
           <div className="backlog-detail-section"><strong>Testes associados e status da fase de testes</strong><span className={`backlog-phase-badge test ${taskTestStatus(currentTask)}`}>{phaseStatusLabel(taskTestStatus(currentTask))}</span>{currentScopeReady && currentTestScope.length > 1 && <small>Escopo completo: esta task e {currentTestScope.length - 1} subfluxo(s) interno(s).</small>}{currentTask.test_ref ? <><code>{currentTask.test_ref.file}</code>{(currentTask.test_ref.symbols || []).map((symbol) => <code key={symbol}>{symbol}</code>)}</> : <span>{currentTask.test_evidence?.reason || 'Acompanhe o checklist de teste do escopo.'}</span>}</div>

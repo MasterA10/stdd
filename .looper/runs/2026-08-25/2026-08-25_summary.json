@@ -232,8 +232,29 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "860dc15bc0284be583ef87db7fe19569",
+      "timestamp": "2026-08-25T17:07:57.057248+00:00",
+      "description": "Corrige URL de melhoria aplicada e backlog com multiplos subfluxos L3",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 171,
+        "lines_deleted": 35,
+        "files_changed": 9
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 11,
-  "last_run_id": "4d9aedd90aab4a6bb4029d7d07c8a25d"
+  "run_count": 12,
+  "last_run_id": "860dc15bc0284be583ef87db7fe19569"
 }

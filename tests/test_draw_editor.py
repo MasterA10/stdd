@@ -798,12 +798,15 @@ def test_draw_editor_observer_follows_current_implementation_without_editing():
     """Acompanha a task de implementação e torna o canvas somente leitura."""
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
     styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+    backlog_status = (EDITOR_ROOT / "src/backlog-status.ts").read_text(encoding="utf-8")
 
     assert "observerMode" in app
-    assert "execution.current_phase === 'implementation'" in app
-    assert "execution.current_task_id" in app
-    assert "execution.lanes" in app
-    assert "implementation:" in app
+    assert "currentExecutionTask(backlog, 'implementation')" in app
+    assert "execution.current_phase" in backlog_status
+    assert "execution.lanes" in backlog_status
+    assert "currentExecutionTask(backlog, 'implementation')" in app
+    assert "improvementEntry.status !== 'applied'" in app
+    assert "searchParams.delete('improvement')" in app
     assert "task.draw_id" in app
     assert "task.node_id" in app
     assert "instance.fitView({" in app

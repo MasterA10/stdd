@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from .draw import EDGE_CONDITIONS, create_draw, draw_directory, facts_directory, read_draw, read_draw_index
+from .draw import EDGE_CONDITIONS, _node_draw_refs, create_draw, draw_directory, facts_directory, read_draw, read_draw_index
 from .config import instructions, load_config, save_config
 
 
@@ -999,17 +999,16 @@ def _refresh_branch_completion(payload: dict[str, Any]) -> None:
     execution["completed_branches"] = completed_branches
 
 
-def _append_child_backlog(root: Path, parent_task: dict[str, Any], parent_node: dict[str, Any], context: dict[str, Any]) -> None:
-    """Expande recursivamente o backlog associado ao nó pai."""
-    child_id = parent_node.get("draw_ref")
+def _append_single_child_backlog(root: Path, parent_task: dict[str, Any], parent_node: dict[str, Any], context: dict[str, Any], child_id: str) -> bool:
+    """Expande recursivamente um subfluxo associado ao nó pai."""
     documents_by_id = context["documents_by_id"]
     child_document = documents_by_id.get(str(child_id)) if isinstance(child_id, str) else None
     expanded = context["expanded_child_backlogs"]
     if child_document is None or str(child_id) in expanded:
-        return
+        return False
     hierarchy = child_document.get("_hierarchy", {})
     if hierarchy.get("parent_draw_ref") != parent_task.get("draw_id") or hierarchy.get("parent_node_id") != parent_task.get("node_id"):
-        return
+        return False
     expanded.add(str(child_id))
     child_nodes = {node.get("id"): node for node in child_document.get("nodes", []) if isinstance(node, dict)}
     child_task_ids: list[str] = []
@@ -1073,6 +1072,35 @@ def _append_child_backlog(root: Path, parent_task: dict[str, Any], parent_node: 
     parent_task["child_backlog_id"] = str(child_id)
     parent_task["child_task_ids"] = child_task_ids
     parent_task["child_branch_ids"] = child_branch_ids
+    return True
+
+
+def _append_child_backlog(root: Path, parent_task: dict[str, Any], parent_node: dict[str, Any], context: dict[str, Any]) -> None:
+    """Expande todos os subfluxos associados ao mesmo nó pai."""
+    child_refs = _node_draw_refs(parent_node)
+    if not child_refs:
+        return
+
+    all_task_ids: list[str] = []
+    all_branch_ids: list[str] = []
+    expanded_refs: list[str] = []
+    for child_id in child_refs:
+        if not _append_single_child_backlog(root, parent_task, parent_node, context, child_id):
+            continue
+        expanded_refs.append(str(child_id))
+        for task_id in parent_task.get("child_task_ids", []):
+            if task_id not in all_task_ids:
+                all_task_ids.append(task_id)
+        for branch_id in parent_task.get("child_branch_ids", []):
+            if branch_id not in all_branch_ids:
+                all_branch_ids.append(branch_id)
+
+    if not expanded_refs:
+        return
+    parent_task["child_backlog_id"] = expanded_refs[0]
+    parent_task["child_backlog_ids"] = expanded_refs
+    parent_task["child_task_ids"] = all_task_ids
+    parent_task["child_branch_ids"] = all_branch_ids
 
 
 def _build_checklist(root: Path, document: dict[str, Any], checklist_ids: set[str], context: dict[str, Any]) -> dict[str, Any]:

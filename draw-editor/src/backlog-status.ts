@@ -10,6 +10,49 @@ export const taskTestStatus = (task: BacklogTask): BacklogPhaseStatus => {
 
 export const taskImplementationStatus = (task: BacklogTask): BacklogPhaseStatus => task.status;
 
+export const currentExecutionTask = (backlog: BacklogDocument, phase?: 'test' | 'implementation'): BacklogTask | undefined => {
+  const { execution } = backlog;
+  const candidates: Array<{ id: string; phase: 'test' | 'implementation' }> = [];
+  const addCandidate = (id: string | null | undefined, candidatePhase: 'test' | 'implementation' | null | undefined) => {
+    if (id && candidatePhase && (!phase || candidatePhase === phase)) candidates.push({ id, phase: candidatePhase });
+  };
+
+  addCandidate(execution.current_task_id, execution.current_phase);
+  addCandidate(execution.current_subtask_id, execution.current_phase);
+  Object.values(execution.lanes || {}).forEach((lane) => {
+    addCandidate(lane.current_task_id, lane.current_phase);
+    addCandidate(lane.current_subtask_id, lane.current_phase);
+  });
+
+  const byId = new Map(backlog.tasks.map((task) => [task.id, task]));
+  const findImplementationDescendant = (id: string, visited = new Set<string>()): BacklogTask | undefined => {
+    if (visited.has(id)) return undefined;
+    visited.add(id);
+    const task = byId.get(id);
+    if (!task) return undefined;
+    if (task.status === 'in_progress') return task;
+    return (task.child_task_ids || []).map((childId) => findImplementationDescendant(childId, visited)).find(Boolean);
+  };
+
+  for (const candidate of candidates) {
+    const task = byId.get(candidate.id);
+    if (!task) continue;
+    if (candidate.phase === 'implementation') {
+      const active = findImplementationDescendant(candidate.id);
+      if (active) return active;
+    } else {
+      return task;
+    }
+  }
+
+  if (phase === 'implementation') {
+    return backlog.tasks.find((task) => task.status === 'in_progress' && task.level === 3)
+      || backlog.tasks.find((task) => task.status === 'in_progress');
+  }
+  if (phase === 'test') return backlog.tasks.find((task) => task.test_status === 'in_progress');
+  return backlog.tasks.find((task) => task.status === 'in_progress');
+};
+
 export const parentTaskFor = (backlog: BacklogDocument, task: BacklogTask): BacklogTask => {
   let current = task;
   const visited = new Set<string>();

@@ -220,6 +220,7 @@ export interface BacklogTask {
   checklist_state?: { test: boolean; implementation: boolean };
   child_checklist_id?: string;
   child_backlog_id?: string;
+  child_backlog_ids?: string[];
   child_task_ids?: string[];
   child_branch_ids?: string[];
   branch?: { id: string; position: number; terminal?: boolean; terminal_node_id?: number; terminal_reason?: string };
@@ -251,6 +252,7 @@ export interface BacklogDocument {
     branches?: Array<{ id: string; completed?: boolean; terminal_reason?: string; task_ids?: string[]; node_ids?: number[]; edges?: EdgeData[]; flow_id?: number | null; backlog_id?: string; parent_task_id?: string; scope?: string }>;
     lanes?: Record<string, {
       current_task_id?: string | null;
+      current_subtask_id?: string | null;
       current_phase?: 'test' | 'implementation' | null;
     }>;
   };

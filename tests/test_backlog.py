@@ -982,6 +982,35 @@ def test_backlog_starts_child_backlog_after_parent_node(tmp_path: Path):
     assert saved["backlogs"][1]["parent_task_id"] == "task:jornada:node:1"
 
 
+def test_backlog_expands_multiple_subflows_from_one_parent_node(tmp_path: Path):
+    """Expande dois subfluxos L3 associados ao mesmo nó L2.
+    Mantém as tasks e os identificadores dos dois backlogs no escopo do pai.
+    """
+    _create_nested_hierarchical_fixture(tmp_path, delivery_scope="task")
+    parent_path = tmp_path / ".looper" / "draws" / "jornada.json"
+    parent = json.loads(parent_path.read_text(encoding="utf-8"))
+    parent["nodes"][0].pop("draw_ref", None)
+    parent["nodes"][0]["draw_refs"] = ["subjornada", "subjornada-dois"]
+    parent_path.write_text(json.dumps(parent), encoding="utf-8")
+
+    child = json.loads((tmp_path / ".looper" / "draws" / "subjornada.json").read_text(encoding="utf-8"))
+    child["id"] = "subjornada-dois"
+    child["title"] = "Segunda subjornada interna"
+    create_draw(tmp_path, child)
+
+    backlog = build_backlog(tmp_path, generated_at="2026-08-13T12:00:00+00:00")
+    parent_task = next(task for task in backlog["tasks"] if task["id"] == "task:jornada:node:1")
+
+    assert parent_task["child_backlog_ids"] == ["subjornada", "subjornada-dois"]
+    assert parent_task["child_backlog_id"] == "subjornada"
+    assert parent_task["child_task_ids"] == [
+        "task:subjornada:node:1",
+        "task:subjornada:node:2",
+        "task:subjornada-dois:node:1",
+        "task:subjornada-dois:node:2",
+    ]
+
+
 def test_backlog_preserves_shared_steps_in_explicit_flow_paths(tmp_path: Path):
     """Preserva todas as etapas quando as branches vêm de flows explícitos.
     Não remove um nó compartilhado só porque ele já apareceu em outro flow.

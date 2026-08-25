@@ -13,7 +13,7 @@ import type { Connection, Edge, EdgeChange, Node, EdgeTypes } from '@xyflow/reac
 import '@xyflow/react/dist/style.css';
 
 import type { BacklogActionResponse, BacklogDocument, Contract, DrawIndexEntry, ImprovementIndexEntry, ImprovementSession, NodeData, EdgeData, RunRecord, TraceabilityFacts, StaticAnalysisKpiReport } from './types';
-import { deliveryScopeFor, pendingTestTasks, taskNeedsTests, testScopeFor } from './backlog-status';
+import { currentExecutionTask, deliveryScopeFor, pendingTestTasks, taskNeedsTests, testScopeFor } from './backlog-status';
 import { CustomNode } from './components/CustomNode';
 import { LoopEdge } from './components/LoopEdge';
 import { Sidebar } from './components/Sidebar';
@@ -60,24 +60,6 @@ const getApiOrigin = () => detectedBackendOrigin || getApiOrigins()[0];
 
 const isImprovementAnswer = (answer: ImprovementSession['questions'][number]['answer']) =>
   answer !== null && !(typeof answer === 'string' && answer.trim() === '');
-
-const currentImplementationTask = (backlog: BacklogDocument) => {
-  const { execution } = backlog;
-  const taskIds: string[] = [];
-
-  if (execution.current_phase === 'implementation' && execution.current_task_id) {
-    taskIds.push(execution.current_task_id);
-  }
-
-  Object.entries(execution.lanes || {}).forEach(([laneId, lane]) => {
-    if (!laneId.startsWith('implementation:') || lane.current_phase !== 'implementation' || !lane.current_task_id) return;
-    taskIds.push(lane.current_task_id);
-  });
-
-  return taskIds
-    .map((taskId) => backlog.tasks.find((task) => task.id === taskId && task.status === 'in_progress'))
-    .find(Boolean);
-};
 
 function parseClipboardNodeJson(text: string): NodeData[] {
   const parsed: unknown = JSON.parse(text);
@@ -659,8 +641,27 @@ export const App: React.FC = () => {
       const searchParams = new URLSearchParams(window.location.search);
       const requestedImprovement = searchParams.get('improvement');
       const requestedId = searchParams.get('draw');
-      if (requestedImprovement && improvementData.some((item) => item.id === requestedImprovement)) {
-        await loadImprovementById(requestedImprovement, mode);
+      const improvementEntry = requestedImprovement
+        ? improvementData.find((item) => item.id === requestedImprovement)
+        : undefined;
+      const improvementDrawExists = Boolean(improvementEntry && indexData.some((draw) => draw.id === improvementEntry.draw_id));
+      if (improvementEntry && improvementDrawExists && improvementEntry.status !== 'applied') {
+        await loadImprovementById(requestedImprovement!, mode);
+      } else if (improvementEntry && improvementDrawExists) {
+        // Sessões aplicadas são histórico, não uma tela inicial. Ao recarregar
+        // uma URL antiga, retorne ao Draw associado sem reabrir a melhoria.
+        searchParams.delete('improvement');
+        searchParams.set('draw', improvementEntry.draw_id);
+        window.history.replaceState({}, '', `${window.location.pathname}?${searchParams.toString()}`);
+        await loadDrawingById(improvementEntry.draw_id, { resetNavigation: true, indexData, mode });
+      } else if (requestedImprovement) {
+        // Não deixe uma sessão removida ou de outro projeto bloquear o bootstrap.
+        searchParams.delete('improvement');
+        window.history.replaceState({}, '', `${window.location.pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`);
+        const fallbackId = requestedId && indexData.some((draw) => draw.id === requestedId)
+          ? requestedId
+          : indexData[0]?.id;
+        if (fallbackId) await loadDrawingById(fallbackId, { resetNavigation: true, indexData, mode });
       } else if (requestedId && indexData.some((d) => d.id === requestedId)) {
         await loadDrawingById(requestedId, { resetNavigation: true, indexData, mode });
       } else if (indexData.length > 0) {
@@ -998,7 +999,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     if (!observerMode || currentImprovement || !backlog) return;
     const execution = backlog.execution;
-    const task = currentImplementationTask(backlog);
+    const task = currentExecutionTask(backlog, 'implementation');
 
     if (!task) {
       observerTargetRef.current = null;
