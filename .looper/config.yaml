@@ -259,8 +259,15 @@ stack:
   - pyproject.toml
   # Opção `stack.status` da configuração.
   status: detected
-# Orientações persistentes enviadas ao agente em todas as entregas.
-instructions: ''
+# Orientações persistentes enviadas ao agente por tipo de loop.
+instructions:
+  # Enviado em todo loop de backend (backlog backend / backlog task --backend).
+  backend: |
+    Logging transversal obrigatório: registre eventos em todas as etapas, funções públicas, handlers e integrações usando a fachada central de log do projeto. Mantenha rastreabilidade completa (entrada e saída com parâmetros em debug, conclusão de operações em info, erros incondicionais com stack trace cru em error). Não use print ou console.log ad-hoc.
+  # Enviado em todo loop de frontend (backlog frontend / backlog task --frontend).
+  frontend: ''
+  # Enviado em todo loop de alteração (backlog change).
+  change: ''
 # Revisão automática opcional após tasks concluídas.
 review:
   # Ativa a execução automática de revisões.

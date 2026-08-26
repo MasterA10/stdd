@@ -761,6 +761,56 @@ def test_loop_instructions_update_on_next_delivery_and_do_not_block_when_empty(t
     assert "INFORMAÇÃO CRÍTICA" not in third.get("instruction", "")
 
 
+def test_instrucoes_backend_sao_injetadas_somente_no_loop_backend(tmp_path: Path):
+    """instructions.backend aparece no contexto de task backend e não vaza para frontend."""
+    from looper.config import save_config, load_config
+    _create_nested_hierarchical_fixture(tmp_path)
+    config = load_config(tmp_path)
+    config["instructions"] = {"backend": "LOG BACKEND OBRIGATÓRIO.", "frontend": "ACESSIBILIDADE.", "change": "REVISÃO."}
+    save_config(tmp_path, config)
+    set_backlog_config(tmp_path, bootstrap_task=False, test_loop_enabled=False, development_mode="separated")
+
+    response = next_backlog_task(tmp_path)
+    layer = response.get("implementation_layer")
+    if layer == "backend":
+        assert "LOG BACKEND OBRIGATÓRIO." in response["critical_information"]["content"]
+        assert "ACESSIBILIDADE." not in response["critical_information"]["content"]
+    elif layer == "frontend":
+        assert "ACESSIBILIDADE." in response["critical_information"]["content"]
+        assert "LOG BACKEND OBRIGATÓRIO." not in response["critical_information"]["content"]
+
+
+def test_instrucoes_change_sao_injetadas_no_loop_de_alteracao(tmp_path: Path):
+    """instructions.change aparece no contexto de change task."""
+    from looper.config import save_config, load_config
+    _create_nested_hierarchical_fixture(tmp_path)
+    config = load_config(tmp_path)
+    config["instructions"] = {"backend": "BACKEND.", "frontend": "FRONTEND.", "change": "CHANGE OBRIGATÓRIO."}
+    save_config(tmp_path, config)
+    set_backlog_config(tmp_path, bootstrap_task=False, test_loop_enabled=False)
+    payload = generate_backlog(tmp_path)
+    tasks = payload.get("tasks", [])
+    node = next((t for t in tasks if t.get("level") == 3), tasks[0] if tasks else None)
+    if node is None:
+        return
+    from looper.draw import read_draw, create_draw as _create_draw
+    draws = list((tmp_path / ".looper" / "draws").glob("*.json"))
+    if not draws:
+        return
+    draw = read_draw(tmp_path, draws[0].stem)
+    nodes = draw.get("nodes", [])
+    if not nodes:
+        return
+    for n in nodes:
+        n.setdefault("changes", [])
+        n["changes"].append({"id": 1, "prompt": "Adicionar log obrigatório em todas as funções.", "status": "pending", "implementation_layer": "backend"})
+    _create_draw(tmp_path, draw)
+    response = next_backlog_change(tmp_path)
+    if response.get("kind") == "backlog-change-task":
+        assert "CHANGE OBRIGATÓRIO." in response["critical_information"]["content"]
+        assert "BACKEND." not in response["critical_information"]["content"]
+
+
 def test_backlog_complete_is_human_language_and_includes_critical_information(tmp_path: Path, monkeypatch):
     """A confirmação do loop não expõe JSON ao agente."""
     _create_nested_hierarchical_fixture(tmp_path)

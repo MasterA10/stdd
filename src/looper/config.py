@@ -50,7 +50,10 @@ CONFIG_COMMENTS = {
     "backlog.test_loop_enabled": "Habilita o loop que cria e libera testes.",
     "backlog.test_loop": "Preset e opções do loop de testes.",
     "backlog.implementation_loop": "Preset e opções do loop de implementação.",
-    "instructions": "Orientações persistentes enviadas ao agente em todas as entregas.",
+    "instructions": "Orientações persistentes enviadas ao agente por tipo de loop.",
+    "instructions.backend": "Enviado em todo loop de backend (backlog backend / backlog task --backend).",
+    "instructions.frontend": "Enviado em todo loop de frontend (backlog frontend / backlog task --frontend).",
+    "instructions.change": "Enviado em todo loop de alteração (backlog change).",
     "review": "Revisão automática opcional após tasks concluídas.",
     "review.enabled": "Ativa a execução automática de revisões.",
     "review.default_agent": "Agente padrão: `codex`, `claude` ou `antigravity`.",
@@ -99,6 +102,45 @@ def _read_mapping(path: Path, parser: Any) -> dict[str, Any]:
     return value
 
 
+DEFAULT_BACKEND_LOGGING_INSTRUCTION = (
+    "Logging transversal obrigatório: registre eventos em todas as etapas, funções públicas, handlers e integrações usando a fachada central de log do projeto. "
+    "Mantenha rastreabilidade completa (entrada e saída com parâmetros em debug, conclusão de operações em info, erros incondicionais com stack trace cru em error). "
+    "Não use print ou console.log ad-hoc."
+)
+
+
+def _migrate_instructions(instructions_val: Any) -> dict[str, str]:
+    """Migra instructions legado para o formato dict injetando a diretiva de logging no backend."""
+    backend_instr = DEFAULT_BACKEND_LOGGING_INSTRUCTION
+    if isinstance(instructions_val, str):
+        raw = instructions_val.strip()
+        if raw:
+            if DEFAULT_BACKEND_LOGGING_INSTRUCTION not in raw:
+                backend_instr = f"{raw}\n\n{DEFAULT_BACKEND_LOGGING_INSTRUCTION}"
+            else:
+                backend_instr = raw
+        return {
+            "backend": backend_instr,
+            "frontend": "",
+            "change": "",
+        }
+    if isinstance(instructions_val, dict):
+        result = {str(k): str(v) for k, v in instructions_val.items()}
+        current_backend = result.get("backend", "").strip()
+        if not current_backend:
+            result["backend"] = DEFAULT_BACKEND_LOGGING_INSTRUCTION
+        elif DEFAULT_BACKEND_LOGGING_INSTRUCTION not in current_backend:
+            result["backend"] = f"{current_backend}\n\n{DEFAULT_BACKEND_LOGGING_INSTRUCTION}"
+        result.setdefault("frontend", "")
+        result.setdefault("change", "")
+        return result
+    return {
+        "backend": DEFAULT_BACKEND_LOGGING_INSTRUCTION,
+        "frontend": "",
+        "change": "",
+    }
+
+
 def _legacy_documents(root: Path) -> dict[str, Any] | None:
     old_config = root / LEGACY_CONFIG_RELATIVE_PATH
     old_review = root / LEGACY_REVIEW_RELATIVE_PATH
@@ -107,16 +149,21 @@ def _legacy_documents(root: Path) -> dict[str, Any] | None:
         return None
     config = _read_mapping(old_config, json.loads) if old_config.exists() else {}
     review = _read_mapping(old_review, json.loads) if old_review.exists() else {}
-    instructions = old_instructions.read_text(encoding="utf-8") if old_instructions.exists() else ""
+    raw_instructions = old_instructions.read_text(encoding="utf-8") if old_instructions.exists() else ""
     config["review"] = review
-    config["instructions"] = instructions
+    config["instructions"] = _migrate_instructions(raw_instructions)
     return config
 
 
 def load_config(root: Path, *, migrate: bool = True) -> dict[str, Any]:
     path = config_path(root)
     if path.exists():
-        return _read_mapping(path, yaml.safe_load)
+        data = _read_mapping(path, yaml.safe_load)
+        if isinstance(data.get("instructions"), str) or not isinstance(data.get("instructions"), dict):
+            data["instructions"] = _migrate_instructions(data.get("instructions"))
+            if migrate:
+                save_config(root, data)
+        return data
     legacy = _legacy_documents(root)
     if legacy is not None:
         if migrate:
@@ -154,7 +201,7 @@ def save_config(root: Path, data: dict[str, Any]) -> Path:
 
 
 def default_config() -> dict[str, Any]:
-    return {"test_commands": [], "testing": {"profile": "mvp"}, "contract": {"enabled": True}, "static_analysis": {"enabled": True}, "tracked_extensions": [], "backlog": {"development_mode": "sequential", "l4_group_size": 3}, "version": 1}
+    return {"test_commands": [], "testing": {"profile": "mvp"}, "contract": {"enabled": True}, "static_analysis": {"enabled": True}, "tracked_extensions": [], "backlog": {"development_mode": "sequential", "l4_group_size": 3}, "instructions": {"backend": DEFAULT_BACKEND_LOGGING_INSTRUCTION, "frontend": "", "change": ""}, "version": 1}
 
 
 def review_config(data: dict[str, Any]) -> dict[str, Any]:
@@ -163,5 +210,33 @@ def review_config(data: dict[str, Any]) -> dict[str, Any]:
 
 
 def instructions(data: dict[str, Any]) -> str:
+    """Retorna a string de instruções persistentes para retrocompatibilidade.
+
+    Se o campo for dict (novo schema), une todas as entradas não-vazias separadas por
+    newline. Se for str (schema legado), retorna a string diretamente.
+    """
     value = data.get("instructions", "")
-    return value if isinstance(value, str) else ""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, dict):
+        parts = [v.strip() for v in value.values() if isinstance(v, str) and v.strip()]
+        return "\n".join(parts)
+    return ""
+
+
+def instructions_for(data: dict[str, Any], phase: str | None) -> str:
+    """Retorna a instrução persistente para a fase específica do loop.
+
+    - ``phase`` aceita 'backend', 'frontend' ou 'change'.
+    - Fases sem mapeamento explícito ('test', 'bootstrap', ``None``) usam a instrução
+      'backend' como fallback, pois essas fases sempre precedem ou compõem o backend.
+    - Se ``instructions`` for str (projeto legado), retorna a string para qualquer fase.
+    """
+    value = data.get("instructions", "")
+    if isinstance(value, str):
+        return value
+    if not isinstance(value, dict):
+        return ""
+    phase_key = phase if phase in ("backend", "frontend", "change") else "backend"
+    result = value.get(phase_key, "")
+    return result.strip() if isinstance(result, str) else ""

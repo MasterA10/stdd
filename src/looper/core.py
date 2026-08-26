@@ -20,7 +20,7 @@ from .static_analysis import run_static_analysis, write_static_analysis_kpis
 from .traceability import refresh_traceability
 from .setup import ensure_design_document
 from .reviews import ensure_review_workspace
-from .config import config_path, load_config, save_config
+from .config import DEFAULT_BACKEND_LOGGING_INSTRUCTION, config_path, load_config, save_config
 
 VALID_WORK_TYPES = {"bug", "teste", "implementacao", "refactor"}
 DEFAULT_CODE_EXTENSIONS = {
@@ -399,7 +399,7 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
     data = load_config(root)
     changed = False
     if "instructions" not in data:
-        data["instructions"] = ""
+        data["instructions"] = {"backend": DEFAULT_BACKEND_LOGGING_INSTRUCTION, "frontend": "", "change": ""}
         changed = True
     if "review" not in data:
         data["review"] = {}

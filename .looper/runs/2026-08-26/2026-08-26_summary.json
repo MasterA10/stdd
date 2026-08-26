@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "date": "2026-08-26",
+  "runs": [
+    {
+      "run_id": "2fc9edb2cab2457089458c86f6696f03",
+      "timestamp": "2026-08-26T01:01:52.508748+00:00",
+      "description": "Implementa campo instructions por fase (backend/frontend/change) e skill e2e-tester",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 601,
+        "lines_deleted": 35,
+        "files_changed": 20
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d076910405e64c9ea4c4fb9c4a9b812a",
+      "timestamp": "2026-08-26T01:25:15.320998+00:00",
+      "description": "Migra instructions legado injetando diretiva padrão de logging no backend",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 71,
+        "lines_deleted": 9,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    }
+  ],
+  "run_count": 2,
+  "last_run_id": "d076910405e64c9ea4c4fb9c4a9b812a"
+}

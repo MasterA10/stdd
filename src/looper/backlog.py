@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from .draw import EDGE_CONDITIONS, _node_draw_refs, create_draw, draw_directory, facts_directory, read_draw, read_draw_index
-from .config import instructions, load_config, save_config
+from .config import instructions, instructions_for, load_config, save_config
 
 
 BACKLOG_VERSION = 1
@@ -41,10 +41,10 @@ DEFAULT_LEVEL_MEANINGS = {
 CRITICAL_INFORMATION_FILE = ".looper/config.yaml#instructions"
 
 
-def _critical_information(root: Path) -> str:
-    """Lê a orientação persistente enviada em linguagem natural a cada loop."""
+def _critical_information(root: Path, phase: str | None = None) -> str:
+    """Lê a orientação persistente para a fase do loop atual."""
     project = root.parent if root.name == ".looper" else root
-    return instructions(load_config(project)).strip()
+    return instructions_for(load_config(project), phase).strip()
 
 
 def _with_critical_instruction(instruction: str | None, content: str) -> str | None:
@@ -1674,7 +1674,7 @@ def next_backlog_change(root: Path, layer: str | None = None) -> dict[str, Any]:
         if current is not None:
             if layer is not None and current.get("implementation_layer") != layer:
                 raise ValueError(f"a alteração atual pertence à camada {current.get('implementation_layer')}; conclua-a antes de pedir somente {layer}")
-            return _change_context(current, critical_information=_critical_information(root))
+            return _change_context(current, critical_information=_critical_information(root, phase="change"))
         _clear_execution_cursor(execution)
 
     if execution.get("current_task_id"):
@@ -1705,7 +1705,7 @@ def next_backlog_change(root: Path, layer: str | None = None) -> dict[str, Any]:
     execution["current_subtask_id"] = None
     _mark_claim(execution)
     write_backlog(root, payload)
-    return _change_context(request, critical_information=_critical_information(root))
+    return _change_context(request, critical_information=_critical_information(root, phase="change"))
 
 
 def _clear_execution_cursor(execution: dict[str, Any]) -> None:
@@ -2018,7 +2018,12 @@ def _task_context(root: Path, payload: dict[str, Any], task: dict[str, Any], pha
         if len(candidates) > 1:
             response["batch"] = [{"id": item.get("id"), "label": item.get("label", "")} for item in candidates[:options["task_batch_size"]]]
             response["batch_size"] = len(response["batch"])
-    critical_information = _critical_information(root)
+    _phase_for_instr: str | None = None
+    if response.get("implementation_layer") == "frontend":
+        _phase_for_instr = "frontend"
+    elif response.get("implementation_layer") == "backend":
+        _phase_for_instr = "backend"
+    critical_information = _critical_information(root, phase=_phase_for_instr)
     response["critical_information"] = {
         "file": CRITICAL_INFORMATION_FILE,
         "content": critical_information,
