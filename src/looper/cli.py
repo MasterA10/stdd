@@ -405,6 +405,8 @@ def init(
     l3_loop_enabled: Optional[bool] = typer.Option(None, "--l3-loop/--no-l3-loop", help="Habilita ou desabilita o loop L3."),
     l3_include_parent: Optional[bool] = typer.Option(None, "--l3-parent-context/--no-l3-parent-context", help="Inclui o L2 pai no contexto do L3."),
     review_enabled: Optional[bool] = typer.Option(None, "--review/--no-review", help="Habilita ou desabilita a revisão automática por subagente."),
+    web: Optional[bool] = typer.Option(None, "--web/--no-web", help="Abre a interface web de configuração após inicializar."),
+    port: int = typer.Option(8765, "--port", min=1, max=65535, help="Porta local da interface web."),
 ) -> None:
     """Inicializa a estrutura do Looper e instala as skills dos agentes.
     Cria o diretório-alvo quando necessário, depois cria .looper/ e .agents/skills.
@@ -417,8 +419,8 @@ def init(
     requested = tuple(integration or ("codex",))
     if all_integrations:
         requested = SUPPORTED_INTEGRATIONS
-    elif not integration and (interactive or sys.stdin.isatty()):
-        requested = choose_integrations()
+    # A configuração deixou de ser um wizard de terminal. O init usa o Codex
+    # como padrão e abre o editor web quando executado em um terminal real.
     invalid = sorted(set(requested) - set(SUPPORTED_INTEGRATIONS))
     if invalid:
         typer.echo(f"Erro: integrações desconhecidas: {', '.join(invalid)}", err=True)
@@ -442,48 +444,7 @@ def init(
     if review_enabled is not None:
         set_review_enabled(target, review_enabled)
     typer.echo(f"Projeto inicializado em {target}. {len(created)} itens criados ou atualizados.")
-    if interactive or sys.stdin.isatty():
-        if typer.confirm("Executar o setup para detectar a stack agora?", default=True):
-            ensure_gitignore(target)
-            stack = configure_project(target)
-            ensure_stack_gitignore(target, stack["languages"])
-            typer.echo(f"Stack: {', '.join(stack['languages']) or 'não detectada'}")
-        level_2_meaning, level_3_meaning = choose_level_meanings()
-        selected_task_delivery_scope = task_delivery_scope or choose_task_delivery_scope()
-        selected_l2_verification_interval = (
-            l2_verification_interval
-            if l2_verification_interval is not None
-            else choose_l2_verification_interval()
-        )
-        selected_test_loop_enabled = (
-            test_loop_enabled
-            if test_loop_enabled is not None
-            else choose_test_loop_enabled()
-        )
-        selected_development_mode = development_mode or get_backlog_config(target).get("development_mode", "sequential")
-        set_backlog_config(
-            target,
-            level_2_meaning=level_2_meaning,
-            level_3_meaning=level_3_meaning,
-            task_delivery_scope=selected_task_delivery_scope,
-            verification_interval=selected_l2_verification_interval,
-            test_loop_enabled=selected_test_loop_enabled,
-            development_mode=selected_development_mode,
-            task_batch_size=task_batch_size,
-            l4_group_size=l4_group_size,
-            task_batch_scope=task_batch_scope,
-            bootstrap_task=bootstrap,
-            final_verification_task=final_verification,
-            min_task_interval_seconds=min_task_interval_seconds,
-            test_loop_mode=test_loop_mode,
-            implementation_loop_mode=implementation_loop_mode,
-            test_batch_size=test_batch_size,
-            implementation_batch_size=implementation_batch_size,
-            l2_children_mode=l2_children_mode,
-            l3_loop_enabled=l3_loop_enabled,
-            l3_include_parent=l3_include_parent,
-        )
-    elif task_delivery_scope is not None or l2_verification_interval is not None or test_loop_enabled is not None or development_mode is not None or task_batch_size is not None or l4_group_size is not None or task_batch_scope is not None or bootstrap is not None or final_verification is not None or min_task_interval_seconds is not None or test_loop_mode is not None or implementation_loop_mode is not None or test_batch_size is not None or implementation_batch_size is not None or l2_children_mode is not None or l3_loop_enabled is not None or l3_include_parent is not None:
+    if task_delivery_scope is not None or l2_verification_interval is not None or test_loop_enabled is not None or development_mode is not None or task_batch_size is not None or l4_group_size is not None or task_batch_scope is not None or bootstrap is not None or final_verification is not None or min_task_interval_seconds is not None or test_loop_mode is not None or implementation_loop_mode is not None or test_batch_size is not None or implementation_batch_size is not None or l2_children_mode is not None or l3_loop_enabled is not None or l3_include_parent is not None:
         set_backlog_config(
             target,
             task_delivery_scope=task_delivery_scope,
@@ -504,6 +465,14 @@ def init(
             l3_loop_enabled=l3_loop_enabled,
             l3_include_parent=l3_include_parent,
         )
+    should_open_web = web if web is not None else sys.stdin.isatty()
+    if should_open_web:
+        typer.echo("Abrindo a configuração web do Looper…")
+        try:
+            serve_draw(target, port=port, initial_path="/.looper/draw.html?settings=1", open_browser=True)
+        except (RuntimeError, ValueError, OSError) as error:
+            typer.echo(f"Erro ao abrir a interface web: {error}", err=True)
+            raise typer.Exit(1)
     unavailable = [name for name, found in available_integrations().items() if name in requested and not found]
     if unavailable:
         typer.echo(f"Aviso: agente(s) não encontrado(s) no PATH: {', '.join(unavailable)}.", err=True)

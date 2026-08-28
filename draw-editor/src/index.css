@@ -346,6 +346,83 @@ body:has(.improvement-dialog) { overflow: hidden; }
   gap: 12px;
 }
 
+.config-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, .62);
+  backdrop-filter: blur(8px);
+}
+.config-modal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(860px, 100%);
+  max-height: min(900px, calc(100vh - 32px));
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--line));
+  border-radius: 24px;
+  background: var(--panel);
+  box-shadow: var(--shadow-lg);
+}
+.config-accent { height: 4px; flex: 0 0 4px; background: linear-gradient(135deg, #e31b23 0%, #ff8c00 100%); }
+.config-header { display: flex; justify-content: space-between; gap: 18px; padding: 24px 28px 20px; border-bottom: 1px solid var(--line); }
+.config-heading { display: flex; gap: 14px; min-width: 0; }
+.config-heading h2 { margin: 0 0 6px; font-size: 22px; }
+.config-heading p { max-width: 650px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.config-heading code { color: var(--accent-strong); }
+.config-icon { display: grid; place-items: center; width: 42px; height: 42px; flex: 0 0 42px; border-radius: 13px; color: white; background: linear-gradient(135deg, #e31b23 0%, #ff8c00 100%); }
+.config-scroll { min-height: 0; overflow-y: auto; padding: 20px 28px 28px; scrollbar-gutter: stable; }
+.config-intro { display: flex; gap: 12px; align-items: baseline; margin-bottom: 16px; padding: 13px 15px; border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--line)); border-radius: 12px; background: color-mix(in srgb, var(--accent) 7%, var(--paper)); font-size: 12px; }
+.config-intro strong { color: var(--accent-strong); white-space: nowrap; }
+.config-intro span { color: var(--muted); }
+.config-section { margin: 12px 0; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); overflow: hidden; }
+.config-section summary { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 16px 18px; cursor: pointer; list-style: none; }
+.config-section summary::-webkit-details-marker { display: none; }
+.config-section summary svg { color: var(--muted); transition: transform .2s ease; }
+.config-section[open] summary svg { transform: rotate(180deg); }
+.config-section summary strong, .config-section summary small { display: block; }
+.config-section summary strong { font-size: 14px; }
+.config-section summary small { margin-top: 3px; color: var(--muted); font-size: 11px; font-weight: 500; }
+.config-section-content { display: grid; gap: 10px; padding: 0 18px 18px; }
+.config-field, .config-toggle { display: flex; align-items: center; justify-content: space-between; gap: 18px; min-height: 54px; padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--canvas) 45%, var(--paper)); }
+.config-field > span:not(.config-label), .config-toggle > span:not(.config-label) { display: grid; gap: 5px; }
+.config-label { display: flex !important; align-items: flex-start; gap: 8px; flex: 1; min-width: 0; }
+.config-label > span { display: grid; gap: 5px; min-width: 0; }
+.config-hint { display: inline-grid; place-items: center; width: 22px; height: 22px; flex: 0 0 22px; padding: 0; border: 0; border-radius: 50%; color: var(--accent-strong); background: color-mix(in srgb, var(--accent) 10%, transparent); cursor: help; }
+.config-hint:hover, .config-hint:focus-visible { color: white; background: linear-gradient(135deg, #e31b23 0%, #ff8c00 100%); outline: 2px solid color-mix(in srgb, var(--accent) 35%, transparent); outline-offset: 2px; }
+.config-field > span:not(.config-label), .config-label strong { font-size: 12px; font-weight: 800; line-height: 1.25; }
+.config-field small, .config-toggle small { color: var(--muted); font-size: 10px; font-weight: 500; line-height: 1.4; }
+.config-field select, .config-field input, .config-field textarea { min-width: 170px; padding: 9px 10px; border: 1px solid var(--line-strong); border-radius: 9px; outline: none; color: var(--ink); background: var(--input-bg); font: inherit; font-size: 12px; }
+.config-field select:focus, .config-field input:focus, .config-field textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+.config-choice-list { display: grid; grid-template-columns: repeat(2, minmax(150px, 1fr)); gap: 7px; min-width: min(430px, 52%); }
+.config-choice { position: relative; display: grid; align-items: center; min-height: 42px; padding: 9px 10px; border: 1px solid var(--line-strong); border-radius: 9px; text-align: left; color: var(--ink); background: var(--input-bg); cursor: pointer; }
+.config-choice strong { font-size: 11px; }
+.config-choice::after { content: attr(data-tooltip); position: absolute; z-index: 20; left: 0; bottom: calc(100% + 8px); width: min(280px, 70vw); padding: 9px 11px; border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); border-radius: 9px; color: #fff; background: #1e293b; box-shadow: var(--shadow-md); font-size: 10px; font-weight: 600; line-height: 1.4; opacity: 0; pointer-events: none; transform: translateY(4px); transition: opacity .15s ease, transform .15s ease; }
+.config-choice::before { content: ''; position: absolute; z-index: 21; left: 18px; bottom: calc(100% + 3px); width: 8px; height: 8px; border-right: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); background: #1e293b; opacity: 0; transform: rotate(45deg) translateY(4px); transition: opacity .15s ease, transform .15s ease; }
+.config-choice:hover::after, .config-choice:focus-visible::after, .config-choice:hover::before, .config-choice:focus-visible::before { opacity: 1; transform: translateY(0); }
+.config-choice:hover, .config-choice:focus-visible { border-color: var(--accent); outline: 2px solid color-mix(in srgb, var(--accent) 18%, transparent); outline-offset: 1px; }
+.config-choice.selected { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--input-bg)); box-shadow: inset 3px 0 var(--accent); }
+.config-field textarea { width: 100%; min-height: 86px; resize: vertical; }
+.config-textarea { align-items: start; flex-direction: column; }
+.config-textarea textarea { min-width: 0; }
+.config-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+.config-toggle i { position: relative; width: 38px; height: 22px; flex: 0 0 38px; border-radius: 99px; background: var(--line-strong); transition: .2s; }
+.config-toggle i::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: white; transition: .2s; }
+.config-toggle input:checked + i { background: linear-gradient(135deg, #e31b23 0%, #ff8c00 100%); }
+.config-toggle input:checked + i::after { transform: translateX(16px); }
+.config-footer { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 16px 28px; border-top: 1px solid var(--line); background: var(--panel); }
+.config-error, .config-saved { display: inline-flex; align-items: center; gap: 6px; margin-right: auto; font-size: 11px; }
+.config-error { color: var(--danger); } .config-saved { color: var(--success); }
+.config-feedback { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 280px; color: var(--muted); font-size: 13px; }
+.config-feedback.error { color: var(--danger); padding: 28px; }
+.spin { animation: config-spin 1s linear infinite; }
+@keyframes config-spin { to { transform: rotate(360deg); } }
+@media (max-width: 680px) { .config-overlay { padding: 10px; } .config-header, .config-scroll, .config-footer { padding-left: 16px; padding-right: 16px; } .config-field { align-items: stretch; flex-direction: column; gap: 8px; } .config-field select, .config-field input, .config-choice-list { width: 100%; min-width: 0; } .config-choice-list { grid-template-columns: 1fr; } .config-footer { flex-wrap: wrap; } .config-error, .config-saved { width: 100%; margin-bottom: 4px; } }
+
 .title-container {
   display: flex;
   align-items: center;

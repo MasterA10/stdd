@@ -9,6 +9,7 @@ import json
 import mimetypes
 import re
 import unicodedata
+import webbrowser
 from copy import deepcopy
 from datetime import datetime, timezone
 from difflib import SequenceMatcher
@@ -17,6 +18,8 @@ from pathlib import Path
 from threading import Thread
 from typing import Any
 from urllib.parse import unquote, urlparse
+
+from .config import load_config, save_config
 
 DRAW_VERSION = 1
 DRAW_TEMPLATE_VERSION = "5"
@@ -1525,6 +1528,14 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                     return
                 self._send_bytes(body, "application/json; charset=utf-8")
                 return
+            if path == "/__looper/api/config":
+                try:
+                    body = json.dumps(load_config(root), ensure_ascii=False).encode("utf-8")
+                except (OSError, ValueError) as error:
+                    self._send_json_error(500, str(error))
+                    return
+                self._send_bytes(body, "application/json; charset=utf-8")
+                return
             if path == "/.looper/runs.html":
                 runs_viewer = root / ".looper" / "runs.html"
                 if not runs_viewer.is_file():
@@ -1662,6 +1673,7 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
                 path.startswith("/__looper/api/draws/")
                 or path.startswith("/__looper/api/improvements/")
                 or path.startswith("/__looper/api/backlog")
+                or path == "/__looper/api/config"
             ):
                 self.send_error(404, "endpoint inexistente")
                 return
@@ -1744,6 +1756,19 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
             Aceita somente o ID do desenho na rota e delega validação ao contrato canônico.
             """
             path = urlparse(self.path).path
+            if path == "/__looper/api/config":
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                    if length <= 0 or length > 500_000:
+                        raise ValueError("payload deve ter entre 1 e 500000 bytes")
+                    payload = json.loads(self.rfile.read(length).decode("utf-8"))
+                    if not isinstance(payload, dict):
+                        raise ValueError("a configuração deve ser um objeto")
+                    output = save_config(root, payload)
+                    self._send_json({"status": "saved", "path": str(output.relative_to(root))})
+                except (OSError, ValueError, UnicodeDecodeError, json.JSONDecodeError) as error:
+                    self._send_json({"status": "blocked", "error": str(error)}, 400)
+                return
             improvement_prefix = "/__looper/api/improvements/"
             if path.startswith(improvement_prefix):
                 from .improvements import create_improvement
@@ -1801,13 +1826,16 @@ def create_server(root: Path, host: str = "127.0.0.1", port: int = 8765) -> Thre
     return ThreadingHTTPServer((host, port), ProjectHandler)
 
 
-def serve_draw(root: Path, host: str = "127.0.0.1", port: int = 8765) -> None:
+def serve_draw(root: Path, host: str = "127.0.0.1", port: int = 8765, initial_path: str = "/.looper/draw.html", open_browser: bool = False) -> None:
     """Serve o viewer Draw até receber interrupção do processo.
     Garante o workspace e informa a URL local antes de iniciar o loop HTTP.
     """
     ensure_draw_workspace(root, include_example=True)
     server = create_server(root, host, port)
-    print(f"Draw disponível em http://{server.server_address[0]}:{server.server_address[1]}/.looper/draw.html")
+    url = f"http://{server.server_address[0]}:{server.server_address[1]}{initial_path}"
+    print(f"Draw disponível em {url}")
+    if open_browser:
+        webbrowser.open(url)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

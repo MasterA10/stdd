@@ -27,8 +27,9 @@ import { FocusDetailModal } from './components/FocusDetailModal';
 import { ImprovementEditor } from './components/ImprovementEditor';
 import { NodeEditModal } from './components/NodeEditModal';
 import { ParentNavigationModal, type ParentNavigationOption } from './components/ParentNavigationModal';
+import { ConfigSettingsModal } from './components/ConfigSettingsModal';
 import { layoutCurvedGraph, computeEdgeHandles, getCycleEdges } from './layout';
-import { ArrowUp, RotateCcw, Save, Download, Sun, Moon, Contrast, Sparkles, ClipboardList, X, PanelBottom, PanelLeft, Eye, EyeOff } from 'lucide-react';
+import { ArrowUp, RotateCcw, Save, Download, Sun, Moon, Contrast, Sparkles, ClipboardList, X, PanelBottom, PanelLeft, Eye, EyeOff, Settings } from 'lucide-react';
 
 import defaultContract from '../contract.json';
 
@@ -130,6 +131,11 @@ export const App: React.FC = () => {
   const [selectionRevision, setSelectionRevision] = useState(0);
   const [reactFlowReady, setReactFlowReady] = useState(0);
   const [presentationPositionsState, setPresentationPositionsState] = useState<Record<string, { x: number; y: number }>>({});
+  const [showConfigSettings, setShowConfigSettings] = useState(false);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('settings') === '1') setShowConfigSettings(true);
+  }, []);
 
   // --- Dialogs & Modals States ---
   const [questionsNode, setQuestionsNode] = useState<NodeData | null>(null);
@@ -2449,6 +2455,16 @@ export const App: React.FC = () => {
 
         <div className="header-actions">
           <button
+            className="icon-btn settings-btn"
+            type="button"
+            onClick={() => setShowConfigSettings(true)}
+            title="Configurações do Looper"
+            aria-label="Abrir configurações do Looper"
+          >
+            <Settings size={16} />
+            <span>Configurações</span>
+          </button>
+          <button
             className="icon-btn sidebar-layout-btn"
             type="button"
             onClick={() => setIsSidebarVisible((visible) => !visible)}
@@ -2515,6 +2531,8 @@ export const App: React.FC = () => {
           </button>
         </div>
       </header>
+
+      <ConfigSettingsModal open={showConfigSettings} apiOrigin={getApiOrigin()} onClose={() => setShowConfigSettings(false)} />
 
       {/* Main Layout Grid */}
       <div className={`app-workspace-layout sidebar-${sidebarDock} ${isSidebarVisible ? 'sidebar-visible' : 'sidebar-hidden'}`}>
