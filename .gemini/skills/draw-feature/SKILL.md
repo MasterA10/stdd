@@ -182,6 +182,8 @@ Perguntas respondidas permanecem no JSON como histórico. Não invente respostas
 
 - O nó não possui tipo estrutural: não use `processo`, `decisão`, `ator`, `api` ou qualquer outro campo `nodes[].type`.
 - Pontos de decisão não são nós. A decisão é expressa pelas setas e por suas condições (`condition`, `label` e `description`).
+
+Cada nó pode declarar `success_criteria` e `failure_criteria` como textos opcionais. Use-os quando o comportamento tiver uma condição objetiva de aceite: descreva como comprovar o sucesso e qual cenário caracteriza falha. O Looper injeta esses campos no contexto da task e transforma a definição em uma regra obrigatória de aceite do loop; não torne `tools` obrigatório para preencher esses critérios.
 - Use `groups` para representar domínio, responsabilidade ou fronteira visual. A cor do bloco vem exclusivamente do grupo; não grave cores individuais no nó.
 - Um bloco sem grupo usa a aparência neutra do viewer. Para alterar o grupo, edite o campo `group` do nó no editor.
 

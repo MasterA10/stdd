@@ -119,13 +119,13 @@ Perguntas marcadas com `@looper` pertencem exclusivamente ao `$draw-interaction`
 
 O desenho não autoriza alteração direta de produção.
 
-- `$create-tests-backlog` deve ler o Draw aprovado e criar testes executáveis em estado vermelho pelo motivo esperado.
-- `$implement-backend` (e `$implement-frontend`) devem executar primeiro o contrato de `$create-tests-backlog` e somente depois alterar produção.
+- `$test-application` deve ler o Draw aprovado, propor a cobertura completa e criar os testes aprovados em estado verificável.
+- `$implement-backend` (e `$implement-frontend`) permanecem responsáveis pela produção nos loops específicos; a skill de teste não altera produção sem aprovação explícita.
 - Não pular a etapa de testes nem tratar Draw aprovado como teste aprovado.
 
 ## Regras do ciclo interativo
 
-Uma melhoria pode, quando autorizada e comprovada, criar ou alterar nós, conexões, grupos e referências no ponto arquitetural correto; não fica limitada a perguntas. Erros são condicionais (`se`/`ou`), validações antecedem efeitos e funcionalidades planejadas permanecem terminais no grupo `Não implementado`. Após aplicar, execute `backlog test` antes de produção e registre a alteração com `looper log`.
+Uma melhoria pode, quando autorizada e comprovada, criar ou alterar nós, conexões, grupos e referências no ponto arquitetural correto; não fica limitada a perguntas. Erros são condicionais (`se`/`ou`), validações antecedem efeitos e funcionalidades planejadas permanecem terminais no grupo `Não implementado`. Após aplicar, use `$test-application` para propor e validar a cobertura antes de produção e registre a alteração com `looper log`.
 
 ## Encerramento
 
@@ -137,4 +137,4 @@ Informar:
 - nós, relações, grupos ou subdesenhos adicionados/alterados, quando houver aplicação;
 - o que ficou deliberadamente fora;
 - comando ou URL para revisão visual;
-- próxima opção: responder a sessão, revisar manualmente, chamar `$draw-improve` novamente, seguir com `$create-tests-backlog` ou iniciar `$implement-backend` pela etapa de create-tests-backlog.
+- próxima opção: responder a sessão, revisar manualmente, chamar `$draw-improve` novamente, seguir com `$test-application` ou iniciar o loop de implementação apropriado.

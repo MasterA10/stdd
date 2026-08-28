@@ -141,7 +141,7 @@ src/looper/templates/adapters/php_static_adapter.php
 src/looper/templates/adapters/static_adapter.py
 src/looper/templates/agents/backend-developer/SKILL.md
 src/looper/templates/agents/backend-developer/agents/openai.yaml
-src/looper/templates/agents/create-tests-backlog/SKILL.md
+src/looper/templates/agents/test-application/SKILL.md
 src/looper/templates/agents/draw-feature/SKILL.md
 src/looper/templates/agents/draw-improve/SKILL.md
 src/looper/templates/agents/draw-improve/agents/openai.yaml

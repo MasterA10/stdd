@@ -92,11 +92,11 @@ e não altera dependências vendorizadas, caches ou arquivos de segredo `.env`.
 
 ## Usar as skills no Codex
 
-Depois de inicializar o projeto, abra o Codex dentro do repositório. As skills ficam em `.agents/skills/<skill>/SKILL.md` e podem ser chamadas diretamente pelo nome, no formato de skills do Codex. As skills `$create-tests-backlog`, `$implement-frontend` e `$implement-backend` são exclusivas do backlog: só devem ser lidas quando `looper backlog test`, `looper backlog frontend` ou `looper backlog backend` entregar uma task. Para uma edição comum, pergunta ou medição fora do backlog, não leia nem invoque essas skills.
+Depois de inicializar o projeto, abra o Codex dentro do repositório. As skills ficam em `.agents/skills/<skill>/SKILL.md` e podem ser chamadas diretamente pelo nome, no formato de skills do Codex. A skill `$test-application` atende interações comuns e lê o Draw completo para propor e implementar uma suíte transversal, usando `playwright-cli`/Playwright e testes reais de persistência quando aplicáveis. `$implement-frontend` e `$implement-backend` continuam exclusivos dos loops de implementação do backlog.
 
 ```text
 $setup Detecte a stack deste repositório e configure os runners sem instalar dependências.
-$create-tests-backlog Transforme a task entregue por looper backlog test em testes executáveis.
+$test-application Leia o fluxo completo, proponha um plano de testes, peça aprovação e implemente a suíte aprovada.
 $draw-feature Desenhe o fluxo de autenticação, incluindo falhas e subfluxos.
 $draw-improve Revise o desenho atual e acrescente somente o próximo detalhe arquitetural relevante.
 $draw-interaction Investigue marcações do Draw; responda perguntas e execute tarefas na codebase.
@@ -117,7 +117,7 @@ Também é possível chamar a skill sem instrução adicional quando o objetivo 
 
 ```text
 $setup
-$create-tests-backlog
+$test-application
 $draw-improve
 $draw-interaction
 $implement-change
@@ -129,7 +129,7 @@ O agente deve ler o `SKILL.md` correspondente antes de agir. A skill define o co
 
 ```text
 $setup
-$create-tests-backlog Execute a task de testes entregue por looper backlog test.
+$test-application Proponha e implemente a cobertura completa do fluxo, incluindo navegação, Playwright e persistência quando aplicável.
 $draw-system-level-1 Modele a arquitetura macro do sistema.
 $draw-system-level-2 Modele as jornadas por papel — separando cliente, administrador e permissões.
 $draw-system-level-3 Modele de ponta a ponta o comportamento das telas que exigem regras, validações ou autorização.
@@ -140,7 +140,7 @@ $implement-frontend Construa a view/tela da task entregue por looper backlog fro
 $implement-backend Implemente o controller/model da task entregue por looper backlog backend.
 ```
 
-`$draw-improve` trabalha em duas fases sobre um JSON existente em `.looper/draws/`. A primeira revisa o Draw e cria exatamente dez perguntas em uma sessão separada de `.looper/improvements/`, sem alterar o fluxo. Responda as perguntas no viewer e salve a sessão; em uma nova chamada, o agente executa `looper draw improve --pending`, consome somente sessões completas e, antes de alterar o fluxo, procura lacunas arquiteturais abertas pelas respostas. Se surgir uma nova decisão, regra, exceção ou caminho incompleto, cria outra sessão com somente a quantidade necessária de perguntas e aguarda; não aplica uma alteração parcial nem marca a sessão anterior como `applied`. Somente quando não houver nova lacuna aplica um único incremento coerente no Draw. Depois de salvar o fluxo, a sessão recebe status `applied` e permanece imutável como histórico. Quando o desenho estiver aprovado, `$create-tests-backlog` transforma sua lógica em testes. Mesmo que o próximo pedido seja apenas `$implement-backlog`, o agente deve passar primeiro pela etapa de create-tests-backlog e confirmar os testes vermelhos antes de alterar produção.
+`$draw-improve` trabalha em duas fases sobre um JSON existente em `.looper/draws/`. A primeira revisa o Draw e cria exatamente dez perguntas em uma sessão separada de `.looper/improvements/`, sem alterar o fluxo. Responda as perguntas no viewer e salve a sessão; em uma nova chamada, o agente executa `looper draw improve --pending`, consome somente sessões completas e, antes de alterar o fluxo, procura lacunas arquiteturais abertas pelas respostas. Se surgir uma nova decisão, regra, exceção ou caminho incompleto, cria outra sessão com somente a quantidade necessária de perguntas e aguarda; não aplica uma alteração parcial nem marca a sessão anterior como `applied`. Somente quando não houver nova lacuna aplica um único incremento coerente no Draw. Depois de salvar o fluxo, a sessão recebe status `applied` e permanece imutável como histórico. Quando o desenho estiver aprovado, `$test-application` transforma sua lógica em um plano e em testes aprovados. A produção continua nos loops específicos de implementação.
 
 O `$draw-interaction` lê as marcações do Draw e identifica se cada uma é uma pergunta ou uma tarefa. Para perguntas com `@looper` e `answer` ausente, executa `looper draw questions`, consulta a codebase e os símbolos associados; se houver evidência, grava a resposta, marca os símbolos relevantes e remove o marcador. Para pedidos de alteração, consulta `looper backlog change`; o `$implement-change` lê os símbolos e testes, implementa a change e conclui o ID reservado depois da validação. Sem `@looper`, a pergunta pertence ao usuário ou a um revisor humano; respostas já preenchidas, inclusive `false` e `0`, não geram nova ação. O `$draw-improve` preserva essa responsabilidade separada.
 

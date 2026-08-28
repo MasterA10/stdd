@@ -15,12 +15,10 @@ Executa exclusivamente o loop de alterações do Draw. Cada change é um pedido 
 4. Leia o Draw e o nó indicados, o pedido da change, perguntas e respostas, `code_refs`, símbolos, arquivos, dependências e a informação crítica fornecida pelo backlog.
 5. Compare o pedido com a codebase real e determine todos os pontos necessários para corrigir o comportamento, preservando contratos e evitando mudanças fora do escopo.
 6. Implemente a change nos arquivos reais. Não marque a alteração como concluída apenas editando o Draw, criando um teste superficial ou descrevendo uma solução futura.
-7. Extraia a alteração implementada como documentação do comportamento: crie uma pergunta objetiva sobre o que foi alterado e associe a resposta comprovada ao nó do Draw que originou a change. A pergunta e a resposta devem ser persistidas em `node.questions`, preservando o histórico e o formato do contrato (`id`, `type`, `prompt`, `answer`); não deixe essa documentação somente no código, no log ou na change.
-8. Associe a pergunta ao nó mais diretamente relacionado à alteração. Se a change envolver mais de um comportamento, crie uma pergunta por decisão relevante e associe cada uma ao nó correspondente; não use um nó genérico nem duplique perguntas já existentes.
-9. Valide o Draw e as referências depois de injetar a pergunta e a resposta, execute os testes aplicáveis, a análise estática e `looper test`. Trate falhas como bloqueios; não force resultados nem use asserções vazias ou valores pré-calculados.
-10. Registre a implementação com `looper log "Implementa a change <task-id>" --type implementacao`.
-11. Somente depois da implementação, da documentação associada ao nó e da validação, execute `looper backlog complete <task-id>` usando exatamente o ID recebido.
-12. Repita a partir de `looper backlog change`.
+7. Execute os testes aplicáveis, a análise estática e `looper test`. Trate falhas como bloqueios; não force resultados nem use asserções vazias ou valores pré-calculados.
+8. Registre a implementação com `looper log "Implementa a change <task-id>" --type implementacao`.
+9. Somente depois da validação, execute `looper backlog complete <task-id>` usando exatamente o ID recebido.
+10. Repita a partir de `looper backlog change`.
 
 ## Camadas e ordem
 
@@ -34,7 +32,6 @@ Se houver uma change em andamento, conclua-a antes de solicitar outra. Não conc
 - Não invente arquivos, símbolos, endpoints, payloads ou comportamento ausente no contrato.
 - Se a change exigir uma decisão de produto ou arquitetural que o pedido não define, mantenha o ID em andamento, explique o bloqueio e peça a decisão; não marque como concluída.
 - Se a implementação revelar uma lacuna adicional, registre-a no ponto correto do Draw como nova change ou informe o bloqueio antes de concluir a change atual.
-- Nenhuma change pode ser concluída sem a pergunta e a resposta da alteração implementada persistidas no `node.questions` do nó correspondente. A resposta deve descrever o comportamento efetivamente implementado, com evidência em arquivos, símbolos ou testes; não invente uma resposta nem marque a documentação como concluída quando a associação ao nó for ambígua.
 - Preserve mudanças existentes e não use comandos destrutivos para limpar o workspace.
 
 ## Encerramento

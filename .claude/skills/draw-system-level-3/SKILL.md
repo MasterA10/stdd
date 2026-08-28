@@ -133,7 +133,7 @@ Ao alterar o desenho, registrar:
 looper log "Detalha comportamento do sistema no nível 3" --type implementacao
 ```
 
-Depois da última fase, entregar a árvore completa ao `$create-tests-backlog`. O Create Tests Backlog Agent deve ler os JSONs diretamente, transformar caminhos implementados em testes e tratar folhas não implementadas como escopo ausente. `$implement-backend` e `$implement-frontend` só podem ser chamados depois de testes vermelhos aprovados ou quando o modo/camada dispensar testes.
+Depois da última fase, entregar a árvore completa ao `$test-application`. A skill deve ler os JSONs diretamente, transformar caminhos implementados em um plano transversal e tratar folhas não implementadas como escopo ausente. `$implement-backend` e `$implement-frontend` seguem seus respectivos loops de produção.
 
 ## Regras do ciclo interativo
 

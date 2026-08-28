@@ -1,0 +1,6 @@
+interface:
+  display_name: "Mock Server"
+  short_description: "Crie mocks locais em Python com logs visíveis"
+  default_prompt: "Use $mock-server para criar um servidor local Python que simule o contrato de um provedor externo."
+policy:
+  allow_implicit_invocation: true

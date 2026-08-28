@@ -9,7 +9,7 @@ Esta skill pertence exclusivamente ao loop de implementação backend do backlog
 Leia-a quando `looper backlog backend` ou `looper backlog task --backend` entregar uma task de Nível 3 (`backlog-task` ou `backlog-verification-task`).
 Não leia esta skill para edições comuns, perguntas, medições, refatorações livres ou qualquer pedido que não tenha sido entregue pelo cursor do backlog.
 
-Se `.looper/config.json` tiver `backlog.test_loop_enabled: false`, esta skill não depende da execução prévia de `$create-tests-backlog`: o projeto optou pelo loop somente de implementação.
+Se `.looper/config.json` tiver `backlog.test_loop_enabled: false`, esta skill não depende de um loop prévio de testes: o projeto optou pelo loop somente de implementação. A cobertura transversal pode ser conduzida separadamente por `$test-application`.
 
 ## Objetivo
 

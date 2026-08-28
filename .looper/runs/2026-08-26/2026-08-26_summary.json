@@ -43,8 +43,113 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "495f4649c5484071a260c30fe6b6e01d",
+      "timestamp": "2026-08-26T21:05:22.254819+00:00",
+      "description": "Atualiza contrato de logging bruto e resumo processual expansível",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "72535d62449c4a24ba709398a6c64946",
+      "timestamp": "2026-08-26T21:09:14.901874+00:00",
+      "description": "Atualiza perguntas técnicas no Draw Improve e no Draw System nível 3",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "97149810fb294fffa9e86e99f01485c1",
+      "timestamp": "2026-08-26T21:20:36.997604+00:00",
+      "description": "Cria a skill Mock Server para mocks locais em Python com contrato e logs no terminal",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 47,
+        "lines_deleted": 43,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "90b8fc04969d4484be2f77dc9cf1b12d",
+      "timestamp": "2026-08-26T21:22:23.643054+00:00",
+      "description": "Consolida teste da aplicação com plano, Playwright e persistência",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 21,
+        "lines_deleted": 14,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "6d95545eade647a6bf02e3dc85f99ef1",
+      "timestamp": "2026-08-26T21:30:12.527091+00:00",
+      "description": "Refina testes L2 com Playwright e validação de estado",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 12,
+        "lines_deleted": 12,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 2,
-  "last_run_id": "d076910405e64c9ea4c4fb9c4a9b812a"
+  "run_count": 7,
+  "last_run_id": "6d95545eade647a6bf02e3dc85f99ef1"
 }

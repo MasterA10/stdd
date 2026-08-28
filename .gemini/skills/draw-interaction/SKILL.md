@@ -35,7 +35,7 @@ looper backlog missing
 
 Leia a task, o nó do Draw, suas perguntas e respostas, `code_refs`, símbolos, arquivos, dependências, `test_ref`, testes associados e o subfluxo relacionado. Se a marcação descrever uma ação concreta, regra, bug, integração ou comportamento faltante, trate-a como tarefa de implementação.
 
-Pedidos criados pelo ícone de loop do nó ficam em `changes`. Para consumi-los, execute `looper backlog change`. O comando reserva um pedido por vez com o nó e seus símbolos; conclua-o com `looper backlog complete <task-id>` depois de implementar, testar e registrar as evidências.
+Pedidos criados pelo ícone de loop do nó ficam em `changes`. Para consumi-los, execute `looper backlog change` e use `$implement-change` para reservar um pedido por vez com o nó e seus símbolos; conclua-o com `looper backlog complete <task-id>` depois de implementar, testar e registrar as evidências.
 
 ## Investigação baseada em evidências
 
@@ -57,7 +57,7 @@ As respostas preenchidas permanecem no Draw como histórico, inclusive `false` e
 
 ## Quando a marcação for uma tarefa
 
-- Execute o fluxo apropriado: pedidos do ícone de loop usam `looper backlog change`; demais tarefas usam `looper backlog task`. Se `backlog task` retornar `backlog-test-required`, execute `looper backlog test` e crie somente os testes antes de voltar à implementação.
+- Execute o fluxo apropriado: pedidos do ícone de loop usam `$implement-change`/`looper backlog change`; demais tarefas usam `looper backlog task`. Se `backlog task` retornar `backlog-test-required`, execute `looper backlog test` e crie somente os testes antes de voltar à implementação.
 - Leia os testes existentes e identifique exatamente o caminho, regra, estado, validação ou erro que falta.
 - Edite a codebase dentro do escopo do nó para implementar o comportamento. Adicione ou ajuste teste de regressão quando necessário, sem enfraquecer asserções ou pré-calcular resultados.
 - Execute os testes específicos, a suíte da área e `looper test` antes de concluir.

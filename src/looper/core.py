@@ -208,7 +208,14 @@ AGENT_SKILL_DIRECTORIES = {
     "gemini": ".gemini/skills",
 }
 
-RETIRED_AGENT_SKILLS = {"implement", "implement-backlog", "create-tests", "feature"}
+RETIRED_AGENT_SKILLS = {
+    "implement",
+    "implement-backlog",
+    "create-tests",
+    "create-tests-backlog",
+    "e2e-tester",
+    "feature",
+}
 
 AGENT_INSTRUCTION_FILES = {
     "codex": ("AGENTS.md",),
@@ -233,7 +240,7 @@ Este projeto usa o Looper para especificação, implementação, testes e evidê
 - O `.looper/design.md` é a fonte obrigatória de decisões visuais: consulte e respeite identidade, tipografia, espaçamento, estados, acessibilidade e contraste em qualquer alteração ou implementação de interface; seu preenchimento é obrigatório antes de liberar o bootstrap.
 - Ao construir, refinar ou revisar interfaces, leia e use a skill `$open-design` instalada em `.agents/skills/open-design/SKILL.md`, consultando seus recursos sob demanda.
 - Mantenha memória contextual seletiva: registre decisões duráveis e aceitas no `AGENTS.md` (contratos, arquitetura, operação e escopo) ou no `.looper/design.md` (visual e interação); consolide duplicatas e não registre hipóteses, detalhes temporários, IDs de execução ou segredos.
-- `$create-tests-backlog`, `$implement-frontend` e `$implement-backend` pertencem exclusivamente aos loops acionados por `looper backlog test`, `looper backlog frontend`, `looper backlog backend` e `looper backlog task`; não leia essas skills para edições, perguntas ou medições comuns fora do backlog.
+- `$test-application` lê o Draw completo, propõe e implementa uma suíte de testes transversal (incluindo Playwright e persistência quando aplicáveis); `$implement-frontend` e `$implement-backend` continuam pertencendo aos loops acionados por `looper backlog frontend`, `looper backlog backend` e `looper backlog task`.
 - Quando o pedido vier de uma interação comum, trate-o como interação comum e siga somente as instruções necessárias ao pedido; não transforme a edição em task de backlog nem exija o ciclo de testes/implementação do backlog sem que o cursor tenha entregue uma task.
 - No loop do backlog, execute `looper backlog complete <task-id>` com o mesmo ID recebido somente após validar a task; sem isso, o cursor não avança.
 - Quando o backlog entregar o nó e os subfluxos internos juntos, implemente e teste ambos; “Tela” classifica o nível do nó e não limita a entrega ao frontend.
