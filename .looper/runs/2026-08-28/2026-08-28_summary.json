@@ -253,8 +253,71 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "10e8f58a8614414ab5c97ac35fdfe6d6",
+      "timestamp": "2026-08-28T01:26:46.577396+00:00",
+      "description": "Separação da aba de melhorias e ações de importação/exportação nos desenhos",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 35,
+        "lines_deleted": 57,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "9a20d0c2650a4b2eb9dae4cd8791b796",
+      "timestamp": "2026-08-28T01:31:27.226279+00:00",
+      "description": "Exibição do botão de perguntas somente com pendências abertas",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 19,
+        "lines_deleted": 17,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "80082b203cec4d6aaafba282e37cda38",
+      "timestamp": "2026-08-28T01:34:27.463077+00:00",
+      "description": "Ações de desenhos fixadas no rodapé da sidebar",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 30,
+        "lines_deleted": 34,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 12,
-  "last_run_id": "1e7a9a91f1f140c1b983504c3996100e"
+  "run_count": 15,
+  "last_run_id": "80082b203cec4d6aaafba282e37cda38"
 }

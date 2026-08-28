@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { BacklogDocument, Contract, DrawIndexEntry, ImprovementIndexEntry, NodeData, EdgeData, Group, FlowPath, FlowStep, RunRecord, StaticAnalysisKpiReport } from '../types';
 import { BacklogPanel } from './BacklogPanel';
-import { Plus, Trash2, FolderPlus, List, Info, ChevronRight, Activity, Settings, BarChart3 } from 'lucide-react';
+import { Plus, Trash2, FolderPlus, List, ChevronRight, Activity, Settings, BarChart3, ClipboardList, Upload, Download } from 'lucide-react';
 import brandLogo from '../assets/looper-logo.svg';
 
 interface SidebarProps {
@@ -158,7 +158,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }).format(date);
   };
 
-  const [activeTab, setActiveTab] = useState<'drawings' | 'analysis' | 'runs' | 'backlog' | 'info' | 'blocks' | 'groups' | 'flows'>('runs');
+  const [activeTab, setActiveTab] = useState<'drawings' | 'improvements' | 'analysis' | 'runs' | 'backlog' | 'info' | 'blocks' | 'groups' | 'flows'>('runs');
   const [drawingSearchQuery, setDrawingSearchQuery] = useState('');
   const [showZeroLineRuns, setShowZeroLineRuns] = useState(false);
   const [showAllRuns, setShowAllRuns] = useState(false);
@@ -192,7 +192,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const isEmptyDrawing = contract.nodes.length === 0;
 
   useEffect(() => {
-    if (isEmptyDrawing) setActiveTab('info');
+    if (isEmptyDrawing) setActiveTab('drawings');
   }, [currentDrawingId, isEmptyDrawing]);
 
   useEffect(() => {
@@ -522,12 +522,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <List size={14} />
           <span>Backlog</span>
         </button>
-        <button
-          className={`sidebar-tab-btn ${activeTab === 'info' ? 'active' : ''}`}
-          onClick={() => setActiveTab('info')}
-        >
-          <Info size={14} />
-          <span>Geral</span>
+        <button className={`sidebar-tab-btn ${activeTab === 'improvements' ? 'active' : ''}`} onClick={() => setActiveTab('improvements')} title="Sessões de melhoria">
+          <ClipboardList size={14} />
+          <span>Melhorias</span>
         </button>
         <button
           className={`sidebar-tab-btn ${activeTab === 'blocks' ? 'active' : ''}`}
@@ -559,20 +556,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Tab 0: Drawings list */}
         {activeTab === 'drawings' && (
-          <div className="sidebar-pane">
-            <button className="sidebar-submit-btn" onClick={onNewDrawing} style={{ margin: '4px 0 8px' }}>
-              <Plus size={14} />
-              Novo Desenho
-            </button>
-            <button
-              className="quick-action-btn secondary"
-              onClick={() => setActiveTab('info')}
-              style={{ width: '100%', marginBottom: '10px' }}
-            >
-              <Plus size={14} />
-              Adicionar Bloco
-            </button>
-
+          <div className="sidebar-pane drawings-sidebar-pane">
             <div className="editor-field" style={{ marginBottom: '8px' }}>
               <input
                 className="search-input"
@@ -610,39 +594,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
               )}
             </div>
+            <div className="drawings-sidebar-actions" aria-label="Ações dos desenhos">
+              <button className="sidebar-submit-btn" onClick={onNewDrawing}>
+                <Plus size={14} />
+                Novo Desenho
+              </button>
+              <div className="drawings-toolbar-actions">
+                <button className="quick-action-btn secondary" onClick={() => onOpenImportExport('import')}><Upload size={13} /> Importar</button>
+                <button className="quick-action-btn secondary" onClick={() => onOpenImportExport('export')}><Download size={13} /> Exportar</button>
+              </div>
+              <button className="quick-action-btn secondary drawings-add-block" onClick={() => setActiveTab('blocks')}>
+                <Plus size={14} />
+                Adicionar Bloco
+              </button>
+            </div>
+          </div>
+        )}
 
-            <div className="drawings-all-card improvement-sessions-card">
-              <div className="drawings-all-heading">
-                <div>
-                  <span className="eyebrow">Perguntas humanas</span>
-                  <h3>Sessões de melhoria</h3>
-                </div>
-                <span className="draw-hierarchy-count">{filteredImprovements.length}</span>
-              </div>
-              <div className="draw-list">
-                {filteredImprovements.length === 0 ? (
-                  <p className="no-items-hint" style={{ textAlign: 'center', padding: '16px', color: 'var(--muted)', fontSize: '11px' }}>
-                    Nenhuma sessão de melhoria criada.
-                  </p>
-                ) : filteredImprovements.map((improvement) => (
-                  <button
-                    key={improvement.id}
-                    className={`flow-path-select-btn ${currentImprovementId === improvement.id ? 'active' : ''}`}
-                    onClick={() => onLoadImprovement(improvement.id)}
-                    style={{ width: '100%', textAlign: 'left', padding: '12px 14px', display: 'block' }}
-                  >
-                    <strong style={{ display: 'block', fontSize: '13px', fontWeight: 800 }}>{improvement.title}</strong>
-                    <span style={{ display: 'block', fontSize: '10.5px', color: 'var(--muted)', marginTop: '4px', lineHeight: '1.3' }}>
-                      Draw: {improvement.draw_id}
-                    </span>
-                    <div style={{ display: 'flex', gap: '8px', marginTop: '6px', fontSize: '9px', fontWeight: 800, color: 'var(--muted)' }}>
-                      <span>{improvement.answered_count}/{improvement.question_count} respostas</span>
-                      <span>•</span>
-                      <span>{improvement.status}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
+        {activeTab === 'improvements' && (
+          <div className="sidebar-pane">
+            <div className="runs-sidebar-heading"><div><span className="eyebrow">Perguntas humanas</span><h3>Sessões de melhoria</h3></div><span className="draw-hierarchy-count">{filteredImprovements.length}</span></div>
+            <p className="draw-hierarchy-help">Abra uma sessão para responder perguntas e consolidar decisões no Draw relacionado.</p>
+            <div className="draw-list">
+              {filteredImprovements.length === 0 ? <p className="no-items-hint" style={{ textAlign: 'center', padding: '20px', color: 'var(--muted)', fontSize: '11px' }}>Nenhuma sessão de melhoria criada.</p> : filteredImprovements.map((improvement) => <button key={improvement.id} className={`flow-path-select-btn ${currentImprovementId === improvement.id ? 'active' : ''}`} onClick={() => onLoadImprovement(improvement.id)} style={{ width: '100%', textAlign: 'left', padding: '12px 14px', display: 'block' }}><strong style={{ display: 'block', fontSize: '13px', fontWeight: 800 }}>{improvement.title}</strong><span style={{ display: 'block', fontSize: '10.5px', color: 'var(--muted)', marginTop: '4px', lineHeight: '1.3' }}>Draw: {improvement.draw_id}</span><div style={{ display: 'flex', gap: '8px', marginTop: '6px', fontSize: '9px', fontWeight: 800, color: 'var(--muted)' }}><span>{improvement.answered_count}/{improvement.question_count} respostas</span><span>•</span><span>{improvement.status}</span></div></button>)}
             </div>
           </div>
         )}

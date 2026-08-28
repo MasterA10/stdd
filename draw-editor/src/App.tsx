@@ -1120,7 +1120,9 @@ export const App: React.FC = () => {
       }
       if (!session) throw new Error('sessão não encontrada');
       setCurrentImprovement(session);
-      setShowImprovementModal(false);
+      // A sessão de melhoria abre diretamente nas perguntas; o botão do topo
+      // continua disponível apenas como atalho para reabrir o editor.
+      setShowImprovementModal(true);
       setIsDirty(false);
       setIsImprovementDirty(false);
       setSelectedNodeId(null);
@@ -2499,7 +2501,7 @@ export const App: React.FC = () => {
             <Save size={16} />
             <span>{improvementNeedsSave ? 'Salvar fluxo + respostas' : 'Salvar'}</span>
           </button>
-          {currentImprovement && (
+          {currentImprovement && pendingImprovementQuestions > 0 && (
             <button
               className="improvement-open-btn"
               type="button"

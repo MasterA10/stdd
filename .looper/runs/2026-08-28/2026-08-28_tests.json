@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "run_id": "cf58ad61bae341b092095989af6b10ff",
-  "started_at": "2026-08-28T00:48:22.824448+00:00",
+  "run_id": "7697e7bf79c64974989c0781936ba06d",
+  "started_at": "2026-08-28T01:34:24.527156+00:00",
   "status": "blocked",
   "profile": "mvp",
   "summary": {
@@ -20,7 +20,7 @@
       ],
       "exit_code": 1,
       "status": "failed",
-      "duration_seconds": 18.729702
+      "duration_seconds": 19.329305
     }
   ],
   "contract": {
@@ -1317,6 +1317,17 @@
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_cli_describes_all_screen_entry_transitions"
       },
       {
+        "end_line": 1349,
+        "file": "draw-editor/src/components/Sidebar.tsx",
+        "kind": "function",
+        "line": 1349,
+        "name": "<anonymous>",
+        "qualified_name": "<anonymous>",
+        "signature": "(e) => setNewFlowSummary(e.target.value)",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/components/Sidebar.tsx:function:<anonymous>"
+      },
+      {
         "end_line": 1353,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -1535,17 +1546,6 @@
         "qualified_name": "looper.draw._draw_question_entries",
         "source": "python_ast",
         "symbol_id": "src/looper/draw.py:looper.draw._draw_question_entries"
-      },
-      {
-        "end_line": 1453,
-        "file": "draw-editor/src/components/Sidebar.tsx",
-        "kind": "function",
-        "line": 1453,
-        "name": "<anonymous>",
-        "qualified_name": "<anonymous>",
-        "signature": "(e) => setNewFlowSummary(e.target.value)",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/components/Sidebar.tsx:function:<anonymous>"
       },
       {
         "end_line": 1460,
@@ -2061,7 +2061,7 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_draw_editor_removes_floating_canvas_hint"
       },
       {
-        "end_line": 1682,
+        "end_line": 1683,
         "file": "src/looper/draw.py",
         "kind": "function",
         "line": 1667,
@@ -2101,10 +2101,10 @@
         "symbol_id": "src/looper/static_analysis.py:looper.static_analysis._is_suspicious_assignment"
       },
       {
-        "end_line": 1691,
+        "end_line": 1692,
         "file": "src/looper/draw.py",
         "kind": "function",
-        "line": 1684,
+        "line": 1685,
         "name": "_send_json",
         "qualified_name": "looper.draw._send_json",
         "source": "python_ast",
@@ -2253,16 +2253,6 @@
       },
       {
         "end_line": 1751,
-        "file": "src/looper/draw.py",
-        "kind": "function",
-        "line": 1693,
-        "name": "do_POST",
-        "qualified_name": "looper.draw.do_POST",
-        "source": "python_ast",
-        "symbol_id": "src/looper/draw.py:looper.draw.do_POST"
-      },
-      {
-        "end_line": 1751,
         "file": "tests/test_backlog.py",
         "kind": "function",
         "line": 1720,
@@ -2270,6 +2260,16 @@
         "qualified_name": "tests.test_backlog.test_init_configures_all_backlog_options",
         "source": "python_ast",
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_init_configures_all_backlog_options"
+      },
+      {
+        "end_line": 1752,
+        "file": "src/looper/draw.py",
+        "kind": "function",
+        "line": 1694,
+        "name": "do_POST",
+        "qualified_name": "looper.draw.do_POST",
+        "source": "python_ast",
+        "symbol_id": "src/looper/draw.py:looper.draw.do_POST"
       },
       {
         "end_line": 1762,
@@ -2332,7 +2332,7 @@
         "symbol_id": "src/looper/templates/adapters/static_adapter.py:looper.templates.adapters.static_adapter.shutil_which"
       },
       {
-        "end_line": 1823,
+        "end_line": 1824,
         "file": "src/looper/draw.py",
         "kind": "class",
         "line": 1456,
@@ -2342,17 +2342,17 @@
         "symbol_id": "src/looper/draw.py:looper.draw.ProjectHandler"
       },
       {
-        "end_line": 1823,
+        "end_line": 1824,
         "file": "src/looper/draw.py",
         "kind": "function",
-        "line": 1753,
+        "line": 1754,
         "name": "do_PUT",
         "qualified_name": "looper.draw.do_PUT",
         "source": "python_ast",
         "symbol_id": "src/looper/draw.py:looper.draw.do_PUT"
       },
       {
-        "end_line": 1825,
+        "end_line": 1826,
         "file": "src/looper/draw.py",
         "kind": "function",
         "line": 1441,
@@ -2412,10 +2412,10 @@
         "symbol_id": "src/looper/backlog.py:looper.backlog._draw_navigation_context"
       },
       {
-        "end_line": 1843,
+        "end_line": 1844,
         "file": "src/looper/draw.py",
         "kind": "function",
-        "line": 1828,
+        "line": 1829,
         "name": "serve_draw",
         "qualified_name": "looper.draw.serve_draw",
         "source": "python_ast",
@@ -2432,10 +2432,10 @@
         "symbol_id": "src/looper/static_analysis.py:looper.static_analysis._credential_finding"
       },
       {
-        "end_line": 1853,
+        "end_line": 1854,
         "file": "src/looper/draw.py",
         "kind": "function",
-        "line": 1846,
+        "line": 1847,
         "name": "start_server_for_test",
         "qualified_name": "looper.draw.start_server_for_test",
         "source": "python_ast",
@@ -3420,10 +3420,10 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_alt_click_opens_the_same_detail_view_as_the_eye_action"
       },
       {
-        "end_line": 2745,
+        "end_line": 2747,
         "file": "draw-editor/src/App.tsx",
         "kind": "function",
-        "line": 2743,
+        "line": 2745,
         "name": "<anonymous>",
         "qualified_name": "<anonymous>",
         "signature": "(",
@@ -6126,17 +6126,6 @@
       },
       {
         "end_line": 69,
-        "file": "draw-editor/src/components/ConfigSettingsModal.tsx",
-        "kind": "function",
-        "line": 69,
-        "name": "<anonymous>",
-        "qualified_name": "<anonymous>",
-        "signature": "(event) => update('instructions.change', event.target.value)",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/components/ConfigSettingsModal.tsx:function:<anonymous>"
-      },
-      {
-        "end_line": 69,
         "file": "src/looper/improvements.py",
         "kind": "function",
         "line": 67,
@@ -7825,6 +7814,17 @@
         "qualified_name": "tests.test_draw.test_create_draw_rejects_unsafe_subdraw_reference",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_rejects_unsafe_subdraw_reference"
+      },
+      {
+        "end_line": 98,
+        "file": "draw-editor/src/components/ConfigSettingsModal.tsx",
+        "kind": "function",
+        "line": 98,
+        "name": "<anonymous>",
+        "qualified_name": "<anonymous>",
+        "signature": "(event) => update('instructions.change', event.target.value)",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/components/ConfigSettingsModal.tsx:function:<anonymous>"
       },
       {
         "end_line": 984,
@@ -14028,14 +14028,14 @@
         "exception_applied": "exception-6"
       },
       {
-        "evidence": "long_function:385",
+        "evidence": "long_function:386",
         "file": "src/looper/draw.py",
         "kind": "long_function",
         "limit": 100,
         "severity": "warning",
         "source": "python_ast",
         "symbol_id": "src/looper/draw.py:looper.draw.create_server",
-        "value": 385,
+        "value": 386,
         "exception_applied": "exception-4"
       },
       {
