@@ -127,8 +127,134 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "75af5eafcb4845728cda9c90c2044212",
+      "timestamp": "2026-08-28T01:04:27.691181+00:00",
+      "description": "Substituição da lista hierárquica por mapa visual de Draws conectados",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 41,
+        "lines_deleted": 61,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "42119f98aa1c42e0a43e36dedeaee0a0",
+      "timestamp": "2026-08-28T01:07:19.587793+00:00",
+      "description": "Mapa de Draws com React Flow, pan fixo e conexões visuais do canvas",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 43,
+        "lines_deleted": 37,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "9c78f5dfc8184b67908e1743824eb673",
+      "timestamp": "2026-08-28T01:12:22.029488+00:00",
+      "description": "Isolamento do canvas principal e zoom local no mapa de navegação",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 31,
+        "lines_deleted": 32,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "26cfa41cb3c14f78a0db0185d93e02bb",
+      "timestamp": "2026-08-28T01:12:41.727368+00:00",
+      "description": "Inspeção visual final confirma canvas principal intacto e mapa lateral isolado",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "266d26c6d34943ae8022a45dfae9a819",
+      "timestamp": "2026-08-28T01:16:54.044002+00:00",
+      "description": "Navegação consolidada em uma única lista encadeada alinhada aos pais",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 25,
+        "lines_deleted": 88,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "1e7a9a91f1f140c1b983504c3996100e",
+      "timestamp": "2026-08-28T01:18:39.875723+00:00",
+      "description": "Compactação da lista de Draws e remoção de overflow horizontal",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 15,
+        "lines_deleted": 15,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 6,
-  "last_run_id": "ab8017ecd2aa465cb4627bc2aae15b06"
+  "run_count": 12,
+  "last_run_id": "1e7a9a91f1f140c1b983504c3996100e"
 }

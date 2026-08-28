@@ -97,6 +97,16 @@ const calculateWeightedRunScore = (linesAdded: number, linesRemoved: number): nu
   return Math.round((added * ADDITION_WEIGHT * 100) / weightedChanges);
 };
 
+const DrawChainItem: React.FC<{ draw: DrawIndexEntry; childrenById: Map<string, DrawIndexEntry[]>; currentDrawingId: string; onLoadDrawing: (id: string) => void; depth?: number }> = ({ draw, childrenById, currentDrawingId, onLoadDrawing, depth = 0 }) => <div className="draw-chain-branch" style={{ '--draw-depth': depth } as React.CSSProperties}>
+  <button className={`draw-chain-item ${currentDrawingId === draw.id ? 'active' : ''}`} onClick={() => onLoadDrawing(draw.id)} title={`Abrir ${draw.title}`}><span>{draw.title}</span></button>
+  {(childrenById.get(draw.id) || []).map((child) => <DrawChainItem key={child.id} draw={child} childrenById={childrenById} currentDrawingId={currentDrawingId} onLoadDrawing={onLoadDrawing} depth={depth + 1} />)}
+</div>;
+
+const DrawNavigationMap: React.FC<{ drawings: DrawIndexEntry[]; childrenById: Map<string, DrawIndexEntry[]>; currentDrawingId: string; onLoadDrawing: (id: string) => void }> = ({ drawings, childrenById, currentDrawingId, onLoadDrawing }) => <div className="draw-chain-list" aria-label="Lista encadeada de Draws">
+  {drawings.filter((draw) => !draw.hierarchy?.parent_draw_ref && draw.hierarchy?.level).map((draw) => <DrawChainItem key={draw.id} draw={draw} childrenById={childrenById} currentDrawingId={currentDrawingId} onLoadDrawing={onLoadDrawing} />)}
+  {drawings.filter((draw) => !draw.hierarchy?.level).map((draw) => <DrawChainItem key={draw.id} draw={draw} childrenById={childrenById} currentDrawingId={currentDrawingId} onLoadDrawing={onLoadDrawing} />)}
+</div>;
+
 export const Sidebar: React.FC<SidebarProps> = ({
   dock,
   contract,
@@ -208,7 +218,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     children.set(parentId, [...(children.get(parentId) || []), draw]);
     return children;
   }, new Map());
-  const drawingById = new Map(drawingsIndex.map((draw) => [draw.id, draw]));
   const levelGroups = Object.entries(drawingsByLevel).sort(([left], [right]) => {
     if (left === 'unassigned') return 1;
     if (right === 'unassigned') return -1;
@@ -595,98 +604,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <span className="draw-hierarchy-empty-hint">Os subfluxos aparecerão aqui automaticamente.</span>
                 </div>
               ) : (
-                <div className="draw-level-groups">
-                  {levelGroups.map(([level, drawings]) => (
-                    <details key={level} className="draw-level-group" open={level === '1' || level === 'unassigned'}>
-                      <summary>
-                        <span>{level === 'unassigned' ? 'Sem nível' : `Nível ${level}`}</span>
-                        <small>{drawings.length} {drawings.length === 1 ? 'fluxo' : 'fluxos'}</small>
-                      </summary>
-                      <div className="draw-level-items">
-                        {drawings.map((draw) => {
-                          const parent = draw.hierarchy?.parent_draw_ref
-                            ? drawingById.get(draw.hierarchy.parent_draw_ref)
-                            : undefined;
-                          const children = hierarchyChildren.get(draw.id) || [];
-                          return (
-                            <div key={draw.id} className="draw-level-item">
-                              <button
-                                className={`draw-level-link ${currentDrawingId === draw.id ? 'active' : ''}`}
-                                onClick={() => onLoadDrawing(draw.id)}
-                              >
-                                <span className="draw-level-link-title">{draw.title}</span>
-                                <span className="draw-level-link-meta">
-                                  {parent ? `Subfluxo de ${parent.title}` : draw.kind || 'desenho'}
-                                </span>
-                              </button>
-                              {children.length > 0 && (
-                                <div className="draw-subflow-links">
-                                  <span className="draw-subflow-label">{children.length} subfluxo{children.length === 1 ? '' : 's'}</span>
-                                  {children.map((child) => (
-                                    <button
-                                      key={child.id}
-                                      className={`draw-subflow-link ${currentDrawingId === child.id ? 'active' : ''}`}
-                                      onClick={() => onLoadDrawing(child.id)}
-                                    >
-                                      <ChevronRight size={12} />
-                                      <span>{child.title}</span>
-                                    </button>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </details>
-                  ))}
+                <div className="draw-graph-scroll" aria-label="Mapa de navegação entre Draws">
+                  <div className="draw-graph-legend"><span className="draw-graph-legend-line" /> <span>Todos os Draws ficam alinhados pelo pai; o recuo indica a profundidade.</span></div>
+                  <DrawNavigationMap drawings={filteredDrawings} childrenById={hierarchyChildren} currentDrawingId={currentDrawingId} onLoadDrawing={onLoadDrawing} />
                 </div>
               )}
-            </div>
-
-            <div className="drawings-all-card">
-              <div className="drawings-all-heading">
-                <div>
-                  <span className="eyebrow">Catálogo completo</span>
-                  <h3>Todos os desenhos</h3>
-                </div>
-                <span className="draw-hierarchy-count">{filteredDrawings.length}</span>
-              </div>
-              <div className="draw-list">
-              {filteredDrawings.length === 0 ? (
-                <p className="no-items-hint" style={{ textAlign: 'center', padding: '20px', color: 'var(--muted)', fontSize: '11px' }}>
-                  Nenhum desenho encontrado.
-                </p>
-              ) : (
-                filteredDrawings.map((draw) => (
-                  <button
-                    key={draw.id}
-                    className={`flow-path-select-btn ${currentDrawingId === draw.id ? 'active' : ''}`}
-                    onClick={() => onLoadDrawing(draw.id)}
-                    style={{
-                      width: '100%',
-                      textAlign: 'left',
-                      padding: '12px 14px',
-                      display: 'block'
-                    }}
-                  >
-                    <strong style={{ display: 'block', fontSize: '13px', fontWeight: 800 }}>
-                      {draw.title}
-                    </strong>
-                    <span style={{ display: 'block', fontSize: '10.5px', color: 'var(--muted)', marginTop: '4px', lineHeight: '1.3' }}>
-                      {draw.subtitle || 'Sem descrição.'}
-                    </span>
-                    <div style={{ display: 'flex', gap: '8px', marginTop: '6px', fontSize: '9px', fontWeight: 800, color: 'var(--muted)' }}>
-                      <span style={{ textTransform: 'uppercase', color: currentDrawingId === draw.id ? 'var(--accent-strong)' : 'var(--accent)' }}>{draw.kind}</span>
-                      <span>•</span>
-                      <span>{draw.node_count} blocos</span>
-                      <span>•</span>
-                      <span>{draw.edge_count} conexões</span>
-                    </div>
-                  </button>
-                ))
-              )}
-              </div>
             </div>
 
             <div className="drawings-all-card improvement-sessions-card">
