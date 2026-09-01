@@ -38,49 +38,117 @@
       "id": 1,
       "label": "Pedido do usuário",
       "group": 1,
-      "description": "Intenção, problema, mudança arquitetural ou necessidade de documentação recebida pelo agente hospedeiro."
+      "description": "Intenção, problema, mudança arquitetural ou necessidade de documentação recebida pelo agente hospedeiro.",
+      "code_refs": [
+        {
+          "file": "src/looper/cli.py",
+          "symbol": "looper.cli.app"
+        }
+      ]
     },
     {
       "id": 2,
       "label": "$setup",
       "group": 1,
-      "description": "Descobre a stack, runners, bancos, provedores e configura o Looper sem inventar capacidades. Encaminha para $draw-system quando falta uma raiz de sistema."
+      "description": "Descobre a stack, runners, bancos, provedores e configura o Looper sem inventar capacidades. Encaminha para $draw-system quando falta uma raiz de sistema.",
+      "code_refs": [
+        {
+          "file": "src/looper/setup.py",
+          "symbol": "looper.setup.detect_stack"
+        },
+        {
+          "file": "src/looper/setup.py",
+          "symbol": "looper.setup.configure_project"
+        }
+      ]
     },
     {
       "id": 3,
       "label": "$draw-system",
       "group": 2,
-      "description": "Modela o sistema completo em arquitetura, jornadas, implementação e codebase quando necessário; mantém a árvore hierárquica sem órfãos."
+      "description": "Modela o sistema completo em arquitetura, jornadas, implementação e codebase quando necessário; mantém a árvore hierárquica sem órfãos.",
+      "code_refs": [
+        {
+          "file": "src/looper/draw.py",
+          "symbol": "looper.draw.create_draw"
+        },
+        {
+          "file": "src/looper/draw.py",
+          "symbol": "looper.draw.collect_draw_context"
+        }
+      ]
     },
     {
       "id": 4,
       "label": "$draw-feature",
       "group": 2,
-      "description": "Desenha uma feature, fluxo, decisão ou trade-off como JSON navegável, respeitando a árvore do sistema quando existir."
+      "description": "Desenha uma feature, fluxo, decisão ou trade-off como JSON navegável, respeitando a árvore do sistema quando existir.",
+      "code_refs": [
+        {
+          "file": "src/looper/draw.py",
+          "symbol": "looper.draw.create_draw"
+        }
+      ]
     },
     {
       "id": 5,
       "label": "$draw-improve",
       "group": 2,
-      "description": "Revisa um Draw existente e acrescenta apenas o próximo detalhe arquitetural relevante, preservando intenção, escopo e vínculos."
+      "description": "Revisa um Draw existente e acrescenta apenas o próximo detalhe arquitetural relevante, preservando intenção, escopo e vínculos.",
+      "code_refs": [
+        {
+          "file": "src/looper/cli.py",
+          "symbol": "looper.cli.draw_improve"
+        },
+        {
+          "file": "src/looper/draw.py",
+          "symbol": "looper.draw.format_draw_answers"
+        }
+      ]
     },
     {
       "id": 6,
       "label": "$create-tests",
       "group": 3,
-      "description": "Transforma jornadas e desenhos em testes executáveis vermelhos, sem alterar código de produção; trata folhas não implementadas como escopo ausente."
+      "description": "Transforma jornadas e desenhos em testes executáveis vermelhos, sem alterar código de produção; trata folhas não implementadas como escopo ausente.",
+      "code_refs": [
+        {
+          "file": "src/looper/core.py",
+          "symbol": "looper.core.run_tests"
+        }
+      ]
     },
     {
       "id": 7,
       "label": "$implement",
       "group": 3,
-      "description": "Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural; depois atualiza o Draw correspondente. Detalhes sem mudança de comportamento viram perguntas no nível L2/L3 correto, e mudanças de fluxo também atualizam as conexões dos nós."
+      "description": "Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural; depois atualiza o Draw correspondente. Detalhes sem mudança de comportamento viram perguntas no nível L2/L3 correto, e mudanças de fluxo também atualizam as conexões dos nós.",
+      "code_refs": [
+        {
+          "file": "src/looper/core.py",
+          "symbol": "looper.core.init_project"
+        },
+        {
+          "file": "src/looper/traceability.py",
+          "symbol": "looper.traceability.associate_node_reference"
+        }
+      ]
     },
     {
       "id": 8,
       "label": "$static-analysis",
       "group": 4,
-      "description": "Implementa ou conecta adapters agnósticos e produz fatos determinísticos sobre símbolos, dependências, complexidade, estrutura e alterações."
+      "description": "Implementa ou conecta adapters agnósticos e produz fatos determinísticos sobre símbolos, dependências, complexidade, estrutura e alterações.",
+      "code_refs": [
+        {
+          "file": "src/looper/static_analysis.py",
+          "symbol": "looper.static_analysis.run_static_analysis"
+        },
+        {
+          "file": "src/looper/static_analysis.py",
+          "symbol": "looper.static_analysis.apply_static_analysis_policy"
+        }
+      ]
     },
     {
       "id": 9,
@@ -88,36 +156,91 @@
       "group": 4,
       "description": "Não são agentes: são gates e evidências operacionais que verificam e registram o trabalho conduzido pelas skills. O comando looper draw context organiza todos os níveis, conexões, perguntas, respostas e símbolos em texto para consumo do agente. Revisões e correções delegadas a subagentes usam exclusivamente sessões tmux após autorização do usuário.",
       "code_refs": [
-        {"file": "src/looper/cli.py", "symbol": "looper.cli.draw_context"},
-        {"file": "src/looper/draw.py", "symbol": "looper.draw.collect_draw_context"},
-        {"file": "src/looper/draw.py", "symbol": "looper.draw.format_draw_context"},
-        {"file": "src/looper/reviews.py", "symbol": "looper.reviews.load_review_config"},
-        {"file": "src/looper/reviews.py", "symbol": "looper.reviews._run_agent"}
+        {
+          "file": "src/looper/cli.py",
+          "symbol": "looper.cli.draw_context"
+        },
+        {
+          "file": "src/looper/draw.py",
+          "symbol": "looper.draw.collect_draw_context"
+        },
+        {
+          "file": "src/looper/draw.py",
+          "symbol": "looper.draw.format_draw_context"
+        },
+        {
+          "file": "src/looper/reviews.py",
+          "symbol": "looper.reviews.load_review_config"
+        },
+        {
+          "file": "src/looper/reviews.py",
+          "symbol": "looper.reviews._run_agent"
+        },
+        {
+          "file": "src/looper/cli.py",
+          "symbol": "looper.cli.test_all"
+        },
+        {
+          "file": "src/looper/cli.py",
+          "symbol": "looper.cli.log_work"
+        }
       ]
     },
     {
       "id": 10,
       "label": "Codex",
       "group": 5,
-      "description": "Integração padrão: instala as skills em .agents/skills/ e fornece o AGENTS.md compartilhado para qualquer agente compatível."
+      "description": "Integração padrão: instala as skills em .agents/skills/ e fornece o AGENTS.md compartilhado para qualquer agente compatível.",
+      "code_refs": [
+        {
+          "file": "src/looper/reviews.py",
+          "symbol": "looper.reviews._command"
+        },
+        {
+          "file": "src/looper/reviews.py",
+          "symbol": "looper.reviews.load_review_config"
+        }
+      ]
     },
     {
       "id": 11,
       "label": "Claude",
       "group": 5,
-      "description": "Integração de agente que instala as skills em .claude/skills/."
+      "description": "Integração de agente que instala as skills em .claude/skills/.",
+      "code_refs": [
+        {
+          "file": "src/looper/reviews.py",
+          "symbol": "looper.reviews._command"
+        }
+      ]
     },
     {
       "id": 12,
       "label": "Gemini",
       "group": 5,
-      "description": "Integração de agente que instala as skills em .gemini/skills/."
+      "description": "Integração de agente que instala as skills em .gemini/skills/.",
+      "code_refs": [
+        {
+          "file": "src/looper/reviews.py",
+          "symbol": "looper.reviews._command"
+        }
+      ]
     },
     {
       "id": 13,
       "label": "Entrega documentada",
       "group": 3,
-      "description": "Estado final esperado: comportamento especificado, implementado quando aplicável, verificado, desenhado e registrado."
+      "description": "Estado final esperado: comportamento especificado, implementado quando aplicável, verificado, desenhado e registrado.",
+      "code_refs": [
+        {
+          "file": "src/looper/core.py",
+          "symbol": "looper.core.record_run_entry"
+        },
+        {
+          "file": "src/looper/draw.py",
+          "symbol": "looper.draw.collect_draw_context"
+        }
+      ]
     }
   ],
   "edges": [
@@ -322,8 +445,16 @@
           "text": "cria testes"
         },
         {
+          "node": 7,
+          "text": "implementa"
+        },
+        {
           "node": 9,
           "text": "verifica e registra"
+        },
+        {
+          "node": 13,
+          "text": "entrega documentada"
         }
       ]
     },
@@ -344,6 +475,42 @@
         {
           "node": 6,
           "text": "encaminha para testes"
+        },
+        {
+          "node": 7,
+          "text": "implementa"
+        },
+        {
+          "node": 9,
+          "text": "verifica e registra"
+        },
+        {
+          "node": 13,
+          "text": "entrega documentada"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "label": "Integração de Agentes",
+      "title": "Hospedagem e Execução",
+      "summary": "Agentes externos executam as instruções e fluxos Looper.",
+      "steps": [
+        {
+          "node": 10,
+          "text": "Codex executa instruções"
+        },
+        {
+          "node": 3,
+          "text": "desenha sistema"
+        },
+        {
+          "node": 9,
+          "text": "verifica e registra"
+        },
+        {
+          "node": 13,
+          "text": "entrega documentada"
         }
       ]
     }

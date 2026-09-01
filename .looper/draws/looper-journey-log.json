@@ -30,25 +30,58 @@
       "id": 1,
       "label": "Receber descrição e tipo",
       "group": 1,
-      "description": "Aceita descrição curta e tipo implementacao, teste, bug ou refactor."
+      "description": "Aceita descrição curta e tipo implementacao, teste, bug ou refactor.",
+      "code_refs": [
+        {
+          "file": "src/looper/cli.py",
+          "symbol": "looper.cli.log_work",
+          "source_dependencies": [
+            "looper.core.record_run_entry"
+          ]
+        }
+      ]
     },
     {
       "id": 2,
       "label": "Coletar diff e snapshot",
       "group": 2,
-      "description": "Compara o estado atual com o checkpoint e salva resumo e snapshot em .looper/runs."
+      "description": "Compara o estado atual com o checkpoint e salva resumo e snapshot em .looper/runs.",
+      "code_refs": [
+        {
+          "file": "src/looper/core.py",
+          "symbol": "looper.core.get_incremental_diff_stats",
+          "source_dependencies": [
+            "looper.core.get_workspace_snapshot"
+          ]
+        }
+      ]
     },
     {
       "id": 3,
       "label": "Registrar execução",
       "group": 2,
-      "description": "Persiste o registro sem incluir segredos e marca retrabalho quando aplicável."
+      "description": "Persiste o registro sem incluir segredos e marca retrabalho quando aplicável.",
+      "code_refs": [
+        {
+          "file": "src/looper/core.py",
+          "symbol": "looper.core.record_run_entry",
+          "source_dependencies": [
+            "looper.runs.update_runs_index"
+          ]
+        }
+      ]
     },
     {
       "id": 4,
       "label": "Evidência disponível",
       "group": 3,
-      "description": "O usuário pode revisar o log e o diff no painel de runs."
+      "description": "O usuário pode revisar o log e o diff no painel de runs.",
+      "code_refs": [
+        {
+          "file": "src/looper/runs.py",
+          "symbol": "looper.runs.runs_directory"
+        }
+      ]
     }
   ],
   "edges": [

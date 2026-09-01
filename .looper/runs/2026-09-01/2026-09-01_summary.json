@@ -589,8 +589,29 @@
         "lines_deleted": 406,
         "files_changed": 1
       }
+    },
+    {
+      "run_id": "e12bdbd521a34796bed9ee22a745f466",
+      "timestamp": "2026-09-01T22:51:19.069085+00:00",
+      "description": "Associa referências de símbolos, desenhos e fluxos a todos os nós dos Draws",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 611,
+        "lines_deleted": 62,
+        "files_changed": 7
+      }
     }
   ],
-  "run_count": 28,
-  "last_run_id": "131e54856572431ca693bf82a84a61fb"
+  "run_count": 29,
+  "last_run_id": "e12bdbd521a34796bed9ee22a745f466"
 }

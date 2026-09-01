@@ -33,6 +33,7 @@
       "description": "O comando draw create recebe o payload sem layout, cores ou HTML.",
       "code_refs": [
         {
+          "file": "src/looper/cli.py",
           "symbol": "looper.cli.draw_create",
           "identity": "64fd878f20627d43",
           "source_dependencies": [
@@ -45,7 +46,16 @@
       "id": 2,
       "label": "Validar contrato e hierarquia",
       "group": 1,
-      "description": "Confere IDs, relações, fluxos, perguntas e pai explícito antes de persistir."
+      "description": "Confere IDs, relações, fluxos, perguntas e pai explícito antes de persistir.",
+      "code_refs": [
+        {
+          "file": "src/looper/draw.py",
+          "symbol": "looper.draw.validate_draw_payload",
+          "source_dependencies": [
+            "looper.draw.validate_hierarchy_parent"
+          ]
+        }
+      ]
     },
     {
       "id": 3,
@@ -54,6 +64,7 @@
       "description": "Grava o JSON em .looper/draws e atualiza o índice.",
       "code_refs": [
         {
+          "file": "src/looper/draw.py",
           "symbol": "looper.draw.create_draw",
           "identity": "8a42d3855073c490",
           "source_dependencies": [
@@ -70,6 +81,7 @@
       "description": "O servidor embutido entrega o viewer e endpoints GET/PUT dos desenhos.",
       "code_refs": [
         {
+          "file": "src/looper/cli.py",
           "symbol": "looper.cli.draw_serve",
           "identity": "6fc36dddf6301a84",
           "source_dependencies": [
@@ -77,6 +89,7 @@
           ]
         },
         {
+          "file": "src/looper/draw.py",
           "symbol": "looper.draw.serve_draw",
           "identity": "324880b0e1533bd3",
           "source_dependencies": [
@@ -89,7 +102,16 @@
       "id": 5,
       "label": "Árvore navegável",
       "group": 3,
-      "description": "O usuário navega da arquitetura às jornadas e implementações, mantendo perguntas e trade-offs visíveis."
+      "description": "O usuário navega da arquitetura às jornadas e implementações, mantendo perguntas e trade-offs visíveis.",
+      "code_refs": [
+        {
+          "file": "src/looper/draw.py",
+          "symbol": "looper.draw.collect_draw_context",
+          "source_dependencies": [
+            "looper.draw.format_draw_context"
+          ]
+        }
+      ]
     }
   ],
   "edges": [
@@ -133,9 +155,9 @@
   "flows": [
     {
       "id": 1,
-      "label": "Documentação Draw",
-      "title": "Do JSON ao viewer",
-      "summary": "Payload lógico validado, persistido e servido localmente.",
+      "label": "Documentação",
+      "title": "Criação e serviço do Draw",
+      "summary": "Criação, validação, persistência e visualização da árvore.",
       "steps": [
         {
           "node": 1,
@@ -147,7 +169,7 @@
         },
         {
           "node": 3,
-          "text": "persiste"
+          "text": "persiste desenho"
         },
         {
           "node": 4,
@@ -155,7 +177,7 @@
         },
         {
           "node": 5,
-          "text": "revisa árvore"
+          "text": "permite navegação"
         }
       ]
     }

@@ -30,13 +30,31 @@
       "id": 1,
       "label": "Ler perfil e suítes",
       "group": 1,
-      "description": "A execução seleciona suítes, exclusões, perfil e aprovações. Testes de regressão da codebase rodam por padrão; suítes declaradas com type: playwright ficam como not_executed até receberem a flag explícita --playwright."
+      "description": "A execução seleciona suítes, exclusões, perfil e aprovações. Testes de regressão da codebase rodam por padrão; suítes declaradas com type: playwright ficam como not_executed até receberem a flag explícita --playwright.",
+      "code_refs": [
+        {
+          "file": "src/looper/cli.py",
+          "symbol": "looper.cli.test_all",
+          "source_dependencies": [
+            "looper.core.run_tests"
+          ]
+        }
+      ]
     },
     {
       "id": 2,
       "label": "Executar runners e contrato",
       "group": 2,
-      "description": "Subprocessos, contrato e ações aprovadas são executados com captura de resultado. O alias global preserva a regressão como padrão e só inclui E2E Playwright quando solicitado explicitamente."
+      "description": "Subprocessos, contrato e ações aprovadas são executados com captura de resultado. O alias global preserva a regressão como padrão e só inclui E2E Playwright quando solicitado explicitamente.",
+      "code_refs": [
+        {
+          "file": "src/looper/core.py",
+          "symbol": "looper.core.execute_test_suite",
+          "source_dependencies": [
+            "looper.core.run_tests"
+          ]
+        }
+      ]
     },
     {
       "id": 3,
@@ -45,6 +63,7 @@
       "description": "O adapter gera símbolos, dependências e métricas; fatos de rastreabilidade são atualizados.",
       "code_refs": [
         {
+          "file": "src/looper/core.py",
           "symbol": "looper.core.run_tests",
           "identity": "5d8bef5f73daedc0",
           "source_dependencies": [
@@ -58,13 +77,25 @@
       "id": 4,
       "label": "Gate aprovado",
       "group": 3,
-      "description": "Todos os gates passam e a execução pode ser registrada."
+      "description": "Todos os gates passam e a execução pode ser registrada.",
+      "code_refs": [
+        {
+          "file": "src/looper/core.py",
+          "symbol": "looper.core.run_tests"
+        }
+      ]
     },
     {
       "id": 5,
       "label": "Gate bloqueado",
       "group": 3,
-      "description": "Falha de teste, contrato, análise ou segurança retorna status bloqueado."
+      "description": "Falha de teste, contrato, análise ou segurança retorna status bloqueado.",
+      "code_refs": [
+        {
+          "file": "src/looper/static_analysis.py",
+          "symbol": "looper.static_analysis.blocked_result"
+        }
+      ]
     }
   ],
   "edges": [
@@ -126,7 +157,31 @@
         },
         {
           "node": 4,
-          "text": "aprova ou bloqueia"
+          "text": "aprova"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "label": "Bloqueio",
+      "title": "Gate com falha",
+      "summary": "Falha de teste, análise ou contrato gera bloqueio.",
+      "steps": [
+        {
+          "node": 1,
+          "text": "lê configuração"
+        },
+        {
+          "node": 2,
+          "text": "executa suítes"
+        },
+        {
+          "node": 3,
+          "text": "analisa fatos"
+        },
+        {
+          "node": 5,
+          "text": "bloqueia"
         }
       ]
     }

@@ -351,7 +351,7 @@ Símbolo: `looper.core.init_project`
 Dependências: looper.draw.ensure_draw_workspace, looper.core.ensure_gitignore, looper.core.ensure_agent_instructions
 
 
-## Nível 3 — Implementação da jornada de verificação
+## Nível 3 — Implementação da jornada de verificaçãos
 Draw: `looper-journey-test` · papel: implementation
 Pai: `looper-user-journeys` · nó 4
 Resumo: Como looper test transforma configuração em evidência de qualidade

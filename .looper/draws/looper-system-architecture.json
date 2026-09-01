@@ -38,69 +38,159 @@
       "id": 1,
       "label": "Agente de código",
       "group": 1,
-      "description": "Consumidor das skills instaladas, responsável por especificar, desenhar, implementar e relatar o trabalho."
+      "description": "Consumidor das skills instaladas, responsável por especificar, desenhar, implementar e relatar o trabalho.",
+      "code_refs": [
+        {
+          "file": "src/looper/reviews.py",
+          "symbol": "looper.reviews._run_agent"
+        }
+      ]
     },
     {
       "id": 2,
       "label": "CLI looper",
       "group": 1,
-      "description": "Interface operacional para init, setup, test, log e draw."
+      "description": "Interface operacional para init, setup, test, log e draw.",
+      "code_refs": [
+        {
+          "file": "src/looper/cli.py",
+          "symbol": "looper.cli.app"
+        }
+      ]
     },
     {
       "id": 3,
       "label": "Núcleo de execução",
       "group": 2,
-      "description": "Coordena inicialização, runners, contratos, análise estática, rastreabilidade e registro de execuções."
+      "description": "Coordena inicialização, runners, contratos, análise estática, rastreabilidade e registro de execuções.",
+      "code_refs": [
+        {
+          "file": "src/looper/core.py",
+          "symbol": "looper.core.run_tests"
+        },
+        {
+          "file": "src/looper/core.py",
+          "symbol": "looper.core.record_run_entry"
+        }
+      ]
     },
     {
       "id": 4,
       "label": "Contrato e testes do framework",
       "group": 2,
-      "description": "Suítes pytest e regras de contrato que protegem o comportamento do próprio Looper."
+      "description": "Suítes pytest e regras de contrato que protegem o comportamento do próprio Looper.",
+      "code_refs": [
+        {
+          "file": "src/looper/draw.py",
+          "symbol": "looper.draw.validate_draw_payload"
+        },
+        {
+          "file": "src/looper/static_analysis.py",
+          "symbol": "looper.static_analysis.validate_static_analysis_result"
+        }
+      ]
     },
     {
       "id": 5,
       "label": ".looper/config.json",
       "group": 3,
-      "description": "Configuração de runners, stack detectada, contrato e adapter de análise estática."
+      "description": "Configuração de runners, stack detectada, contrato e adapter de análise estática.",
+      "code_refs": [
+        {
+          "file": "src/looper/setup.py",
+          "symbol": "looper.setup.configure_project"
+        },
+        {
+          "file": "src/looper/reviews.py",
+          "symbol": "looper.reviews.load_review_config"
+        }
+      ]
     },
     {
       "id": 6,
       "label": ".looper/runs e facts",
       "group": 3,
-      "description": "Estado versionável de execuções, snapshots, KPIs de análise e fatos de rastreabilidade."
+      "description": "Estado versionável de execuções, snapshots, KPIs de análise e fatos de rastreabilidade.",
+      "code_refs": [
+        {
+          "file": "src/looper/runs.py",
+          "symbol": "looper.runs.update_runs_index"
+        },
+        {
+          "file": "src/looper/traceability.py",
+          "symbol": "looper.traceability.refresh_traceability"
+        }
+      ]
     },
     {
       "id": 7,
       "label": ".looper/draws",
       "group": 4,
-      "description": "Fonte de verdade JSON dos desenhos, com índice e relações hierárquicas."
+      "description": "Fonte de verdade JSON dos desenhos, com índice e relações hierárquicas.",
+      "code_refs": [
+        {
+          "file": "src/looper/draw.py",
+          "symbol": "looper.draw.create_draw"
+        },
+        {
+          "file": "src/looper/draw.py",
+          "symbol": "looper.draw.collect_draw_context"
+        }
+      ]
     },
     {
       "id": 8,
       "label": "Jornadas do usuário do Looper",
       "group": 1,
       "description": "Entrada para o desenho de nível 2: como agente e desenvolvedor usam o sistema.",
-      "draw_ref": "looper-user-journeys"
+      "draw_ref": "looper-user-journeys",
+      "code_refs": [
+        {
+          "file": "src/looper/cli.py",
+          "symbol": "looper.cli.init"
+        }
+      ]
     },
     {
       "id": 9,
       "label": "Draw Server e viewer embutido",
       "group": 4,
-      "description": "Servidor HTTP local que entrega o viewer React Flow empacotado e a API de desenhos."
+      "description": "Servidor HTTP local que entrega o viewer React Flow empacotado e a API de desenhos.",
+      "code_refs": [
+        {
+          "file": "src/looper/draw.py",
+          "symbol": "looper.draw.serve_draw"
+        },
+        {
+          "file": "src/looper/cli.py",
+          "symbol": "looper.cli.draw_serve"
+        }
+      ]
     },
     {
       "id": 10,
       "label": "Codebase Python e pytest",
       "group": 5,
-      "description": "Runtime Python >= 3.11, Typer, setuptools e pytest; sem banco ou serviço externo obrigatório."
+      "description": "Runtime Python >= 3.11, Typer, setuptools e pytest; sem banco ou serviço externo obrigatório.",
+      "code_refs": [
+        {
+          "file": "src/looper/core.py",
+          "symbol": "looper.core.execute_test_suite"
+        }
+      ]
     },
     {
       "id": 11,
       "label": "Agentes Looper e integrações",
       "group": 5,
       "description": "Skills especializadas que conduzem o ciclo de especificação, desenho, análise e implementação; instaladas nas integrações Codex, Claude e Gemini.",
-      "draw_ref": "looper-agent-journeys"
+      "draw_ref": "looper-agent-journeys",
+      "code_refs": [
+        {
+          "file": "src/looper/reviews.py",
+          "symbol": "looper.reviews.run_review"
+        }
+      ]
     }
   ],
   "edges": [
@@ -204,7 +294,68 @@
       "description": "Os agentes transformam pedidos em jornadas documentadas e entregáveis verificáveis."
     }
   ],
-  "flows": [],
+  "flows": [
+    {
+      "id": 1,
+      "label": "Execução e controle",
+      "title": "Fluxo de comando e execução",
+      "summary": "Agente aciona a CLI, que despacha para o núcleo, consulta estado, valida gates e registra evidências.",
+      "steps": [
+        {
+          "node": 1,
+          "text": "agente inicia comando"
+        },
+        {
+          "node": 2,
+          "text": "CLI recebe comando"
+        },
+        {
+          "node": 3,
+          "text": "núcleo processa"
+        },
+        {
+          "node": 5,
+          "text": "lê e atualiza configuração"
+        },
+        {
+          "node": 4,
+          "text": "valida contratos e testes"
+        },
+        {
+          "node": 6,
+          "text": "registra runs e facts"
+        },
+        {
+          "node": 7,
+          "text": "persiste draws"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "label": "Visualização e revisão",
+      "title": "Fluxo de visualização e jornadas",
+      "summary": "Draw Server lê a árvore persistida e serve a interface de revisão das jornadas do usuário e agentes.",
+      "steps": [
+        {
+          "node": 7,
+          "text": "lê definições de draw"
+        },
+        {
+          "node": 9,
+          "text": "inicia Draw Server"
+        },
+        {
+          "node": 8,
+          "text": "abre jornadas de usuário"
+        },
+        {
+          "node": 11,
+          "text": "integra agentes"
+        }
+      ]
+    }
+  ],
   "notes": [
     "A arquitetura não detalha cliques, regras de negócio ou telas; esses aspectos pertencem ao desenho de jornadas.",
     "O ponto de entrada para o comportamento do sistema é o nó 8."

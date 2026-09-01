@@ -30,19 +30,47 @@
       "id": 1,
       "label": "Receber destino com Codex padrão",
       "group": 1,
-      "description": "A CLI valida o diretório e usa Codex como integração padrão, sem perguntar qual agente deve ser usado. Outras integrações só entram quando solicitadas explicitamente por flag."
+      "description": "A CLI valida o diretório e usa Codex como integração padrão, sem perguntar qual agente deve ser usado. Outras integrações só entram quando solicitadas explicitamente por flag.",
+      "code_refs": [
+        {
+          "file": "src/looper/cli.py",
+          "symbol": "looper.cli.init",
+          "source_dependencies": [
+            "looper.core.init_project"
+          ]
+        }
+      ]
     },
     {
       "id": 2,
       "label": "Criar configuração e estado",
       "group": 2,
-      "description": "Cria .looper/config.yaml, runs, features, draws e regras de gitignore."
+      "description": "Cria .looper/config.yaml, runs, features, draws e regras de gitignore.",
+      "code_refs": [
+        {
+          "file": "src/looper/setup.py",
+          "symbol": "looper.setup.configure_project"
+        },
+        {
+          "file": "src/looper/core.py",
+          "symbol": "looper.core.looper_dir"
+        }
+      ]
     },
     {
       "id": 3,
       "label": "Instalar skills e instruções",
       "group": 2,
-      "description": "Copia templates atuais e atualiza AGENTS.md; arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O AGENTS.md compartilhado instrui todo agente a manter os Draws atualizados."
+      "description": "Copia templates atuais e atualiza AGENTS.md; arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O AGENTS.md compartilhado instrui todo agente a manter os Draws atualizados.",
+      "code_refs": [
+        {
+          "file": "src/looper/core.py",
+          "symbol": "looper.core.ensure_agent_instructions",
+          "source_dependencies": [
+            "looper.core.agent_templates"
+          ]
+        }
+      ]
     },
     {
       "id": 4,
@@ -51,6 +79,7 @@
       "description": "O agente pode usar as skills no projeto inicializado.",
       "code_refs": [
         {
+          "file": "src/looper/core.py",
           "symbol": "looper.core.init_project",
           "identity": "0b657e84450a304e",
           "source_dependencies": [
@@ -94,17 +123,17 @@
   "flows": [
     {
       "id": 1,
-      "label": "Init",
-      "title": "Inicialização",
-      "summary": "Configuração, estado e skills tornam o projeto operável.",
+      "label": "Inicialização",
+      "title": "Inicialização de projeto",
+      "summary": "Cria estrutura .looper e instala skills padrão.",
       "steps": [
         {
           "node": 1,
-          "text": "valida entrada"
+          "text": "recebe destino"
         },
         {
           "node": 2,
-          "text": "cria .looper"
+          "text": "cria estrutura"
         },
         {
           "node": 3,
@@ -112,7 +141,7 @@
         },
         {
           "node": 4,
-          "text": "retorna sucesso"
+          "text": "conclui"
         }
       ]
     }
