@@ -1,0 +1,176 @@
+{
+  "version": 1,
+  "date": "2026-09-01",
+  "runs": [
+    {
+      "run_id": "e274c5ea951242ea9795a3a5b6cb660c",
+      "timestamp": "2026-09-01T14:25:00.456338+00:00",
+      "description": "Define Codex como padrão e exige sincronização dos Draws após alterações diretas",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 40,
+        "lines_deleted": 36,
+        "files_changed": 7
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 6,
+        "lines_deleted": 6,
+        "files_changed": 2
+      }
+    },
+    {
+      "run_id": "fc77ffe0cbd847dda24d6ab07cd9d72d",
+      "timestamp": "2026-09-01T14:44:37.532226+00:00",
+      "description": "Separa regressão da codebase e Playwright com opt-in explícito",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 67,
+        "lines_deleted": 4,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 2,
+        "lines_deleted": 2,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "edc748ab4e494fabb1ba5a84c5a473da",
+      "timestamp": "2026-09-01T15:49:16.553085+00:00",
+      "description": "Implementa configurações claras com presets e ajuda contextual",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 119,
+        "lines_deleted": 209,
+        "files_changed": 10
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "7b93fcc8a3994608856a3081da31e776",
+      "timestamp": "2026-09-01T16:30:51.213297+00:00",
+      "description": "Remove emojis do frontend e registra regra no AGENTS",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 26,
+        "lines_deleted": 25,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "9a67e6fd2ac94d1eb730d21d68c8dcc6",
+      "timestamp": "2026-09-01T16:36:39.825796+00:00",
+      "description": "Corrige alinhamento da ajuda contextual no modal de configurações",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 15,
+        "lines_deleted": 15,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "3adab7d767744f1d9ddf79c9ce4ac0cc",
+      "timestamp": "2026-09-01T16:45:20.700987+00:00",
+      "description": "Adiciona revisão por intervalo via terminal ou tmux e registra lacunas como changes",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 143,
+        "lines_deleted": 27,
+        "files_changed": 8
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 1,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "624d40400b5245f8b0c49364191aaaf7",
+      "timestamp": "2026-09-01T16:49:17.764957+00:00",
+      "description": "Define Agy como revisor padrão e mantém Codex CLI configurável",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 29,
+        "lines_deleted": 24,
+        "files_changed": 7
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d0497ba1c9254ecb99af58c4f9975dda",
+      "timestamp": "2026-09-01T16:55:54.050208+00:00",
+      "description": "Adiciona lista de modelos do Agy e Codex nas configurações",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 24,
+        "lines_deleted": 16,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    }
+  ],
+  "run_count": 8,
+  "last_run_id": "d0497ba1c9254ecb99af58c4f9975dda"
+}

@@ -1,9 +1,10 @@
-import json
 from types import SimpleNamespace
+
+import yaml
 
 from looper.core import init_project
 from looper.draw import add_draw_change, create_draw, read_draw
-from looper.reviews import ensure_review_workspace, run_review, set_review_enabled
+from looper.reviews import ensure_review_workspace, maybe_review_completed_task, run_review, set_review_enabled
 
 
 def _draw(root):
@@ -21,7 +22,7 @@ def _draw(root):
 
 def test_review_workspace_is_idempotent_and_preserves_config(tmp_path):
     init_project(tmp_path)
-    config = tmp_path / ".looper" / "review-agents.json"
+    config = tmp_path / ".looper" / "config.yaml"
     original = config.read_text()
     assert config.exists()
     assert (tmp_path / ".looper" / "reviews").is_dir()
@@ -39,11 +40,12 @@ def test_add_draw_change_creates_pending_change(tmp_path):
 def test_review_without_changes_means_approved(tmp_path, monkeypatch):
     init_project(tmp_path)
     _draw(tmp_path)
-    config_path = tmp_path / ".looper" / "review-agents.json"
-    config = json.loads(config_path.read_text())
-    config["enabled"] = True
-    config["agents"]["codex"]["command"] = ["fake", "{model}", "{reasoning}", "{prompt}"]
-    config_path.write_text(json.dumps(config))
+    config_path = tmp_path / ".looper" / "config.yaml"
+    config = yaml.safe_load(config_path.read_text())
+    config["review"]["enabled"] = True
+    config["review"]["default_agent"] = "codex"
+    config["review"]["agents"]["codex"]["command"] = ["fake", "{model}", "{reasoning}", "{prompt}"]
+    config_path.write_text(yaml.safe_dump(config, allow_unicode=True, sort_keys=False))
     monkeypatch.setattr("looper.reviews.subprocess.run", lambda *args, **kwargs: SimpleNamespace(returncode=0, stdout="aprovado", stderr=""))
     result = run_review(tmp_path, {"id": "task:review-flow:node:1", "draw_id": "review-flow", "node_id": 1, "level": 2, "label": "Tela"})
     assert result["status"] == "approved"
@@ -54,10 +56,10 @@ def test_review_without_changes_means_approved(tmp_path, monkeypatch):
 def test_review_detects_changes_created_by_agent(tmp_path, monkeypatch):
     init_project(tmp_path)
     _draw(tmp_path)
-    config_path = tmp_path / ".looper" / "review-agents.json"
-    config = json.loads(config_path.read_text())
-    config["agents"]["codex"]["command"] = ["fake", "{prompt}"]
-    config_path.write_text(json.dumps(config))
+    config_path = tmp_path / ".looper" / "config.yaml"
+    config = yaml.safe_load(config_path.read_text())
+    config["review"]["agents"]["codex"]["command"] = ["fake", "{prompt}"]
+    config_path.write_text(yaml.safe_dump(config, allow_unicode=True, sort_keys=False))
 
     def fake_run(*args, **kwargs):
         add_draw_change(tmp_path, "review-flow", 1, "Falta o estado de erro", metadata={"source": "review"})
@@ -70,6 +72,14 @@ def test_review_detects_changes_created_by_agent(tmp_path, monkeypatch):
     assert list((tmp_path / ".looper" / "reviews").glob("*.json"))
 
 
+def test_review_defaults_to_agy(tmp_path):
+    init_project(tmp_path)
+
+    config = yaml.safe_load((tmp_path / ".looper" / "config.yaml").read_text())
+
+    assert config["review"]["default_agent"] == "agy"
+
+
 def test_review_can_be_disabled_without_calling_agent(tmp_path, monkeypatch):
     init_project(tmp_path)
     _draw(tmp_path)
@@ -79,3 +89,22 @@ def test_review_can_be_disabled_without_calling_agent(tmp_path, monkeypatch):
     result = run_review(tmp_path, {"id": "task:review-flow:node:1", "draw_id": "review-flow", "node_id": 1, "level": 2, "label": "Tela"}, force=False)
     assert result["status"] == "skipped"
     assert called == []
+
+
+def test_review_runs_after_configured_number_of_tasks(tmp_path, monkeypatch):
+    init_project(tmp_path)
+    _draw(tmp_path)
+    config_path = tmp_path / ".looper" / "config.yaml"
+    config = yaml.safe_load(config_path.read_text())
+    config["review"]["enabled"] = True
+    config["review"]["interval_tasks"] = 2
+    config["review"]["agents"]["codex"]["command"] = ["fake", "{prompt}"]
+    config_path.write_text(yaml.safe_dump(config, allow_unicode=True, sort_keys=False))
+    monkeypatch.setattr("looper.reviews.subprocess.run", lambda *args, **kwargs: SimpleNamespace(returncode=0, stdout="aprovado", stderr=""))
+    task = {"id": "task:review-flow:node:1", "draw_id": "review-flow", "node_id": 1, "level": 2, "label": "Tela"}
+    assert maybe_review_completed_task(tmp_path, {"status": "done", "phase": "implementation", "task": task}) is None
+    result = maybe_review_completed_task(tmp_path, {"status": "done", "phase": "implementation", "task": {**task, "id": "task:review-flow:node:2", "node_id": 2, "label": "Fim"}})
+    assert result is not None
+    assert result["status"] == "approved"
+    saved = yaml.safe_load(config_path.read_text())
+    assert saved["review"]["completed_since_last_review"] == 0

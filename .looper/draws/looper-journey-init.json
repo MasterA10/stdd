@@ -28,21 +28,21 @@
   "nodes": [
     {
       "id": 1,
-      "label": "Receber destino e integrações",
+      "label": "Receber destino com Codex padrão",
       "group": 1,
-      "description": "A CLI valida o diretório e a seleção Codex, Claude ou Gemini."
+      "description": "A CLI valida o diretório e usa Codex como integração padrão, sem perguntar qual agente deve ser usado. Outras integrações só entram quando solicitadas explicitamente por flag."
     },
     {
       "id": 2,
       "label": "Criar configuração e estado",
       "group": 2,
-      "description": "Cria .looper/config.json, runs, features, draws e regras de gitignore."
+      "description": "Cria .looper/config.yaml, runs, features, draws e regras de gitignore."
     },
     {
       "id": 3,
       "label": "Instalar skills e instruções",
       "group": 2,
-      "description": "Copia templates atuais e atualiza AGENTS.md, CLAUDE.md ou GEMINI.md."
+      "description": "Copia templates atuais e atualiza AGENTS.md; arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O AGENTS.md compartilhado instrui todo agente a manter os Draws atualizados."
     },
     {
       "id": 4,

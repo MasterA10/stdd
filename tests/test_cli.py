@@ -87,6 +87,18 @@ def test_init_interactive_selects_multiple_agent_integrations(tmp_path: Path):
     assert config["backlog"]["l2_verification_interval"] == 1
 
 
+def test_init_interactive_uses_codex_without_asking_for_agent(tmp_path: Path):
+    """O init interativo não abre um seletor de agentes e usa AGENTS.md como contrato comum."""
+    result = runner.invoke(app, ["init", str(tmp_path), "--interactive", "--no-web"])
+
+    assert result.exit_code == 0
+    assert "Selecione as integrações" not in result.stdout
+    assert (tmp_path / "AGENTS.md").exists()
+    assert (tmp_path / ".agents/skills/setup/SKILL.md").exists()
+    assert not (tmp_path / "CLAUDE.md").exists()
+    assert not (tmp_path / "GEMINI.md").exists()
+
+
 def test_init_interactive_does_not_ask_frontend_analysis_policy(tmp_path: Path):
     """Inicializa projetos frontend sem abrir um gate específico.
     Confirma que o setup termina após a escolha de executar a detecção da stack.
@@ -337,6 +349,51 @@ def test_test_runs_all_configured_suites(tmp_path: Path):
     assert "[integration]" in process.stdout
     assert report["summary"] == {"total": 2, "passed": 2, "failed": 0, "not_executed": 0}
     assert [suite["name"] for suite in report["suites"]] == ["unit", "integration"]
+
+
+def test_playwright_suite_is_opt_in_and_regression_runs_by_default(tmp_path: Path):
+    """Mantém Playwright fora do alias padrão sem pular a regressão da codebase."""
+    (tmp_path / ".looper").mkdir()
+    config = {
+        "test_commands": [
+            {"name": "regression", "command": [sys.executable, "-c", "print('regression-ran')"]},
+            {"name": "browser", "type": "playwright", "command": [sys.executable, "-c", "print('playwright-ran')"]},
+        ]
+    }
+    (tmp_path / ".looper/config.json").write_text(json.dumps(config))
+
+    default_process, default_report = run_tests(tmp_path)
+    playwright_process, playwright_report = run_tests(tmp_path, include_playwright=True)
+
+    assert default_process.returncode == 0
+    assert "regression-ran" in default_process.stdout
+    assert "playwright-ran" not in default_process.stdout
+    assert [(suite["name"], suite["status"], suite.get("reason")) for suite in default_report["suites"]] == [
+        ("regression", "passed", None),
+        ("browser", "not_executed", "playwright_opt_in_required"),
+    ]
+    assert playwright_process.returncode == 0
+    assert "playwright-ran" in playwright_process.stdout
+    assert playwright_report["summary"]["passed"] == 2
+
+
+def test_test_cli_exposes_playwright_opt_in_flag(tmp_path: Path, monkeypatch):
+    """A flag pública libera somente a execução Playwright solicitada."""
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / ".looper").mkdir()
+    config = {
+        "test_commands": [{"name": "browser", "type": "playwright", "command": [sys.executable, "-c", "print('browser-ran')"]}]
+    }
+    (tmp_path / ".looper/config.json").write_text(json.dumps(config))
+
+    default = runner.invoke(app, ["test"])
+    opted_in = runner.invoke(app, ["test", "--playwright"])
+
+    assert default.exit_code == 0
+    assert "playwright_opt_in_required" in default.stdout
+    assert "browser-ran" not in default.stdout
+    assert opted_in.exit_code == 0
+    assert "browser-ran" in opted_in.stdout
 
 
 def test_global_test_alias_continues_after_suite_failure(tmp_path: Path):

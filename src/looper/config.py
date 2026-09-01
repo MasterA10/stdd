@@ -21,34 +21,36 @@ LEGACY_REVIEW_RELATIVE_PATH = ".looper/review-agents.json"
 LEGACY_INSTRUCTIONS_RELATIVE_PATH = ".looper/loop-instructions.md"
 
 CONFIG_COMMENTS = {
-    "test_commands": "Suítes executadas por `looper test`; cada item aceita name, command e timeout.",
-    "test_commands.name": "Nome legível exibido no relatório da suíte.",
+    "test_commands": "Comandos de teste executados por `looper test`. Cada item precisa de name e command.",
+    "test_commands.name": "Nome legível exibido no relatório de testes.",
     "test_commands.command": "Comando executado como lista de argumentos, sem shell intermediário.",
-    "testing": "Preferências gerais da execução de testes.",
-    "testing.profile": "Perfil de testes usado pelo runner, normalmente `mvp`.",
-    "contract": "Regras de documentação e contrato dos testes.",
-    "contract.enabled": "Ativa ou desativa a validação de contrato.",
+    "test_commands.type": "Tipo da suíte: use `playwright` para testes de tela no navegador; requer `looper test --playwright`.",
+    "testing": "Preferências gerais de como os testes são executados.",
+    "testing.profile": "Perfil de testes do runner, normalmente `mvp`.",
+    "contract": "Validação automática da documentação dos testes.",
+    "contract.enabled": "Ativa a validação automática da documentação dos testes.",
     "contract.code_language": "Linguagem cujo contrato será analisado.",
     "contract.description_language": "Idioma esperado nas descrições dos testes.",
     "contract.short_description_max_chars": "Limite de caracteres para descrições curtas.",
-    "static_analysis": "Configuração do adaptador e dos gates de análise estática.",
-    "static_analysis.enabled": "Ativa ou desativa a análise estática.",
+    "static_analysis": "Análise de qualidade: complexidade, dependências e estrutura do código.",
+    "static_analysis.enabled": "Ativa a análise de qualidade do código; requer adaptador configurado.",
     "static_analysis.adapter_command": "Comando do adaptador; use uma lista de argumentos.",
     "static_analysis.contract_version": "Versão do contrato retornado pelo adaptador.",
     "static_analysis.allow_marked_test_credentials": "Permite que credenciais marcadas em fixtures sejam apenas warnings.",
     "static_analysis.quality": "Limites de qualidade que geram warnings ou bloqueios.",
     "static_analysis.exceptions": "Exceções temporárias e rastreáveis para achados específicos.",
     "tracked_extensions": "Extensões consideradas no cálculo de alterações do projeto.",
-    "backlog": "Ordem, lotes e comportamento dos loops do backlog.",
-    "backlog.development_mode": "`sequential` mistura fases; `separated` conclui L2 antes de L3.",
+    "backlog": "Ordem, lotes e comportamento dos loops de desenvolvimento.",
+    "backlog.development_mode": "Ordem de desenvolvimento: `sequential` intercala telas e backend; `separated` conclui todas as telas antes do backend.",
     "backlog.bootstrap_task": "Habilita a task inicial de preparação do projeto.",
     "backlog.final_verification_task": "Cria uma verificação final após as tasks do backlog.",
     "backlog.task_batch_size": "Quantidade máxima de itens entregues em cada avanço.",
     "backlog.l4_group_size": "Quantidade de nós L4 entregues junto com o pai L3; padrão 3.",
     "backlog.task_batch_scope": "Escopo do lote: `task` ou `node`.",
-    "backlog.task_delivery_scope": "Escopo comum da entrega: task individual ou nó completo.",
-    "backlog.test_loop_enabled": "Habilita o loop que cria e libera testes.",
-    "backlog.test_loop": "Preset e opções do loop de testes.",
+    "backlog.task_delivery_scope": "Tamanho de cada entrega: `task` (uma por vez) ou `node` (nó completo com subfluxos).",
+    "backlog.test_loop_enabled": "Cria e libera testes antes de implementar.",
+    "backlog.test_loop": "Sequência e opções do loop de testes.",
+    "backlog.test_scope": "O que será testado: `l2` (telas), `l3` (backend) ou `both` (ambos).",
     "backlog.implementation_loop": "Preset e opções do loop de implementação.",
     "instructions": "Orientações persistentes enviadas ao agente por tipo de loop.",
     "instructions.backend": "Enviado em todo loop de backend (backlog backend / backlog task --backend).",
@@ -56,7 +58,9 @@ CONFIG_COMMENTS = {
     "instructions.change": "Enviado em todo loop de alteração (backlog change).",
     "review": "Revisão automática opcional após tasks concluídas.",
     "review.enabled": "Ativa a execução automática de revisões.",
-    "review.default_agent": "Agente padrão: `codex`, `claude` ou `antigravity`.",
+    "review.interval_tasks": "Executa a revisão depois de cada N tasks concluídas; 1 revisa cada task.",
+    "review.execution_mode": "Modo de chamada do agente: `terminal` direto ou `tmux`.",
+    "review.default_agent": "Agente de revisão padrão: `agy`; `codex` também pode ser escolhido nas configurações.",
     "review.agents.*.model": "Modelo usado pelo agente específico; a substituição manual pela CLI continua disponível.",
     "review.reasoning": "Nível de reasoning usado quando o agente aceitar essa opção.",
     "review.timeout_seconds": "Tempo máximo da revisão em segundos.",
@@ -81,7 +85,7 @@ def _annotate_yaml(content: str) -> str:
             while stack and stack[-1][0] >= indent:
                 stack.pop()
             path = ".".join([item[1] for item in stack] + [key])
-            comment = CONFIG_COMMENTS.get(path, f"Opção `{path}` da configuração.")
+            comment = CONFIG_COMMENTS.get(path, f"Configuração de {path.split('.')[-1].replace('_', ' ')}.")
             output.append(f"{match.group(1)}# {comment}")
             stack.append((indent, key))
         output.append(line)

@@ -53,6 +53,36 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     for source in agent_templates():
         installed = tmp_path / ".agents" / "skills" / source.parent.name / "SKILL.md"
         assert installed.read_text(encoding="utf-8") == source.read_text(encoding="utf-8")
+    guide = (tmp_path / "PLAYWRIGHT_GUIDE.md").read_text(encoding="utf-8")
+    assert "installMousePointer" in guide
+    assert "moveAndClick" in guide
+    assert "moveAndFill" in guide
+    assert "headless: false" in guide
+    assert "slowMo: 100" in guide
+    assert "scroll-behavior: smooth" in guide
+    assert "smoothScrollIntoView" in guide
+    assert "behavior: 'smooth'" in guide
+    assert "block: 'center'" in guide
+    assert "test_scope: both" in guide
+    assert "estado final previsto" in guide
+    assert "try/catch" in guide
+    assert "código diferente de zero" in guide
+    assert "As inscrições estão temporariamente fechadas" in guide
+    assert "btnComprar" in guide
+    assert "deve existir e estar visível" in guide
+    assert "Ainda não existe teste Playwright" in guide
+    assert "Já existe teste Playwright para o fluxo" in guide
+    assert "playwright-cli" in guide
+
+
+def test_init_preserves_existing_playwright_guide(tmp_path: Path):
+    """Não substitui convenções Playwright já definidas pelo projeto."""
+    guide = tmp_path / "PLAYWRIGHT_GUIDE.md"
+    guide.write_text("guia específico do projeto\n", encoding="utf-8")
+
+    init_project(tmp_path)
+
+    assert guide.read_text(encoding="utf-8") == "guia específico do projeto\n"
 
 
 def test_init_migrates_legacy_looper_state_and_text_references(tmp_path: Path):
@@ -235,6 +265,8 @@ def test_init_injects_idempotent_instructions_for_all_agents(tmp_path: Path):
         assert "uv tool install --force --editable ." in content
         assert ".looper/design.md" in content
         assert "fonte obrigatória de decisões visuais" in content
+        assert "Draws são a documentação oficial" in content
+        assert "respeitando a hierarquia L2/L3" in content
     assert "Não remova este texto." in first["AGENTS.md"]
 
 

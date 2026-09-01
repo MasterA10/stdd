@@ -31,6 +31,7 @@ from .backlog import (
     VALID_DEVELOPMENT_MODES,
     VALID_LOOP_MODES,
     VALID_CHILDREN_MODES,
+    VALID_TEST_SCOPES,
 )
 from .draw import (
     analyze_draw_contract,
@@ -386,7 +387,7 @@ def init(
     project: Path = typer.Argument(Path("."), help="Diretório do projeto a inicializar; por padrão, o diretório atual."),
     integration: List[str] = typer.Option(None, "--integration", help="Agente a integrar: codex, claude ou gemini; pode repetir."),
     all_integrations: bool = typer.Option(False, "--all-integrations", help="Instala as skills para Codex, Claude e Gemini."),
-    interactive: bool = typer.Option(False, "--interactive", help="Abre a seleção numérica de integrações e setup."),
+    interactive: bool = typer.Option(False, "--interactive", help="Executa o init interativo; Codex é o agente padrão."),
     task_delivery_scope: Optional[str] = typer.Option(None, "--task-delivery-scope", help="Como entregar as tasks em testes e implementação: node (tela, funcionamento e internos juntos) ou task (uma por vez)."),
     development_mode: Optional[str] = typer.Option(None, "--development-mode", help="Ordem arquitetural: sequential ou separated (todas as telas L2 antes do backend L3)."),
     l2_verification_interval: Optional[int] = typer.Option(None, "--l2-verification-interval", "--verification-interval", min=0, help="Insere uma task de conferência a cada N nós concluídos; 0 desabilita."),
@@ -398,6 +399,7 @@ def init(
     final_verification: Optional[bool] = typer.Option(None, "--final-verification/--no-final-verification", help="Habilita ou desabilita a task de verificação final E2E."),
     min_task_interval_seconds: Optional[int] = typer.Option(None, "--min-task-interval-seconds", min=0, help="Janela mínima anti-script entre avanços."),
     test_loop_mode: Optional[str] = typer.Option(None, "--test-loop-mode", help="Preset do loop de testes."),
+    test_scope: Optional[str] = typer.Option(None, "--test-scope", help="Níveis com testes: l2, l3 ou both."),
     implementation_loop_mode: Optional[str] = typer.Option(None, "--implementation-loop-mode", help="Preset do loop de implementação."),
     test_batch_size: Optional[int] = typer.Option(None, "--test-batch-size", min=1, help="Quantidade de unidades por avanço no loop de testes."),
     implementation_batch_size: Optional[int] = typer.Option(None, "--implementation-batch-size", min=1, help="Quantidade de unidades por avanço no loop de implementação."),
@@ -434,6 +436,9 @@ def init(
     if test_loop_mode is not None and test_loop_mode not in VALID_LOOP_MODES:
         typer.echo("Erro: --test-loop-mode inválido.", err=True)
         raise typer.Exit(1)
+    if test_scope is not None and test_scope not in VALID_TEST_SCOPES:
+        typer.echo("Erro: --test-scope deve ser l2, l3 ou both.", err=True)
+        raise typer.Exit(1)
     if implementation_loop_mode is not None and implementation_loop_mode not in VALID_LOOP_MODES:
         typer.echo("Erro: --implementation-loop-mode inválido.", err=True)
         raise typer.Exit(1)
@@ -444,7 +449,7 @@ def init(
     if review_enabled is not None:
         set_review_enabled(target, review_enabled)
     typer.echo(f"Projeto inicializado em {target}. {len(created)} itens criados ou atualizados.")
-    if task_delivery_scope is not None or l2_verification_interval is not None or test_loop_enabled is not None or development_mode is not None or task_batch_size is not None or l4_group_size is not None or task_batch_scope is not None or bootstrap is not None or final_verification is not None or min_task_interval_seconds is not None or test_loop_mode is not None or implementation_loop_mode is not None or test_batch_size is not None or implementation_batch_size is not None or l2_children_mode is not None or l3_loop_enabled is not None or l3_include_parent is not None:
+    if task_delivery_scope is not None or l2_verification_interval is not None or test_loop_enabled is not None or development_mode is not None or task_batch_size is not None or l4_group_size is not None or task_batch_scope is not None or bootstrap is not None or final_verification is not None or min_task_interval_seconds is not None or test_loop_mode is not None or test_scope is not None or implementation_loop_mode is not None or test_batch_size is not None or implementation_batch_size is not None or l2_children_mode is not None or l3_loop_enabled is not None or l3_include_parent is not None:
         set_backlog_config(
             target,
             task_delivery_scope=task_delivery_scope,
@@ -458,6 +463,7 @@ def init(
             final_verification_task=final_verification,
             min_task_interval_seconds=min_task_interval_seconds,
             test_loop_mode=test_loop_mode,
+            test_scope=test_scope,
             implementation_loop_mode=implementation_loop_mode,
             test_batch_size=test_batch_size,
             implementation_batch_size=implementation_batch_size,
@@ -476,26 +482,6 @@ def init(
     unavailable = [name for name, found in available_integrations().items() if name in requested and not found]
     if unavailable:
         typer.echo(f"Aviso: agente(s) não encontrado(s) no PATH: {', '.join(unavailable)}.", err=True)
-
-
-def choose_integrations() -> tuple[str, ...]:
-    """Apresenta uma seleção múltipla numerada para os agentes disponíveis.
-    Aceita números separados por vírgula ou a opção todos e retorna integrações únicas.
-    """
-    typer.echo("Selecione as integrações do agente (ex.: 1,3 ou 4 para todos):")
-    for index, name in enumerate((*SUPPORTED_INTEGRATIONS, "todos"), start=1):
-        typer.echo(f"  {index}. {name.title()}")
-    answer = typer.prompt("Integrações", default="1")
-    choices = {part.strip() for part in answer.split(",") if part.strip()}
-    if "4" in choices or "todos" in {choice.lower() for choice in choices}:
-        return SUPPORTED_INTEGRATIONS
-    selected = tuple(
-        name for index, name in enumerate(SUPPORTED_INTEGRATIONS, start=1) if str(index) in choices
-    )
-    if not selected:
-        typer.echo("Nenhuma opção válida; usando Codex.")
-        return ("codex",)
-    return selected
 
 
 def choose_level_meanings() -> tuple[str, str]:
@@ -601,8 +587,10 @@ def test_all(
     exclude: List[str] = typer.Option(None, "--exclude", help="Não executa as suítes informadas; pode repetir."),
     profile: Optional[str] = typer.Option(None, "--profile", help="Sobrescreve o perfil de testes desta execução."),
     approve_actions: bool = typer.Option(False, "--approve-actions", help="Autoriza suítes marcadas como caras ou mutáveis."),
+    playwright: bool = typer.Option(False, "--playwright", help="Inclui explicitamente as suítes Playwright nesta execução."),
 ) -> None:
-    """Executa o alias global de testes e consolida todas as suítes configuradas.
+    """Executa regressão da codebase e consolida as suítes configuradas.
+    Playwright fica fora por padrão e só entra com --playwright.
     Inclui contratos, análise estática e runners com seus próprios ciclos de setup e cleanup.
     """
     process, result = run_tests(
@@ -611,6 +599,7 @@ def test_all(
         exclude_suites=set(exclude or []),
         approve_actions=approve_actions,
         profile=profile,
+        include_playwright=playwright,
     )
     typer.echo(process.stdout, nl=False)
     typer.echo(f"\nResultado: {result['status']}")
@@ -736,6 +725,7 @@ def backlog_config(
     min_task_interval_seconds: Optional[int] = typer.Option(None, "--min-task-interval-seconds", min=0, help="Janela mínima anti-script entre avanços."),
     test_loop_enabled: Optional[bool] = typer.Option(None, "--test-loop/--no-test-loop", help="Habilita ou desabilita o loop de testes."),
     test_loop_mode: Optional[str] = typer.Option(None, "--test-loop-mode", help="Preset do loop de testes."),
+    test_scope: Optional[str] = typer.Option(None, "--test-scope", help="Níveis com testes: l2, l3 ou both."),
     implementation_loop_mode: Optional[str] = typer.Option(None, "--implementation-loop-mode", help="Preset do loop de implementação."),
     test_batch_size: Optional[int] = typer.Option(None, "--test-batch-size", min=1, help="Quantidade de unidades por avanço no loop de testes."),
     implementation_batch_size: Optional[int] = typer.Option(None, "--implementation-batch-size", min=1, help="Quantidade de unidades por avanço no loop de implementação."),
@@ -747,7 +737,7 @@ def backlog_config(
     """Exibe ou atualiza as configurações do backlog em .looper/config.yaml."""
     try:
         root = project_root()
-        if interval is not None or bootstrap is not None or final_verification is not None or task_batch_size is not None or l4_group_size is not None or task_batch_scope is not None or task_delivery_scope is not None or development_mode is not None or min_task_interval_seconds is not None or test_loop_enabled is not None or test_loop_mode is not None or implementation_loop_mode is not None or test_batch_size is not None or implementation_batch_size is not None or l2_children_mode is not None or l3_loop_enabled is not None or l3_include_parent is not None or review_enabled is not None:
+        if interval is not None or bootstrap is not None or final_verification is not None or task_batch_size is not None or l4_group_size is not None or task_batch_scope is not None or task_delivery_scope is not None or development_mode is not None or min_task_interval_seconds is not None or test_loop_enabled is not None or test_loop_mode is not None or test_scope is not None or implementation_loop_mode is not None or test_batch_size is not None or implementation_batch_size is not None or l2_children_mode is not None or l3_loop_enabled is not None or l3_include_parent is not None or review_enabled is not None:
             if review_enabled is not None:
                 set_review_enabled(root, review_enabled)
             updated = set_backlog_config(
@@ -763,6 +753,7 @@ def backlog_config(
                 min_task_interval_seconds=min_task_interval_seconds,
                 test_loop_enabled=test_loop_enabled,
                 test_loop_mode=test_loop_mode,
+                test_scope=test_scope,
                 implementation_loop_mode=implementation_loop_mode,
                 test_batch_size=test_batch_size,
                 implementation_batch_size=implementation_batch_size,

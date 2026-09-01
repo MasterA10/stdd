@@ -1,0 +1,302 @@
+{
+  "version": 1,
+  "date": "2026-08-31",
+  "runs": [
+    {
+      "run_id": "ae48da1ec68a44b6ad71aae924fe2198",
+      "timestamp": "2026-08-31T21:17:55.658071+00:00",
+      "description": "Corrige sliders das configurações e separa o botão de ajuda do rótulo",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 42,
+        "lines_deleted": 5,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "5404d595c6fe48ddb62ffcd708b4c6a3",
+      "timestamp": "2026-08-31T21:24:11.103094+00:00",
+      "description": "Corrige clique dos toggles e separa ajuda dos labels",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 19,
+        "lines_deleted": 1,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "5a4bad5898234f9e91a083b09fbe4939",
+      "timestamp": "2026-08-31T21:27:01.815158+00:00",
+      "description": "Ajusta altura do modal de configurações para remover espaço vazio",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 16,
+        "lines_deleted": 0,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "5d32060283104abbbaf7e9c2d6f578f8",
+      "timestamp": "2026-08-31T21:30:01.529099+00:00",
+      "description": "Impede salto de rolagem ao focar toggles ocultos",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 16,
+        "lines_deleted": 0,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "3dccbcaf2013482685000d10c1236e3b",
+      "timestamp": "2026-08-31T21:41:02.985340+00:00",
+      "description": "Adiciona escopo configurável de testes L2, L3 ou ambos",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 116,
+        "lines_deleted": 16,
+        "files_changed": 7
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "92d71594c8504ad18adb8c70417a7ee0",
+      "timestamp": "2026-08-31T22:17:12.349921+00:00",
+      "description": "Define PLAYWRIGHT_GUIDE como padrão obrigatório dos testes L2",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 4,
+        "lines_deleted": 1,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "8c71a461a1df4ecdbeefaff489ec2073",
+      "timestamp": "2026-08-31T22:21:36.137791+00:00",
+      "description": "Empacota PLAYWRIGHT_GUIDE como padrão instalado pelo init",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 29,
+        "lines_deleted": 0,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "1e6cac1e0f1d4057a170013156201a15",
+      "timestamp": "2026-08-31T22:26:35.932097+00:00",
+      "description": "Reforça falha obrigatória para jornadas Playwright incompletas",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 3,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "ab01e98cfaf3448a80b71111ef7b21d4",
+      "timestamp": "2026-08-31T22:28:11.996812+00:00",
+      "description": "Define asserções rígidas para jornadas Playwright",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 3,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "f45106cb489f4179857775da6ad5ed5d",
+      "timestamp": "2026-08-31T22:46:07.072439+00:00",
+      "description": "Ajusta slowMo padrão do Playwright para 100ms",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "e350a4812ba8435da8ec80cbfec2fec2",
+      "timestamp": "2026-08-31T22:54:12.476243+00:00",
+      "description": "Define scroll-behavior smooth como padrão Playwright",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "c776e53637684cad9b9136cd1f4f5877",
+      "timestamp": "2026-08-31T22:55:08.724026+00:00",
+      "description": "Corrige scroll smooth para atuar somente no harness Playwright",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "7ae8a7e130eb4756924cd7e404ae829b",
+      "timestamp": "2026-08-31T22:56:29.235605+00:00",
+      "description": "Adiciona rolagem suave centralizada ao helper Playwright",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 3,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "86d7467d8f3445418885a93c2679b94d",
+      "timestamp": "2026-08-31T23:59:46.138345+00:00",
+      "description": "Separa validação Playwright CLI de regressão Playwright",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 3,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    }
+  ],
+  "run_count": 14,
+  "last_run_id": "86d7467d8f3445418885a93c2679b94d"
+}

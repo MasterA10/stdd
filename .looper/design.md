@@ -68,3 +68,8 @@ Atualize esta seção somente quando uma interação aceita estabelecer um padr�
 de tela. Consolide decisões equivalentes, preserve contraste mínimo de 4.5:1 para texto
 normal e registre também estados reduzidos quando houver animação; não transforme uma
 preferência pontual ou uma tentativa não aprovada em regra visual.
+
+## Configurações claras
+
+- O modal de configurações usa linguagem humana em português, com dicas contextuais visíveis e detalhes longos sob demanda pelo botão `?` com `aria-expanded`.
+- Presets de configuração são apresentados em grid responsivo; a opção padrão de cada grupo recebe o badge textual `Recomendado`, sem depender apenas de cor.

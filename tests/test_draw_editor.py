@@ -1167,3 +1167,20 @@ def test_backlog_can_hide_completed_tasks_with_a_visible_red_separator():
     assert panel.count("visibleTaskItems.push({ type: 'separator', hiddenCompletedCount });") == 2
     assert ".backlog-completed-divider" in styles
     assert "background: var(--danger);" in styles
+
+
+def test_config_settings_keeps_help_button_outside_slider_label():
+    """Permite clicar no slider sem que o botão de ajuda roube o foco."""
+    modal = (EDITOR_ROOT / "src/components/ConfigSettingsModal.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    assert "type=\"range\"" in modal
+    assert "className=\"config-range-controls\"" in modal
+    assert "<div className=\"config-label\"><span><label htmlFor={inputId}" in modal
+    assert "config-range-field" in styles
+    assert ".config-range:focus-visible" in styles
+    assert "className=\"config-toggle\"><div className=\"config-label\"" in modal
+    assert "config-toggle-control" in modal
+    assert ".config-toggle input:checked + .config-toggle-control" in styles
+    assert "height: fit-content" in styles
+    assert ".config-toggle input { position: fixed" in styles

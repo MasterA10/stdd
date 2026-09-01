@@ -27,6 +27,7 @@ VALID_DEVELOPMENT_MODES = {"sequential", "separated"}
 VALID_TASK_LAYERS = {"frontend", "backend"}
 VALID_LOOP_MODES = {"task_order", "node_complete", "node_then_children", "all_level2_then_level3"}
 VALID_CHILDREN_MODES = {"none", "context", "owned"}
+VALID_TEST_SCOPES = {"l2", "l3", "both"}
 LANE_CURSOR_KEYS = {
     "current_task_id", "current_backlog_id", "current_branch_id", "branch_position",
     "current_phase", "current_parent_task_id", "current_subtask_id", "lease_id",
@@ -137,6 +138,14 @@ def _normalize_loop_mode(value: object, fallback: str = "task_order") -> str:
     return normalized if normalized in VALID_LOOP_MODES else fallback
 
 
+def _normalize_test_scope(value: object, fallback: str = "both") -> str:
+    """Normaliza os níveis que participam do loop de testes."""
+    normalized = str(value or "").strip().casefold()
+    aliases = {"level2": "l2", "level3": "l3", "all": "both", "2": "l2", "3": "l3"}
+    normalized = aliases.get(normalized, normalized)
+    return normalized if normalized in VALID_TEST_SCOPES else fallback
+
+
 def _loop_options(root: Path, phase: str) -> dict[str, Any]:
     """Retorna a política da fila para uma fase, com migração dos campos legados."""
     config = _get_backlog_config(root)
@@ -149,17 +158,18 @@ def _loop_options(root: Path, phase: str) -> dict[str, Any]:
     section = config.get(section_name)
     section = section if isinstance(section, dict) else {}
     mode = _normalize_loop_mode(section.get("mode"), default_mode)
+    test_scope = _normalize_test_scope(section.get("scope", config.get("test_scope", "both")))
     try:
         batch_size = max(1, int(section.get("batch_size", config.get("task_batch_size", DEFAULT_TASK_BATCH_SIZE))))
     except (TypeError, ValueError):
         batch_size = DEFAULT_TASK_BATCH_SIZE
-    include_level_2 = section.get("include_level_2", legacy_mode != "separated")
+    include_level_2 = section.get("include_level_2", test_scope in {"l2", "both"} if phase == "test" else legacy_mode != "separated")
     if not isinstance(include_level_2, bool):
         include_level_2 = True
     children_mode = section.get("l2_children_mode", "context" if section.get("include_children_context") else "none")
     if children_mode not in VALID_CHILDREN_MODES:
         children_mode = "none"
-    l3_enabled = section.get("l3_loop_enabled", True)
+    l3_enabled = section.get("l3_loop_enabled", test_scope in {"l3", "both"} if phase == "test" else True)
     if not isinstance(l3_enabled, bool):
         l3_enabled = True
     if l3_enabled is False and children_mode == "context":
@@ -169,6 +179,7 @@ def _loop_options(root: Path, phase: str) -> dict[str, Any]:
         l3_enabled = False
     return {
         "mode": mode,
+        "scope": test_scope if phase == "test" else None,
         "batch_size": batch_size,
         "include_level_2": include_level_2,
         "l2_children_mode": children_mode,
@@ -302,6 +313,15 @@ def _bootstrap_enabled(config: dict[str, Any]) -> bool:
     return config.get("bootstrap_opt_out") is not True
 
 
+def _agent_review_replaces_verification(root: Path) -> bool:
+    """Usa o agente de revisão no lugar da antiga task injetada de conferência."""
+    try:
+        review = load_config(root).get("review", {})
+        return isinstance(review, dict) and bool(review.get("enabled")) and int(review.get("interval_tasks", 0) or 0) > 0
+    except (OSError, TypeError, ValueError):
+        return False
+
+
 def _execution_config(root: Path) -> dict[str, Any]:
     """Normaliza as opções de cursor sem quebrar configurações antigas."""
     config = _get_backlog_config(root)
@@ -359,6 +379,7 @@ def set_backlog_config(
     test_loop_enabled: bool | None = None,
     development_mode: str | None = None,
     test_loop_mode: str | None = None,
+    test_scope: str | None = None,
     implementation_loop_mode: str | None = None,
     test_batch_size: int | None = None,
     implementation_batch_size: int | None = None,
@@ -427,6 +448,15 @@ def set_backlog_config(
             if int(batch_size) < 1:
                 raise ValueError("batch_size deve ser maior ou igual a 1")
             backlog_cfg.setdefault(section_name, {})["batch_size"] = int(batch_size)
+    if test_scope is not None:
+        normalized_scope = _normalize_test_scope(test_scope)
+        if normalized_scope not in VALID_TEST_SCOPES:
+            raise ValueError("test_scope deve ser l2, l3 ou both")
+        backlog_cfg["test_scope"] = normalized_scope
+        test_loop = backlog_cfg.setdefault("test_loop", {})
+        test_loop["scope"] = normalized_scope
+        test_loop["include_level_2"] = normalized_scope in {"l2", "both"}
+        test_loop["l3_loop_enabled"] = normalized_scope in {"l3", "both"}
     if l2_children_mode is not None:
         if l2_children_mode not in VALID_CHILDREN_MODES:
             raise ValueError("l2_children_mode deve ser none, context ou owned")
@@ -1218,11 +1248,12 @@ def _refresh_test_statuses(
         if task.get("level") == 2
     }
     for task in owners.values():
-        if separated:
+        test_scope = _loop_options(root, "test").get("scope", "both")
+        if test_scope == "l3":
             task["test_status"] = "not-required"
             task["test_evidence"] = {
                 "status": "not-required",
-                "reason": "modo separado: telas L2 não entram no loop de testes",
+                "reason": "escopo do loop de testes: somente L3",
             }
             task["test_ref"] = None
             task["test_ref_error"] = None
@@ -1246,6 +1277,15 @@ def _refresh_test_statuses(
         if task.get("level") == 2 or not owner_id:
             continue
         previous = previous_tasks.get(task["id"], {})
+        if test_scope == "l2":
+            task["test_ref"] = None
+            task["test_ref_error"] = None
+            task["test_status"] = "not-required"
+            task["test_evidence"] = {
+                "status": "not-required",
+                "reason": "escopo do loop de testes: somente L2",
+            }
+            continue
         if separated or delivery_scope == "task":
             # Em entregas separadas, um L3 não pode ser liberado só porque o
             # teste do L2 foi concluído. Preserve apenas conclusões que já
@@ -1540,7 +1580,7 @@ def check_backlog(root: Path) -> dict[str, Any]:
     
     interval = config.get("verification_interval", config.get("l2_verification_interval", 0))
     verify_pending = False
-    if interval > 0:
+    if interval > 0 and not _agent_review_replaces_verification(root):
         tasks_by_id = {t.get("id"): t for t in tasks}
         if payload.get("execution", {}).get("development_mode") == "separated":
             l3_tasks = [t for t in tasks if t.get("level") == 3]
@@ -2155,9 +2195,14 @@ def _test_scope_complete(payload: dict[str, Any], task: dict[str, Any]) -> bool:
     """Verifica evidência e marcação de teste para pai e todos os subfluxos."""
     if payload.get("execution", {}).get("test_loop_enabled", True) is False:
         return True
+    options = _phase_loop_options(payload, "test")
+    scope = options.get("scope", "both")
+    if task.get("level") == 2 and scope == "l3":
+        return True
+    if task.get("level") in {3, 4} and scope == "l2":
+        return True
     if task.get("level") in {3, 4} and _l3_parent_task(payload, task) is not None:
         return all(_task_test_complete(item) for item in _test_scope_tasks(payload, task))
-    options = _phase_loop_options(payload, "test")
     if task.get("level") == 2 and options.get("l2_children_mode") == "owned":
         return all(_task_test_complete(item) for item in _test_scope_tasks(payload, task))
     if payload.get("execution", {}).get("development_mode") == "separated":
@@ -2174,6 +2219,13 @@ def _pending_test_tasks(payload: dict[str, Any], layer: str | None = None) -> li
     if payload.get("execution", {}).get("test_loop_enabled", True) is False:
         return []
     options = _phase_loop_options(payload, "test")
+    test_scope = options.get("scope", "both")
+    if test_scope == "l2":
+        enabled_levels = {2}
+    elif test_scope == "l3":
+        enabled_levels = {3, 4}
+    else:
+        enabled_levels = {2, 3, 4}
     if layer == "frontend" and options.get("include_level_2") is False:
         return []
     if layer == "backend" and options.get("l3_loop_enabled") is False:
@@ -2181,22 +2233,22 @@ def _pending_test_tasks(payload: dict[str, Any], layer: str | None = None) -> li
     if layer is not None:
         return [
             item for item in payload.get("tasks", [])
-            if _layer_matches(item, layer) and not _task_test_complete(item)
+            if _layer_matches(item, layer) and item.get("level") in enabled_levels and not _task_test_complete(item)
         ]
     if options.get("l3_loop_enabled") is False:
         return [
             item for item in payload.get("tasks", [])
-            if item.get("level") == 2 and options.get("include_level_2", True) and not _test_scope_complete(payload, item)
+            if item.get("level") == 2 and item.get("level") in enabled_levels and not _test_scope_complete(payload, item)
         ]
     if options.get("include_level_2") is False:
         return [
             item for item in payload.get("tasks", [])
-            if item.get("level") in {3, 4} and not _task_test_complete(item)
+            if item.get("level") in enabled_levels and not _task_test_complete(item)
         ]
     if _task_delivery_scope(payload) == "task":
         return [
             item for item in payload.get("tasks", [])
-            if item.get("level") in {2, 3, 4} and not _test_scope_complete(payload, item)
+            if item.get("level") in enabled_levels and not _test_scope_complete(payload, item)
         ]
     return [
         item for item in payload.get("tasks", [])
@@ -2364,14 +2416,28 @@ def next_backlog_test(root: Path, layer: str | None = None) -> dict[str, Any]:
     execution["current_subtask_id"] = task.get("id") if task.get("parent_task_id") else None
     execution["current_l4_group_task_ids"] = [item["id"] for item in _l4_group_tasks(payload, task)] or None
     write_backlog(root, payload)
+    if task.get("level") == 2:
+        test_instruction = (
+            "Crie um teste de interface com Playwright para a tela L2, seguindo obrigatoriamente o PLAYWRIGHT_GUIDE.md "
+            "da raiz do projeto: use janela única contínua, execução headed/sequencial quando configurada, "
+            "installMousePointer, moveAndClick e moveAndFill; navegue organicamente por links e botões reais e use page.goto "
+            "somente no ponto inicial da jornada. Valide os elementos visíveis, "
+            "clique nos botões e controles relevantes e confirme as ações e navegações esperadas. "
+            "Se as regras de negócio ou o backend ainda não estiverem implementados, não invente respostas de backend: "
+            "valide somente a conexão entre telas, links, rotas e estados visuais que já devem estar disponíveis."
+        )
+    elif task.get("level") in {3, 4}:
+        test_instruction = "Crie testes executáveis para as regras, controllers, models, persistência e integrações descritas neste nó; não implemente produção."
+    else:
+        test_instruction = "Crie os testes deste nó ou subfluxo; não implemente produção."
     return _task_context(root, payload,
         task,
         "test",
         "backlog-test-task",
         (
-            "Crie os testes deste nó ou subfluxo; não implemente produção."
+            test_instruction
             if _task_delivery_scope(payload) == "task"
-            else "Crie os testes do nó de nível 2 e de todos os seus subfluxos; não implemente produção."
+            else f"{test_instruction} Inclua também os subfluxos entregues no contexto; não implemente produção."
         ),
     )
 
@@ -2476,7 +2542,7 @@ def next_backlog_task(root: Path, verification_interval: int | None = None, laye
 
     # 4. Verifica se há verificação de nó pendente que deve rodar antes das próximas tasks
     interval = config.get("verification_interval", config.get("l2_verification_interval", 0))
-    if interval > 0 and layer != "frontend":
+    if interval > 0 and layer != "frontend" and not _agent_review_replaces_verification(root):
         tasks_by_id = {t["id"]: t for t in payload["tasks"]}
         if payload.get("execution", {}).get("development_mode") == "separated":
             l3_tasks = [t for t in payload["tasks"] if t.get("level") == 3]

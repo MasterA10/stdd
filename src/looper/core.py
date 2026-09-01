@@ -231,6 +231,7 @@ Este projeto usa o Looper para especificação, implementação, testes e evidê
 
 - Registre cada trabalho concluído com `looper log \"descrição curta\" --type implementacao|teste|bug|refactor`.
 - Execute `looper test` antes de declarar uma tarefa concluída e trate falhas como bloqueios.
+- `looper test` executa por padrão somente os testes de regressão da codebase e as demais suítes locais. Suítes Playwright devem ser declaradas com `type: playwright` em `test_commands` e só rodam quando o comando recebe a flag explícita `looper test --playwright`.
 - Preserve o contrato existente, os testes aprovados e os arquivos protegidos.
 - Use `.looper/` para configuração, desenhos, execuções e evidências; não registre segredos nos logs.
 - A análise de código deve permanecer separada da análise dos Draws/JSONs; preserve símbolos, referências e métricas gerais quando a stack oferecer essa capacidade.
@@ -239,7 +240,9 @@ Este projeto usa o Looper para especificação, implementação, testes e evidê
 - Ao integrar APIs/apps externos, registre o contrato no `AGENTS.md` e consulte a documentação oficial antes de implementar.
 - O `.looper/design.md` é a fonte obrigatória de decisões visuais: consulte e respeite identidade, tipografia, espaçamento, estados, acessibilidade e contraste em qualquer alteração ou implementação de interface; seu preenchimento é obrigatório antes de liberar o bootstrap.
 - Ao construir, refinar ou revisar interfaces, leia e use a skill `$open-design` instalada em `.agents/skills/open-design/SKILL.md`, consultando seus recursos sob demanda.
+- Observação de frontend: não use emojis na interface. Presets, labels, estados, botões e elementos decorativos devem usar texto ou ícones da biblioteca visual do projeto, nunca caracteres emoji.
 - Mantenha memória contextual seletiva: registre decisões duráveis e aceitas no `AGENTS.md` (contratos, arquitetura, operação e escopo) ou no `.looper/design.md` (visual e interação); consolide duplicatas e não registre hipóteses, detalhes temporários, IDs de execução ou segredos.
+- Qualquer alteração de comportamento feita diretamente pelo agente ou por um comando de programação deve primeiro atender ao pedido do usuário e depois atualizar os Draws correspondentes, para que a documentação reflita o comportamento novo. Se a alteração não mudar o comportamento e acrescentar somente um detalhe específico, crie uma pergunta no Draw correto, respeitando a hierarquia L2/L3. Se a alteração mudar um fluxo ou o comportamento documentado, atualize também as conexões dos nós quando necessário para representar o novo caminho. Os Draws são a documentação oficial do comportamento do sistema e devem permanecer atualizados.
 - `$test-application` lê o Draw completo, propõe e implementa uma suíte de testes transversal (incluindo Playwright e persistência quando aplicáveis); `$implement-frontend` e `$implement-backend` continuam pertencendo aos loops acionados por `looper backlog frontend`, `looper backlog backend` e `looper backlog task`.
 - Quando o pedido vier de uma interação comum, trate-o como interação comum e siga somente as instruções necessárias ao pedido; não transforme a edição em task de backlog nem exija o ciclo de testes/implementação do backlog sem que o cursor tenha entregue uma task.
 - No loop do backlog, execute `looper backlog complete <task-id>` com o mesmo ID recebido somente após validar a task; sem isso, o cursor não avança.
@@ -282,7 +285,7 @@ Looper_AGENT_BLOCK = _agent_block("sequential")
 
 def ensure_agent_instructions(root: Path, integrations: tuple[str, ...], development_mode: str | None = None) -> list[Path]:
     """Instala instruções locais do Looper nos arquivos reconhecidos por cada agente.
-    Cria ou atualiza AGENTS.md, CLAUDE.md e GEMINI.md sem tocar em arquivos globais e sem duplicar o bloco.
+    Cria ou atualiza os arquivos locais selecionados sem tocar em arquivos globais e sem duplicar o bloco.
     """
     changed: list[Path] = []
     for integration in integrations:
@@ -299,6 +302,16 @@ def ensure_agent_instructions(root: Path, integrations: tuple[str, ...], develop
             instruction_path.write_text(updated, encoding="utf-8")
             changed.append(instruction_path)
     return changed
+
+
+def ensure_playwright_guide(root: Path) -> Path | None:
+    """Instala o guia padrão de Playwright sem substituir um guia do projeto."""
+    source = Path(__file__).parent / "templates" / "PLAYWRIGHT_GUIDE.md"
+    target = root / "PLAYWRIGHT_GUIDE.md"
+    if target.exists() or not source.is_file():
+        return None
+    target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+    return target
 
 
 def _resolve_init_development_mode(config: Path, requested: str | None) -> tuple[str, bool]:
@@ -377,6 +390,7 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
                         "test_loop": {
                             "mode": "task_order",
                             "batch_size": 1,
+                            "scope": "both",
                             "include_level_2": True,
                             "l2_children_mode": "none",
                             "l3_loop_enabled": True,
@@ -445,6 +459,9 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
     if config_changed and config not in created:
         created.append(config)
     created.extend(ensure_agent_instructions(root, integrations, config_mode))
+    playwright_guide = ensure_playwright_guide(root)
+    if playwright_guide is not None:
+        created.append(playwright_guide)
     return created
 
 
@@ -552,6 +569,7 @@ def get_suite_skip_reason(
     include_suites: set[str] | None,
     exclude_suites: set[str],
     approve_actions: bool,
+    include_playwright: bool = False,
 ) -> str | None:
     """Decide deterministicamente se uma suíte deve ser pulada pelo alias global.
     Filtros explícitos prevalecem sobre perfil e enabled, mas nunca sobre aprovação obrigatória.
@@ -559,6 +577,9 @@ def get_suite_skip_reason(
     name = str(suite.get("name") or "unnamed")
     if name in exclude_suites:
         return "excluded"
+    suite_type = str(suite.get("type", suite.get("kind", ""))).strip().lower()
+    if suite_type == "playwright" and not include_playwright:
+        return "playwright_opt_in_required"
     explicitly_included = include_suites is not None and name in include_suites
     if include_suites is not None and not explicitly_included:
         return "not_selected"
@@ -628,8 +649,10 @@ def run_tests(
     exclude_suites: set[str] | None = None,
     approve_actions: bool = False,
     profile: str | None = None,
+    include_playwright: bool = False,
 ):
-    """Executa contratos, análise estática e todas as suítes do alias global.
+    """Executa contratos, análise estática e as suítes de regressão do alias global.
+    Suítes Playwright só são executadas quando ``include_playwright`` é verdadeiro.
     Consolida evidências por suíte e continua a execução mesmo quando uma delas falha.
     """
     run_id = uuid.uuid4().hex
@@ -677,7 +700,14 @@ def run_tests(
         else:
             errors.append(f"[backlog] tasks pendentes: {backlog_report['remaining']}")
     for suite in suites:
-        skip_reason = get_suite_skip_reason(suite, active_profile, include_suites, excluded, approve_actions)
+        skip_reason = get_suite_skip_reason(
+            suite,
+            active_profile,
+            include_suites,
+            excluded,
+            approve_actions,
+            include_playwright,
+        )
         if skip_reason:
             suite_report = build_not_executed_suite_report(suite, skip_reason)
             suite_reports.append(suite_report)

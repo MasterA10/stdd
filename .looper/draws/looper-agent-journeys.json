@@ -74,7 +74,7 @@
       "id": 7,
       "label": "$implement",
       "group": 3,
-      "description": "Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural."
+      "description": "Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural; depois atualiza o Draw correspondente. Detalhes sem mudança de comportamento viram perguntas no nível L2/L3 correto, e mudanças de fluxo também atualizam as conexões dos nós."
     },
     {
       "id": 8,
@@ -92,7 +92,7 @@
       "id": 10,
       "label": "Codex",
       "group": 5,
-      "description": "Integração de agente que instala as skills em .agents/skills/."
+      "description": "Integração padrão: instala as skills em .agents/skills/ e fornece o AGENTS.md compartilhado para qualquer agente compatível."
     },
     {
       "id": 11,

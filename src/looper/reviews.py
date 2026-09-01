@@ -8,7 +8,9 @@ Looper e permite trocar o comando de qualquer agente pela configuração local.
 from __future__ import annotations
 
 import json
+import shlex
 import subprocess
+import time
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -19,13 +21,16 @@ from .config import load_config, save_config
 
 REVIEW_CONFIG_FILE = ".looper/config.yaml"
 REVIEW_HISTORY_DIRECTORY = ".looper/reviews"
-VALID_REVIEW_AGENTS = {"codex", "claude", "antigravity"}
+VALID_REVIEW_AGENTS = {"codex", "agy", "claude", "antigravity"}
 VALID_REVIEW_SCOPES = {"l2", "l3", "l2_and_l3", "all"}
 VALID_REVIEW_EVENTS = {"test", "implementation", "change"}
 
 DEFAULT_REVIEW_CONFIG: dict[str, Any] = {
     "enabled": False,
-    "default_agent": "antigravity",
+    "default_agent": "agy",
+    "interval_tasks": 1,
+    "execution_mode": "terminal",
+    "completed_since_last_review": 0,
     "reasoning": "high",
     "timeout_seconds": 900,
     "standard_prompt": (
@@ -41,7 +46,8 @@ DEFAULT_REVIEW_CONFIG: dict[str, Any] = {
     "agents": {
         "codex": {"model": "", "command": ["codex", "exec", "--model", "{model}", "-c", "model_reasoning_effort={reasoning}", "{prompt}"]},
         "claude": {"model": "", "command": ["claude", "-p", "--model", "{model}", "{prompt}"]},
-        "antigravity": {"model": "", "command": ["agy", "-p", "{prompt}", "--model", "{model}"]},
+        "agy": {"model": "", "command": ["agy", "-p", "{prompt}", "--dangerously-skip-permissions", "--effort", "{reasoning}", "--model", "{model}"]},
+        "antigravity": {"model": "", "command": ["agy", "-p", "{prompt}", "--dangerously-skip-permissions", "--effort", "{reasoning}", "--model", "{model}"]},
     },
 }
 
@@ -77,6 +83,25 @@ def load_review_config(root: Path) -> dict[str, Any]:
         raise ValueError(f"configuração de revisão inválida: {error}") from error
     if not isinstance(data, dict):
         raise ValueError("configuração de revisão deve ser um objeto")
+    changed = False
+    legacy_interval = load_config(root).get("backlog", {}).get("verification_interval", 0)
+    if "interval_tasks" not in data and legacy_interval:
+        try:
+            data["interval_tasks"] = max(1, int(legacy_interval))
+        except (TypeError, ValueError):
+            data["interval_tasks"] = 1
+        changed = True
+    for key, value in (("interval_tasks", 1), ("execution_mode", "terminal"), ("completed_since_last_review", 0)):
+        if key not in data:
+            data[key] = value
+            changed = True
+    if data.get("execution_mode") not in {"terminal", "tmux"}:
+        data["execution_mode"] = "terminal"
+        changed = True
+    if changed:
+        project = load_config(root)
+        project["review"] = data
+        save_config(root, project)
     return data
 
 
@@ -166,7 +191,57 @@ def _command(config: dict[str, Any], agent: str, model: str, reasoning: str, pro
     if not reasoning:
         rendered = [part for part in rendered if not part.startswith("model_reasoning_effort=")]
         rendered = [part for index, part in enumerate(rendered) if not (part == "-c" and index + 1 < len(rendered) and rendered[index + 1].startswith("model_reasoning_effort="))]
+        rendered = [part for index, part in enumerate(rendered) if not (part == "--effort" or (index and rendered[index - 1] == "--effort"))]
     return rendered
+
+
+def _run_terminal(command: list[str], root: Path, timeout: int) -> tuple[int, str, str]:
+    try:
+        completed = subprocess.run(command, cwd=root, capture_output=True, text=True, timeout=timeout, check=False)
+        return completed.returncode, completed.stdout, completed.stderr
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return -1, "", str(error)
+
+
+def _run_tmux(command: list[str], root: Path, timeout: int, review_id: str) -> tuple[int, str, str]:
+    """Executa o CLI do agente em uma sessão tmux e aguarda seu término."""
+    session = f"looper-review-{review_id[:10]}"
+    output_path = root / ".looper" / "reviews" / f".{review_id}.output"
+    marker = "__LOOPER_REVIEW_EXIT__"
+    script = f"{shlex.join(command)} > {shlex.quote(str(output_path))} 2>&1; printf '\\n{marker}%s\\n' $? >> {shlex.quote(str(output_path))}"
+    try:
+        launched = subprocess.run(["tmux", "new-session", "-d", "-s", session, "sh", "-lc", script], cwd=root, capture_output=True, text=True, timeout=15, check=False)
+        if launched.returncode != 0:
+            return launched.returncode, launched.stdout, launched.stderr
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            if not subprocess.run(["tmux", "has-session", "-t", session], cwd=root, capture_output=True, text=True, check=False).returncode == 0:
+                break
+            time.sleep(0.25)
+        else:
+            subprocess.run(["tmux", "kill-session", "-t", session], cwd=root, capture_output=True, text=True, check=False)
+            return -1, "", f"revisão excedeu o tempo limite de {timeout}s"
+        content = output_path.read_text(encoding="utf-8") if output_path.exists() else ""
+        returncode = -1
+        if marker in content:
+            output, exit_value = content.rsplit(marker, 1)
+            try:
+                returncode = int(exit_value.strip().splitlines()[0])
+            except (IndexError, ValueError):
+                output = content
+            content = output
+        return returncode, content, ""
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return -1, "", str(error)
+    finally:
+        if output_path.exists():
+            output_path.unlink()
+
+
+def _run_agent(config: dict[str, Any], command: list[str], root: Path, timeout: int, review_id: str) -> tuple[int, str, str]:
+    if config.get("execution_mode", "terminal") == "tmux":
+        return _run_tmux(command, root, timeout, review_id)
+    return _run_terminal(command, root, timeout)
 
 
 def run_review(
@@ -184,9 +259,9 @@ def run_review(
     if event not in VALID_REVIEW_EVENTS:
         raise ValueError("fase de revisão inválida")
     config = load_review_config(root)
-    selected_agent = agent or config.get("default_agent", "antigravity")
+    selected_agent = agent or config.get("default_agent", "agy")
     if selected_agent not in VALID_REVIEW_AGENTS:
-        raise ValueError("agente inválido; use codex, claude ou antigravity")
+        raise ValueError("agente inválido; use codex ou agy")
     selected_scope = _task_scope(task, scope)
     trigger = config.get("triggers", {}).get(event, {}).get(selected_scope, False)
     if not force and not (config.get("enabled", False) and trigger):
@@ -201,12 +276,7 @@ def run_review(
     review_id = uuid.uuid4().hex
     before = _draw_change_snapshot(root)
     started = datetime.now(timezone.utc).isoformat()
-    try:
-        completed = subprocess.run(command, cwd=root, capture_output=True, text=True, timeout=int(config.get("timeout_seconds", 900)), check=False)
-        returncode = completed.returncode
-        stdout, stderr = completed.stdout, completed.stderr
-    except (OSError, subprocess.TimeoutExpired) as error:
-        returncode, stdout, stderr = -1, "", str(error)
+    returncode, stdout, stderr = _run_agent(config, command, root, int(config.get("timeout_seconds", 900)), review_id)
     after = _draw_change_snapshot(root)
     created = [value for key, value in after.items() if key not in before]
     status = "changes_created" if created else "approved" if returncode == 0 else "pending"
@@ -231,4 +301,19 @@ def maybe_review_completed_task(root: Path, response: dict[str, Any]) -> dict[st
     scope = _configured_scope(config, event, task)
     if not config.get("enabled", False) or scope is None:
         return None
+    try:
+        interval = max(1, int(config.get("interval_tasks", 1)))
+        completed = max(0, int(config.get("completed_since_last_review", 0))) + 1
+    except (TypeError, ValueError):
+        interval, completed = 1, 1
+    if completed < interval:
+        config["completed_since_last_review"] = completed
+        data = load_config(root)
+        data["review"] = config
+        save_config(root, data)
+        return None
+    config["completed_since_last_review"] = 0
+    data = load_config(root)
+    data["review"] = config
+    save_config(root, data)
     return run_review(root, task, event=event, scope=scope, force=False)

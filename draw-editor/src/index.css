@@ -361,6 +361,7 @@ body:has(.improvement-dialog) { overflow: hidden; }
   display: flex;
   flex-direction: column;
   width: min(860px, 100%);
+  height: fit-content;
   max-height: min(900px, calc(100vh - 32px));
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--line));
@@ -409,11 +410,19 @@ body:has(.improvement-dialog) { overflow: hidden; }
 .config-field textarea { width: 100%; min-height: 86px; resize: vertical; }
 .config-textarea { align-items: start; flex-direction: column; }
 .config-textarea textarea { min-width: 0; }
-.config-toggle input { position: absolute; opacity: 0; pointer-events: none; }
-.config-toggle i { position: relative; width: 38px; height: 22px; flex: 0 0 38px; border-radius: 99px; background: var(--line-strong); transition: .2s; }
-.config-toggle i::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: white; transition: .2s; }
-.config-toggle input:checked + i { background: linear-gradient(135deg, #e31b23 0%, #ff8c00 100%); }
-.config-toggle input:checked + i::after { transform: translateX(16px); }
+.config-range-field { align-items: flex-start; }
+.config-range-controls { display: grid; grid-template-columns: minmax(180px, 1fr) 72px auto; align-items: center; gap: 10px; min-width: min(430px, 52%); }
+.config-range { width: 100%; min-width: 180px; accent-color: var(--accent); cursor: pointer; }
+.config-range-value { width: 72px; min-width: 0 !important; text-align: center; }
+.config-range-bound { color: var(--muted); font-size: 10px; white-space: nowrap; }
+.config-range:focus-visible, .config-range-value:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: 3px; }
+.config-toggle input { position: fixed; width: 1px; height: 1px; padding: 0; border: 0; opacity: 0; pointer-events: none; clip-path: inset(50%); }
+.config-toggle-control { position: relative; display: block; width: 38px; height: 22px; flex: 0 0 38px; border-radius: 99px; background: var(--line-strong); cursor: pointer; transition: .2s; }
+.config-toggle-control i { position: absolute; inset: 0; border-radius: inherit; }
+.config-toggle-control i::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: white; transition: .2s; }
+.config-toggle input:checked + .config-toggle-control { background: linear-gradient(135deg, #e31b23 0%, #ff8c00 100%); }
+.config-toggle input:checked + .config-toggle-control i::after { transform: translateX(16px); }
+.config-toggle input:focus-visible + .config-toggle-control { outline: 3px solid color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: 3px; }
 .config-footer { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 16px 28px; border-top: 1px solid var(--line); background: var(--panel); }
 .config-error, .config-saved { display: inline-flex; align-items: center; gap: 6px; margin-right: auto; font-size: 11px; }
 .config-error { color: var(--danger); } .config-saved { color: var(--success); }
@@ -421,7 +430,34 @@ body:has(.improvement-dialog) { overflow: hidden; }
 .config-feedback.error { color: var(--danger); padding: 28px; }
 .spin { animation: config-spin 1s linear infinite; }
 @keyframes config-spin { to { transform: rotate(360deg); } }
-@media (max-width: 680px) { .config-overlay { padding: 10px; } .config-header, .config-scroll, .config-footer { padding-left: 16px; padding-right: 16px; } .config-field { align-items: stretch; flex-direction: column; gap: 8px; } .config-field select, .config-field input, .config-choice-list { width: 100%; min-width: 0; } .config-choice-list { grid-template-columns: 1fr; } .config-footer { flex-wrap: wrap; } .config-error, .config-saved { width: 100%; margin-bottom: 4px; } }
+@media (max-width: 680px) { .config-overlay { padding: 10px; } .config-header, .config-scroll, .config-footer { padding-left: 16px; padding-right: 16px; } .config-field { align-items: stretch; flex-direction: column; gap: 8px; } .config-field select, .config-field input, .config-choice-list { width: 100%; min-width: 0; } .config-range-controls { width: 100%; min-width: 0; grid-template-columns: 1fr 72px auto; } .config-range { min-width: 0; } .config-choice-list { grid-template-columns: 1fr; } .config-footer { flex-wrap: wrap; } .config-error, .config-saved { width: 100%; margin-bottom: 4px; } }
+
+/* Configurações: orientação visível, detalhes sob demanda e presets. */
+.config-contextual-help { display: flex; align-items: flex-start; gap: 8px; width: 100%; margin-top: 6px; }
+.config-field,
+.config-toggle { flex-wrap: wrap; }
+.config-field > .config-contextual-help,
+.config-toggle .config-contextual-help { flex-basis: 100%; }
+.config-hint-visible { flex: 1; padding: 6px 10px; border-left: 3px solid color-mix(in srgb, var(--accent) 40%, var(--line)); border-radius: 0 6px 6px 0; color: var(--accent-strong); background: color-mix(in srgb, var(--accent) 5%, transparent); font-size: 10px; font-weight: 600; line-height: 1.45; }
+.config-detail-toggle { display: inline-grid; place-items: center; width: 22px; height: 22px; flex: 0 0 22px; padding: 0; border: 0; border-radius: 50%; color: var(--accent-strong); background: color-mix(in srgb, var(--accent) 10%, transparent); cursor: pointer; transition: .15s; }
+.config-detail-toggle:hover, .config-detail-toggle:focus-visible, .config-detail-toggle[aria-expanded="true"] { color: white; background: var(--brand-gradient); outline: 2px solid color-mix(in srgb, var(--accent) 35%, transparent); outline-offset: 2px; }
+.config-detail-box { width: 100%; margin-top: 8px; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--line)); border-radius: 10px; color: var(--ink); background: color-mix(in srgb, var(--accent) 4%, var(--paper)); font-size: 11px; font-weight: 500; line-height: 1.55; }
+.config-recommended { display: inline-flex; align-items: center; gap: 4px; margin-top: 3px; padding: 2px 7px; border-radius: 6px; color: var(--accent-strong); background: color-mix(in srgb, var(--accent) 12%, transparent); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; }
+.config-choice.selected .config-recommended { color: white; background: color-mix(in srgb, white 20%, transparent); }
+.config-presets { margin-bottom: 18px; }
+.config-preset-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.config-preset { display: flex; align-items: flex-start; gap: 10px; min-height: 78px; padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: 14px; text-align: left; color: var(--ink); background: var(--paper); cursor: pointer; transition: .15s; }
+.config-preset:hover, .config-preset:focus-visible { border-color: var(--accent); outline: 2px solid color-mix(in srgb, var(--accent) 18%, transparent); outline-offset: 1px; }
+.config-preset.active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--paper)); box-shadow: inset 0 -3px var(--accent); }
+.config-preset-icon { font-size: 20px; line-height: 1; }
+.config-preset strong { display: block; margin-bottom: 3px; font-size: 11px; }
+.config-preset small { display: block; color: var(--muted); font-size: 9px; line-height: 1.4; }
+.config-custom-link { display: block; width: 100%; margin-top: 8px; padding: 10px 14px; border: 1px dashed var(--line-strong); border-radius: 10px; text-align: left; color: var(--muted); background: transparent; font-size: 11px; cursor: pointer; transition: .15s; }
+.config-custom-link:hover, .config-custom-link:focus-visible, .config-custom-link.active { color: var(--accent-strong); border-color: var(--accent); }
+.config-custom-link.active { border-style: solid; background: color-mix(in srgb, var(--accent) 5%, transparent); }
+@media (max-width: 860px) { .config-preset-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 680px) { .config-preset-grid { grid-template-columns: 1fr; } .config-contextual-help { flex-direction: column; } }
+@media (prefers-reduced-motion: reduce) { .config-detail-toggle, .config-preset, .config-custom-link { transition: none; } }
 
 .title-container {
   display: flex;

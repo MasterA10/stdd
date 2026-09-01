@@ -1749,3 +1749,21 @@ def test_init_configures_all_backlog_options(tmp_path: Path):
     assert config["bootstrap_task"] is True
     assert config["final_verification_task"] is True
     assert config["min_task_interval_seconds"] == 5
+
+
+def test_test_scope_selects_l2_l3_or_both_and_describes_l2_playwright_flow(tmp_path: Path):
+    """Persiste o escopo do loop e entrega orientação de interface para L2."""
+    _create_hierarchical_fixture(tmp_path)
+    _remove_test_refs(tmp_path)
+    set_backlog_config(tmp_path, bootstrap_task=False, test_scope="l2")
+
+    config = get_backlog_config(tmp_path)
+    assert config["test_scope"] == "l2"
+    assert config["test_loop"]["scope"] == "l2"
+    assert config["test_loop"]["include_level_2"] is True
+    assert config["test_loop"]["l3_loop_enabled"] is False
+
+    response = next_backlog_test(tmp_path)
+    assert response["task"]["level"] == 2
+    assert "Playwright" in response["instruction"]
+    assert "conexão entre telas" in response["instruction"]

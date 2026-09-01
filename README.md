@@ -33,15 +33,7 @@ looper init meu-projeto
 cd meu-projeto
 ```
 
-Em um terminal interativo, o Looper oferece uma seleção múltipla numerada:
-
-```text
-Selecione as integrações do agente (ex.: 1,3 ou 4 para todos):
-  1. Codex
-  2. Claude
-  3. Gemini
-  4. Todos
-```
+O `looper init` usa Codex como integração padrão e não pergunta qual agente deve ser usado. Codex e os demais agentes compatíveis consumirão as instruções compartilhadas em `AGENTS.md`. Integrações adicionais podem ser instaladas explicitamente por flags, quando necessário.
 
 Depois da escolha, o CLI pergunta se deve executar o setup da stack. O setup não instala dependências nem inicia serviços sem autorização; ele apenas detecta arquivos e comandos locais. Os níveis têm semântica fixa: L1 é Arquitetura, L2 é Tela/experiência do usuário, L3 é Use case e L4 é informação de baixo nível. O backlog aceita presets de loop (`task_order`, `node_complete`, `node_then_children` e `all_level2_then_level3`) e pode manter filas L2/L3 independentes para agentes paralelos. `--l2-children-mode none|context|owned` controla se o L2 recebe os filhos L3, se os recebe apenas como contexto ou se assume também sua conclusão; em `owned`, o loop L3 é desabilitado nessa fase. `--l3-parent-context/--no-l3-parent-context` controla a inclusão do pai L2 no contexto do L3. Os loops de testes e implementação têm modo e tamanho de lote próprios; essas escolhas ficam em `.looper/config.yaml` e podem ser atualizadas com `looper backlog config`. Quando o loop de testes é desabilitado, `looper backlog test` informa que foi desativado e `looper backlog task` libera somente implementação. O init injeta no bloco gerenciado do `AGENTS.md` a estratégia correspondente, atualizando-a sem duplicar nem apagar as regras próprias do projeto.
 
@@ -54,6 +46,8 @@ looper init meu-projeto --all-integrations
 ```
 
 O `looper init` sempre sincroniza as skills já instaladas com os templates desta versão, adicionando agentes novos e atualizando instruções existentes. Se o comando ainda não reconhecer `draw-system-level-1` até `draw-system-level-4`, reinstale o CLI a partir deste checkout com `uv tool install --force --editable .` e execute o init novamente.
+
+O init também instala o `PLAYWRIGHT_GUIDE.md` na raiz do projeto com o padrão de testes E2E do Looper: Playwright em janela única visível, cursor observável, navegação orgânica e escopo configurável para L2, L3 ou ambos. Um guia já existente no projeto é preservado.
 
 O init também instala a skill-guia `$open-design` em `.agents/skills/open-design/` (e no diretório equivalente de Claude/Gemini). Ela localiza, de forma generalizada no macOS, a biblioteca Open Design externa em `$HOME` ou `/Volumes/*/N-DOWNLOADS/arquitetura-migracao/.agents/skills/open-design`; os assets pesados não são copiados para o projeto.
 
@@ -83,7 +77,7 @@ Além das skills, o init instala no topo do projeto as instruções operacionais
 - Claude: `CLAUDE.md` (ou um `CLAUDE.md` existente em `.claude/`)
 - Gemini: `GEMINI.md`
 
-O bloco é marcado, idempotente e preserva o conteúdo existente. Ele orienta o agente a registrar o trabalho com `looper log`, executar `looper test` e guardar evidências em `.looper/`. O Looper só manipula arquivos de instrução dentro do projeto; não altera prompts ou configurações globais do usuário. O framework permanece em uma única pasta `.looper/`, e o setup escreve o `.gitignore` na raiz do projeto.
+O bloco é marcado, idempotente e preserva o conteúdo existente. Ele orienta o agente a registrar o trabalho com `looper log`, executar `looper test`, guardar evidências em `.looper/` e manter os Draws como documentação oficial: toda mudança de comportamento feita diretamente deve atualizar o Draw e suas conexões; detalhes sem mudança de comportamento devem virar perguntas no nível L2/L3 correto. O Looper só manipula arquivos de instrução dentro do projeto; não altera prompts ou configurações globais do usuário. O framework permanece em uma única pasta `.looper/`, e o setup escreve o `.gitignore` na raiz do projeto.
 
 Ao executar `looper init` em um projeto que ainda usa a estrutura legada, o
 comando migra `.looper/` para `.looper/` e atualiza referências textuais a `looper`
@@ -222,13 +216,13 @@ O campo `.looper/config.yaml:instructions` é a informação crítica persistent
 
 ### Revisão automática por subagente
 
-Após uma task concluída, a revisão opcional pode chamar Codex, Claude, Antigravity ou um comando customizado pela seção `review` de `.looper/config.yaml`. Configure `enabled`, os gatilhos por fase (`test`, `implementation`, `change`) e escopo (`l2`, `l3`, `l2_and_l3`, `all`), além do modelo dentro de cada agente em `review.agents`, reasoning, prompt e comando. A revisão é executada com `looper backlog complete` ou manualmente:
+Após o intervalo configurado de tasks concluídas, a revisão opcional chama Agy por padrão (`agy -p ... --dangerously-skip-permissions`), ou Codex CLI (`codex exec`) quando selecionado na seção `review` de `.looper/config.yaml`. Configure `enabled`, `interval_tasks`, `execution_mode` (`terminal` ou `tmux`), o agente, os gatilhos por fase (`test`, `implementation`, `change`) e escopo (`l2`, `l3`, `l2_and_l3`, `all`), além do modelo, reasoning, prompt e comando. A revisão é executada com `looper backlog complete` ou manualmente:
 
 ```bash
 looper backlog review task:meu-draw:node:1 --agent codex --scope l2_and_l3
 ```
 
-O agente deve criar changes diretamente no nó correspondente quando encontrar lacunas, usando `looper draw change add --draw-id ... --node-id ... --prompt ...`. Se nenhuma change for criada, a task é considerada aprovada. Cada revisão fica registrada em `.looper/reviews/`; uma falha não reabre a task e pode ser repetida.
+O agente deve criar changes diretamente no nó correspondente quando encontrar lacunas, usando `looper draw change add --draw-id ... --node-id ... --prompt ...`. A antiga task injetada de verificação deixa de ser usada quando a revisão automática está ativa. Se nenhuma change for criada, a task é considerada aprovada. Cada revisão fica registrada em `.looper/reviews/`; uma falha não reabre a task e pode ser repetida.
 
 Para desligar ou religar o acionamento automático sem editar JSON, use `looper backlog config --no-review` ou `looper backlog config --review`. Com a opção desligada, o `backlog complete` não chama nenhum agente de revisão.
 
@@ -294,7 +288,12 @@ O comando lista os símbolos por nó e termina com código diferente de zero qua
 looper test
 ```
 
-Esse é o alias global. Ele executa as suítes configuradas, análise estática, contrato e runners da stack. Suítes que exigem aprovação explícita aparecem como `not_executed` quando não autorizadas.
+Esse é o alias global. Ele executa os testes de regressão da codebase, as demais suítes configuradas, análise estática, contrato e runners da stack. Suítes que exigem aprovação explícita aparecem como `not_executed` quando não autorizadas.
+Testes Playwright são separados dos testes de regressão: declare a suíte com `type: playwright` em `test_commands`. Eles não rodam por padrão e aparecem como `not_executed`; use a flag explícita para incluí-los:
+
+```bash
+looper test --playwright
+```
 Se `.looper/backlog.json` existir, o alias também executa o gate do backlog e bloqueia enquanto houver task sem `backlog complete` ou nó de nível 2 sem teste comprovado; a saída do terminal mostra somente status e contagens, mantendo os detalhes no relatório estruturado.
 Quando a análise encontrar um nó de nível 2, 3 ou 4 sem símbolo, a saída inclui o `kind`, o arquivo do Draw e o `node_id` do achado bloqueante (`draw.level*_missing_code_ref` ou `draw.empty_node_symbol`).
 
@@ -305,6 +304,7 @@ looper test --suite unit
 looper test --exclude performance
 looper test --profile mvp
 looper test --approve-actions
+looper test --playwright
 ```
 
 ## Abrir e editar o Draw

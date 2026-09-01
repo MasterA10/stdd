@@ -30,13 +30,13 @@
       "id": 1,
       "label": "Ler perfil e suítes",
       "group": 1,
-      "description": "A execução seleciona suítes, exclusões, perfil e aprovações."
+      "description": "A execução seleciona suítes, exclusões, perfil e aprovações. Testes de regressão da codebase rodam por padrão; suítes declaradas com type: playwright ficam como not_executed até receberem a flag explícita --playwright."
     },
     {
       "id": 2,
       "label": "Executar runners e contrato",
       "group": 2,
-      "description": "Subprocessos, contrato e ações aprovadas são executados com captura de resultado."
+      "description": "Subprocessos, contrato e ações aprovadas são executados com captura de resultado. O alias global preserva a regressão como padrão e só inclui E2E Playwright quando solicitado explicitamente."
     },
     {
       "id": 3,
