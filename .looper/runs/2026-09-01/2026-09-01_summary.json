@@ -169,8 +169,71 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "42d94c45d8c7488fb24a6eae9ceeb2b5",
+      "timestamp": "2026-09-01T17:25:12.268355+00:00",
+      "description": "Esclarece uso do Playwright CLI via npx no AGENTS.md",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "de93d3ac2e4241dda4f9d0c230c45293",
+      "timestamp": "2026-09-01T17:26:48.993868+00:00",
+      "description": "Move regra do Playwright CLI para dentro do bloco Looper do AGENTS.md",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "5aa89d8eeced47909381a271d6abc150",
+      "timestamp": "2026-09-01T17:28:04.784247+00:00",
+      "description": "Atualiza template compartilhado do AGENTS.md com regra explícita do npx playwright-cli",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 8,
-  "last_run_id": "d0497ba1c9254ecb99af58c4f9975dda"
+  "run_count": 11,
+  "last_run_id": "5aa89d8eeced47909381a271d6abc150"
 }
