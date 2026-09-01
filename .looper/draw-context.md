@@ -62,97 +62,6 @@ Entrada para o desenho de nível 2: como agente e desenvolvedor usam o sistema.
 Draws descendentes: `looper-user-journeys`
 
 
-## Nível 1 — Cadastro incorporado de WhatsApp
-Draw: `cadastro-incorporado-whatsapp` · papel: architecture
-Resumo: O caminho principal cria uma tentativa server-side por tenant, abre a jornada Meta, recebe code e reconcilia WABA e número antes de ativar a conexão.
-
-### Nó 0 — Administrador
-Usuário autenticado que informa o número e conclui as telas da Meta.
-Conecta: então → Nó 1 — Tela WhatsApp Setup (inicia)
-  Contexto da conexão: Administrador informa o telefone e aciona o cadastro.
-Pergunta: O administrador tem permissão de WABA Manager na Meta?
-Resposta: True
-
-### Nó 1 — Tela WhatsApp Setup
-Valida o telefone, abre SDK ou popup e acompanha o status.
-Conecta: então → Nó 2 — onboarding/start (start)
-  Contexto da conexão: Tela chama o backend autenticado.
-Conecta: então → Nó 4 — Embedded Signup Meta (SDK)
-  Contexto da conexão: Modo SDK inicia FB.login diretamente na ação do usuário.
-Conecta: se → Nó 11 — Status da tentativa (polla status)
-  Contexto da conexão: Acompanha o andamento assíncrono.
-Conecta: ou → Nó 13 — session_uuid legado (fluxo legado)
-  Contexto da conexão: Fallback para chamadas legadas.
-Pergunta: Como é tratada a falha de renderização do SDK?
-Resposta: Fallbacks com redirect OAuth caso o bloqueador de anúncios impeça a inicialização.
-
-### Nó 2 — onboarding/start
-Cria a tentativa, deriva o tenant da sessão e devolve dados públicos.
-Conecta: então → Nó 3 — Tentativa + state (registra)
-  Contexto da conexão: Tentativa fica vinculada ao tenant e recebe validade.
-Conecta: então → Nó 4 — Embedded Signup Meta (abre)
-  Contexto da conexão: Backend monta URL ou dados SDK com app, config, callback e state.
-Pergunta: Qual a expiração padrão do state gerado?
-Resposta: 15 minutos.
-
-### Nó 4 — Embedded Signup Meta
-Jornada oficial de autorização e configuração da conta WhatsApp.
-Conecta: então → Nó 5 — Retorno SDK ou OAuth (retorna)
-  Contexto da conexão: Meta devolve code e metadados da jornada.
-
-### Nó 5 — Retorno SDK ou OAuth
-SDK entrega code e IDs por postMessage; redirect entrega code e state no callback.
-Conecta: então → Nó 6 — complete ou callback (conclui)
-  Contexto da conexão: SDK envia attempt_id e code; redirect chega ao callback OAuth.
-
-### Nó 6 — complete ou callback
-Entrada autenticada do SDK ou callback server-side que valida e consome a tentativa.
-Conecta: então → Nó 3 — Tentativa + state (valida tentativa)
-  Contexto da conexão: Consome a tentativa para impedir reutilização.
-Conecta: então → Nó 7 — Reconciliação server-side (inicia reconciliação)
-  Contexto da conexão: Garante segurança e chama apis externas.
-
-### Nó 7 — Reconciliação server-side
-Troca code, consulta Graph API, valida ownership, aplica retry e idempotência.
-Conecta: então → Nó 8 — Graph API Meta (consulta WABA)
-  Contexto da conexão: Chama as APIs da Meta para pegar dados do telefone e WABA.
-Conecta: então → Nó 9 — Conexão WhatsApp (cria conexão)
-  Contexto da conexão: Grava dados e token na base.
-Conecta: então → Nó 10 — Assinatura de webhooks (inscreve webhooks)
-  Contexto da conexão: Garante recebimento de mensagens e eventos de status.
-Pergunta: Política de Retry para APIs Meta:
-Resposta: 1
-
-### Nó 8 — Graph API Meta
-Troca authorization code por token e descobre WABA e phone_number_id.
-
-### Nó 10 — Assinatura de webhooks
-Inscreve a WABA para eventos futuros após a conexão ser confirmada.
-
-### Nó 11 — Status da tentativa
-Polling tenant-scoped; pode avançar job pendente e retorna apenas dados seguros.
-Conecta: então → Nó 3 — Tentativa + state (lê estado)
-  Contexto da conexão: Verifica se backend já terminou.
-Conecta: então → Nó 12 — Resultado na tela (renderiza status)
-  Contexto da conexão: Atualiza interface com sucesso ou erro.
-
-### Nó 3 — Tentativa + state
-Guarda attempt_id, hash do state, telefone, redirect_uri, validade e status.
-Pergunta: O state é deletado após o consumo único?
-Resposta: True
-
-### Nó 12 — Resultado na tela
-Exibe completed, processamento, falha, expiração ou cancelamento.
-
-### Nó 13 — session_uuid legado
-Rotas antigas de compatibilidade que fazem persistência direta.
-Conecta: então → Nó 9 — Conexão WhatsApp (grava direto)
-  Contexto da conexão: Conexão direta na base antiga.
-
-### Nó 9 — Conexão WhatsApp
-Upsert de WABA, número e token criptografado, com vínculo ao tenant.
-
-
 ## Nível 1 — Demonstração: perguntas, respostas e loop
 Draw: `demo-perguntas-respostas` · papel: architecture
 Resumo: Fluxo para validar perguntas respondidas, pendências e retorno ao início
@@ -290,7 +199,7 @@ Conecta: então → Nó 9 — looper test e looper log (então verifica e regist
   Contexto da conexão: Toda implementação passa por looper test e looper log.
 
 ### Nó 9 — looper test e looper log
-Não são agentes: são gates e evidências operacionais que verificam e registram o trabalho conduzido pelas skills. O comando looper draw context organiza todos os níveis, conexões, perguntas, respostas e símbolos em texto para consumo do agente.
+Não são agentes: são gates e evidências operacionais que verificam e registram o trabalho conduzido pelas skills. O comando looper draw context organiza todos os níveis, conexões, perguntas, respostas e símbolos em texto para consumo do agente. Revisões e correções delegadas a subagentes usam exclusivamente sessões tmux após autorização do usuário.
 Conecta: se → Nó 13 — Entrega documentada (se os gates passam)
   Contexto da conexão: A entrega fica rastreável e pronta para revisão.
 Conecta: se → Nó 6 — $create-tests (se algum gate falha)
@@ -298,6 +207,8 @@ Conecta: se → Nó 6 — $create-tests (se algum gate falha)
 Símbolo: `looper.cli.draw_context` · arquivo: src/looper/cli.py
 Símbolo: `looper.draw.collect_draw_context` · arquivo: src/looper/draw.py
 Símbolo: `looper.draw.format_draw_context` · arquivo: src/looper/draw.py
+Símbolo: `looper.reviews.load_review_config` · arquivo: src/looper/reviews.py
+Símbolo: `looper.reviews._run_agent` · arquivo: src/looper/reviews.py
 
 ### Nó 13 — Entrega documentada
 Estado final esperado: comportamento especificado, implementado quando aplicável, verificado, desenhado e registrado.

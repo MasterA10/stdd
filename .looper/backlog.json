@@ -1,7 +1,7 @@
 {
   "version": 1,
   "kind": "backlog",
-  "generated_at": "2026-08-21T01:14:20.438053+00:00",
+  "generated_at": "2026-09-01T22:28:02.560529+00:00",
   "system": {
     "root_draw_ids": [
       "looper-system-architecture"
@@ -17,6 +17,11 @@
       "level": 3,
       "meaning": "Regra de negócio e detalhes da tela",
       "guidance": "Trate este fluxo como regra de negócio e detalhes da tela: implemente decisões, validações, estados, interações e efeitos necessários."
+    },
+    "4": {
+      "level": 4,
+      "meaning": "Codebase / baixo nível",
+      "guidance": "Trate este fluxo como rastreabilidade técnica: ligue o comportamento do L3 a arquivos, módulos, símbolos, contratos, persistência, integrações e testes reais."
     }
   },
   "checklists": [
@@ -39,6 +44,8 @@
           "node_id": 1,
           "label": "Agente de código",
           "description": "Consumidor das skills instaladas, responsável por especificar, desenhar, implementar e relatar o trabalho.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -52,6 +59,8 @@
           "node_id": 2,
           "label": "CLI looper",
           "description": "Interface operacional para init, setup, test, log e draw.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -65,6 +74,8 @@
           "node_id": 3,
           "label": "Núcleo de execução",
           "description": "Coordena inicialização, runners, contratos, análise estática, rastreabilidade e registro de execuções.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -78,6 +89,8 @@
           "node_id": 4,
           "label": "Contrato e testes do framework",
           "description": "Suítes pytest e regras de contrato que protegem o comportamento do próprio Looper.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -91,6 +104,8 @@
           "node_id": 5,
           "label": ".looper/config.json",
           "description": "Configuração de runners, stack detectada, contrato e adapter de análise estática.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -104,6 +119,8 @@
           "node_id": 6,
           "label": ".looper/runs e facts",
           "description": "Estado versionável de execuções, snapshots, KPIs de análise e fatos de rastreabilidade.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -117,6 +134,8 @@
           "node_id": 7,
           "label": ".looper/draws",
           "description": "Fonte de verdade JSON dos desenhos, com índice e relações hierárquicas.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -130,6 +149,8 @@
           "node_id": 8,
           "label": "Jornadas do usuário do Looper",
           "description": "Entrada para o desenho de nível 2: como agente e desenvolvedor usam o sistema.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -143,6 +164,8 @@
           "node_id": 9,
           "label": "Draw Server e viewer embutido",
           "description": "Servidor HTTP local que entrega o viewer React Flow empacotado e a API de desenhos.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -156,6 +179,8 @@
           "node_id": 10,
           "label": "Codebase Python e pytest",
           "description": "Runtime Python >= 3.11, Typer, setuptools e pytest; sem banco ou serviço externo obrigatório.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -169,6 +194,8 @@
           "node_id": 11,
           "label": "Agentes Looper e integrações",
           "description": "Skills especializadas que conduzem o ciclo de especificação, desenho, análise e implementação; instaladas nas integrações Codex, Claude e Gemini.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -198,6 +225,8 @@
           "node_id": 1,
           "label": "Pedido do usuário",
           "description": "Intenção, problema, mudança arquitetural ou necessidade de documentação recebida pelo agente hospedeiro.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "done",
           "questions": [],
           "code_refs": [],
@@ -216,18 +245,20 @@
             "level": 2,
             "label": "Pedido do usuário",
             "description": "Intenção, problema, mudança arquitetural ou necessidade de documentação recebida pelo agente hospedeiro.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-agent-journeys:node:1",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -265,6 +296,8 @@
           "node_id": 2,
           "label": "$setup",
           "description": "Descobre a stack, runners, bancos, provedores e configura o Looper sem inventar capacidades. Encaminha para $draw-system quando falta uma raiz de sistema.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "done",
           "questions": [],
           "code_refs": [],
@@ -283,18 +316,20 @@
             "level": 2,
             "label": "$setup",
             "description": "Descobre a stack, runners, bancos, provedores e configura o Looper sem inventar capacidades. Encaminha para $draw-system quando falta uma raiz de sistema.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-agent-journeys:node:2",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -325,6 +360,8 @@
           "node_id": 3,
           "label": "$draw-system",
           "description": "Modela o sistema completo em arquitetura, jornadas, implementação e codebase quando necessário; mantém a árvore hierárquica sem órfãos.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "done",
           "questions": [],
           "code_refs": [],
@@ -343,18 +380,20 @@
             "level": 2,
             "label": "$draw-system",
             "description": "Modela o sistema completo em arquitetura, jornadas, implementação e codebase quando necessário; mantém a árvore hierárquica sem órfãos.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-agent-journeys:node:3",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -392,6 +431,8 @@
           "node_id": 4,
           "label": "$draw-feature",
           "description": "Desenha uma feature, fluxo, decisão ou trade-off como JSON navegável, respeitando a árvore do sistema quando existir.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "done",
           "questions": [],
           "code_refs": [],
@@ -410,18 +451,20 @@
             "level": 2,
             "label": "$draw-feature",
             "description": "Desenha uma feature, fluxo, decisão ou trade-off como JSON navegável, respeitando a árvore do sistema quando existir.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-agent-journeys:node:4",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -452,6 +495,8 @@
           "node_id": 5,
           "label": "$draw-improve",
           "description": "Revisa um Draw existente e acrescenta apenas o próximo detalhe arquitetural relevante, preservando intenção, escopo e vínculos.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "done",
           "questions": [],
           "code_refs": [],
@@ -470,18 +515,20 @@
             "level": 2,
             "label": "$draw-improve",
             "description": "Revisa um Draw existente e acrescenta apenas o próximo detalhe arquitetural relevante, preservando intenção, escopo e vínculos.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-agent-journeys:node:5",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -512,6 +559,8 @@
           "node_id": 6,
           "label": "$create-tests",
           "description": "Transforma jornadas e desenhos em testes executáveis vermelhos, sem alterar código de produção; trata folhas não implementadas como escopo ausente.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "done",
           "questions": [],
           "code_refs": [],
@@ -530,18 +579,20 @@
             "level": 2,
             "label": "$create-tests",
             "description": "Transforma jornadas e desenhos em testes executáveis vermelhos, sem alterar código de produção; trata folhas não implementadas como escopo ausente.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-agent-journeys:node:6",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -585,7 +636,9 @@
           "id": "item:looper-agent-journeys:node:7",
           "node_id": 7,
           "label": "$implement",
-          "description": "Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural.",
+          "description": "Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural; depois atualiza o Draw correspondente. Detalhes sem mudança de comportamento viram perguntas no nível L2/L3 correto, e mudanças de fluxo também atualizam as conexões dos nós.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "done",
           "questions": [],
           "code_refs": [],
@@ -603,19 +656,21 @@
             "node_id": 7,
             "level": 2,
             "label": "$implement",
-            "description": "Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural.",
+            "description": "Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural; depois atualiza o Draw correspondente. Detalhes sem mudança de comportamento viram perguntas no nível L2/L3 correto, e mudanças de fluxo também atualizam as conexões dos nós.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-agent-journeys:node:7",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -646,6 +701,8 @@
           "node_id": 8,
           "label": "$static-analysis",
           "description": "Implementa ou conecta adapters agnósticos e produz fatos determinísticos sobre símbolos, dependências, complexidade, estrutura e alterações.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -664,18 +721,20 @@
             "level": 2,
             "label": "$static-analysis",
             "description": "Implementa ou conecta adapters agnósticos e produz fatos determinísticos sobre símbolos, dependências, complexidade, estrutura e alterações.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-agent-journeys:node:8",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -705,13 +764,83 @@
           "id": "item:looper-agent-journeys:node:9",
           "node_id": 9,
           "label": "looper test e looper log",
-          "description": "Não são agentes: são gates e evidências operacionais que verificam e registram o trabalho conduzido pelas skills.",
+          "description": "Não são agentes: são gates e evidências operacionais que verificam e registram o trabalho conduzido pelas skills. O comando looper draw context organiza todos os níveis, conexões, perguntas, respostas e símbolos em texto para consumo do agente. Revisões e correções delegadas a subagentes usam exclusivamente sessões tmux após autorização do usuário.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "done",
           "questions": [],
-          "code_refs": [],
-          "symbols": [],
+          "code_refs": [
+            {
+              "file": "src/looper/cli.py",
+              "symbol": "looper.cli.draw_context"
+            },
+            {
+              "file": "src/looper/draw.py",
+              "symbol": "looper.draw.collect_draw_context"
+            },
+            {
+              "file": "src/looper/draw.py",
+              "symbol": "looper.draw.format_draw_context"
+            },
+            {
+              "file": "src/looper/reviews.py",
+              "symbol": "looper.reviews.load_review_config"
+            },
+            {
+              "file": "src/looper/reviews.py",
+              "symbol": "looper.reviews._run_agent"
+            }
+          ],
+          "symbols": [
+            "looper.cli.draw_context",
+            "looper.draw.collect_draw_context",
+            "looper.draw.format_draw_context",
+            "looper.reviews._run_agent",
+            "looper.reviews.load_review_config"
+          ],
           "source_dependencies": [],
-          "traceability": [],
+          "traceability": [
+            {
+              "symbol": "looper.cli.draw_context",
+              "identity": null,
+              "status": "resolved",
+              "file": "src/looper/cli.py",
+              "kind": "function",
+              "source": "python_ast"
+            },
+            {
+              "symbol": "looper.draw.collect_draw_context",
+              "identity": null,
+              "status": "resolved",
+              "file": "src/looper/draw.py",
+              "kind": "function",
+              "source": "python_ast"
+            },
+            {
+              "symbol": "looper.draw.format_draw_context",
+              "identity": null,
+              "status": "resolved",
+              "file": "src/looper/draw.py",
+              "kind": "function",
+              "source": "python_ast"
+            },
+            {
+              "symbol": "looper.reviews._run_agent",
+              "identity": null,
+              "status": "resolved",
+              "file": "src/looper/reviews.py",
+              "kind": "function",
+              "source": "python_ast"
+            },
+            {
+              "symbol": "looper.reviews.load_review_config",
+              "identity": null,
+              "status": "resolved",
+              "file": "src/looper/reviews.py",
+              "kind": "function",
+              "source": "python_ast"
+            }
+          ],
           "child_checklist_id": null,
           "task_id": "task:looper-agent-journeys:node:9",
           "task": {
@@ -723,19 +852,89 @@
             "node_id": 9,
             "level": 2,
             "label": "looper test e looper log",
-            "description": "Não são agentes: são gates e evidências operacionais que verificam e registram o trabalho conduzido pelas skills.",
+            "description": "Não são agentes: são gates e evidências operacionais que verificam e registram o trabalho conduzido pelas skills. O comando looper draw context organiza todos os níveis, conexões, perguntas, respostas e símbolos em texto para consumo do agente. Revisões e correções delegadas a subagentes usam exclusivamente sessões tmux após autorização do usuário.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
-            "code_refs": [],
-            "symbols": [],
+            "code_refs": [
+              {
+                "file": "src/looper/cli.py",
+                "symbol": "looper.cli.draw_context"
+              },
+              {
+                "file": "src/looper/draw.py",
+                "symbol": "looper.draw.collect_draw_context"
+              },
+              {
+                "file": "src/looper/draw.py",
+                "symbol": "looper.draw.format_draw_context"
+              },
+              {
+                "file": "src/looper/reviews.py",
+                "symbol": "looper.reviews.load_review_config"
+              },
+              {
+                "file": "src/looper/reviews.py",
+                "symbol": "looper.reviews._run_agent"
+              }
+            ],
+            "symbols": [
+              "looper.cli.draw_context",
+              "looper.draw.collect_draw_context",
+              "looper.draw.format_draw_context",
+              "looper.reviews._run_agent",
+              "looper.reviews.load_review_config"
+            ],
             "source_dependencies": [],
-            "traceability": [],
+            "traceability": [
+              {
+                "symbol": "looper.cli.draw_context",
+                "identity": null,
+                "status": "resolved",
+                "file": "src/looper/cli.py",
+                "kind": "function",
+                "source": "python_ast"
+              },
+              {
+                "symbol": "looper.draw.collect_draw_context",
+                "identity": null,
+                "status": "resolved",
+                "file": "src/looper/draw.py",
+                "kind": "function",
+                "source": "python_ast"
+              },
+              {
+                "symbol": "looper.draw.format_draw_context",
+                "identity": null,
+                "status": "resolved",
+                "file": "src/looper/draw.py",
+                "kind": "function",
+                "source": "python_ast"
+              },
+              {
+                "symbol": "looper.reviews._run_agent",
+                "identity": null,
+                "status": "resolved",
+                "file": "src/looper/reviews.py",
+                "kind": "function",
+                "source": "python_ast"
+              },
+              {
+                "symbol": "looper.reviews.load_review_config",
+                "identity": null,
+                "status": "resolved",
+                "file": "src/looper/reviews.py",
+                "kind": "function",
+                "source": "python_ast"
+              }
+            ],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-agent-journeys:node:9",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -772,7 +971,9 @@
           "id": "item:looper-agent-journeys:node:10",
           "node_id": 10,
           "label": "Codex",
-          "description": "Integração de agente que instala as skills em .agents/skills/.",
+          "description": "Integração padrão: instala as skills em .agents/skills/ e fornece o AGENTS.md compartilhado para qualquer agente compatível.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -790,19 +991,21 @@
             "node_id": 10,
             "level": 2,
             "label": "Codex",
-            "description": "Integração de agente que instala as skills em .agents/skills/.",
+            "description": "Integração padrão: instala as skills em .agents/skills/ e fornece o AGENTS.md compartilhado para qualquer agente compatível.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-agent-journeys:node:10",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -833,6 +1036,8 @@
           "node_id": 11,
           "label": "Claude",
           "description": "Integração de agente que instala as skills em .claude/skills/.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -851,18 +1056,20 @@
             "level": 2,
             "label": "Claude",
             "description": "Integração de agente que instala as skills em .claude/skills/.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-agent-journeys:node:11",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -893,6 +1100,8 @@
           "node_id": 12,
           "label": "Gemini",
           "description": "Integração de agente que instala as skills em .gemini/skills/.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -911,18 +1120,20 @@
             "level": 2,
             "label": "Gemini",
             "description": "Integração de agente que instala as skills em .gemini/skills/.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-agent-journeys:node:12",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -953,6 +1164,8 @@
           "node_id": 13,
           "label": "Entrega documentada",
           "description": "Estado final esperado: comportamento especificado, implementado quando aplicável, verificado, desenhado e registrado.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "done",
           "questions": [],
           "code_refs": [],
@@ -971,18 +1184,20 @@
             "level": 2,
             "label": "Entrega documentada",
             "description": "Estado final esperado: comportamento especificado, implementado quando aplicável, verificado, desenhado e registrado.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-agent-journeys:node:13",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -1029,6 +1244,8 @@
           "node_id": 1,
           "label": "Entrada: projeto e pedido",
           "description": "O usuário abre o agente em um projeto e descreve o que precisa ser especificado ou alterado.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "done",
           "questions": [],
           "code_refs": [],
@@ -1047,18 +1264,20 @@
             "level": 2,
             "label": "Entrada: projeto e pedido",
             "description": "O usuário abre o agente em um projeto e descreve o que precisa ser especificado ou alterado.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-user-journeys:node:1",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -1089,6 +1308,8 @@
           "node_id": 2,
           "label": "Inicializar e instalar skills",
           "description": "O agente prepara .looper/, instruções e skills para o projeto.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -1107,18 +1328,20 @@
             "level": 2,
             "label": "Inicializar e instalar skills",
             "description": "O agente prepara .looper/, instruções e skills para o projeto.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-user-journeys:node:2",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -1151,6 +1374,9 @@
             ],
             "child_branch_ids": [
               "looper-journey-init:branch:1"
+            ],
+            "child_backlog_ids": [
+              "looper-journey-init"
             ]
           }
         },
@@ -1159,6 +1385,8 @@
           "node_id": 3,
           "label": "Especificar e desenhar",
           "description": "O pedido vira feature testável ou árvore Draw; o desenho registra caminhos implementados e folhas ausentes.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "done",
           "questions": [],
           "code_refs": [],
@@ -1177,18 +1405,20 @@
             "level": 2,
             "label": "Especificar e desenhar",
             "description": "O pedido vira feature testável ou árvore Draw; o desenho registra caminhos implementados e folhas ausentes.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-user-journeys:node:3",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -1226,6 +1456,8 @@
           "node_id": 4,
           "label": "Executar gates",
           "description": "O agente executa testes, contrato e análise estática antes de declarar conclusão.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "done",
           "questions": [],
           "code_refs": [],
@@ -1244,18 +1476,20 @@
             "level": 2,
             "label": "Executar gates",
             "description": "O agente executa testes, contrato e análise estática antes de declarar conclusão.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-user-journeys:node:4",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -1297,6 +1531,9 @@
             "child_branch_ids": [
               "looper-journey-test:branch:1",
               "looper-journey-test:branch:2"
+            ],
+            "child_backlog_ids": [
+              "looper-journey-test"
             ]
           }
         },
@@ -1304,7 +1541,9 @@
           "id": "item:looper-user-journeys:node:5",
           "node_id": 5,
           "label": "Registrar evidência",
-          "description": "O trabalho concluído recebe log com tipo e diff incremental.",
+          "description": "O trabalho concluído recebe log com tipo e diff incremental. Após o intervalo configurado de tasks, um agente externo é chamado pelo terminal ou tmux para revisar a entrega; lacunas viram changes no Draw.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "done",
           "questions": [],
           "code_refs": [],
@@ -1322,19 +1561,21 @@
             "node_id": 5,
             "level": 2,
             "label": "Registrar evidência",
-            "description": "O trabalho concluído recebe log com tipo e diff incremental.",
+            "description": "O trabalho concluído recebe log com tipo e diff incremental. Após o intervalo configurado de tasks, um agente externo é chamado pelo terminal ou tmux para revisar a entrega; lacunas viram changes no Draw.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-user-journeys:node:5",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -1367,6 +1608,9 @@
             ],
             "child_branch_ids": [
               "looper-journey-log:branch:1"
+            ],
+            "child_backlog_ids": [
+              "looper-journey-log"
             ]
           }
         },
@@ -1375,6 +1619,8 @@
           "node_id": 6,
           "label": "Revisar no Draw",
           "description": "O usuário abre o viewer local, navega pela árvore e revisa decisões, perguntas e trade-offs.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "done",
           "questions": [],
           "code_refs": [],
@@ -1393,18 +1639,20 @@
             "level": 2,
             "label": "Revisar no Draw",
             "description": "O usuário abre o viewer local, navega pela árvore e revisa decisões, perguntas e trade-offs.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-user-journeys:node:6",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -1438,6 +1686,9 @@
             ],
             "child_branch_ids": [
               "looper-journey-draw:branch:1"
+            ],
+            "child_backlog_ids": [
+              "looper-journey-draw"
             ]
           }
         },
@@ -1446,6 +1697,8 @@
           "node_id": 7,
           "label": "Bloqueado ou pendente",
           "description": "Falha de teste, símbolo não resolvido ou decisão em aberto permanece visível e impede uma conclusão falsa.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "done",
           "questions": [],
           "code_refs": [],
@@ -1464,18 +1717,20 @@
             "level": 2,
             "label": "Bloqueado ou pendente",
             "description": "Falha de teste, símbolo não resolvido ou decisão em aberto permanece visível e impede uma conclusão falsa.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-user-journeys:node:7",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -1506,6 +1761,8 @@
           "node_id": 8,
           "label": "Entrega rastreável",
           "description": "A mudança termina com fontes, testes, desenho e evidências coerentes no repositório.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -1524,18 +1781,20 @@
             "level": 2,
             "label": "Entrega rastreável",
             "description": "A mudança termina com fontes, testes, desenho e evidências coerentes no repositório.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
             "source_dependencies": [],
             "traceability": [],
             "test_ref": null,
-            "test_ref_error": null,
+            "test_ref_error": "test_ref ausente",
             "test_owner_task_id": "task:looper-user-journeys:node:8",
             "test_status": "not-required",
             "test_evidence": {
               "status": "not-required",
-              "reason": "modo separado: telas L2 não entram no loop de testes"
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
               "test": true,
@@ -1582,6 +1841,8 @@
           "node_id": 1,
           "label": "Receber JSON lógico",
           "description": "O comando draw create recebe o payload sem layout, cores ou HTML.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [
@@ -1621,6 +1882,8 @@
             "level": 3,
             "label": "Receber JSON lógico",
             "description": "O comando draw create recebe o payload sem layout, cores ou HTML.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [
               {
@@ -1650,13 +1913,13 @@
             "test_ref": null,
             "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:6",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "reason": "teste próprio do subfluxo ainda não concluído"
+              "status": "not-required",
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -1684,6 +1947,8 @@
           "node_id": 2,
           "label": "Validar contrato e hierarquia",
           "description": "Confere IDs, relações, fluxos, perguntas e pai explícito antes de persistir.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -1702,6 +1967,8 @@
             "level": 3,
             "label": "Validar contrato e hierarquia",
             "description": "Confere IDs, relações, fluxos, perguntas e pai explícito antes de persistir.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
@@ -1710,13 +1977,13 @@
             "test_ref": null,
             "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:6",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "reason": "teste próprio do subfluxo ainda não concluído"
+              "status": "not-required",
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -1744,6 +2011,8 @@
           "node_id": 3,
           "label": "Persistir desenho e índice",
           "description": "Grava o JSON em .looper/draws e atualiza o índice.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [
@@ -1785,6 +2054,8 @@
             "level": 3,
             "label": "Persistir desenho e índice",
             "description": "Grava o JSON em .looper/draws e atualiza o índice.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [
               {
@@ -1816,13 +2087,13 @@
             "test_ref": null,
             "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:6",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "reason": "teste próprio do subfluxo ainda não concluído"
+              "status": "not-required",
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -1850,6 +2121,8 @@
           "node_id": 4,
           "label": "Servir viewer e API local",
           "description": "O servidor embutido entrega o viewer e endpoints GET/PUT dos desenhos.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [
@@ -1906,6 +2179,8 @@
             "level": 3,
             "label": "Servir viewer e API local",
             "description": "O servidor embutido entrega o viewer e endpoints GET/PUT dos desenhos.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [
               {
@@ -1952,13 +2227,13 @@
             "test_ref": null,
             "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:6",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "reason": "teste próprio do subfluxo ainda não concluído"
+              "status": "not-required",
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -1986,6 +2261,8 @@
           "node_id": 5,
           "label": "Árvore navegável",
           "description": "O usuário navega da arquitetura às jornadas e implementações, mantendo perguntas e trade-offs visíveis.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -2004,6 +2281,8 @@
             "level": 3,
             "label": "Árvore navegável",
             "description": "O usuário navega da arquitetura às jornadas e implementações, mantendo perguntas e trade-offs visíveis.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
@@ -2012,13 +2291,13 @@
             "test_ref": null,
             "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:6",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "reason": "teste próprio do subfluxo ainda não concluído"
+              "status": "not-required",
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -2060,8 +2339,10 @@
         {
           "id": "item:looper-journey-init:node:1",
           "node_id": 1,
-          "label": "Receber destino e integrações",
-          "description": "A CLI valida o diretório e a seleção Codex, Claude ou Gemini.",
+          "label": "Receber destino com Codex padrão",
+          "description": "A CLI valida o diretório e usa Codex como integração padrão, sem perguntar qual agente deve ser usado. Outras integrações só entram quando solicitadas explicitamente por flag.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -2078,8 +2359,10 @@
             "draw_title": "Implementação da jornada de inicialização",
             "node_id": 1,
             "level": 3,
-            "label": "Receber destino e integrações",
-            "description": "A CLI valida o diretório e a seleção Codex, Claude ou Gemini.",
+            "label": "Receber destino com Codex padrão",
+            "description": "A CLI valida o diretório e usa Codex como integração padrão, sem perguntar qual agente deve ser usado. Outras integrações só entram quando solicitadas explicitamente por flag.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
@@ -2088,13 +2371,13 @@
             "test_ref": null,
             "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:2",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "reason": "teste próprio do subfluxo ainda não concluído"
+              "status": "not-required",
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -2121,7 +2404,9 @@
           "id": "item:looper-journey-init:node:2",
           "node_id": 2,
           "label": "Criar configuração e estado",
-          "description": "Cria .looper/config.json, runs, features, draws e regras de gitignore.",
+          "description": "Cria .looper/config.yaml, runs, features, draws e regras de gitignore.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -2139,7 +2424,9 @@
             "node_id": 2,
             "level": 3,
             "label": "Criar configuração e estado",
-            "description": "Cria .looper/config.json, runs, features, draws e regras de gitignore.",
+            "description": "Cria .looper/config.yaml, runs, features, draws e regras de gitignore.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
@@ -2148,13 +2435,13 @@
             "test_ref": null,
             "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:2",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "reason": "teste próprio do subfluxo ainda não concluído"
+              "status": "not-required",
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -2181,7 +2468,9 @@
           "id": "item:looper-journey-init:node:3",
           "node_id": 3,
           "label": "Instalar skills e instruções",
-          "description": "Copia templates atuais e atualiza AGENTS.md, CLAUDE.md ou GEMINI.md.",
+          "description": "Copia templates atuais e atualiza AGENTS.md; arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O AGENTS.md compartilhado instrui todo agente a manter os Draws atualizados.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -2199,7 +2488,9 @@
             "node_id": 3,
             "level": 3,
             "label": "Instalar skills e instruções",
-            "description": "Copia templates atuais e atualiza AGENTS.md, CLAUDE.md ou GEMINI.md.",
+            "description": "Copia templates atuais e atualiza AGENTS.md; arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O AGENTS.md compartilhado instrui todo agente a manter os Draws atualizados.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
@@ -2208,13 +2499,13 @@
             "test_ref": null,
             "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:2",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "reason": "teste próprio do subfluxo ainda não concluído"
+              "status": "not-required",
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -2242,6 +2533,8 @@
           "node_id": 4,
           "label": "Projeto pronto",
           "description": "O agente pode usar as skills no projeto inicializado.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [
@@ -2285,6 +2578,8 @@
             "level": 3,
             "label": "Projeto pronto",
             "description": "O agente pode usar as skills no projeto inicializado.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [
               {
@@ -2318,13 +2613,13 @@
             "test_ref": null,
             "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:2",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "reason": "teste próprio do subfluxo ainda não concluído"
+              "status": "not-required",
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -2368,6 +2663,8 @@
           "node_id": 1,
           "label": "Receber descrição e tipo",
           "description": "Aceita descrição curta e tipo implementacao, teste, bug ou refactor.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -2386,6 +2683,8 @@
             "level": 3,
             "label": "Receber descrição e tipo",
             "description": "Aceita descrição curta e tipo implementacao, teste, bug ou refactor.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
@@ -2394,13 +2693,13 @@
             "test_ref": null,
             "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:5",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "reason": "teste próprio do subfluxo ainda não concluído"
+              "status": "not-required",
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -2428,6 +2727,8 @@
           "node_id": 2,
           "label": "Coletar diff e snapshot",
           "description": "Compara o estado atual com o checkpoint e salva resumo e snapshot em .looper/runs.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -2446,6 +2747,8 @@
             "level": 3,
             "label": "Coletar diff e snapshot",
             "description": "Compara o estado atual com o checkpoint e salva resumo e snapshot em .looper/runs.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
@@ -2454,13 +2757,13 @@
             "test_ref": null,
             "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:5",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "reason": "teste próprio do subfluxo ainda não concluído"
+              "status": "not-required",
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -2488,6 +2791,8 @@
           "node_id": 3,
           "label": "Registrar execução",
           "description": "Persiste o registro sem incluir segredos e marca retrabalho quando aplicável.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -2506,6 +2811,8 @@
             "level": 3,
             "label": "Registrar execução",
             "description": "Persiste o registro sem incluir segredos e marca retrabalho quando aplicável.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
@@ -2514,13 +2821,13 @@
             "test_ref": null,
             "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:5",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "reason": "teste próprio do subfluxo ainda não concluído"
+              "status": "not-required",
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -2548,6 +2855,8 @@
           "node_id": 4,
           "label": "Evidência disponível",
           "description": "O usuário pode revisar o log e o diff no painel de runs.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -2566,6 +2875,8 @@
             "level": 3,
             "label": "Evidência disponível",
             "description": "O usuário pode revisar o log e o diff no painel de runs.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
@@ -2574,13 +2885,13 @@
             "test_ref": null,
             "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:5",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "reason": "teste próprio do subfluxo ainda não concluído"
+              "status": "not-required",
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -2623,7 +2934,9 @@
           "id": "item:looper-journey-test:node:1",
           "node_id": 1,
           "label": "Ler perfil e suítes",
-          "description": "A execução seleciona suítes, exclusões, perfil e aprovações.",
+          "description": "A execução seleciona suítes, exclusões, perfil e aprovações. Testes de regressão da codebase rodam por padrão; suítes declaradas com type: playwright ficam como not_executed até receberem a flag explícita --playwright.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -2641,7 +2954,9 @@
             "node_id": 1,
             "level": 3,
             "label": "Ler perfil e suítes",
-            "description": "A execução seleciona suítes, exclusões, perfil e aprovações.",
+            "description": "A execução seleciona suítes, exclusões, perfil e aprovações. Testes de regressão da codebase rodam por padrão; suítes declaradas com type: playwright ficam como not_executed até receberem a flag explícita --playwright.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
@@ -2650,13 +2965,13 @@
             "test_ref": null,
             "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:4",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "reason": "teste próprio do subfluxo ainda não concluído"
+              "status": "not-required",
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -2683,7 +2998,9 @@
           "id": "item:looper-journey-test:node:2",
           "node_id": 2,
           "label": "Executar runners e contrato",
-          "description": "Subprocessos, contrato e ações aprovadas são executados com captura de resultado.",
+          "description": "Subprocessos, contrato e ações aprovadas são executados com captura de resultado. O alias global preserva a regressão como padrão e só inclui E2E Playwright quando solicitado explicitamente.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -2701,7 +3018,9 @@
             "node_id": 2,
             "level": 3,
             "label": "Executar runners e contrato",
-            "description": "Subprocessos, contrato e ações aprovadas são executados com captura de resultado.",
+            "description": "Subprocessos, contrato e ações aprovadas são executados com captura de resultado. O alias global preserva a regressão como padrão e só inclui E2E Playwright quando solicitado explicitamente.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
@@ -2710,13 +3029,13 @@
             "test_ref": null,
             "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:4",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "reason": "teste próprio do subfluxo ainda não concluído"
+              "status": "not-required",
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -2744,6 +3063,8 @@
           "node_id": 3,
           "label": "Analisar estática e rastreabilidade",
           "description": "O adapter gera símbolos, dependências e métricas; fatos de rastreabilidade são atualizados.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [
@@ -2785,6 +3106,8 @@
             "level": 3,
             "label": "Analisar estática e rastreabilidade",
             "description": "O adapter gera símbolos, dependências e métricas; fatos de rastreabilidade são atualizados.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [
               {
@@ -2816,13 +3139,13 @@
             "test_ref": null,
             "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:4",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "reason": "teste próprio do subfluxo ainda não concluído"
+              "status": "not-required",
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -2850,6 +3173,8 @@
           "node_id": 4,
           "label": "Gate aprovado",
           "description": "Todos os gates passam e a execução pode ser registrada.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -2868,6 +3193,8 @@
             "level": 3,
             "label": "Gate aprovado",
             "description": "Todos os gates passam e a execução pode ser registrada.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
@@ -2876,13 +3203,13 @@
             "test_ref": null,
             "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:4",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "reason": "teste próprio do subfluxo ainda não concluído"
+              "status": "not-required",
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -2910,6 +3237,8 @@
           "node_id": 5,
           "label": "Gate bloqueado",
           "description": "Falha de teste, contrato, análise ou segurança retorna status bloqueado.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -2928,6 +3257,8 @@
             "level": 3,
             "label": "Gate bloqueado",
             "description": "Falha de teste, contrato, análise ou segurança retorna status bloqueado.",
+            "success_criteria": "",
+            "failure_criteria": "",
             "questions": [],
             "code_refs": [],
             "symbols": [],
@@ -2936,13 +3267,13 @@
             "test_ref": null,
             "test_ref_error": null,
             "test_owner_task_id": "task:looper-user-journeys:node:4",
-            "test_status": "missing",
+            "test_status": "not-required",
             "test_evidence": {
-              "status": "missing",
-              "reason": "teste próprio do subfluxo ainda não concluído"
+              "status": "not-required",
+              "reason": "loop de testes desabilitado no looper init"
             },
             "checklist_state": {
-              "test": false,
+              "test": true,
               "implementation": false
             },
             "child_checklist_id": null,
@@ -2968,247 +3299,6 @@
       ]
     },
     {
-      "id": "cadastro-incorporado-whatsapp",
-      "draw_id": "cadastro-incorporado-whatsapp",
-      "title": "Cadastro incorporado de WhatsApp",
-      "hierarchy": {},
-      "parent_checklist_id": null,
-      "parent_node_id": null,
-      "items": [
-        {
-          "id": "item:cadastro-incorporado-whatsapp:node:0",
-          "node_id": 0,
-          "label": "Administrador",
-          "description": "Usuário autenticado que informa o número e conclui as telas da Meta.",
-          "status": "pending",
-          "questions": [
-            {
-              "id": 1,
-              "type": "boolean",
-              "prompt": "O administrador tem permissão de WABA Manager na Meta?",
-              "answer": true
-            }
-          ],
-          "code_refs": [],
-          "symbols": [],
-          "source_dependencies": [],
-          "traceability": [],
-          "child_checklist_id": null
-        },
-        {
-          "id": "item:cadastro-incorporado-whatsapp:node:1",
-          "node_id": 1,
-          "label": "Tela WhatsApp Setup",
-          "description": "Valida o telefone, abre SDK ou popup e acompanha o status.",
-          "status": "pending",
-          "questions": [
-            {
-              "id": 1,
-              "type": "open",
-              "prompt": "Como é tratada a falha de renderização do SDK?",
-              "answer": "Fallbacks com redirect OAuth caso o bloqueador de anúncios impeça a inicialização."
-            }
-          ],
-          "code_refs": [],
-          "symbols": [],
-          "source_dependencies": [],
-          "traceability": [],
-          "child_checklist_id": null
-        },
-        {
-          "id": "item:cadastro-incorporado-whatsapp:node:2",
-          "node_id": 2,
-          "label": "onboarding/start",
-          "description": "Cria a tentativa, deriva o tenant da sessão e devolve dados públicos.",
-          "status": "pending",
-          "questions": [
-            {
-              "id": 1,
-              "type": "open",
-              "prompt": "Qual a expiração padrão do state gerado?",
-              "answer": "15 minutos."
-            }
-          ],
-          "code_refs": [],
-          "symbols": [],
-          "source_dependencies": [],
-          "traceability": [],
-          "child_checklist_id": null
-        },
-        {
-          "id": "item:cadastro-incorporado-whatsapp:node:3",
-          "node_id": 3,
-          "label": "Tentativa + state",
-          "description": "Guarda attempt_id, hash do state, telefone, redirect_uri, validade e status.",
-          "status": "pending",
-          "questions": [
-            {
-              "id": 1,
-              "type": "boolean",
-              "prompt": "O state é deletado após o consumo único?",
-              "answer": true
-            }
-          ],
-          "code_refs": [],
-          "symbols": [],
-          "source_dependencies": [],
-          "traceability": [],
-          "child_checklist_id": null
-        },
-        {
-          "id": "item:cadastro-incorporado-whatsapp:node:4",
-          "node_id": 4,
-          "label": "Embedded Signup Meta",
-          "description": "Jornada oficial de autorização e configuração da conta WhatsApp.",
-          "status": "pending",
-          "questions": [],
-          "code_refs": [],
-          "symbols": [],
-          "source_dependencies": [],
-          "traceability": [],
-          "child_checklist_id": null
-        },
-        {
-          "id": "item:cadastro-incorporado-whatsapp:node:5",
-          "node_id": 5,
-          "label": "Retorno SDK ou OAuth",
-          "description": "SDK entrega code e IDs por postMessage; redirect entrega code e state no callback.",
-          "status": "pending",
-          "questions": [],
-          "code_refs": [],
-          "symbols": [],
-          "source_dependencies": [],
-          "traceability": [],
-          "child_checklist_id": null
-        },
-        {
-          "id": "item:cadastro-incorporado-whatsapp:node:6",
-          "node_id": 6,
-          "label": "complete ou callback",
-          "description": "Entrada autenticada do SDK ou callback server-side que valida e consome a tentativa.",
-          "status": "pending",
-          "questions": [],
-          "code_refs": [],
-          "symbols": [],
-          "source_dependencies": [],
-          "traceability": [],
-          "child_checklist_id": null
-        },
-        {
-          "id": "item:cadastro-incorporado-whatsapp:node:7",
-          "node_id": 7,
-          "label": "Reconciliação server-side",
-          "description": "Troca code, consulta Graph API, valida ownership, aplica retry e idempotência.",
-          "status": "pending",
-          "questions": [
-            {
-              "id": 1,
-              "type": "choice",
-              "prompt": "Política de Retry para APIs Meta:",
-              "options": [
-                {
-                  "id": 1,
-                  "label": "Exponencial de até 3 tentativas"
-                },
-                {
-                  "id": 2,
-                  "label": "Execução imediata sem retry"
-                },
-                {
-                  "id": 3,
-                  "label": "Fila com processamento assíncrono"
-                }
-              ],
-              "answer": 1
-            }
-          ],
-          "code_refs": [],
-          "symbols": [],
-          "source_dependencies": [],
-          "traceability": [],
-          "child_checklist_id": null
-        },
-        {
-          "id": "item:cadastro-incorporado-whatsapp:node:8",
-          "node_id": 8,
-          "label": "Graph API Meta",
-          "description": "Troca authorization code por token e descobre WABA e phone_number_id.",
-          "status": "pending",
-          "questions": [],
-          "code_refs": [],
-          "symbols": [],
-          "source_dependencies": [],
-          "traceability": [],
-          "child_checklist_id": null
-        },
-        {
-          "id": "item:cadastro-incorporado-whatsapp:node:9",
-          "node_id": 9,
-          "label": "Conexão WhatsApp",
-          "description": "Upsert de WABA, número e token criptografado, com vínculo ao tenant.",
-          "status": "pending",
-          "questions": [],
-          "code_refs": [],
-          "symbols": [],
-          "source_dependencies": [],
-          "traceability": [],
-          "child_checklist_id": null
-        },
-        {
-          "id": "item:cadastro-incorporado-whatsapp:node:10",
-          "node_id": 10,
-          "label": "Assinatura de webhooks",
-          "description": "Inscreve a WABA para eventos futuros após a conexão ser confirmada.",
-          "status": "pending",
-          "questions": [],
-          "code_refs": [],
-          "symbols": [],
-          "source_dependencies": [],
-          "traceability": [],
-          "child_checklist_id": null
-        },
-        {
-          "id": "item:cadastro-incorporado-whatsapp:node:11",
-          "node_id": 11,
-          "label": "Status da tentativa",
-          "description": "Polling tenant-scoped; pode avançar job pendente e retorna apenas dados seguros.",
-          "status": "pending",
-          "questions": [],
-          "code_refs": [],
-          "symbols": [],
-          "source_dependencies": [],
-          "traceability": [],
-          "child_checklist_id": null
-        },
-        {
-          "id": "item:cadastro-incorporado-whatsapp:node:12",
-          "node_id": 12,
-          "label": "Resultado na tela",
-          "description": "Exibe completed, processamento, falha, expiração ou cancelamento.",
-          "status": "pending",
-          "questions": [],
-          "code_refs": [],
-          "symbols": [],
-          "source_dependencies": [],
-          "traceability": [],
-          "child_checklist_id": null
-        },
-        {
-          "id": "item:cadastro-incorporado-whatsapp:node:13",
-          "node_id": 13,
-          "label": "session_uuid legado",
-          "description": "Rotas antigas de compatibilidade que fazem persistência direta.",
-          "status": "pending",
-          "questions": [],
-          "code_refs": [],
-          "symbols": [],
-          "source_dependencies": [],
-          "traceability": [],
-          "child_checklist_id": null
-        }
-      ]
-    },
-    {
       "id": "demo-inicial",
       "draw_id": "demo-inicial",
       "title": "Exemplo inicial do Looper",
@@ -3221,6 +3311,8 @@
           "node_id": 1,
           "label": "Escolher plano",
           "description": "Cliente seleciona a opção de assinatura.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [
             {
@@ -3267,6 +3359,8 @@
           "node_id": 2,
           "label": "Validar pagamento",
           "description": "Confere dados e disponibilidade do meio de pagamento.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [
             {
@@ -3287,6 +3381,8 @@
           "node_id": 3,
           "label": "Aprovar assinatura",
           "description": "Ativa a assinatura e registra a confirmação.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -3300,6 +3396,8 @@
           "node_id": 4,
           "label": "Revisar dados",
           "description": "Corrige dados antes de tentar novamente.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [
             {
@@ -3330,6 +3428,8 @@
           "node_id": 1,
           "label": "Escolher plano",
           "description": "Cliente seleciona a opção de assinatura.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [
             {
@@ -3376,6 +3476,8 @@
           "node_id": 2,
           "label": "Validar pagamento",
           "description": "Confere dados e disponibilidade do meio de pagamento.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [
             {
@@ -3396,6 +3498,8 @@
           "node_id": 3,
           "label": "Aprovar assinatura",
           "description": "Ativa a assinatura e registra a confirmação.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [],
           "code_refs": [],
@@ -3409,6 +3513,8 @@
           "node_id": 4,
           "label": "Revisar dados",
           "description": "Corrige dados antes de tentar novamente.",
+          "success_criteria": "",
+          "failure_criteria": "",
           "status": "pending",
           "questions": [
             {
@@ -3596,8 +3702,8 @@
         "node_id": 1,
         "label": "Ler perfil e suítes",
         "parent_task_id": "task:looper-user-journeys:node:4",
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-journey-test:node:2",
@@ -3606,8 +3712,8 @@
         "node_id": 2,
         "label": "Executar runners e contrato",
         "parent_task_id": "task:looper-user-journeys:node:4",
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-journey-test:node:3",
@@ -3616,8 +3722,8 @@
         "node_id": 3,
         "label": "Analisar estática e rastreabilidade",
         "parent_task_id": "task:looper-user-journeys:node:4",
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-journey-test:node:4",
@@ -3626,8 +3732,8 @@
         "node_id": 4,
         "label": "Gate aprovado",
         "parent_task_id": "task:looper-user-journeys:node:4",
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-journey-test:node:5",
@@ -3636,8 +3742,8 @@
         "node_id": 5,
         "label": "Gate bloqueado",
         "parent_task_id": "task:looper-user-journeys:node:4",
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-user-journeys:node:5",
@@ -3656,8 +3762,8 @@
         "node_id": 1,
         "label": "Receber descrição e tipo",
         "parent_task_id": "task:looper-user-journeys:node:5",
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-journey-log:node:2",
@@ -3666,8 +3772,8 @@
         "node_id": 2,
         "label": "Coletar diff e snapshot",
         "parent_task_id": "task:looper-user-journeys:node:5",
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-journey-log:node:3",
@@ -3676,8 +3782,8 @@
         "node_id": 3,
         "label": "Registrar execução",
         "parent_task_id": "task:looper-user-journeys:node:5",
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-journey-log:node:4",
@@ -3686,8 +3792,8 @@
         "node_id": 4,
         "label": "Evidência disponível",
         "parent_task_id": "task:looper-user-journeys:node:5",
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-user-journeys:node:6",
@@ -3706,8 +3812,8 @@
         "node_id": 1,
         "label": "Receber JSON lógico",
         "parent_task_id": "task:looper-user-journeys:node:6",
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-journey-draw:node:2",
@@ -3716,8 +3822,8 @@
         "node_id": 2,
         "label": "Validar contrato e hierarquia",
         "parent_task_id": "task:looper-user-journeys:node:6",
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-journey-draw:node:3",
@@ -3726,8 +3832,8 @@
         "node_id": 3,
         "label": "Persistir desenho e índice",
         "parent_task_id": "task:looper-user-journeys:node:6",
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-journey-draw:node:4",
@@ -3736,8 +3842,8 @@
         "node_id": 4,
         "label": "Servir viewer e API local",
         "parent_task_id": "task:looper-user-journeys:node:6",
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-journey-draw:node:5",
@@ -3746,8 +3852,8 @@
         "node_id": 5,
         "label": "Árvore navegável",
         "parent_task_id": "task:looper-user-journeys:node:6",
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-user-journeys:node:7",
@@ -3774,10 +3880,10 @@
         "task_id": "task:looper-journey-init:node:1",
         "draw_id": "looper-journey-init",
         "node_id": 1,
-        "label": "Receber destino e integrações",
+        "label": "Receber destino com Codex padrão",
         "parent_task_id": "task:looper-user-journeys:node:2",
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-journey-init:node:2",
@@ -3786,8 +3892,8 @@
         "node_id": 2,
         "label": "Criar configuração e estado",
         "parent_task_id": "task:looper-user-journeys:node:2",
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-journey-init:node:3",
@@ -3796,8 +3902,8 @@
         "node_id": 3,
         "label": "Instalar skills e instruções",
         "parent_task_id": "task:looper-user-journeys:node:2",
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-journey-init:node:4",
@@ -3806,8 +3912,8 @@
         "node_id": 4,
         "label": "Projeto pronto",
         "parent_task_id": "task:looper-user-journeys:node:2",
-        "checked": false,
-        "evidence_status": "missing"
+        "checked": true,
+        "evidence_status": "not-required"
       },
       {
         "id": "check:test:task:looper-user-journeys:node:8",
@@ -4166,7 +4272,7 @@
         "task_id": "task:looper-journey-init:node:1",
         "draw_id": "looper-journey-init",
         "node_id": 1,
-        "label": "Receber destino e integrações",
+        "label": "Receber destino com Codex padrão",
         "parent_task_id": "task:looper-user-journeys:node:2",
         "checked": false,
         "status": "pending"
@@ -4313,18 +4419,20 @@
       "level": 2,
       "label": "Pedido do usuário",
       "description": "Intenção, problema, mudança arquitetural ou necessidade de documentação recebida pelo agente hospedeiro.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-agent-journeys:node:1",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -4366,18 +4474,20 @@
       "level": 2,
       "label": "$setup",
       "description": "Descobre a stack, runners, bancos, provedores e configura o Looper sem inventar capacidades. Encaminha para $draw-system quando falta uma raiz de sistema.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-agent-journeys:node:2",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -4412,18 +4522,20 @@
       "level": 2,
       "label": "$draw-system",
       "description": "Modela o sistema completo em arquitetura, jornadas, implementação e codebase quando necessário; mantém a árvore hierárquica sem órfãos.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-agent-journeys:node:3",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -4465,18 +4577,20 @@
       "level": 2,
       "label": "$create-tests",
       "description": "Transforma jornadas e desenhos em testes executáveis vermelhos, sem alterar código de produção; trata folhas não implementadas como escopo ausente.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-agent-journeys:node:6",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -4524,19 +4638,21 @@
       "node_id": 7,
       "level": 2,
       "label": "$implement",
-      "description": "Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural.",
+      "description": "Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural; depois atualiza o Draw correspondente. Detalhes sem mudança de comportamento viram perguntas no nível L2/L3 correto, e mudanças de fluxo também atualizam as conexões dos nós.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-agent-journeys:node:7",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -4570,19 +4686,89 @@
       "node_id": 9,
       "level": 2,
       "label": "looper test e looper log",
-      "description": "Não são agentes: são gates e evidências operacionais que verificam e registram o trabalho conduzido pelas skills.",
+      "description": "Não são agentes: são gates e evidências operacionais que verificam e registram o trabalho conduzido pelas skills. O comando looper draw context organiza todos os níveis, conexões, perguntas, respostas e símbolos em texto para consumo do agente. Revisões e correções delegadas a subagentes usam exclusivamente sessões tmux após autorização do usuário.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
-      "code_refs": [],
-      "symbols": [],
+      "code_refs": [
+        {
+          "file": "src/looper/cli.py",
+          "symbol": "looper.cli.draw_context"
+        },
+        {
+          "file": "src/looper/draw.py",
+          "symbol": "looper.draw.collect_draw_context"
+        },
+        {
+          "file": "src/looper/draw.py",
+          "symbol": "looper.draw.format_draw_context"
+        },
+        {
+          "file": "src/looper/reviews.py",
+          "symbol": "looper.reviews.load_review_config"
+        },
+        {
+          "file": "src/looper/reviews.py",
+          "symbol": "looper.reviews._run_agent"
+        }
+      ],
+      "symbols": [
+        "looper.cli.draw_context",
+        "looper.draw.collect_draw_context",
+        "looper.draw.format_draw_context",
+        "looper.reviews._run_agent",
+        "looper.reviews.load_review_config"
+      ],
       "source_dependencies": [],
-      "traceability": [],
+      "traceability": [
+        {
+          "symbol": "looper.cli.draw_context",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/cli.py",
+          "kind": "function",
+          "source": "python_ast"
+        },
+        {
+          "symbol": "looper.draw.collect_draw_context",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/draw.py",
+          "kind": "function",
+          "source": "python_ast"
+        },
+        {
+          "symbol": "looper.draw.format_draw_context",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/draw.py",
+          "kind": "function",
+          "source": "python_ast"
+        },
+        {
+          "symbol": "looper.reviews._run_agent",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/reviews.py",
+          "kind": "function",
+          "source": "python_ast"
+        },
+        {
+          "symbol": "looper.reviews.load_review_config",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/reviews.py",
+          "kind": "function",
+          "source": "python_ast"
+        }
+      ],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-agent-journeys:node:9",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -4624,18 +4810,20 @@
       "level": 2,
       "label": "Entrega documentada",
       "description": "Estado final esperado: comportamento especificado, implementado quando aplicável, verificado, desenhado e registrado.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-agent-journeys:node:13",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -4670,18 +4858,20 @@
       "level": 2,
       "label": "$draw-feature",
       "description": "Desenha uma feature, fluxo, decisão ou trade-off como JSON navegável, respeitando a árvore do sistema quando existir.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-agent-journeys:node:4",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -4716,18 +4906,20 @@
       "level": 2,
       "label": "$draw-improve",
       "description": "Revisa um Draw existente e acrescenta apenas o próximo detalhe arquitetural relevante, preservando intenção, escopo e vínculos.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-agent-journeys:node:5",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -4762,18 +4954,20 @@
       "level": 2,
       "label": "$static-analysis",
       "description": "Implementa ou conecta adapters agnósticos e produz fatos determinísticos sobre símbolos, dependências, complexidade, estrutura e alterações.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-agent-journeys:node:8",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -4807,19 +5001,21 @@
       "node_id": 10,
       "level": 2,
       "label": "Codex",
-      "description": "Integração de agente que instala as skills em .agents/skills/.",
+      "description": "Integração padrão: instala as skills em .agents/skills/ e fornece o AGENTS.md compartilhado para qualquer agente compatível.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-agent-journeys:node:10",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -4854,18 +5050,20 @@
       "level": 2,
       "label": "Claude",
       "description": "Integração de agente que instala as skills em .claude/skills/.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-agent-journeys:node:11",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -4900,18 +5098,20 @@
       "level": 2,
       "label": "Gemini",
       "description": "Integração de agente que instala as skills em .gemini/skills/.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-agent-journeys:node:12",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -4946,18 +5146,20 @@
       "level": 2,
       "label": "Entrada: projeto e pedido",
       "description": "O usuário abre o agente em um projeto e descreve o que precisa ser especificado ou alterado.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-user-journeys:node:1",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -4992,18 +5194,20 @@
       "level": 2,
       "label": "Especificar e desenhar",
       "description": "O pedido vira feature testável ou árvore Draw; o desenho registra caminhos implementados e folhas ausentes.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-user-journeys:node:3",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -5045,18 +5249,20 @@
       "level": 2,
       "label": "Executar gates",
       "description": "O agente executa testes, contrato e análise estática antes de declarar conclusão.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-user-journeys:node:4",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -5098,6 +5304,9 @@
       "child_branch_ids": [
         "looper-journey-test:branch:1",
         "looper-journey-test:branch:2"
+      ],
+      "child_backlog_ids": [
+        "looper-journey-test"
       ]
     },
     {
@@ -5109,7 +5318,9 @@
       "node_id": 1,
       "level": 3,
       "label": "Ler perfil e suítes",
-      "description": "A execução seleciona suítes, exclusões, perfil e aprovações.",
+      "description": "A execução seleciona suítes, exclusões, perfil e aprovações. Testes de regressão da codebase rodam por padrão; suítes declaradas com type: playwright ficam como not_executed até receberem a flag explícita --playwright.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
@@ -5118,13 +5329,13 @@
       "test_ref": null,
       "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:4",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "reason": "teste próprio do subfluxo ainda não concluído"
+        "status": "not-required",
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -5155,7 +5366,9 @@
       "node_id": 2,
       "level": 3,
       "label": "Executar runners e contrato",
-      "description": "Subprocessos, contrato e ações aprovadas são executados com captura de resultado.",
+      "description": "Subprocessos, contrato e ações aprovadas são executados com captura de resultado. O alias global preserva a regressão como padrão e só inclui E2E Playwright quando solicitado explicitamente.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
@@ -5164,13 +5377,13 @@
       "test_ref": null,
       "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:4",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "reason": "teste próprio do subfluxo ainda não concluído"
+        "status": "not-required",
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -5202,6 +5415,8 @@
       "level": 3,
       "label": "Analisar estática e rastreabilidade",
       "description": "O adapter gera símbolos, dependências e métricas; fatos de rastreabilidade são atualizados.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [
         {
@@ -5233,13 +5448,13 @@
       "test_ref": null,
       "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:4",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "reason": "teste próprio do subfluxo ainda não concluído"
+        "status": "not-required",
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -5271,6 +5486,8 @@
       "level": 3,
       "label": "Gate aprovado",
       "description": "Todos os gates passam e a execução pode ser registrada.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
@@ -5279,13 +5496,13 @@
       "test_ref": null,
       "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:4",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "reason": "teste próprio do subfluxo ainda não concluído"
+        "status": "not-required",
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -5317,6 +5534,8 @@
       "level": 3,
       "label": "Gate bloqueado",
       "description": "Falha de teste, contrato, análise ou segurança retorna status bloqueado.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
@@ -5325,13 +5544,13 @@
       "test_ref": null,
       "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:4",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "reason": "teste próprio do subfluxo ainda não concluído"
+        "status": "not-required",
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -5362,19 +5581,21 @@
       "node_id": 5,
       "level": 2,
       "label": "Registrar evidência",
-      "description": "O trabalho concluído recebe log com tipo e diff incremental.",
+      "description": "O trabalho concluído recebe log com tipo e diff incremental. Após o intervalo configurado de tasks, um agente externo é chamado pelo terminal ou tmux para revisar a entrega; lacunas viram changes no Draw.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-user-journeys:node:5",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -5407,6 +5628,9 @@
       ],
       "child_branch_ids": [
         "looper-journey-log:branch:1"
+      ],
+      "child_backlog_ids": [
+        "looper-journey-log"
       ]
     },
     {
@@ -5419,6 +5643,8 @@
       "level": 3,
       "label": "Receber descrição e tipo",
       "description": "Aceita descrição curta e tipo implementacao, teste, bug ou refactor.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
@@ -5427,13 +5653,13 @@
       "test_ref": null,
       "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:5",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "reason": "teste próprio do subfluxo ainda não concluído"
+        "status": "not-required",
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -5465,6 +5691,8 @@
       "level": 3,
       "label": "Coletar diff e snapshot",
       "description": "Compara o estado atual com o checkpoint e salva resumo e snapshot em .looper/runs.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
@@ -5473,13 +5701,13 @@
       "test_ref": null,
       "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:5",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "reason": "teste próprio do subfluxo ainda não concluído"
+        "status": "not-required",
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -5511,6 +5739,8 @@
       "level": 3,
       "label": "Registrar execução",
       "description": "Persiste o registro sem incluir segredos e marca retrabalho quando aplicável.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
@@ -5519,13 +5749,13 @@
       "test_ref": null,
       "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:5",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "reason": "teste próprio do subfluxo ainda não concluído"
+        "status": "not-required",
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -5557,6 +5787,8 @@
       "level": 3,
       "label": "Evidência disponível",
       "description": "O usuário pode revisar o log e o diff no painel de runs.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
@@ -5565,13 +5797,13 @@
       "test_ref": null,
       "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:5",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "reason": "teste próprio do subfluxo ainda não concluído"
+        "status": "not-required",
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -5603,18 +5835,20 @@
       "level": 2,
       "label": "Revisar no Draw",
       "description": "O usuário abre o viewer local, navega pela árvore e revisa decisões, perguntas e trade-offs.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-user-journeys:node:6",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -5648,6 +5882,9 @@
       ],
       "child_branch_ids": [
         "looper-journey-draw:branch:1"
+      ],
+      "child_backlog_ids": [
+        "looper-journey-draw"
       ]
     },
     {
@@ -5660,6 +5897,8 @@
       "level": 3,
       "label": "Receber JSON lógico",
       "description": "O comando draw create recebe o payload sem layout, cores ou HTML.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [
         {
@@ -5689,13 +5928,13 @@
       "test_ref": null,
       "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:6",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "reason": "teste próprio do subfluxo ainda não concluído"
+        "status": "not-required",
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -5727,6 +5966,8 @@
       "level": 3,
       "label": "Validar contrato e hierarquia",
       "description": "Confere IDs, relações, fluxos, perguntas e pai explícito antes de persistir.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
@@ -5735,13 +5976,13 @@
       "test_ref": null,
       "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:6",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "reason": "teste próprio do subfluxo ainda não concluído"
+        "status": "not-required",
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -5773,6 +6014,8 @@
       "level": 3,
       "label": "Persistir desenho e índice",
       "description": "Grava o JSON em .looper/draws e atualiza o índice.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [
         {
@@ -5804,13 +6047,13 @@
       "test_ref": null,
       "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:6",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "reason": "teste próprio do subfluxo ainda não concluído"
+        "status": "not-required",
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -5842,6 +6085,8 @@
       "level": 3,
       "label": "Servir viewer e API local",
       "description": "O servidor embutido entrega o viewer e endpoints GET/PUT dos desenhos.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [
         {
@@ -5888,13 +6133,13 @@
       "test_ref": null,
       "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:6",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "reason": "teste próprio do subfluxo ainda não concluído"
+        "status": "not-required",
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -5926,6 +6171,8 @@
       "level": 3,
       "label": "Árvore navegável",
       "description": "O usuário navega da arquitetura às jornadas e implementações, mantendo perguntas e trade-offs visíveis.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
@@ -5934,13 +6181,13 @@
       "test_ref": null,
       "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:6",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "reason": "teste próprio do subfluxo ainda não concluído"
+        "status": "not-required",
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -5972,18 +6219,20 @@
       "level": 2,
       "label": "Bloqueado ou pendente",
       "description": "Falha de teste, símbolo não resolvido ou decisão em aberto permanece visível e impede uma conclusão falsa.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-user-journeys:node:7",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -6018,18 +6267,20 @@
       "level": 2,
       "label": "Inicializar e instalar skills",
       "description": "O agente prepara .looper/, instruções e skills para o projeto.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-user-journeys:node:2",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -6062,6 +6313,9 @@
       ],
       "child_branch_ids": [
         "looper-journey-init:branch:1"
+      ],
+      "child_backlog_ids": [
+        "looper-journey-init"
       ]
     },
     {
@@ -6072,8 +6326,10 @@
       "draw_title": "Implementação da jornada de inicialização",
       "node_id": 1,
       "level": 3,
-      "label": "Receber destino e integrações",
-      "description": "A CLI valida o diretório e a seleção Codex, Claude ou Gemini.",
+      "label": "Receber destino com Codex padrão",
+      "description": "A CLI valida o diretório e usa Codex como integração padrão, sem perguntar qual agente deve ser usado. Outras integrações só entram quando solicitadas explicitamente por flag.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
@@ -6082,13 +6338,13 @@
       "test_ref": null,
       "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:2",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "reason": "teste próprio do subfluxo ainda não concluído"
+        "status": "not-required",
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -6119,7 +6375,9 @@
       "node_id": 2,
       "level": 3,
       "label": "Criar configuração e estado",
-      "description": "Cria .looper/config.json, runs, features, draws e regras de gitignore.",
+      "description": "Cria .looper/config.yaml, runs, features, draws e regras de gitignore.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
@@ -6128,13 +6386,13 @@
       "test_ref": null,
       "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:2",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "reason": "teste próprio do subfluxo ainda não concluído"
+        "status": "not-required",
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -6165,7 +6423,9 @@
       "node_id": 3,
       "level": 3,
       "label": "Instalar skills e instruções",
-      "description": "Copia templates atuais e atualiza AGENTS.md, CLAUDE.md ou GEMINI.md.",
+      "description": "Copia templates atuais e atualiza AGENTS.md; arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O AGENTS.md compartilhado instrui todo agente a manter os Draws atualizados.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
@@ -6174,13 +6434,13 @@
       "test_ref": null,
       "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:2",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "reason": "teste próprio do subfluxo ainda não concluído"
+        "status": "not-required",
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -6212,6 +6472,8 @@
       "level": 3,
       "label": "Projeto pronto",
       "description": "O agente pode usar as skills no projeto inicializado.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [
         {
@@ -6245,13 +6507,13 @@
       "test_ref": null,
       "test_ref_error": null,
       "test_owner_task_id": "task:looper-user-journeys:node:2",
-      "test_status": "missing",
+      "test_status": "not-required",
       "test_evidence": {
-        "status": "missing",
-        "reason": "teste próprio do subfluxo ainda não concluído"
+        "status": "not-required",
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
-        "test": false,
+        "test": true,
         "implementation": false
       },
       "child_checklist_id": null,
@@ -6283,18 +6545,20 @@
       "level": 2,
       "label": "Entrega rastreável",
       "description": "A mudança termina com fontes, testes, desenho e evidências coerentes no repositório.",
+      "success_criteria": "",
+      "failure_criteria": "",
       "questions": [],
       "code_refs": [],
       "symbols": [],
       "source_dependencies": [],
       "traceability": [],
       "test_ref": null,
-      "test_ref_error": null,
+      "test_ref_error": "test_ref ausente",
       "test_owner_task_id": "task:looper-user-journeys:node:8",
       "test_status": "not-required",
       "test_evidence": {
         "status": "not-required",
-        "reason": "modo separado: telas L2 não entram no loop de testes"
+        "reason": "loop de testes desabilitado no looper init"
       },
       "checklist_state": {
         "test": true,
@@ -6322,13 +6586,15 @@
   ],
   "execution": {
     "current_task_id": "task:bootstrap",
+    "lanes": {},
     "current_backlog_id": "system",
     "current_branch_id": "looper-user-journeys:branch:2",
     "branch_position": 2,
     "current_phase": "bootstrap",
-    "test_loop_enabled": true,
+    "test_loop_enabled": false,
     "current_parent_task_id": null,
     "current_subtask_id": null,
+    "current_l4_group_task_ids": null,
     "bootstrap_done": false,
     "verified_l2_task_ids": [],
     "current_verified_batch_node_ids": [],
@@ -6341,9 +6607,28 @@
     "last_transition_at": null,
     "lease_seconds": 900,
     "task_batch_size": 1,
+    "l4_group_size": 3,
     "task_batch_scope": "task",
     "task_delivery_scope": "task",
     "development_mode": "separated",
+    "test_loop": {
+      "mode": "task_order",
+      "scope": "both",
+      "batch_size": 1,
+      "include_level_2": true,
+      "l2_children_mode": "none",
+      "l3_loop_enabled": true,
+      "l3_include_parent": true
+    },
+    "implementation_loop": {
+      "mode": "task_order",
+      "scope": null,
+      "batch_size": 1,
+      "include_level_2": false,
+      "l2_children_mode": "none",
+      "l3_loop_enabled": true,
+      "l3_include_parent": true
+    },
     "completed_branches": [
       "looper-agent-journeys:branch:1",
       "looper-agent-journeys:branch:2",

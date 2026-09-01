@@ -568,8 +568,29 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "131e54856572431ca693bf82a84a61fb",
+      "timestamp": "2026-09-01T22:28:40.794797+00:00",
+      "description": "Remove Draw cadastro incorporado de WhatsApp e referências ativas",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 406,
+        "files_changed": 1
+      }
     }
   ],
-  "run_count": 27,
-  "last_run_id": "dffe224e735e4fdd9403986e2bf4a413"
+  "run_count": 28,
+  "last_run_id": "131e54856572431ca693bf82a84a61fb"
 }
