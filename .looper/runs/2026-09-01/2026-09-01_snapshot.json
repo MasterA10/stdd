@@ -395,10 +395,23 @@
         }
       ],
       "draws": []
+    },
+    {
+      "run_id": "75b8bdb1c53241c9b905576194f59b29",
+      "timestamp": "2026-09-01T17:34:21.298312+00:00",
+      "files": [
+        {
+          "path": "src/looper/core.py",
+          "lines_added": 1,
+          "lines_deleted": 1,
+          "diff": "--- a/src/looper/core.py\n+++ b/src/looper/core.py\n@@ -238,7 +238,7 @@\n - Antes de qualquer commit ou push na branch `main`, confirme que o diff inclui as fontes, templates, skills, assets empacotados, README e testes necessários para o comando de instalação do README reproduzir a versão publicada.\n - Depois de alterar o framework, valide a instalação equivalente com `uv tool install --force --editable .` e confirme que `looper init` instala as skills atuais; não publique somente uma parte da alteração.\n - Ao integrar APIs/apps externos, registre o contrato no `AGENTS.md` e consulte a documentação oficial antes de implementar.\n-- Quando este projeto mencionar `playwright-cli` para navegar no navegador, isso significa executar `npx playwright-cli` pelo terminal, usando-o para navegação exploratória e inspeção do fluxo da aplicação. Isso não significa criar scripts automaticamente. Scripts Playwright devem ser criados principalmente para testes de regressão ou depois que o fluxo já tiver sido navegado e seu funcionamento observado, para então automatizar a validação. `$test-application` usa esse procedimento e valida a persistência no banco quando o Draw exigir; integrações externas ficam determinísticas por padrão e testes live são opt-in com credenciais do `.env` (no `.gitignore`). Nunca commite credenciais.\n+- Quando este projeto mencionar `playwright-cli` para navegar no navegador, isso significa executar `npx playwright-cli` pelo terminal, usando-o para navegação exploratória e inspeção do fluxo da aplicação. Isso não significa criar scripts automaticamente. Scripts Playwright devem ser criados principalmente para testes de regressão ou depois que o fluxo já tiver sido navegado e seu funcionamento observado, para então automatizar a validação. Se um script falhar ou der resultado inesperado, use novamente `npx playwright-cli` para navegar pelo fluxo real, investigar o que está errado e, em seguida, alterar o script para corrigir o problema. `$test-application` usa esse procedimento e valida a persistência no banco quando o Draw exigir; integrações externas ficam determinísticas por padrão e testes live são opt-in com credenciais do `.env` (no `.gitignore`). Nunca commite credenciais.\n - O `.looper/design.md` é a fonte obrigatória de decisões visuais: consulte e respeite identidade, tipografia, espaçamento, estados, acessibilidade e contraste em qualquer alteração ou implementação de interface; seu preenchimento é obrigatório antes de liberar o bootstrap.\n - Ao construir, refinar ou revisar interfaces, leia e use a skill `$open-design` instalada em `.agents/skills/open-design/SKILL.md`, consultando seus recursos sob demanda.\n - Observação de frontend: não use emojis na interface. Presets, labels, estados, botões e elementos decorativos devem usar texto ou ícones da biblioteca visual do projeto, nunca caracteres emoji."
+        }
+      ],
+      "draws": []
     }
   ],
-  "run_count": 11,
-  "last_run_id": "5aa89d8eeced47909381a271d6abc150",
+  "run_count": 12,
+  "last_run_id": "75b8bdb1c53241c9b905576194f59b29",
   "workspace_snapshot": {
     "build/lib/looper/__init__.py": [
       "\"\"\"Looper: desenvolvimento orientado por testes.\"\"\"",
@@ -19476,7 +19489,7 @@
       "- Antes de qualquer commit ou push na branch `main`, confirme que o diff inclui as fontes, templates, skills, assets empacotados, README e testes necessários para o comando de instalação do README reproduzir a versão publicada.",
       "- Depois de alterar o framework, valide a instalação equivalente com `uv tool install --force --editable .` e confirme que `looper init` instala as skills atuais; não publique somente uma parte da alteração.",
       "- Ao integrar APIs/apps externos, registre o contrato no `AGENTS.md` e consulte a documentação oficial antes de implementar.",
-      "- Quando este projeto mencionar `playwright-cli` para navegar no navegador, isso significa executar `npx playwright-cli` pelo terminal, usando-o para navegação exploratória e inspeção do fluxo da aplicação. Isso não significa criar scripts automaticamente. Scripts Playwright devem ser criados principalmente para testes de regressão ou depois que o fluxo já tiver sido navegado e seu funcionamento observado, para então automatizar a validação. `$test-application` usa esse procedimento e valida a persistência no banco quando o Draw exigir; integrações externas ficam determinísticas por padrão e testes live são opt-in com credenciais do `.env` (no `.gitignore`). Nunca commite credenciais.",
+      "- Quando este projeto mencionar `playwright-cli` para navegar no navegador, isso significa executar `npx playwright-cli` pelo terminal, usando-o para navegação exploratória e inspeção do fluxo da aplicação. Isso não significa criar scripts automaticamente. Scripts Playwright devem ser criados principalmente para testes de regressão ou depois que o fluxo já tiver sido navegado e seu funcionamento observado, para então automatizar a validação. Se um script falhar ou der resultado inesperado, use novamente `npx playwright-cli` para navegar pelo fluxo real, investigar o que está errado e, em seguida, alterar o script para corrigir o problema. `$test-application` usa esse procedimento e valida a persistência no banco quando o Draw exigir; integrações externas ficam determinísticas por padrão e testes live são opt-in com credenciais do `.env` (no `.gitignore`). Nunca commite credenciais.",
       "- O `.looper/design.md` é a fonte obrigatória de decisões visuais: consulte e respeite identidade, tipografia, espaçamento, estados, acessibilidade e contraste em qualquer alteração ou implementação de interface; seu preenchimento é obrigatório antes de liberar o bootstrap.",
       "- Ao construir, refinar ou revisar interfaces, leia e use a skill `$open-design` instalada em `.agents/skills/open-design/SKILL.md`, consultando seus recursos sob demanda.",
       "- Observação de frontend: não use emojis na interface. Presets, labels, estados, botões e elementos decorativos devem usar texto ou ícones da biblioteca visual do projeto, nunca caracteres emoji.",

@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "run_id": "c277fe2b57044038857c49d9de6b2550",
-  "started_at": "2026-09-01T17:28:00.145570+00:00",
+  "run_id": "38ebd945427542f9a8040debf7edfb46",
+  "started_at": "2026-09-01T17:34:54.308772+00:00",
   "status": "blocked",
   "profile": "mvp",
   "summary": {
@@ -20,7 +20,7 @@
       ],
       "exit_code": 1,
       "status": "failed",
-      "duration_seconds": 21.369044
+      "duration_seconds": 21.619821
     }
   ],
   "contract": {

@@ -232,8 +232,29 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "75b8bdb1c53241c9b905576194f59b29",
+      "timestamp": "2026-09-01T17:34:21.298312+00:00",
+      "description": "Adiciona investigação via npx playwright-cli quando scripts falharem",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 1,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 11,
-  "last_run_id": "5aa89d8eeced47909381a271d6abc150"
+  "run_count": 12,
+  "last_run_id": "75b8bdb1c53241c9b905576194f59b29"
 }
