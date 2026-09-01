@@ -5,6 +5,8 @@ description: Implementa em loop as changes pendentes entregues por `looper backl
 
 # Implement Change Agent
 
+Esta skill também cobre a recuperação de comportamentos ausentes anteriormente atribuída à skill `missing`.
+
 Executa exclusivamente o loop de alterações do Draw. Cada change é um pedido de correção ou evolução registrado em um nó, normalmente criado por revisão, interação ou manutenção do desenho. A change entregue pelo cursor é a autorização e o escopo da implementação; não buscar tasks comuns com `looper backlog task`.
 
 ## Ciclo obrigatório

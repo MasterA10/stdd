@@ -67,8 +67,6 @@ LEGACY_MIGRATION_IGNORED_PARTS = {
     "tests",
     "src",
     ".agents",
-    ".claude",
-    ".gemini",
 }
 LEGACY_MIGRATION_IGNORED_FILES = {".env", ".env.local", ".env.production", ".env.development"}
 
@@ -204,8 +202,6 @@ def migrate_legacy_project(root: Path) -> list[Path]:
 
 AGENT_SKILL_DIRECTORIES = {
     "codex": ".agents/skills",
-    "claude": ".claude/skills",
-    "gemini": ".gemini/skills",
 }
 
 RETIRED_AGENT_SKILLS = {
@@ -215,12 +211,12 @@ RETIRED_AGENT_SKILLS = {
     "create-tests-backlog",
     "e2e-tester",
     "feature",
+    "missing",
+    "open-design",
 }
 
 AGENT_INSTRUCTION_FILES = {
     "codex": ("AGENTS.md",),
-    "claude": ("CLAUDE.md", ".claude/CLAUDE.md"),
-    "gemini": ("GEMINI.md",),
 }
 Looper_AGENT_BLOCK_START = "<!-- Looper:BEGIN AGENT INSTRUCTIONS -->"
 Looper_AGENT_BLOCK_END = "<!-- Looper:END AGENT INSTRUCTIONS -->"
@@ -234,21 +230,28 @@ Este projeto usa o Looper para especificação, implementação, testes e evidê
 - `looper test` executa por padrão somente os testes de regressão da codebase e as demais suítes locais. Suítes Playwright devem ser declaradas com `type: playwright` em `test_commands` e só rodam quando o comando recebe a flag explícita `looper test --playwright`.
 - Preserve o contrato existente, os testes aprovados e os arquivos protegidos.
 - Use `.looper/` para configuração, desenhos, execuções e evidências; não registre segredos nos logs.
+- Se precisar de uma visão geral do sistema, leia o contexto estruturado com `looper draw context`; sem filtros ele percorre todos os Draws e níveis, mostrando conexões, perguntas, respostas, símbolos e dependências. Use `--draw`, `--level` ou `--node` para restringir o contexto e `--save` para gerar `.looper/draw-context.md`.
+- Para navegar pelos nós e ver detalhes específicos via CLI, use `looper draw context --draw <draw-id> --level <1-4>` para entrar no desenho e no nível desejado, depois `looper draw context --node <node-id>` para localizar um nó; a saída mostra descrição, conexões, perguntas, respostas, critérios de aceitação/rejeição, símbolos e dependências. Use `looper draw serve` quando precisar abrir o viewer visual e inspecionar o nó graficamente.
+- Quando for necessário usar subagentes, eles podem ser executados em uma sessão `tmux`, mas pergunte ao usuário antes de iniciar. Se o usuário disser claramente que quer usar subagentes, considere essa autorização dada e use `tmux`; não ofereça `terminal` como alternativa para subagentes.
 - A análise de código deve permanecer separada da análise dos Draws/JSONs; preserve símbolos, referências e métricas gerais quando a stack oferecer essa capacidade.
+- A análise estática é agnóstica ao framework e tem o Python como núcleo e orquestrador: scanner de arquivos de texto, normalização dos resultados, associação de funções/símbolos e aplicação dos quality gates devem passar pelo núcleo Python. Quando a linguagem ou o framework oferecer compilador, type-checker, linter ou analisador estático próprio, ele pode ser executado por um adaptador/subprocesso Python; seus resultados devem ser convertidos para o contrato comum e consolidados pelo núcleo Python, sem deixar a execução ou os gates dependerem diretamente do framework.
 - Antes de qualquer commit ou push na branch `main`, confirme que o diff inclui as fontes, templates, skills, assets empacotados, README e testes necessários para o comando de instalação do README reproduzir a versão publicada.
 - Depois de alterar o framework, valide a instalação equivalente com `uv tool install --force --editable .` e confirme que `looper init` instala as skills atuais; não publique somente uma parte da alteração.
 - Ao integrar APIs/apps externos, registre o contrato no `AGENTS.md` e consulte a documentação oficial antes de implementar.
-- Quando este projeto mencionar `playwright-cli` para navegar no navegador, isso significa executar `npx playwright-cli` pelo terminal, usando-o para navegação exploratória e inspeção do fluxo da aplicação. Isso não significa criar scripts automaticamente. Scripts Playwright devem ser criados principalmente para testes de regressão ou depois que o fluxo já tiver sido navegado e seu funcionamento observado, para então automatizar a validação. Se um script falhar ou der resultado inesperado, use novamente `npx playwright-cli` para navegar pelo fluxo real, investigar o que está errado e, em seguida, alterar o script para corrigir o problema. `$test-application` usa esse procedimento e valida a persistência no banco quando o Draw exigir; integrações externas ficam determinísticas por padrão e testes live são opt-in com credenciais do `.env` (no `.gitignore`). Nunca commite credenciais.
-- O `.looper/design.md` é a fonte obrigatória de decisões visuais: consulte e respeite identidade, tipografia, espaçamento, estados, acessibilidade e contraste em qualquer alteração ou implementação de interface; seu preenchimento é obrigatório antes de liberar o bootstrap.
-- Ao construir, refinar ou revisar interfaces, leia e use a skill `$open-design` instalada em `.agents/skills/open-design/SKILL.md`, consultando seus recursos sob demanda.
+- O `.looper/design.html` é a fonte obrigatória de decisões visuais e tokens: consulte e respeite identidade, tipografia, espaçamento, estados, acessibilidade e contraste em qualquer alteração ou implementação de interface; seu preenchimento é obrigatório antes de liberar o bootstrap.
+- Ao construir, refinar ou revisar interfaces, leia e use a skill `$modern-web-guidance` (localizada em `.agents/skills/modern-web-guidance/SKILL.md`)
+  - Ao alterar um padrão de design, insira o padrão no `.looper/design.html` pra deixar a documentação de design atualizada
 - Observação de frontend: não use emojis na interface. Presets, labels, estados, botões e elementos decorativos devem usar texto ou ícones da biblioteca visual do projeto, nunca caracteres emoji.
-- Mantenha memória contextual seletiva: registre decisões duráveis e aceitas no `AGENTS.md` (contratos, arquitetura, operação e escopo) ou no `.looper/design.md` (visual e interação); consolide duplicatas e não registre hipóteses, detalhes temporários, IDs de execução ou segredos.
-- Qualquer alteração de comportamento feita diretamente pelo agente ou por um comando de programação deve primeiro atender ao pedido do usuário e depois atualizar os Draws correspondentes, para que a documentação reflita o comportamento novo. Se a alteração não mudar o comportamento e acrescentar somente um detalhe específico, crie uma pergunta no Draw correto, respeitando a hierarquia L2/L3. Se a alteração mudar um fluxo ou o comportamento documentado, atualize também as conexões dos nós quando necessário para representar o novo caminho. Os Draws são a documentação oficial do comportamento do sistema e devem permanecer atualizados.
+- Quando este projeto mencionar `playwright-cli` para navegar no navegador, isso significa executar `npx playwright-cli` pelo terminal, usando-o para navegação exploratória e inspeção do fluxo da aplicação. Isso não significa criar scripts automaticamente. Scripts Playwright devem ser criados principalmente para testes de regressão ou depois que o fluxo já tiver sido navegado e seu funcionamento observado, para então automatizar a validação. Se um script falhar ou der resultado inesperado, use novamente `npx playwright-cli` para navegar pelo fluxo real, investigar o que está errado e, em seguida, alterar o script para corrigir o problema. `$test-application` usa esse procedimento e valida a persistência no banco quando o Draw exigir; integrações externas ficam determinísticas por padrão e testes live são opt-in com credenciais do `.env` (no `.gitignore`). Nunca commite credenciais.
+- Mantenha memória contextual seletiva: registre decisões duráveis e aceitas no `AGENTS.md` ou no `.looper/design.html` (visual e interação); consolide duplicatas e não registre hipóteses, detalhes temporários, IDs de execução ou segredos.
+- Qualquer alteração de comportamento feita diretamente pelo agente ou por um comando de programação deve primeiro atualizar os Draws correspondentes e depois atender ao pedido do usuário, para que a documentação reflita o comportamento novo. Se a alteração não mudar o comportamento e acrescentar somente um detalhe específico, crie uma pergunta no Draw correto, respeitando a hierarquia L2/L3. Se a alteração mudar um fluxo ou o comportamento documentado, atualize também as conexões dos nós quando necessário para representar o novo caminho. Os Draws são a documentação oficial do comportamento do sistema e devem permanecer atualizados.
+- Toda implementação ou alteração de comportamento deve associar no Draw o símbolo implementado ou alterado: o arquivo e, quando possível, a função, classe ou método específico (`qualified_name`). Um nó pode ter mais de um símbolo quando a entrega envolver vários pontos da codebase. Se o símbolo ainda não existir, crie a associação; se já existir e a entrega acrescentar comportamento, inclua também os novos símbolos. Documentação pura ou criação/edição de Draw sem mudança de comportamento não exige símbolo; se o pedido incluir implementação além da documentação, a associação volta a ser obrigatória.
 - `$test-application` lê o Draw completo, propõe e implementa uma suíte de testes transversal (incluindo Playwright e persistência quando aplicáveis); `$implement-frontend` e `$implement-backend` continuam pertencendo aos loops acionados por `looper backlog frontend`, `looper backlog backend` e `looper backlog task`.
-- Quando o pedido vier de uma interação comum, trate-o como interação comum e siga somente as instruções necessárias ao pedido; não transforme a edição em task de backlog nem exija o ciclo de testes/implementação do backlog sem que o cursor tenha entregue uma task.
+- Quando o pedido vier de uma interação comum, trate-o como interação comum e siga somente as instruções necessárias ao pedido, se necessário atualize os draws, mas não transforme a edição em task de backlog nem exija o ciclo de testes/implementação do backlog sem que o cursor tenha entregue uma task.
 - No loop do backlog, execute `looper backlog complete <task-id>` com o mesmo ID recebido somente após validar a task; sem isso, o cursor não avança.
 - Quando o backlog entregar o nó e os subfluxos internos juntos, implemente e teste ambos; “Tela” classifica o nível do nó e não limita a entrega ao frontend.
 - Ao relatar o resultado, informe status, arquivos alterados, testes executados, evidências e limitações.
+
 {{mode_instruction}}
 {Looper_AGENT_BLOCK_END}"""
 _Looper_AGENT_BLOCK_PATTERN = re.compile(
@@ -303,16 +306,6 @@ def ensure_agent_instructions(root: Path, integrations: tuple[str, ...], develop
             instruction_path.write_text(updated, encoding="utf-8")
             changed.append(instruction_path)
     return changed
-
-
-def ensure_playwright_guide(root: Path) -> Path | None:
-    """Instala o guia padrão de Playwright sem substituir um guia do projeto."""
-    source = Path(__file__).parent / "templates" / "PLAYWRIGHT_GUIDE.md"
-    target = root / "PLAYWRIGHT_GUIDE.md"
-    if target.exists() or not source.is_file():
-        return None
-    target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
-    return target
 
 
 def _resolve_init_development_mode(config: Path, requested: str | None) -> tuple[str, bool]:
@@ -460,9 +453,6 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
     if config_changed and config not in created:
         created.append(config)
     created.extend(ensure_agent_instructions(root, integrations, config_mode))
-    playwright_guide = ensure_playwright_guide(root)
-    if playwright_guide is not None:
-        created.append(playwright_guide)
     return created
 
 

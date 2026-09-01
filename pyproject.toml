@@ -19,7 +19,7 @@ looper = "looper.cli:app"
 where = ["src"]
 
 [tool.setuptools.package-data]
-looper = ["draw_assets/**/*", "templates/PLAYWRIGHT_GUIDE.md", "templates/agents/*/SKILL.md", "templates/agents/*/agents/*.yaml", "templates/adapters/*.php", "templates/adapters/*.py", "templates/adapters/*.js", "templates/draw/*.html", "templates/draw/*.json", "templates/runs/*.html"]
+looper = ["draw_assets/**/*", "templates/agents/*/SKILL.md", "templates/agents/*/agents/*.yaml", "templates/adapters/*.php", "templates/adapters/*.py", "templates/adapters/*.js", "templates/draw/*.html", "templates/draw/*.json", "templates/runs/*.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

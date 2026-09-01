@@ -5,6 +5,10 @@ description: Implementa e conecta adaptadores agnósticos de análise estática 
 
 # Static Analysis Skill
 
+## Núcleo independente de framework
+
+Toda a análise estática do Looper deve ser orquestrada pelo núcleo Python, independentemente do framework ou da linguagem da aplicação analisada. O núcleo lê arquivos de texto, normaliza os resultados, extrai ou confirma funções, classes, símbolos, dependências e métricas, e aplica os quality gates de forma determinística. Se a linguagem ou o framework oferecer compilador, type-checker, linter ou analisador estático próprio, ele pode ser usado por um adaptador Python, inclusive como subprocesso. O adaptador deve transformar a saída dessa ferramenta no contrato comum; a execução, consolidação, rastreabilidade e decisão final dos gates continuam no núcleo Python. O framework pode fornecer evidências, mas não assume o controle da análise do Looper.
+
 ## Rastreabilidade da hierarquia Draw
 
 Os fatos estáticos devem respeitar a árvore criada pelas skills `$draw-system-level-1` a `$draw-system-level-4`: nível 1 fornece contexto de fronteiras, nível 2 fornece a jornada, nível 3 delimita o comportamento em linguagem simples e nível 4 aprofunda os símbolos e testes reais. Todos os níveis podem ter `code_refs` no próprio nó quando houver símbolo comprovado: nível 1 para configuração/infraestrutura, nível 2 para frontend/interface, nível 3 para funções/handlers que executam a tarefa e nível 4 para detalhes internos, SQL, procedures, RPCs, migrations e testes. Não criar ou mover `draw_ref`, `parent_draw_ref`, `parent_node_id` ou `root_draw_ref` automaticamente. O adapter fornece fatos; o agente decide as associações.
@@ -15,11 +19,13 @@ Ao produzir fatos para um desenho filho, preservar seu pai e a raiz. Reportar re
 
 Ao analisar os desenhos em `.looper/draws/`, aplicar uma verificação específica aos documentos com `hierarchy.level: 3`, isto é, aos filhos dos desenhos de jornada de nível 2. Emitir apenas warnings quando o subfluxo tiver menos de quatro nós (`draw.level3_min_nodes`) ou quando qualquer nó tiver `description` ausente, não textual ou com menos de 80 caracteres (`draw.level3_short_description`). O finding deve apontar o arquivo, o ID do nó quando aplicável, o valor observado, o limite e a evidência. Esses achados são informativos e nunca bloqueiam `looper draw create` ou `looper test`; não criar nós decorativos nem aprovar lacunas sem evidência.
 
-Para documentos com `hierarchy.level: 2`, `3` ou `4`, emitir `draw.level2_missing_code_ref`, `draw.level3_missing_code_ref` ou `draw.level4_missing_code_ref` como bloqueio para cada nó sem pelo menos um `code_refs` com símbolo válido. Além disso, emitir `draw.empty_node_symbol` como bloqueio quando um nó contiver símbolo ausente, vazio ou genérico (ex: `unnamed`, `(sem nome)`, `placeholder`) e `draw.duplicate_node_symbol` como warning quando o mesmo símbolo for reutilizado mais de 4 vezes no mesmo desenho. O finding deve apontar o arquivo do desenho, os nós afetados, o valor observado, o limite (4) e a evidência. Esses achados aparecem durante `looper draw create`, mas somente `looper test` aplica o bloqueio ao exit code.
+Para documentos com `hierarchy.level: 2`, `3` ou `4`, a ausência de `code_refs` é válida durante a especificação e durante uma implementação ainda não concluída. Só emitir `draw.level2_missing_code_ref`, `draw.level3_missing_code_ref` ou `draw.level4_missing_code_ref` como bloqueio quando o backlog indicar `status: done` e `checklist_state.implementation: true` para aquele nó. Da mesma forma, `draw.empty_node_symbol` só bloqueia após a implementação; antes disso, não criar `symbol: "nenhum"`, símbolo vazio ou placeholder. `draw.duplicate_node_symbol` continua warning quando o mesmo símbolo for reutilizado mais de 4 vezes. O finding deve apontar o arquivo do desenho, os nós afetados, o valor observado, o limite (4) e a evidência. A criação e a especificação permanecem livres de bloqueio por rastreabilidade; somente a análise de uma implementação concluída aplica esse gate.
 
 Esta skill orienta a criação de um adaptador específico para a stack do projeto. O adaptador implementa o contrato do Looper; ele não altera o fluxo geral do framework, não inventa fatos e não substitui os gates determinísticos. Quando houver rastreabilidade de autorização, preservar como dependências os símbolos reais de middleware, policies, guards, handlers ou casos de uso; não inferir que cliente e administrador têm as mesmas permissões.
 
 ## Objetivo
+
+O gate de ausência de símbolo só é bloqueante para nós cuja task esteja concluída e marcada como implementação concluída no backlog; criação e especificação não devem ser bloqueadas.
 
 Para verificar exclusivamente a rastreabilidade dos Draws, use `looper draw symbols`. O comando lista os símbolos associados e os nós sem símbolo, sem executar suítes de teste, contrato, backlog ou adapter; a análise estática completa continua integrada ao `looper test`.
 
@@ -38,7 +44,7 @@ Conectar um analisador local ao comando `looper test` para que a execução prod
 - locais reais onde a lógica pode estar implementada: aplicação, banco, RPC, procedure, função SQL, trigger, view, serviço externo ou contrato remoto;
 - regras de negócio e dependências que atravessam a linguagem principal, o banco ou outro back-end.
 
-O agente deve usar a melhor ferramenta da stack, como AST nativo, compiler API ou parser especializado. A skill não presume uma linguagem específica.
+O agente deve preferir parsers Python apropriados para cada linguagem quando necessário, como bibliotecas de AST e parsers de texto, mas pode também encapsular ferramentas nativas do framework ou da linguagem. A ferramenta específica pode variar; a execução do fluxo, normalização, contrato, rastreabilidade e aplicação dos quality gates permanecem no núcleo Python, e a skill não presume um framework específico.
 
 ## Conexão com o Looper
 

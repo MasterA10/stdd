@@ -773,10 +773,10 @@ flowchart TB
 
 ```bash
 # Testes do config — nenhuma lógica muda, devem passar
-cd /Users/alexalves/Movies/stdd && .venv/bin/python3.14 -m pytest tests/test_config.py -v
+cd /Users/alexalves/Movies/looper && .venv/bin/python3.14 -m pytest tests/test_config.py -v
 
 # Build do draw-editor sem erros TypeScript
-cd /Users/alexalves/Movies/stdd/draw-editor && npm run build
+cd /Users/alexalves/Movies/looper/draw-editor && npm run build
 ```
 
 ### Manual Verification

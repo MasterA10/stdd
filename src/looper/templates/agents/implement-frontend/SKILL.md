@@ -16,7 +16,7 @@ Percorrer o backlog de telas (L2) até a conclusão da camada frontend, uma tela
 ```text
 looper backlog frontend
   -> ler o contexto da tela L2
-  -> consultar .looper/design.md, $open-design e $modern-web-guidance
+  -> consultar .looper/design.html, $system-design e $modern-web-guidance
   -> implementar a tela, seus estados visuais e os links/navegação de saída
   -> executar testes de interface/validações locais e looper test
   -> associar referências de código (looper draw associate-reference)
@@ -38,8 +38,8 @@ looper backlog frontend
 ## Recursos de Design e Frontend Obrigatórios
 
 Ao construir, refinar ou revisar telas e componentes:
-1. **`.looper/design.md`**: Consulte e respeite obrigatoriamente identidade visual, tipografia, paleta de cores, espaçamentos, estados e contraste definidos no projeto.
-2. **`$open-design` (`.agents/skills/open-design/SKILL.md`)**: Consulte padrões de componentes, acessibilidade (ARIA), hierarquia visual e design tokens.
+1. **`.looper/design.html`**: Consulte e respeite obrigatoriamente identidade visual, tokens de tipografia, paleta de cores, espaçamentos, estados e contraste definidos no projeto.
+2. **`$system-design` (`.agents/skills/system-design/SKILL.md`)**: Consulte tokens, padrões de componentes, hierarquia visual e decisões de acessibilidade documentadas no projeto.
 3. **`$modern-web-guidance` (`.agents/skills/modern-web-guidance/SKILL.md`)**: Consulte padrões e APIs web modernas, layouts responsivos, diálogos, View Transitions e performance de carregamento.
 
 Você pode adicionar novos guias ou recursos complementares de frontend na pasta `.agents/skills/` sem alterar as regras fundamentais.
@@ -57,11 +57,11 @@ Você pode adicionar novos guias ou recursos complementares de frontend na pasta
   ```
 - Execute `looper draw symbols` e confira que a associação foi gravada no nó correto. Se estiver ausente ou vazia, deixe a task aberta.
 - O `backlog complete <task-id>` só pode ser o último comando do loop.
-- O gate `looper test` valida `draw.level2_missing_code_ref` e `draw.empty_node_symbol`.
+- Após concluir a implementação, associe o arquivo e, quando possível, o componente/função real no `code_refs`; o gate `looper test` valida `draw.level2_missing_code_ref` e `draw.empty_node_symbol` somente para nós cuja implementação esteja concluída.
 
 ## Memória contextual seletiva
 
-Antes de `backlog complete`, verifique se a implementação confirmou uma regra reutilizável. Registre tipografia, cores, espaçamento, estados, animações e interações no `.looper/design.md`; registre contratos gerais no `AGENTS.md`. Não registre hipóteses ou segredos.
+Antes de `backlog complete`, verifique se a implementação confirmou uma regra reutilizável. Registre tipografia, cores, espaçamento, estados, animações e interações no `.looper/design.html`; registre contratos gerais no `AGENTS.md`. Não registre hipóteses ou segredos.
 
 ## Cursor e Conclusão
 

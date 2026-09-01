@@ -721,7 +721,11 @@ def _has_code_reference(node: dict[str, Any]) -> bool:
     return bool(_extract_node_symbols(node))
 
 
-def analyze_draw_contract(payload: dict[str, Any], source: str = "(novo desenho)") -> list[dict[str, Any]]:
+def analyze_draw_contract(
+    payload: dict[str, Any],
+    source: str = "(novo desenho)",
+    implemented_nodes: set[Any] | None = None,
+) -> list[dict[str, Any]]:
     """Produz warnings de contratos estáticos específicos da hierarquia Draw e da qualidade dos símbolos dos nós."""
     draw_id = str(payload.get("id", "(novo desenho)"))
     findings: list[dict[str, Any]] = []
@@ -738,6 +742,8 @@ def analyze_draw_contract(payload: dict[str, Any], source: str = "(novo desenho)
         rule_name = rule_map[level]
         for node in payload.get("nodes", []):
             if not isinstance(node, dict) or _has_code_reference(node):
+                continue
+            if implemented_nodes is None or node.get("id") not in implemented_nodes:
                 continue
             node_id = node.get("id")
             findings.append({
@@ -762,7 +768,7 @@ def analyze_draw_contract(payload: dict[str, Any], source: str = "(novo desenho)
             for ref in references:
                 if isinstance(ref, dict):
                     sym = ref.get("symbol") or ref.get("qualified_name")
-                    if _is_empty_or_unnamed_symbol(sym):
+                    if _is_empty_or_unnamed_symbol(sym) and (implemented_nodes is not None and node_id in implemented_nodes):
                         display_sym = repr(sym) if sym is not None else "ausente"
                         findings.append({
                             "kind": DRAW_EMPTY_NODE_SYMBOL_RULE,
@@ -806,9 +812,28 @@ def analyze_draw_contract(payload: dict[str, Any], source: str = "(novo desenho)
 
 
 
+def _implemented_draw_nodes(root: Path) -> set[tuple[str, Any]]:
+    """Retorna nós cuja implementação foi concluída no backlog."""
+    path = root / ".looper" / "backlog.json"
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        return set()
+    implemented: set[tuple[str, Any]] = set()
+    for task in payload.get("tasks", []) if isinstance(payload, dict) else []:
+        if not isinstance(task, dict) or task.get("status") != "done":
+            continue
+        checklist = task.get("checklist_state")
+        implementation_done = isinstance(checklist, dict) and checklist.get("implementation") is True
+        if implementation_done and task.get("draw_id") is not None and task.get("node_id") is not None:
+            implemented.add((str(task["draw_id"]), task["node_id"]))
+    return implemented
+
+
 def scan_draw_contracts(root: Path) -> list[dict[str, Any]]:
     """Analisa todos os desenhos persistidos sem transformar warning em bloqueio."""
     findings = []
+    implemented = _implemented_draw_nodes(root)
     directory = draw_directory(root)
     if not directory.is_dir():
         return findings
@@ -820,7 +845,9 @@ def scan_draw_contracts(root: Path) -> list[dict[str, Any]]:
         except (OSError, UnicodeDecodeError, json.JSONDecodeError):
             continue
         if isinstance(payload, dict):
-            findings.extend(analyze_draw_contract(payload, path.relative_to(root).as_posix()))
+            draw_id = str(payload.get("id", path.stem))
+            implemented_nodes = {node_id for current_draw, node_id in implemented if current_draw == draw_id}
+            findings.extend(analyze_draw_contract(payload, path.relative_to(root).as_posix(), implemented_nodes))
     return findings
 
 
@@ -830,6 +857,7 @@ def collect_draw_symbols(root: Path) -> dict[str, Any]:
     """
     entries: list[dict[str, Any]] = []
     errors: list[dict[str, str]] = []
+    implemented = _implemented_draw_nodes(root)
     directory = draw_directory(root)
     if not directory.is_dir():
         return {
@@ -867,12 +895,14 @@ def collect_draw_symbols(root: Path) -> dict[str, Any]:
                 "node_id": node.get("id"),
                 "label": node.get("label", ""),
                 "status": "associated" if symbols else "missing",
+                "implementation_done": (str(payload.get("id", path.stem)), node.get("id")) in implemented,
                 "symbols": symbols,
             })
 
     missing = sum(item["status"] == "missing" for item in entries)
+    blocking_missing = sum(item["status"] == "missing" and item["implementation_done"] for item in entries)
     return {
-        "status": "blocked" if missing or errors else "passed",
+        "status": "blocked" if blocking_missing or errors else "passed",
         "draws": entries,
         "errors": errors,
         "summary": {
@@ -1064,6 +1094,243 @@ def read_draw_index(root: Path) -> dict[str, Any]:
     if not isinstance(index, dict) or not isinstance(index.get("draws"), list):
         raise ValueError("índice de desenhos deve conter draws como lista")
     return index
+
+
+def _context_node_order(document: dict[str, Any]) -> list[dict[str, Any]]:
+    """Ordena nós pela topologia das arestas, preservando a ordem do JSON em empates."""
+    nodes = [node for node in document.get("nodes", []) if isinstance(node, dict)]
+    positions = {node.get("id"): index for index, node in enumerate(nodes)}
+    by_id = {node.get("id"): node for node in nodes}
+    outgoing: dict[Any, list[Any]] = {node_id: [] for node_id in by_id}
+    indegree: dict[Any, int] = {node_id: 0 for node_id in by_id}
+    for edge in document.get("edges", []):
+        if not isinstance(edge, dict):
+            continue
+        source, target = edge.get("from"), edge.get("to")
+        if source not in by_id or target not in by_id or target in outgoing[source]:
+            continue
+        outgoing[source].append(target)
+        indegree[target] += 1
+
+    ready = sorted((node_id for node_id, count in indegree.items() if count == 0), key=positions.get)
+    ordered_ids: list[Any] = []
+    while ready:
+        current = ready.pop(0)
+        ordered_ids.append(current)
+        for target in sorted(outgoing[current], key=positions.get):
+            indegree[target] -= 1
+            if indegree[target] == 0:
+                ready.append(target)
+                ready.sort(key=positions.get)
+    ordered_ids.extend(node_id for node_id in sorted(by_id, key=positions.get) if node_id not in ordered_ids)
+    return [by_id[node_id] for node_id in ordered_ids]
+
+
+def _context_reference_data(node: dict[str, Any]) -> list[dict[str, Any]]:
+    """Normaliza referências de símbolo legadas e atuais para o contexto textual."""
+    references: list[dict[str, Any]] = []
+    for raw_reference in node.get("code_refs", []):
+        reference = {"symbol": raw_reference} if isinstance(raw_reference, str) else raw_reference
+        if not isinstance(reference, dict):
+            continue
+        symbol = reference.get("qualified_name") or reference.get("symbol")
+        if not isinstance(symbol, str) or not symbol.strip():
+            continue
+        references.append({
+            "symbol": symbol.strip(),
+            "file": reference.get("file"),
+            "source_dependencies": [
+                dependency.strip()
+                for dependency in reference.get("source_dependencies", [])
+                if isinstance(dependency, str) and dependency.strip()
+            ],
+        })
+    return references
+
+
+def collect_draw_context(
+    root: Path,
+    *,
+    draw_id: str | None = None,
+    level: int | None = None,
+    node_id: Any = None,
+) -> dict[str, Any]:
+    """Carrega a árvore de Draws e cria um contexto independente do backlog."""
+    entries = read_draw_index(root).get("draws", [])
+    documents = {
+        str(entry.get("id")): read_draw(root, str(entry.get("id")))
+        for entry in entries
+        if isinstance(entry, dict) and _is_draw_id(entry.get("id"))
+    }
+    if draw_id is not None:
+        if draw_id not in documents:
+            raise ValueError(f"desenho não encontrado: {draw_id}")
+        selected_ids = {draw_id}
+        pending = [draw_id]
+        while pending:
+            current = pending.pop(0)
+            for node in documents[current].get("nodes", []):
+                for child_id in _node_draw_refs(node):
+                    if child_id in documents and child_id not in selected_ids:
+                        selected_ids.add(child_id)
+                        pending.append(child_id)
+    else:
+        selected_ids = set(documents)
+
+    if level is not None and level not in HIERARCHY_ROLE_BY_LEVEL:
+        raise ValueError("nível deve estar entre 1 e 4")
+    if node_id is not None:
+        matching = {
+            current_id for current_id, document in documents.items()
+            if any(node.get("id") == node_id for node in document.get("nodes", []))
+        }
+        if not matching:
+            raise ValueError(f"nó não encontrado: {node_id}")
+        selected_ids &= matching
+
+    selected_documents = []
+    for current_id, document in documents.items():
+        hierarchy = document.get("hierarchy") if isinstance(document.get("hierarchy"), dict) else {}
+        document_level = hierarchy.get("level", 1)
+        if current_id in selected_ids and (level is None or document_level == level):
+            selected_documents.append((current_id, document))
+    selected_documents.sort(key=lambda item: (int(item[1].get("hierarchy", {}).get("level", 1)), str(item[1].get("title", "")).lower(), item[0]))
+
+    return {
+        "draws": [_context_document(document, node_id=node_id) for _, document in selected_documents],
+        "filters": {key: value for key, value in {"draw": draw_id, "level": level, "node": node_id}.items() if value is not None},
+        "draw_count": len(selected_documents),
+    }
+
+
+def _context_document(document: dict[str, Any], *, node_id: Any = None) -> dict[str, Any]:
+    """Converte um Draw em dados semânticos usados pelo renderer humano."""
+    nodes = _context_node_order(document)
+    if node_id is not None:
+        nodes = [node for node in nodes if node.get("id") == node_id]
+    by_id = {node.get("id"): node for node in document.get("nodes", []) if isinstance(node, dict)}
+    connections = []
+    for edge in document.get("edges", []):
+        if not isinstance(edge, dict) or edge.get("from") not in by_id or edge.get("to") not in by_id:
+            continue
+        connections.append({
+            "from": edge.get("from"),
+            "from_label": by_id[edge["from"]].get("label", "Nó sem nome"),
+            "to": edge.get("to"),
+            "to_label": by_id[edge["to"]].get("label", "Nó sem nome"),
+            "condition": EDGE_CONDITIONS.get(edge.get("condition"), "fluxo"),
+            "label": edge.get("label") or "",
+            "description": edge.get("description") or "",
+        })
+    ambiguities = []
+    for source_id in by_id:
+        source_connections = [edge for edge in connections if edge["from"] == source_id]
+        by_condition: dict[str, list[dict[str, Any]]] = {}
+        for edge in source_connections:
+            by_condition.setdefault(edge["condition"], []).append(edge)
+        for condition, options in by_condition.items():
+            if condition == "fluxo" or len(options) < 2:
+                continue
+            if all(not option["label"] and not option["description"] for option in options):
+                ambiguities.append(
+                    f"Nó {source_id} — {by_id[source_id].get('label', 'Nó sem nome')} possui "
+                    f"múltiplas saídas '{condition}' sem explicação suficiente."
+                )
+    return {
+        "id": document.get("id"),
+        "title": document.get("title", document.get("id")),
+        "subtitle": document.get("subtitle") or "",
+        "hierarchy": document.get("hierarchy") or {"level": 1, "role": "architecture"},
+        "questions": document.get("questions", []) if isinstance(document.get("questions"), list) else [],
+        "nodes": [{
+            "id": node.get("id"),
+            "label": node.get("label", "Nó sem nome"),
+            "description": node.get("description") or "",
+            "success_criteria": node.get("success_criteria") or "",
+            "failure_criteria": node.get("failure_criteria") or "",
+            "group": node.get("group"),
+            "draw_refs": _node_draw_refs(node),
+            "questions": node.get("questions", []) if isinstance(node.get("questions"), list) else [],
+            "references": _context_reference_data(node),
+        } for node in nodes],
+        "connections": connections,
+        "ambiguities": ambiguities,
+    }
+
+
+def _context_question_lines(questions: list[Any], prefix: str) -> list[str]:
+    lines: list[str] = []
+    for question in questions:
+        if not isinstance(question, dict):
+            continue
+        prompt = str(question.get("prompt") or "Pergunta sem texto").strip()
+        answer = question.get("answer")
+        lines.extend([f"{prefix}: {prompt}", f"Resposta: {answer if answer is not None else 'em aberto'}"])
+    return lines
+
+
+def _context_node_lines(item: dict[str, Any], node: dict[str, Any]) -> list[str]:
+    lines = [f"### Nó {node['id']} — {node['label']}" ]
+    if node["description"]:
+        lines.append(node["description"])
+    if node["success_criteria"]:
+        lines.append(f"Critério de aceitação/sucesso: {node['success_criteria']}")
+    if node["failure_criteria"]:
+        lines.append(f"Critério de rejeição/falha: {node['failure_criteria']}")
+    for connection in [edge for edge in item["connections"] if edge["from"] == node["id"]]:
+        detail = f"{connection['condition']} → Nó {connection['to']} — {connection['to_label']}"
+        if connection["label"]:
+            detail += f" ({connection['label']})"
+        lines.append(f"Conecta: {detail}")
+        if connection["description"]:
+            lines.append(f"  Contexto da conexão: {connection['description']}")
+    if node["draw_refs"]:
+        lines.append("Draws descendentes: " + ", ".join(f"`{ref}`" for ref in node["draw_refs"]))
+    for reference in node["references"]:
+        location = f" · arquivo: {reference['file']}" if reference.get("file") else ""
+        lines.append(f"Símbolo: `{reference['symbol']}`{location}")
+        if reference["source_dependencies"]:
+            lines.append("Dependências: " + ", ".join(reference["source_dependencies"]))
+    lines.extend(_context_question_lines(node.get("questions", []), "Pergunta"))
+    lines.append("")
+    return lines
+
+
+def _context_document_lines(item: dict[str, Any]) -> list[str]:
+    hierarchy = item.get("hierarchy") or {}
+    level = hierarchy.get("level", 1)
+    lines = [f"## Nível {level} — {item['title']}", f"Draw: `{item['id']}` · papel: {hierarchy.get('role', 'não informado')}"]
+    if hierarchy.get("parent_draw_ref"):
+        lines.append(f"Pai: `{hierarchy['parent_draw_ref']}` · nó {hierarchy.get('parent_node_id', 'não informado')}")
+    if item.get("subtitle"):
+        lines.append(f"Resumo: {item['subtitle']}")
+    lines.append("")
+    lines.extend(_context_question_lines(item.get("questions", []), "Pergunta do Draw"))
+    if item.get("questions"):
+        lines.append("")
+    for node in item["nodes"]:
+        lines.extend(_context_node_lines(item, node))
+    if item.get("ambiguities"):
+        lines.append("### Ambiguidades do fluxo")
+        lines.extend(f"- {ambiguity}" for ambiguity in item["ambiguities"])
+        lines.append("")
+    if not item["connections"]:
+        lines.append("Conexões: nenhuma conexão registrada.")
+    lines.append("")
+    return lines
+
+
+def format_draw_context(context: dict[str, Any]) -> str:
+    """Renderiza o contexto dos Draws em Markdown legível no terminal e em arquivo."""
+    lines = ["# Contexto estruturado dos Draws", ""]
+    filters = context.get("filters") or {}
+    if filters:
+        lines.extend(["Filtros: " + ", ".join(f"{key}={value}" for key, value in filters.items()), ""])
+    if not context.get("draws"):
+        return "\n".join(lines + ["Nenhum Draw corresponde aos filtros informados."])
+    for item in context["draws"]:
+        lines.extend(_context_document_lines(item))
+    return "\n".join(lines).rstrip() + "\n"
 
 
 def find_addressed_questions(

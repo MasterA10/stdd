@@ -47,9 +47,9 @@ looper init meu-projeto --all-integrations
 
 O `looper init` sempre sincroniza as skills já instaladas com os templates desta versão, adicionando agentes novos e atualizando instruções existentes. Se o comando ainda não reconhecer `draw-system-level-1` até `draw-system-level-4`, reinstale o CLI a partir deste checkout com `uv tool install --force --editable .` e execute o init novamente.
 
-O init também instala o `PLAYWRIGHT_GUIDE.md` na raiz do projeto com o padrão de testes E2E do Looper: Playwright em janela única visível, cursor observável, navegação orgânica e escopo configurável para L2, L3 ou ambos. Um guia já existente no projeto é preservado.
+O init instala a skill `$playwright-testing` em `.agents/skills/playwright-testing/`. Ela documenta como criar testes E2E com Playwright, explorar e diagnosticar a aplicação com `npx playwright-cli`, confirmar a estrutura antes de automatizar e executar a regressão com `looper test --playwright`.
 
-O init também instala a skill-guia `$open-design` em `.agents/skills/open-design/` (e no diretório equivalente de Claude/Gemini). Ela localiza, de forma generalizada no macOS, a biblioteca Open Design externa em `$HOME` ou `/Volumes/*/N-DOWNLOADS/arquitetura-migracao/.agents/skills/open-design`; os assets pesados não são copiados para o projeto.
+O init também instala a skill-guia `$system-design` em `.agents/skills/system-design/`. Ela mantém o design system do projeto, incluindo tokens de cor, tipografia, espaçamento, estados e acessibilidade, no `.looper/design.html`.
 
 ### Configuração por YAML
 
@@ -99,7 +99,8 @@ $draw-system-level-2 Desenhe jornadas, telas e navegação por papel a partir da
 $draw-system-level-3 Detalhe o comportamento completo de uma tela ou nó, em lotes aprovados.
 $draw-system-level-4 Rastreie sob demanda uma decisão até a codebase real.
 $static-analysis Analise dependências, complexidade, funções longas e segredos hardcoded.
-$open-design Consulte o design system, identidade visual, craft navigator e componentes de UI.
+$system-design Consulte e mantenha o design system, tokens visuais, estados e componentes reutilizáveis no `.looper/design.html`.
+$playwright-testing Crie e diagnostique testes Playwright, explorando a aplicação com `npx playwright-cli` antes da automação quando possível.
 $modern-web-guidance Consulte padrões modernos da web para interface, layouts, animações e CSS.
 $backend-developer Implemente backend modular com logging transversal e integrações externas testadas.
 $implement-change Execute em loop as changes pendentes entregues por `looper backlog change`, leia o contexto real, implemente, teste e conclua cada ID.
@@ -138,7 +139,7 @@ $implement-backend Implemente o controller/model da task entregue por looper bac
 
 O `$draw-interaction` lê as marcações do Draw e identifica se cada uma é uma pergunta ou uma tarefa. Para perguntas com `@looper` e `answer` ausente, executa `looper draw questions`, consulta a codebase e os símbolos associados; se houver evidência, grava a resposta, marca os símbolos relevantes e remove o marcador. Para pedidos de alteração, consulta `looper backlog change`; o `$implement-change` lê os símbolos e testes, implementa a change e conclui o ID reservado depois da validação. Sem `@looper`, a pergunta pertence ao usuário ou a um revisor humano; respostas já preenchidas, inclusive `false` e `0`, não geram nova ação. O `$draw-improve` preserva essa responsabilidade separada.
 
-As skills `$draw-system-level-1` a `$draw-system-level-4` criam uma árvore sem fluxos órfãos: nível 1 contém somente arquitetura macro, nível 2 acompanha jornadas e navegação por papel, nível 3 detalha de ponta a ponta as ações possíveis de cada tela em dois ou mais lotes aprovados e nível 4 liga a codebase sob demanda. No nível 2, cada nó deve ter ao menos um `code_refs`; `looper draw create` informa a lacuna e `looper test` bloqueia com `draw.level2_missing_code_ref`. O mesmo gate bloqueia `draw.level3_missing_code_ref`, `draw.level4_missing_code_ref` e `draw.empty_node_symbol`; duplicação de símbolo continua sendo warning. No nível 3, cada ação comprovada da tela inicia um nó próprio conectado ao comportamento de caso de uso; a tela não é substituída por um fluxo genérico. A análise estática avisa quando um subfluxo de nível 3 tem menos de quatro nós ou quando alguma descrição tem menos de 80 caracteres; esses avisos continuam informativos. Cada filho declara seu pai e cada pai aponta para o filho com `draw_ref`; caminhos ainda não implementados terminam no próprio nó, sem continuação fictícia.
+As skills `$draw-system-level-1` a `$draw-system-level-4` criam uma árvore sem fluxos órfãos: nível 1 contém somente arquitetura macro, nível 2 acompanha jornadas e navegação por papel, nível 3 detalha de ponta a ponta as ações possíveis de cada tela em dois ou mais lotes aprovados e nível 4 liga a codebase sob demanda. Durante a especificação e enquanto a implementação estiver pendente, os nós podem permanecer sem `code_refs`; não invente símbolos ou use placeholders. Depois que a task estiver concluída no backlog, `looper test` exige os símbolos reais e bloqueia com `draw.level2_missing_code_ref`, `draw.level3_missing_code_ref`, `draw.level4_missing_code_ref` ou `draw.empty_node_symbol`. No nível 3, cada ação comprovada da tela inicia um nó próprio conectado ao comportamento de caso de uso; a tela não é substituída por um fluxo genérico. A análise estática avisa quando um subfluxo de nível 3 tem menos de quatro nós ou quando alguma descrição tem menos de 80 caracteres; esses avisos continuam informativos. Cada filho declara seu pai e cada pai aponta para o filho com `draw_ref`; caminhos ainda não implementados terminam no próprio nó, sem continuação fictícia.
 
 Para Claude e Gemini, as mesmas skills são instaladas em `.claude/skills/` e `.gemini/skills/`; a forma exata de chamada pode ser o comando de skill adotado pelo agente, mas os nomes e contratos permanecem iguais.
 
@@ -186,6 +187,17 @@ looper draw diff --run-id <run-id>
 
 Sem `--run-id`, o comando compara o estado atual com o último checkpoint salvo em `.looper/runs/`; com `--run-id`, ele reexibe o diff histórico daquela interação. Em ambos os casos, considera apenas JSONs diretos de `.looper/draws/`, exclui `index.json` e não consulta GitHub, `git diff` nem arquivos da codebase.
 
+Para entregar todo o contexto dos Draws em uma leitura textual ordenada por nível, com conexões, perguntas, respostas e símbolos:
+
+```bash
+looper draw context
+looper draw context --draw <draw-id> --level <1-4>
+looper draw context --node <node-id>
+looper draw context --save
+```
+
+Sem filtros, o comando percorre a árvore completa. A saída é exibida no terminal; `--save` grava a mesma representação em `.looper/draw-context.md`. O comando reconstrói a ordem pelas arestas e relações hierárquicas, e aponta ambiguidades quando os JSONs não determinam uma sequência única.
+
 Para entregar as perguntas pendentes do Draw Interaction em uma leitura humana, agrupadas por desenho e nó, use:
 
 ```bash
@@ -216,7 +228,7 @@ O campo `.looper/config.yaml:instructions` é a informação crítica persistent
 
 ### Revisão automática por subagente
 
-Após o intervalo configurado de tasks concluídas, a revisão opcional chama Agy por padrão (`agy -p ... --dangerously-skip-permissions`), ou Codex CLI (`codex exec`) quando selecionado na seção `review` de `.looper/config.yaml`. Configure `enabled`, `interval_tasks`, `execution_mode` (`terminal` ou `tmux`), o agente, os gatilhos por fase (`test`, `implementation`, `change`) e escopo (`l2`, `l3`, `l2_and_l3`, `all`), além do modelo, reasoning, prompt e comando. A revisão é executada com `looper backlog complete` ou manualmente:
+Após o intervalo configurado de tasks concluídas, a revisão opcional chama Agy por padrão (`agy -p ... --dangerously-skip-permissions`), ou Codex CLI (`codex exec`) quando selecionado na seção `review` de `.looper/config.yaml`. Configure `enabled`, `interval_tasks`, `execution_mode: tmux`, o agente, os gatilhos por fase (`test`, `implementation`, `change`) e escopo (`l2`, `l3`, `l2_and_l3`, `all`), além do modelo, reasoning, prompt e comando. Revisões e correções executadas por subagentes usam somente Tmux; em uma interação comum, pergunte antes de iniciar um subagente, salvo quando o usuário já tiver solicitado isso claramente. A revisão é executada com `looper backlog complete` ou manualmente:
 
 ```bash
 looper backlog review task:meu-draw:node:1 --agent codex --scope l2_and_l3
@@ -295,7 +307,7 @@ Testes Playwright são separados dos testes de regressão: declare a suíte com 
 looper test --playwright
 ```
 Se `.looper/backlog.json` existir, o alias também executa o gate do backlog e bloqueia enquanto houver task sem `backlog complete` ou nó de nível 2 sem teste comprovado; a saída do terminal mostra somente status e contagens, mantendo os detalhes no relatório estruturado.
-Quando a análise encontrar um nó de nível 2, 3 ou 4 sem símbolo, a saída inclui o `kind`, o arquivo do Draw e o `node_id` do achado bloqueante (`draw.level*_missing_code_ref` ou `draw.empty_node_symbol`).
+Quando a análise encontrar um nó já concluído no backlog sem símbolo, a saída inclui o `kind`, o arquivo do Draw e o `node_id` do achado bloqueante (`draw.level*_missing_code_ref` ou `draw.empty_node_symbol`). Nós ainda em especificação ou implementação pendente não geram bloqueio por ausência de símbolo.
 
 Opções úteis:
 

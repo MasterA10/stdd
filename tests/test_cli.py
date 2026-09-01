@@ -45,7 +45,7 @@ def test_init_can_install_skills_for_all_supported_agents(tmp_path: Path):
     for directory in (".agents", ".claude", ".gemini"):
         assert (tmp_path / directory / "skills" / "setup" / "SKILL.md").exists()
         assert (tmp_path / directory / "skills" / "modern-web-guidance" / "SKILL.md").exists()
-        assert (tmp_path / directory / "skills" / "open-design" / "SKILL.md").exists()
+        assert (tmp_path / directory / "skills" / "system-design" / "SKILL.md").exists()
         assert (tmp_path / directory / "skills" / "draw-interaction" / "SKILL.md").exists()
         assert (tmp_path / directory / "skills" / "draw-improve" / "SKILL.md").exists()
         for level in range(1, 5):
@@ -533,6 +533,10 @@ def test_test_cli_blocks_draw_node_without_associated_symbol(tmp_path: Path, mon
         "test_commands": [{"name": "unit", "command": [sys.executable, "-c", "print('unit')"]}],
         "static_analysis": {"enabled": True, "adapter_command": None},
     }), encoding="utf-8")
+    (tmp_path / ".looper" / "backlog.json").write_text(json.dumps({"tasks": [{
+        "id": "task:journey:node:1", "draw_id": "journey", "node_id": 1,
+        "status": "done", "checklist_state": {"implementation": True},
+    }]}), encoding="utf-8")
 
     result = runner.invoke(app, ["test"])
 
@@ -569,8 +573,8 @@ def test_draw_symbols_lists_missing_nodes_without_running_test_suites(tmp_path: 
     result = runner.invoke(app, ["draw", "symbols"])
 
     report = json.loads(result.stdout)
-    assert result.exit_code == 1
-    assert report["status"] == "blocked"
+    assert result.exit_code == 0
+    assert report["status"] == "passed"
     assert report["summary"] == {"nodes": 2, "associated": 1, "missing": 1, "draws": 1}
     assert report["draws"][0]["symbols"] == ["journey.start"]
     assert report["draws"][1]["status"] == "missing"

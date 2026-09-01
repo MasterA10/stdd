@@ -32,7 +32,7 @@ Inclua somente fatos comprovados que explicam a decisão autorizada:
 
 Associe `code_refs` no próprio nó correspondente e declare `source_dependencies` quando o fato estiver disponível. Se o símbolo não puder ser resolvido, use uma `question` ou marque a associação como pendente. Nunca invente arquivo, classe, model, procedure, RPC, SQL, query ou qualified name.
 
-Quando a implementação atravessar RPC, inclua o handler ou consumidor real e o contrato/interface remoto. Quando a lógica estiver no banco, associe o símbolo SQL e o arquivo de migration, schema ou SQL que contém a implementação.
+Quando a implementação atravessar RPC, inclua o handler ou consumidor real e o contrato/interface remoto. Quando a lógica estiver no banco, associe o símbolo SQL e o arquivo de migration, schema ou SQL que contém a implementação. Durante a especificação, o nó pode permanecer sem `code_refs`; depois que a implementação correspondente for concluída, a associação ao arquivo e aos símbolos reais passa a ser obrigatória.
 
 ## Nível 4 não é linguagem de produto
 

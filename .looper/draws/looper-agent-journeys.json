@@ -86,7 +86,14 @@
       "id": 9,
       "label": "looper test e looper log",
       "group": 4,
-      "description": "Não são agentes: são gates e evidências operacionais que verificam e registram o trabalho conduzido pelas skills."
+      "description": "Não são agentes: são gates e evidências operacionais que verificam e registram o trabalho conduzido pelas skills. O comando looper draw context organiza todos os níveis, conexões, perguntas, respostas e símbolos em texto para consumo do agente. Revisões e correções delegadas a subagentes usam exclusivamente sessões tmux após autorização do usuário.",
+      "code_refs": [
+        {"file": "src/looper/cli.py", "symbol": "looper.cli.draw_context"},
+        {"file": "src/looper/draw.py", "symbol": "looper.draw.collect_draw_context"},
+        {"file": "src/looper/draw.py", "symbol": "looper.draw.format_draw_context"},
+        {"file": "src/looper/reviews.py", "symbol": "looper.reviews.load_review_config"},
+        {"file": "src/looper/reviews.py", "symbol": "looper.reviews._run_agent"}
+      ]
     },
     {
       "id": 10,

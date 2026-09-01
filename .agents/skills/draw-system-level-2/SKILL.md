@@ -31,7 +31,7 @@ Para cada tela, registre:
 - dados e estados que o papel consegue observar;
 - `code_refs` dos componentes frontend/interface reais, como React, Vue, HTML, templates, views, `.tsx` e `.jsx`, quando a análise estática os comprovar.
 
-Todo nó de um desenho com `hierarchy.level: 2` deve possuir pelo menos um `code_refs`. A análise estática e o comando `looper draw create` emitem `draw.level2_missing_code_ref`; a criação visual continua possível, mas `looper test` bloqueia cada nó sem referência. Se o símbolo ainda não puder ser resolvido, registrar a associação como pendente ou criar uma pergunta, sem inventar arquivo ou componente.
+Durante a especificação, nós de `hierarchy.level: 2` podem permanecer sem `code_refs`; não invente arquivo, função ou símbolo placeholder. Essa ausência não deve bloquear a criação ou a documentação. Depois que a implementação da task for concluída, o nó deve receber referência ao arquivo e, quando possível, à função/componente real. O `looper test` só bloqueia `draw.level2_missing_code_ref` para nós marcados como implementados no backlog.
 
 ### Exemplo de exaustividade
 

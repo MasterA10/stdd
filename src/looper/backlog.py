@@ -2418,7 +2418,7 @@ def next_backlog_test(root: Path, layer: str | None = None) -> dict[str, Any]:
     write_backlog(root, payload)
     if task.get("level") == 2:
         test_instruction = (
-            "Crie um teste de interface com Playwright para a tela L2, seguindo obrigatoriamente o PLAYWRIGHT_GUIDE.md "
+            "Crie um teste de interface com Playwright para a tela L2, seguindo a skill $playwright-testing "
             "da raiz do projeto: use janela única contínua, execução headed/sequencial quando configurada, "
             "installMousePointer, moveAndClick e moveAndFill; navegue organicamente por links e botões reais e use page.goto "
             "somente no ponto inicial da jornada. Valide os elementos visíveis, "

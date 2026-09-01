@@ -29,7 +29,7 @@ DEFAULT_REVIEW_CONFIG: dict[str, Any] = {
     "enabled": False,
     "default_agent": "agy",
     "interval_tasks": 1,
-    "execution_mode": "terminal",
+    "execution_mode": "tmux",
     "completed_since_last_review": 0,
     "reasoning": "high",
     "timeout_seconds": 900,
@@ -91,12 +91,12 @@ def load_review_config(root: Path) -> dict[str, Any]:
         except (TypeError, ValueError):
             data["interval_tasks"] = 1
         changed = True
-    for key, value in (("interval_tasks", 1), ("execution_mode", "terminal"), ("completed_since_last_review", 0)):
+    for key, value in (("interval_tasks", 1), ("execution_mode", "tmux"), ("completed_since_last_review", 0)):
         if key not in data:
             data[key] = value
             changed = True
-    if data.get("execution_mode") not in {"terminal", "tmux"}:
-        data["execution_mode"] = "terminal"
+    if data.get("execution_mode") != "tmux":
+        data["execution_mode"] = "tmux"
         changed = True
     if changed:
         project = load_config(root)
@@ -195,14 +195,6 @@ def _command(config: dict[str, Any], agent: str, model: str, reasoning: str, pro
     return rendered
 
 
-def _run_terminal(command: list[str], root: Path, timeout: int) -> tuple[int, str, str]:
-    try:
-        completed = subprocess.run(command, cwd=root, capture_output=True, text=True, timeout=timeout, check=False)
-        return completed.returncode, completed.stdout, completed.stderr
-    except (OSError, subprocess.TimeoutExpired) as error:
-        return -1, "", str(error)
-
-
 def _run_tmux(command: list[str], root: Path, timeout: int, review_id: str) -> tuple[int, str, str]:
     """Executa o CLI do agente em uma sessão tmux e aguarda seu término."""
     session = f"looper-review-{review_id[:10]}"
@@ -239,9 +231,8 @@ def _run_tmux(command: list[str], root: Path, timeout: int, review_id: str) -> t
 
 
 def _run_agent(config: dict[str, Any], command: list[str], root: Path, timeout: int, review_id: str) -> tuple[int, str, str]:
-    if config.get("execution_mode", "terminal") == "tmux":
-        return _run_tmux(command, root, timeout, review_id)
-    return _run_terminal(command, root, timeout)
+    """Executa qualquer subagente isolado em uma sessão tmux."""
+    return _run_tmux(command, root, timeout, review_id)
 
 
 def run_review(

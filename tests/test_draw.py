@@ -6,7 +6,7 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from looper.cli import app
-from looper.draw import analyze_draw_contract, analyze_draw_structure, consume_observation, create_draw, create_server, draw_revision, find_addressed_questions, read_draw_index, start_server_for_test
+from looper.draw import analyze_draw_contract, analyze_draw_structure, collect_draw_context, consume_observation, create_draw, create_server, draw_revision, find_addressed_questions, format_draw_context, read_draw_index, start_server_for_test
 from looper.improvements import create_improvement, list_ready_improvements, mark_improvement_applied, read_improvement
 
 
@@ -61,6 +61,56 @@ def test_init_installs_example_draw_idempotently(tmp_path: Path, monkeypatch):
     index = json.loads((tmp_path / ".looper/draws/index.json").read_text())
     assert [entry["id"] for entry in index["draws"]].count("demo-inicial") == 1
     assert len(json.loads((tmp_path / ".looper/draws/demo-inicial.json").read_text())["nodes"]) > 0
+
+
+def test_draw_context_reconstructs_hierarchy_connections_and_exports_markdown(tmp_path: Path, monkeypatch):
+    """Entrega o contexto dos níveis em ordem humana e permite salvá-lo no armazenamento do Looper."""
+    monkeypatch.chdir(tmp_path)
+    root_payload = draw_payload("sistema")
+    root_payload.update({
+        "title": "Sistema",
+        "hierarchy": {"level": 1, "role": "architecture", "root_draw_ref": "sistema"},
+    })
+    root_payload["nodes"][0]["draw_ref"] = "jornada"
+    create_draw(tmp_path, root_payload)
+
+    child_payload = draw_payload("jornada")
+    child_payload.update({
+        "title": "Jornada de compra",
+        "hierarchy": {
+            "level": 2,
+            "role": "journey",
+            "parent_draw_ref": "sistema",
+            "parent_node_id": 1,
+            "root_draw_ref": "sistema",
+        },
+    })
+    child_payload["nodes"][0].update({
+        "code_refs": [{"symbol": "checkout.start", "file": "src/checkout.py"}],
+        "success_criteria": "A configuração salva aparece para o usuário.",
+        "failure_criteria": "A configuração inválida impede o avanço.",
+    })
+    child_payload["nodes"][0]["questions"] = [{"id": 1, "type": "open", "prompt": "Qual meio de pagamento?", "answer": "Cartão"}]
+    create_draw(tmp_path, child_payload)
+
+    context = collect_draw_context(tmp_path)
+    output = format_draw_context(context)
+    assert output.index("Nível 1") < output.index("Nível 2")
+    assert "Pai: `sistema` · nó 1" in output
+    assert "Conecta: se → Nó 2 — Pagamento" in output
+    assert "Draws descendentes: `jornada`" in output
+    assert "Símbolo: `checkout.start` · arquivo: src/checkout.py" in output
+    assert "Critério de aceitação/sucesso: A configuração salva aparece para o usuário." in output
+    assert "Critério de rejeição/falha: A configuração inválida impede o avanço." in output
+    assert "Pergunta: Qual meio de pagamento?" in output
+    assert "Resposta: Cartão" in output
+
+    result = runner.invoke(app, ["draw", "context", "--draw", "sistema", "--level", "2", "--save"])
+    assert result.exit_code == 0, result.output
+    exported = tmp_path / ".looper/draw-context.md"
+    assert exported.exists()
+    assert "Jornada de compra" in exported.read_text(encoding="utf-8")
+    assert "Sistema" not in exported.read_text(encoding="utf-8")
 
 
 def test_init_removes_legacy_draw_viewer(tmp_path: Path, monkeypatch):
@@ -695,12 +745,20 @@ def test_level_two_contract_warns_for_nodes_without_code_refs(tmp_path: Path):
     payload["hierarchy"] = {"level": 2, "role": "journey", "root_draw_ref": "journey-without-refs"}
     payload["nodes"][0]["code_refs"] = [{"symbol": "ui.Checkout"}]
 
-    findings = analyze_draw_contract(payload, ".looper/draws/journey-without-refs.json")
+    findings = analyze_draw_contract(payload, ".looper/draws/journey-without-refs.json", {2})
 
     assert len(findings) == 1
     assert findings[0]["kind"] == "draw.level2_missing_code_ref"
     assert findings[0]["node_id"] == 2
     assert findings[0]["severity"] == "blocking"
+
+
+def test_level_two_contract_allows_missing_code_refs_before_implementation():
+    """Permite especificar uma tela antes de existir código implementado."""
+    payload = draw_payload("journey-specification")
+    payload["hierarchy"] = {"level": 2, "role": "journey", "root_draw_ref": "journey-specification"}
+
+    assert analyze_draw_contract(payload, ".looper/draws/journey-specification.json") == []
 
 
 def test_draw_contract_warns_for_empty_or_unnamed_node_symbols():
@@ -711,7 +769,7 @@ def test_draw_contract_warns_for_empty_or_unnamed_node_symbols():
     payload["nodes"][0]["code_refs"] = [{"symbol": ""}]
     payload["nodes"][1]["code_refs"] = [{"symbol": "unnamed"}]
 
-    findings = analyze_draw_contract(payload, ".looper/draws/draw-empty-symbols.json")
+    findings = analyze_draw_contract(payload, ".looper/draws/draw-empty-symbols.json", {1, 2})
 
     kinds = [finding["kind"] for finding in findings]
     assert kinds.count("draw.empty_node_symbol") == 2
@@ -746,12 +804,12 @@ def test_draw_contract_warns_for_level3_and_level4_missing_code_refs():
     """
     payload3 = draw_payload("level3-missing")
     payload3["hierarchy"] = {"level": 3, "role": "implementation", "parent_draw_ref": "p", "parent_node_id": 1, "root_draw_ref": "r"}
-    findings3 = analyze_draw_contract(payload3, ".looper/draws/level3-missing.json")
+    findings3 = analyze_draw_contract(payload3, ".looper/draws/level3-missing.json", {1})
     assert any(f["kind"] == "draw.level3_missing_code_ref" for f in findings3)
 
     payload4 = draw_payload("level4-missing")
     payload4["hierarchy"] = {"level": 4, "role": "codebase", "parent_draw_ref": "p", "parent_node_id": 1, "root_draw_ref": "r"}
-    findings4 = analyze_draw_contract(payload4, ".looper/draws/level4-missing.json")
+    findings4 = analyze_draw_contract(payload4, ".looper/draws/level4-missing.json", {1})
     assert any(f["kind"] == "draw.level4_missing_code_ref" for f in findings4)
 
 
@@ -784,8 +842,7 @@ def test_draw_create_reports_level_two_code_ref_warning_without_blocking(tmp_pat
     result = runner.invoke(app, ["draw", "create", "--data-json", json.dumps(payload, ensure_ascii=False)])
 
     assert result.exit_code == 0
-    assert "draw.level2_missing_code_ref" in result.stdout
-    assert "nenhum warning bloqueia a criação" in result.stdout
+    assert "draw.level2_missing_code_ref" not in result.stdout
     assert (tmp_path / ".looper/draws/journey-create-warning.json").exists()
 
 
@@ -1009,7 +1066,7 @@ def test_looper_create_top_level_command_creates_draw_and_reports_symbol_warning
     result = runner.invoke(app, ["create", "--data-json", data_json])
 
     assert result.exit_code == 0
-    assert "draw.empty_node_symbol" in result.stdout
+    assert "draw.empty_node_symbol" not in result.stdout
     assert (tmp_path / ".looper/draws/top-level-create.json").exists()
 
 

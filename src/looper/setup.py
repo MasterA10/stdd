@@ -13,22 +13,35 @@ from typing import Any
 from .config import load_config, save_config
 
 
-SUPPORTED_INTEGRATIONS = ("codex", "claude", "gemini")
-DESIGN_TEMPLATE = """# Design do projeto
+SUPPORTED_INTEGRATIONS = ("codex",)
+DESIGN_TEMPLATE = """<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><title>Design system do projeto</title></head>
+<body>
+<h1>Design system do projeto</h1>
+<p data-status="incomplete">[PREENCHER] Substitua este bloco pelas decisões visuais aprovadas.</p>
 
-> [PREENCHER] Substitua este bloco pela decisão visual e de interação do produto.
+> [PREENCHER] Substitua este bloco pelas decisões visuais aprovadas do produto.
 
-## Identidade visual
+<h2>Identidade visual</h2>
 
-- Marca, tom e referências: [PREENCHER]
-- Tipografia e hierarquia: [PREENCHER]
-- Cores e estados: [PREENCHER]
+<ul><li>Marca, tom e referências: [PREENCHER]</li>
+<li>Tipografia e hierarquia: [PREENCHER]</li>
+<li>Cores e estados: [PREENCHER]</li></ul>
 
-## Sistema de interface
+<h2>Tokens do sistema</h2>
 
-- Espaçamento e densidade: [PREENCHER]
-- Estados de loading, vazio, erro, sucesso e foco: [PREENCHER]
-- Acessibilidade e contraste mínimo: texto normal 4.5:1; texto grande 3:1; componentes 3:1.
+<ul><li>Cores semânticas (surface, text, border, action e feedback): [PREENCHER]</li>
+<li>Tipografia (famílias, escala, pesos e line-height): [PREENCHER]</li>
+<li>Espaçamento, grid, containers e breakpoints: [PREENCHER]</li>
+<li>Raios, bordas, sombras e densidade: [PREENCHER]</li></ul>
+
+<h2>Componentes e estados</h2>
+
+<ul><li>Estados de loading, vazio, erro, sucesso, hover, ativo, desabilitado e foco: [PREENCHER]</li>
+<li>Movimento e <code>prefers-reduced-motion</code>: [PREENCHER]</li>
+<li>Acessibilidade e contraste mínimo: texto normal 4.5:1; texto grande 3:1; componentes 3:1.</li></ul>
+</body></html>
 
 ## Integrações externas
 
@@ -38,7 +51,7 @@ DESIGN_TEMPLATE = """# Design do projeto
 
 def ensure_design_document(root: Path) -> Path:
     """Cria o documento de design versionável sem fingir decisões do produto."""
-    path = root / ".looper" / "design.md"
+    path = root / ".looper" / "design.html"
     path.parent.mkdir(parents=True, exist_ok=True)
     if not path.exists():
         path.write_text(DESIGN_TEMPLATE, encoding="utf-8")
@@ -47,18 +60,18 @@ def ensure_design_document(root: Path) -> Path:
 
 def bootstrap_design_status(root: Path) -> dict[str, Any]:
     """Retorna a evidência do design sem aceitar template não preenchido."""
-    path = root / ".looper" / "design.md"
+    path = root / ".looper" / "design.html"
     if not path.is_file():
-        return {"status": "blocked", "reason": "design_missing", "file": ".looper/design.md"}
+        return {"status": "blocked", "reason": "design_missing", "file": ".looper/design.html"}
     try:
         content = path.read_text(encoding="utf-8")
     except OSError:
-        return {"status": "blocked", "reason": "design_unreadable", "file": ".looper/design.md"}
+        return {"status": "blocked", "reason": "design_unreadable", "file": ".looper/design.html"}
     if not content.strip():
-        return {"status": "blocked", "reason": "design_empty", "file": ".looper/design.md"}
+        return {"status": "blocked", "reason": "design_empty", "file": ".looper/design.html"}
     if "[PREENCHER]" in content:
-        return {"status": "blocked", "reason": "design_template_unfilled", "file": ".looper/design.md"}
-    return {"status": "passed", "file": ".looper/design.md"}
+        return {"status": "blocked", "reason": "design_template_unfilled", "file": ".looper/design.html"}
+    return {"status": "passed", "file": ".looper/design.html"}
 STACK_GITIGNORE_RULES = {
     "python": (".pytest_cache/", ".mypy_cache/", ".ruff_cache/"),
     "javascript": ("dist/",),

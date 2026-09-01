@@ -130,7 +130,9 @@ feature alcançável, não apenas o trecho exercitado pelo teste mais direto.
 Antes de concluir, registre testes executados, falhas preexistentes ou pré-condições
 ausentes, Draws e referências atualizados, limitações e camadas entregues. O gate inclui
 `draw.level2_missing_code_ref`, `draw.level3_missing_code_ref`,
-`draw.level4_missing_code_ref` e `draw.empty_node_symbol`.
+`draw.level4_missing_code_ref` e `draw.empty_node_symbol` somente após a task estar
+concluída no backlog; durante a especificação ou implementação pendente, não invente
+símbolos nem use placeholders.
 
 Use cobertura proporcional também para frontend e markdown quando fizerem parte do
 escopo. Teste live, pgTAP, performance, segurança, isolamento e pentest só são exigidos

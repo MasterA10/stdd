@@ -30,7 +30,7 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert (tmp_path / ".agents/skills/setup/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/static-analysis/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/modern-web-guidance/SKILL.md").exists()
-    assert (tmp_path / ".agents/skills/open-design/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/system-design/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-feature/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-improve/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-interaction/SKILL.md").exists()
@@ -42,47 +42,23 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert (tmp_path / ".agents/skills/draw-improve/agents/openai.yaml").exists()
     assert (tmp_path / "AGENTS.md").exists()
     assert "looper test" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
-    assert "$open-design" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
-    open_design = (tmp_path / ".agents/skills/open-design/SKILL.md").read_text(encoding="utf-8")
-    assert "OPEN_DESIGN_ROOT" in open_design
-    assert "/Volumes" in open_design
-    assert "must not be copied" in open_design
+    assert "$system-design" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "subagentes" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "tmux" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    system_design = (tmp_path / ".agents/skills/system-design/SKILL.md").read_text(encoding="utf-8")
+    assert "design tokens" in system_design
+    assert "`.looper/design.html`" in system_design
     assert "playwright-cli" in (tmp_path / ".agents/skills/test-application/SKILL.md").read_text().lower()
     assert not (tmp_path / ".agents/skills/create-tests/SKILL.md").exists()
     assert not (tmp_path / ".agents/skills/implement/SKILL.md").exists()
+    playwright_skill = (tmp_path / ".agents/skills/playwright-testing/SKILL.md").read_text(encoding="utf-8")
+    assert "npx playwright-cli" in playwright_skill
+    assert "Navegar não é obrigatório" in playwright_skill
+    assert "estrutura acessível" in playwright_skill
     for source in agent_templates():
         installed = tmp_path / ".agents" / "skills" / source.parent.name / "SKILL.md"
         assert installed.read_text(encoding="utf-8") == source.read_text(encoding="utf-8")
-    guide = (tmp_path / "PLAYWRIGHT_GUIDE.md").read_text(encoding="utf-8")
-    assert "installMousePointer" in guide
-    assert "moveAndClick" in guide
-    assert "moveAndFill" in guide
-    assert "headless: false" in guide
-    assert "slowMo: 100" in guide
-    assert "scroll-behavior: smooth" in guide
-    assert "smoothScrollIntoView" in guide
-    assert "behavior: 'smooth'" in guide
-    assert "block: 'center'" in guide
-    assert "test_scope: both" in guide
-    assert "estado final previsto" in guide
-    assert "try/catch" in guide
-    assert "código diferente de zero" in guide
-    assert "As inscrições estão temporariamente fechadas" in guide
-    assert "btnComprar" in guide
-    assert "deve existir e estar visível" in guide
-    assert "Ainda não existe teste Playwright" in guide
-    assert "Já existe teste Playwright para o fluxo" in guide
-    assert "playwright-cli" in guide
-
-
-def test_init_preserves_existing_playwright_guide(tmp_path: Path):
-    """Não substitui convenções Playwright já definidas pelo projeto."""
-    guide = tmp_path / "PLAYWRIGHT_GUIDE.md"
-    guide.write_text("guia específico do projeto\n", encoding="utf-8")
-
-    init_project(tmp_path)
-
-    assert guide.read_text(encoding="utf-8") == "guia específico do projeto\n"
+    assert not (tmp_path / "PLAYWRIGHT_GUIDE.md").exists()
 
 
 def test_init_migrates_legacy_looper_state_and_text_references(tmp_path: Path):
@@ -263,7 +239,7 @@ def test_init_injects_idempotent_instructions_for_all_agents(tmp_path: Path):
         assert "push" in content
         assert "branch `main`" in content
         assert "uv tool install --force --editable ." in content
-        assert ".looper/design.md" in content
+        assert ".looper/design.html" in content
         assert "fonte obrigatória de decisões visuais" in content
         assert "Draws são a documentação oficial" in content
         assert "respeitando a hierarquia L2/L3" in content
@@ -320,8 +296,9 @@ def test_agents_are_loaded_from_markdown_templates():
         "implement-frontend",
         "implement-change",
         "modern-web-guidance",
+        "playwright-testing",
         "mock-server",
-        "open-design",
+        "system-design",
         "setup",
         "static-analysis",
     }
@@ -341,6 +318,7 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "backlog-change-empty" in templates["implement-change"].read_text()
     assert "# Setup Agent" in templates["setup"].read_text()
     assert "# Modern Web Guidance" in templates["modern-web-guidance"].read_text()
+    assert "# Playwright Testing" in templates["playwright-testing"].read_text()
     assert "complexidade ciclomática" in templates["static-analysis"].read_text()
     assert "long_function" in templates["static-analysis"].read_text()
     assert "acima de 150" in templates["static-analysis"].read_text()
@@ -361,7 +339,7 @@ def test_agents_are_loaded_from_markdown_templates():
     for required in ("nível 1", "parent_draw_ref", "parent_node_id", "root_draw_ref", "jornadas do usuário", "sem fluxos órfãos", "code_refs"):
         assert required in level_one
     level_two = templates["draw-system-level-2"].read_text().lower()
-    for required in ("nível 2", "jornadas", "administrador", "permissões", "frontend/interface", "não implementado", "draw_ref", "draw.level2_missing_code_ref", "bloqueia cada nó"):
+    for required in ("nível 2", "jornadas", "administrador", "permissões", "frontend/interface", "não implementado", "draw_ref", "draw.level2_missing_code_ref", "não deve bloquear"):
         assert required in level_two
     level_three = templates["draw-system-level-3"].read_text().lower()
     for required in ("nível 3", "dois lotes", "mais lotes", "ponta a ponta", "tudo o que é possível fazer", "chat", "marketplace", "code_refs", "source_dependencies", "no mínimo quatro nós", "no mínimo 80 caracteres", "warning", "draw.level3_min_nodes", "draw.level3_short_description", "description", "label", "edge.description", "obrigatoriedade de leitura do símbolo", "leitura prévia"):
@@ -479,18 +457,18 @@ def test_contextual_memory_routes_durable_rules_to_the_right_document():
     Confirma que as skills orientam o registro durável sem transformar logs em contexto.
     """
     agents = Path("AGENTS.md").read_text(encoding="utf-8").lower()
-    design = Path(".looper/design.md").read_text(encoding="utf-8").lower()
+    design = Path(".looper/design.html").read_text(encoding="utf-8").lower()
 
     assert "memória contextual seletiva" in agents
     assert "contratos, arquitetura, operação" in agents
     assert "não registre hipóteses" in agents
-    assert "decisões confirmadas de interface" in design
-    assert "ctrl/cmd+c" in design
-    assert "nota ponderada" in design
+    assert "tokens" in design
+    assert "4.5:1" in design
+    assert "prefers-reduced-motion" in design
     for name in ("test-application", "implement-backend", "implement-frontend"):
         skill = Path(f"src/looper/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         assert "memória contextual seletiva" in skill
-        assert ".looper/design.md" in skill
+        assert ".looper/design.html" in skill
         assert "não registre" in skill
 
 

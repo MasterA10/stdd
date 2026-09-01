@@ -29,6 +29,13 @@ ler árvore do Draw e code_refs
 O plano é obrigatório antes de criar ou alterar uma suíte. Se o usuário já tiver
 aprovado um plano explícito na mesma conversa, prossiga sem repetir a pergunta.
 
+Suítes de regressão da codebase e suítes Playwright são capacidades separadas. Ao
+criar uma suíte Playwright, registre-a em `test_commands` com `type: playwright`.
+O comando `looper test` não executa Playwright por padrão; para uma validação E2E,
+use explicitamente `looper test --playwright`. A ausência da flag não significa
+que o teste foi esquecido: ele deve aparecer como `not_executed` com o motivo
+`playwright_opt_in_required`.
+
 ## Leitura e descoberta
 
 1. Procure `.looper/draws/`, índice, raiz de sistema e os Draws L1–L4 relacionados.
@@ -122,13 +129,17 @@ Não comece a implementação sem aprovação do plano. Uma confirmação curta 
    instalar dependências ou iniciar serviços.
 2. Implemente os cenários aprovados, incluindo sucesso, erro, limites, autorização,
    transições e efeitos reais descritos no fluxo. Nomeie testes pelo comportamento.
-3. Para L2, use primeiro `playwright-cli` para abrir a aplicação, navegar pelas telas,
-   inspecionar snapshots, verificar estados antes/depois e diagnosticar. Depois
-   implemente os cenários aprovados com Playwright Test e execute-os pela CLI (`npx
-   playwright test` ou o comando local equivalente). Consulte `playwright-cli --help`/
-   `npx playwright --help` quando a versão instalada divergir. Use a aplicação real,
-   aguarde estados observáveis — não tempos fixos — e capture screenshots/traces sem
-   dados sensíveis quando ajudarem a diagnosticar.
+3. Para L2, diferencie os dois modos: se ainda não houver teste Playwright para o
+   fluxo, use `playwright-cli` para abrir a aplicação, navegar pelas telas, inspecionar
+   snapshots e provar que a jornada está presente e funcional; registre falha ou
+   bloqueio se qualquer etapa não funcionar, sem declarar uma suíte automatizada.
+   Quando já houver teste Playwright, use o `playwright-cli` para explorar/diagnosticar
+   e crie ou atualize o script Playwright de regressão para repetir o fluxo real com
+   locators e asserções rígidas. Execute a regressão pela CLI (`npx playwright test`
+   ou o comando local equivalente). Consulte `playwright-cli --help`/`npx playwright
+   --help` quando a versão instalada divergir. Use a aplicação real, aguarde estados
+   observáveis — não tempos fixos — e capture screenshots/traces sem dados sensíveis
+   quando ajudarem a diagnosticar.
 4. Para persistência, prepare dados isolados, execute a ação pelo caminho público do
    sistema e confirme o antes/depois no banco. Inclua rollback, constraints,
    concorrência, duplicidade e limpeza quando forem consequências do fluxo. Nunca
@@ -139,7 +150,13 @@ Não comece a implementação sem aprovação do plano. Uma confirmação curta 
    testada ou skips silenciosos. O mock pode representar entrada externa quando ela não
    chega ao ambiente local; lógica, persistência e efeitos devem permanecer reais no
    nível escolhido.
-7. Se um teste falhar por defeito da aplicação, registre a falha com evidência e pare
+7. Toda jornada Playwright só passa depois de uma asserção explícita do estado final
+   previsto no Draw. Se uma ação, navegação, carregamento, API ou efeito não puder ser
+   concluído, o teste deve propagar a exceção e sair com código diferente de zero.
+   Nunca use `try/catch` sem relançar, `return`, `test.skip`, `test.fixme` ou
+   `test.fail` para transformar fluxo incompleto em sucesso. Não considere a abertura
+   da janela ou a chegada a uma rota como conclusão.
+8. Se um teste falhar por defeito da aplicação, registre a falha com evidência e pare
    para o usuário decidir sobre uma correção de produção. Corrija automaticamente apenas
    teste, fixture, configuração de teste ou harness dentro do escopo aprovado.
 

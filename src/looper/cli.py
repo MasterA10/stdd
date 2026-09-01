@@ -41,6 +41,8 @@ from .draw import (
     create_draw,
     find_addressed_questions,
     format_draw_answers,
+    collect_draw_context,
+    format_draw_context,
     logical_draw_payload,
     read_draw_index,
     add_draw_change,
@@ -941,6 +943,30 @@ def draw_list() -> None:
         return
     for entry in entries:
         typer.echo(f"{entry['id']}\t{entry.get('title', '')}\t{entry.get('node_count', 0)} nós\t{entry.get('edge_count', 0)} relações")
+
+
+@draw_app.command("context")
+def draw_context(
+    draw_id: Optional[str] = typer.Option(None, "--draw", help="ID do Draw e seus descendentes."),
+    level: Optional[int] = typer.Option(None, "--level", min=1, max=4, help="Nível hierárquico a incluir (1 a 4)."),
+    node_id: Optional[int] = typer.Option(None, "--node", help="ID do nó a localizar dentro dos Draws."),
+    save: bool = typer.Option(False, "--save", help="Salva o resultado em .looper/draw-context.md."),
+) -> None:
+    """Entrega a árvore completa dos Draws em texto humanizado e ordenado."""
+    root = project_root()
+    try:
+        context = collect_draw_context(root, draw_id=draw_id, level=level, node_id=node_id)
+        output = format_draw_context(context)
+        if save:
+            destination = root / ".looper" / "draw-context.md"
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_text(output, encoding="utf-8")
+            typer.echo(f"Contexto dos Draws salvo em {destination}")
+        else:
+            typer.echo(output, nl=False)
+    except (OSError, ValueError, RuntimeError) as error:
+        typer.echo(f"Erro: {error}", err=True)
+        raise typer.Exit(1)
 
 
 @draw_app.command("symbols")

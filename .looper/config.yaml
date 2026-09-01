@@ -302,7 +302,7 @@ review:
   # Configuração de interval tasks.
   interval_tasks: 1
   # Configuração de execution mode.
-  execution_mode: terminal
+  execution_mode: tmux
   # Configuração de completed since last review.
   completed_since_last_review: 0
   # Nível de reasoning usado quando o agente aceitar essa opção.

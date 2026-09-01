@@ -253,8 +253,323 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "9489ccf5f80d479d9f1db21b63f9cfb6",
+      "timestamp": "2026-09-01T20:48:42.746749+00:00",
+      "description": "Substitui open-design por system-design HTML e mantém apenas Codex",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 51,
+        "lines_deleted": 45,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "6cf38c0846b740beac6b07aa4c02450c",
+      "timestamp": "2026-09-01T20:58:06.718093+00:00",
+      "description": "Sincroniza instruções do AGENTS.md no template injetável do core",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 8,
+        "lines_deleted": 6,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "431177a1b4d74f8f859bbd3a76394013",
+      "timestamp": "2026-09-01T20:59:56.218707+00:00",
+      "description": "Remove a skill missing e delega recuperações ao implement-change",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "0afbc2c821d34d56b7621cdadf21c3d7",
+      "timestamp": "2026-09-01T21:01:00.511593+00:00",
+      "description": "Sincroniza skills locais com a instalação atual do looper init",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 13,
+        "lines_deleted": 12,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "6a6abb6333094eeb8a0b5fdbf226a612",
+      "timestamp": "2026-09-01T21:07:18.409110+00:00",
+      "description": "Documenta associação obrigatória de símbolos nas implementações",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "930964bda82e46398780a6ff62c241b1",
+      "timestamp": "2026-09-01T21:09:11.547254+00:00",
+      "description": "Define análise estática Python agnóstica a frameworks e quality gates",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "94d89c9157e54d12969f3423e7e4f6fb",
+      "timestamp": "2026-09-01T21:11:26.623063+00:00",
+      "description": "Esclarece uso de ferramentas nativas sob orquestração Python",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 1,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "1e1df8f0afde4e1383c353f1f13789a4",
+      "timestamp": "2026-09-01T21:22:22.196999+00:00",
+      "description": "Permite Draws sem símbolos até a implementação ser concluída",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 69,
+        "lines_deleted": 14,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d38a739ac7754e808a63284c1d3510d9",
+      "timestamp": "2026-09-01T21:27:42.448159+00:00",
+      "description": "Transforma PLAYWRIGHT_GUIDE em skill playwright-testing",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 20,
+        "lines_deleted": 56,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "f0a3edb66e3b4d0b8fa49403d5701484",
+      "timestamp": "2026-09-01T21:46:13.692629+00:00",
+      "description": "Adiciona contexto estruturado dos Draws",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 303,
+        "lines_deleted": 2,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "7f2c14346d504d6fa5b2b741266af19e",
+      "timestamp": "2026-09-01T21:47:13.879868+00:00",
+      "description": "Atualiza Draw com contexto estruturado e símbolos",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 6,
+        "lines_deleted": 1,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "850a9341fb5c4774ba4f236f516fa37f",
+      "timestamp": "2026-09-01T22:02:40.810621+00:00",
+      "description": "Configura subagentes exclusivamente via tmux",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 43,
+        "lines_deleted": 129,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 4,
+        "lines_deleted": 2,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "bc83b1195c034abc98417ff78cd4f7eb",
+      "timestamp": "2026-09-01T22:03:17.255182+00:00",
+      "description": "Configura Tmux como único modo de subagentes",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "aae7a387f4a94aa6a329217d65974d85",
+      "timestamp": "2026-09-01T22:13:00.942763+00:00",
+      "description": "Documenta comando de visão geral dos Draws",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 13,
+        "lines_deleted": 12,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "dffe224e735e4fdd9403986e2bf4a413",
+      "timestamp": "2026-09-01T22:14:29.320787+00:00",
+      "description": "Inclui critérios e navegação detalhada no contexto dos Draws",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 26,
+        "lines_deleted": 13,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 12,
-  "last_run_id": "75b8bdb1c53241c9b905576194f59b29"
+  "run_count": 27,
+  "last_run_id": "dffe224e735e4fdd9403986e2bf4a413"
 }

@@ -187,6 +187,11 @@ def test_static_analysis_warns_for_level_two_nodes_without_code_refs(tmp_path: P
     }
     (draws / "journey-contract.json").write_text(json.dumps(payload), encoding="utf-8")
 
+    (tmp_path / ".looper" / "backlog.json").write_text(json.dumps({"tasks": [{
+        "id": "task:journey-contract:node:1", "draw_id": "journey-contract", "node_id": 1,
+        "status": "done", "checklist_state": {"implementation": True},
+    }]}), encoding="utf-8")
+
     report = run_static_analysis(tmp_path, "execution-draw-contract", {}, [])
 
     assert report["status"] == "blocked"
@@ -213,6 +218,11 @@ def test_looper_test_blocks_frontend_flow_without_symbols(tmp_path: Path):
         "test_commands": [{"name": "unit", "command": [sys.executable, "-c", "print('unit')"]}],
         "static_analysis": {"enabled": True, "adapter_command": None},
     }), encoding="utf-8")
+
+    (tmp_path / ".looper" / "backlog.json").write_text(json.dumps({"tasks": [{
+        "id": "task:frontend-sem-simbolos:node:1", "draw_id": "frontend-sem-simbolos", "node_id": 1,
+        "status": "done", "checklist_state": {"implementation": True},
+    }]}), encoding="utf-8")
 
     process, report = run_tests(tmp_path)
 
@@ -282,6 +292,10 @@ def test_static_analysis_includes_draw_node_symbol_warnings(tmp_path: Path):
         "edges": [],
     }
     (draws / "symbol-warnings-draw.json").write_text(json.dumps(payload), encoding="utf-8")
+    (tmp_path / ".looper" / "backlog.json").write_text(json.dumps({"tasks": [{
+        "id": "task:symbol-warnings-draw:node:1", "draw_id": "symbol-warnings-draw", "node_id": 1,
+        "status": "done", "checklist_state": {"implementation": True},
+    }]}), encoding="utf-8")
 
     report = run_static_analysis(tmp_path, "exec-symbols", {}, [])
 

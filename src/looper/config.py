@@ -59,7 +59,7 @@ CONFIG_COMMENTS = {
     "review": "Revisão automática opcional após tasks concluídas.",
     "review.enabled": "Ativa a execução automática de revisões.",
     "review.interval_tasks": "Executa a revisão depois de cada N tasks concluídas; 1 revisa cada task.",
-    "review.execution_mode": "Modo de chamada do agente: `terminal` direto ou `tmux`.",
+    "review.execution_mode": "Modo de chamada do subagente: somente `tmux`.",
     "review.default_agent": "Agente de revisão padrão: `agy`; `codex` também pode ser escolhido nas configurações.",
     "review.agents.*.model": "Modelo usado pelo agente específico; a substituição manual pela CLI continua disponível.",
     "review.reasoning": "Nível de reasoning usado quando o agente aceitar essa opção.",
