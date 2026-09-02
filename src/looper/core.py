@@ -205,14 +205,40 @@ AGENT_SKILL_DIRECTORIES = {
 }
 
 RETIRED_AGENT_SKILLS = {
+    # Skills removidas ou substituídas por fluxos e templates atuais.
     "implement",
     "implement-backlog",
     "create-tests",
     "create-tests-backlog",
+    "draw-answer",
+    "draw-system",
     "e2e-tester",
     "feature",
+    "framework-check",
+    "framework-fix",
+    "framework-implement",
+    "framework-init",
+    "framework-security-scan",
+    "framework-test-create",
+    "framework-tradeoff",
     "missing",
     "open-design",
+    "project-context",
+    "quiz-generation",
+    "speckit-analyze",
+    "speckit-checklist",
+    "speckit-clarify",
+    "speckit-constitution",
+    "speckit-git-commit",
+    "speckit-git-feature",
+    "speckit-git-initialize",
+    "speckit-git-remote",
+    "speckit-git-validate",
+    "speckit-implement",
+    "speckit-plan",
+    "speckit-specify",
+    "speckit-tasks",
+    "speckit-taskstoissues",
 }
 
 AGENT_INSTRUCTION_FILES = {
@@ -515,7 +541,11 @@ def agent_templates() -> list[Path]:
     Percorre o diretório de templates de agentes e retorna os caminhos em ordem alfabética.
     """
     templates = Path(__file__).parent / "templates" / "agents"
-    return sorted(templates.glob("*/SKILL.md"))
+    return sorted(
+        source
+        for source in templates.glob("*/SKILL.md")
+        if source.parent.name not in RETIRED_AGENT_SKILLS
+    )
 
 
 def execute_test_suite(root: Path, suite: dict[str, Any]) -> tuple[subprocess.CompletedProcess, dict[str, Any]]:

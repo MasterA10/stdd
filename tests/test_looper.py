@@ -794,18 +794,54 @@ def test_agent_skills_require_approval_for_expensive_or_mutating_setup():
 
 
 def test_init_removes_retired_skills_automatically(tmp_path: Path):
-    """Remove automaticamente skills obsoletas (ex: implement-backlog) no looper init."""
-    legacy_skill_dir = tmp_path / ".agents/skills/implement-backlog"
-    legacy_skill_dir.mkdir(parents=True)
-    (legacy_skill_dir / "SKILL.md").write_text("conteudo obsoleto\n", encoding="utf-8")
-    legacy_skill_claude = tmp_path / ".claude/skills/implement-backlog"
-    legacy_skill_claude.mkdir(parents=True)
-    (legacy_skill_claude / "SKILL.md").write_text("conteudo obsoleto\n", encoding="utf-8")
+    """Remove todas as skills legadas do histórico sem apagar skills atuais."""
+    legacy_names = {
+        "create-tests",
+        "create-tests-backlog",
+        "draw-answer",
+        "draw-system",
+        "e2e-tester",
+        "feature",
+        "framework-check",
+        "framework-fix",
+        "framework-implement",
+        "framework-init",
+        "framework-security-scan",
+        "framework-test-create",
+        "framework-tradeoff",
+        "implement",
+        "implement-backlog",
+        "missing",
+        "open-design",
+        "project-context",
+        "quiz-generation",
+        "speckit-analyze",
+        "speckit-checklist",
+        "speckit-clarify",
+        "speckit-constitution",
+        "speckit-git-commit",
+        "speckit-git-feature",
+        "speckit-git-initialize",
+        "speckit-git-remote",
+        "speckit-git-validate",
+        "speckit-implement",
+        "speckit-plan",
+        "speckit-specify",
+        "speckit-tasks",
+        "speckit-taskstoissues",
+    }
+    for name in legacy_names:
+        legacy_skill_dir = tmp_path / ".agents/skills" / name
+        legacy_skill_dir.mkdir(parents=True)
+        (legacy_skill_dir / "SKILL.md").write_text("conteudo obsoleto\n", encoding="utf-8")
+    custom_skill = tmp_path / ".agents/skills/projeto-local/SKILL.md"
+    custom_skill.parent.mkdir(parents=True)
+    custom_skill.write_text("skill específica do projeto\n", encoding="utf-8")
 
-    init_project(tmp_path, integrations=("codex", "claude"))
+    init_project(tmp_path)
 
-    assert not legacy_skill_dir.exists()
-    assert not legacy_skill_claude.exists()
+    assert all(not (tmp_path / ".agents/skills" / name).exists() for name in legacy_names)
+    assert custom_skill.read_text(encoding="utf-8") == "skill específica do projeto\n"
     assert (tmp_path / ".agents/skills/implement-frontend/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/implement-backend/SKILL.md").exists()
 

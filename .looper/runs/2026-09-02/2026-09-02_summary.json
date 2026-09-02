@@ -85,8 +85,29 @@
         "lines_deleted": 5,
         "files_changed": 1
       }
+    },
+    {
+      "run_id": "3181fdba0e0c450399012f53cda46e34",
+      "timestamp": "2026-09-02T21:45:22.989526+00:00",
+      "description": "Atualizada a limpeza de skills legadas do looper init com inventário histórico e filtro dos templates aposentados; regressão adicionada",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 79,
+        "lines_deleted": 13,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 4,
-  "last_run_id": "0a8cdca458654c46954ee38d7e469037"
+  "run_count": 5,
+  "last_run_id": "3181fdba0e0c450399012f53cda46e34"
 }

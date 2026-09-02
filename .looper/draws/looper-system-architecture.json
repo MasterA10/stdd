@@ -50,11 +50,15 @@
       "id": 2,
       "label": "CLI looper",
       "group": 1,
-      "description": "Interface operacional para init, setup, test, log e draw.",
+      "description": "Interface operacional para init, setup, test, log e draw. O init sincroniza as skills do template atual e remove apenas os nomes legados conhecidos pelo framework, preservando skills específicas do projeto.",
       "code_refs": [
         {
           "file": "src/looper/cli.py",
           "symbol": "looper.cli.app"
+        },
+        {
+          "file": "src/looper/core.py",
+          "symbol": "looper.core.init_project"
         }
       ]
     },
