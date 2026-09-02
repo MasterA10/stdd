@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "run_id": "a97f62a4c6704cf4be42eeeca3e0234c",
-  "started_at": "2026-09-02T17:50:41.952973+00:00",
+  "run_id": "8cfd419af6954cb8b7f1bc7b917100ed",
+  "started_at": "2026-09-02T21:36:48.594176+00:00",
   "status": "blocked",
   "profile": "mvp",
   "summary": {
@@ -20,7 +20,7 @@
       ],
       "exit_code": 1,
       "status": "failed",
-      "duration_seconds": 20.466371
+      "duration_seconds": 20.370038
     }
   ],
   "contract": {
@@ -3603,17 +3603,6 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_alt_click_opens_the_same_detail_view_as_the_eye_action"
       },
       {
-        "end_line": 2747,
-        "file": "draw-editor/src/App.tsx",
-        "kind": "function",
-        "line": 2745,
-        "name": "<anonymous>",
-        "qualified_name": "<anonymous>",
-        "signature": "(",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/App.tsx:function:<anonymous>"
-      },
-      {
         "end_line": 275,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -3622,6 +3611,17 @@
         "qualified_name": "tests.test_draw.test_follow_up_improvement_session_can_use_only_needed_questions",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_follow_up_improvement_session_can_use_only_needed_questions"
+      },
+      {
+        "end_line": 2751,
+        "file": "draw-editor/src/App.tsx",
+        "kind": "function",
+        "line": 2749,
+        "name": "<anonymous>",
+        "qualified_name": "<anonymous>",
+        "signature": "(",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/App.tsx:function:<anonymous>"
       },
       {
         "end_line": 277,

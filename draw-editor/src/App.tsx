@@ -2572,6 +2572,10 @@ export const App: React.FC = () => {
         <main className="workspace">
           <div className="react-flow-stage">
             <ReactFlow
+              // Draws podem reutilizar os mesmos IDs de nós. Uma instância
+              // nova impede que o estado interno de visibilidade do React
+              // Flow seja reaproveitado entre desenhos diferentes.
+              key={contract.id}
               nodes={nodes}
               edges={edges}
               onNodesChange={onNodesChange}

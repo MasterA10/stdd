@@ -219,6 +219,10 @@
           "file": "src/looper/cli.py",
           "kind": "function",
           "source": "python_ast"
+        },
+        {
+          "symbol": "App",
+          "status": "unresolved"
         }
       ],
       "source_dependencies": [],
@@ -227,7 +231,9 @@
         "src/looper/draw.py"
       ],
       "tests": [],
-      "unresolved": [],
+      "unresolved": [
+        "App"
+      ],
       "suggestions": []
     },
     "10": {

@@ -155,16 +155,20 @@
       "id": 9,
       "label": "Draw Server e viewer embutido",
       "group": 4,
-      "description": "Servidor HTTP local que entrega o viewer React Flow empacotado e a API de desenhos.",
+  "description": "Servidor HTTP local que entrega o viewer React Flow empacotado e a API de desenhos. Ao trocar de Draw, o canvas remonta a instância do React Flow por identificador do desenho para descartar estados internos antigos de nós e arestas, evitando que elementos ou setas fiquem ocultos por reutilização de IDs.",
       "code_refs": [
         {
           "file": "src/looper/draw.py",
           "symbol": "looper.draw.serve_draw"
         },
-        {
-          "file": "src/looper/cli.py",
-          "symbol": "looper.cli.draw_serve"
-        }
+    {
+      "file": "src/looper/cli.py",
+      "symbol": "looper.cli.draw_serve"
+    },
+    {
+      "file": "draw-editor/src/App.tsx",
+      "symbol": "App"
+    }
       ]
     },
     {

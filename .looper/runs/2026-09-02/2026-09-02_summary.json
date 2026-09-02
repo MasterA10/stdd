@@ -43,8 +43,50 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "aadf3b45c90443c4aed72dc7d77d1888",
+      "timestamp": "2026-09-02T21:31:44.203390+00:00",
+      "description": "Diagnóstico do viewer: nó 2 fica oculto durante troca/renderização e arestas dependentes desaparecem; recarga restaura",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "0a8cdca458654c46954ee38d7e469037",
+      "timestamp": "2026-09-02T21:36:20.459393+00:00",
+      "description": "Corrigida a troca de Draws remontando o React Flow por contract.id; assets empacotados sincronizados e troca validada no navegador",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 19,
+        "lines_deleted": 15,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 9,
+        "lines_deleted": 5,
+        "files_changed": 1
+      }
     }
   ],
-  "run_count": 2,
-  "last_run_id": "1c98233ead204ff1825f6f4cb7c8eaab"
+  "run_count": 4,
+  "last_run_id": "0a8cdca458654c46954ee38d7e469037"
 }

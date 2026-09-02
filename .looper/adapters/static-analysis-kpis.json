@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-09-02T17:50:21.468134+00:00",
+  "generated_at": "2026-09-02T21:36:28.206990+00:00",
   "status": "blocked",
   "reason": "quality_gate_blocked",
   "adapter_command": [
@@ -1923,7 +1923,7 @@
       {
         "cyclomatic": 1,
         "file": "draw-editor/src/App.tsx",
-        "line": 2745,
+        "line": 2749,
         "lines": 3,
         "max_depth": 1,
         "parameters": 1,
@@ -10559,7 +10559,7 @@
         "file": "draw-editor/src/App.tsx",
         "functions": 2,
         "imports": 22,
-        "lines": 2750,
+        "lines": 2754,
         "source": "typescript_compiler_api"
       },
       {
@@ -14501,17 +14501,6 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_alt_click_opens_the_same_detail_view_as_the_eye_action"
       },
       {
-        "end_line": 2747,
-        "file": "draw-editor/src/App.tsx",
-        "kind": "function",
-        "line": 2745,
-        "name": "<anonymous>",
-        "qualified_name": "<anonymous>",
-        "signature": "(",
-        "source": "typescript_compiler_api",
-        "symbol_id": "draw-editor/src/App.tsx:function:<anonymous>"
-      },
-      {
         "end_line": 275,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -14520,6 +14509,17 @@
         "qualified_name": "tests.test_draw.test_follow_up_improvement_session_can_use_only_needed_questions",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_follow_up_improvement_session_can_use_only_needed_questions"
+      },
+      {
+        "end_line": 2751,
+        "file": "draw-editor/src/App.tsx",
+        "kind": "function",
+        "line": 2749,
+        "name": "<anonymous>",
+        "qualified_name": "<anonymous>",
+        "signature": "(",
+        "source": "typescript_compiler_api",
+        "symbol_id": "draw-editor/src/App.tsx:function:<anonymous>"
       },
       {
         "end_line": 277,
