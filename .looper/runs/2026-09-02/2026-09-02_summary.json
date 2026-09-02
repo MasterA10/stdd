@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "date": "2026-09-02",
+  "runs": [
+    {
+      "run_id": "3bbd2d397c6743f09aa03dc81a8504d8",
+      "timestamp": "2026-09-02T17:50:52.781043+00:00",
+      "description": "Removida orientação de instalação via uv das instruções do Looper e atualizados os Draws",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 2,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 1,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "1c98233ead204ff1825f6f4cb7c8eaab",
+      "timestamp": "2026-09-02T17:51:30.944124+00:00",
+      "description": "Regra de validação via uv mantida no final do AGENTS.md, fora do contrato gerado pelo Looper",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    }
+  ],
+  "run_count": 2,
+  "last_run_id": "1c98233ead204ff1825f6f4cb7c8eaab"
+}

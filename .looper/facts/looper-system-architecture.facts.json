@@ -1,0 +1,274 @@
+{
+  "version": 1,
+  "draw_id": "looper-system-architecture",
+  "nodes": {
+    "1": {
+      "node_id": 1,
+      "references": [
+        {
+          "symbol": "looper.reviews._run_agent",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/reviews.py",
+          "kind": "function",
+          "source": "python_ast"
+        }
+      ],
+      "source_dependencies": [],
+      "files": [
+        "src/looper/reviews.py"
+      ],
+      "tests": [],
+      "unresolved": [],
+      "suggestions": []
+    },
+    "2": {
+      "node_id": 2,
+      "references": [
+        {
+          "symbol": "looper.cli.app",
+          "status": "unresolved"
+        }
+      ],
+      "source_dependencies": [],
+      "files": [],
+      "tests": [],
+      "unresolved": [
+        "looper.cli.app"
+      ],
+      "suggestions": []
+    },
+    "3": {
+      "node_id": 3,
+      "references": [
+        {
+          "symbol": "looper.core.run_tests",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/core.py",
+          "kind": "function",
+          "source": "python_ast"
+        },
+        {
+          "symbol": "looper.core.record_run_entry",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/core.py",
+          "kind": "function",
+          "source": "python_ast"
+        }
+      ],
+      "source_dependencies": [],
+      "files": [
+        "src/looper/core.py"
+      ],
+      "tests": [],
+      "unresolved": [],
+      "suggestions": []
+    },
+    "4": {
+      "node_id": 4,
+      "references": [
+        {
+          "symbol": "looper.draw.validate_draw_payload",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/draw.py",
+          "kind": "function",
+          "source": "python_ast"
+        },
+        {
+          "symbol": "looper.static_analysis.validate_static_analysis_result",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/static_analysis.py",
+          "kind": "function",
+          "source": "python_ast"
+        }
+      ],
+      "source_dependencies": [],
+      "files": [
+        "src/looper/draw.py",
+        "src/looper/static_analysis.py"
+      ],
+      "tests": [],
+      "unresolved": [],
+      "suggestions": []
+    },
+    "5": {
+      "node_id": 5,
+      "references": [
+        {
+          "symbol": "looper.setup.configure_project",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/setup.py",
+          "kind": "function",
+          "source": "python_ast"
+        },
+        {
+          "symbol": "looper.reviews.load_review_config",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/reviews.py",
+          "kind": "function",
+          "source": "python_ast"
+        }
+      ],
+      "source_dependencies": [],
+      "files": [
+        "src/looper/reviews.py",
+        "src/looper/setup.py"
+      ],
+      "tests": [],
+      "unresolved": [],
+      "suggestions": []
+    },
+    "6": {
+      "node_id": 6,
+      "references": [
+        {
+          "symbol": "looper.runs.update_runs_index",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/runs.py",
+          "kind": "function",
+          "source": "python_ast"
+        },
+        {
+          "symbol": "looper.traceability.refresh_traceability",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/traceability.py",
+          "kind": "function",
+          "source": "python_ast"
+        }
+      ],
+      "source_dependencies": [],
+      "files": [
+        "src/looper/runs.py",
+        "src/looper/traceability.py"
+      ],
+      "tests": [],
+      "unresolved": [],
+      "suggestions": []
+    },
+    "7": {
+      "node_id": 7,
+      "references": [
+        {
+          "symbol": "looper.draw.create_draw",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/draw.py",
+          "kind": "function",
+          "source": "python_ast"
+        },
+        {
+          "symbol": "looper.draw.collect_draw_context",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/draw.py",
+          "kind": "function",
+          "source": "python_ast"
+        }
+      ],
+      "source_dependencies": [],
+      "files": [
+        "src/looper/draw.py"
+      ],
+      "tests": [],
+      "unresolved": [],
+      "suggestions": []
+    },
+    "8": {
+      "node_id": 8,
+      "references": [
+        {
+          "symbol": "looper.cli.init",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/cli.py",
+          "kind": "function",
+          "source": "python_ast"
+        }
+      ],
+      "source_dependencies": [],
+      "files": [
+        "src/looper/cli.py"
+      ],
+      "tests": [],
+      "unresolved": [],
+      "suggestions": []
+    },
+    "9": {
+      "node_id": 9,
+      "references": [
+        {
+          "symbol": "looper.draw.serve_draw",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/draw.py",
+          "kind": "function",
+          "source": "python_ast"
+        },
+        {
+          "symbol": "looper.cli.draw_serve",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/cli.py",
+          "kind": "function",
+          "source": "python_ast"
+        }
+      ],
+      "source_dependencies": [],
+      "files": [
+        "src/looper/cli.py",
+        "src/looper/draw.py"
+      ],
+      "tests": [],
+      "unresolved": [],
+      "suggestions": []
+    },
+    "10": {
+      "node_id": 10,
+      "references": [
+        {
+          "symbol": "looper.core.execute_test_suite",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/core.py",
+          "kind": "function",
+          "source": "python_ast"
+        }
+      ],
+      "source_dependencies": [],
+      "files": [
+        "src/looper/core.py"
+      ],
+      "tests": [],
+      "unresolved": [],
+      "suggestions": []
+    },
+    "11": {
+      "node_id": 11,
+      "references": [
+        {
+          "symbol": "looper.reviews.run_review",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/reviews.py",
+          "kind": "function",
+          "source": "python_ast"
+        }
+      ],
+      "source_dependencies": [],
+      "files": [
+        "src/looper/reviews.py"
+      ],
+      "tests": [],
+      "unresolved": [],
+      "suggestions": []
+    }
+  }
+}

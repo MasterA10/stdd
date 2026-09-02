@@ -26,6 +26,28 @@
       ],
       "suggestions": []
     },
+    "2": {
+      "node_id": 2,
+      "references": [
+        {
+          "symbol": "looper.draw.validate_draw_payload",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/draw.py",
+          "kind": "function",
+          "source": "python_ast"
+        }
+      ],
+      "source_dependencies": [
+        "looper.draw.validate_hierarchy_parent"
+      ],
+      "files": [
+        "src/looper/draw.py"
+      ],
+      "tests": [],
+      "unresolved": [],
+      "suggestions": []
+    },
     "3": {
       "node_id": 3,
       "references": [
@@ -83,6 +105,28 @@
         "looper.cli.draw_serve",
         "looper.draw.serve_draw"
       ],
+      "suggestions": []
+    },
+    "5": {
+      "node_id": 5,
+      "references": [
+        {
+          "symbol": "looper.draw.collect_draw_context",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/draw.py",
+          "kind": "function",
+          "source": "python_ast"
+        }
+      ],
+      "source_dependencies": [
+        "looper.draw.format_draw_context"
+      ],
+      "files": [
+        "src/looper/draw.py"
+      ],
+      "tests": [],
+      "unresolved": [],
       "suggestions": []
     }
   }

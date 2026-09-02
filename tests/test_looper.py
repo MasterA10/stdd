@@ -238,7 +238,7 @@ def test_init_injects_idempotent_instructions_for_all_agents(tmp_path: Path):
         assert "commit" in content
         assert "push" in content
         assert "branch `main`" in content
-        assert "uv tool install --force --editable ." in content
+        assert "uv tool install --force --editable ." not in content
         assert ".looper/design.html" in content
         assert "fonte obrigatória de decisões visuais" in content
         assert "Draws são a documentação oficial" in content

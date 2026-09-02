@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "draw_id": "looper-journey-init",
+  "draw_id": "looper-journey-log",
   "nodes": {
     "1": {
       "node_id": 1,
       "references": [
         {
-          "symbol": "looper.cli.init",
+          "symbol": "looper.cli.log_work",
           "identity": null,
           "status": "resolved",
           "file": "src/looper/cli.py",
@@ -15,7 +15,7 @@
         }
       ],
       "source_dependencies": [
-        "looper.core.init_project"
+        "looper.core.record_run_entry"
       ],
       "files": [
         "src/looper/cli.py",
@@ -29,15 +29,7 @@
       "node_id": 2,
       "references": [
         {
-          "symbol": "looper.setup.configure_project",
-          "identity": null,
-          "status": "resolved",
-          "file": "src/looper/setup.py",
-          "kind": "function",
-          "source": "python_ast"
-        },
-        {
-          "symbol": "looper.core.looper_dir",
+          "symbol": "looper.core.get_incremental_diff_stats",
           "identity": null,
           "status": "resolved",
           "file": "src/looper/core.py",
@@ -45,10 +37,11 @@
           "source": "python_ast"
         }
       ],
-      "source_dependencies": [],
+      "source_dependencies": [
+        "looper.core.get_workspace_snapshot"
+      ],
       "files": [
-        "src/looper/core.py",
-        "src/looper/setup.py"
+        "src/looper/core.py"
       ],
       "tests": [],
       "unresolved": [],
@@ -58,7 +51,7 @@
       "node_id": 3,
       "references": [
         {
-          "symbol": "looper.core.ensure_agent_instructions",
+          "symbol": "looper.core.record_run_entry",
           "identity": null,
           "status": "resolved",
           "file": "src/looper/core.py",
@@ -67,10 +60,11 @@
         }
       ],
       "source_dependencies": [
-        "looper.core.agent_templates"
+        "looper.runs.update_runs_index"
       ],
       "files": [
-        "src/looper/core.py"
+        "src/looper/core.py",
+        "src/looper/runs.py"
       ],
       "tests": [],
       "unresolved": [],
@@ -80,27 +74,20 @@
       "node_id": 4,
       "references": [
         {
-          "symbol": "looper.core.init_project",
-          "identity": "0b657e84450a304e",
-          "status": "drift",
-          "file": "src/looper/core.py",
+          "symbol": "looper.runs.runs_directory",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/runs.py",
           "kind": "function",
           "source": "python_ast"
         }
       ],
-      "source_dependencies": [
-        "looper.core.ensure_agent_instructions",
-        "looper.core.ensure_gitignore",
-        "looper.draw.ensure_draw_workspace"
-      ],
+      "source_dependencies": [],
       "files": [
-        "src/looper/core.py",
-        "src/looper/draw.py"
+        "src/looper/runs.py"
       ],
       "tests": [],
-      "unresolved": [
-        "looper.core.init_project"
-      ],
+      "unresolved": [],
       "suggestions": []
     }
   }

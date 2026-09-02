@@ -14,7 +14,6 @@ Este projeto usa o Looper para especificação, implementação, testes e evidê
 - A análise de código deve permanecer separada da análise dos Draws/JSONs; preserve símbolos, referências e métricas gerais quando a stack oferecer essa capacidade.
 - A análise estática é agnóstica ao framework e tem o Python como núcleo e orquestrador: scanner de arquivos de texto, normalização dos resultados, associação de funções/símbolos e aplicação dos quality gates devem passar pelo núcleo Python. Quando a linguagem ou o framework oferecer compilador, type-checker, linter ou analisador estático próprio, ele pode ser executado por um adaptador/subprocesso Python; seus resultados devem ser convertidos para o contrato comum e consolidados pelo núcleo Python, sem deixar a execução ou os gates dependerem diretamente do framework.
 - Antes de qualquer commit ou push na branch `main`, confirme que o diff inclui as fontes, templates, skills, assets empacotados, README e testes necessários para o comando de instalação do README reproduzir a versão publicada.
-- Depois de alterar o framework, valide a instalação equivalente com `uv tool install --force --editable .` e confirme que `looper init` instala as skills atuais; não publique somente uma parte da alteração.
 - Ao integrar APIs/apps externos, registre o contrato no `AGENTS.md` e consulte a documentação oficial antes de implementar.
 - O `.looper/design.html` é a fonte obrigatória de decisões visuais e tokens: consulte e respeite identidade, tipografia, espaçamento, estados, acessibilidade e contraste em qualquer alteração ou implementação de interface; seu preenchimento é obrigatório antes de liberar o bootstrap.
 - Ao construir, refinar ou revisar interfaces, leia e use a skill `$modern-web-guidance` (localizada em `.agents/skills/modern-web-guidance/SKILL.md`)
@@ -44,6 +43,7 @@ Este arquivo é contexto vivo do projeto, não um diário de execução. Registr
 decisões duráveis confirmadas por uma solicitação aceita, por uma integração verificada
 ou por um padrão que o loop passou a exigir repetidamente.
 
+- Sempre que uma alteração mexer no comportamento, fluxo ou decisão documentada do projeto, atualize os Draws correspondentes e confirme essa atualização antes de concluir o trabalho.
 - Use o `AGENTS.md` para contratos, arquitetura, operação, rastreabilidade, limites de escopo e instalação.
 - Use o `.looper/design.html` para decisões visuais e de interação, como tokens de tipografia, cores, espaçamento, estados, animações e atalhos.
 - Antes de acrescentar contexto, procure uma regra equivalente, consolide duplicatas e remova detalhes temporários; não registre hipóteses, IDs de execução, segredos ou alterações pontuais.
@@ -76,3 +76,5 @@ O comando do readme deve ser sempre atualizado de forma que qualquer push na mai
 
 - Ao consumir APIs, apps, SDKs ou provedores externos, registre o nome do serviço, endpoint/contrato, autenticação e pré-condições neste arquivo; consulte a documentação oficial atual antes de implementar e não invente payloads.
 - O `.looper/design.html` é a fonte das decisões visuais: identidade, tokens de tipografia, espaçamento, estados, acessibilidade e contraste mínimo devem estar preenchidos antes de liberar o bootstrap.
+
+- Depois de alterar o framework, valide a instalação equivalente com `uv tool install --force --editable .` e confirme que `looper init` instala as skills atuais; essa orientação é específica deste AGENTS.md e não faz parte das instruções geradas pelo Looper.
