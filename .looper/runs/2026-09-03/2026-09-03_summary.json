@@ -148,8 +148,218 @@
         "lines_deleted": 1,
         "files_changed": 1
       }
+    },
+    {
+      "run_id": "3176294989214788bf54d7a225a892bc",
+      "timestamp": "2026-09-03T11:52:44.180071+00:00",
+      "description": "Padronização dos agents/openai.yaml em todas as skills e correção de descrição fora do limite",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "b5c28ca8a2fd40249d67e901ce581f34",
+      "timestamp": "2026-09-03T11:58:13.484290+00:00",
+      "description": "Sincroniza metadata openai.yaml nos templates usados pelo looper init e cobre todas as 18 skills ativas",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 4,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "2c22943ca4dd474ea48853fa4327480f",
+      "timestamp": "2026-09-03T12:11:18.242418+00:00",
+      "description": "Cria conventions evolutivas no init, preserva convenções do projeto, orienta AGENTS e atualiza Draw da inicialização",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 48,
+        "lines_deleted": 12,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 6,
+        "lines_deleted": 4,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "8f6e213016884a6bb74c01ed14fe5d28",
+      "timestamp": "2026-09-03T12:14:51.421520+00:00",
+      "description": "Remove a skill aposentada draw-answer do projeto",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "8a0f2f96ebc749c7940338cb5ab13368",
+      "timestamp": "2026-09-03T12:19:52.419873+00:00",
+      "description": "Define convenção como orientação técnica específica, confirmada e reutilizável, com limites para linguagem geral e regras de negócio",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 16,
+        "lines_deleted": 13,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "62a926b2211e4cce8bec4296f7c01615",
+      "timestamp": "2026-09-03T12:23:15.487588+00:00",
+      "description": "Injeta no AGENTS.md somente os nomes das convenções técnicas disponíveis",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 50,
+        "lines_deleted": 19,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d6b27609e2e1450da8673291ff9d6d37",
+      "timestamp": "2026-09-03T12:24:51.477615+00:00",
+      "description": "Direciona documentações técnicas específicas e contratos de integrações para .agents/conventions",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 14,
+        "lines_deleted": 13,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "aeb81a5d7c944a8abdb6fca235a5ba53",
+      "timestamp": "2026-09-03T12:26:57.034488+00:00",
+      "description": "Revisa AGENTS.md e move contratos, arquitetura detalhada e documentação técnica para conventions",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 16,
+        "lines_deleted": 13,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "8bc96d2476a44efd906d0c72975a7c70",
+      "timestamp": "2026-09-03T12:35:30.746839+00:00",
+      "description": "Estrutura a saída do looper test em YAML e detalha erros de Draw por desenho e nó",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 105,
+        "lines_deleted": 9,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 4,
+        "lines_deleted": 2,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "6454de30859445c0a447c8c9092a2111",
+      "timestamp": "2026-09-03T12:45:07.585962+00:00",
+      "description": "Migra registro técnico das Skills para .agents/conventions",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 48,
+        "lines_deleted": 18,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 7,
-  "last_run_id": "672f0178df164044aaa0d25dfa3fce78"
+  "run_count": 17,
+  "last_run_id": "6454de30859445c0a447c8c9092a2111"
 }

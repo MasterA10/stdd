@@ -192,8 +192,10 @@ Não comece a implementação sem aprovação do plano. Uma confirmação curta 
   looper log "Plano e testes da aplicação — <escopo> — <status>" --type teste
   ```
 
-- Se o plano confirmar uma regra durável de operação, arquitetura ou contrato, atualize
-  `AGENTS.md`; decisões visuais e de interação pertencem a `.looper/design.md`.
+- Se o plano confirmar uma regra técnica durável de arquitetura ou contrato, registre-a em
+  `.agents/conventions/`; mantenha no `AGENTS.md` somente a visão geral e as regras de
+  operação, escopo e rastreabilidade. Decisões visuais e de interação pertencem a
+  `.looper/design.html`.
 
 Testes de frontend e markdown entram somente quando fizerem parte do comportamento;
   aplique cobertura proporcional ao risco, nunca por quantidade fixa.

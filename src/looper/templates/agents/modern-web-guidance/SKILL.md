@@ -105,7 +105,7 @@ If the output is truncated, you must repeat the command but redirect to a file a
     - _"Safari 17.4+"_ (for internal tools targeting macOS or Tauri-based desktop apps)
     - _"Never recommend or implement polyfills; if a Baseline Newly Available feature is required for core functionality, provide a lightweight custom fallback or redesign the approach."_ (to minimize bundle size and avoid technical debt)
     - _"Assume a modern execution environment where Baseline Newly Available features can be used natively, provided they are strictly feature-detected and degrade gracefully."_ (for progressive enhancement strategies)
-* **Reactive Policy Discovery**: Watch for environmental cues to suggest documenting a policy in CLAUDE.md or AGENTS.md. Suggest this if the developer:
+* **Reactive Policy Discovery**: Watch for environmental cues to suggest documenting a specific, reusable technical policy in `.agents/conventions/`. Keep only the project's general overview and operating rules in `AGENTS.md`. Suggest a convention if the developer:
   - Mentions building for a restricted runtime (e.g., Electron or Tauri).
   - Explicitly excludes specific targets (e.g., "we don't support Desktop Chrome").
   - Expresses hesitation about polyfill complexity, bundle size, or performance cost.

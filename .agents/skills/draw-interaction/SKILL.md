@@ -92,4 +92,4 @@ Informe incertezas relevantes. Se não houver, escreva `Nenhuma limitação rele
 
 ## Execução incremental
 
-Consuma exatamente uma task por interação: `backlog test`, `backlog task` ou `backlog change`, leitura do contexto, mudança comprovada, testes e `backlog complete <task-id>`. Erros são caminhos condicionais (`se`/`ou`) e validações ficam antes de efeitos críticos. Use o grupo terminal `Não implementado` para escopo planejado, sem inventar sequência. APIs e apps externos devem ser registrados no `AGENTS.md` e consultados na documentação oficial.
+Consuma exatamente uma task por interação: `backlog test`, `backlog task` ou `backlog change`, leitura do contexto, mudança comprovada, testes e `backlog complete <task-id>`. Erros são caminhos condicionais (`se`/`ou`) e validações ficam antes de efeitos críticos. Use o grupo terminal `Não implementado` para escopo planejado, sem inventar sequência. APIs e apps externos devem ser registrados em `.agents/conventions/`, após consulta à documentação oficial.

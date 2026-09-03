@@ -1,0 +1,6 @@
+interface:
+  display_name: "Implement Change"
+  short_description: "Implementa e valida changes pendentes"
+  default_prompt: "Use $implement-change para implementar e validar a change pendente reservada."
+policy:
+  allow_implicit_invocation: true

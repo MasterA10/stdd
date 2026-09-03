@@ -1,0 +1,6 @@
+interface:
+  display_name: "Implement Backend"
+  short_description: "Implementa tarefas de backend no backlog"
+  default_prompt: "Use $implement-backend para implementar esta tarefa de backend liberada pelo backlog."
+policy:
+  allow_implicit_invocation: true

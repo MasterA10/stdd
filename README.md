@@ -51,6 +51,8 @@ O init instala a skill `$playwright-testing` em `.agents/skills/playwright-testi
 
 O init também instala a skill-guia `$system-design` em `.agents/skills/system-design/`. Ela mantém o design system do projeto, incluindo tokens de cor, tipografia, espaçamento, estados e acessibilidade, no `.looper/design.html`.
 
+O init cria `.agents/conventions/` com um índice inicial. Uma convenção é uma orientação técnica específica, confirmada e reutilizável sobre como implementar ou manter código e infraestrutura, normalmente aprendida ao resolver um bug difícil ou uma implementação incomum. Documentações técnicas específicas e reutilizáveis, como contratos de APIs/apps externos e pré-condições de integrações, também ficam nessa pasta. Linguagem geral do sistema e regras de negócio não são convenções. Use a pasta por assunto, mantendo o `AGENTS.md` curto; o bloco gerenciado do `AGENTS.md` injeta automaticamente somente o catálogo de nomes, sem copiar caminhos ou conteúdo. O índice aponta para os arquivos, que o agente deve ler somente quando o assunto for relevante. Arquivos existentes são preservados pelo init. Quando uma convenção ou documentação alterar comportamento documentado, os Draws também devem ser atualizados.
+
 ### Configuração por YAML
 
 Use `.looper/config.yaml` para editar as configurações do Looper. O arquivo único reúne opções operacionais, revisão e o campo `instructions` com as orientações persistentes dos loops. Projetos existentes são migrados automaticamente de `.looper/config.json`, `.looper/review-agents.json` e `.looper/loop-instructions.md` na próxima inicialização.
@@ -64,6 +66,8 @@ looper init . --all-integrations
 ```
 
 Se o projeto usa somente Codex, substitua a última linha por `looper init . --integration codex`. O init é idempotente: atualiza as skills e instruções existentes sem duplicá-las e não altera o código de produção.
+
+O comando `looper test` exibe um único relatório YAML no terminal, com os checks de contrato, Draws, análise estática, backlog e suítes separados. Quando um Draw falha, `checks.draws.issues` mostra o desenho, título, arquivo, nó, rótulo do nó, regra, severidade e mensagem do erro. O relatório completo continua sendo persistido em `.looper/runs/`.
 
 As skills são instaladas em:
 

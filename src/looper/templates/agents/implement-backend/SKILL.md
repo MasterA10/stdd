@@ -107,8 +107,10 @@ diante de um pedido explícito de implementar, fazer uma mudança coerente antes
 ## Memória contextual seletiva
 
 Antes de `backlog complete`, verifique se a implementação confirmou uma regra reutilizável.
-Registre contratos, arquitetura, operação, limites e escopo no `AGENTS.md`; registre
-tipografia, cores, espaçamento, estados, animações e interações no `.looper/design.md`.
+Registre contratos, arquitetura técnica detalhada e implementações reutilizáveis em
+`.agents/conventions/`; mantenha no `AGENTS.md` somente a visão geral, operação, limites
+e escopo do projeto. Registre tipografia, cores, espaçamento, estados, animações e
+interações no `.looper/design.html`.
 Atualize somente decisões aceitas ou padrões comprovados, consolidando duplicatas e
 removendo detalhes temporários. Não registre hipóteses, IDs de execução, segredos ou
 detalhes de implementação que não orientem trabalhos futuros. Relate qualquer atualização

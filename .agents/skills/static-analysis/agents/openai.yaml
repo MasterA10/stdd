@@ -1,0 +1,6 @@
+interface:
+  display_name: "Static Analysis"
+  short_description: "Conecta análise estática agnóstica"
+  default_prompt: "Use $static-analysis para implementar ou conectar a análise estática do projeto."
+policy:
+  allow_implicit_invocation: true

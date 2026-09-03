@@ -61,7 +61,7 @@ Você pode adicionar novos guias ou recursos complementares de frontend na pasta
 
 ## Memória contextual seletiva
 
-Antes de `backlog complete`, verifique se a implementação confirmou uma regra reutilizável. Registre tipografia, cores, espaçamento, estados, animações e interações no `.looper/design.html`; registre contratos gerais no `AGENTS.md`. Não registre hipóteses ou segredos.
+Antes de `backlog complete`, verifique se a implementação confirmou uma regra reutilizável. Registre tipografia, cores, espaçamento, estados, animações e interações no `.looper/design.html`; registre contratos e detalhes técnicos reutilizáveis em `.agents/conventions/`. Mantenha o `AGENTS.md` curto, com visão geral e regras operacionais. Não registre hipóteses ou segredos.
 
 ## Cursor e Conclusão
 

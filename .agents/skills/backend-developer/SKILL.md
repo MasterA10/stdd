@@ -102,9 +102,11 @@ Nas chamadas e integrações externas, o log deve ser completo em ambas as ponta
 exatamente o que foi enviado (requisição, parâmetros e body) e o que retornou (status e
 resposta recebida), permitindo auditoria ponta a ponta sem expor dados sensíveis.
 
-Consulte a documentação oficial atual do serviço antes de implementar e registre no
-`AGENTS.md` o endpoint/contrato, autenticação e pré-condições quando a integração entrar
-no projeto. Nunca invente payloads ou trate resposta externa como confiável sem validação.
+Consulte a documentação oficial atual do serviço antes de implementar e registre em
+`.agents/conventions/` o endpoint/contrato, autenticação e pré-condições quando a
+integração entrar no projeto. Mantenha no `AGENTS.md` somente a visão geral e as regras
+operacionais do projeto. Nunca invente payloads ou trate resposta externa como confiável
+sem validação.
 
 Toda API externa que participa do comportamento implementado deve ter pelo menos um
 teste de contrato que execute a chamada real em endpoint de sandbox/teste ou ambiente

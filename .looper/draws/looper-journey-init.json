@@ -61,13 +61,14 @@
       "id": 3,
       "label": "Instalar skills e instruções",
       "group": 2,
-      "description": "Copia templates atuais e atualiza AGENTS.md; arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O contrato de instruções não orienta a instalação ou atualização do Looper por uv. O AGENTS.md compartilhado instrui todo agente a manter os Draws atualizados.",
+      "description": "Copia templates atuais, cria .agents/conventions/README.md sem sobrescrever convenções do projeto e atualiza AGENTS.md; arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O contrato de instruções mantém o AGENTS.md curto, orienta a leitura da convenção relevante e exige Draws vivos e atualizados.",
       "code_refs": [
         {
           "file": "src/looper/core.py",
           "symbol": "looper.core.ensure_agent_instructions",
           "source_dependencies": [
-            "looper.core.agent_templates"
+            "looper.core.agent_templates",
+            "looper.core.ensure_agent_conventions"
           ]
         }
       ]
@@ -85,7 +86,8 @@
           "source_dependencies": [
             "looper.draw.ensure_draw_workspace",
             "looper.core.ensure_gitignore",
-            "looper.core.ensure_agent_instructions"
+            "looper.core.ensure_agent_instructions",
+            "looper.core.ensure_agent_conventions"
           ]
         }
       ]
@@ -108,7 +110,7 @@
       "kind": "flow",
       "condition": 1,
       "label": "então instala",
-      "description": "Skills e instruções são sincronizadas."
+      "description": "Skills, convenções iniciais e instruções são sincronizadas."
     },
     {
       "id": 3,

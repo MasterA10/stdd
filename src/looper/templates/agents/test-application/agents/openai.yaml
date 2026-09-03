@@ -1,0 +1,6 @@
+interface:
+  display_name: "Test Application"
+  short_description: "Planeja testes transversais da aplicação"
+  default_prompt: "Use $test-application para planejar e implementar os testes transversais da aplicação."
+policy:
+  allow_implicit_invocation: true

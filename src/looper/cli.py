@@ -4,10 +4,11 @@ import os
 import signal
 import subprocess
 import sys
-from typing import Iterable, List, Optional
+from typing import Any, Iterable, List, Optional
 from pathlib import Path
 
 import typer
+import yaml
 
 from .core import (
     ensure_gitignore,
@@ -77,6 +78,95 @@ def _human_answer(value: object) -> str:
     if isinstance(value, (dict, list)):
         return json.dumps(value, ensure_ascii=False, separators=(", ", ": "))
     return str(value).strip()
+
+
+def _draw_test_issues(root: Path, static_report: dict[str, Any]) -> list[dict[str, Any]]:
+    """Converte achados de contrato dos Draws em diagnósticos legíveis por desenho e nó."""
+    issues: list[dict[str, Any]] = []
+    findings = static_report.get("quality_findings", [])
+    for finding in findings if isinstance(findings, list) else []:
+        if not isinstance(finding, dict) or not (
+            finding.get("source") == "builtin_draw_contract"
+            or str(finding.get("kind", "")).startswith("draw.")
+        ):
+            continue
+        draw_id = finding.get("draw_id")
+        node_id = finding.get("node_id")
+        title = str(draw_id or "desenho desconhecido")
+        node_label = None
+        source = finding.get("file")
+        if isinstance(source, str):
+            draw_path = root / source if not source.startswith("/") else Path(source)
+            try:
+                payload = json.loads(draw_path.read_text(encoding="utf-8"))
+                title = str(payload.get("title") or title)
+                node = next((item for item in payload.get("nodes", []) if isinstance(item, dict) and item.get("id") == node_id), None)
+                if node:
+                    node_label = node.get("label")
+            except (OSError, UnicodeDecodeError, json.JSONDecodeError, AttributeError):
+                pass
+        issue = {
+            "draw": draw_id,
+            "title": title,
+            "file": source,
+            "node": node_id,
+            "rule": finding.get("rule", finding.get("kind")),
+            "severity": finding.get("severity"),
+            "message": finding.get("evidence", "falha de contrato do Draw"),
+        }
+        if node_label:
+            issue["node_label"] = node_label
+        issues.append(issue)
+    return issues
+
+
+def _format_test_report_yaml(root: Path, result: dict[str, Any], diagnostics: str = "") -> str:
+    """Renderiza o resultado do teste como um único documento YAML para leitura humana."""
+    static_report = result.get("static_analysis", {})
+    draw_issues = _draw_test_issues(root, static_report if isinstance(static_report, dict) else {})
+    contract_violations = result.get("contract_violations", [])
+    backlog = result.get("backlog", {})
+    checks = {
+        "contract": {
+            "status": "blocked" if contract_violations else "passed",
+            "violations": contract_violations,
+        },
+        "draws": {
+            "status": "blocked" if any(item.get("severity") == "blocking" for item in draw_issues) else "passed",
+            "issues": draw_issues,
+        },
+        "static_analysis": {
+            "status": static_report.get("status"),
+            "reason": static_report.get("reason"),
+            "quality_findings": len(static_report.get("quality_findings", [])),
+            "blocking_findings": sum(
+                1 for item in static_report.get("quality_findings", [])
+                if isinstance(item, dict) and item.get("severity") == "blocking"
+            ),
+        },
+        "backlog": {
+            key: backlog.get(key)
+            for key in ("status", "reason", "total", "done", "remaining", "missing_tests", "current_task_id")
+            if key in backlog
+        },
+    }
+    report = {
+        "status": result.get("status"),
+        "exit_code": result.get("exit_code"),
+        "checks": checks,
+        "suites": [
+            {
+                key: suite.get(key)
+                for key in ("name", "status", "exit_code", "reason", "duration_seconds", "output")
+                if key in suite
+            }
+            for suite in result.get("suites", [])
+            if isinstance(suite, dict)
+        ],
+        "summary": result.get("summary", {}),
+        "diagnostics": [line for line in diagnostics.splitlines() if line.strip()],
+    }
+    return yaml.safe_dump(report, allow_unicode=True, sort_keys=False, default_flow_style=False)
 
 
 def _first_answer(questions: object) -> tuple[str, str] | None:
@@ -603,11 +693,8 @@ def test_all(
         profile=profile,
         include_playwright=playwright,
     )
-    typer.echo(process.stdout, nl=False)
-    typer.echo(f"\nResultado: {result['status']}")
-    typer.echo("Relatório visual: execute `looper draw serve` e abra /.looper/runs.html")
+    typer.echo(_format_test_report_yaml(project_root(), result, process.stderr), nl=False)
     if result["status"] != "passed":
-        typer.echo(process.stderr, err=True)
         raise typer.Exit(process.returncode or 1)
 
 

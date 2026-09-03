@@ -6,6 +6,7 @@ import subprocess
 import sys
 
 import pytest
+import yaml
 
 from typer.testing import CliRunner
 
@@ -541,9 +542,15 @@ def test_test_cli_blocks_draw_node_without_associated_symbol(tmp_path: Path, mon
     result = runner.invoke(app, ["test"])
 
     assert result.exit_code != 0
-    assert "draw.level2_missing_code_ref" in result.output
-    assert '"node_id": 1' in result.output
-    assert "Resultado: blocked" in result.output
+    report = yaml.safe_load(result.output)
+    assert report["status"] == "blocked"
+    assert report["checks"]["draws"]["status"] == "blocked"
+    issue = report["checks"]["draws"]["issues"][0]
+    assert issue["draw"] == "journey"
+    assert issue["title"] == "Jornada sem símbolo"
+    assert issue["node"] == 1
+    assert issue["node_label"] == "Tela sem referência"
+    assert issue["rule"] == "draw.level2_missing_code_ref"
 
 
 def test_draw_symbols_lists_missing_nodes_without_running_test_suites(tmp_path: Path, monkeypatch):

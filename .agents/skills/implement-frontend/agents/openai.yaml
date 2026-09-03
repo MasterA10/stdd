@@ -1,0 +1,6 @@
+interface:
+  display_name: "Implement Frontend"
+  short_description: "Implementa telas e fluxos do backlog"
+  default_prompt: "Use $implement-frontend para implementar esta tarefa de frontend liberada pelo backlog."
+policy:
+  allow_implicit_invocation: true

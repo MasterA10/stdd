@@ -36,7 +36,9 @@
           "file": "src/looper/cli.py",
           "symbol": "looper.cli.test_all",
           "source_dependencies": [
-            "looper.core.run_tests"
+            "looper.core.run_tests",
+            "looper.cli._format_test_report_yaml",
+            "looper.cli._draw_test_issues"
           ]
         }
       ]
@@ -89,7 +91,7 @@
       "id": 5,
       "label": "Gate bloqueado",
       "group": 3,
-      "description": "Falha de teste, contrato, análise ou segurança retorna status bloqueado.",
+      "description": "Falha de teste, contrato, análise ou segurança retorna status bloqueado. O CLI exibe um único YAML estruturado; erros de Draw aparecem agrupados em checks.draws.issues com desenho, título, arquivo, nó, regra, severidade e mensagem.",
       "code_refs": [
         {
           "file": "src/looper/static_analysis.py",

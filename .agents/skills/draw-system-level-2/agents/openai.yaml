@@ -2,3 +2,5 @@ interface:
   display_name: "Draw System · Nível 2"
   short_description: "Mapeia jornadas, telas e navegação por papel."
   default_prompt: "Use $draw-system-level-2 para mapear as jornadas e telas do sistema."
+policy:
+  allow_implicit_invocation: true

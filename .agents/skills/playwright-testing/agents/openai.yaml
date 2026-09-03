@@ -1,0 +1,6 @@
+interface:
+  display_name: "Playwright Testing"
+  short_description: "Cria e diagnostica testes Playwright"
+  default_prompt: "Use $playwright-testing para criar ou diagnosticar este teste Playwright."
+policy:
+  allow_implicit_invocation: true

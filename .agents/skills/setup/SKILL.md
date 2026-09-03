@@ -350,4 +350,4 @@ Usar `--refactor` para retrabalho ou falta de planejamento prévio. Não combina
 
 ## Loop e design
 
-O setup cria `.looper/design.md` com identidade visual, tipografia, espaçamento, estados, acessibilidade e contraste mínimo; o template não preenchido bloqueia o bootstrap. Registre APIs/apps externos no `AGENTS.md` e consulte a documentação oficial. Trabalhe uma task por interação, com `backlog test` antes de produção e `backlog complete` por ID.
+O setup cria `.looper/design.html` com identidade visual, tipografia, espaçamento, estados, acessibilidade e contraste mínimo; o template não preenchido bloqueia o bootstrap. Registre contratos de APIs/apps externos em `.agents/conventions/`, após consultar a documentação oficial. Trabalhe uma task por interação, com `backlog test` antes de produção e `backlog complete` por ID.

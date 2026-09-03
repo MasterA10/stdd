@@ -1,0 +1,6 @@
+interface:
+  display_name: "Setup"
+  short_description: "Prepara a stack para testes reais"
+  default_prompt: "Use $setup para descobrir a stack e preparar o projeto para testes reais."
+policy:
+  allow_implicit_invocation: true

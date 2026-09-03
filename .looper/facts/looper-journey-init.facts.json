@@ -67,7 +67,8 @@
         }
       ],
       "source_dependencies": [
-        "looper.core.agent_templates"
+        "looper.core.agent_templates",
+        "looper.core.ensure_agent_conventions"
       ],
       "files": [
         "src/looper/core.py"
@@ -89,6 +90,7 @@
         }
       ],
       "source_dependencies": [
+        "looper.core.ensure_agent_conventions",
         "looper.core.ensure_agent_instructions",
         "looper.core.ensure_gitignore",
         "looper.draw.ensure_draw_workspace"

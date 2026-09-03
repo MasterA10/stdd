@@ -12,15 +12,23 @@ runner = CliRunner()
 
 def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatch):
     """Inicializa a estrutura do projeto e garante idempotência no comando init.
-    Executa looper init duas vezes e valida se config.json e skills são criados sem erros.
+    Executa looper init duas vezes e valida se config.yaml e skills são criados sem erros.
     """
     monkeypatch.chdir(tmp_path)
     first = runner.invoke(app, ["init"])
     second = runner.invoke(app, ["init"])
     assert first.exit_code == 0
     assert second.exit_code == 0
-    assert (tmp_path / ".looper/config.json").exists()
+    assert (tmp_path / ".looper/config.yaml").exists()
     assert (tmp_path / ".agents/skills/test-application/SKILL.md").exists()
+    assert (tmp_path / ".agents/conventions/README.md").exists()
+    conventions = (tmp_path / ".agents/conventions/README.md").read_text(encoding="utf-8")
+    assert "orientação técnica específica" in conventions
+    assert "contratos de APIs/apps externos" in conventions
+    assert "regras de negócio" in conventions
+    agents = (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "somente para visão geral, operação, escopo e rastreabilidade" in agents
+    assert "registre o contrato no `AGENTS.md`" not in agents
     assert not (tmp_path / ".agents/skills/create-tests-backlog").exists()
     assert not (tmp_path / ".agents/skills/e2e-tester").exists()
     assert not (tmp_path / ".agents/skills/feature").exists()
@@ -42,11 +50,11 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert (tmp_path / ".agents/skills/draw-improve/agents/openai.yaml").exists()
     assert (tmp_path / "AGENTS.md").exists()
     assert "looper test" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
-    assert "$system-design" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "$modern-web-guidance" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert "subagentes" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert "tmux" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     system_design = (tmp_path / ".agents/skills/system-design/SKILL.md").read_text(encoding="utf-8")
-    assert "design tokens" in system_design
+    assert "design system" in system_design
     assert "`.looper/design.html`" in system_design
     assert "playwright-cli" in (tmp_path / ".agents/skills/test-application/SKILL.md").read_text().lower()
     assert not (tmp_path / ".agents/skills/create-tests/SKILL.md").exists()
@@ -58,6 +66,10 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     for source in agent_templates():
         installed = tmp_path / ".agents" / "skills" / source.parent.name / "SKILL.md"
         assert installed.read_text(encoding="utf-8") == source.read_text(encoding="utf-8")
+        metadata = source.parent / "agents" / "openai.yaml"
+        assert metadata.exists()
+        installed_metadata = tmp_path / ".agents" / "skills" / source.parent.name / "agents" / "openai.yaml"
+        assert installed_metadata.read_text(encoding="utf-8") == metadata.read_text(encoding="utf-8")
     assert not (tmp_path / "PLAYWRIGHT_GUIDE.md").exists()
 
 
@@ -198,6 +210,7 @@ def test_init_keeps_framework_artifacts_in_looper_and_agent_skills_in_agents(tmp
 
     assert {path.name for path in tmp_path.iterdir()} == {".looper", ".agents", ".gitignore", "AGENTS.md"}
     assert (tmp_path / ".agents/skills/test-application/SKILL.md").exists()
+    assert (tmp_path / ".agents/conventions/README.md").exists()
     assert (tmp_path / ".agents/skills/implement-frontend/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/implement-backend/SKILL.md").exists()
     assert not (tmp_path / ".agents/skills/implement-backlog").exists()
@@ -216,6 +229,24 @@ def test_init_keeps_framework_artifacts_in_looper_and_agent_skills_in_agents(tmp
     assert ".cache/" in gitignore
     assert "*.cache" in gitignore
     assert ".coverage" in gitignore
+
+
+def test_init_creates_conventions_index_without_overwriting_project_conventions(tmp_path: Path):
+    """Cria o índice inicial e preserva convenções evoluídas pelo projeto.
+    Executa init novamente depois de editar uma convenção local e confirma que o conteúdo permanece intacto.
+    """
+    init_project(tmp_path)
+    convention = tmp_path / ".agents/conventions/backend.md"
+    convention.write_text("# Backend\n\nDecisão confirmada do projeto.\n", encoding="utf-8")
+
+    init_project(tmp_path)
+
+    assert convention.read_text(encoding="utf-8") == "# Backend\n\nDecisão confirmada do projeto.\n"
+    agents = (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "### Convenções técnicas disponíveis" in agents
+    assert "- Backend" in agents
+    assert ".agents/conventions/backend.md" not in agents
+    assert "Decisão confirmada do projeto." not in agents
 
 
 def test_init_injects_idempotent_instructions_for_all_agents(tmp_path: Path):
@@ -460,7 +491,8 @@ def test_contextual_memory_routes_durable_rules_to_the_right_document():
     design = Path(".looper/design.html").read_text(encoding="utf-8").lower()
 
     assert "memória contextual seletiva" in agents
-    assert "contratos, arquitetura, operação" in agents
+    assert "contratos, arquitetura, operação" not in agents
+    assert ".agents/conventions/" in agents
     assert "não registre hipóteses" in agents
     assert "tokens" in design
     assert "4.5:1" in design
@@ -470,6 +502,35 @@ def test_contextual_memory_routes_durable_rules_to_the_right_document():
         assert "memória contextual seletiva" in skill
         assert ".looper/design.html" in skill
         assert "não registre" in skill
+
+
+def test_skills_route_specific_technical_memory_to_conventions():
+    """Impede que Skills voltem a despejar contratos e detalhes técnicos no AGENTS.md."""
+    skill_paths = sorted(Path("src/looper/templates/agents").glob("*/SKILL.md"))
+    contents = "\n".join(path.read_text(encoding="utf-8") for path in skill_paths)
+
+    forbidden = (
+        "registre no\n`AGENTS.md` o endpoint/contrato",
+        "Registre contratos, arquitetura, operação, limites e escopo no `AGENTS.md`",
+        "registe contratos gerais no `AGENTS.md`",
+        "APIs e apps externos devem ser registrados no `AGENTS.md`",
+        "Registre APIs/apps externos no `AGENTS.md`",
+        "documenting a policy in CLAUDE.md or AGENTS.md",
+    )
+    for phrase in forbidden:
+        assert phrase not in contents
+
+    for skill_name in (
+        "backend-developer",
+        "implement-backend",
+        "implement-frontend",
+        "test-application",
+        "draw-interaction",
+        "setup",
+        "modern-web-guidance",
+    ):
+        content = Path(f"src/looper/templates/agents/{skill_name}/SKILL.md").read_text(encoding="utf-8")
+        assert ".agents/conventions/" in content, skill_name
 
 
 def test_node_delivery_contract_covers_tests_and_full_implementation():

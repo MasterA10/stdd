@@ -203,6 +203,7 @@ def migrate_legacy_project(root: Path) -> list[Path]:
 AGENT_SKILL_DIRECTORIES = {
     "codex": ".agents/skills",
 }
+AGENT_CONVENTIONS_DIRECTORY = ".agents/conventions"
 
 RETIRED_AGENT_SKILLS = {
     # Skills removidas ou substituídas por fluxos e templates atuais.
@@ -262,13 +263,16 @@ Este projeto usa o Looper para especificação, implementação, testes e evidê
 - A análise de código deve permanecer separada da análise dos Draws/JSONs; preserve símbolos, referências e métricas gerais quando a stack oferecer essa capacidade.
 - A análise estática é agnóstica ao framework e tem o Python como núcleo e orquestrador: scanner de arquivos de texto, normalização dos resultados, associação de funções/símbolos e aplicação dos quality gates devem passar pelo núcleo Python. Quando a linguagem ou o framework oferecer compilador, type-checker, linter ou analisador estático próprio, ele pode ser executado por um adaptador/subprocesso Python; seus resultados devem ser convertidos para o contrato comum e consolidados pelo núcleo Python, sem deixar a execução ou os gates dependerem diretamente do framework.
 - Antes de qualquer commit ou push na branch `main`, confirme que o diff inclui as fontes, templates, skills, assets empacotados, README e testes necessários para o comando de instalação do README reproduzir a versão publicada.
-- Ao integrar APIs/apps externos, registre o contrato no `AGENTS.md` e consulte a documentação oficial antes de implementar.
+- Ao integrar APIs/apps externos, registre o contrato como documentação técnica específica em `.agents/conventions/` e consulte a documentação oficial antes de implementar; mantenha no `AGENTS.md` somente o nome do assunto no catálogo.
 - O `.looper/design.html` é a fonte obrigatória de decisões visuais e tokens: consulte e respeite identidade, tipografia, espaçamento, estados, acessibilidade e contraste em qualquer alteração ou implementação de interface; seu preenchimento é obrigatório antes de liberar o bootstrap.
 - Ao construir, refinar ou revisar interfaces, leia e use a skill `$modern-web-guidance` (localizada em `.agents/skills/modern-web-guidance/SKILL.md`)
   - Ao alterar um padrão de design, insira o padrão no `.looper/design.html` pra deixar a documentação de design atualizada
 - Observação de frontend: não use emojis na interface. Presets, labels, estados, botões e elementos decorativos devem usar texto ou ícones da biblioteca visual do projeto, nunca caracteres emoji.
 - Quando este projeto mencionar `playwright-cli` para navegar no navegador, isso significa executar `npx playwright-cli` pelo terminal, usando-o para navegação exploratória e inspeção do fluxo da aplicação. Isso não significa criar scripts automaticamente. Scripts Playwright devem ser criados principalmente para testes de regressão ou depois que o fluxo já tiver sido navegado e seu funcionamento observado, para então automatizar a validação. Se um script falhar ou der resultado inesperado, use novamente `npx playwright-cli` para navegar pelo fluxo real, investigar o que está errado e, em seguida, alterar o script para corrigir o problema. `$test-application` usa esse procedimento e valida a persistência no banco quando o Draw exigir; integrações externas ficam determinísticas por padrão e testes live são opt-in com credenciais do `.env` (no `.gitignore`). Nunca commite credenciais.
-- Mantenha memória contextual seletiva: registre decisões duráveis e aceitas no `AGENTS.md` ou no `.looper/design.html` (visual e interação); consolide duplicatas e não registre hipóteses, detalhes temporários, IDs de execução ou segredos.
+- Mantenha memória contextual seletiva: use o `AGENTS.md` somente para visão geral, operação, escopo e rastreabilidade; registre detalhes técnicos reutilizáveis em `.agents/conventions/` e decisões visuais no `.looper/design.html`. Consolide duplicatas e não registre hipóteses, detalhes temporários, IDs de execução ou segredos.
+- Mantenha o `AGENTS.md` curto: uma convenção é uma orientação técnica específica, confirmada e reutilizável para implementar ou manter código e infraestrutura — geralmente uma solução aprendida com um bug difícil ou uma implementação incomum. Não registre linguagem geral do sistema, regra de negócio, histórico de tarefa ou workaround temporário; coloque convenções em `.agents/conventions/`, com o índice apontando para o assunto correto, e leia somente a convenção relevante.
+- Trate os Draws como documentação viva oficial: mudanças de comportamento, fluxo ou decisão devem atualizar o Draw correspondente, suas conexões e símbolos antes da implementação; detalhes sem mudança de comportamento devem virar perguntas e respostas no nó correto.
+{{convention_catalog}}
 - Qualquer alteração de comportamento feita diretamente pelo agente ou por um comando de programação deve primeiro atualizar os Draws correspondentes e depois atender ao pedido do usuário, para que a documentação reflita o comportamento novo. Se a alteração não mudar o comportamento e acrescentar somente um detalhe específico, crie uma pergunta no Draw correto, respeitando a hierarquia L2/L3. Se a alteração mudar um fluxo ou o comportamento documentado, atualize também as conexões dos nós quando necessário para representar o novo caminho. Os Draws são a documentação oficial do comportamento do sistema e devem permanecer atualizados.
 - Toda implementação ou alteração de comportamento deve associar no Draw o símbolo implementado ou alterado: o arquivo e, quando possível, a função, classe ou método específico (`qualified_name`). Um nó pode ter mais de um símbolo quando a entrega envolver vários pontos da codebase. Se o símbolo ainda não existir, crie a associação; se já existir e a entrega acrescentar comportamento, inclua também os novos símbolos. Documentação pura ou criação/edição de Draw sem mudança de comportamento não exige símbolo; se o pedido incluir implementação além da documentação, a associação volta a ser obrigatória.
 - `$test-application` lê o Draw completo, propõe e implementa uma suíte de testes transversal (incluindo Playwright e persistência quando aplicáveis); `$implement-frontend` e `$implement-backend` continuam pertencendo aos loops acionados por `looper backlog frontend`, `looper backlog backend` e `looper backlog task`.
@@ -303,13 +307,38 @@ def _agent_mode_instruction(development_mode: str) -> str:
     )
 
 
-def _agent_block(development_mode: str | None = None) -> str:
-    """Monta o bloco gerenciado pelo Looper para o modo efetivo."""
+def _agent_convention_catalog(root: Path) -> str:
+    """Lista no AGENTS.md os assuntos das convenções locais, sem copiar seu conteúdo."""
+    conventions_root = root / AGENT_CONVENTIONS_DIRECTORY
+    files = sorted(
+        path for path in conventions_root.rglob("*.md")
+        if path.is_file() and path.name.lower() != "readme.md"
+    ) if conventions_root.is_dir() else []
+    if not files:
+        return "### Convenções técnicas disponíveis\n\n- Nenhuma convenção específica registrada ainda."
+    entries = []
+    for path in files:
+        title = path.stem.replace("-", " ").replace("_", " ").capitalize()
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if line.startswith("# "):
+                title = line[2:].strip()
+                break
+        entries.append(f"- {title}")
+    return "### Convenções técnicas disponíveis\n\n" + "\n".join(entries)
+
+
+def _agent_block(root: Path | None = None, development_mode: str | None = None) -> str:
+    """Monta o bloco gerenciado pelo Looper para o modo e convenções efetivos."""
     mode = development_mode if development_mode in {"sequential", "separated"} else "sequential"
-    return _LOOPER_AGENT_SHARED_BLOCK.replace("{mode_instruction}", _agent_mode_instruction(mode))
+    catalog = _agent_convention_catalog(root) if root is not None else (
+        "### Convenções técnicas disponíveis\n\n- Consulte `.agents/conventions/README.md`."
+    )
+    return _LOOPER_AGENT_SHARED_BLOCK.replace("{mode_instruction}", _agent_mode_instruction(mode)).replace(
+        "{convention_catalog}", catalog
+    )
 
 
-Looper_AGENT_BLOCK = _agent_block("sequential")
+Looper_AGENT_BLOCK = _agent_block(development_mode="sequential")
 
 
 def ensure_agent_instructions(root: Path, integrations: tuple[str, ...], development_mode: str | None = None) -> list[Path]:
@@ -325,11 +354,28 @@ def ensure_agent_instructions(root: Path, integrations: tuple[str, ...], develop
         )
         existing = instruction_path.read_text(encoding="utf-8") if instruction_path.exists() else ""
         without_looper = _Looper_AGENT_BLOCK_PATTERN.sub("", existing).lstrip("\n")
-        updated = _agent_block(development_mode) + ("\n\n" + without_looper if without_looper else "\n")
+        updated = _agent_block(root, development_mode) + ("\n\n" + without_looper if without_looper else "\n")
         if updated != existing:
             instruction_path.parent.mkdir(parents=True, exist_ok=True)
             instruction_path.write_text(updated, encoding="utf-8")
             changed.append(instruction_path)
+    return changed
+
+
+def ensure_agent_conventions(root: Path) -> list[Path]:
+    """Cria a base de convenções do projeto sem substituir conteúdo criado pelo usuário.
+    Copia somente arquivos ausentes do template para manter a pasta evolutiva e versionável.
+    """
+    source_root = Path(__file__).parent / "templates" / "conventions"
+    target_root = root / AGENT_CONVENTIONS_DIRECTORY
+    changed: list[Path] = []
+    for source in sorted(path for path in source_root.rglob("*") if path.is_file()):
+        target = target_root / source.relative_to(source_root)
+        if target.exists():
+            continue
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+        changed.append(target)
     return changed
 
 
@@ -448,6 +494,7 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
         save_config(root, data)
         created.append(config)
     created.extend(ensure_review_workspace(root))
+    created.extend(ensure_agent_conventions(root))
     design_path = ensure_design_document(root)
     if design_path not in created:
         created.append(design_path)
@@ -737,8 +784,10 @@ def run_tests(
                 exit_code = exit_code or 1
             continue
         suite_process, suite_report = execute_test_suite(root, suite)
-        suite_reports.append(suite_report)
         suite_output = _compact_output(suite_process.stdout)
+        if suite_output:
+            suite_report["output"] = suite_output
+        suite_reports.append(suite_report)
         output.append(f"[{suite_report['name']}] status={suite_report['status']} exit_code={suite_report['exit_code']}" + (f" output={suite_output}" if suite_output else ""))
         suite_error = _compact_output(suite_process.stderr)
         if suite_error:
