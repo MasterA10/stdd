@@ -1258,14 +1258,33 @@ def _context_document(document: dict[str, Any], *, node_id: Any = None) -> dict[
     }
 
 
-def _context_question_lines(questions: list[Any], prefix: str) -> list[str]:
+def _context_question_lines(questions: list[Any], heading: str = "Decisões") -> list[str]:
     lines: list[str] = []
+    decisions: list[str] = []
     for question in questions:
         if not isinstance(question, dict):
             continue
         prompt = str(question.get("prompt") or "Pergunta sem texto").strip()
         answer = question.get("answer")
-        lines.extend([f"{prefix}: {prompt}", f"Resposta: {answer if answer is not None else 'em aberto'}"])
+        decisions.append(f"- {prompt} — {answer if answer is not None else 'em aberto'}")
+    if decisions:
+        lines.append(f"### {heading}")
+        lines.extend(decisions)
+    return lines
+
+
+def _context_reference_lines(references: list[dict[str, Any]]) -> list[str]:
+    lines: list[str] = []
+    code_locations: list[str] = []
+    for reference in references:
+        symbol = reference.get("symbol")
+        if not symbol:
+            continue
+        file = reference.get("file")
+        code_locations.append(f"`{file}::{symbol}`" if file else f"`{symbol}`")
+    if code_locations:
+        lines.append("### Código")
+        lines.extend(f"- {location}" for location in code_locations)
     return lines
 
 
@@ -1278,20 +1297,20 @@ def _context_node_lines(item: dict[str, Any], node: dict[str, Any]) -> list[str]
     if node["failure_criteria"]:
         lines.append(f"Critério de rejeição/falha: {node['failure_criteria']}")
     for connection in [edge for edge in item["connections"] if edge["from"] == node["id"]]:
-        detail = f"{connection['condition']} → Nó {connection['to']} — {connection['to_label']}"
+        detail = connection["condition"]
+        if connection["description"]:
+            detail += f"[{connection['description']}]"
+        detail += f" -> Nó {connection['to']} — {connection['to_label']}"
         if connection["label"]:
             detail += f" ({connection['label']})"
-        lines.append(f"Conecta: {detail}")
-        if connection["description"]:
-            lines.append(f"  Contexto da conexão: {connection['description']}")
+        lines.append(detail)
     if node["draw_refs"]:
         lines.append("Draws descendentes: " + ", ".join(f"`{ref}`" for ref in node["draw_refs"]))
+    lines.extend(_context_reference_lines(node["references"]))
     for reference in node["references"]:
-        location = f" · arquivo: {reference['file']}" if reference.get("file") else ""
-        lines.append(f"Símbolo: `{reference['symbol']}`{location}")
         if reference["source_dependencies"]:
             lines.append("Dependências: " + ", ".join(reference["source_dependencies"]))
-    lines.extend(_context_question_lines(node.get("questions", []), "Pergunta"))
+    lines.extend(_context_question_lines(node.get("questions", [])))
     lines.append("")
     return lines
 
@@ -1305,8 +1324,9 @@ def _context_document_lines(item: dict[str, Any]) -> list[str]:
     if item.get("subtitle"):
         lines.append(f"Resumo: {item['subtitle']}")
     lines.append("")
-    lines.extend(_context_question_lines(item.get("questions", []), "Pergunta do Draw"))
-    if item.get("questions"):
+    decisions = _context_question_lines(item.get("questions", []))
+    lines.extend(decisions)
+    if decisions:
         lines.append("")
     for node in item["nodes"]:
         lines.extend(_context_node_lines(item, node))

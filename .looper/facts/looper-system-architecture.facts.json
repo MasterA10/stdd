@@ -28,10 +28,20 @@
         {
           "symbol": "looper.cli.app",
           "status": "unresolved"
+        },
+        {
+          "symbol": "looper.core.init_project",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/core.py",
+          "kind": "function",
+          "source": "python_ast"
         }
       ],
       "source_dependencies": [],
-      "files": [],
+      "files": [
+        "src/looper/core.py"
+      ],
       "tests": [],
       "unresolved": [
         "looper.cli.app"

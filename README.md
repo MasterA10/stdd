@@ -187,7 +187,7 @@ looper draw diff --run-id <run-id>
 
 Sem `--run-id`, o comando compara o estado atual com o último checkpoint salvo em `.looper/runs/`; com `--run-id`, ele reexibe o diff histórico daquela interação. Em ambos os casos, considera apenas JSONs diretos de `.looper/draws/`, exclui `index.json` e não consulta GitHub, `git diff` nem arquivos da codebase.
 
-Para entregar todo o contexto dos Draws em uma leitura textual ordenada por nível, com conexões, perguntas, respostas e símbolos:
+Para entregar todo o contexto dos Draws em uma leitura textual ordenada por nível, com conexões, decisões e símbolos:
 
 ```bash
 looper draw context
@@ -196,7 +196,7 @@ looper draw context --node <node-id>
 looper draw context --save
 ```
 
-Sem filtros, o comando percorre a árvore completa. A saída é exibida no terminal; `--save` grava a mesma representação em `.looper/draw-context.md`. O comando reconstrói a ordem pelas arestas e relações hierárquicas, e aponta ambiguidades quando os JSONs não determinam uma sequência única.
+Sem filtros, o comando percorre a árvore completa. A saída é exibida no terminal; `--save` grava a mesma representação em `.looper/draw-context.md`. O comando reconstrói a ordem pelas arestas e relações hierárquicas, e aponta ambiguidades quando os JSONs não determinam uma sequência única. As conexões usam o formato `condição[contexto] -> Nó — destino (ação)`.
 
 Para entregar as perguntas pendentes do Draw Interaction em uma leitura humana, agrupadas por desenho e nó, use:
 

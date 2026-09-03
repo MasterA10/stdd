@@ -1,0 +1,155 @@
+{
+  "version": 1,
+  "date": "2026-09-03",
+  "runs": [
+    {
+      "run_id": "f72647929cdc477285e73b17e9355b96",
+      "timestamp": "2026-09-03T00:37:45.450851+00:00",
+      "description": "Converte draw-context.md em índice YAML compacto navegável para demonstração",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 5,
+        "lines_deleted": 1,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "ec9160c7fe4f4765aa1da25a1cbfdc5a",
+      "timestamp": "2026-09-03T00:47:41.031184+00:00",
+      "description": "Refina exemplo YAML do Draw Context com símbolos e conexões semânticas",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "4f47269416ed401e9cadc0ee93b2e0c1",
+      "timestamp": "2026-09-03T00:54:46.835534+00:00",
+      "description": "Agrupa decisões e incorpora contexto nas conexões do Draw Context Markdown",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 17,
+        "lines_deleted": 10,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 7,
+        "lines_deleted": 2,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "c8cb8c6fa1a64db19cacf98c83f9b386",
+      "timestamp": "2026-09-03T00:56:53.710640+00:00",
+      "description": "Reverte alterações experimentais do renderer Markdown do Draw Context",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 10,
+        "lines_deleted": 17,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 2,
+        "lines_deleted": 7,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "5b6fa922bab14bab916dbc40562b491a",
+      "timestamp": "2026-09-03T00:59:13.153762+00:00",
+      "description": "Agrupa perguntas e respostas sob a seção Decisões do Draw Context",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 14,
+        "lines_deleted": 7,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 3,
+        "lines_deleted": 2,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "0d986c1914d34799883bc1fbc6ec6050",
+      "timestamp": "2026-09-03T01:02:39.197988+00:00",
+      "description": "Agrupa referências de código em uma seção única por nó no Draw Context",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 20,
+        "lines_deleted": 3,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 3,
+        "lines_deleted": 2,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "672f0178df164044aaa0d25dfa3fce78",
+      "timestamp": "2026-09-03T01:06:31.850397+00:00",
+      "description": "Formata conexões do Draw Context com contexto entre colchetes e seta semântica",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 8,
+        "lines_deleted": 5,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 1,
+        "files_changed": 1
+      }
+    }
+  ],
+  "run_count": 7,
+  "last_run_id": "672f0178df164044aaa0d25dfa3fce78"
+}

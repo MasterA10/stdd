@@ -71,6 +71,7 @@ def test_draw_context_reconstructs_hierarchy_connections_and_exports_markdown(tm
         "title": "Sistema",
         "hierarchy": {"level": 1, "role": "architecture", "root_draw_ref": "sistema"},
     })
+    root_payload["edges"][0]["description"] = "O cliente confirmou a escolha."
     root_payload["nodes"][0]["draw_ref"] = "jornada"
     create_draw(tmp_path, root_payload)
 
@@ -97,13 +98,19 @@ def test_draw_context_reconstructs_hierarchy_connections_and_exports_markdown(tm
     output = format_draw_context(context)
     assert output.index("Nível 1") < output.index("Nível 2")
     assert "Pai: `sistema` · nó 1" in output
-    assert "Conecta: se → Nó 2 — Pagamento" in output
+    assert "se[O cliente confirmou a escolha.] -> Nó 2 — Pagamento (inicia)" in output
+    assert "Conecta:" not in output
     assert "Draws descendentes: `jornada`" in output
-    assert "Símbolo: `checkout.start` · arquivo: src/checkout.py" in output
+    assert "### Código" in output
+    assert "- `src/checkout.py::checkout.start`" in output
+    assert "Símbolo:" not in output
+    assert "arquivo:" not in output
     assert "Critério de aceitação/sucesso: A configuração salva aparece para o usuário." in output
     assert "Critério de rejeição/falha: A configuração inválida impede o avanço." in output
-    assert "Pergunta: Qual meio de pagamento?" in output
-    assert "Resposta: Cartão" in output
+    assert "### Decisões" in output
+    assert "- Qual meio de pagamento? — Cartão" in output
+    assert "Pergunta: Qual meio de pagamento?" not in output
+    assert "Resposta: Cartão" not in output
 
     result = runner.invoke(app, ["draw", "context", "--draw", "sistema", "--level", "2", "--save"])
     assert result.exit_code == 0, result.output

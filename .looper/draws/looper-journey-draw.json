@@ -102,13 +102,15 @@
       "id": 5,
       "label": "Árvore navegável",
       "group": 3,
-      "description": "O usuário navega da arquitetura às jornadas e implementações, mantendo perguntas e trade-offs visíveis.",
+      "description": "O usuário navega da arquitetura às jornadas e implementações, mantendo decisões agrupadas, referências de código e conexões autocontidas.",
       "code_refs": [
         {
           "file": "src/looper/draw.py",
           "symbol": "looper.draw.collect_draw_context",
           "source_dependencies": [
-            "looper.draw.format_draw_context"
+            "looper.draw.format_draw_context",
+            "looper.draw._context_question_lines",
+            "looper.draw._context_reference_lines"
           ]
         }
       ]
