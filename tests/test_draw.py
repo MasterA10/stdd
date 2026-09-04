@@ -64,7 +64,9 @@ def test_init_installs_example_draw_idempotently(tmp_path: Path, monkeypatch):
 
 
 def test_draw_context_reconstructs_hierarchy_connections_and_exports_markdown(tmp_path: Path, monkeypatch):
-    """Entrega o contexto dos níveis em ordem humana e permite salvá-lo no armazenamento do Looper."""
+    """Entrega o contexto dos níveis em ordem humana e permite salvá-lo no armazenamento do Looper.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     monkeypatch.chdir(tmp_path)
     root_payload = draw_payload("sistema")
     root_payload.update({
@@ -153,7 +155,9 @@ def test_create_draw_writes_only_json_and_light_index(tmp_path: Path):
 
 
 def test_draw_revision_changes_when_the_document_changes(tmp_path: Path):
-    """Expõe uma revisão leve para o polling sem transferir o Draw inteiro."""
+    """Expõe uma revisão leve para o polling sem transferir o Draw inteiro.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     create_draw(tmp_path, draw_payload())
     first = draw_revision(tmp_path, "checkout")
     updated = draw_payload()
@@ -761,7 +765,9 @@ def test_level_two_contract_warns_for_nodes_without_code_refs(tmp_path: Path):
 
 
 def test_level_two_contract_allows_missing_code_refs_before_implementation():
-    """Permite especificar uma tela antes de existir código implementado."""
+    """Permite especificar uma tela antes de existir código implementado.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     payload = draw_payload("journey-specification")
     payload["hierarchy"] = {"level": 2, "role": "journey", "root_draw_ref": "journey-specification"}
 
@@ -1456,7 +1462,9 @@ def test_draw_server_saves_edited_json_and_rejects_mismatched_id(tmp_path: Path)
 
 
 def test_draw_server_allows_editor_draft_with_isolated_nodes_but_cli_stays_strict(tmp_path: Path):
-    """O editor pode salvar a edição intermediária; a CLI continua bloqueando o mesmo contrato."""
+    """O editor pode salvar a edição intermediária; a CLI continua bloqueando o mesmo contrato.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     payload = draw_payload()
     payload["nodes"].append({"id": 3, "label": "Nó em edição", "group": 1})
     server, thread = start_server_for_test(tmp_path)

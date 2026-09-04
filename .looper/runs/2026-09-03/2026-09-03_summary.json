@@ -358,8 +358,176 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "cb35bfb9b75545daa3263b6b6d3e5233",
+      "timestamp": "2026-09-03T16:49:51.053805+00:00",
+      "description": "Permite especificação do nível 3 antes da implementação",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 1,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "ef815536607346709c31d53409e601ba",
+      "timestamp": "2026-09-03T16:51:27.478932+00:00",
+      "description": "Registra convenção de Draws antes da implementação",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 9,
+        "lines_deleted": 1,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "8dd24207b76e4f54b3eec69de261927d",
+      "timestamp": "2026-09-03T17:00:21.387349+00:00",
+      "description": "Atualiza Builder e injeta convenções no AGENTS pelo log",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 37,
+        "lines_deleted": 1,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "9a3154333b49490a82a5bfcb9712a3be",
+      "timestamp": "2026-09-03T17:04:06.131380+00:00",
+      "description": "Organiza catálogo de convenções no AGENTS.md",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 32,
+        "lines_deleted": 15,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "55b96fcfb746482b923a65cb1592face",
+      "timestamp": "2026-09-03T17:09:23.925481+00:00",
+      "description": "Atualiza system-design para gerar uma landing page demonstrativa com tokens aplicados",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 23,
+        "lines_deleted": 25,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "de2ce3f0c63a4c7ba67ba71f69b1ab3d",
+      "timestamp": "2026-09-03T17:11:15.692830+00:00",
+      "description": "Sincroniza a instalação local com a nova skill de Design System",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 192,
+        "lines_deleted": 71,
+        "files_changed": 8
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "c5f79c1f2af64d5eac44295b5afb117a",
+      "timestamp": "2026-09-03T17:11:49.635215+00:00",
+      "description": "Documenta testes legados com descrições completas",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "039cf8660cbe4f6ca45015f398e3d73b",
+      "timestamp": "2026-09-03T17:18:09.480995+00:00",
+      "description": "Cria o design.html demonstrativo do Looper",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 17,
-  "last_run_id": "6454de30859445c0a447c8c9092a2111"
+  "run_count": 25,
+  "last_run_id": "039cf8660cbe4f6ca45015f398e3d73b"
 }

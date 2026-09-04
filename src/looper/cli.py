@@ -17,6 +17,7 @@ from .core import (
     init_project,
     project_root,
     record_run_entry,
+    refresh_agent_convention_catalog,
     run_tests,
 )
 from .backlog import (
@@ -727,7 +728,9 @@ def log_work(
         types.extend(work_type)
 
     try:
-        created_file = record_run_entry(project_root(), description, types)
+        root = project_root()
+        created_file = record_run_entry(root, description, types)
+        refresh_agent_convention_catalog(root)
         typer.echo(f"Registro gravado em {created_file}")
     except ValueError as err:
         typer.echo(f"Erro: {err}", err=True)

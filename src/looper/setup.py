@@ -16,32 +16,30 @@ from .config import load_config, save_config
 SUPPORTED_INTEGRATIONS = ("codex",)
 DESIGN_TEMPLATE = """<!doctype html>
 <html lang="pt-BR">
-<head><meta charset="utf-8"><title>Design system do projeto</title></head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Design system do projeto</title>
+  <style>
+    :root { --color-canvas: #f7f7f5; --color-surface: #fff; --color-text: #20201e; --color-muted: #686864; --color-action: #20201e; --color-border: #d9d9d2; --space-1: .5rem; --space-2: 1rem; --space-3: 1.5rem; --space-4: 2rem; --radius-md: .75rem; --shadow-sm: 0 1px 3px #20201e18; font-family: system-ui, sans-serif; }
+    * { box-sizing: border-box; } body { margin: 0; background: var(--color-canvas); color: var(--color-text); line-height: 1.5; } main { max-width: 72rem; margin: auto; padding: var(--space-4); } section { margin-block: 4rem; } .hero, .demo { padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); box-shadow: var(--shadow-sm); } .demo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: var(--space-3); } .button { padding: .7rem 1rem; border: 1px solid var(--color-action); border-radius: var(--radius-md); background: var(--color-action); color: var(--color-surface); font: inherit; } .button.secondary { background: var(--color-surface); color: var(--color-text); border-color: var(--color-border); } .note { color: var(--color-muted); } :focus-visible { outline: 3px solid #8a5cf6; outline-offset: 3px; } @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
 <body>
-<h1>Design system do projeto</h1>
-<p data-status="incomplete">[PREENCHER] Substitua este bloco pelas decisões visuais aprovadas.</p>
-
-> [PREENCHER] Substitua este bloco pelas decisões visuais aprovadas do produto.
-
-<h2>Identidade visual</h2>
-
-<ul><li>Marca, tom e referências: [PREENCHER]</li>
-<li>Tipografia e hierarquia: [PREENCHER]</li>
-<li>Cores e estados: [PREENCHER]</li></ul>
-
-<h2>Tokens do sistema</h2>
-
-<ul><li>Cores semânticas (surface, text, border, action e feedback): [PREENCHER]</li>
-<li>Tipografia (famílias, escala, pesos e line-height): [PREENCHER]</li>
-<li>Espaçamento, grid, containers e breakpoints: [PREENCHER]</li>
-<li>Raios, bordas, sombras e densidade: [PREENCHER]</li></ul>
-
-<h2>Componentes e estados</h2>
-
-<ul><li>Estados de loading, vazio, erro, sucesso, hover, ativo, desabilitado e foco: [PREENCHER]</li>
-<li>Movimento e <code>prefers-reduced-motion</code>: [PREENCHER]</li>
-<li>Acessibilidade e contraste mínimo: texto normal 4.5:1; texto grande 3:1; componentes 3:1.</li></ul>
-</body></html>
+  <main>
+    <header class="hero">
+      <p data-status="incomplete">[PREENCHER] Defina aqui o propósito e o tom do produto.</p>
+      <h1>Design system do projeto</h1>
+      <p class="note">Esta página demonstra as decisões visuais aplicadas. Cada seção deve explicar uma regra e mostrar seu uso em componentes reais.</p>
+      <button class="button">Exemplo de ação</button>
+    </header>
+    <section aria-labelledby="type-title"><h2 id="type-title">Tipografia</h2><p>Descreva a hierarquia e demonstre-a com títulos, corpo e texto auxiliar.</p><div class="demo"><h1>Heading principal</h1><h3>Subtítulo de apoio</h3><p>Texto de interface com a família, escala e ritmo definidos pelo sistema.</p><p class="note">Texto auxiliar e metadados.</p></div></section>
+    <section aria-labelledby="color-title"><h2 id="color-title">Cores e superfícies</h2><p>Mostre os papéis semânticos aplicados em vez de apresentar somente códigos.</p><div class="demo-grid"><article class="demo"><h3>Superfície</h3><p>Canvas, superfície, texto e borda em uso.</p></article><article class="demo"><h3>Ação</h3><button class="button">Botão primário</button><button class="button secondary">Botão secundário</button></article></div></section>
+    <section aria-labelledby="space-title"><h2 id="space-title">Espaçamento e componentes</h2><p>Explique a escala, os raios, as bordas e a densidade observando a composição abaixo.</p><div class="demo-grid"><article class="demo"><h3>Card</h3><p>Padding, raio, borda e elevação devem vir dos tokens.</p></article><article class="demo"><label for="sample-input">Campo de exemplo</label><input id="sample-input" type="text" placeholder="Digite algo"></article></div></section>
+    <section><h2>Estados e acessibilidade</h2><p>[PREENCHER] Demonstre loading, vazio, erro, sucesso, hover, ativo, foco e desabilitado quando aplicáveis. Documente contraste mínimo de 4.5:1 para texto normal e 3:1 para texto grande e componentes, além do comportamento com movimento reduzido.</p></section>
+  </main>
+</body>
+</html>
 
 ## Integrações externas
 

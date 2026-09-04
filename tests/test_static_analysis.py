@@ -4,7 +4,43 @@ from pathlib import Path
 import sys
 
 from looper.core import run_tests
-from looper.static_analysis import run_static_analysis, scan_hardcoded_secrets, write_static_analysis_kpis
+from looper.static_analysis import run_static_analysis, scan_convention_headers, scan_hardcoded_secrets, write_static_analysis_kpis
+
+
+def test_convention_header_scanner_warns_without_blocking_for_invalid_headers(tmp_path: Path):
+    """Avisa quando uma convenção não possui frontmatter padrão.
+    Ignora o README índice e mantém a severidade como warning informativo.
+    """
+    conventions = tmp_path / ".agents/conventions"
+    conventions.mkdir(parents=True)
+    (conventions / "valid.md").write_text(
+        "---\nname: válida\ndescription: Convenção válida.\n---\n\n# Válida\n",
+        encoding="utf-8",
+    )
+    (conventions / "missing.md").write_text("# Sem cabeçalho\n", encoding="utf-8")
+    (conventions / "README.md").write_text("# Índice\n", encoding="utf-8")
+
+    findings = scan_convention_headers(tmp_path)
+
+    assert len(findings) == 1
+    assert findings[0]["kind"] == "convention.standard_header"
+    assert findings[0]["severity"] == "warning"
+    assert findings[0]["file"] == ".agents/conventions/missing.md"
+
+
+def test_looper_test_includes_convention_header_warnings_in_static_report(tmp_path: Path):
+    """Integra o aviso de cabeçalho ao relatório do looper test sem bloqueá-lo.
+    Executa a análise builtin em um projeto com uma convenção incompleta.
+    """
+    conventions = tmp_path / ".agents/conventions"
+    conventions.mkdir(parents=True)
+    (conventions / "incomplete.md").write_text("# Convenção sem metadados\n", encoding="utf-8")
+
+    report = run_static_analysis(tmp_path, "execution-conventions", {}, [])
+
+    assert report["status"] == "unavailable"
+    finding = next(item for item in report["quality_findings"] if item["kind"] == "convention.standard_header")
+    assert finding["severity"] == "warning"
 
 
 def _adapter_command(result: dict) -> list[str]:

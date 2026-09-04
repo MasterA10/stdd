@@ -49,9 +49,9 @@ O `looper init` sempre sincroniza as skills já instaladas com os templates dest
 
 O init instala a skill `$playwright-testing` em `.agents/skills/playwright-testing/`. Ela documenta como criar testes E2E com Playwright, explorar e diagnosticar a aplicação com `npx playwright-cli`, confirmar a estrutura antes de automatizar e executar a regressão com `looper test --playwright`.
 
-O init também instala a skill-guia `$system-design` em `.agents/skills/system-design/`. Ela mantém o design system do projeto, incluindo tokens de cor, tipografia, espaçamento, estados e acessibilidade, no `.looper/design.html`.
+O init também instala a skill-guia `$system-design` em `.agents/skills/system-design/`. Ela mantém o design system do projeto no `.looper/design.html` como uma landing page demonstrativa: as decisões de cor, tipografia, espaçamento, bordas, componentes, estados e acessibilidade aparecem aplicadas em exemplos reais, acompanhadas de explicações.
 
-O init cria `.agents/conventions/` com um índice inicial. Uma convenção é uma orientação técnica específica, confirmada e reutilizável sobre como implementar ou manter código e infraestrutura, normalmente aprendida ao resolver um bug difícil ou uma implementação incomum. Documentações técnicas específicas e reutilizáveis, como contratos de APIs/apps externos e pré-condições de integrações, também ficam nessa pasta. Linguagem geral do sistema e regras de negócio não são convenções. Use a pasta por assunto, mantendo o `AGENTS.md` curto; o bloco gerenciado do `AGENTS.md` injeta automaticamente somente o catálogo de nomes, sem copiar caminhos ou conteúdo. O índice aponta para os arquivos, que o agente deve ler somente quando o assunto for relevante. Arquivos existentes são preservados pelo init. Quando uma convenção ou documentação alterar comportamento documentado, os Draws também devem ser atualizados.
+O init cria `.agents/conventions/` com um índice inicial. Uma convenção é uma orientação técnica específica, confirmada e reutilizável sobre como implementar ou manter código e infraestrutura, normalmente aprendida ao resolver um bug difícil ou uma implementação incomum. Documentações técnicas específicas e reutilizáveis, como contratos de APIs/apps externos e pré-condições de integrações, também ficam nessa pasta. Linguagem geral do sistema e regras de negócio não são convenções. Use a pasta por assunto, mantendo o `AGENTS.md` curto; o bloco gerenciado do `AGENTS.md` injeta automaticamente somente o catálogo de nomes, sem copiar caminhos ou conteúdo. O índice aponta para os arquivos, que o agente deve ler somente quando o assunto for relevante. Arquivos existentes são preservados pelo init. O `looper log` reconstrói esse catálogo a cada registro, incluindo convenções criadas depois do init. Quando uma convenção ou documentação alterar comportamento documentado, os Draws também devem ser atualizados.
 
 ### Configuração por YAML
 
@@ -103,7 +103,7 @@ $draw-system-level-2 Desenhe jornadas, telas e navegação por papel a partir da
 $draw-system-level-3 Detalhe o comportamento completo de uma tela ou nó, em lotes aprovados.
 $draw-system-level-4 Rastreie sob demanda uma decisão até a codebase real.
 $static-analysis Analise dependências, complexidade, funções longas e segredos hardcoded.
-$system-design Consulte e mantenha o design system, tokens visuais, estados e componentes reutilizáveis no `.looper/design.html`.
+$system-design Consulte e mantenha o design system como uma landing page demonstrativa, com tokens visuais, estados e componentes reutilizáveis aplicados no `.looper/design.html`.
 $playwright-testing Crie e diagnostique testes Playwright, explorando a aplicação com `npx playwright-cli` antes da automação quando possível.
 $modern-web-guidance Consulte padrões modernos da web para interface, layouts, animações e CSS.
 $backend-developer Implemente backend modular com logging transversal e integrações externas testadas.

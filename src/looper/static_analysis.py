@@ -11,6 +11,8 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import yaml
+
 
 STATIC_ANALYSIS_CONTRACT_VERSION = "1"
 ANALYSIS_COLLECTIONS = (
@@ -53,6 +55,7 @@ TEST_FIXTURE_MARKERS = {"test", "fixture", "mock", "fake", "dummy", "example", "
 TEST_CREDENTIAL_ALLOW_MARKER = "looper:allow-credential"
 SECRET_PROTECTED_KINDS = {"hardcoded_secret", "hardcoded_env_value"}
 EXCEPTION_ACTIONS = {"warning", "ignore"}
+CONVENTION_HEADER_RULE = "convention.standard_header"
 
 
 def unavailable_result(reason: str) -> dict[str, Any]:
@@ -107,6 +110,72 @@ def scan_hardcoded_secrets(
         findings.extend(_scan_secret_lines(relative, lines, allow_marked_test_credentials))
     findings.extend(_scan_environment_values(root, code_contents, allow_marked_test_credentials))
     return findings
+
+
+def scan_convention_headers(root: Path) -> list[dict[str, Any]]:
+    """Verifica o frontmatter obrigatório das convenções locais.
+    Emite warnings informativos para Markdown sem ``name`` e ``description`` válidos.
+    O README é um índice de convenções, não uma convenção individual, e fica excluído.
+    """
+    conventions_root = root / ".agents" / "conventions"
+    if not conventions_root.is_dir():
+        return []
+
+    findings: list[dict[str, Any]] = []
+    for path in sorted(conventions_root.rglob("*.md")):
+        if path.name.casefold() == "readme.md":
+            continue
+        relative = path.relative_to(root).as_posix()
+        try:
+            content = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            findings.append(_convention_header_finding(relative, 1, "arquivo de convenção não pôde ser lido", "read_error"))
+            continue
+
+        metadata, issue, line = _parse_convention_frontmatter(content)
+        if issue:
+            findings.append(_convention_header_finding(relative, line, issue, issue))
+            continue
+        missing = [field for field in ("name", "description") if not isinstance(metadata.get(field), str) or not metadata[field].strip()]
+        if missing:
+            findings.append(_convention_header_finding(
+                relative,
+                1,
+                "cabeçalho padrão sem campo(s) obrigatório(s): " + ", ".join(missing),
+                "missing_fields",
+            ))
+    return findings
+
+
+def _parse_convention_frontmatter(content: str) -> tuple[dict[str, Any], str | None, int]:
+    """Lê somente o frontmatter inicial de uma convenção e retorna erro acionável."""
+    lines = content.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return {}, "cabeçalho YAML padrão ausente; esperado frontmatter iniciado por `---`", 1
+    closing = next((index for index, line in enumerate(lines[1:], start=2) if line.strip() == "---"), None)
+    if closing is None:
+        return {}, "cabeçalho YAML padrão sem delimitador final `---`", len(lines) or 1
+    try:
+        metadata = yaml.safe_load("\n".join(lines[1:closing - 1]))
+    except yaml.YAMLError:
+        return {}, "cabeçalho YAML padrão inválido", 2
+    if not isinstance(metadata, dict):
+        return {}, "cabeçalho YAML padrão deve ser um objeto", 2
+    return metadata, None, 1
+
+
+def _convention_header_finding(relative: str, line: int, evidence: str, issue: str) -> dict[str, Any]:
+    """Monta um finding não bloqueante sem copiar o conteúdo da convenção."""
+    return {
+        "kind": CONVENTION_HEADER_RULE,
+        "rule": CONVENTION_HEADER_RULE,
+        "severity": "warning",
+        "file": relative,
+        "line": line,
+        "value": issue,
+        "evidence": evidence,
+        "source": "builtin_convention_scanner",
+    }
 
 
 def _secret_scan_candidates(root: Path, files: list[str] | None) -> list[Path]:
@@ -576,6 +645,7 @@ def run_static_analysis(
         changed_files,
         allow_marked_test_credentials=allow_marked_test_credentials,
     )
+    builtin_findings.extend(scan_convention_headers(root))
     from .draw import scan_draw_contracts
 
     builtin_findings.extend(scan_draw_contracts(root))

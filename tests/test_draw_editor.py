@@ -15,7 +15,9 @@ def test_empty_draw_editor_exposes_block_creation_action():
 
 
 def test_draw_editor_exposes_loop_icon_and_modal_for_change_requests():
-    """Mantém o pedido de alteração ao lado do atalho de perguntas do nó."""
+    """Mantém o pedido de alteração ao lado do atalho de perguntas do nó.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
     node = (EDITOR_ROOT / "src/components/CustomNode.tsx").read_text(encoding="utf-8")
     modal = (EDITOR_ROOT / "src/components/ChangesModal.tsx").read_text(encoding="utf-8")
@@ -29,7 +31,9 @@ def test_draw_editor_exposes_loop_icon_and_modal_for_change_requests():
 
 
 def test_draw_editor_keeps_header_titles_compact_and_sidebar_responsive():
-    """Evita título alto e permite preservar o canvas em telas estreitas."""
+    """Evita título alto e permite preservar o canvas em telas estreitas.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
     styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
 
@@ -350,7 +354,9 @@ def test_editor_persists_pending_layout_and_deletions_until_save():
 
 
 def test_editor_saves_structural_drafts_without_weakening_cli_validation():
-    """O editor sinaliza rascunhos ao backend e exclui passos de flows junto com o nó."""
+    """O editor sinaliza rascunhos ao backend e exclui passos de flows junto com o nó.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
     draw = Path("src/looper/draw.py").read_text(encoding="utf-8")
 
@@ -783,7 +789,9 @@ def test_logical_save_is_manual_but_positions_use_presentation_cache():
 
 
 def test_draw_editor_polls_revision_and_preserves_unsaved_changes():
-    """Atualiza fluxos modificados externamente sem apagar rascunhos locais."""
+    """Atualiza fluxos modificados externamente sem apagar rascunhos locais.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
 
     assert "/.looper/api/draws/${encodeURIComponent(contract.id)}/revision" in app
@@ -795,7 +803,9 @@ def test_draw_editor_polls_revision_and_preserves_unsaved_changes():
 
 
 def test_draw_editor_observer_follows_current_implementation_without_editing():
-    """Acompanha a task de implementação e torna o canvas somente leitura."""
+    """Acompanha a task de implementação e torna o canvas somente leitura.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
     styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
     backlog_status = (EDITOR_ROOT / "src/backlog-status.ts").read_text(encoding="utf-8")
@@ -826,7 +836,9 @@ def test_draw_editor_observer_follows_current_implementation_without_editing():
 
 
 def test_draw_editor_exposes_optional_node_success_and_failure_criteria():
-    """Permite definir critérios no nó e preserva o contrato que o loop consome."""
+    """Permite definir critérios no nó e preserva o contrato que o loop consome.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
     sidebar = (EDITOR_ROOT / "src/components/Sidebar.tsx").read_text(encoding="utf-8")
     modal = (EDITOR_ROOT / "src/components/NodeEditModal.tsx").read_text(encoding="utf-8")
@@ -841,7 +853,9 @@ def test_draw_editor_exposes_optional_node_success_and_failure_criteria():
 
 
 def test_custom_node_exposes_success_criteria_indicator_when_configured():
-    """Mostra o indicador acionável de aceite diretamente no bloco."""
+    """Mostra o indicador acionável de aceite diretamente no bloco.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     node = (EDITOR_ROOT / "src/components/CustomNode.tsx").read_text(encoding="utf-8")
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
     styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
@@ -1091,7 +1105,9 @@ def test_sidebar_exposes_backlog_tasks_with_questions_and_symbols():
 
 
 def test_backlog_panel_exposes_both_execution_phase_statuses_and_delivery_scope():
-    """Mostra testes e implementação separadamente e respeita task ou node."""
+    """Mostra testes e implementação separadamente e respeita task ou node.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     panel = (EDITOR_ROOT / "src/components/BacklogPanel.tsx").read_text(encoding="utf-8")
     status_helpers = (EDITOR_ROOT / "src/backlog-status.ts").read_text(encoding="utf-8")
     types = (EDITOR_ROOT / "src/types.ts").read_text(encoding="utf-8")
@@ -1170,7 +1186,9 @@ def test_backlog_can_hide_completed_tasks_with_a_visible_red_separator():
 
 
 def test_config_settings_keeps_help_button_outside_slider_label():
-    """Permite clicar no slider sem que o botão de ajuda roube o foco."""
+    """Permite clicar no slider sem que o botão de ajuda roube o foco.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     modal = (EDITOR_ROOT / "src/components/ConfigSettingsModal.tsx").read_text(encoding="utf-8")
     styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
 

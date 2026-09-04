@@ -4,7 +4,9 @@ from looper import reviews
 
 
 def test_review_config_migrates_terminal_mode_to_tmux(tmp_path: Path):
-    """Configurações antigas não podem manter execução direta de subagentes."""
+    """Configurações antigas não podem manter execução direta de subagentes.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     config = tmp_path / ".looper/config.yaml"
     config.parent.mkdir()
     config.write_text("review:\n  execution_mode: terminal\n", encoding="utf-8")
@@ -15,10 +17,15 @@ def test_review_config_migrates_terminal_mode_to_tmux(tmp_path: Path):
 
 
 def test_run_agent_always_delegates_to_tmux(tmp_path: Path, monkeypatch):
-    """Toda execução de revisão usa o executor isolado em tmux."""
+    """Toda execução de revisão usa o executor isolado em tmux.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     calls = []
 
     def fake_tmux(command, root, timeout, review_id):
+        """Registra a chamada simulada do executor tmux.
+        Armazena os argumentos recebidos e retorna uma resposta determinística para o teste.
+        """
         calls.append((command, root, timeout, review_id))
         return 0, "ok", ""
 

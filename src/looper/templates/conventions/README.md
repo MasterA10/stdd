@@ -30,6 +30,9 @@ de programação, histórico de uma tarefa ou workaround temporário sem reutili
 - Crie um arquivo Markdown por assunto, com nome curto e descritivo, como `painel-admin.md`,
   `contrato-pagamento.md`, `testes.md` ou `infraestrutura.md`.
 - Atualize este índice sempre que criar, renomear ou remover uma convenção.
+- Todo arquivo de convenção deve começar com metadados `name` e `description` curtos,
+  no mesmo padrão das skills. O `name` aparece como título do catálogo e a `description`
+  como resumo; o link aponta para o arquivo completo.
 - Leia somente o arquivo relacionado à tarefa atual.
 - Registre apenas orientações técnicas específicas, confirmadas e reutilizáveis; não registre
   hipóteses, segredos, IDs de execução, regras de negócio ou detalhes temporários.
@@ -38,5 +41,5 @@ de programação, histórico de uma tarefa ou workaround temporário sem reutili
 
 ## Convenções disponíveis
 
-Ainda não há convenções específicas registradas. Adicione o primeiro arquivo por assunto
-quando uma decisão do projeto for confirmada.
+- [Especificação dos Draws antes da implementação](draw-specification-before-implementation.md)
+- [Dados dinâmicos de telas](dynamic-screen-data.md)

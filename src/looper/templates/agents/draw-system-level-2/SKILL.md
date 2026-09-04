@@ -29,6 +29,9 @@ Para cada tela, registre:
 - caminhos feliz, erro, recuperação e saída;
 - opções permitidas e ações proibidas sem detalhar ainda a regra interna;
 - dados e estados que o papel consegue observar;
+- quais dados são fixos e quais são dinâmicos; para dados dinâmicos, registre a
+  chave/caminho que a view consumirá pelo contrato `get_mock_fake` e mantenha a
+  fonte em um único JSON compartilhado do projeto;
 - `code_refs` dos componentes frontend/interface reais, como React, Vue, HTML, templates, views, `.tsx` e `.jsx`, quando a análise estática os comprovar.
 
 Durante a especificação, nós de `hierarchy.level: 2` podem permanecer sem `code_refs`; não invente arquivo, função ou símbolo placeholder. Essa ausência não deve bloquear a criação ou a documentação. Depois que a implementação da task for concluída, o nó deve receber referência ao arquivo e, quando possível, à função/componente real. O `looper test` só bloqueia `draw.level2_missing_code_ref` para nós marcados como implementados no backlog.
@@ -56,7 +59,7 @@ Crie caminhos separados para cliente, administrador, vendedor, operador, suporte
 
 ## Telas que precisam de nível 3
 
-Avalie cada nó. A maioria das telas deve apontar para um subfluxo de nível 3 quando possuir regra de negócio, decisão, autorização, validação ou detalhe de implementação relevante. Aponte no próprio nó com `draw_ref` para `$draw-system-level-3`. O sucesso da criação do subfluxo de nível 3 dependerá obrigatoriamente da leitura prévia do símbolo e referência desse nó na codebase; nenhum fluxo de nível 3 pode ser gerado sem ler a implementação correspondente.
+Avalie cada nó. A maioria das telas deve apontar para um subfluxo de nível 3 quando possuir regra de negócio, decisão, autorização, validação ou detalhe de implementação relevante. Aponte no próprio nó com `draw_ref` para `$draw-system-level-3`. Se a tela ainda estiver planejada, o subfluxo pode ser gerado sem código; sua descrição deve registrar o comportamento esperado e suas perguntas abertas. Quando a implementação existir, a leitura prévia do símbolo e da referência na codebase passa a ser obrigatória para validar e enriquecer o subfluxo.
 
 Uma tela de transição, loading, confirmação ou encaminhamento que apenas conecta estados e não tem lógica própria pode permanecer sem `draw_ref`. Essa exceção não pode esconder uma tela com comportamento real.
 

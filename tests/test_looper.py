@@ -22,6 +22,7 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert (tmp_path / ".looper/config.yaml").exists()
     assert (tmp_path / ".agents/skills/test-application/SKILL.md").exists()
     assert (tmp_path / ".agents/conventions/README.md").exists()
+    assert (tmp_path / ".agents/conventions/draw-specification-before-implementation.md").exists()
     conventions = (tmp_path / ".agents/conventions/README.md").read_text(encoding="utf-8")
     assert "orientação técnica específica" in conventions
     assert "contratos de APIs/apps externos" in conventions
@@ -43,6 +44,11 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert (tmp_path / ".agents/skills/draw-improve/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-interaction/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/implement-change/SKILL.md").exists()
+    planned_level_two = (tmp_path / ".agents/skills/draw-system-level-2/SKILL.md").read_text(encoding="utf-8").lower()
+    planned_level_three = (tmp_path / ".agents/skills/draw-system-level-3/SKILL.md").read_text(encoding="utf-8").lower()
+    assert "subfluxo pode ser gerado sem código" in planned_level_two
+    assert "pode ser criado antes da implementação" in planned_level_three
+    assert "nunca crie um símbolo placeholder" in planned_level_three
     assert not (tmp_path / ".agents/skills/missing/SKILL.md").exists()
     for level in range(1, 5):
         assert (tmp_path / ".agents/skills" / f"draw-system-level-{level}" / "SKILL.md").exists()
@@ -129,7 +135,9 @@ def test_init_defers_language_specific_test_runner_to_setup(tmp_path: Path):
 
 
 def test_init_injects_agent_instruction_for_effective_development_mode(tmp_path: Path):
-    """Renderiza no AGENTS.md a estratégia correspondente ao modo do init."""
+    """Renderiza no AGENTS.md a estratégia correspondente ao modo do init.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     init_project(tmp_path, development_mode="separated")
     agents = (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert "O modo é separado" in agents
@@ -144,7 +152,9 @@ def test_init_injects_agent_instruction_for_effective_development_mode(tmp_path:
 
 
 def test_init_cli_persists_mode_before_installing_agent_instructions(tmp_path: Path):
-    """A flag do init atualiza config e AGENTS.md na mesma inicialização."""
+    """A flag do init atualiza config e AGENTS.md na mesma inicialização.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     result = runner.invoke(app, ["init", str(tmp_path), "--development-mode", "separated"])
 
     assert result.exit_code == 0, result.output
@@ -166,7 +176,9 @@ def test_init_creates_static_analysis_without_frontend_policy(tmp_path: Path):
 
 
 def test_init_creates_persistent_loop_instructions_without_overwriting_it(tmp_path: Path):
-    """Cria a mensagem crítica vazia e preserva edição do projeto."""
+    """Cria a mensagem crítica vazia e preserva edição do projeto.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     init_project(tmp_path)
     instructions = tmp_path / ".looper/loop-instructions.md"
     assert instructions.exists()
@@ -243,10 +255,9 @@ def test_init_creates_conventions_index_without_overwriting_project_conventions(
 
     assert convention.read_text(encoding="utf-8") == "# Backend\n\nDecisão confirmada do projeto.\n"
     agents = (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
-    assert "### Convenções técnicas disponíveis" in agents
-    assert "- Backend" in agents
-    assert ".agents/conventions/backend.md" not in agents
-    assert "Decisão confirmada do projeto." not in agents
+    assert "## Convenções técnicas disponíveis" in agents
+    assert "[Backend](.agents/conventions/backend.md)" in agents
+    assert "Decisão confirmada do projeto." in agents
 
 
 def test_init_injects_idempotent_instructions_for_all_agents(tmp_path: Path):
@@ -373,7 +384,7 @@ def test_agents_are_loaded_from_markdown_templates():
     for required in ("nível 2", "jornadas", "administrador", "permissões", "frontend/interface", "não implementado", "draw_ref", "draw.level2_missing_code_ref", "não deve bloquear"):
         assert required in level_two
     level_three = templates["draw-system-level-3"].read_text().lower()
-    for required in ("nível 3", "dois lotes", "mais lotes", "ponta a ponta", "tudo o que é possível fazer", "chat", "marketplace", "code_refs", "source_dependencies", "no mínimo quatro nós", "no mínimo 80 caracteres", "warning", "draw.level3_min_nodes", "draw.level3_short_description", "description", "label", "edge.description", "obrigatoriedade de leitura do símbolo", "leitura prévia"):
+    for required in ("nível 3", "dois lotes", "mais lotes", "ponta a ponta", "tudo o que é possível fazer", "chat", "marketplace", "code_refs", "source_dependencies", "no mínimo quatro nós", "no mínimo 80 caracteres", "warning", "draw.level3_min_nodes", "draw.level3_short_description", "description", "label", "edge.description", "obrigatoriedade de leitura do símbolo", "leitura prévia", "pode ser criado antes da implementação", "modo de especificação", "símbolo placeholder"):
         assert required in level_three
     level_four = templates["draw-system-level-4"].read_text().lower()
     for required in ("nível 4", "sob demanda", "qualified_name", "rpc", "procedure", "sql", "arquivo", "model"):
@@ -399,6 +410,11 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "Uso da análise estática para refatoração segura" in backend_content
     assert "101–150" in backend_content
     assert "valores antes/depois" in backend_content
+    assert "300 linhas" in backend_content
+    assert "não crie validação estática" in backend_content.lower()
+    backend_developer_content = templates["backend-developer"].read_text().lower()
+    assert "300 linhas" in backend_developer_content
+    assert "não" in backend_developer_content and "validação estática" in backend_developer_content
 
 
 def test_test_and_implement_skills_require_symbols_and_static_analysis_gate():
@@ -465,7 +481,9 @@ def test_implement_skill_requires_real_post_implementation_audit():
 
 
 def test_test_application_is_for_common_interactions_and_implement_skills_remain_backlog_scoped():
-    """A skill transversal de testes é acionável fora do backlog; implementação permanece delimitada."""
+    """A skill transversal de testes é acionável fora do backlog; implementação permanece delimitada.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     for name, trigger in (("implement-frontend", "looper backlog frontend"), ("implement-backend", "looper backlog backend")):
         content = Path(f"src/looper/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         assert "exclusivamente" in content
@@ -505,7 +523,9 @@ def test_contextual_memory_routes_durable_rules_to_the_right_document():
 
 
 def test_skills_route_specific_technical_memory_to_conventions():
-    """Impede que Skills voltem a despejar contratos e detalhes técnicos no AGENTS.md."""
+    """Impede que Skills voltem a despejar contratos e detalhes técnicos no AGENTS.md.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     skill_paths = sorted(Path("src/looper/templates/agents").glob("*/SKILL.md"))
     contents = "\n".join(path.read_text(encoding="utf-8") for path in skill_paths)
 
@@ -531,6 +551,32 @@ def test_skills_route_specific_technical_memory_to_conventions():
     ):
         content = Path(f"src/looper/templates/agents/{skill_name}/SKILL.md").read_text(encoding="utf-8")
         assert ".agents/conventions/" in content, skill_name
+
+
+def test_frontend_dynamic_data_contract_is_published_and_injected(tmp_path: Path, monkeypatch):
+    """Publica o contrato de dados dinâmicos nas skills e no AGENTS gerado.
+    Confirma JSON único, chave explícita e adaptador get_mock_fake nas fontes distribuídas.
+    """
+    from looper.core import ensure_agent_instructions
+
+    repository_root = Path(__file__).resolve().parents[1]
+    monkeypatch.chdir(tmp_path)
+    source_skill = (repository_root / "src/looper/templates/agents/implement-frontend/SKILL.md").read_text(encoding="utf-8")
+    installed_skill = (repository_root / ".agents/skills/implement-frontend/SKILL.md").read_text(encoding="utf-8")
+    convention = (repository_root / "src/looper/templates/conventions/dynamic-screen-data.md").read_text(encoding="utf-8")
+
+    for content in (source_skill, installed_skill, convention):
+        assert "get_mock_fake" in content
+        assert "JSON" in content
+        assert "chave" in content.lower()
+    assert "não crie um json por tela" in " ".join(source_skill.lower().split())
+
+    ensure_agent_instructions(tmp_path, ("codex",))
+    agent_instructions = (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "Contrato de telas dinâmicas" in agent_instructions
+    assert "get_mock_fake" in agent_instructions
+    assert "sem salvar o símbolo da função de mock" in agent_instructions
+    assert ".agents/conventions/dynamic-screen-data.md" in agent_instructions
 
 
 def test_node_delivery_contract_covers_tests_and_full_implementation():
@@ -855,7 +901,9 @@ def test_agent_skills_require_approval_for_expensive_or_mutating_setup():
 
 
 def test_init_removes_retired_skills_automatically(tmp_path: Path):
-    """Remove todas as skills legadas do histórico sem apagar skills atuais."""
+    """Remove todas as skills legadas do histórico sem apagar skills atuais.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     legacy_names = {
         "create-tests",
         "create-tests-backlog",

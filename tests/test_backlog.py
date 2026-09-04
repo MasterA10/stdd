@@ -163,7 +163,9 @@ def _create_nested_hierarchical_fixture(root: Path, delivery_scope: str | None =
 
 
 def _add_l4_fixture(root: Path, count: int = 9) -> None:
-    """Anexa codebase L4 ao primeiro nó do subfluxo L3."""
+    """Anexa codebase L4 ao primeiro nó do subfluxo L3.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     path = root / ".looper" / "draws" / "subjornada.json"
     parent = json.loads(path.read_text(encoding="utf-8"))
     parent["nodes"][0]["draw_ref"] = "codebase"
@@ -196,7 +198,9 @@ def _add_l4_fixture(root: Path, count: int = 9) -> None:
 
 
 def test_l4_is_delivered_with_l3_in_configurable_groups(tmp_path: Path):
-    """Entrega o pai L3 e até três L4 por avanço, com o tamanho editável."""
+    """Entrega o pai L3 e até três L4 por avanço, com o tamanho editável.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     _create_nested_hierarchical_fixture(tmp_path)
     _add_l4_fixture(tmp_path)
     set_backlog_config(
@@ -246,7 +250,9 @@ def test_l4_is_delivered_with_l3_in_configurable_groups(tmp_path: Path):
 
 
 def test_l4_group_size_is_editable_from_backlog_cli(tmp_path: Path, monkeypatch):
-    """Persiste o tamanho de grupo L4 pelo comando público de configuração."""
+    """Persiste o tamanho de grupo L4 pelo comando público de configuração.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     monkeypatch.chdir(tmp_path)
     init_project(tmp_path)
     result = runner.invoke(app, ["backlog", "config", "--l4-group-size", "5"])
@@ -295,7 +301,9 @@ def test_backlog_task_reports_missing_test_without_claiming_implementation(tmp_p
 
 
 def test_backlog_injects_node_success_and_failure_criteria(tmp_path: Path):
-    """Passa os critérios definidos no nó para o contexto entregue ao loop."""
+    """Passa os critérios definidos no nó para o contexto entregue ao loop.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     _create_hierarchical_fixture(tmp_path)
     draw_path = tmp_path / ".looper" / "draws" / "jornada.json"
     draw = json.loads(draw_path.read_text(encoding="utf-8"))
@@ -346,7 +354,9 @@ def test_disabled_test_loop_delivers_only_implementation_tasks(tmp_path: Path):
 
 
 def test_backlog_change_reserves_and_completes_node_change_request(tmp_path: Path):
-    """Entrega alterações do Draw em cursor próprio sem tocar no backlog normal."""
+    """Entrega alterações do Draw em cursor próprio sem tocar no backlog normal.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     _create_hierarchical_fixture(tmp_path)
     draw_path = tmp_path / ".looper" / "draws" / "jornada.json"
     draw = json.loads(draw_path.read_text(encoding="utf-8"))
@@ -372,7 +382,9 @@ def test_backlog_change_reserves_and_completes_node_change_request(tmp_path: Pat
 
 
 def test_backlog_change_layer_flags_filter_l2_and_l3_requests(tmp_path: Path, monkeypatch):
-    """Aplica os filtros frontend/backend também ao cursor de alterações."""
+    """Aplica os filtros frontend/backend também ao cursor de alterações.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     _create_nested_hierarchical_fixture(tmp_path)
     parent_path = tmp_path / ".looper" / "draws" / "jornada.json"
     child_path = tmp_path / ".looper" / "draws" / "subjornada.json"
@@ -555,7 +567,9 @@ def test_backlog_delivery_scope_can_deliver_internal_subflows_separately(tmp_pat
 
 
 def test_separate_delivery_does_not_inherit_l2_test_status_to_l3(tmp_path: Path):
-    """Mantém os L3 pendentes quando o L2 é entregue separadamente."""
+    """Mantém os L3 pendentes quando o L2 é entregue separadamente.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     _create_nested_hierarchical_fixture(tmp_path)
     _remove_test_refs(tmp_path)
     config_path = tmp_path / ".looper" / "config.json"
@@ -662,7 +676,9 @@ def test_separated_development_mode_delivers_frontend_then_backend_and_tests_onl
 
 
 def test_l2_children_context_does_not_change_independent_l3_loop(tmp_path: Path):
-    """Injeta os filhos no L2 sem reservar ou remover a fila L3."""
+    """Injeta os filhos no L2 sem reservar ou remover a fila L3.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     _create_nested_hierarchical_fixture(tmp_path)
     set_backlog_config(
         tmp_path,
@@ -686,7 +702,9 @@ def test_l2_children_context_does_not_change_independent_l3_loop(tmp_path: Path)
 
 
 def test_l2_children_owned_disables_l3_and_completes_children(tmp_path: Path):
-    """Permite que o L2 seja a única entrega e conclua seus filhos L3."""
+    """Permite que o L2 seja a única entrega e conclua seus filhos L3.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     _create_nested_hierarchical_fixture(tmp_path)
     set_backlog_config(
         tmp_path,
@@ -712,7 +730,9 @@ def test_l2_children_owned_disables_l3_and_completes_children(tmp_path: Path):
 
 
 def test_frontend_and_backend_lanes_reserve_and_complete_independently(tmp_path: Path):
-    """Permite agentes L2 e L3 simultâneos sem compartilhar o cursor global."""
+    """Permite agentes L2 e L3 simultâneos sem compartilhar o cursor global.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     _create_nested_hierarchical_fixture(tmp_path)
     set_backlog_config(tmp_path, bootstrap_task=False, test_loop_enabled=False, l2_children_mode="context")
 
@@ -730,7 +750,9 @@ def test_frontend_and_backend_lanes_reserve_and_complete_independently(tmp_path:
 
 
 def test_loop_instructions_are_injected_in_natural_language_for_every_task(tmp_path: Path):
-    """Repete a informação crítica no contexto textual sem alterar a fila."""
+    """Repete a informação crítica no contexto textual sem alterar a fila.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     _create_nested_hierarchical_fixture(tmp_path)
     instructions = tmp_path / ".looper" / "loop-instructions.md"
     instructions.write_text("Nunca pule a validação de permissões.", encoding="utf-8")
@@ -744,7 +766,9 @@ def test_loop_instructions_are_injected_in_natural_language_for_every_task(tmp_p
 
 
 def test_loop_instructions_update_on_next_delivery_and_do_not_block_when_empty(tmp_path: Path):
-    """Relê o arquivo a cada entrega e aceita arquivo vazio."""
+    """Relê o arquivo a cada entrega e aceita arquivo vazio.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     _create_nested_hierarchical_fixture(tmp_path)
     instructions = tmp_path / ".looper" / "loop-instructions.md"
     instructions.write_text("Primeira regra.", encoding="utf-8")
@@ -762,7 +786,9 @@ def test_loop_instructions_update_on_next_delivery_and_do_not_block_when_empty(t
 
 
 def test_instrucoes_backend_sao_injetadas_somente_no_loop_backend(tmp_path: Path):
-    """instructions.backend aparece no contexto de task backend e não vaza para frontend."""
+    """instructions.backend aparece no contexto de task backend e não vaza para frontend.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     from looper.config import save_config, load_config
     _create_nested_hierarchical_fixture(tmp_path)
     config = load_config(tmp_path)
@@ -781,7 +807,9 @@ def test_instrucoes_backend_sao_injetadas_somente_no_loop_backend(tmp_path: Path
 
 
 def test_instrucoes_change_sao_injetadas_no_loop_de_alteracao(tmp_path: Path):
-    """instructions.change aparece no contexto de change task."""
+    """instructions.change aparece no contexto de change task.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     from looper.config import save_config, load_config
     _create_nested_hierarchical_fixture(tmp_path)
     config = load_config(tmp_path)
@@ -812,7 +840,9 @@ def test_instrucoes_change_sao_injetadas_no_loop_de_alteracao(tmp_path: Path):
 
 
 def test_backlog_complete_is_human_language_and_includes_critical_information(tmp_path: Path, monkeypatch):
-    """A confirmação do loop não expõe JSON ao agente."""
+    """A confirmação do loop não expõe JSON ao agente.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     _create_nested_hierarchical_fixture(tmp_path)
     (tmp_path / ".looper" / "loop-instructions.md").write_text("Regra de conclusão.", encoding="utf-8")
     set_backlog_config(tmp_path, bootstrap_task=False, test_loop_enabled=False)
@@ -825,7 +855,9 @@ def test_backlog_complete_is_human_language_and_includes_critical_information(tm
 
 
 def test_development_mode_is_configurable_from_cli(tmp_path: Path, monkeypatch):
-    """Persiste o modo separado pelo init e pelo comando de configuração."""
+    """Persiste o modo separado pelo init e pelo comando de configuração.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     result = runner.invoke(app, ["init", str(tmp_path), "--development-mode", "separated"])
     assert result.exit_code == 0, result.output
     config = json.loads((tmp_path / ".looper/config.json").read_text(encoding="utf-8"))
@@ -839,7 +871,9 @@ def test_development_mode_is_configurable_from_cli(tmp_path: Path, monkeypatch):
 
 
 def test_backlog_layer_flags_request_only_frontend_or_backend(tmp_path: Path, monkeypatch):
-    """Filtra o cursor por L2/L3 sem declarar o backlog inteiro concluído."""
+    """Filtra o cursor por L2/L3 sem declarar o backlog inteiro concluído.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     _create_nested_hierarchical_fixture(tmp_path)
     config_path = tmp_path / ".looper" / "config.json"
     config = json.loads(config_path.read_text(encoding="utf-8"))
@@ -869,7 +903,9 @@ def test_backlog_layer_flags_request_only_frontend_or_backend(tmp_path: Path, mo
 
 
 def test_backlog_test_layer_flags_filter_test_queue(tmp_path: Path, monkeypatch):
-    """Permite consultar somente a fila de testes da camada solicitada."""
+    """Permite consultar somente a fila de testes da camada solicitada.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     _create_nested_hierarchical_fixture(tmp_path)
     config_path = tmp_path / ".looper" / "config.json"
     config = json.loads(config_path.read_text(encoding="utf-8"))
@@ -985,7 +1021,9 @@ def test_backlog_checklist_can_mark_without_static_evidence_and_uncheck(tmp_path
 
 
 def test_backlog_checklist_resolves_stale_task_id_by_draw_and_node(tmp_path: Path):
-    """Aceita o identificador estável do nó quando a UI envia um id antigo."""
+    """Aceita o identificador estável do nó quando a UI envia um id antigo.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     _create_hierarchical_fixture(tmp_path)
     generate_backlog(tmp_path)
 
@@ -1603,7 +1641,9 @@ def test_bootstrap_report_requires_design_and_environment_contract(tmp_path: Pat
 
 
 def test_backlog_separated_mode_layer_exclusivity_and_first_l3_parent_context(tmp_path: Path):
-    """Garante exclusividade de camadas e injeção do nó L2 pai apenas no 1º nó L3."""
+    """Garante exclusividade de camadas e injeção do nó L2 pai apenas no 1º nó L3.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     _create_nested_hierarchical_fixture(tmp_path)
     set_backlog_config(tmp_path, development_mode="separated", bootstrap_task=False, test_loop_enabled=False)
 
@@ -1651,7 +1691,9 @@ def test_backlog_separated_mode_layer_exclusivity_and_first_l3_parent_context(tm
 
 
 def test_backlog_backend_batching_and_l3_verification_intervals(tmp_path: Path):
-    """Testa entrega em lote de L3 e injeção de verificação a cada N nós L3 concluídos."""
+    """Testa entrega em lote de L3 e injeção de verificação a cada N nós L3 concluídos.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     _create_nested_hierarchical_fixture(tmp_path)
     set_backlog_config(
         tmp_path,
@@ -1694,7 +1736,9 @@ def test_backlog_backend_batching_and_l3_verification_intervals(tmp_path: Path):
 
 
 def test_cli_backlog_frontend_and_backend_commands(tmp_path: Path, monkeypatch):
-    """Testa os comandos looper backlog frontend e looper backlog backend na CLI."""
+    """Testa os comandos looper backlog frontend e looper backlog backend na CLI.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     monkeypatch.chdir(tmp_path)
     _create_nested_hierarchical_fixture(tmp_path)
     set_backlog_config(tmp_path, development_mode="separated", bootstrap_task=False, test_loop_enabled=False)
@@ -1718,7 +1762,9 @@ def test_cli_backlog_frontend_and_backend_commands(tmp_path: Path, monkeypatch):
 
 
 def test_init_configures_all_backlog_options(tmp_path: Path):
-    """Testa passagem de todos os parâmetros configuráveis no comando looper init."""
+    """Testa passagem de todos os parâmetros configuráveis no comando looper init.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     result = runner.invoke(
         app,
         [
@@ -1752,7 +1798,9 @@ def test_init_configures_all_backlog_options(tmp_path: Path):
 
 
 def test_test_scope_selects_l2_l3_or_both_and_describes_l2_playwright_flow(tmp_path: Path):
-    """Persiste o escopo do loop e entrega orientação de interface para L2."""
+    """Persiste o escopo do loop e entrega orientação de interface para L2.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     _create_hierarchical_fixture(tmp_path)
     _remove_test_refs(tmp_path)
     set_backlog_config(tmp_path, bootstrap_task=False, test_scope="l2")

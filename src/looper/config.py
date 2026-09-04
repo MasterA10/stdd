@@ -109,7 +109,8 @@ def _read_mapping(path: Path, parser: Any) -> dict[str, Any]:
 DEFAULT_BACKEND_LOGGING_INSTRUCTION = (
     "Logging transversal obrigatório: registre eventos em todas as etapas, funções públicas, handlers e integrações usando a fachada central de log do projeto. "
     "Mantenha rastreabilidade completa (entrada e saída com parâmetros em debug, conclusão de operações em info, erros incondicionais com stack trace cru em error). "
-    "Não use print ou console.log ad-hoc."
+    "Não use print ou console.log ad-hoc. "
+    "Evite arquivos de back-end com mais de 300 linhas; esta é uma orientação de projeto para manter o backend modular, não um limite ou validação estática do looper test."
 )
 
 

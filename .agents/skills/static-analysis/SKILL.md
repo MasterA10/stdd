@@ -258,6 +258,13 @@ Adapters podem reconhecer marcadores inline equivalentes à linguagem (`// loope
 
 ## Segredos hardcoded e arquivos ignorados
 
+O `looper test` também verifica as convenções em `.agents/conventions/`. Cada
+arquivo Markdown de convenção, exceto o `README.md` que funciona como índice, deve
+começar com frontmatter YAML delimitado por `---` e conter `name` e `description`
+como textos não vazios. Cabeçalho ausente, inválido ou incompleto gera o finding
+`convention.standard_header` com severidade `warning`; esse aviso informa a lacuna,
+mas não bloqueia o gate.
+
 O `looper test` sempre executa um scanner determinístico interno para procurar credenciais gravadas como literais no código ou em arquivos de configuração. O scanner deve reconhecer atribuições a `PASSWORD`, `PASSWD`, `SECRET`, `API_KEY`, `ACCESS_TOKEN`, `AUTH_TOKEN`, `CLIENT_SECRET` e `PRIVATE_KEY`, inclusive com prefixos como `DATABASE_PASSWORD`, além de tokens conhecidos e cabeçalhos de chaves privadas.
 
 Leituras por ambiente (`os.getenv`, `process.env`, `${TOKEN}`), placeholders (`test`, `example`, `dummy`) e arquivos `.env` não são tratados como segredo hardcoded pelo scanner interno. O valor encontrado nunca pode aparecer no relatório: use `"[REDACTED]"`, informe arquivo, linha, tipo do achado e `severity: "blocking"`. Um achado `kind: "hardcoded_secret"` bloqueia o `looper test`, mesmo quando não há adaptador externo configurado.

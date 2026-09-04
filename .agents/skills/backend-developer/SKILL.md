@@ -15,6 +15,10 @@ Entregue backend observável, modular e testável. Cada responsabilidade deve te
 fronteira clara: entrada/controller, caso de uso, domínio, persistência, integrações
 externas e infraestrutura não devem virar uma função ou módulo monolítico.
 
+Evite criar ou ampliar arquivos de back-end acima de 300 linhas. Esta é uma
+orientação textual de modularidade, não um limite de qualidade nem uma validação
+estática aplicada pelo `looper test`; ela não se aplica às telas frontend.
+
 ## Logging transversal e global
 
 O logging é uma capacidade de infraestrutura essencial e transversal disponível para qualquer

@@ -122,7 +122,7 @@
       "id": 7,
       "label": "$implement",
       "group": 3,
-      "description": "Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural; depois atualiza o Draw correspondente. Detalhes sem mudança de comportamento viram perguntas no nível L2/L3 correto, e mudanças de fluxo também atualizam as conexões dos nós.",
+      "description": "Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural; nas telas L2, classifica dados fixos e dinâmicos e usa o contrato get_mock_fake com um JSON compartilhado quando houver dados variáveis, sem salvar o símbolo da função de mock. No L3, durante o backend, associa os símbolos reais das funções implementadas e evita arquivos de back-end acima de 300 linhas como orientação textual, sem criar validação estática para esse limite. Depois atualiza o Draw correspondente. Detalhes sem mudança de comportamento viram perguntas no nível L2/L3 correto, e mudanças de fluxo também atualizam as conexões dos nós.",
       "code_refs": [
         {
           "file": "src/looper/core.py",
@@ -154,7 +154,7 @@
       "id": 9,
       "label": "looper test e looper log",
       "group": 4,
-      "description": "Não são agentes: são gates e evidências operacionais que verificam e registram o trabalho conduzido pelas skills. O comando looper draw context organiza todos os níveis, conexões, perguntas, respostas e símbolos em texto para consumo do agente. Revisões e correções delegadas a subagentes usam exclusivamente sessões tmux após autorização do usuário.",
+      "description": "Não são agentes: são gates e evidências operacionais que verificam e registram o trabalho conduzido pelas skills. O comando looper draw context organiza todos os níveis, conexões, perguntas, respostas e símbolos em texto para consumo do agente. O looper test também verifica frontmatter padrão nas convenções e emite o warning convention.standard_header quando name ou description estiverem ausentes ou inválidos. Revisões e correções delegadas a subagentes usam exclusivamente sessões tmux após autorização do usuário.",
       "code_refs": [
         {
           "file": "src/looper/cli.py",

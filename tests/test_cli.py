@@ -89,7 +89,9 @@ def test_init_interactive_selects_multiple_agent_integrations(tmp_path: Path):
 
 
 def test_init_interactive_uses_codex_without_asking_for_agent(tmp_path: Path):
-    """O init interativo não abre um seletor de agentes e usa AGENTS.md como contrato comum."""
+    """O init interativo não abre um seletor de agentes e usa AGENTS.md como contrato comum.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     result = runner.invoke(app, ["init", str(tmp_path), "--interactive", "--no-web"])
 
     assert result.exit_code == 0
@@ -144,7 +146,9 @@ def test_init_accepts_task_delivery_scope_option(tmp_path: Path):
 
 
 def test_init_accepts_l2_verification_interval_option(tmp_path: Path):
-    """Permite configurar pelo init a frequência da conferência dos nós L2."""
+    """Permite configurar pelo init a frequência da conferência dos nós L2.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     result = runner.invoke(app, ["init", str(tmp_path), "--l2-verification-interval", "2"])
 
     assert result.exit_code == 0
@@ -175,7 +179,9 @@ def test_init_interactive_can_disable_the_test_loop(tmp_path: Path):
 
 
 def test_init_interactive_can_disable_l2_verification_tasks(tmp_path: Path):
-    """Permite desabilitar as conferências automáticas durante o init interativo."""
+    """Permite desabilitar as conferências automáticas durante o init interativo.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     result = runner.invoke(app, ["init", str(tmp_path), "--interactive"], input="1\nn\n1\n1\n2\n0\n1\n")
 
     assert result.exit_code == 0
@@ -353,7 +359,9 @@ def test_test_runs_all_configured_suites(tmp_path: Path):
 
 
 def test_playwright_suite_is_opt_in_and_regression_runs_by_default(tmp_path: Path):
-    """Mantém Playwright fora do alias padrão sem pular a regressão da codebase."""
+    """Mantém Playwright fora do alias padrão sem pular a regressão da codebase.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     (tmp_path / ".looper").mkdir()
     config = {
         "test_commands": [
@@ -379,7 +387,9 @@ def test_playwright_suite_is_opt_in_and_regression_runs_by_default(tmp_path: Pat
 
 
 def test_test_cli_exposes_playwright_opt_in_flag(tmp_path: Path, monkeypatch):
-    """A flag pública libera somente a execução Playwright solicitada."""
+    """A flag pública libera somente a execução Playwright solicitada.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     monkeypatch.chdir(tmp_path)
     (tmp_path / ".looper").mkdir()
     config = {
@@ -781,6 +791,24 @@ def test_log_command_creates_incremental_summary_and_snapshot_in_date_subfolder(
     assert not (tmp_path / ".looper/runs/data/latest_snapshot.json").exists()
 
 
+def test_log_refreshes_convention_catalog_in_agents_file(tmp_path: Path, monkeypatch):
+    """Atualiza o catálogo do AGENTS.md a partir das convenções antes do log terminar.
+    Cria uma convenção depois do init e confirma que log a injeta sem duplicar o bloco gerenciado.
+    """
+    monkeypatch.chdir(tmp_path)
+    runner.invoke(app, ["init", "--no-web"])
+    convention = tmp_path / ".agents/conventions/runtime-policy.md"
+    convention.write_text("# Política de runtime\n\nDecisão reutilizável.\n", encoding="utf-8")
+
+    result = runner.invoke(app, ["log", "Atualiza catálogo de convenções", "-i"])
+
+    assert result.exit_code == 0
+    agents = (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "[Política de runtime](.agents/conventions/runtime-policy.md)" in agents
+    assert "Decisão reutilizável." in agents
+    assert agents.count("Looper:BEGIN AGENT INSTRUCTIONS") == 1
+
+
 def test_log_ignores_invalid_utf8_appledouble_snapshot(tmp_path: Path, monkeypatch):
     """Mantém o log funcionando quando o macOS deixa snapshot AppleDouble inválido.
     Cria um arquivo ._ binário no histórico e confirma que o próximo log não falha ao ler o diff.
@@ -816,7 +844,9 @@ def test_workspace_snapshot_excludes_looper_draw_and_run_json_documents(tmp_path
 
 
 def test_workspace_snapshot_respects_gitignore_exceptions_in_git_checkout(tmp_path: Path):
-    """Mantém arquivos liberados por exceções após um padrão global ``*``."""
+    """Mantém arquivos liberados por exceções após um padrão global ``*``.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     subprocess.run(["git", "init"], cwd=tmp_path, capture_output=True, text=True, check=True)
     (tmp_path / ".gitignore").write_text(
         "*\n"
@@ -840,7 +870,9 @@ def test_workspace_snapshot_respects_gitignore_exceptions_in_git_checkout(tmp_pa
 
 
 def test_runs_apply_current_gitignore_to_previous_snapshot_in_real_time(tmp_path: Path, monkeypatch):
-    """Não transforma mudanças no gitignore em falso delete ou falso restore."""
+    """Não transforma mudanças no gitignore em falso delete ou falso restore.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     monkeypatch.chdir(tmp_path)
     runner.invoke(app, ["init"])
     tracked = tmp_path / "temporary.py"
@@ -1109,7 +1141,9 @@ def test_log_marks_draw_only_changes_as_zero_line_checkpoint(tmp_path: Path, mon
 
 
 def test_init_configures_all_backlog_options_via_cli(tmp_path: Path):
-    """Inicializa projeto com todas as opções de backlog e valida config.json."""
+    """Inicializa projeto com todas as opções de backlog e valida config.json.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     result = runner.invoke(
         app,
         [
@@ -1141,7 +1175,9 @@ def test_init_configures_all_backlog_options_via_cli(tmp_path: Path):
 
 
 def test_cli_backlog_frontend_and_backend_subcommands(tmp_path: Path, monkeypatch):
-    """Executa os subcomandos looper backlog frontend e looper backlog backend."""
+    """Executa os subcomandos looper backlog frontend e looper backlog backend.
+    Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
+    """
     monkeypatch.chdir(tmp_path)
     runner.invoke(
         app,

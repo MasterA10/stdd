@@ -13,6 +13,12 @@ Se `.looper/config.json` tiver `backlog.test_loop_enabled: false`, esta skill n�
 
 ## Objetivo
 
+Como orientação padrão do loop de backend, evite criar ou ampliar arquivos de
+back-end acima de 300 linhas. Esse limite é uma diretriz textual para favorecer
+modularidade e separação de responsabilidades; não crie validação estática,
+quality gate ou finding automático para quantidade de linhas. A regra não se
+aplica às telas frontend.
+
 Percorrer o backlog de regras e backend (L3) até a conclusão da camada backend:
 
 ```text

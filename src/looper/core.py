@@ -268,11 +268,15 @@ Este projeto usa o Looper para especificação, implementação, testes e evidê
 - Ao construir, refinar ou revisar interfaces, leia e use a skill `$modern-web-guidance` (localizada em `.agents/skills/modern-web-guidance/SKILL.md`)
   - Ao alterar um padrão de design, insira o padrão no `.looper/design.html` pra deixar a documentação de design atualizada
 - Observação de frontend: não use emojis na interface. Presets, labels, estados, botões e elementos decorativos devem usar texto ou ícones da biblioteca visual do projeto, nunca caracteres emoji.
+- Contrato de telas dinâmicas: classifique toda informação da tela como fixa ou dinâmica. Se for dinâmica (API, banco, sessão, configuração, busca, evento, cálculo ou estado externo), use um único JSON de mock fake do projeto e acesse sua chave/caminho exclusivamente por uma função com nome lógico `get_mock_fake` (adapte somente o casing da linguagem, como `getMockFake`). Não crie um JSON por tela nem espalhe payloads dinâmicos nos componentes. No L2, registre somente a chave e o formato esperado, sem salvar o símbolo da função de mock; no L3, durante a implementação do backend, associe os símbolos reais das funções, controllers, models e integrações. O mock fake serve para construir a view e deve manter contrato compatível com a fonte real, sem substituir regras, persistência ou integrações de backend. Consulte `.agents/conventions/dynamic-screen-data.md`.
+- O `looper test` verifica também os cabeçalhos das convenções em `.agents/conventions/`: cada Markdown, exceto o `README.md` índice, deve ter frontmatter YAML com `name` e `description` não vazios. Cabeçalho ausente ou inválido gera o warning `convention.standard_header`, sem bloquear o gate.
 - Quando este projeto mencionar `playwright-cli` para navegar no navegador, isso significa executar `npx playwright-cli` pelo terminal, usando-o para navegação exploratória e inspeção do fluxo da aplicação. Isso não significa criar scripts automaticamente. Scripts Playwright devem ser criados principalmente para testes de regressão ou depois que o fluxo já tiver sido navegado e seu funcionamento observado, para então automatizar a validação. Se um script falhar ou der resultado inesperado, use novamente `npx playwright-cli` para navegar pelo fluxo real, investigar o que está errado e, em seguida, alterar o script para corrigir o problema. `$test-application` usa esse procedimento e valida a persistência no banco quando o Draw exigir; integrações externas ficam determinísticas por padrão e testes live são opt-in com credenciais do `.env` (no `.gitignore`). Nunca commite credenciais.
 - Mantenha memória contextual seletiva: use o `AGENTS.md` somente para visão geral, operação, escopo e rastreabilidade; registre detalhes técnicos reutilizáveis em `.agents/conventions/` e decisões visuais no `.looper/design.html`. Consolide duplicatas e não registre hipóteses, detalhes temporários, IDs de execução ou segredos.
 - Mantenha o `AGENTS.md` curto: uma convenção é uma orientação técnica específica, confirmada e reutilizável para implementar ou manter código e infraestrutura — geralmente uma solução aprendida com um bug difícil ou uma implementação incomum. Não registre linguagem geral do sistema, regra de negócio, histórico de tarefa ou workaround temporário; coloque convenções em `.agents/conventions/`, com o índice apontando para o assunto correto, e leia somente a convenção relevante.
 - Trate os Draws como documentação viva oficial: mudanças de comportamento, fluxo ou decisão devem atualizar o Draw correspondente, suas conexões e símbolos antes da implementação; detalhes sem mudança de comportamento devem virar perguntas e respostas no nó correto.
+---
 {{convention_catalog}}
+---
 - Qualquer alteração de comportamento feita diretamente pelo agente ou por um comando de programação deve primeiro atualizar os Draws correspondentes e depois atender ao pedido do usuário, para que a documentação reflita o comportamento novo. Se a alteração não mudar o comportamento e acrescentar somente um detalhe específico, crie uma pergunta no Draw correto, respeitando a hierarquia L2/L3. Se a alteração mudar um fluxo ou o comportamento documentado, atualize também as conexões dos nós quando necessário para representar o novo caminho. Os Draws são a documentação oficial do comportamento do sistema e devem permanecer atualizados.
 - Toda implementação ou alteração de comportamento deve associar no Draw o símbolo implementado ou alterado: o arquivo e, quando possível, a função, classe ou método específico (`qualified_name`). Um nó pode ter mais de um símbolo quando a entrega envolver vários pontos da codebase. Se o símbolo ainda não existir, crie a associação; se já existir e a entrega acrescentar comportamento, inclua também os novos símbolos. Documentação pura ou criação/edição de Draw sem mudança de comportamento não exige símbolo; se o pedido incluir implementação além da documentação, a associação volta a ser obrigatória.
 - `$test-application` lê o Draw completo, propõe e implementa uma suíte de testes transversal (incluindo Playwright e persistência quando aplicáveis); `$implement-frontend` e `$implement-backend` continuam pertencendo aos loops acionados por `looper backlog frontend`, `looper backlog backend` e `looper backlog task`.
@@ -308,23 +312,39 @@ def _agent_mode_instruction(development_mode: str) -> str:
 
 
 def _agent_convention_catalog(root: Path) -> str:
-    """Lista no AGENTS.md os assuntos das convenções locais, sem copiar seu conteúdo."""
+    """Renderiza convenções como catálogo de links, nomes e descrições curtas."""
     conventions_root = root / AGENT_CONVENTIONS_DIRECTORY
     files = sorted(
         path for path in conventions_root.rglob("*.md")
         if path.is_file() and path.name.lower() != "readme.md"
     ) if conventions_root.is_dir() else []
     if not files:
-        return "### Convenções técnicas disponíveis\n\n- Nenhuma convenção específica registrada ainda."
+        return "## Convenções técnicas disponíveis\n\n- Nenhuma convenção específica registrada ainda."
     entries = []
     for path in files:
-        title = path.stem.replace("-", " ").replace("_", " ").capitalize()
-        for line in path.read_text(encoding="utf-8").splitlines():
-            if line.startswith("# "):
-                title = line[2:].strip()
-                break
-        entries.append(f"- {title}")
-    return "### Convenções técnicas disponíveis\n\n" + "\n".join(entries)
+        content = path.read_text(encoding="utf-8")
+        name = path.stem.replace("-", " ").replace("_", " ").capitalize()
+        description = "Consulte esta convenção técnica quando o assunto for relevante."
+        frontmatter = re.match(r"\A---\s*\n(.*?)\n---\s*(?:\n|\Z)", content, re.DOTALL)
+        if frontmatter:
+            metadata = {}
+            for line in frontmatter.group(1).splitlines():
+                key, separator, value = line.partition(":")
+                if separator:
+                    metadata[key.strip().lower()] = value.strip().strip('"\'')
+            name = metadata.get("name") or name
+            description = metadata.get("description") or description
+        else:
+            for line in content.splitlines():
+                if line.startswith("# "):
+                    name = line[2:].strip()
+                    break
+            paragraphs = [line.strip() for line in content.splitlines() if line.strip() and not line.startswith("#")]
+            if paragraphs:
+                description = paragraphs[0]
+        relative = path.relative_to(root).as_posix()
+        entries.append(f"- [{name}]({relative}) — {description}")
+    return "## Convenções técnicas disponíveis\n\n" + "\n".join(entries)
 
 
 def _agent_block(root: Path | None = None, development_mode: str | None = None) -> str:
@@ -360,6 +380,21 @@ def ensure_agent_instructions(root: Path, integrations: tuple[str, ...], develop
             instruction_path.write_text(updated, encoding="utf-8")
             changed.append(instruction_path)
     return changed
+
+
+def refresh_agent_convention_catalog(root: Path) -> list[Path]:
+    """Reconstrói o catálogo de convenções no AGENTS.md sem executar um init completo.
+    Lê o modo salvo e atualiza somente o bloco gerenciado, preservando regras do projeto.
+    """
+    mode: str | None = None
+    try:
+        data = load_config(root)
+        backlog = data.get("backlog", {})
+        if isinstance(backlog, dict):
+            mode = backlog.get("development_mode")
+    except (OSError, UnicodeDecodeError, ValueError, json.JSONDecodeError):
+        pass
+    return ensure_agent_instructions(root, ("codex",), mode)
 
 
 def ensure_agent_conventions(root: Path) -> list[Path]:
@@ -402,7 +437,9 @@ def _resolve_init_development_mode(config: Path, requested: str | None) -> tuple
 
 def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), development_mode: str | None = None) -> list[Path]:
     """Inicializa a estrutura do projeto e instala as skills dos agentes.
-    Cria as pastas internas de execuções/features e copia os templates Markdown para .agents/skills.
+    Cria as pastas internas de execuções/features e sincroniza sempre os templates
+    Markdown empacotados para .agents/skills, incluindo as regras de especificação
+    planejada dos Draws antes da implementação existir.
     """
     created: list[Path] = migrate_legacy_project(root)
     for directory in (

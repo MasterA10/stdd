@@ -11,15 +11,31 @@ Ser a ponte entre a View do nível 2 e a codebase do nível 4. Cada subfluxo cor
 
 Use esta skill somente depois de ler o nível 2, sua raiz e os descendentes relevantes. Não refaça a navegação global do nível 2, não transforme o nível 3 em lista de nomes técnicos e não abra nível 4 automaticamente.
 
-## Obrigatoriedade de leitura do símbolo na codebase
+## Especificação antes da implementação e rastreabilidade posterior
 
-O sucesso desta etapa depende obrigatoriamente da leitura do símbolo associado ao nó do nível 2 e da sua referência na codebase.
+O nível 3 pode ser criado antes da implementação. Esse é o modo de especificação
+planejada do Draw System: documentar o comportamento que será construído não exige
+que já exista um símbolo na codebase. A ausência de código não é motivo para recusar
+o desenho, mas também não autoriza inventar arquivos, endpoints, permissões ou regras
+como se já fossem fatos implementados.
 
-- **Nenhum fluxo pode ser criado sem a leitura prévia do símbolo correspondente da implementação.**
-- Para explicar o fluxo de um nó vindo do nível 2 e criar o subfluxo de nível 3 para ele, o agente deve obrigatoriamente ler o símbolo e a referência dele no código-fonte.
-- Não é para implementar ou criar nenhum fluxo sem reler a implementação do símbolo correspondente.
-- Caso a referência ou o símbolo do nó do nível 2 ainda esteja pendente, utilize a análise estática e a busca no repositório para localizar a função, classe, handler ou service correspondente na codebase e faça sua leitura completa antes de desenhar o subfluxo.
-- O detalhamento das regras de negócio, pré-condições, autorizações, validações, ramificações e saídas do nível 3 deve ser extraído diretamente da leitura do código do símbolo.
+A obrigatoriedade de leitura do símbolo vale para validar uma tela já implementada,
+não para impedir a especificação de uma tela planejada.
+
+- Quando houver implementação, faça a leitura prévia do símbolo associado ao nó do
+  nível 2 e extraia dela as regras, pré-condições, autorizações, validações,
+  ramificações e saídas observadas. Use análise estática e busca no repositório para
+  localizar e ler a implementação completa quando a referência estiver pendente.
+- Quando o sistema ainda estiver no planejamento, modele o comportamento esperado a
+  partir do requisito, das decisões aprovadas e das perguntas respondidas. Marque
+  incertezas em `questions`, descreva-as como planejadas e mantenha `code_refs`
+  vazios ou explicitamente pendentes; nunca crie um símbolo placeholder.
+- O texto deve deixar distinguíveis os fatos implementados dos comportamentos
+  planejados. Quando a regra ainda não estiver comprovada pelo código, não a
+  apresente como evidência da implementação.
+- Depois que a implementação da tela for concluída, associe os símbolos reais e
+  releia-os para validar o desenho; o gate de rastreabilidade pertence a essa etapa,
+  não à criação da especificação.
 
 
 ## Hierarquia e encapsulamento
@@ -54,6 +70,14 @@ O nível 3 deve explicar **tudo o que é possível fazer naquela tela ou nó**, 
 - atualização, retorno, encerramento e todos os caminhos de saída da tela.
 
 Para uma tela dinâmica, como chat, marketplace, feed, busca, carrinho ou painel em tempo real, não trate uma tela dinâmica como sequência estática e não escreva apenas uma sequência linear. Explicar os ciclos e variações que a própria tela permite: carregamento incremental, atualização, filtros, paginação, concorrência, mensagens/eventos, envio e recebimento, indisponibilidade, reconexão, retry, consistência e recuperação. Associar tudo à tela correspondente e não espalhar a lógica por um nó genérico.
+
+Toda informação variável da tela deve apontar para uma chave/caminho do JSON
+único de mock fake e ser lida pela função/adaptador `get_mock_fake` (ou pelo
+casing idiomático equivalente). No L2, descreva somente a chave, o formato
+esperado e os estados que dependem dela; não associe o símbolo dessa função de
+mock. No L3, durante a implementação do backend, associe os símbolos reais das
+funções, controllers, models e integrações implementados. Não registre payloads
+dinâmicos diretamente em cada componente nem trate um valor de exemplo como dado fixo.
 
 Se a evidência não for suficiente para decidir um passo, registrar a pendência em `questions` ou fazer uma pergunta. Nunca preencher lacunas com um molde genérico ou inventar permissões.
 
@@ -120,7 +144,7 @@ Use `groups` para fronteiras, `flows` para caminhos temporais e `code_refs` nos 
 
 Para cada lote:
 
-1. Ler pai, jornada, raiz, divisão de lotes, descendentes necessários e realizar a leitura prévia e obrigatória do símbolo associado a cada nó na codebase.
+1. Ler pai, jornada, raiz e divisão de lotes. Para telas implementadas, realizar a leitura prévia e obrigatória do símbolo associado; para telas planejadas, ler os requisitos, decisões e perguntas do Draw e registrar `code_refs` como pendentes ou ausentes.
 2. Criar cada JSON separadamente com IDs estáveis usando `looper draw create --data-json '<JSON>'`.
 3. Validar nós, arestas, fluxos, condições, grupos, `draw_ref`, pais, raiz, terminais e os critérios estáticos de quatro nós e 80 caracteres.
 4. Revisar no viewer com `looper draw serve`.

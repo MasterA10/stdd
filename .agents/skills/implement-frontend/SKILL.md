@@ -35,6 +35,41 @@ looper backlog frontend
   - Não implementar controllers de backend, models, ORMs, regras de negócio complexas de servidor, persistência em banco de dados ou integrações com APIs externas.
   - Essas responsabilidades pertencem exclusivamente à fase de backend (Nível 3).
 
+## Contrato de dados dinâmicos e mock fake
+
+Antes de implementar a tela, classifique cada informação exibida como fixa ou
+dinâmica. Informação dinâmica é qualquer valor que possa vir de API, banco,
+sessão, configuração, evento, busca, cálculo ou outro estado externo — mesmo que
+a implementação real ainda não exista.
+
+Para toda tela que tenha ao menos um dado dinâmico:
+
+1. Use um único JSON de dados fake do projeto, no caminho definido pela convenção
+   local (por padrão, `mock-fake.json` na raiz da aplicação). Não crie um JSON por
+   tela nem espalhe objetos de fixture dentro dos componentes.
+2. Acesse os dados somente por uma função/adaptador com o nome lógico
+   `get_mock_fake`; a linguagem pode adaptar apenas o casing idiomático, como
+   `getMockFake`, mas não deve traduzir ou trocar o nome.
+3. Passe para essa função a chave ou caminho do JSON que identifica o payload da
+   tela, por exemplo `dashboard.cards` ou `search.results`. A chave precisa ser
+   explícita e rastreável; não use índice ou conteúdo hardcoded como substituto.
+4. Mantenha a tela consumindo o mesmo contrato de dados que será usado depois
+   pela API, banco ou integração. O mock fake substitui somente a fonte durante
+   a construção da view; não substitui validação, estados, regras ou efeitos reais
+   que pertençam ao backend.
+5. Registre no Draw e no contexto da task quais dados são dinâmicos, qual chave
+   foi usada e qual formato o payload precisa ter. No L2, não associe `get_mock_fake`
+   nem a função de leitura do JSON como `code_ref`; essa função é um detalhe do
+   mock e não precisa ter símbolo rastreado nesta fase. Se não for possível decidir
+   a chave ou o formato com evidência, abra uma pergunta no Draw em vez de inventar dados.
+
+Uma tela com dados fixos pode usar literais visuais, como título de seção ou texto
+de ajuda, quando eles forem realmente invariáveis. Não use hardcode para mascarar
+uma lista, perfil, preço, contador, status, resultado de busca, mensagem de API ou
+qualquer outro valor que o usuário espera que mude. Os estados loading, vazio,
+erro, sucesso e retry devem ser derivados do mesmo ponto de acesso e permanecer
+testáveis.
+
 ## Recursos de Design e Frontend Obrigatórios
 
 Ao construir, refinar ou revisar telas e componentes:
@@ -49,7 +84,7 @@ Você pode adicionar novos guias ou recursos complementares de frontend na pasta
 - Leia o Draw relacionado e seus subfluxos apenas na medida necessária para a task.
 - Não implemente folhas do grupo de funcionalidades não implementadas sem escopo aprovado.
 - Preserve `draw_ref`, `parent_draw_ref`, `parent_node_id` e `root_draw_ref`. Trate fluxo órfão como bloqueio em árvores `$draw-system-level-1` a `$draw-system-level-4`.
-- A associação não é automática. Em todo loop, antes de `backlog complete`, associe explicitamente cada nó entregue aos arquivos e símbolos (`qualified_name`) reais da interface em `code_refs`.
+- A associação não é automática. Em todo loop, antes de `backlog complete`, associe explicitamente cada nó entregue aos arquivos e símbolos (`qualified_name`) reais da interface em `code_refs`, quando a rastreabilidade visual estiver disponível. Nunca associe o símbolo de `get_mock_fake` ou de outra função usada somente para fornecer dados fake no L2.
 - Para associar cada nó, use o símbolo de tela/componente real:
   ```bash
   looper draw associate-reference --draw-id <draw-id> --node-id <node-id> \
