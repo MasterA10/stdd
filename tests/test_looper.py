@@ -968,6 +968,38 @@ def test_setup_skill_defines_global_alias_and_database_lifecycle():
         assert required in content
 
 
+def test_mock_server_skill_requires_strict_outbound_and_webhook_contracts():
+    """Exige que a skill modele autenticação, ativação e recebimento em sequência.
+    Lê o template e verifica os requisitos críticos do contrato.
+    """
+    content = Path("src/looper/templates/agents/mock-server/SKILL.md").read_text(encoding="utf-8").lower()
+
+    for required in (
+        "matriz do contrato",
+        "credencial, formato e permissão",
+        "ativação do recebimento",
+        "transição explícita de estado",
+        "bloqueado até a ativação",
+        "assinatura",
+        "não faça forwarding",
+        "evento duplicado",
+        "estado de ativação",
+    ):
+        assert required in content, f"mock-server não define {required}"
+
+
+def test_init_injects_strict_mock_server_contract_instruction(tmp_path: Path):
+    """Propaga a regra crítica para o construtor do AGENTS.md gerado pelo init.
+    Inicializa um projeto temporário e verifica a instrução persistida.
+    """
+    init_project(tmp_path)
+    agents = (tmp_path / "AGENTS.md").read_text(encoding="utf-8").lower()
+
+    assert "$mock-server" in agents
+    assert "recebimento por webhook" in agents
+    assert "webhook ser ativado" in agents
+
+
 def test_agent_skills_require_approval_for_expensive_or_mutating_setup():
     """Impede instalação, download e provisionamento sem autorização do usuário.
     Confirma que setup e implement preservam controle explícito em perfis flexíveis como MVP.
