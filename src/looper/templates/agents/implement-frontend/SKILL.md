@@ -44,8 +44,8 @@ a implementação real ainda não exista.
 
 Para toda tela que tenha ao menos um dado dinâmico:
 
-1. Use um único JSON de dados fake do projeto, no caminho definido pela convenção
-   local (por padrão, `mock-fake.json` na raiz da aplicação). Não crie um JSON por
+1. Use um único JSON de dados fake do projeto, no caminho definido pelo contrato
+   da aplicação (por padrão, `mock-fake.json` na raiz da aplicação). Não crie um JSON por
    tela nem espalhe objetos de fixture dentro dos componentes.
 2. Acesse os dados somente por uma função/adaptador com o nome lógico
    `get_mock_fake`; a linguagem pode adaptar apenas o casing idiomático, como

@@ -49,6 +49,10 @@ O `looper init` sempre sincroniza as skills já instaladas com os templates dest
 
 O init instala a skill `$playwright-testing` em `.agents/skills/playwright-testing/`. Ela documenta como criar testes E2E com Playwright, explorar e diagnosticar a aplicação com `npx playwright-cli`, confirmar a estrutura antes de automatizar e executar a regressão com `looper test --playwright`.
 
+O init também instala a skill `$subagents` em `.agents/skills/subagents/`. Ela documenta os comandos headless de Codex, Claude e Agy, a retomada por ID de sessão e a orquestração paralela em `tmux` com barreira bloqueante, sem polling.
+
+O init também instala a skill `$resolve-bug` em `.agents/skills/resolve-bug/`. Ela delega a investigação e a execução a um subagente em `tmux`, exige validação do plano, atualiza os Draws e registra padrões técnicos reutilizáveis em `.agents/conventions/`.
+
 O init também instala a skill-guia `$system-design` em `.agents/skills/system-design/`. Ela mantém o design system do projeto no `.looper/design.html` como uma landing page demonstrativa: as decisões de cor, tipografia, espaçamento, bordas, componentes, estados e acessibilidade aparecem aplicadas em exemplos reais, acompanhadas de explicações.
 
 O init cria `.agents/conventions/` com um índice inicial. Uma convenção é uma orientação técnica específica, confirmada e reutilizável sobre como implementar ou manter código e infraestrutura, normalmente aprendida ao resolver um bug difícil ou uma implementação incomum. Documentações técnicas específicas e reutilizáveis, como contratos de APIs/apps externos e pré-condições de integrações, também ficam nessa pasta. Linguagem geral do sistema e regras de negócio não são convenções. Use a pasta por assunto, mantendo o `AGENTS.md` curto; o bloco gerenciado do `AGENTS.md` injeta automaticamente somente o catálogo de nomes, sem copiar caminhos ou conteúdo. O índice aponta para os arquivos, que o agente deve ler somente quando o assunto for relevante. Arquivos existentes são preservados pelo init. O `looper log` reconstrói esse catálogo a cada registro, incluindo convenções criadas depois do init. Quando uma convenção ou documentação alterar comportamento documentado, os Draws também devem ser atualizados.
@@ -108,6 +112,7 @@ $playwright-testing Crie e diagnostique testes Playwright, explorando a aplicaç
 $modern-web-guidance Consulte padrões modernos da web para interface, layouts, animações e CSS.
 $backend-developer Implemente backend modular com logging transversal e integrações externas testadas.
 $implement-change Execute em loop as changes pendentes entregues por `looper backlog change`, leia o contexto real, implemente, teste e conclua cada ID.
+$resolve-bug Investigue e corrija um bug com plano validado, execução delegada, Draws atualizados e convenções reutilizáveis quando confirmadas.
 $implement-frontend Construa a tela/view (Nível 2) entregue por looper backlog frontend.
 $implement-backend Implemente controllers, models, regras e integrações (Nível 3) entregues por looper backlog backend.
 ```

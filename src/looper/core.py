@@ -268,7 +268,7 @@ Este projeto usa o Looper para especificação, implementação, testes e evidê
 - Ao construir, refinar ou revisar interfaces, leia e use a skill `$modern-web-guidance` (localizada em `.agents/skills/modern-web-guidance/SKILL.md`)
   - Ao alterar um padrão de design, insira o padrão no `.looper/design.html` pra deixar a documentação de design atualizada
 - Observação de frontend: não use emojis na interface. Presets, labels, estados, botões e elementos decorativos devem usar texto ou ícones da biblioteca visual do projeto, nunca caracteres emoji.
-- Contrato de telas dinâmicas: classifique toda informação da tela como fixa ou dinâmica. Se for dinâmica (API, banco, sessão, configuração, busca, evento, cálculo ou estado externo), use um único JSON de mock fake do projeto e acesse sua chave/caminho exclusivamente por uma função com nome lógico `get_mock_fake` (adapte somente o casing da linguagem, como `getMockFake`). Não crie um JSON por tela nem espalhe payloads dinâmicos nos componentes. No L2, registre somente a chave e o formato esperado, sem salvar o símbolo da função de mock; no L3, durante a implementação do backend, associe os símbolos reais das funções, controllers, models e integrações. O mock fake serve para construir a view e deve manter contrato compatível com a fonte real, sem substituir regras, persistência ou integrações de backend. Consulte `.agents/conventions/dynamic-screen-data.md`.
+- Contrato de telas dinâmicas: classifique toda informação da tela como fixa ou dinâmica. Se for dinâmica (API, banco, sessão, configuração, busca, evento, cálculo ou estado externo), use um único JSON de mock fake do projeto e acesse sua chave/caminho exclusivamente por uma função com nome lógico `get_mock_fake` (adapte somente o casing da linguagem, como `getMockFake`). Não crie um JSON por tela nem espalhe payloads dinâmicos nos componentes. No L2, registre somente a chave e o formato esperado, sem salvar o símbolo da função de mock; no L3, durante a implementação do backend, associe os símbolos reais das funções, controllers, models e integrações. O mock fake serve para construir a view e deve manter contrato compatível com a fonte real, sem substituir regras, persistência ou integrações de backend. 
 - O `looper test` verifica também os cabeçalhos das convenções em `.agents/conventions/`: cada Markdown, exceto o `README.md` índice, deve ter frontmatter YAML com `name` e `description` não vazios. Cabeçalho ausente ou inválido gera o warning `convention.standard_header`, sem bloquear o gate.
 - Quando este projeto mencionar `playwright-cli` para navegar no navegador, isso significa executar `npx playwright-cli` pelo terminal, usando-o para navegação exploratória e inspeção do fluxo da aplicação. Isso não significa criar scripts automaticamente. Scripts Playwright devem ser criados principalmente para testes de regressão ou depois que o fluxo já tiver sido navegado e seu funcionamento observado, para então automatizar a validação. Se um script falhar ou der resultado inesperado, use novamente `npx playwright-cli` para navegar pelo fluxo real, investigar o que está errado e, em seguida, alterar o script para corrigir o problema. `$test-application` usa esse procedimento e valida a persistência no banco quando o Draw exigir; integrações externas ficam determinísticas por padrão e testes live são opt-in com credenciais do `.env` (no `.gitignore`). Nunca commite credenciais.
 - Mantenha memória contextual seletiva: use o `AGENTS.md` somente para visão geral, operação, escopo e rastreabilidade; registre detalhes técnicos reutilizáveis em `.agents/conventions/` e decisões visuais no `.looper/design.html`. Consolide duplicatas e não registre hipóteses, detalhes temporários, IDs de execução ou segredos.
@@ -398,20 +398,18 @@ def refresh_agent_convention_catalog(root: Path) -> list[Path]:
 
 
 def ensure_agent_conventions(root: Path) -> list[Path]:
-    """Cria a base de convenções do projeto sem substituir conteúdo criado pelo usuário.
-    Copia somente arquivos ausentes do template para manter a pasta evolutiva e versionável.
+    """Cria somente o índice de convenções, sem distribuir convenções padrão.
+    Arquivos existentes no projeto são preservados e podem ser catalogados normalmente.
     """
     source_root = Path(__file__).parent / "templates" / "conventions"
     target_root = root / AGENT_CONVENTIONS_DIRECTORY
-    changed: list[Path] = []
-    for source in sorted(path for path in source_root.rglob("*") if path.is_file()):
-        target = target_root / source.relative_to(source_root)
-        if target.exists():
-            continue
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
-        changed.append(target)
-    return changed
+    source = source_root / "README.md"
+    target = target_root / "README.md"
+    if target.exists() or not source.exists():
+        return []
+    target_root.mkdir(parents=True, exist_ok=True)
+    target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+    return [target]
 
 
 def _resolve_init_development_mode(config: Path, requested: str | None) -> tuple[str, bool]:
@@ -549,6 +547,13 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
             openai_metadata = source.parent / "agents" / "openai.yaml"
             if integration == "codex" and openai_metadata.exists():
                 sources.append(openai_metadata)
+            sources.extend(
+                path for path in sorted(source.parent.rglob("*"))
+                if path.is_file()
+                and path.parent.name == "scripts"
+                and path != source
+                and path != openai_metadata
+            )
             for skill_source in sources:
                 relative = skill_source.relative_to(source.parent)
                 target = skill_dir / name / relative

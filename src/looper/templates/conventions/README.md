@@ -41,5 +41,5 @@ de programação, histórico de uma tarefa ou workaround temporário sem reutili
 
 ## Convenções disponíveis
 
-- [Especificação dos Draws antes da implementação](draw-specification-before-implementation.md)
-- [Dados dinâmicos de telas](dynamic-screen-data.md)
+Nenhuma convenção é distribuída pelo framework. Esta pasta recebe somente decisões
+técnicas específicas confirmadas no projeto que estiver sendo inicializado.

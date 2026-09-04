@@ -1,0 +1,4 @@
+interface:
+  display_name: "Subagents"
+  short_description: "Orquestra subagentes com barreira tmux"
+  default_prompt: "Use $subagents para dividir esta tarefa entre agentes locais, retomar sessões e consolidar os resultados sem polling."

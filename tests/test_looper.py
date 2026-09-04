@@ -1,4 +1,6 @@
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 from typer.testing import CliRunner
@@ -22,7 +24,7 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert (tmp_path / ".looper/config.yaml").exists()
     assert (tmp_path / ".agents/skills/test-application/SKILL.md").exists()
     assert (tmp_path / ".agents/conventions/README.md").exists()
-    assert (tmp_path / ".agents/conventions/draw-specification-before-implementation.md").exists()
+    assert sorted(path.name for path in (tmp_path / ".agents/conventions").glob("*.md")) == ["README.md"]
     conventions = (tmp_path / ".agents/conventions/README.md").read_text(encoding="utf-8")
     assert "orientação técnica específica" in conventions
     assert "contratos de APIs/apps externos" in conventions
@@ -69,6 +71,10 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert "npx playwright-cli" in playwright_skill
     assert "Navegar não é obrigatório" in playwright_skill
     assert "estrutura acessível" in playwright_skill
+    assert "Sistema com persistência" in playwright_skill
+    assert "persistence_not_executed" in playwright_skill
+    assert "banco de teste isolado" in playwright_skill
+    assert "nunca use “último registro”" in playwright_skill
     for source in agent_templates():
         installed = tmp_path / ".agents" / "skills" / source.parent.name / "SKILL.md"
         assert installed.read_text(encoding="utf-8") == source.read_text(encoding="utf-8")
@@ -248,6 +254,7 @@ def test_init_creates_conventions_index_without_overwriting_project_conventions(
     Executa init novamente depois de editar uma convenção local e confirma que o conteúdo permanece intacto.
     """
     init_project(tmp_path)
+    assert sorted(path.name for path in (tmp_path / ".agents/conventions").glob("*.md")) == ["README.md"]
     convention = tmp_path / ".agents/conventions/backend.md"
     convention.write_text("# Backend\n\nDecisão confirmada do projeto.\n", encoding="utf-8")
 
@@ -258,6 +265,22 @@ def test_init_creates_conventions_index_without_overwriting_project_conventions(
     assert "## Convenções técnicas disponíveis" in agents
     assert "[Backend](.agents/conventions/backend.md)" in agents
     assert "Decisão confirmada do projeto." in agents
+
+
+def test_init_update_does_not_inject_framework_conventions(tmp_path: Path):
+    """Mantém a inicialização sem convenções padrão em novas sincronizações.
+    Confirma que init repetido cria apenas o índice e preserva uma convenção do projeto.
+    """
+    init_project(tmp_path)
+    project_convention = tmp_path / ".agents/conventions/project-rule.md"
+    project_convention.write_text("---\nname: regra do projeto\ndescription: Decisão local.\n---\n", encoding="utf-8")
+
+    init_project(tmp_path)
+
+    assert project_convention.exists()
+    assert not (tmp_path / ".agents/conventions/draw-specification-before-implementation.md").exists()
+    assert not (tmp_path / ".agents/conventions/dynamic-screen-data.md").exists()
+    assert sorted(path.name for path in (tmp_path / ".agents/conventions").glob("*.md")) == ["README.md", "project-rule.md"]
 
 
 def test_init_injects_idempotent_instructions_for_all_agents(tmp_path: Path):
@@ -337,6 +360,7 @@ def test_agents_are_loaded_from_markdown_templates():
         "implement-backend",
         "implement-frontend",
         "implement-change",
+        "resolve-bug",
         "modern-web-guidance",
         "playwright-testing",
         "mock-server",
@@ -415,6 +439,22 @@ def test_agents_are_loaded_from_markdown_templates():
     backend_developer_content = templates["backend-developer"].read_text().lower()
     assert "300 linhas" in backend_developer_content
     assert "não" in backend_developer_content and "validação estática" in backend_developer_content
+
+
+def test_resolve_bug_skill_requires_observability_before_fix():
+    """Exige diagnóstico observável antes da correção delegada do bug.
+    Confirma subagente em tmux, validação do plano, stack trace e níveis de log.
+    """
+    content = Path("src/looper/templates/agents/resolve-bug/SKILL.md").read_text(encoding="utf-8")
+    for required in (
+        "tmux",
+        "stack trace",
+        "instrumentação diagnóstica",
+        "`error`, `warn`, `info` e",
+        "não os altere apenas por formalidade",
+        "--type bug",
+    ):
+        assert required in content
 
 
 def test_test_and_implement_skills_require_symbols_and_static_analysis_gate():
@@ -553,6 +593,45 @@ def test_skills_route_specific_technical_memory_to_conventions():
         assert ".agents/conventions/" in content, skill_name
 
 
+def test_subagents_skill_documents_cli_contracts_and_non_polling_barrier():
+    """Publica os comandos reais e proíbe polling para aguardar subagentes.
+    Confirma o contrato de primeira chamada, retomada e espera observável.
+    """
+    # O contrato cobre tanto a primeira chamada quanto a retomada.
+    # A espera deve ser bloqueante e acompanhável no Terminal do usuário.
+    content = Path("src/looper/templates/agents/subagents/SKILL.md").read_text(encoding="utf-8")
+    for required in ("codex exec", "claude -p", "agy -p", "--model", "--effort", "--resume", "--conversation", "tmux wait-for", "sem polling", "session_id"):
+        assert required in content
+    assert "tmux has-session" in content
+
+
+def test_subagents_helper_discovers_local_agents():
+    """O helper lista capacidades observáveis do PATH e versões locais.
+    Confirma a descoberta sem selecionar agente ou modelo automaticamente.
+    """
+    # A descoberta reflete o ambiente sem escolher um modelo automaticamente.
+    # O teste usa a mesma entrada recomendada pela skill.
+    helper = Path("src/looper/templates/agents/subagents/scripts/orchestrate_subagents.py")
+    result = subprocess.run([sys.executable, str(helper), "discover"], capture_output=True, text=True, check=False)
+    assert result.returncode == 0
+    discovered = json.loads(result.stdout)
+    names = {entry["name"] for entry in discovered}
+    assert {"codex", "claude", "agy"}.issubset(names)
+
+
+def test_subagents_helper_reuses_tmux_pane_for_continuation():
+    """Mantém o pane aberto e envia a continuação ao mesmo processo de shell.
+    Confirma layout proporcional e o comando de retomada sem criar outra sessão.
+    """
+    # O pane precisa sobreviver ao fim do primeiro comando.
+    # A continuação deve usar send-keys no alvo persistido.
+    helper = Path("src/looper/templates/agents/subagents/scripts/orchestrate_subagents.py").read_text(encoding="utf-8")
+    assert "split-window" in helper
+    assert "even-horizontal" in helper
+    assert "exec bash" in helper
+    assert "send-keys" in helper
+
+
 def test_frontend_dynamic_data_contract_is_published_and_injected(tmp_path: Path, monkeypatch):
     """Publica o contrato de dados dinâmicos nas skills e no AGENTS gerado.
     Confirma JSON único, chave explícita e adaptador get_mock_fake nas fontes distribuídas.
@@ -563,9 +642,7 @@ def test_frontend_dynamic_data_contract_is_published_and_injected(tmp_path: Path
     monkeypatch.chdir(tmp_path)
     source_skill = (repository_root / "src/looper/templates/agents/implement-frontend/SKILL.md").read_text(encoding="utf-8")
     installed_skill = (repository_root / ".agents/skills/implement-frontend/SKILL.md").read_text(encoding="utf-8")
-    convention = (repository_root / "src/looper/templates/conventions/dynamic-screen-data.md").read_text(encoding="utf-8")
-
-    for content in (source_skill, installed_skill, convention):
+    for content in (source_skill, installed_skill):
         assert "get_mock_fake" in content
         assert "JSON" in content
         assert "chave" in content.lower()
@@ -576,7 +653,8 @@ def test_frontend_dynamic_data_contract_is_published_and_injected(tmp_path: Path
     assert "Contrato de telas dinâmicas" in agent_instructions
     assert "get_mock_fake" in agent_instructions
     assert "sem salvar o símbolo da função de mock" in agent_instructions
-    assert ".agents/conventions/dynamic-screen-data.md" in agent_instructions
+    assert ".agents/conventions/dynamic-screen-data.md" not in agent_instructions
+    assert "Contrato de telas dinâmicas" in agent_instructions
 
 
 def test_node_delivery_contract_covers_tests_and_full_implementation():

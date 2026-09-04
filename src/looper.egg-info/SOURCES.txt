@@ -56,10 +56,15 @@ src/looper/templates/agents/modern-web-guidance/SKILL.md
 src/looper/templates/agents/modern-web-guidance/agents/openai.yaml
 src/looper/templates/agents/playwright-testing/SKILL.md
 src/looper/templates/agents/playwright-testing/agents/openai.yaml
+src/looper/templates/agents/resolve-bug/SKILL.md
+src/looper/templates/agents/resolve-bug/agents/openai.yaml
 src/looper/templates/agents/setup/SKILL.md
 src/looper/templates/agents/setup/agents/openai.yaml
 src/looper/templates/agents/static-analysis/SKILL.md
 src/looper/templates/agents/static-analysis/agents/openai.yaml
+src/looper/templates/agents/subagents/SKILL.md
+src/looper/templates/agents/subagents/agents/openai.yaml
+src/looper/templates/agents/subagents/scripts/orchestrate_subagents.py
 src/looper/templates/agents/system-design/SKILL.md
 src/looper/templates/agents/system-design/agents/openai.yaml
 src/looper/templates/agents/test-application/SKILL.md

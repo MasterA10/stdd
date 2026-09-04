@@ -1,0 +1,4 @@
+interface:
+  display_name: "Resolve Bug"
+  short_description: "Investiga e corrige bugs com subagente"
+  default_prompt: "Use $resolve-bug para investigar, planejar e corrigir este bug com evidências."

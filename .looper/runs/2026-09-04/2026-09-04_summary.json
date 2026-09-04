@@ -85,8 +85,155 @@
         "lines_deleted": 1,
         "files_changed": 1
       }
+    },
+    {
+      "run_id": "479981c85bdd4040966a72227ad4e390",
+      "timestamp": "2026-09-04T15:47:24.361659+00:00",
+      "description": "Cria skill subagents com comandos de Codex, Claude e Agy, retomada por sessão e panes tmux visíveis sem polling",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 416,
+        "lines_deleted": 12,
+        "files_changed": 5
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 1,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "ad702a12a5f14637abf12042ce6b3e61",
+      "timestamp": "2026-09-04T15:47:29.790328+00:00",
+      "description": "Valida skill subagents, descoberta de CLIs e barreira tmux/FIFO",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "ad5f3733e6f54af8b4279d0d16cfed31",
+      "timestamp": "2026-09-04T15:53:14.528583+00:00",
+      "description": "Ajusta subagents para manter a mesma sessão e reutilizar o mesmo pane na continuação",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 79,
+        "lines_deleted": 22,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "6b3ede24833341108bc657909fbedd48",
+      "timestamp": "2026-09-04T15:53:19.977692+00:00",
+      "description": "Valida retomada no pane, layout proporcional e barreira tmux",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "59b1993600ec432db94dad3e3f8c7408",
+      "timestamp": "2026-09-04T16:02:14.751119+00:00",
+      "description": "Ajusta a visualização dos subagentes para formato textual limpo nos panes tmux",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 12,
+        "lines_deleted": 12,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "4d2f6226b85f434a861ffa7ab730a42d",
+      "timestamp": "2026-09-04T16:09:03.834704+00:00",
+      "description": "Normaliza a resposta final dos subagentes e oculta stdout/stderr intermediários",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 106,
+        "lines_deleted": 42,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "00c6e363b4d147f4844cfbdc709b14b5",
+      "timestamp": "2026-09-04T16:09:09.484284+00:00",
+      "description": "Valida extração final textual e JSON sem vazar diagnósticos",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 4,
-  "last_run_id": "212ca3790a7a434a8a6a6a001bd5926b"
+  "run_count": 11,
+  "last_run_id": "00c6e363b4d147f4844cfbdc709b14b5"
 }

@@ -55,6 +55,18 @@ def test_init_can_install_skills_for_all_supported_agents(tmp_path: Path):
     assert (tmp_path / ".agents/skills/draw-interaction/agents/openai.yaml").exists()
 
 
+def test_init_installs_subagents_skill_and_helper_for_codex(tmp_path: Path):
+    """Instala a skill de subagentes e seu helper no diretório do Codex.
+    Confirma que o comando real do README reproduz a estrutura distribuída.
+    """
+    # A instalação deve distribuir tanto as instruções quanto o script executável.
+    # O comando real do README deve reproduzir a mesma estrutura instalada.
+    result = runner.invoke(app, ["init", str(tmp_path), "--integration", "codex"])
+    assert result.exit_code == 0
+    assert (tmp_path / ".agents/skills/subagents/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/subagents/scripts/orchestrate_subagents.py").exists()
+
+
 def test_draw_answer_skill_requires_structured_human_output_with_node_symbol():
     """Define a resposta do Draw Interaction como uma saída humana e rastreável.
     Exige que o contrato mostre o símbolo associado ao próprio nó e as evidências.

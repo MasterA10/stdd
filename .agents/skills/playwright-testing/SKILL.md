@@ -66,7 +66,7 @@ looper test --playwright
 - Use uma única página/janela quando a jornada não exigir outra.
 - Se o projeto tiver helpers visuais, use `installMousePointer`, `moveAndClick` e `moveAndFill` para tornar a interação observável; não invente helpers alternativos para contornar uma falha.
 - Aguarde estado observável com locators e `expect`; não use `waitForTimeout` como prova de conclusão.
-- Finalize cada cenário com asserção explícita do estado previsto no Draw, incluindo persistência observável quando fizer parte do comportamento.
+- Finalize cada cenário com asserção explícita do estado previsto no Draw. Quando houver persistência, aplique também o modo de teste de sistema descrito abaixo.
 
 Exemplo mínimo:
 
@@ -83,11 +83,24 @@ test('usuário conclui a configuração', async ({ page }) => {
 });
 ```
 
+## Persistência e fallback
+
+Antes de criar uma asserção de banco, identifique a tecnologia, o comando de acesso e o ciclo de vida previstos no setup/configuração. Use somente um banco de teste isolado, migrations/fixtures próprias e credenciais autorizadas; nunca consulte ou altere produção.
+
+Classifique cada jornada em um dos modos:
+
+- **Sistema com persistência:** execute a jornada no navegador, gere um identificador de correlação único, aguarde a confirmação observável na interface, consulte o banco de teste por uma fixture/adaptador separado dos locators e valide o registro, os campos essenciais e o estado previsto no Draw. Faça a limpeza ao final, salvo quando o isolamento por transação tornar isso desnecessário.
+- **Fluxo sem persistência:** se a aplicação não possui banco, o comportamento não persiste dados ou o banco de teste está indisponível, mantenha as asserções de fluxo, navegação, carregamento, erro e sucesso observáveis. Não invente banco, não simule uma gravação e não aprove a persistência sem evidência.
+
+Quando o banco estiver indisponível, reporte separadamente `flow_passed` e `persistence_not_executed`, sempre com o motivo concreto. Se o Draw exigir persistência, a indisponibilidade é uma limitação ou bloqueio, não uma aprovação silenciosa. Se a persistência não fizer parte do contrato da aplicação, o fluxo somente pode ser concluído com essa limitação registrada.
+
+Mantenha fixtures e consultas de persistência em módulo de suporte separado dos locators. Consulte o registro pela correlação determinística criada no cenário; nunca use “último registro” nem `waitForTimeout` como sincronização. Falhas de conexão, timeout, migration, isolamento ou limpeza devem falhar o modo de persistência e preservar a evidência do motivo.
+
 ## Falhas e escopo
 
 Uma etapa crítica que falha deve falhar o teste. Não esconda a falha com `try/catch` sem relançar, `return`, `test.skip`, `test.fixme`, `test.fail`, selector alternativo, `page.goto()` direto ou uma asserção final genérica.
 
-Para L2, valide tela, navegação, loading, vazio, erro, sucesso, foco, desabilitado e o estado final observável. Se o backend L3 ainda não existir, teste somente o caminho visual e a navegação que o Draw realmente especifica; não invente respostas de API.
+Para L2, valide tela, navegação, loading, vazio, erro, sucesso, foco, desabilitado e o estado final observável. Se o backend L3 ainda não existir, teste somente o caminho visual e a navegação que o Draw realmente especifica; se houver uma persistência já disponível e contratada, o cenário pode usar o modo de sistema acima. Não invente respostas de API.
 
 Para L3, prefira os testes de unidade/integração/API apropriados para regras, controllers, persistência e integrações. O teste Playwright não substitui essas evidências.
 
