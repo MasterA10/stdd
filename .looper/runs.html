@@ -28,7 +28,7 @@
   <div class="app">
     <aside>
       <div class="brand"><div class="mark">R</div><div><p class="eyebrow">Looper · Runs</p><h1>Execuções</h1></div></div>
-      <p class="muted copy">Consulte o histórico de trabalho, métricas e diffs registrados pelo framework.</p>
+      <p class="muted copy">Consulte o histórico de trabalho e as contagens registradas pelo framework.</p>
       <input id="search" class="search" aria-label="Buscar dia" placeholder="Buscar dia...">
       <div id="days" class="days"></div>
       <div id="status" class="status">Carregando índice...</div>
@@ -38,7 +38,7 @@
       <section id="metrics" class="metrics"></section>
       <section class="panel"><div class="panel-head"><h3>Entendimento rápido</h3><span id="test-label" class="muted"></span></div><div id="test-summary" class="test-summary"><div class="empty">Selecione um dia para ver o resultado dos testes.</div></div></section>
       <section class="panel"><div class="panel-head"><h3>Runs do dia</h3><span id="day-label" class="muted"></span></div><div id="runs" class="runs"><div class="empty">Nenhum dia selecionado.</div></div></section>
-      <section class="panel"><div class="panel-head"><h3>Arquivos e diffs</h3><span id="run-label" class="muted"></span></div><div id="files" class="files"><div class="empty">Selecione uma run para ver os arquivos alterados.</div></div></section>
+      <section class="panel"><div class="panel-head"><h3>Contagem por execução</h3><span id="run-label" class="muted"></span></div><div id="files" class="files"><div class="empty">Selecione uma execução para ver suas contagens.</div></div></section>
     </main>
   </div>
   <script>
@@ -55,8 +55,8 @@
         const query = state.query.toLowerCase(); $('days').replaceChildren(...state.index.filter(day => text(day.date).includes(query)).map(day => { const button = document.createElement('button'); button.className = `day${state.day?.date === day.date ? ' active' : ''}`; button.innerHTML = `<strong>${text(day.date)}</strong><small>${formatNumber(day.run_count)} run(s)</small>`; button.onclick = () => loadDay(day); return button; }));
         if (!$('days').children.length) $('days').innerHTML = '<div class="empty">Nenhum dia encontrado.</div>';
       }
-      function renderMetrics(run) {
-        const stats = run?.diff_stats || {}; const metrics = [['Runs do dia', state.summary?.run_count || 0], ['Arquivos alterados', stats.files_changed || 0], ['Linhas adicionadas', stats.lines_added || 0], ['Linhas removidas', stats.lines_deleted || 0]];
+      function renderMetrics() {
+        const runs = state.summary?.runs || []; const totals = runs.reduce((acc, run) => { const stats = run.diff_stats || {}; acc.files += Number(stats.files_changed || 0); acc.added += Number(stats.lines_added || 0); acc.deleted += Number(stats.lines_deleted || 0); return acc; }, { files: 0, added: 0, deleted: 0 }); const metrics = [['Runs do dia', runs.length], ['Arquivos alterados', totals.files], ['Linhas adicionadas', totals.added], ['Linhas removidas', totals.deleted]];
         $('metrics').replaceChildren(...metrics.map(([label, value]) => { const card = document.createElement('div'); card.className = 'metric'; card.innerHTML = `<span>${label}</span><strong>${formatNumber(value)}</strong>`; return card; }));
       }
       function renderRuns() {
@@ -64,8 +64,7 @@
         if (!runs.length) $('runs').innerHTML = '<div class="empty">Nenhuma run registrada neste dia.</div>';
       }
       function renderFiles() {
-        const snapshotRun = (state.snapshot?.runs || []).find(run => run.run_id === state.selectedRun); const files = snapshotRun?.files || []; $('run-label').textContent = state.selectedRun ? text(state.selectedRun) : ''; $('files').replaceChildren(...files.map(file => { const item = document.createElement('article'); item.className = 'file'; item.innerHTML = `<div class="file-head"><span>${text(file.path)}</span><span class="file-stats">+${formatNumber(file.lines_added)} / −${formatNumber(file.lines_deleted)}</span></div><pre class="diff"></pre>`; item.querySelector('.diff').textContent = text(file.diff, 'Sem diff textual.'); return item; }));
-        if (!files.length) $('files').innerHTML = '<div class="empty">Esta run não possui arquivos alterados.</div>';
+        const run = runById(state.selectedRun); const stats = run?.diff_stats || {}; $('run-label').textContent = state.selectedRun ? text(state.selectedRun) : ''; $('files').replaceChildren(); if (!run) { $('files').innerHTML = '<div class="empty">Nenhuma execução selecionada.</div>'; return; } const item = document.createElement('article'); item.className = 'file'; item.innerHTML = `<div class="file-head"><span>Contagem da execução</span><span class="file-stats">${formatNumber(stats.files_changed)} arquivo(s)</span></div><div class="muted">${formatNumber(stats.lines_added)} linha(s) adicionada(s) · ${formatNumber(stats.lines_deleted)} linha(s) removida(s)</div>`; $('files').appendChild(item);
       }
       function renderTestReport() {
         const report = state.testReport;
@@ -80,7 +79,7 @@
       }
       async function loadDay(day) {
         state.day = day; state.selectedRun = null; renderDays(); $('status').textContent = `Carregando ${day.date}...`;
-        try { const requests = [day.summary ? fetch(`runs/${day.summary}`) : Promise.resolve(null), day.snapshot ? fetch(`runs/${day.snapshot}`) : Promise.resolve(null), day.test_report ? fetch(`runs/${day.test_report}`) : Promise.resolve(null)]; const [summaryResponse, snapshotResponse, testResponse] = await Promise.all(requests); state.summary = summaryResponse?.ok ? await summaryResponse.json() : { runs: [], run_count: 0 }; state.snapshot = snapshotResponse?.ok ? await snapshotResponse.json() : { runs: [] }; state.testReport = testResponse?.ok ? await testResponse.json() : null; const last = state.summary.runs.at(-1); state.selectedRun = last?.run_id || null; $('title').textContent = `Execuções de ${day.date}`; $('subtitle').textContent = `${formatNumber(state.summary.run_count)} registro(s) e resultado dos testes`; $('day-label').textContent = day.date; $('status').textContent = 'Relatório carregado'; renderTestReport(); renderMetrics(last); renderRuns(); renderFiles(); } catch (error) { $('status').textContent = `Erro: ${error.message}`; $('status').className = 'status error'; }
+        try { const requests = [day.summary ? fetch(`runs/${day.summary}`) : Promise.resolve(null), day.test_report ? fetch(`runs/${day.test_report}`) : Promise.resolve(null)]; const [summaryResponse, testResponse] = await Promise.all(requests); state.summary = summaryResponse?.ok ? await summaryResponse.json() : { runs: [], run_count: 0 }; state.snapshot = null; state.testReport = testResponse?.ok ? await testResponse.json() : null; const last = state.summary.runs.at(-1); state.selectedRun = last?.run_id || null; $('title').textContent = `Execuções de ${day.date}`; $('subtitle').textContent = `${formatNumber(state.summary.run_count)} registro(s) e resultado dos testes`; $('day-label').textContent = day.date; $('status').textContent = 'Relatório carregado'; renderTestReport(); renderMetrics(); renderRuns(); renderFiles(); } catch (error) { $('status').textContent = `Erro: ${error.message}`; $('status').className = 'status error'; }
       }
       async function loadIndex() { try { const response = await fetch('runs/index.json'); if (!response.ok) throw new Error('índice não encontrado'); const data = await response.json(); state.index = Array.isArray(data.days) ? data.days : []; renderDays(); $('status').textContent = `${formatNumber(state.index.length)} dia(s) disponível(is)`; if (state.index[0]) loadDay(state.index[0]); } catch (error) { $('status').textContent = `Erro: ${error.message}`; $('status').className = 'status error'; } }
       $('search').addEventListener('input', event => { state.query = event.target.value; renderDays(); });

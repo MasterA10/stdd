@@ -2,7 +2,7 @@
   "version": 1,
   "id": "looper-journey-log",
   "title": "Implementação da jornada de evidência",
-  "subtitle": "Como looper log registra o trabalho e o diff incremental",
+  "subtitle": "Como looper log registra contagens incrementais",
   "kind": "system",
   "hierarchy": {
     "level": 3,
@@ -43,9 +43,9 @@
     },
     {
       "id": 2,
-      "label": "Coletar diff e snapshot",
+      "label": "Coletar contagens e snapshot",
       "group": 2,
-      "description": "Compara o estado atual com o checkpoint e salva resumo e snapshot em .looper/runs.",
+      "description": "Compara o estado atual com o checkpoint, calcula linhas adicionadas/removidas e salva somente as contagens no resumo; o snapshot mantém apenas o estado necessário para a próxima medição.",
       "code_refs": [
         {
           "file": "src/looper/core.py",
@@ -75,7 +75,7 @@
       "id": 4,
       "label": "Evidência disponível",
       "group": 3,
-      "description": "O usuário pode revisar o log e o diff no painel de runs.",
+      "description": "O usuário pode revisar no painel a soma das linhas adicionadas e removidas por execução e no período selecionado; patches textuais não são persistidos.",
       "code_refs": [
         {
           "file": "src/looper/runs.py",
@@ -92,7 +92,7 @@
       "kind": "flow",
       "condition": 1,
       "label": "então mede",
-      "description": "A descrição é acompanhada por estatísticas do Git."
+      "description": "A descrição é acompanhada por contagens incrementais de linhas adicionadas e removidas."
     },
     {
       "id": 2,
@@ -118,7 +118,7 @@
       "id": 1,
       "label": "Log",
       "title": "Registro de trabalho",
-      "summary": "Descrição, diff e snapshot formam evidência auditável.",
+      "summary": "Descrição, contagens incrementais e snapshot mínimo formam evidência auditável.",
       "steps": [
         {
           "node": 1,

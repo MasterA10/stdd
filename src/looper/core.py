@@ -200,6 +200,38 @@ def migrate_legacy_project(root: Path) -> list[Path]:
     return changed
 
 
+def remove_persisted_run_diffs(root: Path) -> list[Path]:
+    """Remove patches textuais dos logs existentes, preservando contagens e estado.
+
+    A limpeza é limitada aos JSONs de execução do próprio projeto e pode ser
+    executada várias vezes sem alterar arquivos já saneados.
+    """
+    changed: list[Path] = []
+
+    def strip_diff(value: Any) -> Any:
+        if isinstance(value, dict):
+            return {key: strip_diff(item) for key, item in value.items() if key != "diff"}
+        if isinstance(value, list):
+            return [strip_diff(item) for item in value]
+        return value
+
+    runs_dir = looper_dir(root) / "runs"
+    if not runs_dir.is_dir():
+        return changed
+    for path in sorted(runs_dir.rglob("*.json")):
+        try:
+            original = path.read_text(encoding="utf-8")
+            document = json.loads(original)
+            sanitized = strip_diff(document)
+            updated = json.dumps(sanitized, indent=2, ensure_ascii=False) + "\n"
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError, TypeError):
+            continue
+        if updated != original:
+            path.write_text(updated, encoding="utf-8")
+            changed.append(path)
+    return changed
+
+
 AGENT_SKILL_DIRECTORIES = {
     "codex": ".agents/skills",
 }
@@ -441,6 +473,7 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
     planejada dos Draws antes da implementação existir.
     """
     created: list[Path] = migrate_legacy_project(root)
+    created.extend(remove_persisted_run_diffs(root))
     for directory in (
         looper_dir(root) / "runs",
         looper_dir(root) / "features",
@@ -1164,11 +1197,11 @@ def get_previous_draw_snapshot(root: Path) -> dict[str, list[str]]:
 
 
 def get_logged_draw_diff(root: Path, run_id: str | None = None) -> dict[str, Any] | None:
-    """Retorna o diff de Draws armazenado em um ponto de log.
-    Sem ID, seleciona a execução mais recente; nunca calcula o diff da codebase.
+    """Calcula sob demanda o diff de Draws de um ponto de log.
+    O patch não é persistido; snapshots de conteúdo são usados somente para reconstruí-lo.
     """
     candidates = sorted((looper_dir(root) / "runs").glob("*/*_snapshot.json"))
-    selected: dict[str, Any] | None = None
+    records: list[tuple[str, dict[str, Any]]] = []
     for path in candidates:
         if path.parent.name == "data" or path.name.startswith("._"):
             continue
@@ -1184,14 +1217,40 @@ def get_logged_draw_diff(root: Path, run_id: str | None = None) -> dict[str, Any
                 continue
             if run_id is not None and run["run_id"] != run_id:
                 continue
-            candidate = {
+            records.append((str(run.get("timestamp", "")), {
                 "run_id": run["run_id"],
                 "timestamp": run.get("timestamp", ""),
-                "draws": run.get("draws", []),
-            }
-            if selected is None or str(candidate["timestamp"]) >= str(selected["timestamp"]):
-                selected = candidate
-    return selected
+                "draw_snapshot": document.get("draws_snapshot", {}),
+            }))
+    if not records:
+        return None
+    records.sort(key=lambda record: record[0])
+    matching = [record for record in records if run_id is None or record[1]["run_id"] == run_id]
+    if not matching:
+        return None
+    timestamp, selected = matching[-1]
+    current = selected["draw_snapshot"] if isinstance(selected["draw_snapshot"], dict) else {}
+    previous = {}
+    prior = [record for record in records if record[0] < timestamp]
+    if prior:
+        candidate = prior[-1][1]["draw_snapshot"]
+        previous = candidate if isinstance(candidate, dict) else {}
+    all_keys = set(previous) | set(current)
+    draws: list[dict[str, Any]] = []
+    for key in sorted(all_keys):
+        old = previous.get(key, [])
+        new = current.get(key, [])
+        if old == new:
+            continue
+        patch = build_unified_diff(key, old, new)
+        draws.append({
+            "path": key,
+            "status": "created" if key not in previous else "deleted" if key not in current else "modified",
+            "lines_added": sum(1 for line in patch.splitlines() if line.startswith("+") and not line.startswith("+++")),
+            "lines_deleted": sum(1 for line in patch.splitlines() if line.startswith("-") and not line.startswith("---")),
+            "diff": patch,
+        })
+    return {"run_id": selected["run_id"], "timestamp": selected["timestamp"], "draws": draws}
 
 
 def record_run_entry(root: Path, description: str, work_types: list[str]) -> Path:

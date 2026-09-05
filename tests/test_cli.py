@@ -1021,9 +1021,9 @@ def test_log_command_respects_custom_tracked_extensions(tmp_path: Path, monkeypa
     assert "doc.md" in modified_paths
 
 
-def test_log_snapshot_includes_unified_diff_for_modified_file(tmp_path: Path, monkeypatch):
-    """Inclui o patch textual junto das métricas de linhas de um arquivo alterado.
-    Cria um baseline, modifica uma linha e verifica o unified diff persistido no snapshot.
+def test_log_snapshot_keeps_file_counts_without_unified_diff(tmp_path: Path, monkeypatch):
+    """Mantém arquivo e contagens, mas não persiste o patch textual.
+    Cria um baseline, modifica uma linha e verifica o resumo persistido.
     """
     monkeypatch.chdir(tmp_path)
     runner.invoke(app, ["init"])
@@ -1043,19 +1043,30 @@ def test_log_snapshot_includes_unified_diff_for_modified_file(tmp_path: Path, mo
 
     assert changed_file["lines_added"] == 1
     assert changed_file["lines_deleted"] == 1
-    assert changed_file["diff"] == (
-        "--- a/example.py\n"
-        "+++ b/example.py\n"
-        "@@ -1,2 +1,2 @@\n"
-        " def answer():\n"
-        "-    return 1\n"
-        "+    return 2"
-    )
+    assert "diff" not in changed_file
 
 
-def test_log_snapshot_includes_diffs_for_created_and_deleted_files(tmp_path: Path, monkeypatch):
-    """Representa criação e remoção de arquivos com patches textuais completos.
-    Registra um baseline e depois troca dois arquivos, validando os cabeçalhos e conteúdos do diff.
+def test_init_removes_persisted_diffs_and_preserves_counts(tmp_path: Path, monkeypatch):
+    """Sanitiza logs antigos durante init sem perder métricas por arquivo."""
+    monkeypatch.chdir(tmp_path)
+    runs = tmp_path / ".looper/runs/2026-09-05"
+    runs.mkdir(parents=True)
+    summary = runs / "2026-09-05_summary.json"
+    summary.write_text(json.dumps({"runs": [{"diff_stats": {"lines_added": 4, "lines_deleted": 2}, "diff": "patch"}]}), encoding="utf-8")
+    snapshot = runs / "2026-09-05_snapshot.json"
+    snapshot.write_text(json.dumps({"runs": [{"files": [{"path": "app.py", "lines_added": 4, "lines_deleted": 2, "diff": "patch"}]}], "workspace_snapshot": {}}), encoding="utf-8")
+
+    result = runner.invoke(app, ["init", "--no-web"])
+
+    assert result.exit_code == 0
+    assert "diff" not in json.loads(summary.read_text(encoding="utf-8"))["runs"][0]
+    file_record = json.loads(snapshot.read_text(encoding="utf-8"))["runs"][0]["files"][0]
+    assert file_record == {"path": "app.py", "lines_added": 4, "lines_deleted": 2}
+
+
+def test_log_snapshot_keeps_counts_for_created_and_deleted_files(tmp_path: Path, monkeypatch):
+    """Representa criação e remoção com caminho e contagens, sem patch textual.
+    Registra um baseline e depois troca dois arquivos.
     """
     monkeypatch.chdir(tmp_path)
     runner.invoke(app, ["init"])
@@ -1073,18 +1084,8 @@ def test_log_snapshot_includes_diffs_for_created_and_deleted_files(tmp_path: Pat
     snapshot_data = json.loads(sorted(day_folder.glob("*_snapshot.json"))[-1].read_text(encoding="utf-8"))
     files = {item["path"]: item for item in snapshot_data["runs"][-1]["files"]}
 
-    assert files["deleted.py"]["diff"] == (
-        "--- a/deleted.py\n"
-        "+++ b/deleted.py\n"
-        "@@ -1 +0,0 @@\n"
-        "-return_value = 1"
-    )
-    assert files["created.py"]["diff"] == (
-        "--- a/created.py\n"
-        "+++ b/created.py\n"
-        "@@ -0,0 +1 @@\n"
-        "+return_value = 2"
-    )
+    assert files["deleted.py"] == {"path": "deleted.py", "lines_added": 0, "lines_deleted": 1}
+    assert files["created.py"] == {"path": "created.py", "lines_added": 1, "lines_deleted": 0}
 
 
 def test_log_command_requires_at_least_one_work_type(tmp_path: Path, monkeypatch):

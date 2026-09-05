@@ -103,7 +103,7 @@
       "id": 5,
       "label": "Registrar evidência",
       "group": 2,
-      "description": "O trabalho concluído recebe log com tipo e diff incremental. Após o intervalo configurado de tasks, um agente externo é chamado pelo terminal ou tmux para revisar a entrega; lacunas viram changes no Draw.",
+      "description": "O trabalho concluído recebe log com tipo e contagens incrementais de linhas adicionadas e removidas. O painel soma as contagens das execuções; patches textuais não são persistidos. Após o intervalo configurado de tasks, um agente externo é chamado pelo terminal ou tmux para revisar a entrega; lacunas viram changes no Draw.",
       "draw_ref": "looper-journey-log",
       "code_refs": [
         {

@@ -1117,7 +1117,7 @@ def test_runs_viewer_is_read_only_and_uses_incremental_json_documents():
 
     assert "fetch('runs/index.json')" in template
     assert "fetch(`runs/${day.summary}`)" in template
-    assert "fetch(`runs/${day.snapshot}`)" in template
+    assert "Contagem por execução" in template
     assert "Somente leitura" in template
     assert "method: 'PUT'" not in template
     assert "method: 'POST'" not in template

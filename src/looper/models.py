@@ -39,16 +39,20 @@ class RunResult:
 
 @dataclass
 class RunDiffSnapshot:
+    """Contagens resumidas da execução mantidas junto ao estado de comparação."""
+
     run_id: str
     timestamp: str
     files: list[dict[str, Any]] = field(default_factory=list)
     draws: list[dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
-        """Converte o snapshot detalhado de código para um dicionário serializável.
-        Aplica a função asdict da dataclass no objeto de snapshot.
+        """Converte a execução para um dicionário serializável sem patches textuais.
         """
-        return asdict(self)
+        data = asdict(self)
+        for key in ("files", "draws"):
+            data[key] = [{field: value for field, value in item.items() if field != "diff"} for item in data[key]]
+        return data
 
 
 @dataclass

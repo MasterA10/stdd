@@ -60,7 +60,7 @@
       "id": "looper-journey-log",
       "file": "looper-journey-log.json",
       "title": "Implementação da jornada de evidência",
-      "subtitle": "Como looper log registra o trabalho e o diff incremental",
+      "subtitle": "Como looper log registra contagens incrementais",
       "kind": "system",
       "updated_at": "2026-08-04T23:19:11.567372+00:00",
       "node_count": 4,
