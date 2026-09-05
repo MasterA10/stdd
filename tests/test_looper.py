@@ -631,6 +631,32 @@ def test_subagents_helper_reuses_tmux_pane_for_continuation():
     assert "exec bash" in helper
     assert "send-keys" in helper
 
+# O que faz: confirma os defaults de modelo para Codex e Gemini via Agy.
+# Como faz: renderiza comandos com modelo omitido e com override explícito.
+def test_subagents_helper_applies_codex_and_gemini_default_models():
+    """Aplica os modelos padrão por agente.
+    Preserva uma escolha explícita no manifesto.
+    """
+    # O que faz: confirma os defaults de modelo para Codex e Gemini via Agy.
+    # Como faz: renderiza comandos com modelo omitido e com override explícito.
+    # O comando identifica o agente pelo executável e injeta o default correspondente.
+    # Um valor de model presente no manifesto continua sendo usado literalmente.
+    import importlib.util
+
+    helper_path = Path("src/looper/templates/agents/subagents/scripts/orchestrate_subagents.py")
+    spec = importlib.util.spec_from_file_location("subagents_helper", helper_path)
+    assert spec and spec.loader
+    helper = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(helper)
+
+    codex = helper.render_command({"command": ["codex", "exec", "--model", "{model}"], "prompt": "x"})
+    gemini = helper.render_command({"command": ["agy", "-p", "x", "--model", "{model}", "--effort", "{reasoning}"], "prompt": "x", "reasoning": "low"})
+    explicit = helper.render_command({"command": ["codex", "exec", "--model", "{model}"], "model": "custom", "prompt": "x"})
+    assert codex[-1] == "gpt-5.6-luna"
+    assert gemini[4] == "gemini-3.8-flash"
+    assert gemini[6] == "low"
+    assert explicit[-1] == "custom"
+
 
 def test_frontend_dynamic_data_contract_is_published_and_injected(tmp_path: Path, monkeypatch):
     """Publica o contrato de dados dinâmicos nas skills e no AGENTS gerado.
@@ -984,6 +1010,10 @@ def test_mock_server_skill_requires_strict_outbound_and_webhook_contracts():
         "não faça forwarding",
         "evento duplicado",
         "estado de ativação",
+        "pesquisa oficial e convenção obrigatória",
+        ".agents/conventions/<provedor>.md",
+        "pré-requisito -> operação dependente",
+        "não crie automaticamente o recurso pai",
     ):
         assert required in content, f"mock-server não define {required}"
 
@@ -998,6 +1028,8 @@ def test_init_injects_strict_mock_server_contract_instruction(tmp_path: Path):
     assert "$mock-server" in agents
     assert "recebimento por webhook" in agents
     assert "webhook ser ativado" in agents
+    assert "crie ou atualize uma convenção" in agents
+    assert "dependências entre recursos" in agents
 
 
 def test_agent_skills_require_approval_for_expensive_or_mutating_setup():

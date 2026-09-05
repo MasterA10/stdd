@@ -1,6 +1,6 @@
 ---
 name: subagents
-description: Orquestra subagentes locais em sessões tmux, com execução paralela, escolha explícita de agente e modelo, retomada de sessões e espera por barreira sem polling.
+description: Orquestra subagentes locais em sessões tmux, com escolha de agente e modelo, retomada de sessões e espera por barreira sem polling.
 ---
 
 # Subagents
@@ -9,7 +9,7 @@ Use esta skill quando o agente principal precisar dividir uma tarefa em investig
 
 ## Comandos oficiais
 
-Escolha o agente e o modelo antes de iniciar. Se o usuário não informar um modelo, o agente principal deve preencher `{model}` com o modelo usado na sessão atual; não invente um modelo nem troque silenciosamente de provedor.
+Escolha o agente e o modelo antes de iniciar. Quando o usuário não informar outro modelo, use `gpt-5.6-luna` (Luna Medium) para Codex. Para Gemini, use o CLI `agy` com `--model gemini-3.8-flash --effort low`. Para os demais agentes, mantenha o modelo explicitamente configurado ou remova a opção conforme o contrato local; não troque silenciosamente de provedor.
 
 Codex, em modo não interativo:
 
@@ -32,8 +32,8 @@ Use `--max-turns N`, `--permission-mode plan|acceptEdits|bypassPermissions` ou `
 Agy/Antigravity, em modo headless:
 
 ```bash
-agy -p "{prompt}" --model {model} --effort {reasoning}
-agy -p "{prompt}" --conversation {session_id} --model {model} --effort {reasoning}
+agy -p "{prompt}" --model {model} --effort {reasoning} --dangerously-skip-permissions
+agy -p "{prompt}" --conversation {session_id} --model {model} --effort {reasoning} --dangerously-skip-permissions
 ```
 
 `--effort` aceita `low`, `medium` ou `high`; `--agent NAME` seleciona um agente listado por `agy agents`; `--dangerously-skip-permissions` libera todas as ferramentas e exige autorização explícita. O primeiro resultado JSON contém `conversation_id`, que deve ser preservado como `{session_id}` para a continuação.
@@ -65,6 +65,6 @@ python scripts/orchestrate_subagents.py run --manifest subagents.json --output r
 python scripts/orchestrate_subagents.py run --manifest subagents.json --output results.json --headless  # somente CI
 ```
 
-O helper não escolhe modelos nem presume sintaxe específica: os comandos do manifesto usam `{prompt}`, `{model}`, `{reasoning}`, `{workdir}` e `{session_id}`. Nunca coloque segredos em prompts, manifestos ou resultados versionados.
+O helper aplica os defaults acima somente quando o manifesto deixa `model` ou `reasoning` vazio; valores informados explicitamente sempre prevalecem. Para uma tarefa Gemini, use o comando `agy` e deixe `{model}` e `{reasoning}` receberem `gemini-3.8-flash` e `low`. Os comandos do manifesto usam `{prompt}`, `{model}`, `{reasoning}`, `{workdir}` e `{session_id}`. Nunca coloque segredos em prompts, manifestos ou resultados versionados.
 
 O retorno do helper é sempre normalizado por tarefa em JSON com `id`, `status`, `response`, `session_id`, `usage` e `error`. A saída bruta de stdout/stderr é temporária e não é devolvida ao agente principal; o pane mostra somente `response` depois da conclusão.

@@ -325,10 +325,83 @@
           "diff": "--- a/.looper/draws/looper-journey-init.json\n+++ b/.looper/draws/looper-journey-init.json\n@@ -61,7 +61,7 @@\n       \"id\": 3,\n       \"label\": \"Instalar skills e instruções\",\n       \"group\": 2,\n-      \"description\": \"Copia templates atuais, cria .agents/conventions/README.md sem sobrescrever convenções do projeto e atualiza AGENTS.md; arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O contrato de instruções mantém o AGENTS.md curto, orienta a leitura da convenção relevante e exige Draws vivos e atualizados.\",\n+      \"description\": \"Copia templates atuais, incluindo a skill mock-server com contrato rígido para envio autenticado, ativação explícita de webhooks e recebimento validado; cria .agents/conventions/README.md sem sobrescrever convenções do projeto e atualiza AGENTS.md. Arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O contrato de instruções mantém o AGENTS.md curto, orienta a leitura da convenção relevante e exige Draws vivos e atualizados.\",\n       \"code_refs\": [\n         {\n           \"file\": \"src/looper/core.py\","
         }
       ]
+    },
+    {
+      "run_id": "d0d255dd376d48b0a34d404771f3d136",
+      "timestamp": "2026-09-04T20:51:38.757395+00:00",
+      "files": [
+        {
+          "path": ".agents/skills/subagents/scripts/orchestrate_subagents.py",
+          "lines_added": 14,
+          "lines_deleted": 2,
+          "diff": "--- a/.agents/skills/subagents/scripts/orchestrate_subagents.py\n+++ b/.agents/skills/subagents/scripts/orchestrate_subagents.py\n@@ -15,6 +15,11 @@\n from pathlib import Path\n \n KNOWN_AGENTS = (\"codex\", \"claude\", \"agy\", \"gemini\", \"antigravity\")\n+DEFAULT_MODELS = {\n+    \"codex\": \"gpt-5.6-luna\",\n+    \"agy\": \"gemini-3.8-flash\",\n+}\n+DEFAULT_REASONING = {\"agy\": \"low\"}\n MARKER = \"__SUBAGENT_EXIT__\"\n \n \n@@ -36,10 +41,17 @@\n     command = task.get(\"command\")\n     if not isinstance(command, list) or not command or not all(isinstance(item, str) for item in command):\n         raise ValueError(\"cada tarefa precisa de command como lista de strings\")\n+    command_agent = Path(command[0]).name.lower()\n+    model = str(task.get(\"model\", \"\"))\n+    if not model:\n+        model = DEFAULT_MODELS.get(command_agent, \"\")\n+    reasoning = str(task.get(\"reasoning\", \"\"))\n+    if not reasoning:\n+        reasoning = DEFAULT_REASONING.get(command_agent, \"\")\n     values = {\n         \"prompt\": str(task.get(\"prompt\", \"\")),\n-        \"model\": str(task.get(\"model\", \"\")),\n-        \"reasoning\": str(task.get(\"reasoning\", \"\")),\n+        \"model\": model,\n+        \"reasoning\": reasoning,\n         \"session_id\": str(task.get(\"session_id\", \"\")),\n         \"workdir\": str(task.get(\"workdir\", Path.cwd())),\n     }"
+        },
+        {
+          "path": "src/looper/templates/agents/subagents/scripts/orchestrate_subagents.py",
+          "lines_added": 14,
+          "lines_deleted": 2,
+          "diff": "--- a/src/looper/templates/agents/subagents/scripts/orchestrate_subagents.py\n+++ b/src/looper/templates/agents/subagents/scripts/orchestrate_subagents.py\n@@ -15,6 +15,11 @@\n from pathlib import Path\n \n KNOWN_AGENTS = (\"codex\", \"claude\", \"agy\", \"gemini\", \"antigravity\")\n+DEFAULT_MODELS = {\n+    \"codex\": \"gpt-5.6-luna\",\n+    \"agy\": \"gemini-3.8-flash\",\n+}\n+DEFAULT_REASONING = {\"agy\": \"low\"}\n MARKER = \"__SUBAGENT_EXIT__\"\n \n \n@@ -36,10 +41,17 @@\n     command = task.get(\"command\")\n     if not isinstance(command, list) or not command or not all(isinstance(item, str) for item in command):\n         raise ValueError(\"cada tarefa precisa de command como lista de strings\")\n+    command_agent = Path(command[0]).name.lower()\n+    model = str(task.get(\"model\", \"\"))\n+    if not model:\n+        model = DEFAULT_MODELS.get(command_agent, \"\")\n+    reasoning = str(task.get(\"reasoning\", \"\"))\n+    if not reasoning:\n+        reasoning = DEFAULT_REASONING.get(command_agent, \"\")\n     values = {\n         \"prompt\": str(task.get(\"prompt\", \"\")),\n-        \"model\": str(task.get(\"model\", \"\")),\n-        \"reasoning\": str(task.get(\"reasoning\", \"\")),\n+        \"model\": model,\n+        \"reasoning\": reasoning,\n         \"session_id\": str(task.get(\"session_id\", \"\")),\n         \"workdir\": str(task.get(\"workdir\", Path.cwd())),\n     }"
+        },
+        {
+          "path": "tests/test_looper.py",
+          "lines_added": 21,
+          "lines_deleted": 0,
+          "diff": "--- a/tests/test_looper.py\n+++ b/tests/test_looper.py\n@@ -632,6 +632,27 @@\n     assert \"send-keys\" in helper\n \n \n+def test_subagents_helper_applies_codex_and_gemini_default_models():\n+    \"\"\"Aplica os modelos padrão por agente e preserva uma escolha explícita.\"\"\"\n+    # O comando identifica o agente pelo executável e injeta o default correspondente.\n+    # Um valor de model presente no manifesto continua sendo usado literalmente.\n+    import importlib.util\n+\n+    helper_path = Path(\"src/looper/templates/agents/subagents/scripts/orchestrate_subagents.py\")\n+    spec = importlib.util.spec_from_file_location(\"subagents_helper\", helper_path)\n+    assert spec and spec.loader\n+    helper = importlib.util.module_from_spec(spec)\n+    spec.loader.exec_module(helper)\n+\n+    codex = helper.render_command({\"command\": [\"codex\", \"exec\", \"--model\", \"{model}\"], \"prompt\": \"x\"})\n+    gemini = helper.render_command({\"command\": [\"agy\", \"-p\", \"x\", \"--model\", \"{model}\", \"--effort\", \"{reasoning}\"], \"prompt\": \"x\", \"reasoning\": \"low\"})\n+    explicit = helper.render_command({\"command\": [\"codex\", \"exec\", \"--model\", \"{model}\"], \"model\": \"custom\", \"prompt\": \"x\"})\n+    assert codex[-1] == \"gpt-5.6-luna\"\n+    assert gemini[4] == \"gemini-3.8-flash\"\n+    assert gemini[6] == \"low\"\n+    assert explicit[-1] == \"custom\"\n+\n+\n def test_frontend_dynamic_data_contract_is_published_and_injected(tmp_path: Path, monkeypatch):\n     \"\"\"Publica o contrato de dados dinâmicos nas skills e no AGENTS gerado.\n     Confirma JSON único, chave explícita e adaptador get_mock_fake nas fontes distribuídas."
+        }
+      ],
+      "draws": [
+        {
+          "path": ".looper/draws/looper-agent-journeys.json",
+          "status": "modified",
+          "lines_added": 1,
+          "lines_deleted": 1,
+          "diff": "--- a/.looper/draws/looper-agent-journeys.json\n+++ b/.looper/draws/looper-agent-journeys.json\n@@ -122,7 +122,7 @@\n       \"id\": 7,\n       \"label\": \"$implement\",\n       \"group\": 3,\n-      \"description\": \"Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural; pode delegar investigações ou etapas independentes a subagentes em tmux, aguardando uma barreira de conclusão sem polling antes de consolidar; nas telas L2, classifica dados fixos e dinâmicos e usa o contrato transversal get_mock_fake com um JSON compartilhado quando houver dados variáveis, sem salvar o símbolo da função de mock. No L3, durante o backend, associa os símbolos reais das funções implementadas e evita arquivos de back-end acima de 300 linhas como orientação textual, sem criar validação estática para esse limite. A inicialização do framework cria somente o índice de convenções e não injeta convenções padrão; arquivos específicos já existentes no projeto são preservados e catalogados. Depois atualiza o Draw correspondente. Detalhes sem mudança de comportamento viram perguntas no nível L2/L3 correto, e mudanças de fluxo também atualizam as conexões dos nós.\",\n+      \"description\": \"Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural; pode delegar investigações ou etapas independentes a subagentes em tmux, aguardando uma barreira de conclusão sem polling antes de consolidar. Ao delegar, usa gpt-5.6-luna (Luna Medium) por padrão no Codex; para Gemini, chama o CLI agy com gemini-3.8-flash e effort low, preservando um modelo explicitamente solicitado. Nas telas L2, classifica dados fixos e dinâmicos e usa o contrato transversal get_mock_fake com um JSON compartilhado quando houver dados variáveis, sem salvar o símbolo da função de mock. No L3, durante o backend, associa os símbolos reais das funções implementadas e evita arquivos de back-end acima de 300 linhas como orientação textual, sem criar validação estática para esse limite. A inicialização do framework cria somente o índice de convenções e não injeta convenções padrão; arquivos específicos já existentes no projeto são preservados e catalogados. Depois atualiza o Draw correspondente. Detalhes sem mudança de comportamento viram perguntas no nível L2/L3 correto, e mudanças de fluxo também atualizam as conexões dos nós.\",\n       \"code_refs\": [\n         {\n           \"file\": \"src/looper/core.py\","
+        }
+      ]
+    },
+    {
+      "run_id": "5dd7c86ba85546798c20b451ff1139a3",
+      "timestamp": "2026-09-04T20:54:36.344338+00:00",
+      "files": [
+        {
+          "path": "tests/test_looper.py",
+          "lines_added": 7,
+          "lines_deleted": 2,
+          "diff": "--- a/tests/test_looper.py\n+++ b/tests/test_looper.py\n@@ -631,9 +631,14 @@\n     assert \"exec bash\" in helper\n     assert \"send-keys\" in helper\n \n-\n+# O que faz: confirma os defaults de modelo para Codex e Gemini via Agy.\n+# Como faz: renderiza comandos com modelo omitido e com override explícito.\n def test_subagents_helper_applies_codex_and_gemini_default_models():\n-    \"\"\"Aplica os modelos padrão por agente e preserva uma escolha explícita.\"\"\"\n+    \"\"\"Aplica os modelos padrão por agente.\n+    Preserva uma escolha explícita no manifesto.\n+    \"\"\"\n+    # O que faz: confirma os defaults de modelo para Codex e Gemini via Agy.\n+    # Como faz: renderiza comandos com modelo omitido e com override explícito.\n     # O comando identifica o agente pelo executável e injeta o default correspondente.\n     # Um valor de model presente no manifesto continua sendo usado literalmente.\n     import importlib.util"
+        }
+      ],
+      "draws": []
+    },
+    {
+      "run_id": "5307330ecbf9462596aa95f6fe487cfb",
+      "timestamp": "2026-09-04T21:08:07.307905+00:00",
+      "files": [
+        {
+          "path": "src/looper/core.py",
+          "lines_added": 1,
+          "lines_deleted": 1,
+          "diff": "--- a/src/looper/core.py\n+++ b/src/looper/core.py\n@@ -264,7 +264,7 @@\n - A análise estática é agnóstica ao framework e tem o Python como núcleo e orquestrador: scanner de arquivos de texto, normalização dos resultados, associação de funções/símbolos e aplicação dos quality gates devem passar pelo núcleo Python. Quando a linguagem ou o framework oferecer compilador, type-checker, linter ou analisador estático próprio, ele pode ser executado por um adaptador/subprocesso Python; seus resultados devem ser convertidos para o contrato comum e consolidados pelo núcleo Python, sem deixar a execução ou os gates dependerem diretamente do framework.\n - Antes de qualquer commit ou push na branch `main`, confirme que o diff inclui as fontes, templates, skills, assets empacotados, README e testes necessários para o comando de instalação do README reproduzir a versão publicada.\n - Ao integrar APIs/apps externos, registre o contrato como documentação técnica específica em `.agents/conventions/` e consulte a documentação oficial antes de implementar; mantenha no `AGENTS.md` somente o nome do assunto no catálogo.\n-- Ao usar `$mock-server`, modele separadamente os contratos de envio autenticado e recebimento por webhook; registre credencial, mecanismo de ativação, assinatura e pré-condições documentadas, mantendo a entrega bloqueada até o webhook ser ativado e implementando somente os caminhos críticos do provedor.\n+- Ao usar `$mock-server`, consulte a documentação oficial, crie ou atualize uma convenção em `.agents/conventions/<provedor>.md` com frontmatter e fontes, e modele separadamente os contratos de envio autenticado, dependências entre recursos e recebimento por webhook; registre credencial, ordem das chamadas, mecanismo de ativação, assinatura e pré-condições documentadas, mantendo a entrega bloqueada até o webhook ser ativado e cada pré-requisito ser satisfeito, implementando somente os caminhos críticos do provedor.\n - O `.looper/design.html` é a fonte obrigatória de decisões visuais e tokens: consulte e respeite identidade, tipografia, espaçamento, estados, acessibilidade e contraste em qualquer alteração ou implementação de interface; seu preenchimento é obrigatório antes de liberar o bootstrap.\n - Ao construir, refinar ou revisar interfaces, leia e use a skill `$modern-web-guidance` (localizada em `.agents/skills/modern-web-guidance/SKILL.md`)\n   - Ao alterar um padrão de design, insira o padrão no `.looper/design.html` pra deixar a documentação de design atualizada"
+        },
+        {
+          "path": "tests/test_looper.py",
+          "lines_added": 6,
+          "lines_deleted": 0,
+          "diff": "--- a/tests/test_looper.py\n+++ b/tests/test_looper.py\n@@ -1010,6 +1010,10 @@\n         \"não faça forwarding\",\n         \"evento duplicado\",\n         \"estado de ativação\",\n+        \"pesquisa oficial e convenção obrigatória\",\n+        \".agents/conventions/<provedor>.md\",\n+        \"pré-requisito -> operação dependente\",\n+        \"não crie automaticamente o recurso pai\",\n     ):\n         assert required in content, f\"mock-server não define {required}\"\n \n@@ -1024,6 +1028,8 @@\n     assert \"$mock-server\" in agents\n     assert \"recebimento por webhook\" in agents\n     assert \"webhook ser ativado\" in agents\n+    assert \"crie ou atualize uma convenção\" in agents\n+    assert \"dependências entre recursos\" in agents\n \n \n def test_agent_skills_require_approval_for_expensive_or_mutating_setup():"
+        }
+      ],
+      "draws": [
+        {
+          "path": ".looper/draws/looper-journey-init.json",
+          "status": "modified",
+          "lines_added": 1,
+          "lines_deleted": 1,
+          "diff": "--- a/.looper/draws/looper-journey-init.json\n+++ b/.looper/draws/looper-journey-init.json\n@@ -61,7 +61,7 @@\n       \"id\": 3,\n       \"label\": \"Instalar skills e instruções\",\n       \"group\": 2,\n-      \"description\": \"Copia templates atuais, incluindo a skill mock-server com contrato rígido para envio autenticado, ativação explícita de webhooks e recebimento validado; cria .agents/conventions/README.md sem sobrescrever convenções do projeto e atualiza AGENTS.md. Arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O contrato de instruções mantém o AGENTS.md curto, orienta a leitura da convenção relevante e exige Draws vivos e atualizados.\",\n+      \"description\": \"Copia templates atuais, incluindo a skill mock-server com pesquisa oficial obrigatória, convenção específica por provedor, ordem explícita das chamadas, pré-condições entre recursos, ativação de webhooks e recebimento validado; cria .agents/conventions/README.md sem sobrescrever convenções do projeto e atualiza AGENTS.md. Arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O contrato de instruções mantém o AGENTS.md curto, orienta a leitura da convenção relevante e exige Draws vivos e atualizados.\",\n       \"code_refs\": [\n         {\n           \"file\": \"src/looper/core.py\","
+        }
+      ]
     }
   ],
-  "run_count": 14,
-  "last_run_id": "72ea93010dcf472abf9dd221581b0a59",
+  "run_count": 17,
+  "last_run_id": "5307330ecbf9462596aa95f6fe487cfb",
   "workspace_snapshot": {
     ".agents/skills/subagents/scripts/orchestrate_subagents.py": [
       "#!/usr/bin/env python3",
@@ -348,6 +421,11 @@
       "from pathlib import Path",
       "",
       "KNOWN_AGENTS = (\"codex\", \"claude\", \"agy\", \"gemini\", \"antigravity\")",
+      "DEFAULT_MODELS = {",
+      "    \"codex\": \"gpt-5.6-luna\",",
+      "    \"agy\": \"gemini-3.8-flash\",",
+      "}",
+      "DEFAULT_REASONING = {\"agy\": \"low\"}",
       "MARKER = \"__SUBAGENT_EXIT__\"",
       "",
       "",
@@ -369,10 +447,17 @@
       "    command = task.get(\"command\")",
       "    if not isinstance(command, list) or not command or not all(isinstance(item, str) for item in command):",
       "        raise ValueError(\"cada tarefa precisa de command como lista de strings\")",
+      "    command_agent = Path(command[0]).name.lower()",
+      "    model = str(task.get(\"model\", \"\"))",
+      "    if not model:",
+      "        model = DEFAULT_MODELS.get(command_agent, \"\")",
+      "    reasoning = str(task.get(\"reasoning\", \"\"))",
+      "    if not reasoning:",
+      "        reasoning = DEFAULT_REASONING.get(command_agent, \"\")",
       "    values = {",
       "        \"prompt\": str(task.get(\"prompt\", \"\")),",
-      "        \"model\": str(task.get(\"model\", \"\")),",
-      "        \"reasoning\": str(task.get(\"reasoning\", \"\")),",
+      "        \"model\": model,",
+      "        \"reasoning\": reasoning,",
       "        \"session_id\": str(task.get(\"session_id\", \"\")),",
       "        \"workdir\": str(task.get(\"workdir\", Path.cwd())),",
       "    }",
@@ -19779,7 +19864,7 @@
       "- A análise estática é agnóstica ao framework e tem o Python como núcleo e orquestrador: scanner de arquivos de texto, normalização dos resultados, associação de funções/símbolos e aplicação dos quality gates devem passar pelo núcleo Python. Quando a linguagem ou o framework oferecer compilador, type-checker, linter ou analisador estático próprio, ele pode ser executado por um adaptador/subprocesso Python; seus resultados devem ser convertidos para o contrato comum e consolidados pelo núcleo Python, sem deixar a execução ou os gates dependerem diretamente do framework.",
       "- Antes de qualquer commit ou push na branch `main`, confirme que o diff inclui as fontes, templates, skills, assets empacotados, README e testes necessários para o comando de instalação do README reproduzir a versão publicada.",
       "- Ao integrar APIs/apps externos, registre o contrato como documentação técnica específica em `.agents/conventions/` e consulte a documentação oficial antes de implementar; mantenha no `AGENTS.md` somente o nome do assunto no catálogo.",
-      "- Ao usar `$mock-server`, modele separadamente os contratos de envio autenticado e recebimento por webhook; registre credencial, mecanismo de ativação, assinatura e pré-condições documentadas, mantendo a entrega bloqueada até o webhook ser ativado e implementando somente os caminhos críticos do provedor.",
+      "- Ao usar `$mock-server`, consulte a documentação oficial, crie ou atualize uma convenção em `.agents/conventions/<provedor>.md` com frontmatter e fontes, e modele separadamente os contratos de envio autenticado, dependências entre recursos e recebimento por webhook; registre credencial, ordem das chamadas, mecanismo de ativação, assinatura e pré-condições documentadas, mantendo a entrega bloqueada até o webhook ser ativado e cada pré-requisito ser satisfeito, implementando somente os caminhos críticos do provedor.",
       "- O `.looper/design.html` é a fonte obrigatória de decisões visuais e tokens: consulte e respeite identidade, tipografia, espaçamento, estados, acessibilidade e contraste em qualquer alteração ou implementação de interface; seu preenchimento é obrigatório antes de liberar o bootstrap.",
       "- Ao construir, refinar ou revisar interfaces, leia e use a skill `$modern-web-guidance` (localizada em `.agents/skills/modern-web-guidance/SKILL.md`)",
       "  - Ao alterar um padrão de design, insira o padrão no `.looper/design.html` pra deixar a documentação de design atualizada",
@@ -25519,6 +25604,11 @@
       "from pathlib import Path",
       "",
       "KNOWN_AGENTS = (\"codex\", \"claude\", \"agy\", \"gemini\", \"antigravity\")",
+      "DEFAULT_MODELS = {",
+      "    \"codex\": \"gpt-5.6-luna\",",
+      "    \"agy\": \"gemini-3.8-flash\",",
+      "}",
+      "DEFAULT_REASONING = {\"agy\": \"low\"}",
       "MARKER = \"__SUBAGENT_EXIT__\"",
       "",
       "",
@@ -25540,10 +25630,17 @@
       "    command = task.get(\"command\")",
       "    if not isinstance(command, list) or not command or not all(isinstance(item, str) for item in command):",
       "        raise ValueError(\"cada tarefa precisa de command como lista de strings\")",
+      "    command_agent = Path(command[0]).name.lower()",
+      "    model = str(task.get(\"model\", \"\"))",
+      "    if not model:",
+      "        model = DEFAULT_MODELS.get(command_agent, \"\")",
+      "    reasoning = str(task.get(\"reasoning\", \"\"))",
+      "    if not reasoning:",
+      "        reasoning = DEFAULT_REASONING.get(command_agent, \"\")",
       "    values = {",
       "        \"prompt\": str(task.get(\"prompt\", \"\")),",
-      "        \"model\": str(task.get(\"model\", \"\")),",
-      "        \"reasoning\": str(task.get(\"reasoning\", \"\")),",
+      "        \"model\": model,",
+      "        \"reasoning\": reasoning,",
       "        \"session_id\": str(task.get(\"session_id\", \"\")),",
       "        \"workdir\": str(task.get(\"workdir\", Path.cwd())),",
       "    }",
@@ -32632,6 +32729,32 @@
       "    assert \"exec bash\" in helper",
       "    assert \"send-keys\" in helper",
       "",
+      "# O que faz: confirma os defaults de modelo para Codex e Gemini via Agy.",
+      "# Como faz: renderiza comandos com modelo omitido e com override explícito.",
+      "def test_subagents_helper_applies_codex_and_gemini_default_models():",
+      "    \"\"\"Aplica os modelos padrão por agente.",
+      "    Preserva uma escolha explícita no manifesto.",
+      "    \"\"\"",
+      "    # O que faz: confirma os defaults de modelo para Codex e Gemini via Agy.",
+      "    # Como faz: renderiza comandos com modelo omitido e com override explícito.",
+      "    # O comando identifica o agente pelo executável e injeta o default correspondente.",
+      "    # Um valor de model presente no manifesto continua sendo usado literalmente.",
+      "    import importlib.util",
+      "",
+      "    helper_path = Path(\"src/looper/templates/agents/subagents/scripts/orchestrate_subagents.py\")",
+      "    spec = importlib.util.spec_from_file_location(\"subagents_helper\", helper_path)",
+      "    assert spec and spec.loader",
+      "    helper = importlib.util.module_from_spec(spec)",
+      "    spec.loader.exec_module(helper)",
+      "",
+      "    codex = helper.render_command({\"command\": [\"codex\", \"exec\", \"--model\", \"{model}\"], \"prompt\": \"x\"})",
+      "    gemini = helper.render_command({\"command\": [\"agy\", \"-p\", \"x\", \"--model\", \"{model}\", \"--effort\", \"{reasoning}\"], \"prompt\": \"x\", \"reasoning\": \"low\"})",
+      "    explicit = helper.render_command({\"command\": [\"codex\", \"exec\", \"--model\", \"{model}\"], \"model\": \"custom\", \"prompt\": \"x\"})",
+      "    assert codex[-1] == \"gpt-5.6-luna\"",
+      "    assert gemini[4] == \"gemini-3.8-flash\"",
+      "    assert gemini[6] == \"low\"",
+      "    assert explicit[-1] == \"custom\"",
+      "",
       "",
       "def test_frontend_dynamic_data_contract_is_published_and_injected(tmp_path: Path, monkeypatch):",
       "    \"\"\"Publica o contrato de dados dinâmicos nas skills e no AGENTS gerado.",
@@ -32985,6 +33108,10 @@
       "        \"não faça forwarding\",",
       "        \"evento duplicado\",",
       "        \"estado de ativação\",",
+      "        \"pesquisa oficial e convenção obrigatória\",",
+      "        \".agents/conventions/<provedor>.md\",",
+      "        \"pré-requisito -> operação dependente\",",
+      "        \"não crie automaticamente o recurso pai\",",
       "    ):",
       "        assert required in content, f\"mock-server não define {required}\"",
       "",
@@ -32999,6 +33126,8 @@
       "    assert \"$mock-server\" in agents",
       "    assert \"recebimento por webhook\" in agents",
       "    assert \"webhook ser ativado\" in agents",
+      "    assert \"crie ou atualize uma convenção\" in agents",
+      "    assert \"dependências entre recursos\" in agents",
       "",
       "",
       "def test_agent_skills_require_approval_for_expensive_or_mutating_setup():",
@@ -34605,7 +34734,7 @@
       "      \"id\": 7,",
       "      \"label\": \"$implement\",",
       "      \"group\": 3,",
-      "      \"description\": \"Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural; pode delegar investigações ou etapas independentes a subagentes em tmux, aguardando uma barreira de conclusão sem polling antes de consolidar; nas telas L2, classifica dados fixos e dinâmicos e usa o contrato transversal get_mock_fake com um JSON compartilhado quando houver dados variáveis, sem salvar o símbolo da função de mock. No L3, durante o backend, associa os símbolos reais das funções implementadas e evita arquivos de back-end acima de 300 linhas como orientação textual, sem criar validação estática para esse limite. A inicialização do framework cria somente o índice de convenções e não injeta convenções padrão; arquivos específicos já existentes no projeto são preservados e catalogados. Depois atualiza o Draw correspondente. Detalhes sem mudança de comportamento viram perguntas no nível L2/L3 correto, e mudanças de fluxo também atualizam as conexões dos nós.\",",
+      "      \"description\": \"Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural; pode delegar investigações ou etapas independentes a subagentes em tmux, aguardando uma barreira de conclusão sem polling antes de consolidar. Ao delegar, usa gpt-5.6-luna (Luna Medium) por padrão no Codex; para Gemini, chama o CLI agy com gemini-3.8-flash e effort low, preservando um modelo explicitamente solicitado. Nas telas L2, classifica dados fixos e dinâmicos e usa o contrato transversal get_mock_fake com um JSON compartilhado quando houver dados variáveis, sem salvar o símbolo da função de mock. No L3, durante o backend, associa os símbolos reais das funções implementadas e evita arquivos de back-end acima de 300 linhas como orientação textual, sem criar validação estática para esse limite. A inicialização do framework cria somente o índice de convenções e não injeta convenções padrão; arquivos específicos já existentes no projeto são preservados e catalogados. Depois atualiza o Draw correspondente. Detalhes sem mudança de comportamento viram perguntas no nível L2/L3 correto, e mudanças de fluxo também atualizam as conexões dos nós.\",",
       "      \"code_refs\": [",
       "        {",
       "          \"file\": \"src/looper/core.py\",",
@@ -35261,7 +35390,7 @@
       "      \"id\": 3,",
       "      \"label\": \"Instalar skills e instruções\",",
       "      \"group\": 2,",
-      "      \"description\": \"Copia templates atuais, incluindo a skill mock-server com contrato rígido para envio autenticado, ativação explícita de webhooks e recebimento validado; cria .agents/conventions/README.md sem sobrescrever convenções do projeto e atualiza AGENTS.md. Arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O contrato de instruções mantém o AGENTS.md curto, orienta a leitura da convenção relevante e exige Draws vivos e atualizados.\",",
+      "      \"description\": \"Copia templates atuais, incluindo a skill mock-server com pesquisa oficial obrigatória, convenção específica por provedor, ordem explícita das chamadas, pré-condições entre recursos, ativação de webhooks e recebimento validado; cria .agents/conventions/README.md sem sobrescrever convenções do projeto e atualiza AGENTS.md. Arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O contrato de instruções mantém o AGENTS.md curto, orienta a leitura da convenção relevante e exige Draws vivos e atualizados.\",",
       "      \"code_refs\": [",
       "        {",
       "          \"file\": \"src/looper/core.py\",",

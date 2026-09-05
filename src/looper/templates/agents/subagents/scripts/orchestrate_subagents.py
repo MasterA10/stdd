@@ -15,6 +15,11 @@ import uuid
 from pathlib import Path
 
 KNOWN_AGENTS = ("codex", "claude", "agy", "gemini", "antigravity")
+DEFAULT_MODELS = {
+    "codex": "gpt-5.6-luna",
+    "agy": "gemini-3.8-flash",
+}
+DEFAULT_REASONING = {"agy": "low"}
 MARKER = "__SUBAGENT_EXIT__"
 
 
@@ -36,10 +41,17 @@ def render_command(task: dict) -> list[str]:
     command = task.get("command")
     if not isinstance(command, list) or not command or not all(isinstance(item, str) for item in command):
         raise ValueError("cada tarefa precisa de command como lista de strings")
+    command_agent = Path(command[0]).name.lower()
+    model = str(task.get("model", ""))
+    if not model:
+        model = DEFAULT_MODELS.get(command_agent, "")
+    reasoning = str(task.get("reasoning", ""))
+    if not reasoning:
+        reasoning = DEFAULT_REASONING.get(command_agent, "")
     values = {
         "prompt": str(task.get("prompt", "")),
-        "model": str(task.get("model", "")),
-        "reasoning": str(task.get("reasoning", "")),
+        "model": model,
+        "reasoning": reasoning,
         "session_id": str(task.get("session_id", "")),
         "workdir": str(task.get("workdir", Path.cwd())),
     }

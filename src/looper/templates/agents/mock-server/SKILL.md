@@ -16,6 +16,18 @@ Use esta skill quando a aplicação precisar chamar um endpoint local no lugar d
 - Antes de escrever o mock, faça uma matriz do contrato do provedor separando claramente o que a aplicação envia e o que ela recebe. Para cada caminho, registre a documentação oficial consultada, pré-condições, método, URL, headers, autenticação, schema, resposta, erros, idempotência, retries e estado necessário.
 - Faça sempre estas duas perguntas: qual credencial, formato e permissão são necessários para enviar a requisição? Qual mecanismo de webhook é necessário para receber eventos? Não trate uma URL pública, uma assinatura ou uma inscrição como detalhe opcional.
 
+## Pesquisa oficial e convenção obrigatória
+
+Antes de criar ou alterar qualquer mock de provedor externo:
+
+1. Consulte a documentação oficial atual do provedor e, quando houver versões, fixe a versão ou data consultada. Não use snippets de terceiros como fonte do contrato.
+2. Crie ou atualize uma convenção específica em `.agents/conventions/<provedor>.md`. O arquivo deve ter frontmatter YAML com `name` e `description` não vazios, links para as fontes oficiais e somente fatos confirmados; não inclua credenciais, tokens ou dados reais.
+3. Registre nessa convenção a URL base, versão, endpoints, métodos, headers, autenticação, schemas de entrada e saída, status e formato de erro, limites relevantes, idempotência, retries, webhooks, assinatura, verificação, eventos e pré-condições.
+4. Descreva explicitamente a ordem das chamadas e as dependências entre recursos. Se um endpoint só puder ser chamado depois de criar, autorizar, configurar ou confirmar outro recurso, registre a relação `pré-requisito -> operação dependente`, os identificadores produzidos e os erros esperados quando a ordem for violada.
+5. Atualize `.agents/conventions/README.md` para catalogar a convenção e consulte essa convenção antes de implementar as rotas. Se a documentação oficial não definir um detalhe, marque-o como desconhecido e não invente comportamento no mock.
+
+A convenção é a fonte técnica reutilizável do provedor; o README do mock deve apontar para ela. Uma nova integração não está pronta enquanto a convenção e o contrato do mock não estiverem alinhados.
+
 ## Entrega esperada
 
 Adapte os nomes ao projeto, mas mantenha responsabilidades separadas:
@@ -47,6 +59,8 @@ O mock deve modelar os caminhos críticos com a mesma ordem e as mesmas pré-con
 4. **Resposta e reentrega:** reproduza o status, corpo e headers que confirmam o recebimento. Modele duplicatas, ordem, retry e timeout apenas conforme documentado ou conforme o cenário explicitamente escolhido, deixando a decisão registrada no contrato do mock.
 
 O servidor local deve expor apenas as rotas mínimas necessárias para esses fluxos. Não implemente o serviço inteiro, não faça forwarding e não transforme o webhook em um simples `POST` que sempre retorna sucesso. O teste deve provar a sequência `configurar/autorizar -> ativar webhook -> receber evento`, além de provar que cada etapa falha quando sua pré-condição está ausente.
+
+Para dependências de recursos, crie endpoints mínimos para cada pré-requisito que faça parte do cenário e mantenha os identificadores no estado do mock. Uma operação dependente deve rejeitar referência ausente, inválida ou pertencente a um estado incorreto com o status e o formato de erro documentados. Não aceite um ID inventado apenas para deixar o teste passar e não crie automaticamente o recurso pai dentro da operação filha.
 
 Use credenciais e segredos de assinatura fictícios, injetados por configuração de teste e separados entre autenticação de saída e validação de entrada. Nunca reutilize o segredo real do provedor. O estado de ativação deve ser reinicializável entre testes e observável por respostas ou introspecção de teste segura, sem expor segredos.
 

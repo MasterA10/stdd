@@ -295,8 +295,71 @@
         "lines_deleted": 1,
         "files_changed": 1
       }
+    },
+    {
+      "run_id": "d0d255dd376d48b0a34d404771f3d136",
+      "timestamp": "2026-09-04T20:51:38.757395+00:00",
+      "description": "Atualiza defaults de modelos da skill de subagentes para Codex Luna e Gemini via Agy",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 49,
+        "lines_deleted": 4,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 1,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "5dd7c86ba85546798c20b451ff1139a3",
+      "timestamp": "2026-09-04T20:54:36.344338+00:00",
+      "description": "Atualiza defaults: Codex Luna; Gemini via Agy com gemini-3.8-flash e effort low",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 7,
+        "lines_deleted": 2,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "5307330ecbf9462596aa95f6fe487cfb",
+      "timestamp": "2026-09-04T21:08:07.307905+00:00",
+      "description": "Exige convenção oficial e dependências ordenadas na skill mock-server",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 7,
+        "lines_deleted": 1,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 1,
+        "lines_deleted": 1,
+        "files_changed": 1
+      }
     }
   ],
-  "run_count": 14,
-  "last_run_id": "72ea93010dcf472abf9dd221581b0a59"
+  "run_count": 17,
+  "last_run_id": "5307330ecbf9462596aa95f6fe487cfb"
 }

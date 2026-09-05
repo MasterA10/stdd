@@ -61,7 +61,7 @@
       "id": 3,
       "label": "Instalar skills e instruções",
       "group": 2,
-      "description": "Copia templates atuais, incluindo a skill mock-server com contrato rígido para envio autenticado, ativação explícita de webhooks e recebimento validado; cria .agents/conventions/README.md sem sobrescrever convenções do projeto e atualiza AGENTS.md. Arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O contrato de instruções mantém o AGENTS.md curto, orienta a leitura da convenção relevante e exige Draws vivos e atualizados.",
+      "description": "Copia templates atuais, incluindo a skill mock-server com pesquisa oficial obrigatória, convenção específica por provedor, ordem explícita das chamadas, pré-condições entre recursos, ativação de webhooks e recebimento validado; cria .agents/conventions/README.md sem sobrescrever convenções do projeto e atualiza AGENTS.md. Arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O contrato de instruções mantém o AGENTS.md curto, orienta a leitura da convenção relevante e exige Draws vivos e atualizados.",
       "code_refs": [
         {
           "file": "src/looper/core.py",
