@@ -122,7 +122,7 @@
       "id": 7,
       "label": "$implement",
       "group": 3,
-      "description": "Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural; pode delegar investigações ou etapas independentes a subagentes em tmux, aguardando uma barreira de conclusão sem polling antes de consolidar. Ao delegar, usa gpt-5.6-luna (Luna Medium) por padrão no Codex; para Gemini, chama o CLI agy com gemini-3.8-flash e effort low, preservando um modelo explicitamente solicitado. Nas telas L2, classifica dados fixos e dinâmicos e usa o contrato transversal get_mock_fake com um JSON compartilhado quando houver dados variáveis, sem salvar o símbolo da função de mock. No L3, durante o backend, associa os símbolos reais das funções implementadas e evita arquivos de back-end acima de 300 linhas como orientação textual, sem criar validação estática para esse limite. A inicialização do framework cria somente o índice de convenções e não injeta convenções padrão; arquivos específicos já existentes no projeto são preservados e catalogados. Depois atualiza o Draw correspondente. Detalhes sem mudança de comportamento viram perguntas no nível L2/L3 correto, e mudanças de fluxo também atualizam as conexões dos nós.",
+      "description": "Implementa o comportamento de produção guiado pelos testes aprovados, preservando contratos, segurança e qualidade estrutural; pode delegar investigações ou etapas independentes a subagentes em tmux, inicializando o servidor e a sessão antes de criar as barreiras e disparar os panes, para que uma sessão ainda não iniciada não impeça a execução dos subagentes. Ao inspecionar ou continuar um pane, nunca presume janela `:0`: o tmux pode usar `base-index 1` ou outra configuração, então deve usar o `pane_id` retornado pelo tmux (por exemplo, `%0`) ou resolver o índice real com `list-windows`/`list-panes`; aguardando uma barreira de conclusão sem polling antes de consolidar. Ao delegar, usa gpt-5.6-luna (Luna Medium) por padrão no Codex; para Gemini, chama o CLI agy com gemini-3.8-flash e effort low, preservando um modelo explicitamente solicitado. Nas telas L2, classifica dados fixos e dinâmicos e usa o contrato transversal get_mock_fake com um JSON compartilhado quando houver dados variáveis, sem salvar o símbolo da função de mock. No L3, durante o backend, associa os símbolos reais das funções implementadas e evita arquivos de back-end acima de 300 linhas como orientação textual, sem criar validação estática para esse limite. A inicialização do framework cria somente o índice de convenções e não injeta convenções padrão; arquivos específicos já existentes no projeto são preservados e catalogados. Depois atualiza o Draw correspondente. Detalhes sem mudança de comportamento viram perguntas no nível L2/L3 correto, e mudanças de fluxo também atualizam as conexões dos nós.",
       "code_refs": [
         {
           "file": "src/looper/core.py",
@@ -131,6 +131,10 @@
         {
           "file": "src/looper/traceability.py",
           "symbol": "looper.traceability.associate_node_reference"
+        },
+        {
+          "file": "src/looper/templates/agents/subagents/scripts/orchestrate_subagents.py",
+          "symbol": "looper.templates.agents.subagents.scripts.orchestrate_subagents.run"
         }
       ]
     },

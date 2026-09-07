@@ -48,8 +48,9 @@ Os nomes e flags acima são contratos de CLI, não texto livre. Antes de executa
 - Descubra os CLIs locais com `scripts/orchestrate_subagents.py discover`. A descoberta informa disponibilidade e versão, mas não escolhe agente ou modelo.
 - Use um manifesto JSON com tarefas de ID único, prompt, comando, modelo, reasoning, diretório e, para retomadas, `session_id`.
 - Inicie os aguardadores antes dos agentes. Execute todas as tarefas na mesma sessão tmux, com um pane por tarefa: dois agentes ficam em dois painéis equilibrados, três em três painéis e assim sucessivamente. O helper abre um Terminal dedicado e anexa essa sessão; use `--headless` somente em CI ou ambiente sem interface gráfica.
+- Nunca presuma que a primeira janela seja `:0`. O tmux pode estar configurado com `base-index 1`, fazendo com que uma sessão como `subagents-...:0` seja inválida enquanto o pane real está em `:1.1`. Para capturar, enviar comandos ou continuar um agente, use sempre o `pane_id` retornado por `new-session`/`split-window` (por exemplo, `%0`); se precisar de um alvo nomeado, descubra antes o índice real com `tmux list-windows` e `tmux list-panes`.
 - Comunique a conclusão por `tmux wait-for`; o helper oferece FIFO bloqueante como fallback.
-- O agente principal espera bloqueado pela barreira. Não use `tmux has-session`, `sleep`, loops de consulta ou leitura periódica de logs.
+- O agente principal espera bloqueado pela barreira. Não use `tmux has-session` para polling, `sleep`, loops de consulta ou leitura periódica de logs; uma checagem única é permitida apenas durante o bootstrap para recuperar uma sessão que já tenha sido criada.
 - Depois que todos terminarem, leia stdout/stderr, códigos de saída e artefatos. Término do processo não significa aprovação.
 - Para continuar uma sessão, preserve o mesmo `session_id`, troque o comando pelo comando de retomada e envie a nova instrução. Não crie uma sessão nova para a etapa seguinte.
 - Reutilize o mesmo pane para a continuação: o processo anterior termina, mas a sessão tmux e o shell do pane permanecem abertos. Use:

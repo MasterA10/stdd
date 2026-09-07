@@ -1,8 +1,10 @@
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner
 
 from looper.cli import app
@@ -630,6 +632,53 @@ def test_subagents_helper_reuses_tmux_pane_for_continuation():
     assert "even-horizontal" in helper
     assert "exec bash" in helper
     assert "send-keys" in helper
+    assert "start-server" in helper
+    assert "start_tmux_session" in helper
+    skill = Path("src/looper/templates/agents/subagents/SKILL.md").read_text(encoding="utf-8")
+    assert "Nunca presuma que a primeira janela seja `:0`" in skill
+    assert "pane_id" in skill
+    assert "base-index 1" in skill
+
+
+# O que faz: confirma que o helper cria a sessão tmux antes de disparar o agente.
+# Como faz: executa uma task real em uma sessão inexistente e valida o resultado.
+def test_subagents_helper_bootstraps_tmux_before_dispatching(tmp_path: Path):
+    """Confirma que o helper cria a sessão tmux antes de disparar o agente.
+    Executa uma task em uma sessão inexistente e valida o resultado concluído.
+    """
+    # O que faz: executa o helper sem uma sessão tmux prévia.
+    # Como faz: valida que a task conclui e produz status completed.
+    if shutil.which("tmux") is None:
+        pytest.skip("tmux não está instalado")
+
+    helper = Path(__file__).resolve().parents[1] / "src/looper/templates/agents/subagents/scripts/orchestrate_subagents.py"
+    manifest = tmp_path / "manifest.json"
+    output = tmp_path / "results.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "workdir": str(tmp_path),
+                "timeout_seconds": 30,
+                "keep_session": False,
+                "tasks": [{"id": "bootstrap", "prompt": "teste", "command": [sys.executable, "-c", "print('ok')"]}],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    completed = subprocess.run(
+        [sys.executable, str(helper), "run", "--manifest", str(manifest), "--output", str(output), "--headless"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        timeout=45,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    result = json.loads(output.read_text(encoding="utf-8"))
+    assert result["status"] == "completed"
+    assert result["results"][0]["status"] == "completed"
 
 # O que faz: confirma os defaults de modelo para Codex e Gemini via Agy.
 # Como faz: renderiza comandos com modelo omitido e com override explícito.

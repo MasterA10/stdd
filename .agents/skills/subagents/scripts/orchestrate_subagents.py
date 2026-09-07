@@ -84,6 +84,41 @@ def extract_final(stdout: str, task: dict) -> tuple[str, str | None, dict]:
     return str(response).strip(), session_id, usage
 
 
+def start_tmux_session(session: str, root: Path) -> str:
+    """Inicializa o servidor e devolve um pane pronto para receber o primeiro agente."""
+    started = subprocess.run(["tmux", "start-server"], cwd=root, capture_output=True, text=True, check=False)
+    if started.returncode:
+        raise RuntimeError(started.stderr.strip() or "falha ao inicializar o servidor tmux")
+
+    launched = subprocess.run(
+        ["tmux", "new-session", "-d", "-P", "-F", "#{pane_id}", "-s", session, "bash"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if launched.returncode:
+        existing = subprocess.run(["tmux", "has-session", "-t", session], cwd=root, capture_output=True, text=True, check=False)
+        if existing.returncode:
+            raise RuntimeError(launched.stderr.strip() or f"falha ao inicializar a sessão tmux {session}")
+        panes = subprocess.run(
+            ["tmux", "list-panes", "-t", session, "-F", "#{pane_id}"],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        pane_id = panes.stdout.strip().splitlines()
+        if not pane_id:
+            raise RuntimeError(f"sessão tmux {session} não possui pane inicial")
+        return pane_id[0]
+
+    pane_id = launched.stdout.strip().splitlines()
+    if not pane_id:
+        raise RuntimeError(f"sessão tmux {session} não devolveu um pane inicial")
+    return pane_id[-1]
+
+
 def run(manifest_path: Path, output_path: Path, fifo: bool = False) -> int:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     tasks = manifest.get("tasks") if isinstance(manifest, dict) else None
@@ -107,6 +142,7 @@ def run(manifest_path: Path, output_path: Path, fifo: bool = False) -> int:
     locks = {task["id"]: f"subagents-{run_id}-{task['id']}" for task in tasks}
     fifo_path = root / f".subagents-{run_id}.fifo"
     try:
+        initial_pane = start_tmux_session(session, root)
         if fifo:
             os.mkfifo(fifo_path)
         else:
@@ -115,7 +151,7 @@ def run(manifest_path: Path, output_path: Path, fifo: bool = False) -> int:
             for channel in locks.values():
                 subprocess.run(["tmux", "wait-for", "-L", channel], cwd=root, check=True)
 
-        for task in tasks:
+        for index, task in enumerate(tasks):
             task_id = task["id"]
             log_path = root / f".subagent-{run_id}-{task_id}.log"
             stdout_path = root / f".subagent-{run_id}-{task_id}.stdout"
@@ -132,13 +168,25 @@ def run(manifest_path: Path, output_path: Path, fifo: bool = False) -> int:
                 f"code=$?; printf '%s' $code > {shlex.quote(str(code_path))}; {completion}; "
                 f"{'exec bash' if keep_session else 'exit $code'}"
             )
-            launch = (["tmux", "new-session", "-d", "-P", "-F", "#{pane_id}", "-s", session, "bash", "-lc", script]
-                      if task is tasks[0]
-                      else ["tmux", "split-window", "-h", "-P", "-F", "#{pane_id}", "-t", session, "bash", "-lc", script])
-            launched = subprocess.run(launch, cwd=root, capture_output=True, text=True, check=False)
+            if index == 0:
+                pane_target = initial_pane
+            else:
+                launched = subprocess.run(
+                    ["tmux", "split-window", "-h", "-P", "-F", "#{pane_id}", "-t", session, "bash"],
+                    cwd=root,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                pane_target = launched.stdout.strip().splitlines()[-1] if launched.stdout.strip() else ""
+                if launched.returncode:
+                    raise RuntimeError(launched.stderr.strip() or f"falha ao criar o pane de {task_id}")
+                if not pane_target:
+                    raise RuntimeError(f"tmux não devolveu o pane de {task_id}")
+            launched = subprocess.run(["tmux", "send-keys", "-t", pane_target, script, "C-m"], cwd=root, capture_output=True, text=True, check=False)
             if launched.returncode:
                 raise RuntimeError(launched.stderr.strip() or f"falha ao iniciar {task_id}")
-            pane_targets[task_id] = launched.stdout.strip().splitlines()[-1]
+            pane_targets[task_id] = pane_target
             subprocess.run(["tmux", "select-layout", "-t", session, "even-horizontal"], cwd=root, check=True)
 
         if not manifest.get("headless", False):

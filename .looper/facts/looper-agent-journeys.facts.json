@@ -161,11 +161,20 @@
           "file": "src/looper/traceability.py",
           "kind": "function",
           "source": "python_ast"
+        },
+        {
+          "symbol": "looper.templates.agents.subagents.scripts.orchestrate_subagents.run",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/templates/agents/subagents/scripts/orchestrate_subagents.py",
+          "kind": "function",
+          "source": "python_ast"
         }
       ],
       "source_dependencies": [],
       "files": [
         "src/looper/core.py",
+        "src/looper/templates/agents/subagents/scripts/orchestrate_subagents.py",
         "src/looper/traceability.py"
       ],
       "tests": [],

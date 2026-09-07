@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "date": "2026-09-07",
+  "runs": [
+    {
+      "run_id": "4d95d48f01ea48d99c1ddd04dce79b02",
+      "timestamp": "2026-09-07T12:16:13.812120+00:00",
+      "description": "Documenta índices de janela e pane_id do tmux na skill de subagentes",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 158,
+        "lines_deleted": 13,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 5,
+        "lines_deleted": 1,
+        "files_changed": 1
+      }
+    }
+  ],
+  "run_count": 1,
+  "last_run_id": "4d95d48f01ea48d99c1ddd04dce79b02"
+}
