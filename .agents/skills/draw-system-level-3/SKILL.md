@@ -15,28 +15,21 @@ Use esta skill somente depois de ler o nível 2, sua raiz e os descendentes rele
 
 ## Descrição em Médio Nível e Tasks de Código (`code_tasks`)
 
-Para manter o visual do canvas legível e ao mesmo tempo fornecer todo o detalhamento técnico cirúrgico:
+Para manter o visual do canvas legível e ao mesmo tempo fornecer todo o direcionamento cirúrgico para a implementação:
 
-- **Descrição do Nó em Médio Nível**: A descrição padrão do nó (`description`) deve permanecer em **médio nível** — concisa, técnica e focada no objetivo funcional daquela etapa (ex.: "Valida as credenciais enviadas pelo cliente, confere o hash de senha no repositório de usuários e emite token JWT com permissões"). Não despeje blocos de código bruto, JSONs ou tabelas de endpoints diretamente no card do nó.
-- **Inserção Obrigatória em `code_tasks`**: Cada nó de implementação que envolver endpoints, chamadas de API, webhooks ou passos técnicos específicos de código deve conter o array `code_tasks` preenchido. Cada task deve estruturar:
-  - `title`: Resumo da ação técnica (ex.: "Endpoint de autenticação").
-  - `method`: Método HTTP em maiúsculas (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`).
-  - `uri`: Rota completa (ex.: `/api/v1/auth/login`).
-  - `params`: Parâmetros de rota ou query esperados.
-  - `payload`: Schema ou exemplo do payload da requisição.
-  - `response`: Schema ou exemplo da resposta esperada com status code.
-  - `details`: Instruções cirúrgicas de código para controller, services, repositórios e regras de negócio.
-- **Botão e Modal no Viewer**: No visualizador (`looper draw serve`), os nós de Nível 3 exibem o botão **`Tasks de Código`**, que abre o modal interativo com todos os endpoints, payloads e detalhes técnicos para consulta e edição.
+- **Descrição do Nó em Médio Nível**: A descrição padrão do nó (`description`) deve permanecer em **médio nível** — concisa, técnica e focada no objetivo funcional daquela etapa (ex.: "Valida as credenciais enviadas pelo cliente, confere o hash de senha no repositório de usuários e emite token JWT com permissões"). Não despeje blocos de código bruto ou JSONs diretamente no card do nó.
+- **Inserção Obrigatória em `code_tasks`**: Cada nó de implementação possui o array `code_tasks` com a lista de **to-dos textuais** de código. O contrato é texto comum e direto, sem foco em campos estruturados ou burocracia de método HTTP/JSON payload — é um to-do mesmo textual dentro do nó L3 (ex.: `"Criar rota POST /api/v1/auth/login e validar schema com Zod"`, `"Buscar hash de senha no banco e comparar com bcrypt"`, `"Emitir token JWT e retornar sessão do usuário"`).
+- **Botão e Modal no Viewer**: No visualizador (`looper draw serve`), os nós de Nível 3 exibem o botão **`Tasks de Código`**, que abre o modal interativo com a lista de to-dos de código do nó para consulta e edição rápida.
 - **Consumo via `looper draw context`**:
   - A execução padrão `looper draw context` omite as tasks de código para manter o contexto estruturado limpo.
-  - Para obter os detalhes cirúrgicos de código e endpoints, utilize a flag explícita: `looper draw context --code`.
+  - Para obter os to-dos de código e tarefas técnicas, utilize a flag explícita: `looper draw context --code`.
 
 ## Injeção de Contexto e Especificação de Endpoints
 
 Elimina-se qualquer abstração genérica nas instruções do agente, exigindo detalhamento técnico nos fluxos externos e integração com a arquitetura:
 
 - **Fim das Instruções Genéricas**: Ações vagas como "envia mensagem", "notifica usuário" ou "chama API" passam a ser expressamente proibidas nos prompts de spec e nas descrições de nós do Nível 3. A diretriz exige a menção explícita da plataforma, provedor e canal (ex.: "envia mensagem via WhatsApp Cloud API", "dispara e-mail transacional via SendGrid API", "publica evento via RabbitMQ topic exchange").
-- **Declaração Obrigatória de Endpoints**: Todas as rotas de backend, webhooks e APIs externas devem constar obrigatoriamente no Draw Nível 3 dentro de `code_tasks` com URI, método HTTP, parâmetros de rota (e query) e formato esperado de payload (campos obrigatórios, tipos e schema de request/response).
+- **Declaração Obrigatória de Endpoints**: Todas as rotas de backend, webhooks e APIs externas devem constar obrigatoriamente no Draw Nível 3 dentro de `code_tasks` descritas no to-do textual com sua URI, método HTTP, parâmetros de rota e formato esperado de payload.
 - **Consumo do Contexto Global**: O gerador do Draw Nível 3 deve obrigatoriamente referenciar o contexto completo da aplicação (loop context, metadados gerais do Draw System via `looper draw context`, fronteiras do Nível 1 e jornadas do Nível 2) para não gerar passos desconectados da arquitetura existente. Toda task de implementação deve se apoiar nas decisões globais confirmadas, modelos de dados e contratos transversais já definidos.
 - **Validação Prévia com `$documentation-conventions`**: Antes de iniciar a montagem das tasks do Draw Nível 3, acione a skill `$documentation-conventions` para varrer os requisitos do Nível 2, consultar a documentação oficial de cada API/SDK e compilar as convenções do projeto com header em `.agents/conventions/`. Caso existam múltiplos caminhos técnicos sem definição clara na UI, pause e solicite definição humana explícita.
 

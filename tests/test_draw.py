@@ -1587,15 +1587,8 @@ def test_draw_context_includes_code_tasks_only_when_requested(tmp_path: Path, mo
         },
     })
     l3_payload["nodes"][0]["code_tasks"] = [
-        {
-            "title": "Criar cobrança via Stripe",
-            "endpoint": "/v1/charges",
-            "method": "POST",
-            "params": "idempotency-key",
-            "request_payload": '{"amount": 5000, "currency": "brl"}',
-            "response_payload": '{"id": "ch_123", "status": "succeeded"}',
-            "details": "Chama Stripe SDK com retry automático.",
-        }
+        "Criar cobrança via Stripe SDK no endpoint /v1/charges",
+        "Persistir id e status da transação na tabela de pedidos",
     ]
     create_draw(tmp_path, l3_payload)
 
@@ -1607,11 +1600,8 @@ def test_draw_context_includes_code_tasks_only_when_requested(tmp_path: Path, mo
     code_context = collect_draw_context(tmp_path, include_code=True)
     code_output = format_draw_context(code_context)
     assert "### Tasks de Código" in code_output
-    assert "[POST] /v1/charges — Criar cobrança via Stripe" in code_output
-    assert "Parâmetros: idempotency-key" in code_output
-    assert "Payload: {\"amount\": 5000, \"currency\": \"brl\"}" in code_output
-    assert "Resposta: {\"id\": \"ch_123\", \"status\": \"succeeded\"}" in code_output
-    assert "Detalhes: Chama Stripe SDK com retry automático." in code_output
+    assert "- Criar cobrança via Stripe SDK no endpoint /v1/charges" in code_output
+    assert "- Persistir id e status da transação na tabela de pedidos" in code_output
 
     result_default = runner.invoke(app, ["draw", "context"])
     assert result_default.exit_code == 0
@@ -1620,5 +1610,5 @@ def test_draw_context_includes_code_tasks_only_when_requested(tmp_path: Path, mo
     result_code = runner.invoke(app, ["draw", "context", "--code"])
     assert result_code.exit_code == 0
     assert "### Tasks de Código" in result_code.stdout
-    assert "[POST] /v1/charges — Criar cobrança via Stripe" in result_code.stdout
+    assert "- Criar cobrança via Stripe SDK no endpoint /v1/charges" in result_code.stdout
 

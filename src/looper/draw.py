@@ -1302,15 +1302,19 @@ def _context_reference_lines(references: list[dict[str, Any]]) -> list[str]:
 def _context_code_task_lines(code_tasks: Any) -> list[str]:
     if not code_tasks:
         return []
-    lines: list[str] = ["### Tasks de Código (Endpoints e Implementação)"]
+    lines: list[str] = ["### Tasks de Código"]
     if isinstance(code_tasks, str):
-        lines.append(code_tasks.strip())
+        task_str = code_tasks.strip()
+        if task_str:
+            lines.append(f"- {task_str}")
         return lines
     if not isinstance(code_tasks, list):
         return []
     for task in code_tasks:
         if isinstance(task, str):
-            lines.append(f"- {task.strip()}")
+            task_str = task.strip()
+            if task_str:
+                lines.append(f"- {task_str}")
         elif isinstance(task, dict):
             method = str(task.get("method") or "").upper().strip()
             uri = str(task.get("uri") or task.get("endpoint") or "").strip()
@@ -1322,21 +1326,8 @@ def _context_code_task_lines(code_tasks: Any) -> list[str]:
                 lines.append(f"- {endpoint_header}")
             elif title:
                 lines.append(f"- {title}")
-            else:
-                lines.append("- Task sem descrição")
-
-            params = task.get("params")
-            if params:
-                lines.append(f"  - Parâmetros: {params if isinstance(params, str) else json.dumps(params, ensure_ascii=False)}")
-            payload = task.get("payload") or task.get("request_payload")
-            if payload:
-                lines.append(f"  - Payload: {payload if isinstance(payload, str) else json.dumps(payload, ensure_ascii=False)}")
-            response = task.get("response") or task.get("response_payload")
-            if response:
-                lines.append(f"  - Resposta: {response if isinstance(response, str) else json.dumps(response, ensure_ascii=False)}")
-            details = task.get("details")
-            if details and details != title:
-                lines.append(f"  - Detalhes: {details}")
+            elif task.get("details"):
+                lines.append(f"- {str(task['details']).strip()}")
     return lines
 
 
