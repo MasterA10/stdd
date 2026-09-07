@@ -81,19 +81,38 @@ export const CodeTasksModal: React.FC<CodeTasksModalProps> = ({ node, onClose, o
     commit(updated);
   };
 
+  const handleClose = () => {
+    const trimmed = inputText.trim();
+    if (trimmed) {
+      if (editingIndex !== null) {
+        const updated = [...tasks];
+        updated[editingIndex] = trimmed;
+        commit(updated);
+      } else {
+        commit([...tasks, trimmed]);
+      }
+      setInputText('');
+    }
+    onClose();
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey || !e.shiftKey)) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSaveTask();
     }
   };
 
   return (
-    <div className="code-tasks-modal-overlay" onClick={onClose}>
+    <div className="dialog-overlay" onClick={handleClose}>
       <dialog
         open
-        className="code-tasks-dialog"
+        className="app-dialog code-tasks-dialog"
         onClick={(e) => e.stopPropagation()}
+        onCancel={(e) => {
+          e.preventDefault();
+          handleClose();
+        }}
         aria-labelledby="code-tasks-title"
       >
         <div className="code-tasks-header">
@@ -108,7 +127,7 @@ export const CodeTasksModal: React.FC<CodeTasksModalProps> = ({ node, onClose, o
               </span>
             </div>
           </div>
-          <button className="code-tasks-close-btn" onClick={onClose} title="Fechar modal (Esc)">
+          <button className="code-tasks-close-btn" type="button" onClick={handleClose} title="Fechar modal (Esc)">
             <X size={18} />
           </button>
         </div>
@@ -161,6 +180,7 @@ export const CodeTasksModal: React.FC<CodeTasksModalProps> = ({ node, onClose, o
               <textarea
                 className="code-task-textarea"
                 rows={2}
+                autoFocus
                 placeholder={
                   editingIndex !== null
                     ? 'Edite a tarefa de código...'
@@ -183,6 +203,7 @@ export const CodeTasksModal: React.FC<CodeTasksModalProps> = ({ node, onClose, o
                   className="code-task-submit-btn"
                   type="submit"
                   disabled={!inputText.trim()}
+                  onClick={handleSaveTask}
                 >
                   {editingIndex !== null ? (
                     <>
@@ -203,7 +224,7 @@ export const CodeTasksModal: React.FC<CodeTasksModalProps> = ({ node, onClose, o
           <span className="code-tasks-count-info">
             {tasks.length} {tasks.length === 1 ? 'task de código' : 'tasks de código'}
           </span>
-          <button className="code-tasks-primary-btn" type="button" onClick={onClose}>
+          <button className="code-tasks-primary-btn" type="button" onClick={handleClose}>
             Concluir
           </button>
         </div>

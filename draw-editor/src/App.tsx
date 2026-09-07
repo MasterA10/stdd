@@ -1525,9 +1525,12 @@ export const App: React.FC = () => {
       ...node,
       selected: selectedNodeIds.has(Number(node.id))
     }));
-    const nextNodesSignature = nodesWithSelection.map((node) => (
-      `${contract.id}:${node.id}:${node.position.x}:${node.position.y}:${node.selected ? 1 : 0}:${node.data.isHighlighted ? 1 : 0}:${node.data.isDimmed ? 1 : 0}:${node.data.backlogChecklist?.status || ''}`
-    )).join('|');
+    const nextNodesSignature = nodesWithSelection.map((node) => {
+      const ctSig = Array.isArray(node.data.code_tasks) ? node.data.code_tasks.join(';;') : '';
+      const qSig = Array.isArray(node.data.questions) ? node.data.questions.map((q) => `${q.id}:${q.answer}`).join(';;') : '';
+      const cSig = Array.isArray(node.data.changes) ? node.data.changes.length : 0;
+      return `${contract.id}:${node.id}:${node.position.x}:${node.position.y}:${node.selected ? 1 : 0}:${node.data.isHighlighted ? 1 : 0}:${node.data.isDimmed ? 1 : 0}:${node.data.backlogChecklist?.status || ''}:${ctSig}:${qSig}:${cSig}:${node.data.label}:${node.data.description}`;
+    }).join('|');
     if (renderedNodesSignatureRef.current !== nextNodesSignature) {
       renderedNodesSignatureRef.current = nextNodesSignature;
       setNodes(nodesWithSelection);
@@ -2261,6 +2264,9 @@ export const App: React.FC = () => {
       nodes: prev.nodes.map((node) => node.id === nodeId ? { ...node, questions } : node)
     }));
     setQuestionsNode((prev) => prev && prev.id === nodeId ? { ...prev, questions } : prev);
+    setNodes((currentNodes) => currentNodes.map((node) => (
+      Number(node.id) === nodeId ? { ...node, data: { ...node.data, questions } } : node
+    )));
     setIsDirty(true);
   };
 
@@ -2270,6 +2276,9 @@ export const App: React.FC = () => {
       nodes: prev.nodes.map((node) => node.id === nodeId ? { ...node, changes } : node)
     }));
     setChangesNode((prev) => prev && prev.id === nodeId ? { ...prev, changes } : prev);
+    setNodes((currentNodes) => currentNodes.map((node) => (
+      Number(node.id) === nodeId ? { ...node, data: { ...node.data, changes } } : node
+    )));
     setIsDirty(true);
   };
 
@@ -2279,6 +2288,9 @@ export const App: React.FC = () => {
       nodes: prev.nodes.map((node) => node.id === nodeId ? { ...node, code_tasks } : node)
     }));
     setCodeTasksNode((prev) => prev && prev.id === nodeId ? { ...prev, code_tasks } : prev);
+    setNodes((currentNodes) => currentNodes.map((node) => (
+      Number(node.id) === nodeId ? { ...node, data: { ...node.data, code_tasks } } : node
+    )));
     setIsDirty(true);
   };
 

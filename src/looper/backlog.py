@@ -1017,6 +1017,7 @@ def _task_for_node(root: Path, document: dict[str, Any], node: dict[str, Any], b
         "success_criteria": node.get("success_criteria", ""),
         "failure_criteria": node.get("failure_criteria", ""),
         "questions": deepcopy(node.get("questions", [])) if isinstance(node.get("questions", []), list) else [],
+        "code_tasks": deepcopy(node.get("code_tasks", [])) if isinstance(node.get("code_tasks", []), list) else [],
         "code_refs": code_refs,
         "symbols": symbols,
         "source_dependencies": dependencies,

@@ -200,6 +200,7 @@ def _compact_backlog_response(response: dict[str, object]) -> dict[str, object]:
         "success_criteria": response.get("success_criteria") or task.get("success_criteria") or None,
         "failure_criteria": response.get("failure_criteria") or task.get("failure_criteria") or None,
         "symbols": task.get("symbols") or [],
+        "code_tasks": task.get("code_tasks") or [],
         "verification_requirements": task.get("verification_requirements") or [],
         "navigation_target": response.get("navigation_target"),
         "navigation_entries": response.get("navigation_entries") or [],
@@ -373,6 +374,11 @@ def _format_backlog_response(response: dict[str, object]) -> str:
         lines.append("Testes: não aplicáveis nesta fase de frontend")
     if compact.get("description"):
         lines.append(f"Descrição: {compact['description']}")
+    code_tasks = compact.get("code_tasks")
+    if isinstance(code_tasks, list) and code_tasks:
+        lines.append("Tasks de código (to-do):")
+        for task_item in code_tasks:
+            lines.append(f"  • {task_item}")
     if compact.get("success_criteria"):
         lines.append(f"Critério de sucesso: {compact['success_criteria']}")
     if compact.get("failure_criteria"):
