@@ -45,7 +45,7 @@ looper init meu-projeto --integration claude --integration gemini
 looper init meu-projeto --all-integrations
 ```
 
-O `looper init` sempre sincroniza as skills já instaladas com os templates desta versão, adicionando agentes novos e atualizando instruções existentes. Se o comando ainda não reconhecer `draw-system-level-1` até `draw-system-level-4`, reinstale o CLI a partir deste checkout com `uv tool install --force --editable .` e execute o init novamente.
+O `looper init` sempre sincroniza as skills já instaladas com os templates desta versão, adicionando agentes novos e atualizando instruções existentes. Se o comando ainda não reconhecer `draw-system-level-1` até `draw-system-level-3`, reinstale o CLI a partir deste checkout com `uv tool install --force --editable .` e execute o init novamente.
 
 O init instala a skill `$playwright-testing` em `.agents/skills/playwright-testing/`. Ela documenta como criar testes E2E com Playwright, explorar e diagnosticar a aplicação com `npx playwright-cli`, confirmar a estrutura antes de automatizar e executar a regressão com `looper test --playwright`.
 
@@ -104,12 +104,11 @@ $draw-improve Revise o desenho atual e acrescente somente o próximo detalhe arq
 $draw-interaction Investigue marcações do Draw; responda perguntas e execute tarefas na codebase.
 $draw-system-level-1 Desenhe somente a arquitetura macro do sistema.
 $draw-system-level-2 Desenhe jornadas, telas e navegação por papel a partir da arquitetura existente.
-$draw-system-level-3 Detalhe o comportamento completo de uma tela ou nó, em lotes aprovados.
-$draw-system-level-4 Rastreie sob demanda uma decisão até a codebase real.
+$documentation-conventions Valide contratos técnicos e estabeleça convenções em .agents/conventions antes da escrita do Draw Nível 3.
+$draw-system-level-3 Estruture o plano de execução cirúrgico (tasks de implementação) no caminho crítico de código, em lotes aprovados.
 $static-analysis Analise dependências, complexidade, funções longas e segredos hardcoded.
-$system-design Consulte e mantenha o design system como uma landing page demonstrativa, com tokens visuais, estados e componentes reutilizáveis aplicados no `.looper/design.html`.
+$system-design Crie e mantenha o Design System em .looper/design.html usando toda a estrutura e convenções do Open Design, extraindo exemplos da biblioteca local do Open Design.
 $playwright-testing Crie e diagnostique testes Playwright, explorando a aplicação com `npx playwright-cli` antes da automação quando possível.
-$modern-web-guidance Consulte padrões modernos da web para interface, layouts, animações e CSS.
 $backend-developer Implemente backend modular com logging transversal e integrações externas testadas.
 $implement-change Execute em loop as changes pendentes entregues por `looper backlog change`, leia o contexto real, implemente, teste e conclua cada ID.
 $resolve-bug Investigue e corrija um bug com plano validado, execução delegada, Draws atualizados e convenções reutilizáveis quando confirmadas.
@@ -124,6 +123,7 @@ $setup
 $test-application
 $draw-improve
 $draw-interaction
+$documentation-conventions
 $implement-change
 $implement-frontend
 $implement-backend
@@ -136,8 +136,8 @@ $setup
 $test-application Proponha e implemente a cobertura completa do fluxo, incluindo navegação, Playwright e persistência quando aplicável.
 $draw-system-level-1 Modele a arquitetura macro do sistema.
 $draw-system-level-2 Modele as jornadas por papel — separando cliente, administrador e permissões.
-$draw-system-level-3 Modele de ponta a ponta o comportamento das telas que exigem regras, validações ou autorização.
-$draw-system-level-4 Abra somente o recorte de codebase que exija rastreabilidade técnica.
+$documentation-conventions Valide contratos técnicos, consulte documentação oficial e estabeleça convenções antes do Nível 3.
+$draw-system-level-3 Estruture o plano de execução cirúrgico das tasks de implementação no caminho crítico de código.
 $draw-feature Mostre a arquitetura e as decisões dessa feature.
 $draw-improve Evolua o desenho em um ciclo curto e pare para minha revisão.
 $implement-frontend Construa a view/tela da task entregue por looper backlog frontend.
@@ -148,7 +148,7 @@ $implement-backend Implemente o controller/model da task entregue por looper bac
 
 O `$draw-interaction` lê as marcações do Draw e identifica se cada uma é uma pergunta ou uma tarefa. Para perguntas com `@looper` e `answer` ausente, executa `looper draw questions`, consulta a codebase e os símbolos associados; se houver evidência, grava a resposta, marca os símbolos relevantes e remove o marcador. Para pedidos de alteração, consulta `looper backlog change`; o `$implement-change` lê os símbolos e testes, implementa a change e conclui o ID reservado depois da validação. Sem `@looper`, a pergunta pertence ao usuário ou a um revisor humano; respostas já preenchidas, inclusive `false` e `0`, não geram nova ação. O `$draw-improve` preserva essa responsabilidade separada.
 
-As skills `$draw-system-level-1` a `$draw-system-level-4` criam uma árvore sem fluxos órfãos: nível 1 contém somente arquitetura macro, nível 2 acompanha jornadas e navegação por papel, nível 3 detalha de ponta a ponta as ações possíveis de cada tela em dois ou mais lotes aprovados e nível 4 liga a codebase sob demanda. Durante a especificação e enquanto a implementação estiver pendente, os nós podem permanecer sem `code_refs`; não invente símbolos ou use placeholders. Depois que a task estiver concluída no backlog, `looper test` exige os símbolos reais e bloqueia com `draw.level2_missing_code_ref`, `draw.level3_missing_code_ref`, `draw.level4_missing_code_ref` ou `draw.empty_node_symbol`. No nível 3, cada ação comprovada da tela inicia um nó próprio conectado ao comportamento de caso de uso; a tela não é substituída por um fluxo genérico. A análise estática avisa quando um subfluxo de nível 3 tem menos de quatro nós ou quando alguma descrição tem menos de 80 caracteres; esses avisos continuam informativos. Cada filho declara seu pai e cada pai aponta para o filho com `draw_ref`; caminhos ainda não implementados terminam no próprio nó, sem continuação fictícia.
+As skills `$draw-system-level-1` a `$draw-system-level-3` criam uma árvore sem fluxos órfãos: nível 1 contém somente arquitetura macro, nível 2 acompanha jornadas e navegação por papel e nível 3 detalha o plano de execução cirúrgico (tasks de implementação) no caminho crítico de código. Durante a especificação e enquanto a implementação estiver pendente, os nós podem permanecer sem `code_refs`; não invente símbolos ou use placeholders. Depois que a task estiver concluída no backlog, `looper test` exige os símbolos reais e bloqueia com `draw.level2_missing_code_ref`, `draw.level3_missing_code_ref` ou `draw.empty_node_symbol`. No nível 3, cada ação comprovada da tela inicia um nó próprio conectado ao comportamento de caso de uso; a tela não é substituída por um fluxo genérico. A análise estática avisa quando um subfluxo de nível 3 tem menos de quatro nós ou quando alguma descrição tem menos de 80 caracteres; esses avisos continuam informativos. Cada filho declara seu pai e cada pai aponta para o filho com `draw_ref`; caminhos ainda não implementados terminam no próprio nó, sem continuação fictícia.
 
 Para Claude e Gemini, as mesmas skills são instaladas em `.claude/skills/` e `.gemini/skills/`; a forma exata de chamada pode ser o comando de skill adotado pelo agente, mas os nomes e contratos permanecem iguais.
 

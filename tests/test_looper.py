@@ -42,7 +42,8 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert (tmp_path / ".agents/skills/implement-backend/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/setup/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/static-analysis/SKILL.md").exists()
-    assert (tmp_path / ".agents/skills/modern-web-guidance/SKILL.md").exists()
+    assert not (tmp_path / ".agents/skills/modern-web-guidance").exists()
+    assert (tmp_path / ".agents/skills/documentation-conventions/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/system-design/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-feature/SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-improve/SKILL.md").exists()
@@ -54,13 +55,14 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert "pode ser criado antes da implementação" in planned_level_three
     assert "nunca crie um símbolo placeholder" in planned_level_three
     assert not (tmp_path / ".agents/skills/missing/SKILL.md").exists()
-    for level in range(1, 5):
+    for level in range(1, 4):
         assert (tmp_path / ".agents/skills" / f"draw-system-level-{level}" / "SKILL.md").exists()
         assert (tmp_path / ".agents/skills" / f"draw-system-level-{level}" / "agents/openai.yaml").exists()
     assert (tmp_path / ".agents/skills/draw-improve/agents/openai.yaml").exists()
     assert (tmp_path / "AGENTS.md").exists()
     assert "looper test" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
-    assert "$modern-web-guidance" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "$system-design" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "$modern-web-guidance" not in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert "subagentes" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert "tmux" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     system_design = (tmp_path / ".agents/skills/system-design/SKILL.md").read_text(encoding="utf-8")
@@ -358,19 +360,20 @@ def test_agents_are_loaded_from_markdown_templates():
         "draw-system-level-1",
         "draw-system-level-2",
         "draw-system-level-3",
-        "draw-system-level-4",
+        "documentation-conventions",
         "implement-backend",
         "implement-frontend",
         "implement-change",
         "resolve-bug",
-        "modern-web-guidance",
         "playwright-testing",
         "mock-server",
         "system-design",
         "setup",
         "static-analysis",
+        "subagents",
     }
     assert "# Test Application" in templates["test-application"].read_text()
+    assert "# Documentation & Conventions" in templates["documentation-conventions"].read_text()
     assert "# Backend Developer" in templates["backend-developer"].read_text()
     assert "# Implement Frontend Agent" in templates["implement-frontend"].read_text()
     assert "# Implement Backend Agent" in templates["implement-backend"].read_text()
@@ -385,7 +388,7 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "looper backlog complete <task-id>" in templates["implement-change"].read_text()
     assert "backlog-change-empty" in templates["implement-change"].read_text()
     assert "# Setup Agent" in templates["setup"].read_text()
-    assert "# Modern Web Guidance" in templates["modern-web-guidance"].read_text()
+    assert "open design" in templates["system-design"].read_text().lower()
     assert "# Playwright Testing" in templates["playwright-testing"].read_text()
     assert "complexidade ciclomática" in templates["static-analysis"].read_text()
     assert "long_function" in templates["static-analysis"].read_text()
@@ -400,7 +403,7 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "*.pyc" in templates["static-analysis"].read_text()
     assert "looper draw create" in templates["draw-feature"].read_text()
     assert "looper log" in templates["draw-feature"].read_text()
-    for level in range(1, 5):
+    for level in range(1, 4):
         assert "looper log" in templates[f"draw-system-level-{level}"].read_text()
 
     level_one = templates["draw-system-level-1"].read_text().lower()
@@ -412,9 +415,6 @@ def test_agents_are_loaded_from_markdown_templates():
     level_three = templates["draw-system-level-3"].read_text().lower()
     for required in ("nível 3", "dois lotes", "mais lotes", "ponta a ponta", "tudo o que é possível fazer", "chat", "marketplace", "code_refs", "source_dependencies", "no mínimo quatro nós", "no mínimo 80 caracteres", "warning", "draw.level3_min_nodes", "draw.level3_short_description", "description", "label", "edge.description", "obrigatoriedade de leitura do símbolo", "leitura prévia", "pode ser criado antes da implementação", "modo de especificação", "símbolo placeholder"):
         assert required in level_three
-    level_four = templates["draw-system-level-4"].read_text().lower()
-    for required in ("nível 4", "sob demanda", "qualified_name", "rpc", "procedure", "sql", "arquivo", "model"):
-        assert required in level_four
 
     for required in ("supabase", "rpc", "back-end", "external_logic", "technologies", "sql_procedure", "sql_function", "localização da regra", "todos os níveis", "frontend/interface", "static_analysis.exceptions", "looper:ignore", "draw.level2_missing_code_ref", "draw.level3_min_nodes", "draw.level3_short_description", "menos de quatro nós", "menos de 80 caracteres", "somente `looper test` aplica o bloqueio"):
         assert required in templates["static-analysis"].read_text().lower()
@@ -589,7 +589,7 @@ def test_skills_route_specific_technical_memory_to_conventions():
         "test-application",
         "draw-interaction",
         "setup",
-        "modern-web-guidance",
+        "documentation-conventions",
     ):
         content = Path(f"src/looper/templates/agents/{skill_name}/SKILL.md").read_text(encoding="utf-8")
         assert ".agents/conventions/" in content, skill_name
@@ -794,11 +794,106 @@ def test_draw_system_level_three_splits_complete_detailed_screen_flows_into_phas
     assert "não trate uma tela dinâmica como sequência estática" in content
 
 
+def test_draw_system_level_three_surgical_execution_plan():
+    """Estrutura o nível 3 como plano cirúrgico sem bootstrap ou status e com Q&A.
+    Valida na skill publicada o caminho crítico de código, desacoplamento e Q&A técnico.
+    """
+    content = Path("src/looper/templates/agents/draw-system-level-3/SKILL.md").read_text(encoding="utf-8").lower()
+
+    for required in (
+        "plano de execução cirúrgico",
+        "tasks de implementação",
+        "spec kit",
+        "caminho crítico de código",
+        "escopo estrito de implementação",
+        "fases de bootstrap de projeto desacopladas",
+        "cenários de testes automatizados desacoplados",
+        "proibição de metadados de status",
+        "tarefa ainda não implementada",
+        "concluída",
+        "seção de q&a técnico pré-preenchida",
+        "pares de perguntas e respostas operacionais",
+        "casos de borda",
+    ):
+        assert required in content
+
+
+def test_draw_system_level_three_endpoint_specification_and_context_injection():
+    """Exige injeção de contexto global, endpoints obrigatórios e fim de ações genéricas.
+    Valida na skill publicada a proibição de ações genéricas, declaração de rotas e consumo de contexto.
+    """
+    content = Path("src/looper/templates/agents/draw-system-level-3/SKILL.md").read_text(encoding="utf-8").lower()
+
+    for required in (
+        "injeção de contexto e especificação de endpoints",
+        "fim das instruções genéricas",
+        "envia mensagem via whatsapp cloud api",
+        "declaração obrigatória de endpoints",
+        "método http",
+        "formato esperado de payload",
+        "consumo do contexto global",
+        "looper draw context",
+    ):
+        assert required in content
+
+
+def test_documentation_conventions_skill_contract():
+    """Valida o contrato formal da skill documentation-conventions e suas regras.
+    Verifica no template o gatilho pré-L3, consulta oficial, convenções e pausa arquitetural.
+    """
+    path = Path("src/looper/templates/agents/documentation-conventions/SKILL.md")
+    assert path.exists()
+    content = path.read_text(encoding="utf-8").lower()
+
+    for required in (
+        "documentation-conventions",
+        "gatilho de execução",
+        "imediatamente antes da montagem das tasks do draw nível 3",
+        "leitura e varredura técnica",
+        "consulta obrigatória à documentação oficial",
+        "compilação de convenções de projeto",
+        ".agents/conventions/",
+        "cabeçalho obrigatório",
+        "parada para decisão arquitetural",
+        "múltiplos caminhos",
+        "pausar a execução imediatamente",
+        "solicite uma definição humana explícita",
+    ):
+        assert required in content
+
+
+def test_system_design_skill_uses_open_design_structure_and_local_library():
+    """Valida o uso da estrutura do Open Design e extração da biblioteca local.
+    Verifica no template publicado as 9 seções, biblioteca local e landing page demonstrativa.
+    """
+    path = Path("src/looper/templates/agents/system-design/SKILL.md")
+    assert path.exists()
+    content = path.read_text(encoding="utf-8").lower()
+
+    for required in (
+        "system-design",
+        "open design",
+        "biblioteca local do open design",
+        "visual theme & atmosphere",
+        "color",
+        "typography",
+        "spacing & rhythm",
+        "layout & composition",
+        "components & ui kits",
+        "motion & interaction",
+        "voice & brand",
+        "anti-patterns",
+        ".looper/design.html",
+        "landing page demonstrativa",
+    ):
+        assert required in content
+
+
 def test_draw_system_levels_keep_then_compatible_with_one_branch_family():
     """Mantém então como consequência certa sem permitir misturar se e ou.
-    Lê cada template publicado e exige a convenção em todos os quatro níveis.
+    Lê cada template publicado e exige a convenção em todos os três níveis.
     """
-    for level in range(1, 5):
+    for level in range(1, 4):
         content = Path(f"src/looper/templates/agents/draw-system-level-{level}/SKILL.md").read_text(encoding="utf-8").lower()
         for required in (
             "convenção lógica de conexões",
@@ -933,7 +1028,7 @@ def test_draw_skills_preserve_system_hierarchy_and_terminal_unimplemented_paths(
     """Alinha os agentes de desenho à árvore de arquitetura, jornada e implementação.
     Confirma que pai, filho e folhas ainda não implementadas são tratados sem órfãos.
     """
-    for name in ("draw-feature", "draw-improve", "draw-system-level-1", "draw-system-level-2", "draw-system-level-3", "draw-system-level-4"):
+    for name in ("draw-feature", "draw-improve", "draw-system-level-1", "draw-system-level-2", "draw-system-level-3"):
         content = Path(f"src/looper/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         for required in ("parent_draw_ref", "draw_ref", "órfãos"):
             assert required in content, f"{name} não define {required}"
@@ -953,7 +1048,7 @@ def test_traceability_skills_cover_rpc_and_sql_implementations():
     """Cobre implementações RPC e SQL na checagem de símbolos.
     Mantém modelos como dependências opcionais, nunca como implementação principal.
     """
-    for name in ("draw-system-level-4", "setup", "static-analysis"):
+    for name in ("setup", "static-analysis"):
         content = Path(f"src/looper/templates/agents/{name}/SKILL.md").read_text(encoding="utf-8").lower()
         for required in ("rpc", "procedure", "sql", "arquivo", "model"):
             assert required in content, f"{name} não define {required}"
@@ -1017,7 +1112,7 @@ def test_readme_documents_codex_skill_invocation():
     """
     readme = Path("README.md").read_text(encoding="utf-8")
 
-    for command in ("$setup", "$test-application", "$draw-feature", "$draw-improve", "$draw-interaction", "$draw-system-level-1", "$draw-system-level-2", "$draw-system-level-3", "$draw-system-level-4", "$static-analysis", "$implement-frontend", "$implement-backend"):
+    for command in ("$setup", "$test-application", "$draw-feature", "$draw-improve", "$draw-interaction", "$draw-system-level-1", "$draw-system-level-2", "$draw-system-level-3", "$static-analysis", "$implement-frontend", "$implement-backend"):
         assert command in readme
     assert ".agents/skills/<skill>/SKILL.md" in readme
 
@@ -1172,3 +1267,43 @@ def test_runs_viewer_is_read_only_and_uses_incremental_json_documents():
     assert "method: 'POST'" not in template
     assert "method: 'DELETE'" not in template
     assert "writeText" not in template
+
+
+def test_playwright_testing_strict_validator_rules(tmp_path: Path):
+    """Garante que a suíte Playwright opera como validador rigoroso.
+    Verifica as regras de proibição de bypass, sementes de acesso e cobertura orgânica nas skills e no bloco compartilhado.
+    """
+    init_project(tmp_path)
+    playwright_skill = (tmp_path / ".agents/skills/playwright-testing/SKILL.md").read_text(encoding="utf-8")
+    assert "Validador Rigoroso" in playwright_skill
+    assert "Proibição de Bypass de Dados" in playwright_skill
+    assert "Exceção Única para Seeds de Acesso" in playwright_skill
+    assert "Regra de Cobertura Orgânica" in playwright_skill
+    assert "cliques, digitação e navegação real" in playwright_skill
+
+    test_app_skill = (tmp_path / ".agents/skills/test-application/SKILL.md").read_text(encoding="utf-8")
+    assert "Validador Rigoroso" in test_app_skill
+    assert "Proibição de Bypass de Dados" in test_app_skill
+    assert "Exceção Única para Seeds de Acesso" in test_app_skill
+    assert "Regra de Cobertura Orgânica" in test_app_skill
+
+    agents_md = (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "validador rigoroso" in agents_md.lower()
+    assert "proibição de bypass de dados" in agents_md.lower()
+    assert "exceção única para seeds de acesso" in agents_md.lower()
+    assert "regra de cobertura orgânica" in agents_md.lower()
+
+
+def test_draw_feature_disallows_implicit_invocation(tmp_path: Path):
+    """Desativa a invocação automática da skill draw-feature.
+    Verifica a policy allow_implicit_invocation desativada nos metadados instalados e no template.
+    """
+    init_project(tmp_path)
+    metadata = (tmp_path / ".agents/skills/draw-feature/agents/openai.yaml").read_text(encoding="utf-8")
+    assert "allow_implicit_invocation: false" in metadata
+
+    template_metadata = Path("src/looper/templates/agents/draw-feature/agents/openai.yaml").read_text(encoding="utf-8")
+    assert "allow_implicit_invocation: false" in template_metadata
+
+    skill = (tmp_path / ".agents/skills/draw-feature/SKILL.md").read_text(encoding="utf-8")
+    assert "Não invoque esta skill automaticamente" in skill

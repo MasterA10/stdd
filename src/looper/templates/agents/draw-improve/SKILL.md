@@ -36,7 +36,7 @@ Depois, orientar a pessoa a abrir o viewer, responder as perguntas da sessão e 
 
 ## Revisão da hierarquia e do Draw inteiro
 
-Em ambas as fases, ler o Draw completo e, quando houver `hierarchy`, revisar a árvore. Confirmar que o nível 1 contém decisões macro, o nível 2 representa jornadas por papel, o nível 3 contém a implementação da jornada e o nível 4 só aparece quando a codebase exigir rastreabilidade técnica.
+Em ambas as fases, ler o Draw completo e, quando houver `hierarchy`, revisar a árvore. Confirmar que o nível 1 contém decisões macro, o nível 2 representa jornadas por papel e o nível 3 contém a implementação da jornada (plano de execução cirúrgico e rastreabilidade na codebase).
 
 Todo descendente deve declarar `parent_draw_ref`, `parent_node_id` e `root_draw_ref`, enquanto o pai aponta para ele com `draw_ref`. Nunca criar fluxo órfão. Folhas não implementadas permanecem terminais e pertencem ao grupo específico de funcionalidades não implementadas.
 

@@ -22,8 +22,155 @@
         "lines_deleted": 1,
         "files_changed": 1
       }
+    },
+    {
+      "run_id": "baba5892c23340479dba709304bebfa9",
+      "timestamp": "2026-09-07T12:34:41.310324+00:00",
+      "description": "Reestrutura Draw Nível 3 como plano cirúrgico de implementação",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 25,
+        "lines_deleted": 1,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "bbdca0230eb54198a9ecf26ea536a4c1",
+      "timestamp": "2026-09-07T12:49:59.480052+00:00",
+      "description": "Reestrutura Draw Nivel 3 como plano cirúrgico e remove Nivel 4 mantendo estritamente niveis 1, 2 e 3",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 13,
+        "lines_deleted": 13,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "edab5ff4d946417fab3fff7c7886679f",
+      "timestamp": "2026-09-07T12:56:59.066761+00:00",
+      "description": "Injeção de contexto global, endpoints obrigatórios e fim de instruções genéricas no Draw Nível 3",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 21,
+        "lines_deleted": 1,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "9636232187a44b69b746ddf14dfe3cef",
+      "timestamp": "2026-09-07T13:00:17.824050+00:00",
+      "description": "Adiciona nova skill documentation-conventions para validacao de contratos e convencoes antes do Draw Nivel 3",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 28,
+        "lines_deleted": 0,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "bd77234ddd814567a5fe2f5e9c6e9cd7",
+      "timestamp": "2026-09-07T13:07:38.781546+00:00",
+      "description": "Remove modern-web-guidance e integra Open Design na criacao do Design System em system-design",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 37,
+        "lines_deleted": 9,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "1623aa23b77e410ebbc962c2833c2711",
+      "timestamp": "2026-09-07T13:20:54.979016+00:00",
+      "description": "Playwright como validador rigoroso: proibição de bypass de dados, seeds de acesso e cobertura orgânica",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 26,
+        "lines_deleted": 0,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "77cfd3ab5f30423d8bae7c5556b11552",
+      "timestamp": "2026-09-07T13:24:18.460852+00:00",
+      "description": "Desativa invocação automática da skill draw-feature (allow_implicit_invocation: false)",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 15,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 1,
-  "last_run_id": "4d95d48f01ea48d99c1ddd04dce79b02"
+  "run_count": 8,
+  "last_run_id": "77cfd3ab5f30423d8bae7c5556b11552"
 }

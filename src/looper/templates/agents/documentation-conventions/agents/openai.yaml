@@ -1,0 +1,6 @@
+interface:
+  display_name: "Documentation & Conventions"
+  short_description: "Valida contratos técnicos e estabelece padrões antes do Nível 3."
+  default_prompt: "Use $documentation-conventions para validar contratos e estabelecer convenções antes de montar o Draw Nível 3."
+policy:
+  allow_implicit_invocation: true

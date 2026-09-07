@@ -45,6 +45,7 @@ Ao implementar regras, APIs e integrações de backend:
    - **Logging Transversal e Incondicional**: Registre eventos nos quatro níveis operacionais (`error`, `warn`, `info`, `debug`). Erros devem ser capturados e registrados incondicionalmente em qualquer ambiente, sem mascarar ou resumir exceções.
    - **Sem Truncamento Arbitrário e Redaction Cirúrgico**: Nunca aplique redaction genérico que esconda payloads úteis para depuração.
    - **Testes de Contrato para APIs Externas**: Toda integração externa deve ter teste de contrato executando endpoint real com credenciais deliberadamente inválidas para comprovar conexão e transporte.
+   - **Fim das Instruções Genéricas e Especificação Explícita de Endpoints**: Não utilize ações abstratas nos fluxos de backend. Implemente canais e plataformas explícitos (ex.: WhatsApp Cloud API, SendGrid API) e siga rigorosamente os endpoints, métodos HTTP, parâmetros e payloads declarados no Draw Nível 3, ancorados no contexto global da aplicação.
    - **Modularidade**: Separe controllers, casos de uso, repositórios e adaptadores.
 
 ## Regras do loop
@@ -103,7 +104,7 @@ de bootstrap, associe o símbolo real dessa fase ao nó, sem fabricar um símbol
 O `backlog complete <task-id>` só pode ser o último comando do loop, depois dessa
 associação e verificação.
 
-Para tasks originadas de `$draw-system-level-1` a `$draw-system-level-4`, ler o Draw pai e
+Para tasks originadas de `$draw-system-level-1` a `$draw-system-level-3`, ler o Draw pai e
 o filho, preservar `parent_draw_ref`, `parent_node_id`, `root_draw_ref` e `draw_ref`, e
 interromper diante de fluxo órfão. Antes de declarar que não há mudança, confira
 `git diff -- .looper/draws` e `git diff --cached -- .looper/draws`, liste os arquivos não rastreados
@@ -137,8 +138,8 @@ feature alcançável, não apenas o trecho exercitado pelo teste mais direto.
 
 Antes de concluir, registre testes executados, falhas preexistentes ou pré-condições
 ausentes, Draws e referências atualizados, limitações e camadas entregues. O gate inclui
-`draw.level2_missing_code_ref`, `draw.level3_missing_code_ref`,
-`draw.level4_missing_code_ref` e `draw.empty_node_symbol` somente após a task estar
+`draw.level2_missing_code_ref`, `draw.level3_missing_code_ref`
+e `draw.empty_node_symbol` somente após a task estar
 concluída no backlog; durante a especificação ou implementação pendente, não invente
 símbolos nem use placeholders.
 

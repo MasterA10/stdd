@@ -16,7 +16,7 @@ Percorrer o backlog de telas (L2) até a conclusão da camada frontend, uma tela
 ```text
 looper backlog frontend
   -> ler o contexto da tela L2
-  -> consultar .looper/design.html, $system-design e $modern-web-guidance
+  -> consultar .looper/design.html e $system-design
   -> implementar a tela, seus estados visuais e os links/navegação de saída
   -> executar testes de interface/validações locais e looper test
   -> associar referências de código (looper draw associate-reference)
@@ -55,13 +55,20 @@ Para toda tela que tenha ao menos um dado dinâmico:
    explícita e rastreável; não use índice ou conteúdo hardcoded como substituto.
 4. Mantenha a tela consumindo o mesmo contrato de dados que será usado depois
    pela API, banco ou integração. O mock fake substitui somente a fonte durante
-   a construção da view; não substitui validação, estados, regras ou efeitos reais
-   que pertençam ao backend.
-5. Registre no Draw e no contexto da task quais dados são dinâmicos, qual chave
-   foi usada e qual formato o payload precisa ter. No L2, não associe `get_mock_fake`
-   nem a função de leitura do JSON como `code_ref`; essa função é um detalhe do
-   mock e não precisa ter símbolo rastreado nesta fase. Se não for possível decidir
-   a chave ou o formato com evidência, abra uma pergunta no Draw em vez de inventar dados.
+## Contrato de telas dinâmicas e mock fake único
+
+Classifique toda informação da tela como fixa ou dinâmica. Se a informação puder
+mudar conforme API, banco, sessão, configuração, busca, evento, cálculo ou estado
+externo, ela é dinâmica:
+
+- Use um único JSON de mock fake do projeto e acesse sua chave/caminho exclusivamente
+  por uma função com nome lógico `get_mock_fake` (ou casing idiomático como `getMockFake`).
+- Não crie um JSON por tela nem espalhe payloads dinâmicos diretamente nos componentes.
+- No L2, registre somente a chave e o formato esperado, sem salvar o símbolo da função
+  de mock; no L3, durante a implementação do backend, associe os símbolos reais das funções,
+  controllers, models e integrações.
+- O mock fake serve para construir a view e deve manter contrato compatível com a fonte real,
+  sem substituir regras, persistência ou integrações de backend.
 
 Uma tela com dados fixos pode usar literais visuais, como título de seção ou texto
 de ajuda, quando eles forem realmente invariáveis. Não use hardcode para mascarar
@@ -73,9 +80,8 @@ testáveis.
 ## Recursos de Design e Frontend Obrigatórios
 
 Ao construir, refinar ou revisar telas e componentes:
-1. **`.looper/design.html`**: Consulte e respeite obrigatoriamente identidade visual, tokens de tipografia, paleta de cores, espaçamentos, estados e contraste definidos no projeto.
-2. **`$system-design` (`.agents/skills/system-design/SKILL.md`)**: Consulte tokens, padrões de componentes, hierarquia visual e decisões de acessibilidade documentadas no projeto.
-3. **`$modern-web-guidance` (`.agents/skills/modern-web-guidance/SKILL.md`)**: Consulte padrões e APIs web modernas, layouts responsivos, diálogos, View Transitions e performance de carregamento.
+1. **`.looper/design.html`**: Consulte e respeite obrigatoriamente identidade visual, tokens de tipografia, paleta de cores, espaçamentos, estados e contraste definidos no projeto segundo as convenções do Open Design.
+2. **`$system-design` (`.agents/skills/system-design/SKILL.md`)**: Consulte tokens, estrutura de 9 seções do Open Design, padrões de componentes, hierarquia visual e decisões de acessibilidade documentadas no projeto e na biblioteca do Open Design.
 
 Você pode adicionar novos guias ou recursos complementares de frontend na pasta `.agents/skills/` sem alterar as regras fundamentais.
 
@@ -83,7 +89,7 @@ Você pode adicionar novos guias ou recursos complementares de frontend na pasta
 
 - Leia o Draw relacionado e seus subfluxos apenas na medida necessária para a task.
 - Não implemente folhas do grupo de funcionalidades não implementadas sem escopo aprovado.
-- Preserve `draw_ref`, `parent_draw_ref`, `parent_node_id` e `root_draw_ref`. Trate fluxo órfão como bloqueio em árvores `$draw-system-level-1` a `$draw-system-level-4`.
+- Preserve `draw_ref`, `parent_draw_ref`, `parent_node_id` e `root_draw_ref`. Trate fluxo órfão como bloqueio em árvores `$draw-system-level-1` a `$draw-system-level-3`.
 - A associação não é automática. Em todo loop, antes de `backlog complete`, associe explicitamente cada nó entregue aos arquivos e símbolos (`qualified_name`) reais da interface em `code_refs`, quando a rastreabilidade visual estiver disponível. Nunca associe o símbolo de `get_mock_fake` ou de outra função usada somente para fornecer dados fake no L2.
 - Para associar cada nó, use o símbolo de tela/componente real:
   ```bash

@@ -38,7 +38,7 @@ que o teste foi esquecido: ele deve aparecer como `not_executed` com o motivo
 
 ## Leitura e descoberta
 
-1. Procure `.looper/draws/`, índice, raiz de sistema e os Draws L1–L4 relacionados.
+1. Procure `.looper/draws/`, índice, raiz de sistema e os Draws L1–L3 relacionados.
    Quando houver um recorte específico, leia diretamente `.looper/draws/<draw-id>.json`.
    Leia o pai antes dos filhos e preserve `draw_ref`, `parent_draw_ref`,
    `parent_node_id` e `root_draw_ref`.
@@ -92,6 +92,14 @@ conseguir observá-la.
 Use `playwright-cli` primeiro para explorar, reproduzir e validar a jornada; depois
 converta os cenários aprovados em Playwright Test executável e repetível. Não substitua
 uma navegação L2 por chamadas diretas ao backend.
+
+#### Validador Rigoroso ("Carrasco")
+
+A suíte Playwright opera sob regras estritas de fidelidade à experiência do usuário final:
+
+- **Proibição de Bypass de Dados**: É terminantemente vetado injetar dados diretamente no banco de dados ou acionar requisições HTTP artificiais para simular ações de tela.
+- **Exceção Única para Seeds de Acesso**: Permite-se apenas a injeção inicial de um registro de usuário (seed) para autenticação caso o sistema não contemple um fluxo de auto-cadastro na interface.
+- **Regra de Cobertura Orgânica**: Se o teste não consegue avançar porque falta uma funcionalidade de CRUD ou um botão na interface, o agente deve implementar o recurso na UI, em vez de burlar o teste via script interno. Toda e qualquer interação deve acontecer via cliques, digitação e navegação real.
 
 ### Cobertura complementar L3 e infraestrutura
 
@@ -184,8 +192,8 @@ Não comece a implementação sem aprovação do plano. Uma confirmação curta 
   Diferencie `passed`, `failed`, `blocked` e `not_executed`, informando a causa.
 - A associação de cada nó ao símbolo real do teste deve ser feita em todo ciclo de
   entrega; arquivo sem `qualified_name` não é evidência. Os gates
-  `draw.level2_missing_code_ref`, `draw.level3_missing_code_ref`,
-  `draw.level4_missing_code_ref` e `draw.empty_node_symbol` permanecem bloqueios.
+  `draw.level2_missing_code_ref`, `draw.level3_missing_code_ref`
+  e `draw.empty_node_symbol` permanecem bloqueios.
 - Registre a conclusão sem segredos:
 
   ```bash

@@ -45,11 +45,11 @@ def test_init_can_install_skills_for_all_supported_agents(tmp_path: Path):
     assert result.exit_code == 0
     for directory in (".agents", ".claude", ".gemini"):
         assert (tmp_path / directory / "skills" / "setup" / "SKILL.md").exists()
-        assert (tmp_path / directory / "skills" / "modern-web-guidance" / "SKILL.md").exists()
+        assert (tmp_path / directory / "skills" / "documentation-conventions" / "SKILL.md").exists()
         assert (tmp_path / directory / "skills" / "system-design" / "SKILL.md").exists()
         assert (tmp_path / directory / "skills" / "draw-interaction" / "SKILL.md").exists()
         assert (tmp_path / directory / "skills" / "draw-improve" / "SKILL.md").exists()
-        for level in range(1, 5):
+        for level in range(1, 4):
             assert (tmp_path / directory / "skills" / f"draw-system-level-{level}" / "SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-improve/agents/openai.yaml").exists()
     assert (tmp_path / ".agents/skills/draw-interaction/agents/openai.yaml").exists()
@@ -1047,7 +1047,9 @@ def test_log_snapshot_keeps_file_counts_without_unified_diff(tmp_path: Path, mon
 
 
 def test_init_removes_persisted_diffs_and_preserves_counts(tmp_path: Path, monkeypatch):
-    """Sanitiza logs antigos durante init sem perder métricas por arquivo."""
+    """Sanitiza logs antigos durante init sem perder métricas por arquivo.
+    Simula execuções com diffs salvos e valida remoção após init --no-web.
+    """
     monkeypatch.chdir(tmp_path)
     runs = tmp_path / ".looper/runs/2026-09-05"
     runs.mkdir(parents=True)

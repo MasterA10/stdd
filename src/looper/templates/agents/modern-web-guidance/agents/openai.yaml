@@ -1,6 +1,0 @@
-interface:
-  display_name: "Modern Web Guidance"
-  short_description: "Pesquisa boas práticas web atuais"
-  default_prompt: "Use $modern-web-guidance para pesquisar as práticas web atuais aplicáveis a esta tarefa."
-policy:
-  allow_implicit_invocation: true

@@ -7,11 +7,11 @@ description: Descobre a stack e prepara o Looper para executar testes e análise
 
 ## Compatibilidade com Draw System
 
-O setup deve preservar a hierarquia dos desenhos existentes. Não reclassificar nós, criar desenhos ou criar comportamento para preencher níveis: nível 1 é arquitetura, nível 2 é jornada do usuário por papel, nível 3 é implementação e nível 4 é codebase quando necessário. Ao descobrir a stack, registrar capacidades que possam ser usadas pelos níveis 3 e 4, sem inventar símbolos, integrações ou fluxos.
+O setup deve preservar a hierarquia dos desenhos existentes. Não reclassificar nós, criar desenhos ou criar comportamento para preencher níveis: nível 1 é arquitetura, nível 2 é jornada do usuário por papel e nível 3 é implementação (tasks de implementação no caminho crítico de código). Ao descobrir a stack, registrar capacidades que possam ser usadas pelo nível 3, sem inventar símbolos, integrações ou fluxos.
 
 Se validar desenhos como parte do diagnóstico, exigir que cada descendente tenha `parent_draw_ref`, `parent_node_id` e `root_draw_ref`, que o pai possua o `draw_ref` correspondente e que folhas não implementadas permaneçam terminais. Um `draw_ref` quebrado ou fluxo órfão é inconsistência a relatar, não motivo para alterar o desenho automaticamente.
 
-Depois de detectar a stack, verificar `.looper/draws/` procurando ao menos um desenho de sistema com `kind: "system"` e `hierarchy.level: 1`. Se não houver uma raiz de sistema, informar que a documentação arquitetural ainda não existe e recomendar uma chamada separada a `$draw-system-level-1`. O `setup` não cria, edita, completa ou substitui desenhos; ele somente configura a stack, os runners, o contrato e a análise estática. A criação da arquitetura, das jornadas do usuário — incluindo cliente e administrador — e dos níveis de implementação pertence exclusivamente às skills `$draw-system-level-1`, `$draw-system-level-2`, `$draw-system-level-3` e `$draw-system-level-4`.
+Depois de detectar a stack, verificar `.looper/draws/` procurando ao menos um desenho de sistema com `kind: "system"` e `hierarchy.level: 1`. Se não houver uma raiz de sistema, informar que a documentação arquitetural ainda não existe e recomendar uma chamada separada a `$draw-system-level-1`. O `setup` não cria, edita, completa ou substitui desenhos; ele somente configura a stack, os runners, o contrato e a análise estática. A criação da arquitetura, das jornadas do usuário — incluindo cliente e administrador — e dos níveis de implementação pertence exclusivamente às skills `$draw-system-level-1`, `$draw-system-level-2` e `$draw-system-level-3`.
 
 ## Instalação do CLI
 

@@ -25,6 +25,14 @@ Navegar não é obrigatório: se o agente já tiver evidência suficiente nos Dr
 
 Não confunda exploração com regressão automatizada. A navegação pelo CLI é diagnóstico e descoberta; a evidência repetível é o arquivo Playwright executado pelo runner.
 
+## Playwright como Validador Rigoroso ("Carrasco")
+
+A suíte de testes de interface opera sob regras estritas de fidelidade à experiência do usuário final:
+
+- **Proibição de Bypass de Dados**: Fica terminantemente vetado ao teste Playwright injetar dados diretamente no banco de dados ou acionar requisições HTTP artificiais para simular ações de tela. Não contorne telas, formulários ou fluxos visuais com chamadas diretas de API ou scripts de banco.
+- **Exceção Única para Seeds de Acesso**: Permite-se apenas a injeção inicial de um registro de usuário (seed) para autenticação caso o sistema não contemple um fluxo de auto-cadastro na interface. Todos os demais dados e entidades devem ser criados e manipulados organicamente através da UI.
+- **Regra de Cobertura Orgânica**: Se o teste não consegue avançar porque falta uma funcionalidade de CRUD ou um botão na interface, o agente deve implementar o recurso na UI, em vez de burlar o teste via script interno. Toda e qualquer interação deve acontecer via cliques, digitação e navegação real.
+
 ## Configuração recomendada
 
 Use uma janela visível, uma janela por jornada, execução sequencial e um worker:

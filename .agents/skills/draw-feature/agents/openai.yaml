@@ -3,4 +3,4 @@ interface:
   short_description: "Cria desenhos de features e arquiteturas"
   default_prompt: "Use $draw-feature para criar o JSON visual desta feature ou arquitetura."
 policy:
-  allow_implicit_invocation: true
+  allow_implicit_invocation: false

@@ -1,15 +1,49 @@
 ---
 name: draw-system-level-3
-description: "Cria o nível 3 de um Draw System no Looper: o Controller detalhado de cada tela ou nó, explicando em linguagem simples todas as funcionalidades, decisões, regras e estados de ponta a ponta. Use depois de draw-system-level-2 e execute em dois ou mais lotes completos, ampliando o número de fases quando houver muitas telas."
+description: "Cria o nível 3 de um Draw System no Looper como plano de execução cirúrgico (tasks de implementação): passo a passo sequencial focado no caminho crítico de código, sem bootstrap ou testes, sem metadados de status e com Q&A técnico pré-preenchido. Exige injeção do contexto global da aplicação, fim de instruções genéricas (plataforma/canal explícitos) e declaração obrigatória de endpoints (URI, método HTTP, parâmetros e payload). Use depois de draw-system-level-2 e execute em dois ou mais lotes completos."
 ---
 
-# Draw System — Nível 3: Comportamento / Controller
+# Draw System — Nível 3: Plano de Execução Cirúrgico (Tasks de Implementação)
 
-## Responsabilidade
+## Responsabilidade e Função Formal
 
-Ser a ponte entre a View do nível 2 e a codebase do nível 4. Cada subfluxo corresponde a uma tela/nó do nível 2 que foi avaliado como necessitando de detalhamento. O nível 3 não é um fluxo genérico: ele começa pelas ações que a pessoa pode executar naquela tela e explica o comportamento iniciado por cada uma. O texto explica o comportamento em linguagem simples; o nó recebe `code_refs` de funções, handlers, services, use cases, endpoints e validadores reais quando encontrados.
+O Draw Nível 3 deixa de ser uma documentação passiva e assume a função formal de **plano de execução cirúrgico (análogo às tasks de um Spec Kit)**, focado exclusivamente no **caminho crítico de código**.
 
-Use esta skill somente depois de ler o nível 2, sua raiz e os descendentes relevantes. Não refaça a navegação global do nível 2, não transforme o nível 3 em lista de nomes técnicos e não abra nível 4 automaticamente.
+Ele é a ponte entre a View do nível 2 e a codebase real do sistema. Cada subfluxo corresponde a uma tela/nó do nível 2 que foi avaliado como necessitando de detalhamento. O nível 3 não é um fluxo genérico nem documentação contemplativa: ele começa pelas ações que a pessoa pode executar naquela tela e explica o comportamento iniciado por cada uma através de um passo a passo cirúrgico de implementação. O texto explica o comportamento em linguagem simples; o nó recebe `code_refs` de funções, handlers, services, use cases, endpoints e validadores reais quando encontrados.
+
+Use esta skill somente depois de ler o nível 2, sua raiz e os descendentes relevantes. Não refaça a navegação global do nível 2 e não transforme o nível 3 em lista de nomes técnicos descontextualizada.
+
+## Injeção de Contexto e Especificação de Endpoints
+
+Elimina-se qualquer abstração genérica nas instruções do agente, exigindo detalhamento técnico nos fluxos externos e integração com a arquitetura:
+
+- **Fim das Instruções Genéricas**: Ações vagas como "envia mensagem", "notifica usuário" ou "chama API" passam a ser expressamente proibidas nos prompts de spec e nas descrições de nós do Nível 3. A diretriz exige a menção explícita da plataforma, provedor e canal (ex.: "envia mensagem via WhatsApp Cloud API", "dispara e-mail transacional via SendGrid API", "publica evento via RabbitMQ topic exchange").
+- **Declaração Obrigatória de Endpoints**: Todas as rotas de backend, webhooks e APIs externas devem constar obrigatoriamente no Draw Nível 3 com URI, método HTTP, parâmetros de rota (e query) e formato esperado de payload (campos obrigatórios, tipos e schema de request/response).
+- **Consumo do Contexto Global**: O gerador do Draw Nível 3 deve obrigatoriamente referenciar o contexto completo da aplicação (loop context, metadados gerais do Draw System via `looper draw context`, fronteiras do Nível 1 e jornadas do Nível 2) para não gerar passos desconectados da arquitetura existente. Toda task de implementação deve se apoiar nas decisões globais confirmadas, modelos de dados e contratos transversais já definidos.
+- **Validação Prévia com `$documentation-conventions`**: Antes de iniciar a montagem das tasks do Draw Nível 3, acione a skill `$documentation-conventions` para varrer os requisitos do Nível 2, consultar a documentação oficial de cada API/SDK e compilar as convenções do projeto com header em `.agents/conventions/`. Caso existam múltiplos caminhos técnicos sem definição clara na UI, pause e solicite definição humana explícita.
+
+## Escopo Estrito de Implementação
+
+O Draw Nível 3 deve conter **apenas o passo a passo sequencial e detalhado do que deve ser codificado**, focado exclusivamente no caminho crítico de código:
+
+- **Fases de bootstrap de projeto desacopladas**: Fases de bootstrap de projeto e cenários de testes automatizados são desacoplados e alocados em seus próprios artefatos. A preparação de repositório, scaffolding, arquivos de configuração inicial e setup pertencem à task de bootstrap do backlog e comandos de setup da stack, não ao Nível 3.
+- **Cenários de testes automatizados desacoplados**: Testes automatizados (unitários, integração ou Playwright) são desacoplados e alocados em seus próprios artefatos e suítes com `$test-application`. O Nível 3 não documenta cenários de testes, focando puramente no código a ser produzido.
+- **Caminho crítico de código**: Cada nó representa uma etapa concreta e necessária da codificação de endpoints, controllers, models, services, validações, persistência e integrações.
+
+## Proibição de Metadados de Status
+
+O arquivo não deve registrar flags temporais como "tarefa ainda não implementada" ou "concluída":
+
+- O controle de progresso pertence ao cursor/agente (como `looper backlog`); o documento deve permanecer puramente como instrução técnica e especificação.
+- É estritamente proibido criar nós, grupos ou anotações com marcações temporais de ciclo de vida (ex.: "tarefa ainda não implementada", "em andamento" ou "concluída"). O documento descreve a especificação técnica perene do comportamento que deve ser implementado.
+
+## Seção de Q&A Técnico Pré-Preenchida
+
+O agente deve sintetizar as definições do Draw Nível 2 em pares de perguntas e respostas operacionais para cobrir casos de borda antes de iniciar o código:
+
+- A partir das jornadas, nós e fluxos do Nível 2, antecipe pontos de decisão, condições limites, regras de exceção, concorrência e autorização.
+- Sintetize essas definições em pares de perguntas e respostas (`questions`) já respondidas e operacionais no próprio subfluxo do Nível 3.
+- Essas respostas servem como diretriz técnica direta para a codificação dos casos de borda, evitando suposições ou bloqueios durante o desenvolvimento.
 
 ## Especificação antes da implementação e rastreabilidade posterior
 
@@ -37,7 +71,6 @@ não para impedir a especificação de uma tela planejada.
   releia-os para validar o desenho; o gate de rastreabilidade pertence a essa etapa,
   não à criação da especificação.
 
-
 ## Hierarquia e encapsulamento
 
 Para cada tela, crie um desenho filho com `hierarchy.level: 3`, `role: "implementation"`, `parent_draw_ref` igual ao desenho de jornada, `parent_node_id` igual ao nó da tela e `root_draw_ref` igual à arquitetura. Na mesma alteração, preencha o `draw_ref` no nó pai. Toda cadeia deve resolver em `.looper/draws/`; não criar fluxos órfãos, referências inexistentes, pais duplicados ou continuidades inventadas.
@@ -48,7 +81,7 @@ O pai mostra apenas a cápsula da tela e aponta para o filho. O filho mostra som
 
 O subfluxo de uma tela deve começar com um conjunto de nós-gatilho: crie um nó inicial para cada botão, link, aba, filtro, envio, confirmação, cancelamento, retorno ou outra ação de usuário comprovada que a tela permita. A tela fornece o contexto, mas não substitui os nós das ações. Não esconder várias ações em um único nó chamado `Controller`, `Interação` ou equivalente.
 
-Cada nó-gatilho deve estar conectado a outros nós por edges e iniciar uma sequência que explique o caso de uso correspondente: intenção, pré-condições, dados necessários, regra de negócio, autorização, validações, decisões, resultado, erro, bloqueio, retry, recuperação e saída. O primeiro nó de cada caminho é a ação do usuário; os nós seguintes explicam o que o sistema faz e o que a pessoa observa, sem antecipar detalhes técnicos do nível 4.
+Cada nó-gatilho deve estar conectado a outros nós por edges e iniciar uma sequência que explique o caso de uso correspondente: intenção, pré-condições, dados necessários, regra de negócio, autorização, validações, decisões, resultado, erro, bloqueio, retry, recuperação e saída. O primeiro nó de cada caminho é a ação do usuário; os nós seguintes explicam o que o sistema faz e o que a pessoa observa com precisão.
 
 Quando ações diferentes tiverem exatamente a mesma regra e o mesmo comportamento comprovado, elas podem convergir para um nó compartilhado depois de seus gatilhos. A convergência não autoriza apagar os gatilhos nem tratar ações diferentes como uma única ação. Quando os comportamentos divergirem, manter caminhos separados. Eventos automáticos, loading, atualização, timeout e reconexão podem aparecer como estados ou consequências do caminho acionado, mas não substituem as ações de entrada da tela.
 
@@ -115,18 +148,20 @@ Ao fechar, revisar o nível 3 completo: todos os nós elegíveis foram avaliados
 
 Se houver muitas telas, alta complexidade, muitos papéis ou dependências que tornem dois lotes insuficientes, dividir em três ou mais fases. A divisão deve ser explícita e estável, por lotes completos, e cada fase deve parar e pedir autorização antes da próxima. Nunca dividir um subfluxo no meio nem esconder detalhe na fronteira entre lotes.
 
-Ao concluir a última fase, encerrar a sequência automática. Informar que `$draw-system-level-4` pode ser aberto sob demanda para rastreabilidade técnica.
+Ao concluir a última fase, encerrar a sequência de especificação do Nível 3, consolidando o plano de execução cirúrgico da implementação.
 
 ## Associação incremental de símbolos
 
 - Nas Fases 2 e 3 (e lotes adicionais), associar funções, handlers, services, use cases, endpoints, controllers e validadores de backend.
-- Manter o texto do nível 3 em linguagem simples. Se mencionar procedure, função externa, RPC, tabela, rota, classe, arquivo ou símbolo, mover o detalhe técnico para o nível 4 quando essa camada for aberta.
+- Manter o texto do nível 3 em linguagem clara e objetiva, associando os símbolos técnicos reais (handlers, controllers, rotas, services, models e procedures) diretamente nos nós correspondentes via `code_refs` e `source_dependencies`.
 - Usar `code_refs` no nó correspondente, com símbolo qualificado real, `identity` e `source_dependencies` somente quando a análise estática fornecer esses fatos.
 - Não colocar símbolos em nó genérico. Se o símbolo ainda não puder ser encontrado, marcar a associação como pendente.
 
-## Funcionalidades não implementadas
+## Funcionalidades não implementadas e escopo de execução
 
-Funcionalidade planejada continua terminal em um grupo específico `Não implementado` ou `Planejado`, sem cor individual, filhos ou passos seguintes. Não criar subfluxo de nível 3 para folha não implementada e não fingir que existe comportamento.
+Funcionalidade planejada continua terminal em um grupo específico `Não implementado` ou `Planejado` no nível 2, sem cor individual, filhos ou passos seguintes. Não criar subfluxo de nível 3 para folha não implementada e não fingir que existe comportamento.
+
+No Nível 3, não devem existir nós ou grupos com metadados ou flags de status ("tarefa ainda não implementada" ou "concluída"). O subfluxo de Nível 3 só é aberto para o que faz parte do escopo de implementação e atua puramente como especificação do plano de execução do código.
 
 ## Convenção lógica de conexões
 

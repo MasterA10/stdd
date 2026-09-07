@@ -1,6 +1,6 @@
 interface:
   display_name: "Draw System · Nível 3"
-  short_description: "Detalha regras e comportamento de uma jornada."
-  default_prompt: "Use $draw-system-level-3 para detalhar o comportamento de uma jornada."
+  short_description: "Plano de execução cirúrgico (tasks de implementação)."
+  default_prompt: "Use $draw-system-level-3 para estruturar as tasks de implementação no caminho crítico de código."
 policy:
   allow_implicit_invocation: true

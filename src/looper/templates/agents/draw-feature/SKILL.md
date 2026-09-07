@@ -5,7 +5,7 @@ description: Cria JSONs de features, fluxos, arquiteturas e decisões para o vie
 
 # Draw Feature
 
-Use esta skill quando uma feature, decisão ou arquitetura ficar mais fácil de entender com um desenho de nós e relações.
+Use esta skill exclusivamente quando solicitado de forma explícita pelo usuário (ex.: `$draw-feature`). Não invoque esta skill automaticamente. Ela serve para modelar uma feature, decisão ou arquitetura em um desenho de nós e relações.
 
 ## Hierarquia do sistema
 
@@ -13,8 +13,7 @@ Quando o desenho fizer parte de um sistema maior, preserve uma árvore explícit
 
 - **Nível 1 — arquitetura:** escolhas macro ao redor da codebase, como aplicativo, linguagem, runtime, banco, cache, autenticação e sistemas externos. Não descrever comportamento do aplicativo aqui.
 - **Nível 2 — jornada:** navegação e operação de cada usuário, incluindo cliente, administrador e outros papéis, com opções, permissões, regras de negócio e estados observáveis. Uma opção ainda não implementada é uma folha terminal, sem continuação fictícia.
-- **Nível 3 — implementação:** como o backend atende uma jornada, incluindo API, validações, autorização, persistência, eventos, integrações e falhas.
-- **Nível 4 — codebase:** arquivos, módulos, símbolos, testes e dependências reais, somente quando a complexidade justificar.
+- **Nível 3 — implementação:** como o backend atende uma jornada (plano de execução cirúrgico no caminho crítico de código), com rotas e webhooks detalhados (URI, método HTTP, parâmetros e payload) e canais/plataformas explícitos sem abstrações genéricas.
 
 Desenhos integrados a essa árvore devem declarar `hierarchy.level`, `hierarchy.role`, `hierarchy.parent_draw_ref`, `hierarchy.parent_node_id` e `hierarchy.root_draw_ref`. A raiz usa nível 1 e pai nulo. Todo descendente tem pai e o pai aponta para ele com `draw_ref`; não existem fluxos órfãos. Um nível pode pular diretamente para outro quando não houver detalhe útil intermediário, mas nunca pode perder a relação de pai.
 
@@ -116,7 +115,7 @@ Ao utilizar subfluxos, observe rigorosamente as regras de **hierarquia de funç�
 1. **Separação Clara de Níveis de Abstração**:
    - **Desenho pai**: mantém somente a abstração do nível em que está e aponta para o filho por `draw_ref`.
    - **Desenho filho**: mantido em arquivo próprio (`.looper/draws/<subflow-id>.json`), detalha exclusivamente a fronteira interna e declara seu `parent_draw_ref` e `parent_node_id`.
-   - Em sistemas, use nível 1 para arquitetura, nível 2 para jornadas, nível 3 para implementação e nível 4 para codebase. Um desenho de feature pode começar no nível que corresponde ao seu escopo, mas não pode criar um filho sem pai.
+   - Em sistemas, use nível 1 para arquitetura, nível 2 para jornadas e nível 3 para implementação e símbolos de código. Um desenho de feature pode começar no nível que corresponde ao seu escopo, mas não pode criar um filho sem pai.
 
 2. **Proibição de Duplicação e Poluição**:
    - Um nó com `draw_ref` no fluxo principal atua como um **bloco/cápsula abstrato**. Ele **não deve expor ou duplicar** os subprocessos e passos detalhados que pertencem ao subfluxo.
