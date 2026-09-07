@@ -762,36 +762,21 @@ def test_loop_skills_honor_disabled_test_phase():
     assert "$test-application" in implement
 
 
-def test_draw_system_level_three_splits_complete_detailed_screen_flows_into_phases():
-    """Mantém o nível 3 em lotes completos, detalhando a tela por inteiro.
-    Lê a skill publicada e impede fluxo estático, fase única ou desenho padronizado.
+def test_draw_system_level_three_medium_level_and_code_tasks():
+    """Valida a descrição em médio nível e as tasks de código na skill de L3.
+    Garante na skill publicada que os nós usem médio nível e detalhamento técnico em code_tasks.
     """
     content = Path("src/looper/templates/agents/draw-system-level-3/SKILL.md").read_text(encoding="utf-8").lower()
 
     for required in (
-        "dois lotes",
-        "mais lotes",
-        "lotes completos",
-        "ponta a ponta",
-        "tudo o que é possível fazer",
-        "chat",
-        "marketplace",
-        "tela dinâmica",
-        "quantidade fixa de nós",
-        "quatro nós por padrão",
-        "no mínimo quatro nós",
-        "80 caracteres",
-        "warning",
-        "nós-gatilho",
-        "cada ação",
-        "ação de usuário",
-        "fluxo genérico",
-        "podem convergir",
-        "pare e solicite confirmação",
+        "descrição em médio nível",
+        "code_tasks",
+        "tasks de código",
+        "endpoints",
+        "looper draw context --code",
+        "declaração obrigatória de endpoints",
     ):
         assert required in content
-
-    assert "não trate uma tela dinâmica como sequência estática" in content
 
 
 def test_draw_system_level_three_surgical_execution_plan():
@@ -885,8 +870,25 @@ def test_system_design_skill_uses_open_design_structure_and_local_library():
         "anti-patterns",
         ".looper/design.html",
         "landing page demonstrativa",
+        "craft",
+        "design-systems",
+        "design-templates",
+        "anti-ai-slop",
     ):
         assert required in content
+
+
+def test_system_design_skill_open_design_artifacts_installed_on_init(tmp_path: Path):
+    """Garante que a inicialização cria a pasta e os artefatos de open-design na skill de system-design.
+    Executa init_project em diretório temporário e confere a presença das pastas essenciais de craft e design-systems.
+    """
+    init_project(tmp_path)
+    open_design_dir = tmp_path / ".agents" / "skills" / "system-design" / "open-design"
+    assert open_design_dir.is_dir()
+    assert (open_design_dir / "craft").is_dir()
+    assert (open_design_dir / "craft" / "anti-ai-slop.md").is_file()
+    assert (open_design_dir / "design-systems").is_dir()
+    assert (open_design_dir / "design-templates").is_dir()
 
 
 def test_draw_system_levels_keep_then_compatible_with_one_branch_family():

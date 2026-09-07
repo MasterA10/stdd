@@ -8,6 +8,7 @@ __pycache__/
 venv/
 node_modules/
 /draw-editor/dist/
+.agents/skills/system-design/open-design/
 
 .pytest_cache/
 .mypy_cache/

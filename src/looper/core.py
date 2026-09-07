@@ -291,9 +291,9 @@ Este projeto usa o Looper para especificação, implementação, testes e evidê
 - `looper test` executa por padrão somente os testes de regressão da codebase e as demais suítes locais. Suítes Playwright devem ser declaradas com `type: playwright` em `test_commands` e só rodam quando o comando recebe a flag explícita `looper test --playwright`.
 - Preserve o contrato existente, os testes aprovados e os arquivos protegidos.
 - Use `.looper/` para configuração, desenhos, execuções e evidências; não registre segredos nos logs.
-- Se precisar de uma visão geral do sistema, leia o contexto estruturado com `looper draw context`; sem filtros ele percorre todos os Draws e níveis, mostrando conexões, perguntas, respostas, símbolos e dependências. Use `--draw`, `--level` ou `--node` para restringir o contexto e `--save` para gerar `.looper/draw-context.md`.
+- Se precisar de uma visão geral do sistema, leia o contexto estruturado com `looper draw context`; sem filtros ele percorre todos os Draws e níveis, mostrando conexões, perguntas, respostas, símbolos e dependências. Use `--draw`, `--level` ou `--node` para restringir o contexto, `--code` para incluir tasks de código/endpoints de L3, e `--save` para gerar `.looper/draw-context.md`.
 - Para navegar pelos nós e ver detalhes específicos via CLI, use `looper draw context --draw <draw-id> --level <1-3>` para entrar no desenho e no nível desejado, depois `looper draw context --node <node-id>` para localizar um nó; a saída mostra descrição, conexões, perguntas, respostas, critérios de aceitação/rejeição, símbolos e dependências. Use `looper draw serve` quando precisar abrir o viewer visual e inspecionar o nó graficamente.
-- Injeção de contexto e especificação de endpoints: elimina-se qualquer abstração genérica nas instruções do agente e nós do Draw Nível 3. Ações como "envia mensagem" são proibidas; exija a menção explícita da plataforma e do canal (ex.: "envia mensagem via WhatsApp Cloud API"). Todas as rotas de backend, webhooks e APIs externas devem constar no Draw Nível 3 com URI, método HTTP, parâmetros de rota e formato esperado de payload. O gerador do Draw Nível 3 deve obrigatoriamente referenciar o contexto completo da aplicação (loop context e metadados gerais do Draw) para manter coerência com a arquitetura existente.
+- Injeção de contexto e especificação de endpoints: elimina-se qualquer abstração genérica nas instruções do agente. Ações como "envia mensagem" são proibidas; exija a menção explícita da plataforma e do canal (ex.: "envia mensagem via WhatsApp Cloud API"). O nó do Draw Nível 3 é redigido em nível médio (sem poluição de código ou JSONs brutos na descrição), e todas as tarefas técnicas de código e rotas de backend, webhooks e APIs externas (com URI, método HTTP, parâmetros e payloads) devem constar em `code_tasks`, visíveis pelo botão 'Tasks de Código' no viewer e extraídas via `looper draw context --code`. O gerador do Draw Nível 3 deve obrigatoriamente referenciar o contexto completo da aplicação (loop context e metadados gerais do Draw) para manter coerência com a arquitetura existente.
 - Antes de montar o Draw Nível 3, execute a skill `$documentation-conventions` para validar contratos técnicos, consultar documentações oficiais de APIs/SDKs integradas e compilar convenções com frontmatter YAML em `.agents/conventions/`. Diante de múltiplos caminhos arquiteturais não definidos pela UI, pause e solicite definição humana explícita.
 - Quando for necessário usar subagentes, eles podem ser executados em uma sessão `tmux`, mas pergunte ao usuário antes de iniciar. Se o usuário disser claramente que quer usar subagentes, considere essa autorização dada e use `tmux`; não ofereça `terminal` como alternativa para subagentes.
 - A análise de código deve permanecer separada da análise dos Draws/JSONs; preserve símbolos, referências e métricas gerais quando a stack oferecer essa capacidade.
@@ -302,7 +302,7 @@ Este projeto usa o Looper para especificação, implementação, testes e evidê
 - Ao integrar APIs/apps externos, registre o contrato como documentação técnica específica em `.agents/conventions/` e consulte a documentação oficial antes de implementar; mantenha no `AGENTS.md` somente o nome do assunto no catálogo.
 - Ao usar `$mock-server`, consulte a documentação oficial, crie ou atualize uma convenção em `.agents/conventions/<provedor>.md` com frontmatter e fontes, e modele separadamente os contratos de envio autenticado, dependências entre recursos e recebimento por webhook; registre credencial, ordem das chamadas, mecanismo de ativação, assinatura e pré-condições documentadas, mantendo a entrega bloqueada até o webhook ser ativado e cada pré-requisito ser satisfeito, implementando somente os caminhos críticos do provedor.
 - O `.looper/design.html` é a fonte obrigatória de decisões visuais e tokens: consulte e respeite identidade, tipografia, espaçamento, estados, acessibilidade e contraste em qualquer alteração ou implementação de interface; seu preenchimento é obrigatório antes de liberar o bootstrap.
-- Ao construir, refinar ou revisar interfaces, consulte e respeite o Design System em `.looper/design.html` mantido pela skill `$system-design`, utilizando a estrutura e convenções do Open Design e extraindo referências da biblioteca local do Open Design no computador; ao alterar um padrão de design, atualize o `.looper/design.html` para manter a documentação de design sincronizada.
+- Ao construir, refinar ou revisar interfaces, consulte e respeite o Design System em `.looper/design.html` mantido pela skill `$system-design`, utilizando a estrutura e convenções do Open Design e extraindo referências da biblioteca local do Open Design no computador e dos artefatos em `.agents/skills/system-design/open-design/`; ao alterar um padrão de design, atualize o `.looper/design.html` para manter a documentação de design sincronizada.
 - Observação de frontend: não use emojis na interface. Presets, labels, estados, botões e elementos decorativos devem usar texto ou ícones da biblioteca visual do projeto, nunca caracteres emoji.
 - Contrato de telas dinâmicas: classifique toda informação da tela como fixa ou dinâmica. Se for dinâmica (API, banco, sessão, configuração, busca, evento, cálculo ou estado externo), use um único JSON de mock fake do projeto e acesse sua chave/caminho exclusivamente por uma função com nome lógico `get_mock_fake` (adapte somente o casing da linguagem, como `getMockFake`). Não crie um JSON por tela nem espalhe payloads dinâmicos nos componentes. No L2, registre somente a chave e o formato esperado, sem salvar o símbolo da função de mock; no L3, durante a implementação do backend, associe os símbolos reais das funções, controllers, models e integrações. O mock fake serve para construir a view e deve manter contrato compatível com a fonte real, sem substituir regras, persistência ou integrações de backend. 
 - O `looper test` verifica também os cabeçalhos das convenções em `.agents/conventions/`: cada Markdown, exceto o `README.md` índice, deve ter frontmatter YAML com `name` e `description` não vazios. Cabeçalho ausente ou inválido gera o warning `convention.standard_header`, sem bloquear o gate.
@@ -589,6 +589,7 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
                 path for path in sorted(source.parent.rglob("*"))
                 if path.is_file()
                 and path.parent.name == "scripts"
+                and "open-design" not in path.relative_to(source.parent).parts
                 and path != source
                 and path != openai_metadata
             )
@@ -601,7 +602,14 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
                     target.write_text(source_text, encoding="utf-8")
                     if target not in created:
                         created.append(target)
-    config_mode, config_changed = _resolve_init_development_mode(config, development_mode)
+            open_design_source = source.parent / "open-design"
+            if open_design_source.is_dir():
+                open_design_target = skill_dir / name / "open-design"
+                if not (open_design_target / "craft").is_dir():
+                    shutil.copytree(open_design_source, open_design_target, dirs_exist_ok=True)
+                    if open_design_target not in created:
+                        created.append(open_design_target)
+        config_mode, config_changed = _resolve_init_development_mode(config, development_mode)
     if config_changed and config not in created:
         created.append(config)
     created.extend(ensure_agent_instructions(root, integrations, config_mode))
