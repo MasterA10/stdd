@@ -19,6 +19,7 @@ import { LoopEdge } from './components/LoopEdge';
 import { Sidebar } from './components/Sidebar';
 import { QuestionsModal } from './components/QuestionsModal';
 import { ChangesModal } from './components/ChangesModal';
+import { CodeTasksModal } from './components/CodeTasksModal';
 import { CodeReferencesModal } from './components/CodeReferencesModal';
 import { ImportExportModal } from './components/ImportExportModal';
 import { MetadataModal } from './components/MetadataModal';
@@ -140,6 +141,7 @@ export const App: React.FC = () => {
   // --- Dialogs & Modals States ---
   const [questionsNode, setQuestionsNode] = useState<NodeData | null>(null);
   const [changesNode, setChangesNode] = useState<NodeData | null>(null);
+  const [codeTasksNode, setCodeTasksNode] = useState<NodeData | null>(null);
   const [showImprovementModal, setShowImprovementModal] = useState(false);
   const [codeReferencesNode, setCodeReferencesNode] = useState<NodeData | null>(null);
   const [traceabilityFacts, setTraceabilityFacts] = useState<TraceabilityFacts | null>(null);
@@ -1503,6 +1505,7 @@ export const App: React.FC = () => {
 
       return {
         ...node,
+        level: contract.hierarchy?.level,
         groupOptions: contract.groups,
         theme,
         isHighlighted,
@@ -2143,6 +2146,10 @@ export const App: React.FC = () => {
       setChangesNode(node);
     };
 
+    window.openCodeTasksModal = (node: NodeData) => {
+      setCodeTasksNode(node);
+    };
+
     window.openCodeReferencesModal = (node: NodeData) => {
       setCodeReferencesNode(node);
     };
@@ -2263,6 +2270,15 @@ export const App: React.FC = () => {
       nodes: prev.nodes.map((node) => node.id === nodeId ? { ...node, changes } : node)
     }));
     setChangesNode((prev) => prev && prev.id === nodeId ? { ...prev, changes } : prev);
+    setIsDirty(true);
+  };
+
+  const handleUpdateCodeTasks = (nodeId: number, code_tasks: NonNullable<NodeData['code_tasks']>) => {
+    setContract((prev) => ({
+      ...prev,
+      nodes: prev.nodes.map((node) => node.id === nodeId ? { ...node, code_tasks } : node)
+    }));
+    setCodeTasksNode((prev) => prev && prev.id === nodeId ? { ...prev, code_tasks } : prev);
     setIsDirty(true);
   };
 
@@ -2646,6 +2662,13 @@ export const App: React.FC = () => {
           node={changesNode}
           onClose={() => setChangesNode(null)}
           onUpdateChanges={handleUpdateChanges}
+        />
+      )}
+      {codeTasksNode && (
+        <CodeTasksModal
+          node={codeTasksNode}
+          onClose={() => setCodeTasksNode(null)}
+          onUpdateCodeTasks={handleUpdateCodeTasks}
         />
       )}
 

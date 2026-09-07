@@ -6,7 +6,20 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from looper.cli import app
-from looper.draw import analyze_draw_contract, analyze_draw_structure, collect_draw_context, consume_observation, create_draw, create_server, draw_revision, find_addressed_questions, format_draw_context, read_draw_index, start_server_for_test
+from looper.draw import (
+    analyze_draw_contract,
+    analyze_draw_structure,
+    collect_draw_context,
+    consume_observation,
+    create_draw,
+    create_server,
+    draw_revision,
+    find_addressed_questions,
+    format_draw_context,
+    read_draw_index,
+    start_server_for_test,
+    validate_draw_payload,
+)
 from looper.improvements import create_improvement, list_ready_improvements, mark_improvement_applied, read_improvement
 
 
@@ -1519,3 +1532,93 @@ def test_draw_server_serves_and_saves_improvement_sessions_separately(tmp_path: 
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+
+def test_draw_payload_accepts_and_validates_code_tasks():
+    """Valida o formato estruturado de tasks de código nos nós de implementação do Draw.
+    Garante que dicionários completos e strings sejam aceitos e que tipos inválidos disparem erro de validação.
+    """
+    valid_payload = draw_payload("l3-valid")
+    valid_payload["nodes"][0]["code_tasks"] = [
+        {
+            "title": "Endpoint de checkout",
+            "endpoint": "/api/checkout",
+            "method": "POST",
+            "params": "user_id no header",
+            "request_payload": '{"plan": "pro"}',
+            "response_payload": '{"order_id": "ord_123"}',
+            "details": "Chama gateway de pagamento e persiste pedido.",
+        },
+        "Executa migração da tabela de pedidos",
+    ]
+    violations = validate_draw_payload(valid_payload)
+    assert not any("code_tasks" in v for v in violations)
+
+    invalid_payload = draw_payload("l3-invalid")
+    invalid_payload["nodes"][0]["code_tasks"] = 123
+    violations_invalid = validate_draw_payload(invalid_payload)
+    assert any("code_tasks" in v for v in violations_invalid)
+
+
+def test_draw_context_includes_code_tasks_only_when_requested(tmp_path: Path, monkeypatch):
+    """Extrai tasks de código e detalhes de endpoints de L3 somente sob demanda via flag explícita.
+    Compara a saída padrão limpa com a saída expandida pelo parâmetro include_code e pela CLI looper draw context --code.
+    """
+    monkeypatch.chdir(tmp_path)
+    # Cria a raiz nível 1 com draw_ref para o filho
+    root_payload = draw_payload("sistema")
+    root_payload.update({
+        "title": "Sistema",
+        "hierarchy": {"level": 1, "role": "architecture", "root_draw_ref": "sistema"},
+    })
+    root_payload["nodes"][0]["draw_ref"] = "checkout-impl"
+    create_draw(tmp_path, root_payload)
+
+    # Cria o nível 3
+    l3_payload = draw_payload("checkout-impl")
+    l3_payload.update({
+        "title": "Implementação do Checkout",
+        "hierarchy": {
+            "level": 3,
+            "role": "implementation",
+            "parent_draw_ref": "sistema",
+            "parent_node_id": 1,
+            "root_draw_ref": "sistema",
+        },
+    })
+    l3_payload["nodes"][0]["code_tasks"] = [
+        {
+            "title": "Criar cobrança via Stripe",
+            "endpoint": "/v1/charges",
+            "method": "POST",
+            "params": "idempotency-key",
+            "request_payload": '{"amount": 5000, "currency": "brl"}',
+            "response_payload": '{"id": "ch_123", "status": "succeeded"}',
+            "details": "Chama Stripe SDK com retry automático.",
+        }
+    ]
+    create_draw(tmp_path, l3_payload)
+
+    default_context = collect_draw_context(tmp_path, include_code=False)
+    default_output = format_draw_context(default_context)
+    assert "Tasks de Código" not in default_output
+    assert "/v1/charges" not in default_output
+
+    code_context = collect_draw_context(tmp_path, include_code=True)
+    code_output = format_draw_context(code_context)
+    assert "### Tasks de Código" in code_output
+    assert "[POST] /v1/charges — Criar cobrança via Stripe" in code_output
+    assert "Parâmetros: idempotency-key" in code_output
+    assert "Payload: {\"amount\": 5000, \"currency\": \"brl\"}" in code_output
+    assert "Resposta: {\"id\": \"ch_123\", \"status\": \"succeeded\"}" in code_output
+    assert "Detalhes: Chama Stripe SDK com retry automático." in code_output
+
+    result_default = runner.invoke(app, ["draw", "context"])
+    assert result_default.exit_code == 0
+    assert "Tasks de Código" not in result_default.stdout
+
+    result_code = runner.invoke(app, ["draw", "context", "--code"])
+    assert result_code.exit_code == 0
+    assert "### Tasks de Código" in result_code.stdout
+    assert "[POST] /v1/charges — Criar cobrança via Stripe" in result_code.stdout
+

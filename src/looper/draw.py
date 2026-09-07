@@ -236,6 +236,14 @@ def validate_draw_payload(payload: Any) -> list[str]:
                 violations.append(f"nodes[{index}].draw_refs deve ser uma lista não vazia de IDs de desenhos seguros")
             if draw_ref is not None:
                 violations.append(f"nodes[{index}] deve usar draw_ref ou draw_refs, não ambos")
+        code_tasks = node.get("code_tasks")
+        if code_tasks is not None:
+            if not isinstance(code_tasks, (list, str)):
+                violations.append(f"nodes[{index}].code_tasks deve ser uma lista ou texto")
+            elif isinstance(code_tasks, list):
+                for task_idx, task in enumerate(code_tasks):
+                    if not isinstance(task, (dict, str)):
+                        violations.append(f"nodes[{index}].code_tasks[{task_idx}] deve ser um objeto de task ou texto")
         questions = node.get("questions", [])
         if not isinstance(questions, list):
             violations.append(f"nodes[{index}].questions deve ser uma lista")
@@ -1154,6 +1162,7 @@ def collect_draw_context(
     draw_id: str | None = None,
     level: int | None = None,
     node_id: Any = None,
+    include_code: bool = False,
 ) -> dict[str, Any]:
     """Carrega a árvore de Draws e cria um contexto independente do backlog."""
     entries = read_draw_index(root).get("draws", [])
@@ -1178,7 +1187,7 @@ def collect_draw_context(
         selected_ids = set(documents)
 
     if level is not None and level not in HIERARCHY_ROLE_BY_LEVEL:
-        raise ValueError("nível deve estar entre 1 e 4")
+        raise ValueError("nível deve estar entre 1 e 3")
     if node_id is not None:
         matching = {
             current_id for current_id, document in documents.items()
@@ -1197,13 +1206,14 @@ def collect_draw_context(
     selected_documents.sort(key=lambda item: (int(item[1].get("hierarchy", {}).get("level", 1)), str(item[1].get("title", "")).lower(), item[0]))
 
     return {
-        "draws": [_context_document(document, node_id=node_id) for _, document in selected_documents],
+        "draws": [_context_document(document, node_id=node_id, include_code=include_code) for _, document in selected_documents],
         "filters": {key: value for key, value in {"draw": draw_id, "level": level, "node": node_id}.items() if value is not None},
         "draw_count": len(selected_documents),
+        "include_code": include_code,
     }
 
 
-def _context_document(document: dict[str, Any], *, node_id: Any = None) -> dict[str, Any]:
+def _context_document(document: dict[str, Any], *, node_id: Any = None, include_code: bool = False) -> dict[str, Any]:
     """Converte um Draw em dados semânticos usados pelo renderer humano."""
     nodes = _context_node_order(document)
     if node_id is not None:
@@ -1252,6 +1262,7 @@ def _context_document(document: dict[str, Any], *, node_id: Any = None) -> dict[
             "draw_refs": _node_draw_refs(node),
             "questions": node.get("questions", []) if isinstance(node.get("questions"), list) else [],
             "references": _context_reference_data(node),
+            "code_tasks": node.get("code_tasks", []) if isinstance(node.get("code_tasks"), (list, str)) else [],
         } for node in nodes],
         "connections": connections,
         "ambiguities": ambiguities,
@@ -1288,7 +1299,48 @@ def _context_reference_lines(references: list[dict[str, Any]]) -> list[str]:
     return lines
 
 
-def _context_node_lines(item: dict[str, Any], node: dict[str, Any]) -> list[str]:
+def _context_code_task_lines(code_tasks: Any) -> list[str]:
+    if not code_tasks:
+        return []
+    lines: list[str] = ["### Tasks de Código (Endpoints e Implementação)"]
+    if isinstance(code_tasks, str):
+        lines.append(code_tasks.strip())
+        return lines
+    if not isinstance(code_tasks, list):
+        return []
+    for task in code_tasks:
+        if isinstance(task, str):
+            lines.append(f"- {task.strip()}")
+        elif isinstance(task, dict):
+            method = str(task.get("method") or "").upper().strip()
+            uri = str(task.get("uri") or task.get("endpoint") or "").strip()
+            title = str(task.get("title") or task.get("description") or "").strip()
+            endpoint_header = f"[{method}] {uri}".strip() if (method or uri) else ""
+            if endpoint_header and title:
+                lines.append(f"- {endpoint_header} — {title}")
+            elif endpoint_header:
+                lines.append(f"- {endpoint_header}")
+            elif title:
+                lines.append(f"- {title}")
+            else:
+                lines.append("- Task sem descrição")
+
+            params = task.get("params")
+            if params:
+                lines.append(f"  - Parâmetros: {params if isinstance(params, str) else json.dumps(params, ensure_ascii=False)}")
+            payload = task.get("payload") or task.get("request_payload")
+            if payload:
+                lines.append(f"  - Payload: {payload if isinstance(payload, str) else json.dumps(payload, ensure_ascii=False)}")
+            response = task.get("response") or task.get("response_payload")
+            if response:
+                lines.append(f"  - Resposta: {response if isinstance(response, str) else json.dumps(response, ensure_ascii=False)}")
+            details = task.get("details")
+            if details and details != title:
+                lines.append(f"  - Detalhes: {details}")
+    return lines
+
+
+def _context_node_lines(item: dict[str, Any], node: dict[str, Any], include_code: bool = False) -> list[str]:
     lines = [f"### Nó {node['id']} — {node['label']}" ]
     if node["description"]:
         lines.append(node["description"])
@@ -1311,11 +1363,15 @@ def _context_node_lines(item: dict[str, Any], node: dict[str, Any]) -> list[str]
         if reference["source_dependencies"]:
             lines.append("Dependências: " + ", ".join(reference["source_dependencies"]))
     lines.extend(_context_question_lines(node.get("questions", [])))
+    if include_code:
+        code_task_lines = _context_code_task_lines(node.get("code_tasks"))
+        if code_task_lines:
+            lines.extend(code_task_lines)
     lines.append("")
     return lines
 
 
-def _context_document_lines(item: dict[str, Any]) -> list[str]:
+def _context_document_lines(item: dict[str, Any], include_code: bool = False) -> list[str]:
     hierarchy = item.get("hierarchy") or {}
     level = hierarchy.get("level", 1)
     lines = [f"## Nível {level} — {item['title']}", f"Draw: `{item['id']}` · papel: {hierarchy.get('role', 'não informado')}"]
@@ -1329,7 +1385,7 @@ def _context_document_lines(item: dict[str, Any]) -> list[str]:
     if decisions:
         lines.append("")
     for node in item["nodes"]:
-        lines.extend(_context_node_lines(item, node))
+        lines.extend(_context_node_lines(item, node, include_code=include_code))
     if item.get("ambiguities"):
         lines.append("### Ambiguidades do fluxo")
         lines.extend(f"- {ambiguity}" for ambiguity in item["ambiguities"])
@@ -1348,8 +1404,9 @@ def format_draw_context(context: dict[str, Any]) -> str:
         lines.extend(["Filtros: " + ", ".join(f"{key}={value}" for key, value in filters.items()), ""])
     if not context.get("draws"):
         return "\n".join(lines + ["Nenhum Draw corresponde aos filtros informados."])
+    include_code = bool(context.get("include_code"))
     for item in context["draws"]:
-        lines.extend(_context_document_lines(item))
+        lines.extend(_context_document_lines(item, include_code=include_code))
     return "\n".join(lines).rstrip() + "\n"
 
 

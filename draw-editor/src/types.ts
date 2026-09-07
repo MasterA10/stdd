@@ -40,6 +40,18 @@ export interface ImprovementIndexEntry {
   updated_at?: string;
 }
 
+export interface CodeTask {
+  id?: number;
+  title?: string;
+  method?: string;
+  uri?: string;
+  endpoint?: string;
+  params?: string | Record<string, any>;
+  payload?: string | Record<string, any>;
+  response?: string | Record<string, any>;
+  details?: string;
+}
+
 export interface NodeData {
   id: number;
   label: string;
@@ -52,6 +64,7 @@ export interface NodeData {
   test_refs?: Array<{ file: string; symbols: string[] }>;
   questions?: Question[];
   changes?: ChangeRequest[];
+  code_tasks?: (CodeTask | string)[];
   isHighlighted?: boolean;
   isDimmed?: boolean;
   background?: string;

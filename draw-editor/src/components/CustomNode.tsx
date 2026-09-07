@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import type { NodeProps, Node } from '@xyflow/react';
 import type { NodeData, Question, ChangeRequest } from '../types';
-import { Trash2, ClipboardList, Eye, Code2, Repeat2, CircleCheck } from 'lucide-react';
+import { Trash2, ClipboardList, Eye, Code2, Repeat2, CircleCheck, Terminal } from 'lucide-react';
 import { renderWithMentions } from '../utils';
 
 const FALLBACK_GROUP_COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f97316', '#ec4899', '#3b82f6'];
@@ -60,6 +60,8 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
   const answeredQuestions = totalQuestions - unansweredQuestions;
   const subdrawRefs = data.draw_refs?.length ? data.draw_refs : (data.draw_ref ? [data.draw_ref] : []);
   const codeReferenceCount = Array.isArray(data.code_refs) ? data.code_refs.length : 0;
+  const codeTasksCount = Array.isArray(data.code_tasks) ? data.code_tasks.length : (data.code_tasks ? 1 : 0);
+  const isLevel3 = data.level === 3 || data.hierarchy?.level === 3;
   const pendingChangeCount = (data.changes || []).filter((change: ChangeRequest) => change.status !== 'done').length;
   const backlogChecklist = data.backlogChecklist;
   const backlogTaskStatus = backlogChecklist?.status;
@@ -154,6 +156,11 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
   const onOpenCodeReferences = (e: React.MouseEvent) => {
     e.stopPropagation();
     window.openCodeReferencesModal?.(data);
+  };
+
+  const onOpenCodeTasks = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.openCodeTasksModal?.(data);
   };
 
   const onOpenSuccessCriteria = (e: React.MouseEvent) => {
@@ -448,11 +455,23 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
         )}
       </div>
 
-      {/* Node Footer Row (Questions or Subdraw link) */}
-      {(totalQuestions > 0 || subdrawRefs.length > 0 || codeReferenceCount > 0) && (
+      {/* Node Footer Row (Questions, Subdraw link, or Code Tasks) */}
+      {(totalQuestions > 0 || subdrawRefs.length > 0 || codeReferenceCount > 0 || isLevel3 || codeTasksCount > 0) && (
         <>
           <div className="node-divider-line" />
           <div className="node-footer-row">
+            {(isLevel3 || codeTasksCount > 0) && (
+              <button
+                className="node-code-tasks-btn nodrag nopan"
+                type="button"
+                onClick={onOpenCodeTasks}
+                title="Abrir tasks de código e endpoints (Nível 3)"
+              >
+                <Terminal size={11} />
+                <span>Tasks de Código</span>
+                {codeTasksCount > 0 && <span className="code-tasks-count">{codeTasksCount}</span>}
+              </button>
+            )}
             {subdrawRefs.length > 0 ? (
               <div className="node-footer-subdraw-list">
                 {subdrawRefs.map((subdrawRef) => (
@@ -473,7 +492,7 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
               <span className="node-footer-questions" onClick={onOpenQuestions}>
                 Perguntas
               </span>
-              ) : <span />}
+              ) : (!isLevel3 && codeTasksCount === 0 ? <span /> : null)}
             
             {totalQuestions > 0 && (
               <div className="question-counts-pill" onClick={onOpenQuestions}>
@@ -540,6 +559,7 @@ declare global {
     openQuestionsModal?: (node: NodeData) => void;
     openChangesModal?: (node: NodeData) => void;
     openCodeReferencesModal?: (node: NodeData) => void;
+    openCodeTasksModal?: (node: NodeData) => void;
     getGroupName?: (groupId: number) => string;
     getGroupInfo?: (groupId: number) => any;
     currentDrawId?: string;
