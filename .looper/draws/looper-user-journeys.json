@@ -46,7 +46,7 @@
       "id": 2,
       "label": "Inicializar e instalar skills",
       "group": 1,
-      "description": "O agente prepara .looper/, instruções e skills para o projeto.",
+      "description": "O agente prepara .looper/, instruções e skills para o projeto. Recursos internos da biblioteca Open Design são copiados com nome SKILL-secondary.md, ficando disponíveis para busca explícita sem carregar como skills registradas.",
       "draw_ref": "looper-journey-init",
       "code_refs": [
         {

@@ -163,10 +163,10 @@
           "source": "python_ast"
         },
         {
-          "symbol": "looper.templates.agents.subagents.scripts.orchestrate_subagents.run",
+          "symbol": "looper.reviews._run_herdr",
           "identity": null,
           "status": "resolved",
-          "file": "src/looper/templates/agents/subagents/scripts/orchestrate_subagents.py",
+          "file": "src/looper/reviews.py",
           "kind": "function",
           "source": "python_ast"
         }
@@ -174,7 +174,7 @@
       "source_dependencies": [],
       "files": [
         "src/looper/core.py",
-        "src/looper/templates/agents/subagents/scripts/orchestrate_subagents.py",
+        "src/looper/reviews.py",
         "src/looper/traceability.py"
       ],
       "tests": [],

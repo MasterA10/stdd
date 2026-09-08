@@ -47,6 +47,8 @@ looper init meu-projeto --all-integrations
 
 O `looper init` sempre sincroniza as skills já instaladas com os templates desta versão, adicionando agentes novos e atualizando instruções existentes. Se o comando ainda não reconhecer `draw-system-level-1` até `draw-system-level-3`, reinstale o CLI a partir deste checkout com `uv tool install --force --editable .` e execute o init novamente.
 
+Os recursos internos da biblioteca Open Design são instalados como `SKILL-secondary.md`: continuam pesquisáveis e disponíveis para consulta explícita, mas não são registrados automaticamente como skills principais.
+
 O init instala a skill `$playwright-testing` em `.agents/skills/playwright-testing/`. Ela documenta como criar testes E2E com Playwright, explorar e diagnosticar a aplicação com `npx playwright-cli`, confirmar a estrutura antes de automatizar e executar a regressão com `looper test --playwright`.
 
 O init também instala a skill `$subagents` em `.agents/skills/subagents/`. Ela documenta os comandos headless de Codex, Claude e Agy, a retomada por ID de sessão e a orquestração paralela no `herdr` com modo nativo de agentes, sem polling.

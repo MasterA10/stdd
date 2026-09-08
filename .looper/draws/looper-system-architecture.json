@@ -50,7 +50,7 @@
       "id": 2,
       "label": "CLI looper",
       "group": 1,
-      "description": "Interface operacional para init, setup, test, log e draw. O init sincroniza as skills do template atual e remove apenas os nomes legados conhecidos pelo framework, preservando skills específicas do projeto.",
+      "description": "Interface operacional para init, setup, test, log e draw. O init sincroniza as skills de primeiro nível e seus recursos auxiliares; arquivos SKILL.md internos da biblioteca Open Design são distribuídos com nome SKILL-secondary.md para permanecerem pesquisáveis sem serem registrados automaticamente pelo agente.",
       "code_refs": [
         {
           "file": "src/looper/cli.py",
@@ -191,7 +191,7 @@
       "id": 11,
       "label": "Agentes Looper e integrações",
       "group": 5,
-      "description": "Skills especializadas que conduzem o ciclo de especificação, desenho, análise e implementação; instaladas nas integrações Codex, Claude e Gemini.",
+      "description": "Skills especializadas que conduzem o ciclo de especificação, desenho, análise e implementação; as skills operacionais de primeiro nível são registradas nas integrações, enquanto recursos SKILL.md internos da biblioteca Open Design permanecem disponíveis para busca sem registro automático.",
       "draw_ref": "looper-agent-journeys",
       "code_refs": [
         {

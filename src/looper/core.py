@@ -609,6 +609,10 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
                     shutil.copytree(open_design_source, open_design_target, dirs_exist_ok=True)
                     if open_design_target not in created:
                         created.append(open_design_target)
+                for legacy_skill in open_design_target.rglob("SKILL.md"):
+                    secondary_resource = legacy_skill.with_name("SKILL-secondary.md")
+                    if secondary_resource.exists():
+                        legacy_skill.unlink()
         config_mode, config_changed = _resolve_init_development_mode(config, development_mode)
     if config_changed and config not in created:
         created.append(config)

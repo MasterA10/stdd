@@ -130,6 +130,36 @@ def test_init_always_synchronizes_existing_agent_skills(tmp_path: Path):
     assert skill.read_text(encoding="utf-8") == Path("src/looper/templates/agents/draw-system-level-3/SKILL.md").read_text(encoding="utf-8")
 
 
+def test_open_design_internal_skills_are_searchable_resources_only(tmp_path: Path):
+    """Mantém recursos internos do Open Design fora do registro automático de skills."""
+    source_root = Path("src/looper/templates/agents/system-design/open-design")
+    source_skills = sorted(source_root.rglob("SKILL-secondary.md"))
+
+    assert source_skills
+    assert not list(source_root.rglob("SKILL.md"))
+
+    init_project(tmp_path)
+    installed_root = tmp_path / ".agents/skills/system-design/open-design"
+    installed_skills = sorted(installed_root.rglob("SKILL-secondary.md"))
+
+    assert len(installed_skills) == len(source_skills)
+    assert not list(installed_root.rglob("SKILL.md"))
+
+
+def test_init_migrates_identifiable_open_design_resources(tmp_path: Path):
+    """Remove nomes antigos de recursos internos ao sincronizar um projeto existente."""
+    legacy = tmp_path / ".agents/skills/system-design/open-design/example/SKILL.md"
+    resource = legacy.with_name("SKILL-secondary.md")
+    resource.parent.mkdir(parents=True)
+    legacy.write_text("recurso antigo\n", encoding="utf-8")
+    resource.write_text("recurso pesquisável\n", encoding="utf-8")
+
+    init_project(tmp_path)
+
+    assert not legacy.exists()
+    assert resource.exists()
+
+
 def test_init_defers_language_specific_test_runner_to_setup(tmp_path: Path):
     """Mantém o init agnóstico e não escolhe um runner de linguagem antecipadamente.
     Chama init_project e verifica que a configuração inicial aguarda o setup da stack.
@@ -445,7 +475,7 @@ def test_agents_are_loaded_from_markdown_templates():
 
 def test_resolve_bug_skill_requires_observability_before_fix():
     """Exige diagnóstico observável antes da correção delegada do bug.
-    Confirma subagente em tmux, validação do plano, stack trace e níveis de log.
+    Confirma subagente no Herdr, validação do plano, stack trace e níveis de log.
     """
     content = Path("src/looper/templates/agents/resolve-bug/SKILL.md").read_text(encoding="utf-8")
     for required in (

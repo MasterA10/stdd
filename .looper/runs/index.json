@@ -5,8 +5,9 @@
       "date": "2026-09-08",
       "summary": "2026-09-08/2026-09-08_summary.json",
       "snapshot": "2026-09-08/2026-09-08_snapshot.json",
-      "run_count": 2,
-      "last_run_id": "a4127ac84a7b44df8cd696d32bc4cb61"
+      "run_count": 5,
+      "last_run_id": "b8c0f959a1a042b794410c2765d046d9",
+      "test_report": "2026-09-08/2026-09-08_tests.json"
     },
     {
       "date": "2026-09-07",
