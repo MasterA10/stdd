@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import shlex
+import shutil
 import subprocess
 import time
 import uuid
@@ -29,7 +30,7 @@ DEFAULT_REVIEW_CONFIG: dict[str, Any] = {
     "enabled": False,
     "default_agent": "agy",
     "interval_tasks": 1,
-    "execution_mode": "tmux",
+    "execution_mode": "herdr",
     "completed_since_last_review": 0,
     "reasoning": "high",
     "timeout_seconds": 900,
@@ -91,12 +92,12 @@ def load_review_config(root: Path) -> dict[str, Any]:
         except (TypeError, ValueError):
             data["interval_tasks"] = 1
         changed = True
-    for key, value in (("interval_tasks", 1), ("execution_mode", "tmux"), ("completed_since_last_review", 0)):
+    for key, value in (("interval_tasks", 1), ("execution_mode", "herdr"), ("completed_since_last_review", 0)):
         if key not in data:
             data[key] = value
             changed = True
-    if data.get("execution_mode") != "tmux":
-        data["execution_mode"] = "tmux"
+    if data.get("execution_mode") != "herdr":
+        data["execution_mode"] = "herdr"
         changed = True
     if changed:
         project = load_config(root)
@@ -195,44 +196,125 @@ def _command(config: dict[str, Any], agent: str, model: str, reasoning: str, pro
     return rendered
 
 
-def _run_tmux(command: list[str], root: Path, timeout: int, review_id: str) -> tuple[int, str, str]:
-    """Executa o CLI do agente em uma sessão tmux e aguarda seu término."""
-    session = f"looper-review-{review_id[:10]}"
-    output_path = root / ".looper" / "reviews" / f".{review_id}.output"
-    marker = "__LOOPER_REVIEW_EXIT__"
-    script = f"{shlex.join(command)} > {shlex.quote(str(output_path))} 2>&1; printf '\\n{marker}%s\\n' $? >> {shlex.quote(str(output_path))}"
+def _run_herdr(command: list[str], root: Path, timeout: int, review_id: str, prompt: str = "") -> tuple[int, str, str]:
+    """Executa o CLI do agente no Herdr usando modo nativo de agentes e aguarda seu término."""
+    if not shutil.which("herdr"):
+        return -1, "", "herdr não está instalado no sistema"
+    agent_kind = Path(command[0]).name.lower() if command else ""
+    target_name = f"looper-review-{review_id[:8]}"
     try:
-        launched = subprocess.run(["tmux", "new-session", "-d", "-s", session, "sh", "-lc", script], cwd=root, capture_output=True, text=True, timeout=15, check=False)
-        if launched.returncode != 0:
-            return launched.returncode, launched.stdout, launched.stderr
-        deadline = time.monotonic() + timeout
-        while time.monotonic() < deadline:
-            if not subprocess.run(["tmux", "has-session", "-t", session], cwd=root, capture_output=True, text=True, check=False).returncode == 0:
+        split = subprocess.run(
+            ["herdr", "pane", "split", "--direction", "right", "--cwd", str(root), "--no-focus"],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=15,
+        )
+        if split.returncode != 0:
+            return split.returncode, split.stdout, split.stderr or "falha ao criar pane no herdr"
+        try:
+            pane_data = json.loads(split.stdout)
+        except json.JSONDecodeError:
+            return -1, "", f"resposta inválida ao criar pane no herdr: {split.stdout}"
+        pane_id = pane_data.get("result", {}).get("pane", {}).get("pane_id")
+        if not pane_id:
+            return -1, "", "herdr não devolveu pane_id ao dividir pane"
+
+        if agent_kind in ("agy", "codex", "claude", "gemini"):
+            start_args = ["herdr", "agent", "start", target_name, "--kind", agent_kind, "--pane", pane_id, "--timeout", "30000"]
+            start_deadline = time.monotonic() + 10
+            started = None
+            while time.monotonic() < start_deadline:
+                started = subprocess.run(start_args, cwd=root, capture_output=True, text=True, check=False, timeout=35)
+                if started.returncode == 0:
+                    break
+                if "agent_pane_busy" in (started.stderr or started.stdout):
+                    time.sleep(0.5)
+                    continue
                 break
-            time.sleep(0.25)
+
+            if not started or started.returncode != 0:
+                subprocess.run(["herdr", "pane", "close", pane_id], cwd=root, capture_output=True, text=True, check=False)
+                return started.returncode if started else -1, started.stdout if started else "", (started.stderr if started else "") or "falha ao inicializar agente no herdr"
+
+            prompt_text = prompt
+            if not prompt_text:
+                for idx, arg in enumerate(command):
+                    if arg in ("-p", "--prompt") and idx + 1 < len(command):
+                        prompt_text = command[idx + 1]
+                        break
+                if not prompt_text and len(command) > 1 and not command[-1].startswith("-"):
+                    prompt_text = command[-1]
+
+            timeout_ms = max(5000, timeout * 1000)
+            prompt_res = subprocess.run(
+                ["herdr", "agent", "prompt", target_name, prompt_text or "Execute a revisão.", "--wait", "--timeout", str(timeout_ms)],
+                cwd=root,
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=timeout + 30,
+            )
+            read_res = subprocess.run(
+                ["herdr", "agent", "read", target_name, "--source", "recent-unwrapped", "--lines", "300"],
+                cwd=root,
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=15,
+            )
+            subprocess.run(["herdr", "pane", "close", pane_id], cwd=root, capture_output=True, text=True, check=False)
+            output_text = read_res.stdout.strip()
+            if prompt_res.returncode != 0:
+                return prompt_res.returncode, output_text, prompt_res.stderr or f"revisão excedeu o tempo limite no herdr"
+            return 0, output_text, ""
         else:
-            subprocess.run(["tmux", "kill-session", "-t", session], cwd=root, capture_output=True, text=True, check=False)
-            return -1, "", f"revisão excedeu o tempo limite de {timeout}s"
-        content = output_path.read_text(encoding="utf-8") if output_path.exists() else ""
-        returncode = -1
-        if marker in content:
-            output, exit_value = content.rsplit(marker, 1)
-            try:
-                returncode = int(exit_value.strip().splitlines()[0])
-            except (IndexError, ValueError):
-                output = content
-            content = output
-        return returncode, content, ""
-    except (OSError, subprocess.TimeoutExpired) as error:
+            output_path = root / ".looper" / "reviews" / f".{review_id}.output"
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            marker = "__LOOPER_REVIEW_EXIT__"
+            script = f"{shlex.join(command)} > {shlex.quote(str(output_path))} 2>&1; printf '\\n{marker}%s\\n' $? >> {shlex.quote(str(output_path))}"
+            run_res = subprocess.run(
+                ["herdr", "pane", "run", pane_id, script],
+                cwd=root,
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=15,
+            )
+            if run_res.returncode != 0:
+                subprocess.run(["herdr", "pane", "close", pane_id], cwd=root, capture_output=True, text=True, check=False)
+                return run_res.returncode, run_res.stdout, run_res.stderr
+            deadline = time.monotonic() + timeout
+            returncode = -1
+            content = ""
+            while time.monotonic() < deadline:
+                if output_path.exists():
+                    content = output_path.read_text(encoding="utf-8")
+                    if marker in content:
+                        break
+                time.sleep(0.25)
+            else:
+                subprocess.run(["herdr", "pane", "close", pane_id], cwd=root, capture_output=True, text=True, check=False)
+                return -1, "", f"revisão excedeu o tempo limite de {timeout}s"
+            subprocess.run(["herdr", "pane", "close", pane_id], cwd=root, capture_output=True, text=True, check=False)
+            if marker in content:
+                output, exit_value = content.rsplit(marker, 1)
+                try:
+                    returncode = int(exit_value.strip().splitlines()[0])
+                except (IndexError, ValueError):
+                    output = content
+                content = output
+            if output_path.exists():
+                output_path.unlink()
+            return returncode, content, ""
+    except (OSError, subprocess.TimeoutExpired, json.JSONDecodeError) as error:
         return -1, "", str(error)
-    finally:
-        if output_path.exists():
-            output_path.unlink()
 
 
-def _run_agent(config: dict[str, Any], command: list[str], root: Path, timeout: int, review_id: str) -> tuple[int, str, str]:
-    """Executa qualquer subagente isolado em uma sessão tmux."""
-    return _run_tmux(command, root, timeout, review_id)
+def _run_agent(config: dict[str, Any], command: list[str], root: Path, timeout: int, review_id: str, prompt: str = "") -> tuple[int, str, str]:
+    """Executa qualquer subagente isolado via Herdr."""
+    return _run_herdr(command, root, timeout, review_id, prompt=prompt)
 
 
 def run_review(
@@ -267,7 +349,7 @@ def run_review(
     review_id = uuid.uuid4().hex
     before = _draw_change_snapshot(root)
     started = datetime.now(timezone.utc).isoformat()
-    returncode, stdout, stderr = _run_agent(config, command, root, int(config.get("timeout_seconds", 900)), review_id)
+    returncode, stdout, stderr = _run_agent(config, command, root, int(config.get("timeout_seconds", 900)), review_id, prompt=prompt)
     after = _draw_change_snapshot(root)
     created = [value for key, value in after.items() if key not in before]
     status = "changes_created" if created else "approved" if returncode == 0 else "pending"

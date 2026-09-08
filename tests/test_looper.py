@@ -64,7 +64,7 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert "$system-design" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert "$modern-web-guidance" not in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert "subagentes" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
-    assert "tmux" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "herdr" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     system_design = (tmp_path / ".agents/skills/system-design/SKILL.md").read_text(encoding="utf-8")
     assert "design system" in system_design
     assert "`.looper/design.html`" in system_design
@@ -449,7 +449,7 @@ def test_resolve_bug_skill_requires_observability_before_fix():
     """
     content = Path("src/looper/templates/agents/resolve-bug/SKILL.md").read_text(encoding="utf-8")
     for required in (
-        "tmux",
+        "herdr",
         "stack trace",
         "instrumentação diagnóstica",
         "`error`, `warn`, `info` e",
@@ -595,116 +595,34 @@ def test_skills_route_specific_technical_memory_to_conventions():
         assert ".agents/conventions/" in content, skill_name
 
 
-def test_subagents_skill_documents_cli_contracts_and_non_polling_barrier():
-    """Publica os comandos reais e proíbe polling para aguardar subagentes.
+def test_subagents_skill_contract():
+    """Valida o contrato de subagentes com opções reais por CLI.
     Confirma o contrato de primeira chamada, retomada e espera observável.
     """
     # O contrato cobre tanto a primeira chamada quanto a retomada.
     # A espera deve ser bloqueante e acompanhável no Terminal do usuário.
     content = Path("src/looper/templates/agents/subagents/SKILL.md").read_text(encoding="utf-8")
-    for required in ("codex exec", "claude -p", "agy -p", "--model", "--effort", "--resume", "--conversation", "tmux wait-for", "sem polling", "session_id"):
+    for required in ("codex exec", "claude -p", "agy -p", "--model", "--effort", "--resume", "--conversation", "herdr agent", "sem polling", "session_id"):
         assert required in content
-    assert "tmux has-session" in content
+    assert "herdr pane" in content
 
 
-def test_subagents_helper_discovers_local_agents():
-    """O helper lista capacidades observáveis do PATH e versões locais.
-    Confirma a descoberta sem selecionar agente ou modelo automaticamente.
+def test_subagents_skill_covers_native_herdr_commands():
+    """Confirma que a skill subagents instrui os comandos nativos essenciais do Herdr.
+    Valida ciclo de vida: split de pane, início do agente, prompt com wait, leitura e encerramento.
     """
-    # A descoberta reflete o ambiente sem escolher um modelo automaticamente.
-    # O teste usa a mesma entrada recomendada pela skill.
-    helper = Path("src/looper/templates/agents/subagents/scripts/orchestrate_subagents.py")
-    result = subprocess.run([sys.executable, str(helper), "discover"], capture_output=True, text=True, check=False)
-    assert result.returncode == 0
-    discovered = json.loads(result.stdout)
-    names = {entry["name"] for entry in discovered}
-    assert {"codex", "claude", "agy"}.issubset(names)
-
-
-def test_subagents_helper_reuses_tmux_pane_for_continuation():
-    """Mantém o pane aberto e envia a continuação ao mesmo processo de shell.
-    Confirma layout proporcional e o comando de retomada sem criar outra sessão.
-    """
-    # O pane precisa sobreviver ao fim do primeiro comando.
-    # A continuação deve usar send-keys no alvo persistido.
-    helper = Path("src/looper/templates/agents/subagents/scripts/orchestrate_subagents.py").read_text(encoding="utf-8")
-    assert "split-window" in helper
-    assert "even-horizontal" in helper
-    assert "exec bash" in helper
-    assert "send-keys" in helper
-    assert "start-server" in helper
-    assert "start_tmux_session" in helper
     skill = Path("src/looper/templates/agents/subagents/SKILL.md").read_text(encoding="utf-8")
-    assert "Nunca presuma que a primeira janela seja `:0`" in skill
-    assert "pane_id" in skill
-    assert "base-index 1" in skill
-
-
-# O que faz: confirma que o helper cria a sessão tmux antes de disparar o agente.
-# Como faz: executa uma task real em uma sessão inexistente e valida o resultado.
-def test_subagents_helper_bootstraps_tmux_before_dispatching(tmp_path: Path):
-    """Confirma que o helper cria a sessão tmux antes de disparar o agente.
-    Executa uma task em uma sessão inexistente e valida o resultado concluído.
-    """
-    # O que faz: executa o helper sem uma sessão tmux prévia.
-    # Como faz: valida que a task conclui e produz status completed.
-    if shutil.which("tmux") is None:
-        pytest.skip("tmux não está instalado")
-
-    helper = Path(__file__).resolve().parents[1] / "src/looper/templates/agents/subagents/scripts/orchestrate_subagents.py"
-    manifest = tmp_path / "manifest.json"
-    output = tmp_path / "results.json"
-    manifest.write_text(
-        json.dumps(
-            {
-                "workdir": str(tmp_path),
-                "timeout_seconds": 30,
-                "keep_session": False,
-                "tasks": [{"id": "bootstrap", "prompt": "teste", "command": [sys.executable, "-c", "print('ok')"]}],
-            }
-        ),
-        encoding="utf-8",
-    )
-
-    completed = subprocess.run(
-        [sys.executable, str(helper), "run", "--manifest", str(manifest), "--output", str(output), "--headless"],
-        cwd=tmp_path,
-        capture_output=True,
-        text=True,
-        timeout=45,
-        check=False,
-    )
-
-    assert completed.returncode == 0, completed.stderr
-    result = json.loads(output.read_text(encoding="utf-8"))
-    assert result["status"] == "completed"
-    assert result["results"][0]["status"] == "completed"
-
-# O que faz: confirma os defaults de modelo para Codex e Gemini via Agy.
-# Como faz: renderiza comandos com modelo omitido e com override explícito.
-def test_subagents_helper_applies_codex_and_gemini_default_models():
-    """Aplica os modelos padrão por agente.
-    Preserva uma escolha explícita no manifesto.
-    """
-    # O que faz: confirma os defaults de modelo para Codex e Gemini via Agy.
-    # Como faz: renderiza comandos com modelo omitido e com override explícito.
-    # O comando identifica o agente pelo executável e injeta o default correspondente.
-    # Um valor de model presente no manifesto continua sendo usado literalmente.
-    import importlib.util
-
-    helper_path = Path("src/looper/templates/agents/subagents/scripts/orchestrate_subagents.py")
-    spec = importlib.util.spec_from_file_location("subagents_helper", helper_path)
-    assert spec and spec.loader
-    helper = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(helper)
-
-    codex = helper.render_command({"command": ["codex", "exec", "--model", "{model}"], "prompt": "x"})
-    gemini = helper.render_command({"command": ["agy", "-p", "x", "--model", "{model}", "--effort", "{reasoning}"], "prompt": "x", "reasoning": "low"})
-    explicit = helper.render_command({"command": ["codex", "exec", "--model", "{model}"], "model": "custom", "prompt": "x"})
-    assert codex[-1] == "gpt-5.6-luna"
-    assert gemini[4] == "gemini-3.8-flash"
-    assert gemini[6] == "low"
-    assert explicit[-1] == "custom"
+    for command in (
+        "herdr status",
+        "herdr agent list",
+        "herdr pane split",
+        "herdr agent start",
+        "herdr agent prompt",
+        "--wait",
+        "herdr agent read",
+        "herdr pane close",
+    ):
+        assert command in skill, f"comando ausente na skill: {command}"
 
 
 def test_frontend_dynamic_data_contract_is_published_and_injected(tmp_path: Path, monkeypatch):

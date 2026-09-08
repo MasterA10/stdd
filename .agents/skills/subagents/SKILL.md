@@ -1,6 +1,6 @@
 ---
 name: subagents
-description: Orquestra subagentes locais em sessões tmux, com escolha de agente e modelo, retomada de sessões e espera por barreira sem polling.
+description: Orquestra subagentes locais no Herdr, com escolha de agente e modelo, modo nativo de agentes, retomada de sessões e espera sem polling.
 ---
 
 # Subagents
@@ -42,30 +42,62 @@ Para acompanhar a execução no Terminal, prefira o formato textual padrão e n�
 
 Os nomes e flags acima são contratos de CLI, não texto livre. Antes de executar, confirme a versão instalada com `command -v`, `--version` e `--help`; se o contrato local divergir, pare e registre a divergência.
 
-## Orquestração
+## Orquestração nativa com Herdr
 
-- Confirme a autorização do usuário, o escopo de cada tarefa e os limites de escrita.
-- Descubra os CLIs locais com `scripts/orchestrate_subagents.py discover`. A descoberta informa disponibilidade e versão, mas não escolhe agente ou modelo.
-- Use um manifesto JSON com tarefas de ID único, prompt, comando, modelo, reasoning, diretório e, para retomadas, `session_id`.
-- Inicie os aguardadores antes dos agentes. Execute todas as tarefas na mesma sessão tmux, com um pane por tarefa: dois agentes ficam em dois painéis equilibrados, três em três painéis e assim sucessivamente. O helper abre um Terminal dedicado e anexa essa sessão; use `--headless` somente em CI ou ambiente sem interface gráfica.
-- Nunca presuma que a primeira janela seja `:0`. O tmux pode estar configurado com `base-index 1`, fazendo com que uma sessão como `subagents-...:0` seja inválida enquanto o pane real está em `:1.1`. Para capturar, enviar comandos ou continuar um agente, use sempre o `pane_id` retornado por `new-session`/`split-window` (por exemplo, `%0`); se precisar de um alvo nomeado, descubra antes o índice real com `tmux list-windows` e `tmux list-panes`.
-- Comunique a conclusão por `tmux wait-for`; o helper oferece FIFO bloqueante como fallback.
-- O agente principal espera bloqueado pela barreira. Não use `tmux has-session` para polling, `sleep`, loops de consulta ou leitura periódica de logs; uma checagem única é permitida apenas durante o bootstrap para recuperar uma sessão que já tenha sido criada.
-- Depois que todos terminarem, leia stdout/stderr, códigos de saída e artefatos. Término do processo não significa aprovação.
-- Para continuar uma sessão, preserve o mesmo `session_id`, troque o comando pelo comando de retomada e envie a nova instrução. Não crie uma sessão nova para a etapa seguinte.
-- Reutilize o mesmo pane para a continuação: o processo anterior termina, mas a sessão tmux e o shell do pane permanecem abertos. Use:
+O Herdr é o gerenciador de workspace e terminal padrão para subagentes. Não são necessários scripts intermediários nem barreiras manuais: o Herdr oferece controle de painéis, detecção de ciclo de vida de agentes e sincronização bloqueante nativa.
 
+### 1. Inspecionar o ambiente
+Antes de disparar subagentes, confirme o status do Herdr e os agentes em execução:
 ```bash
-python scripts/orchestrate_subagents.py continue --state results.json --task-id planner --command 'codex exec resume SESSION_ID --model MODEL "agora implemente o plano"'
-```
-- Em falha, timeout ou cancelamento, preserve os resultados recebidos, encerre apenas as sessões necessárias e informe a limitação.
-
-```bash
-python scripts/orchestrate_subagents.py discover
-python scripts/orchestrate_subagents.py run --manifest subagents.json --output results.json
-python scripts/orchestrate_subagents.py run --manifest subagents.json --output results.json --headless  # somente CI
+herdr status
+herdr agent list
 ```
 
-O helper aplica os defaults acima somente quando o manifesto deixa `model` ou `reasoning` vazio; valores informados explicitamente sempre prevalecem. Para uma tarefa Gemini, use o comando `agy` e deixe `{model}` e `{reasoning}` receberem `gemini-3.8-flash` e `low`. Os comandos do manifesto usam `{prompt}`, `{model}`, `{reasoning}`, `{workdir}` e `{session_id}`. Nunca coloque segredos em prompts, manifestos ou resultados versionados.
+### 2. Criar painel dedicado (sem roubar foco)
+Crie um painel preservando o diretório de trabalho e mantendo o foco do usuário inalterado:
+```bash
+herdr pane split --current --direction right --cwd "$PWD" --no-focus
+```
+> O comando retorna um JSON contendo `.result.pane.pane_id` (por exemplo, `"w1:p2"`).
 
-O retorno do helper é sempre normalizado por tarefa em JSON com `id`, `status`, `response`, `session_id`, `usage` e `error`. A saída bruta de stdout/stderr é temporária e não é devolvida ao agente principal; o pane mostra somente `response` depois da conclusão.
+### 3. Iniciar o subagente no modo nativo
+Inicie o agente suportado (`agy`, `codex`, `claude` ou `gemini`) no painel criado com um nome único:
+```bash
+herdr agent start worker1 --kind agy --pane <pane-id>
+```
+Para passar flags ou parâmetros nativos específicos (como modelo e esforço), adicione-os após `--`:
+```bash
+herdr agent start worker1 --kind agy --pane <pane-id> -- --model gemini-3.8-flash --effort low
+```
+O comando aguarda o subagente estar interativo e pronto para receber entrada (`interactive_ready`).
+
+### 4. Submeter a tarefa com espera bloqueante (sem polling)
+Envie o prompt com a flag `--wait`:
+```bash
+herdr agent prompt worker1 "Investigue a falha X e reporte as causas e os arquivos afetados." --wait --timeout 120000
+```
+O Herdr aguarda nativamente até que o agente atinja o estado `idle`, `done` ou `blocked`, sem necessidade de loops de consulta ou polling.
+
+### 5. Ler o resultado limpo
+Obtenha a resposta limpa e formatada do agente:
+```bash
+herdr agent read worker1 --source recent-unwrapped --lines 150
+```
+
+### 6. Continuar a sessão
+Para continuar a conversa ou enviar novas instruções no mesmo contexto:
+```bash
+herdr agent prompt worker1 "Com base nessa análise, elabore o plano de ação." --wait --timeout 120000
+```
+Para controle de teclas no terminal:
+```bash
+herdr agent send-keys worker1 ctrl+c
+```
+
+### 7. Encerrar e limpar o painel
+Ao término da tarefa, encerre o painel descartável:
+```bash
+herdr pane close <pane-id>
+```
+
+Em falha, timeout ou cancelamento, inspecione a saída com `herdr agent read`, feche apenas os painéis concluídos e relate as evidências ao usuário.

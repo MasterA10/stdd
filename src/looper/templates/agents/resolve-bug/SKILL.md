@@ -18,7 +18,7 @@ porque o subagente editou arquivos.
 ## Fluxo obrigatório com subagente
 
 O usuário autoriza o uso de subagente ao solicitar esta skill. Execute todo subagente
-em uma sessão `tmux`; não use outro mecanismo de delegação. Preserve o workspace e
+via `herdr` (modo nativo de agentes); não use outro mecanismo de delegação. Preserve o workspace e
 não faça commit ou push como parte desta skill.
 
 1. Faça uma triagem curta: reproduza ou confirme o sintoma, leia o contexto do Draw

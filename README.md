@@ -49,9 +49,9 @@ O `looper init` sempre sincroniza as skills já instaladas com os templates dest
 
 O init instala a skill `$playwright-testing` em `.agents/skills/playwright-testing/`. Ela documenta como criar testes E2E com Playwright, explorar e diagnosticar a aplicação com `npx playwright-cli`, confirmar a estrutura antes de automatizar e executar a regressão com `looper test --playwright`.
 
-O init também instala a skill `$subagents` em `.agents/skills/subagents/`. Ela documenta os comandos headless de Codex, Claude e Agy, a retomada por ID de sessão e a orquestração paralela em `tmux` com barreira bloqueante, sem polling.
+O init também instala a skill `$subagents` em `.agents/skills/subagents/`. Ela documenta os comandos headless de Codex, Claude e Agy, a retomada por ID de sessão e a orquestração paralela no `herdr` com modo nativo de agentes, sem polling.
 
-O init também instala a skill `$resolve-bug` em `.agents/skills/resolve-bug/`. Ela delega a investigação e a execução a um subagente em `tmux`, exige validação do plano, atualiza os Draws e registra padrões técnicos reutilizáveis em `.agents/conventions/`.
+O init também instala a skill `$resolve-bug` em `.agents/skills/resolve-bug/`. Ela delega a investigação e a execução a um subagente no `herdr`, exige validação do plano, atualiza os Draws e registra padrões técnicos reutilizáveis em `.agents/conventions/`.
 
 O init também instala a skill-guia `$system-design` em `.agents/skills/system-design/`. Ela mantém o design system do projeto no `.looper/design.html` como uma landing page demonstrativa: as decisões de cor, tipografia, espaçamento, bordas, componentes, estados e acessibilidade aparecem aplicadas em exemplos reais, acompanhadas de explicações.
 
@@ -237,7 +237,7 @@ O campo `.looper/config.yaml:instructions` é a informação crítica persistent
 
 ### Revisão automática por subagente
 
-Após o intervalo configurado de tasks concluídas, a revisão opcional chama Agy por padrão (`agy -p ... --dangerously-skip-permissions`), ou Codex CLI (`codex exec`) quando selecionado na seção `review` de `.looper/config.yaml`. Configure `enabled`, `interval_tasks`, `execution_mode: tmux`, o agente, os gatilhos por fase (`test`, `implementation`, `change`) e escopo (`l2`, `l3`, `l2_and_l3`, `all`), além do modelo, reasoning, prompt e comando. Revisões e correções executadas por subagentes usam somente Tmux; em uma interação comum, pergunte antes de iniciar um subagente, salvo quando o usuário já tiver solicitado isso claramente. A revisão é executada com `looper backlog complete` ou manualmente:
+Após o intervalo configurado de tasks concluídas, a revisão opcional chama Agy por padrão (`agy -p ... --dangerously-skip-permissions`), ou Codex CLI (`codex exec`) quando selecionado na seção `review` de `.looper/config.yaml`. Configure `enabled`, `interval_tasks`, `execution_mode: herdr`, o agente, os gatilhos por fase (`test`, `implementation`, `change`) e escopo (`l2`, `l3`, `l2_and_l3`, `all`), além do modelo, reasoning, prompt e comando. Revisões e correções executadas por subagentes usam o Herdr no modo nativo de agentes; em uma interação comum, pergunte antes de iniciar um subagente, salvo quando o usuário já tiver solicitado isso claramente. A revisão é executada com `looper backlog complete` ou manualmente:
 
 ```bash
 looper backlog review task:meu-draw:node:1 --agent codex --scope l2_and_l3
