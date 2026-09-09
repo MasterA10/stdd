@@ -70,10 +70,9 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
   const hasAssociatedTest = backlogChecklist?.test === true
     || Boolean(data.test_ref)
     || (Array.isArray(data.test_refs) && data.test_refs.length > 0);
-  const hasSuccessCriteria = Boolean(data.success_criteria?.trim() || data.failure_criteria?.trim());
-  const [showSuccessCriteria, setShowSuccessCriteria] = useState(false);
-  const [successCriteriaDraft, setSuccessCriteriaDraft] = useState(data.success_criteria || '');
-  const [failureCriteriaDraft, setFailureCriteriaDraft] = useState(data.failure_criteria || '');
+  const hasNegativeSpec = Boolean(data.negative_spec?.trim());
+  const [showNegativeSpec, setShowNegativeSpec] = useState(false);
+  const [negativeSpecDraft, setNegativeSpecDraft] = useState(data.negative_spec || '');
 
   const isHighlighted = data.isHighlighted;
   const isDimmed = data.isDimmed;
@@ -163,22 +162,20 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
     window.openCodeTasksModal?.(data);
   };
 
-  const onOpenSuccessCriteria = (e: React.MouseEvent) => {
+  const onOpenNegativeSpec = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setSuccessCriteriaDraft(data.success_criteria || '');
-    setFailureCriteriaDraft(data.failure_criteria || '');
-    setShowSuccessCriteria((visible) => !visible);
+    setNegativeSpecDraft(data.negative_spec || '');
+    setShowNegativeSpec((visible) => !visible);
   };
 
-  const onSaveSuccessCriteria = (e: React.MouseEvent) => {
+  const onSaveNegativeSpec = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (window.saveNodeCriteria) {
-      void window.saveNodeCriteria(Number(id), successCriteriaDraft.trim(), failureCriteriaDraft.trim());
+      void window.saveNodeCriteria(Number(id), negativeSpecDraft.trim());
     } else {
-      window.updateNodeField?.(Number(id), 'success_criteria', successCriteriaDraft.trim());
-      window.updateNodeField?.(Number(id), 'failure_criteria', failureCriteriaDraft.trim());
+      window.updateNodeField?.(Number(id), 'negative_spec', negativeSpecDraft.trim());
     }
-    setShowSuccessCriteria(false);
+    setShowNegativeSpec(false);
   };
 
   const onToggleBacklogChecklist = (phase: 'test' | 'implementation', checked: boolean) => (e: React.SyntheticEvent) => {
@@ -354,55 +351,44 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
             </span>
           )}
           <button
-              className={`node-success-criteria-indicator nodrag nopan${hasSuccessCriteria ? ' configured' : ''}`}
+              className={`node-success-criteria-indicator nodrag nopan${hasNegativeSpec ? ' configured' : ''}`}
               type="button"
-              onClick={onOpenSuccessCriteria}
+              onClick={onOpenNegativeSpec}
               onPointerDown={(e) => e.stopPropagation()}
-              aria-label="Abrir critérios de sucesso e falha"
-              aria-expanded={showSuccessCriteria}
-              title={hasSuccessCriteria ? 'Critérios de sucesso e falha definidos' : 'Nenhum critério de sucesso ou falha definido'}
+              aria-label="Abrir Negative Spec"
+              aria-expanded={showNegativeSpec}
+              title={hasNegativeSpec ? 'Negative Spec definido' : 'Nenhum Negative Spec definido'}
             >
               <CircleCheck size={17} aria-hidden="true" />
           </button>
         </span>
       </div>
 
-      {showSuccessCriteria && (
+      {showNegativeSpec && (
         <div
           className="node-success-criteria-popover nodrag nopan"
           role="dialog"
-          aria-label="Critérios de sucesso e falha do bloco"
+          aria-label="Negative Spec do bloco"
           onClick={(e) => e.stopPropagation()}
           onPointerDown={(e) => e.stopPropagation()}
         >
           <div className="node-success-criteria-popover-heading">
-            <strong>Critérios de aceite</strong>
-            <button type="button" onClick={() => setShowSuccessCriteria(false)} aria-label="Fechar critérios">×</button>
+            <strong>Negative Spec</strong>
+            <button type="button" onClick={() => setShowNegativeSpec(false)} aria-label="Fechar Negative Spec">×</button>
           </div>
           <label className="node-success-criteria-field">
-            <span>Sucesso</span>
+            <span>Critério de não aceite</span>
             <textarea
-              id={`node-${id}-success-criteria`}
-              name={`node-${id}-success-criteria`}
-              value={successCriteriaDraft}
-              onChange={(e) => setSuccessCriteriaDraft(e.target.value)}
-              placeholder="Como saberemos que este nó funcionou?"
+              id={`node-${id}-negative-spec`}
+              name={`node-${id}-negative-spec`}
+              value={negativeSpecDraft}
+              onChange={(e) => setNegativeSpecDraft(e.target.value)}
+              placeholder="Se isso ocorrer, a task não pode ser concluída."
               rows={3}
             />
           </label>
-          <label className="node-success-criteria-field">
-            <span>Falha</span>
-            <textarea
-              id={`node-${id}-failure-criteria`}
-              name={`node-${id}-failure-criteria`}
-              value={failureCriteriaDraft}
-              onChange={(e) => setFailureCriteriaDraft(e.target.value)}
-              placeholder="Qual cenário indica que este nó falhou?"
-              rows={3}
-            />
-          </label>
-          {!hasSuccessCriteria && !successCriteriaDraft.trim() && !failureCriteriaDraft.trim() && <p className="node-success-criteria-empty">Nenhum critério definido para este bloco.</p>}
-          <button className="node-success-criteria-save" type="button" onClick={onSaveSuccessCriteria}>Salvar critérios</button>
+          {!hasNegativeSpec && !negativeSpecDraft.trim() && <p className="node-success-criteria-empty">Nenhum Negative Spec definido para este bloco.</p>}
+          <button className="node-success-criteria-save" type="button" onClick={onSaveNegativeSpec}>Salvar Negative Spec</button>
         </div>
       )}
 
@@ -553,8 +539,8 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, 'custom'>>> = ({ id, 
 // Inject types on window object for node execution context
 declare global {
   interface Window {
-    updateNodeField?: (id: number, field: 'label' | 'description' | 'success_criteria' | 'failure_criteria', value: string) => void;
-    saveNodeCriteria?: (id: number, successCriteria: string, failureCriteria: string) => Promise<void>;
+    updateNodeField?: (id: number, field: 'label' | 'description' | 'negative_spec', value: string) => void;
+    saveNodeCriteria?: (id: number, negativeSpec: string) => Promise<void>;
     deleteNode?: (id: number) => void;
     openQuestionsModal?: (node: NodeData) => void;
     openChangesModal?: (node: NodeData) => void;

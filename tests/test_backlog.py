@@ -300,15 +300,14 @@ def test_backlog_task_reports_missing_test_without_claiming_implementation(tmp_p
     assert read_backlog(tmp_path)["execution"]["current_task_id"] is None
 
 
-def test_backlog_injects_node_success_and_failure_criteria(tmp_path: Path):
+def test_backlog_injects_node_negative_spec(tmp_path: Path):
     """Passa os critérios definidos no nó para o contexto entregue ao loop.
     Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
     """
     _create_hierarchical_fixture(tmp_path)
     draw_path = tmp_path / ".looper" / "draws" / "jornada.json"
     draw = json.loads(draw_path.read_text(encoding="utf-8"))
-    draw["nodes"][0]["success_criteria"] = "A sessão é criada e retorna um identificador válido."
-    draw["nodes"][0]["failure_criteria"] = "A sessão não é criada ou o identificador não é retornado."
+    draw["nodes"][0]["negative_spec"] = "Não aceitar se a sessão não for criada ou o identificador não for retornado."
     draw_path.write_text(json.dumps(draw), encoding="utf-8")
     config_path = tmp_path / ".looper" / "config.json"
     config = json.loads(config_path.read_text(encoding="utf-8"))
@@ -319,12 +318,10 @@ def test_backlog_injects_node_success_and_failure_criteria(tmp_path: Path):
     task = response["task"]
     compact = _format_backlog_response(response)
 
-    assert task["success_criteria"] == draw["nodes"][0]["success_criteria"]
-    assert task["failure_criteria"] == draw["nodes"][0]["failure_criteria"]
-    assert "Só termine a implementação" in response["instruction"]
-    assert "não declare sucesso" in response["instruction"]
-    assert task["success_criteria"] in compact
-    assert task["failure_criteria"] in compact
+    assert task["negative_spec"] == draw["nodes"][0]["negative_spec"]
+    assert "NEGATIVE SPEC" in response["instruction"]
+    assert "não pode ser declarada finalizada" in response["instruction"]
+    assert task["negative_spec"] in compact
     assert response["instruction"] in compact
 
 

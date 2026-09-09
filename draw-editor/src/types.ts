@@ -58,8 +58,7 @@ export interface NodeData {
   group?: number;
   theme?: 'light' | 'dark' | 'black';
   description: string;
-  success_criteria?: string;
-  failure_criteria?: string;
+  negative_spec?: string;
   test_ref?: { file: string; symbols: string[] } | null;
   test_refs?: Array<{ file: string; symbols: string[] }>;
   questions?: Question[];

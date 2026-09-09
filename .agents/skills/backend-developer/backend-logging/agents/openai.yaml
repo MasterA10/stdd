@@ -1,0 +1,8 @@
+interface:
+  display_name: "Backend Logging"
+  short_description: "Logging e observabilidade de backend"
+  default_prompt: "Use $backend-logging para projetar logging estruturado e observabilidade segura."
+policy:
+  allow_implicit_invocation: true
+
+

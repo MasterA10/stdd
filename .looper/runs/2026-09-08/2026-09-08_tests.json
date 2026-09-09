@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "run_id": "8f66fab028da44c8b92c6abf9499ddd0",
-  "started_at": "2026-09-08T17:08:46.119398+00:00",
+  "run_id": "49feff47892c453d9731abb4f87d8b40",
+  "started_at": "2026-09-08T21:13:16.324776+00:00",
   "status": "blocked",
   "profile": "mvp",
   "summary": {
@@ -20,8 +20,8 @@
       ],
       "exit_code": 1,
       "status": "failed",
-      "duration_seconds": 114.275968,
-      "output": "<saída omitida: 103503 caracteres>"
+      "duration_seconds": 116.084869,
+      "output": "<saída omitida: 103416 caracteres>"
     }
   ],
   "contract": {

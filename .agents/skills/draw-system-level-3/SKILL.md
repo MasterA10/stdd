@@ -186,6 +186,13 @@ Nunca misture `se` com `ou` na mesma decisão. Nunca misture `ou` com `se`: são
 
 ## Execução, validação e handoff
 
+## Negative Spec
+
+Após a especificação dos nós L3, acione `$negative-spec` para percorrer todos os Draws de
+nível 3 e registrar em cada nó o campo `negative_spec`. Esse campo contém somente condições
+objetivas de não aceite: se uma delas ocorrer, a task não está concluída. Não registrar
+`success_criteria`, critérios de aceite ou critérios positivos no nível 3.
+
 Use `groups` para fronteiras, `flows` para caminhos temporais e `code_refs` nos nós técnicos. Não grave layout, cor, posição, data, HTML, CSS, JavaScript, `request.md` ou `scenarios.md`.
 
 Para cada lote:

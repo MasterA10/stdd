@@ -2095,18 +2095,18 @@ export const App: React.FC = () => {
       setEditNodeData(node);
     };
 
-    window.updateNodeField = (id: number, field: 'label' | 'description' | 'success_criteria' | 'failure_criteria', value: string) => {
+    window.updateNodeField = (id: number, field: 'label' | 'description' | 'negative_spec', value: string) => {
       setContract((prev) => ({
         ...prev,
         nodes: prev.nodes.map((n) => (n.id === id ? { ...n, [field]: value } : n))
       }));
       setIsDirty(true);
     };
-    window.saveNodeCriteria = async (id: number, successCriteria: string, failureCriteria: string) => {
+    window.saveNodeCriteria = async (id: number, negativeSpec: string) => {
       const nextContract = {
         ...contract,
         nodes: contract.nodes.map((node) => node.id === id
-          ? { ...node, success_criteria: successCriteria || undefined, failure_criteria: failureCriteria || undefined }
+          ? { ...node, negative_spec: negativeSpec || undefined }
           : node)
       };
       savingContractRef.current = true;
@@ -2652,12 +2652,11 @@ export const App: React.FC = () => {
         <NodeEditModal
           node={editNodeData}
           onClose={() => setEditNodeData(null)}
-          onSave={(id, label, description, successCriteria, failureCriteria) => {
+          onSave={(id, label, description, negativeSpec) => {
             if (window.updateNodeField) {
               window.updateNodeField(id, 'label', label);
               window.updateNodeField(id, 'description', description);
-              window.updateNodeField(id, 'success_criteria', successCriteria || '');
-              window.updateNodeField(id, 'failure_criteria', failureCriteria || '');
+              window.updateNodeField(id, 'negative_spec', negativeSpec || '');
             }
           }}
         />

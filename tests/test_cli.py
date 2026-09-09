@@ -53,6 +53,9 @@ def test_init_can_install_skills_for_all_supported_agents(tmp_path: Path):
             assert (tmp_path / directory / "skills" / f"draw-system-level-{level}" / "SKILL.md").exists()
     assert (tmp_path / ".agents/skills/draw-improve/agents/openai.yaml").exists()
     assert (tmp_path / ".agents/skills/draw-interaction/agents/openai.yaml").exists()
+    assert (tmp_path / ".agents/skills/backend-developer/backend-logging/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/backend-developer/backend-database-persistence/SKILL.md").exists()
+    assert (tmp_path / ".agents/skills/backend-developer/backend-auth-security/SKILL.md").exists()
 
 
 def test_init_installs_subagents_skill_for_codex(tmp_path: Path):

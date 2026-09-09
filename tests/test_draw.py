@@ -103,8 +103,7 @@ def test_draw_context_reconstructs_hierarchy_connections_and_exports_markdown(tm
     })
     child_payload["nodes"][0].update({
         "code_refs": [{"symbol": "checkout.start", "file": "src/checkout.py"}],
-        "success_criteria": "A configuração salva aparece para o usuário.",
-        "failure_criteria": "A configuração inválida impede o avanço.",
+        "negative_spec": "Não aceitar se a configuração inválida permitir o avanço.",
     })
     child_payload["nodes"][0]["questions"] = [{"id": 1, "type": "open", "prompt": "Qual meio de pagamento?", "answer": "Cartão"}]
     create_draw(tmp_path, child_payload)
@@ -120,8 +119,7 @@ def test_draw_context_reconstructs_hierarchy_connections_and_exports_markdown(tm
     assert "- `src/checkout.py::checkout.start`" in output
     assert "Símbolo:" not in output
     assert "arquivo:" not in output
-    assert "Critério de aceitação/sucesso: A configuração salva aparece para o usuário." in output
-    assert "Critério de rejeição/falha: A configuração inválida impede o avanço." in output
+    assert "Negative Spec — critério de não aceite: Não aceitar se a configuração inválida permitir o avanço." in output
     assert "### Decisões" in output
     assert "- Qual meio de pagamento? — Cartão" in output
     assert "Pergunta: Qual meio de pagamento?" not in output
@@ -1611,4 +1609,3 @@ def test_draw_context_includes_code_tasks_only_when_requested(tmp_path: Path, mo
     assert result_code.exit_code == 0
     assert "### Tasks de Código" in result_code.stdout
     assert "- Criar cobrança via Stripe SDK no endpoint /v1/charges" in result_code.stdout
-

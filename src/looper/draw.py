@@ -224,7 +224,7 @@ def validate_draw_payload(payload: Any) -> list[str]:
         node_ids.add(node["id"])
         if not isinstance(node.get("label"), str) or not node["label"].strip():
             violations.append(f"nodes[{index}] precisa de label")
-        for criteria_key, criteria_label in (("success_criteria", "critério de sucesso"), ("failure_criteria", "critério de falha")):
+        for criteria_key, criteria_label in (("negative_spec", "Negative Spec"),):
             if criteria_key in node and not isinstance(node.get(criteria_key), str):
                 violations.append(f"nodes[{index}].{criteria_key} deve ser texto ({criteria_label})")
         draw_ref = node.get("draw_ref")
@@ -1256,8 +1256,7 @@ def _context_document(document: dict[str, Any], *, node_id: Any = None, include_
             "id": node.get("id"),
             "label": node.get("label", "Nó sem nome"),
             "description": node.get("description") or "",
-            "success_criteria": node.get("success_criteria") or "",
-            "failure_criteria": node.get("failure_criteria") or "",
+            "negative_spec": node.get("negative_spec") or node.get("failure_criteria") or "",
             "group": node.get("group"),
             "draw_refs": _node_draw_refs(node),
             "questions": node.get("questions", []) if isinstance(node.get("questions"), list) else [],
@@ -1335,10 +1334,8 @@ def _context_node_lines(item: dict[str, Any], node: dict[str, Any], include_code
     lines = [f"### Nó {node['id']} — {node['label']}" ]
     if node["description"]:
         lines.append(node["description"])
-    if node["success_criteria"]:
-        lines.append(f"Critério de aceitação/sucesso: {node['success_criteria']}")
-    if node["failure_criteria"]:
-        lines.append(f"Critério de rejeição/falha: {node['failure_criteria']}")
+    if node["negative_spec"]:
+        lines.append(f"Negative Spec — critério de não aceite: {node['negative_spec']}")
     for connection in [edge for edge in item["connections"] if edge["from"] == node["id"]]:
         detail = connection["condition"]
         if connection["description"]:

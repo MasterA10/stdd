@@ -1,0 +1,8 @@
+interface:
+  display_name: "Backend Authentication & Security"
+  short_description: "Autenticação e segurança backend"
+  default_prompt: "Use $backend-auth-security para revisar identidade, autorização, sessões, segredos e hardening."
+policy:
+  allow_implicit_invocation: true
+
+

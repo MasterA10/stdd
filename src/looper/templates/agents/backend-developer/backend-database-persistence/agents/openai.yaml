@@ -1,0 +1,8 @@
+interface:
+  display_name: "Backend Database & Persistence"
+  short_description: "Banco de dados e persistência backend"
+  default_prompt: "Use $backend-database-persistence para projetar schema, queries, transações e migrações."
+policy:
+  allow_implicit_invocation: true
+
+

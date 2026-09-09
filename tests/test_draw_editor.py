@@ -835,7 +835,7 @@ def test_draw_editor_observer_follows_current_implementation_without_editing():
     assert "Observador ativo" in app
 
 
-def test_draw_editor_exposes_optional_node_success_and_failure_criteria():
+def test_draw_editor_exposes_optional_node_negative_spec():
     """Permite definir critérios no nó e preserva o contrato que o loop consome.
     Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
     """
@@ -845,14 +845,13 @@ def test_draw_editor_exposes_optional_node_success_and_failure_criteria():
     types = (EDITOR_ROOT / "src/types.ts").read_text(encoding="utf-8")
 
     for content in (app, sidebar, modal, types):
-        assert "success_criteria" in content
-        assert "failure_criteria" in content
-    assert "Critério de sucesso" in sidebar
-    assert "Critério de falha" in sidebar
-    assert "name=\"success_criteria\"" in modal
+        assert "negative_spec" in content
+    assert "Critério de não aceite" in sidebar
+    assert "Critério de não aceite" in modal
+    assert "name=\"negative_spec\"" in modal
 
 
-def test_custom_node_exposes_success_criteria_indicator_when_configured():
+def test_custom_node_exposes_negative_spec_indicator_when_configured():
     """Mostra o indicador acionável de aceite diretamente no bloco.
     Verifica o comportamento usando as entradas, fixtures e asserções específicas do cenário.
     """
@@ -860,13 +859,13 @@ def test_custom_node_exposes_success_criteria_indicator_when_configured():
     app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
     styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
 
-    assert "hasSuccessCriteria" in node
+    assert "hasNegativeSpec" in node
     assert "node-success-criteria-indicator" in node
-    assert "Nenhum critério definido para este bloco." in node
-    assert "Abrir critérios de sucesso e falha" in node
+    assert "Nenhum Negative Spec definido para este bloco." in node
+    assert "Abrir Negative Spec" in node
     assert "node-success-criteria-popover" in node
-    assert "Salvar critérios" in node
-    assert "onSaveSuccessCriteria" in node
+    assert "Salvar Negative Spec" in node
+    assert "onSaveNegativeSpec" in node
     assert "saveNodeCriteria" in node
     assert "await performSave(nextContract)" in app
     assert "background: var(--brand-orange)" in styles

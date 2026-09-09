@@ -1,0 +1,7 @@
+interface:
+  display_name: "Negative Spec"
+  short_description: "Define critérios objetivos de não aceite para Draws L3"
+  default_prompt: "Use $negative-spec para revisar todos os Draws de nível 3 e definir o que impede declarar cada task concluída."
+policy:
+  allow_implicit_invocation: true
+

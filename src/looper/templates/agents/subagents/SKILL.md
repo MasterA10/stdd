@@ -7,27 +7,47 @@ description: Orquestra subagentes locais no Herdr, com escolha de agente e model
 
 Use esta skill quando o agente principal precisar dividir uma tarefa em investigações ou execuções independentes. O agente principal define o contexto, dispara os subagentes, aguarda a barreira e só então avalia os resultados.
 
+## Modos de Execução: Interativo vs Direto (Headless)
+
+Ao disparar subagentes no Herdr, confirme ou selecione o modo conforme o objetivo da tarefa:
+
+1. **Modo Interativo (Janela interativa / TUI completa)**:
+   - O subagente roda com a interface visual de terminal que o humano usaria (atalhos, status bar, menu, sessão interativa).
+   - Ideal quando o usuário quer acompanhar a TUI completa, navegar visualmente ou intervir/assumir o controle pelo teclado.
+   - Fluxo: `herdr pane split` -> `herdr agent start <nome> --kind <kind> --pane <id> -- <flags-yolo>` -> `herdr agent prompt <nome> "<prompt>" --wait`.
+
+2. **Modo Direto / Resposta Limpa (Headless no Pane)**:
+   - Abre um painel dedicado para dar visibilidade ao processo, mas executa o comando em modo headless direto (`agy -p ...` ou `codex exec ...`).
+   - Não renderiza a TUI interativa pesada: apenas imprime o progresso e entrega a resposta final de forma direta e limpa no terminal/arquivo.
+   - Ideal para automações, tarefas focadas ou quando o usuário quer apenas a resposta final sem a sobrecarga visual da TUI.
+   - Fluxo: `herdr pane split` -> executar comando headless no pane via `herdr agent prompt` / shell -> ler saída com `herdr agent read` ou direcionar para arquivo.
+
 ## Comandos oficiais
+
+> **Regra Obrigatória (Modo YOLO)**: Sempre execute os subagentes no modo totalmente autônomo e sem bloqueio de permissão ("modo yolo"):
+> - No **Codex**, nunca esqueça de incluir a flag `--yolo` (ou `--dangerously-bypass-approvals-and-sandbox` no `codex exec`).
+> - No **Agy**, nunca esqueça da flag `--dangerously-skip-permissions`.
+> - No **Claude**, use `--dangerously-skip-permissions`.
 
 Escolha o agente e o modelo antes de iniciar. Quando o usuário não informar outro modelo, use `gpt-5.6-luna` (Luna Medium) para Codex. Para Gemini, use o CLI `agy` com `--model gemini-3.8-flash --effort low`. Para os demais agentes, mantenha o modelo explicitamente configurado ou remova a opção conforme o contrato local; não troque silenciosamente de provedor.
 
 Codex, em modo não interativo:
 
 ```bash
-codex exec --model {model} -C {workdir} --json "{prompt}"
-codex exec resume {session_id} --model {model} -C {workdir} --json "{prompt}"
+codex exec --yolo --model {model} -C {workdir} --json "{prompt}"
+codex exec resume {session_id} --yolo --model {model} -C {workdir} --json "{prompt}"
 ```
 
-Use `--json` para eventos JSONL, `--output-last-message FILE` para a resposta final, `--sandbox read-only|workspace-write|danger-full-access` conforme a autorização e `--full-auto` somente em ambiente confiável. Reasoning é configurado pelo perfil/opções aceitos pela versão local do Codex; valide com `codex exec --help` antes de adicionar uma flag específica.
+Use `--yolo` (ou `--dangerously-bypass-approvals-and-sandbox`) para auto-aprovação de comandos/escrita, `--json` para eventos JSONL, `--output-last-message FILE` para a resposta final. Reasoning é configurado pelo perfil/opções aceitos pela versão local do Codex; valide com `codex exec --help` antes de adicionar uma flag específica.
 
 Claude Code, em modo print:
 
 ```bash
-claude -p --model {model} --output-format json "{prompt}"
-claude -p --resume {session_id} --model {model} --output-format json "{prompt}"
+claude -p --model {model} --dangerously-skip-permissions --output-format json "{prompt}"
+claude -p --resume {session_id} --model {model} --dangerously-skip-permissions --output-format json "{prompt}"
 ```
 
-Use `--max-turns N`, `--permission-mode plan|acceptEdits|bypassPermissions` ou `--dangerously-skip-permissions` somente quando o escopo autorizar. Claude não possui uma flag universal chamada `reasoning`; não invente `--effort` para ele. Ajustes de esforço dependem do modelo/versão e devem ser confirmados em `claude --help`.
+Use `--max-turns N`, `--permission-mode plan|acceptEdits|bypassPermissions` ou `--dangerously-skip-permissions` para não travar em solicitações de permissão. Claude não possui uma flag universal chamada `reasoning`; não invente `--effort` para ele. Ajustes de esforço dependem do modelo/versão e devem ser confirmados em `claude --help`.
 
 Agy/Antigravity, em modo headless:
 
@@ -36,7 +56,7 @@ agy -p "{prompt}" --model {model} --effort {reasoning} --dangerously-skip-permis
 agy -p "{prompt}" --conversation {session_id} --model {model} --effort {reasoning} --dangerously-skip-permissions
 ```
 
-`--effort` aceita `low`, `medium` ou `high`; `--agent NAME` seleciona um agente listado por `agy agents`; `--dangerously-skip-permissions` libera todas as ferramentas e exige autorização explícita. O primeiro resultado JSON contém `conversation_id`, que deve ser preservado como `{session_id}` para a continuação.
+`--effort` aceita `low`, `medium` ou `high`; `--agent NAME` seleciona um agente listado por `agy agents`; `--dangerously-skip-permissions` libera todas as ferramentas automaticamente. O primeiro resultado JSON contém `conversation_id`, que deve ser preservado como `{session_id}` para a continuação.
 
 Para acompanhar a execução no Terminal, prefira o formato textual padrão e não use `--output-format json`. JSON deve ser usado somente quando outro programa precisar processar eventos e metadados; ele deixa o pane visualmente mais carregado.
 
@@ -61,13 +81,16 @@ herdr pane split --current --direction right --cwd "$PWD" --no-focus
 > O comando retorna um JSON contendo `.result.pane.pane_id` (por exemplo, `"w1:p2"`).
 
 ### 3. Iniciar o subagente no modo nativo
-Inicie o agente suportado (`agy`, `codex`, `claude` ou `gemini`) no painel criado com um nome único:
+Inicie o agente suportado (`agy`, `codex`, `claude` ou `gemini`) no painel criado com um nome único. **Sempre passe as flags do modo YOLO após `--`**:
+- Para **Agy**: inclua `--dangerously-skip-permissions`
+- Para **Codex**: inclua `--yolo`
+
 ```bash
-herdr agent start worker1 --kind agy --pane <pane-id>
-```
-Para passar flags ou parâmetros nativos específicos (como modelo e esforço), adicione-os após `--`:
-```bash
-herdr agent start worker1 --kind agy --pane <pane-id> -- --model gemini-3.8-flash --effort low
+# Exemplo Agy com modo YOLO e modelo:
+herdr agent start worker1 --kind agy --pane <pane-id> -- --dangerously-skip-permissions --model gemini-3.8-flash --effort low
+
+# Exemplo Codex com modo YOLO:
+herdr agent start worker1 --kind codex --pane <pane-id> -- --yolo --model gpt-5.6-luna
 ```
 O comando aguarda o subagente estar interativo e pronto para receber entrada (`interactive_ready`).
 

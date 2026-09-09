@@ -1,0 +1,176 @@
+{
+  "version": 1,
+  "date": "2026-09-09",
+  "runs": [
+    {
+      "run_id": "4a4680f15be94704a4039a889cdd2d58",
+      "timestamp": "2026-09-09T12:54:43.621991+00:00",
+      "description": "Reorganiza Backend Developer e cria skills de logging, persistência e autenticação/segurança; atualiza hierarquia do Open Design",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 15,
+        "lines_deleted": 4,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "5a634ae89b474e11b011bc4140e9e739",
+      "timestamp": "2026-09-09T12:59:36.163274+00:00",
+      "description": "Reforça avaliação da stack, fonte de verdade, classificação de dados e uso seguro de cache na skill de persistência",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "566af29bc01f493c8c28bdf38df881f2",
+      "timestamp": "2026-09-09T13:04:13.114078+00:00",
+      "description": "Move as skills de logging, persistência e autenticação para dentro de backend-developer e ajusta distribuição",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 13,
+        "lines_deleted": 5,
+        "files_changed": 3
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "85446db7d6e84017a68e3da7fde11a71",
+      "timestamp": "2026-09-09T13:07:49.987392+00:00",
+      "description": "Aprimora tipos nativos e desenho eficiente de tabelas na skill interna de database persistence",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 3,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "7806e72eeedf49c98e229485681a1e72",
+      "timestamp": "2026-09-09T13:18:23.428871+00:00",
+      "description": "Cria Negative Spec e substitui critérios de sucesso/falha por critério único de não aceite nos Draws e backlog",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 123,
+        "lines_deleted": 179,
+        "files_changed": 13
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "ccdf9e9e59824f11bef11267a6ba3721",
+      "timestamp": "2026-09-09T13:21:34.463811+00:00",
+      "description": "Aprimora Negative Spec para ler o contexto completo e registrar presunções proibidas nos Draws L3",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "a25eccac4be8423c95edca52faedd45a",
+      "timestamp": "2026-09-09T13:23:09.658446+00:00",
+      "description": "Atualiza o asset global do Draw Editor e reinstala o Looper em modo editável com uv",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "9eaa6a06680143619794d76535002e29",
+      "timestamp": "2026-09-09T13:31:52.162674+00:00",
+      "description": "Aprimora Negative Spec para inferir invariantes somente com contexto suficiente e criar perguntas abertas quando faltar definição",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    }
+  ],
+  "run_count": 8,
+  "last_run_id": "9eaa6a06680143619794d76535002e29"
+}

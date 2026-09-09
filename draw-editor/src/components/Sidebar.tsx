@@ -186,8 +186,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [newNodeLabel, setNewNodeLabel] = useState('');
   const [newNodeGroup, setNewNodeGroup] = useState<string>('');
   const [newNodeDesc, setNewNodeDesc] = useState('');
-  const [newNodeSuccessCriteria, setNewNodeSuccessCriteria] = useState('');
-  const [newNodeFailureCriteria, setNewNodeFailureCriteria] = useState('');
+  const [newNodeNegativeSpec, setNewNodeNegativeSpec] = useState('');
 
   const isEmptyDrawing = contract.nodes.length === 0;
 
@@ -434,8 +433,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         label: newNodeLabel.trim(),
         group: newNodeGroup !== '' ? Number(newNodeGroup) : undefined,
         description: newNodeDesc.trim(),
-        success_criteria: newNodeSuccessCriteria.trim() || undefined,
-        failure_criteria: newNodeFailureCriteria.trim() || undefined,
+        negative_spec: newNodeNegativeSpec.trim() || undefined,
         questions: []
       };
       return {
@@ -446,8 +444,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
     setNewNodeLabel('');
     setNewNodeDesc('');
-    setNewNodeSuccessCriteria('');
-    setNewNodeFailureCriteria('');
+    setNewNodeNegativeSpec('');
     setNewNodeGroup('');
   };
 
@@ -901,25 +898,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   />
                 </div>
                 <fieldset className="node-success-criteria-fields">
-                  <legend>Critérios de validação (opcional)</legend>
+                  <legend>Negative Spec (opcional)</legend>
                   <div className="editor-field">
-                    <label htmlFor="new-node-success-criteria">Critério de sucesso</label>
+                    <label htmlFor="new-node-negative-spec">Critério de não aceite</label>
                     <textarea
-                      id="new-node-success-criteria"
-                      name="success_criteria"
-                      placeholder="Como saberemos que este nó funcionou?"
-                      value={newNodeSuccessCriteria}
-                      onChange={(e) => setNewNodeSuccessCriteria(e.target.value)}
-                    />
-                  </div>
-                  <div className="editor-field">
-                    <label htmlFor="new-node-failure-criteria">Critério de falha</label>
-                    <textarea
-                      id="new-node-failure-criteria"
-                      name="failure_criteria"
-                      placeholder="Qual cenário indica que este nó falhou?"
-                      value={newNodeFailureCriteria}
-                      onChange={(e) => setNewNodeFailureCriteria(e.target.value)}
+                      id="new-node-negative-spec"
+                      name="negative_spec"
+                      placeholder="Se isso ocorrer, a task não pode ser concluída."
+                      value={newNodeNegativeSpec}
+                      onChange={(e) => setNewNodeNegativeSpec(e.target.value)}
                     />
                   </div>
                 </fieldset>
@@ -987,25 +974,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     />
                   </div>
                   <fieldset className="node-success-criteria-fields">
-                    <legend>Critérios de validação (opcional)</legend>
+                    <legend>Negative Spec (opcional)</legend>
                     <div className="editor-field">
-                      <label htmlFor={`node-${selectedNode.id}-success-criteria`}>Critério de sucesso</label>
+                      <label htmlFor={`node-${selectedNode.id}-negative-spec`}>Critério de não aceite</label>
                       <textarea
-                        id={`node-${selectedNode.id}-success-criteria`}
-                        name="success_criteria"
-                        placeholder="Como saberemos que este nó funcionou?"
-                        value={selectedNode.success_criteria || ''}
-                        onChange={(e) => handleUpdateNode({ success_criteria: e.target.value || undefined })}
-                      />
-                    </div>
-                    <div className="editor-field">
-                      <label htmlFor={`node-${selectedNode.id}-failure-criteria`}>Critério de falha</label>
-                      <textarea
-                        id={`node-${selectedNode.id}-failure-criteria`}
-                        name="failure_criteria"
-                        placeholder="Qual cenário indica que este nó falhou?"
-                        value={selectedNode.failure_criteria || ''}
-                        onChange={(e) => handleUpdateNode({ failure_criteria: e.target.value || undefined })}
+                        id={`node-${selectedNode.id}-negative-spec`}
+                        name="negative_spec"
+                        placeholder="Se isso ocorrer, a task não pode ser concluída."
+                        value={selectedNode.negative_spec || ''}
+                        onChange={(e) => handleUpdateNode({ negative_spec: e.target.value || undefined })}
                       />
                     </div>
                   </fieldset>

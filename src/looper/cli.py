@@ -197,8 +197,7 @@ def _compact_backlog_response(response: dict[str, object]) -> dict[str, object]:
         "draw": task.get("draw_title") or task.get("draw_id"),
         "node_id": task.get("node_id"),
         "description": task.get("description"),
-        "success_criteria": response.get("success_criteria") or task.get("success_criteria") or None,
-        "failure_criteria": response.get("failure_criteria") or task.get("failure_criteria") or None,
+        "negative_spec": response.get("negative_spec") or task.get("negative_spec") or task.get("failure_criteria") or None,
         "symbols": task.get("symbols") or [],
         "code_tasks": task.get("code_tasks") or [],
         "verification_requirements": task.get("verification_requirements") or [],
@@ -379,10 +378,8 @@ def _format_backlog_response(response: dict[str, object]) -> str:
         lines.append("Tasks de código (to-do):")
         for task_item in code_tasks:
             lines.append(f"  • {task_item}")
-    if compact.get("success_criteria"):
-        lines.append(f"Critério de sucesso: {compact['success_criteria']}")
-    if compact.get("failure_criteria"):
-        lines.append(f"Critério de falha: {compact['failure_criteria']}")
+    if compact.get("negative_spec"):
+        lines.append(f"Negative Spec — critério de não aceite: {compact['negative_spec']}")
     delivery_subtasks = compact.get("delivery_subtasks")
     if isinstance(delivery_subtasks, list):
         scope_action = "criar testes para" if kind in {"backlog-test-task", "backlog-test-required"} else "implementar"

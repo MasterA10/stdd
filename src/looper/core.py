@@ -588,7 +588,11 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
             sources.extend(
                 path for path in sorted(source.parent.rglob("*"))
                 if path.is_file()
-                and path.parent.name == "scripts"
+                and (
+                    path.parent.name == "scripts"
+                    or source.parent.name == "backend-developer"
+                    and "backend-" in path.relative_to(source.parent).parts
+                )
                 and "open-design" not in path.relative_to(source.parent).parts
                 and path != source
                 and path != openai_metadata

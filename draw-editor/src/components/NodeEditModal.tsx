@@ -5,14 +5,13 @@ import { X } from 'lucide-react';
 interface NodeEditModalProps {
   node: NodeData;
   onClose: () => void;
-  onSave: (nodeId: number, label: string, description: string, successCriteria: string, failureCriteria: string) => void;
+  onSave: (nodeId: number, label: string, description: string, negativeSpec: string) => void;
 }
 
 export const NodeEditModal: React.FC<NodeEditModalProps> = ({ node, onClose, onSave }) => {
   const [label, setLabel] = useState(node.label || '');
   const [description, setDescription] = useState(node.description || '');
-  const [successCriteria, setSuccessCriteria] = useState(node.success_criteria || '');
-  const [failureCriteria, setFailureCriteria] = useState(node.failure_criteria || '');
+  const [negativeSpec, setNegativeSpec] = useState(node.negative_spec || '');
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -23,7 +22,7 @@ export const NodeEditModal: React.FC<NodeEditModalProps> = ({ node, onClose, onS
   }, [description]);
 
   const handleSave = () => {
-    onSave(node.id, label, description, successCriteria, failureCriteria);
+    onSave(node.id, label, description, negativeSpec);
     onClose();
   };
 
@@ -70,22 +69,14 @@ export const NodeEditModal: React.FC<NodeEditModalProps> = ({ node, onClose, onS
           </div>
 
           <fieldset className="dialog-fields node-success-criteria-fields" style={{ marginTop: '16px' }}>
-            <legend>Critérios de validação (opcional)</legend>
-            <label htmlFor="node-modal-success-criteria">Critério de sucesso</label>
+            <legend>Negative Spec (opcional)</legend>
+            <label htmlFor="node-modal-negative-spec">Critério de não aceite</label>
             <textarea
-              id="node-modal-success-criteria"
-              name="success_criteria"
-              value={successCriteria}
-              onChange={(e) => setSuccessCriteria(e.target.value)}
-              placeholder="Como saberemos que este nó funcionou?"
-            />
-            <label htmlFor="node-modal-failure-criteria">Critério de falha</label>
-            <textarea
-              id="node-modal-failure-criteria"
-              name="failure_criteria"
-              value={failureCriteria}
-              onChange={(e) => setFailureCriteria(e.target.value)}
-              placeholder="Qual cenário indica que este nó falhou?"
+              id="node-modal-negative-spec"
+              name="negative_spec"
+              value={negativeSpec}
+              onChange={(e) => setNegativeSpec(e.target.value)}
+              placeholder="Se isso ocorrer, a task não pode ser concluída."
             />
           </fieldset>
           

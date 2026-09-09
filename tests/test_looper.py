@@ -383,6 +383,7 @@ def test_agents_are_loaded_from_markdown_templates():
     templates = {template.parent.name: template for template in agent_templates()}
     assert set(templates) == {
         "backend-developer",
+        "negative-spec",
         "test-application",
         "draw-interaction",
         "draw-feature",
@@ -405,20 +406,36 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "# Test Application" in templates["test-application"].read_text()
     assert "# Documentation & Conventions" in templates["documentation-conventions"].read_text()
     assert "# Backend Developer" in templates["backend-developer"].read_text()
+    assert "# Negative Spec" in templates["negative-spec"].read_text()
+    backend_root = Path("src/looper/templates/agents/backend-developer")
+    assert (backend_root / "backend-logging/SKILL.md").exists()
+    assert (backend_root / "backend-database-persistence/SKILL.md").exists()
+    assert (backend_root / "backend-auth-security/SKILL.md").exists()
     assert "# Implement Frontend Agent" in templates["implement-frontend"].read_text()
     assert "# Implement Backend Agent" in templates["implement-backend"].read_text()
     assert "servidores locais" in templates["mock-server"].read_text()
     backend_skill = templates["backend-developer"].read_text().lower()
-    assert "exatamente quatro níveis" in backend_skill
-    assert "`warn`" in backend_skill and "`info`" in backend_skill
-    assert "credenciais deliberadamente inválidas" in backend_skill
-    assert "console" in backend_skill and "banco de dados" in backend_skill
+    assert "$backend-logging" in backend_skill
+    assert "$backend-database-persistence" in backend_skill
+    assert "$backend-auth-security" in backend_skill
+    assert "skills independentes" in backend_skill
+    logging_skill = (Path("src/looper/templates/agents/backend-developer/backend-logging/SKILL.md")).read_text().lower()
+    assert "exatamente quatro níveis" in logging_skill
+    assert "`warn`" in logging_skill and "`info`" in logging_skill
+    assert "redaction" in logging_skill
+    assert "destinos" in logging_skill
+    assert "credenciais inválidas" in backend_skill
+    assert "console" in logging_skill
+    persistence_skill = Path("src/looper/templates/agents/backend-developer/backend-database-persistence/SKILL.md").read_text().lower()
+    for required in ("tipo temporal nativo", "timestamp", "nunca string", "decimal/numeric", "ddl gerado", "planos de execução"):
+        assert required in persistence_skill
     assert "# Implement Change Agent" in templates["implement-change"].read_text()
     assert "looper backlog change" in templates["implement-change"].read_text().lower()
     assert "looper backlog complete <task-id>" in templates["implement-change"].read_text()
     assert "backlog-change-empty" in templates["implement-change"].read_text()
     assert "# Setup Agent" in templates["setup"].read_text()
     assert "open design" in templates["system-design"].read_text().lower()
+    assert "skill principal" in templates["system-design"].read_text().lower()
     assert "# Playwright Testing" in templates["playwright-testing"].read_text()
     assert "complexidade ciclomática" in templates["static-analysis"].read_text()
     assert "long_function" in templates["static-analysis"].read_text()
@@ -443,7 +460,7 @@ def test_agents_are_loaded_from_markdown_templates():
     for required in ("nível 2", "jornadas", "administrador", "permissões", "frontend/interface", "não implementado", "draw_ref", "draw.level2_missing_code_ref", "não deve bloquear"):
         assert required in level_two
     level_three = templates["draw-system-level-3"].read_text().lower()
-    for required in ("nível 3", "dois lotes", "mais lotes", "ponta a ponta", "tudo o que é possível fazer", "chat", "marketplace", "code_refs", "source_dependencies", "no mínimo quatro nós", "no mínimo 80 caracteres", "warning", "draw.level3_min_nodes", "draw.level3_short_description", "description", "label", "edge.description", "obrigatoriedade de leitura do símbolo", "leitura prévia", "pode ser criado antes da implementação", "modo de especificação", "símbolo placeholder"):
+    for required in ("nível 3", "dois lotes", "ponta a ponta", "tudo o que é possível fazer", "chat", "marketplace", "code_refs", "source_dependencies", "no mínimo quatro nós", "no mínimo 80 caracteres", "warning", "draw.level3_min_nodes", "draw.level3_short_description", "description", "label", "edge.description", "obrigatoriedade de leitura do símbolo", "leitura prévia", "pode ser criado antes da implementação", "modo de especificação", "símbolo placeholder", "negative spec"):
         assert required in level_three
 
     for required in ("supabase", "rpc", "back-end", "external_logic", "technologies", "sql_procedure", "sql_function", "localização da regra", "todos os níveis", "frontend/interface", "static_analysis.exceptions", "looper:ignore", "draw.level2_missing_code_ref", "draw.level3_min_nodes", "draw.level3_short_description", "menos de quatro nós", "menos de 80 caracteres", "somente `looper test` aplica o bloqueio"):

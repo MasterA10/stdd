@@ -11,6 +11,14 @@ Use esta skill para criar e manter o Design System do projeto em `.looper/design
 
 A biblioteca do Open Design está empacotada diretamente dentro da pasta da skill em `.agents/skills/system-design/open-design/` (e na raiz do repositório em `open-design/`):
 
+### Hierarquia de skills
+
+`system-design` é a skill principal e orquestra o uso do Open Design. As entradas em
+`open-design/skills/` e as entradas marcadas `SKILL-secondary.md` em templates são skills
+complementares especializadas: consulte somente a que corresponder ao deliverable ou à
+decisão visual atual, mantendo esta skill como responsável pelo contexto, tokens e coerência
+do Design System.
+
 ### Estrutura dos Recursos Disponíveis
 
 1. **`open-design/design-systems/`** (Mais de 150 design systems empacotados):
