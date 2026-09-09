@@ -160,6 +160,31 @@ def test_draw_editor_exposes_separate_improvement_sessions_and_answers():
     assert "Sem resposta" in editor
 
 
+def test_draw_editor_exposes_global_questions_inventory_for_all_nodes():
+    """Centraliza as perguntas dos nós sem misturá-las às perguntas de melhoria.
+    Confirma a varredura dos Draws, o estado visual e a navegação até a origem.
+    """
+    app = (EDITOR_ROOT / "src/App.tsx").read_text(encoding="utf-8")
+    modal = (EDITOR_ROOT / "src/components/GlobalQuestionsModal.tsx").read_text(encoding="utf-8")
+    styles = (EDITOR_ROOT / "src/index.css").read_text(encoding="utf-8")
+
+    for required in (
+        "GlobalQuestionsModal",
+        "globalQuestions",
+        "drawingsIndex.map",
+        "document.nodes.forEach",
+        "global-questions-trigger",
+        "globalUnansweredQuestions",
+        "openGlobalQuestionNode",
+    ):
+        assert required in app
+    for required in ("Perguntas do sistema", "Varrendo todos os Draws", "onOpenNode", "unanswered"):
+        assert required in modal
+    assert "all-answered" in app
+    for required in (".global-questions-trigger", ".global-questions-trigger.all-answered", ".global-question-list"):
+        assert required in styles
+
+
 def test_draw_editor_removes_floating_canvas_hint():
     """Remove a dica flutuante do canto inferior esquerdo do viewer.
     Confirma que JSX e CSS não mantêm o componente de dica antigo.

@@ -29,8 +29,9 @@ import { ImprovementEditor } from './components/ImprovementEditor';
 import { NodeEditModal } from './components/NodeEditModal';
 import { ParentNavigationModal, type ParentNavigationOption } from './components/ParentNavigationModal';
 import { ConfigSettingsModal } from './components/ConfigSettingsModal';
+import { GlobalQuestionsModal, type GlobalQuestionEntry } from './components/GlobalQuestionsModal';
 import { layoutCurvedGraph, computeEdgeHandles, getCycleEdges } from './layout';
-import { ArrowUp, RotateCcw, Save, Download, Sun, Moon, Contrast, Sparkles, ClipboardList, X, PanelBottom, PanelLeft, Eye, EyeOff, Settings } from 'lucide-react';
+import { ArrowUp, RotateCcw, Save, Download, Sun, Moon, Contrast, Sparkles, ClipboardList, CircleHelp, X, PanelBottom, PanelLeft, Eye, EyeOff, Settings } from 'lucide-react';
 
 import defaultContract from '../contract.json';
 
@@ -133,6 +134,9 @@ export const App: React.FC = () => {
   const [reactFlowReady, setReactFlowReady] = useState(0);
   const [presentationPositionsState, setPresentationPositionsState] = useState<Record<string, { x: number; y: number }>>({});
   const [showConfigSettings, setShowConfigSettings] = useState(false);
+  const [showGlobalQuestions, setShowGlobalQuestions] = useState(false);
+  const [globalQuestions, setGlobalQuestions] = useState<GlobalQuestionEntry[]>([]);
+  const [globalQuestionsLoading, setGlobalQuestionsLoading] = useState(false);
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get('settings') === '1') setShowConfigSettings(true);
@@ -770,6 +774,40 @@ export const App: React.FC = () => {
 
     return entry.id === typedDefaultContract.id ? typedDefaultContract : null;
   };
+
+  useEffect(() => {
+    if (currentImprovement || drawingsIndex.length === 0) {
+      setGlobalQuestions([]);
+      return;
+    }
+    let cancelled = false;
+    setGlobalQuestionsLoading(true);
+    const scanQuestions = async () => {
+      const contracts = await Promise.all(drawingsIndex.map(async (entry) => ({
+        entry,
+        document: entry.id === contract.id ? contract : await loadContractForSearch(entry, storageMode)
+      })));
+      if (cancelled) return;
+      const entries: GlobalQuestionEntry[] = [];
+      contracts.forEach(({ entry, document }) => {
+        if (!document) return;
+        document.nodes.forEach((node) => {
+          (Array.isArray(node.questions) ? node.questions : []).forEach((question) => entries.push({
+            drawId: document.id || entry.id,
+            drawTitle: document.title || entry.title,
+            nodeId: node.id,
+            nodeLabel: node.label,
+            question
+          }));
+        });
+      });
+      entries.sort((left, right) => Number(left.question.answer !== null) - Number(right.question.answer !== null));
+      setGlobalQuestions(entries);
+      setGlobalQuestionsLoading(false);
+    };
+    void scanQuestions().catch(() => { if (!cancelled) { setGlobalQuestions([]); setGlobalQuestionsLoading(false); } });
+    return () => { cancelled = true; };
+  }, [contract, currentImprovement, drawingsIndex, storageMode]);
 
   useEffect(() => {
     const query = searchQuery.trim().toLocaleLowerCase();
@@ -1695,6 +1733,13 @@ export const App: React.FC = () => {
     }
   };
 
+  const openGlobalQuestionNode = async (entry: GlobalQuestionEntry) => {
+    setShowGlobalQuestions(false);
+    pendingSearchFocusRef.current = { drawId: entry.drawId, nodeId: entry.nodeId };
+    setSelectionRevision((value) => value + 1);
+    if (contractRef.current.id !== entry.drawId) await loadDrawingById(entry.drawId, { resetNavigation: true });
+  };
+
   // --- Callbacks on Canvas Actions ---
   const getOrderedSelectedNodeIds = useCallback(() => {
     const availableIds = new Set(contract.nodes.map((node) => node.id));
@@ -2374,6 +2419,8 @@ export const App: React.FC = () => {
   const pendingImprovementQuestions = currentImprovement
     ? currentImprovement.questions.filter((question) => !isImprovementAnswer(question.answer)).length
     : 0;
+  const globalUnansweredQuestions = globalQuestions.filter((entry) => !isImprovementAnswer(entry.question.answer)).length;
+  const allGlobalQuestionsAnswered = globalQuestions.length > 0 && globalUnansweredQuestions === 0;
   const improvementNeedsSave = Boolean(currentImprovement && (
     isImprovementDirty ||
     pendingImprovementQuestions > 0 ||
@@ -2647,6 +2694,18 @@ export const App: React.FC = () => {
         <span><kbd>V</kbd> perguntas</span>
       </footer>
 
+      <button
+        className={`global-questions-trigger ${allGlobalQuestionsAnswered ? 'all-answered' : 'has-open'}`}
+        type="button"
+        onClick={() => setShowGlobalQuestions(true)}
+        title="Ver perguntas de todos os nós"
+        aria-label={`Ver perguntas de todos os nós. ${globalUnansweredQuestions} sem resposta.`}
+      >
+        <CircleHelp size={16} />
+        <span className="global-questions-trigger-count">{globalQuestions.length}</span>
+        <span>Perguntas</span>
+      </button>
+
       {/* Modal Dialogs */}
       {editNodeData && (
         <NodeEditModal
@@ -2666,6 +2725,14 @@ export const App: React.FC = () => {
           node={questionsNode}
           onClose={() => setQuestionsNode(null)}
           onUpdateQuestions={handleUpdateQuestions}
+        />
+      )}
+      {showGlobalQuestions && (
+        <GlobalQuestionsModal
+          entries={globalQuestions}
+          loading={globalQuestionsLoading}
+          onClose={() => setShowGlobalQuestions(false)}
+          onOpenNode={openGlobalQuestionNode}
         />
       )}
       {changesNode && (
