@@ -444,6 +444,7 @@ export const App: React.FC = () => {
   const searchRequestRef = useRef(0);
   const drawingLoadRequestRef = useRef(0);
   const pendingSearchFocusRef = useRef<{ drawId: string; nodeId: number } | null>(null);
+  const pendingGlobalQuestionRef = useRef<GlobalQuestionEntry | null>(null);
   const drawRevisionRef = useRef<string | null>(null);
   const savingContractRef = useRef(false);
   const pendingExternalRevisionRef = useRef<string | null>(null);
@@ -1724,6 +1725,15 @@ export const App: React.FC = () => {
     });
   }, [contract.id, nodes, reactFlowReady, selectionRevision]);
 
+  useEffect(() => {
+    const request = pendingGlobalQuestionRef.current;
+    if (!request || request.drawId !== contract.id) return;
+    const node = contract.nodes.find((item) => item.id === request.nodeId);
+    if (!node) return;
+    pendingGlobalQuestionRef.current = null;
+    setQuestionsNode(node);
+  }, [contract, contract.id, nodes]);
+
   const focusSearchResult = async (result: DrawSearchResult) => {
     pendingSearchFocusRef.current = { drawId: result.drawId, nodeId: result.nodeId };
     setSelectionRevision((value) => value + 1);
@@ -1735,9 +1745,18 @@ export const App: React.FC = () => {
 
   const openGlobalQuestionNode = async (entry: GlobalQuestionEntry) => {
     setShowGlobalQuestions(false);
+    pendingGlobalQuestionRef.current = entry;
     pendingSearchFocusRef.current = { drawId: entry.drawId, nodeId: entry.nodeId };
     setSelectionRevision((value) => value + 1);
-    if (contractRef.current.id !== entry.drawId) await loadDrawingById(entry.drawId, { resetNavigation: true });
+    if (contractRef.current.id === entry.drawId) {
+      const node = contractRef.current.nodes.find((item) => item.id === entry.nodeId);
+      if (node) {
+        pendingGlobalQuestionRef.current = null;
+        setQuestionsNode(node);
+      }
+      return;
+    }
+    await loadDrawingById(entry.drawId, { resetNavigation: true });
   };
 
   // --- Callbacks on Canvas Actions ---
@@ -2678,6 +2697,17 @@ export const App: React.FC = () => {
               <Background gap={24} size={1} />
             </ReactFlow>
           </div>
+          <button
+            className={`global-questions-trigger ${allGlobalQuestionsAnswered ? 'all-answered' : 'has-open'}`}
+            type="button"
+            onClick={() => setShowGlobalQuestions(true)}
+            title="Ver perguntas de todos os nós"
+            aria-label={`Ver perguntas de todos os nós. ${globalUnansweredQuestions} sem resposta.`}
+          >
+            <CircleHelp size={16} />
+            <span className="global-questions-trigger-count">{globalQuestions.length}</span>
+            <span>Perguntas</span>
+          </button>
         </main>
       </div>
 
@@ -2693,18 +2723,6 @@ export const App: React.FC = () => {
         <span><kbd>Ctrl+Z</kbd> desfazer</span>
         <span><kbd>V</kbd> perguntas</span>
       </footer>
-
-      <button
-        className={`global-questions-trigger ${allGlobalQuestionsAnswered ? 'all-answered' : 'has-open'}`}
-        type="button"
-        onClick={() => setShowGlobalQuestions(true)}
-        title="Ver perguntas de todos os nós"
-        aria-label={`Ver perguntas de todos os nós. ${globalUnansweredQuestions} sem resposta.`}
-      >
-        <CircleHelp size={16} />
-        <span className="global-questions-trigger-count">{globalQuestions.length}</span>
-        <span>Perguntas</span>
-      </button>
 
       {/* Modal Dialogs */}
       {editNodeData && (

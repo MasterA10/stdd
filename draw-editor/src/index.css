@@ -320,7 +320,7 @@ body:has(.improvement-dialog) { overflow: hidden; }
 }
 
 .global-questions-trigger {
-  position: fixed;
+  position: absolute;
   left: 18px;
   bottom: 18px;
   z-index: 30;

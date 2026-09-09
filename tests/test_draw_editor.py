@@ -176,6 +176,7 @@ def test_draw_editor_exposes_global_questions_inventory_for_all_nodes():
         "global-questions-trigger",
         "globalUnansweredQuestions",
         "openGlobalQuestionNode",
+        "pendingGlobalQuestionRef",
     ):
         assert required in app
     for required in ("Perguntas do sistema", "Varrendo todos os Draws", "onOpenNode", "unanswered"):
@@ -183,6 +184,9 @@ def test_draw_editor_exposes_global_questions_inventory_for_all_nodes():
     assert "all-answered" in app
     for required in (".global-questions-trigger", ".global-questions-trigger.all-answered", ".global-question-list"):
         assert required in styles
+    assert "<main className=\"workspace\">" in app
+    assert "await loadDrawingById(entry.drawId" in app
+    assert "setQuestionsNode(node)" in app
 
 
 def test_draw_editor_removes_floating_canvas_hint():
