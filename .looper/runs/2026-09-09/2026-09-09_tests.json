@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "run_id": "5e968b21304546e9a8f729e470907cd9",
-  "started_at": "2026-09-09T16:12:21.483348+00:00",
+  "run_id": "8fac771074dd4e1494942c0af41071d8",
+  "started_at": "2026-09-09T16:17:15.108905+00:00",
   "status": "blocked",
   "profile": "mvp",
   "summary": {
@@ -20,7 +20,7 @@
       ],
       "exit_code": 1,
       "status": "failed",
-      "duration_seconds": 147.475523,
+      "duration_seconds": 147.51702,
       "output": "<saída omitida: 98302 caracteres>"
     }
   ],
@@ -137,10 +137,10 @@
         "symbol_id": "src/looper/draw.py:looper.draw._load_indexed_draw"
       },
       {
-        "end_line": 1008,
+        "end_line": 1009,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 989,
+        "line": 990,
         "name": "test_dark_nodes_use_grayscale_fills_and_keep_group_accent_on_border",
         "qualified_name": "tests.test_draw_editor.test_dark_nodes_use_grayscale_fills_and_keep_group_accent_on_border",
         "source": "python_ast",
@@ -721,16 +721,6 @@
       },
       {
         "end_line": 1043,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 1011,
-        "name": "test_backlog_task_states_style_in_progress_and_done_nodes",
-        "qualified_name": "tests.test_draw_editor.test_backlog_task_states_style_in_progress_and_done_nodes",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_backlog_task_states_style_in_progress_and_done_nodes"
-      },
-      {
-        "end_line": 1043,
         "file": "tests/test_looper.py",
         "kind": "function",
         "line": 1033,
@@ -738,6 +728,16 @@
         "qualified_name": "tests.test_looper.test_agent_skills_are_self_contained_and_do_not_reference_internal_plan",
         "source": "python_ast",
         "symbol_id": "tests/test_looper.py:tests.test_looper.test_agent_skills_are_self_contained_and_do_not_reference_internal_plan"
+      },
+      {
+        "end_line": 1044,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 1012,
+        "name": "test_backlog_task_states_style_in_progress_and_done_nodes",
+        "qualified_name": "tests.test_draw_editor.test_backlog_task_states_style_in_progress_and_done_nodes",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_backlog_task_states_style_in_progress_and_done_nodes"
       },
       {
         "end_line": 1045,
@@ -969,10 +969,10 @@
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_parent_and_subtask_can_be_completed_independently"
       },
       {
-        "end_line": 1056,
+        "end_line": 1057,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 1046,
+        "line": 1047,
         "name": "test_double_click_changes_group_and_canvas_click_exits_editing",
         "qualified_name": "tests.test_draw_editor.test_double_click_changes_group_and_canvas_click_exits_editing",
         "source": "python_ast",
@@ -1298,10 +1298,10 @@
         "symbol_id": "src/looper/draw.py:looper.draw.ensure_draw_workspace"
       },
       {
-        "end_line": 1070,
+        "end_line": 1071,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 1059,
+        "line": 1060,
         "name": "test_new_drawing_button_persists_a_new_json_document",
         "qualified_name": "tests.test_draw_editor.test_new_drawing_button_persists_a_new_json_document",
         "source": "python_ast",
@@ -1429,10 +1429,10 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_subdraw_navigation_fits_the_entire_loaded_flow_in_the_canvas"
       },
       {
-        "end_line": 1081,
+        "end_line": 1082,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 1073,
+        "line": 1074,
         "name": "test_runs_load_history_for_period_selection_in_the_sidebar",
         "qualified_name": "tests.test_draw_editor.test_runs_load_history_for_period_selection_in_the_sidebar",
         "source": "python_ast",
@@ -1612,10 +1612,10 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_looper_create_top_level_command_creates_draw_and_reports_symbol_warnings"
       },
       {
-        "end_line": 1094,
+        "end_line": 1095,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 1084,
+        "line": 1085,
         "name": "test_code_references_modal_displays_file_path_under_symbol",
         "qualified_name": "tests.test_draw_editor.test_code_references_modal_displays_file_path_under_symbol",
         "source": "python_ast",
@@ -1806,10 +1806,10 @@
         "symbol_id": "tests/test_looper.py:tests.test_looper.test_setup_skill_defines_global_alias_and_database_lifecycle"
       },
       {
-        "end_line": 1108,
+        "end_line": 1109,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 1097,
+        "line": 1098,
         "name": "test_code_references_modal_displays_declared_draw_test_references",
         "qualified_name": "tests.test_draw_editor.test_code_references_modal_displays_declared_draw_test_references",
         "source": "python_ast",
@@ -2136,10 +2136,10 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/mirror-site.mjs:function:<anonymous>"
       },
       {
-        "end_line": 1132,
+        "end_line": 1133,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 1111,
+        "line": 1112,
         "name": "test_sidebar_exposes_backlog_tasks_with_questions_and_symbols",
         "qualified_name": "tests.test_draw_editor.test_sidebar_exposes_backlog_tasks_with_questions_and_symbols",
         "source": "python_ast",
@@ -2216,16 +2216,6 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_uses_react_flow_at_the_renderer_boundary"
       },
       {
-        "end_line": 1149,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 1135,
-        "name": "test_backlog_panel_exposes_both_execution_phase_statuses_and_delivery_scope",
-        "qualified_name": "tests.test_draw_editor.test_backlog_panel_exposes_both_execution_phase_statuses_and_delivery_scope",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_backlog_panel_exposes_both_execution_phase_statuses_and_delivery_scope"
-      },
-      {
         "end_line": 115,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/signals.py",
         "kind": "function",
@@ -2284,6 +2274,16 @@
         "qualified_name": "looper.backlog._append_child_backlog",
         "source": "python_ast",
         "symbol_id": "src/looper/backlog.py:looper.backlog._append_child_backlog"
+      },
+      {
+        "end_line": 1150,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 1136,
+        "name": "test_backlog_panel_exposes_both_execution_phase_statuses_and_delivery_scope",
+        "qualified_name": "tests.test_draw_editor.test_backlog_panel_exposes_both_execution_phase_statuses_and_delivery_scope",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_backlog_panel_exposes_both_execution_phase_statuses_and_delivery_scope"
       },
       {
         "end_line": 1153,
@@ -2420,10 +2420,10 @@
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_preserves_shared_steps_in_explicit_flow_paths"
       },
       {
-        "end_line": 1160,
+        "end_line": 1161,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 1152,
+        "line": 1153,
         "name": "test_editor_loads_the_persisted_backlog_from_the_draw_server",
         "qualified_name": "tests.test_draw_editor.test_editor_loads_the_persisted_backlog_from_the_draw_server",
         "source": "python_ast",
@@ -2583,10 +2583,10 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_supports_direct_editing_reorganization_and_condition_visuals"
       },
       {
-        "end_line": 1177,
+        "end_line": 1178,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 1163,
+        "line": 1164,
         "name": "test_editor_allows_node_checklists_and_persists_them_through_backlog_api",
         "qualified_name": "tests.test_draw_editor.test_editor_allows_node_checklists_and_persists_them_through_backlog_api",
         "source": "python_ast",
@@ -2825,10 +2825,10 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_init_configures_all_backlog_options_via_cli"
       },
       {
-        "end_line": 1192,
+        "end_line": 1193,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 1180,
+        "line": 1181,
         "name": "test_editor_reconciles_selection_and_protects_async_draw_loads",
         "qualified_name": "tests.test_draw_editor.test_editor_reconciles_selection_and_protects_async_draw_loads",
         "source": "python_ast",
@@ -3194,10 +3194,10 @@
         "symbol_id": "src/looper/draw.py:looper.draw.collect_draw_context"
       },
       {
-        "end_line": 1213,
+        "end_line": 1214,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 1195,
+        "line": 1196,
         "name": "test_backlog_can_hide_completed_tasks_with_a_visible_red_separator",
         "qualified_name": "tests.test_draw_editor.test_backlog_can_hide_completed_tasks_with_a_visible_red_separator",
         "source": "python_ast",
@@ -3346,10 +3346,10 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/od-preview-rewrite.mjs:function:rewriteRootRef"
       },
       {
-        "end_line": 1232,
+        "end_line": 1233,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 1216,
+        "line": 1217,
         "name": "test_config_settings_keeps_help_button_outside_slider_label",
         "qualified_name": "tests.test_draw_editor.test_config_settings_keeps_help_button_outside_slider_label",
         "source": "python_ast",
@@ -9234,16 +9234,6 @@
       },
       {
         "end_line": 189,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 163,
-        "name": "test_draw_editor_exposes_global_questions_inventory_for_all_nodes",
-        "qualified_name": "tests.test_draw_editor.test_draw_editor_exposes_global_questions_inventory_for_all_nodes",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_draw_editor_exposes_global_questions_inventory_for_all_nodes"
-      },
-      {
-        "end_line": 189,
         "file": "tests/test_traceability.py",
         "kind": "function",
         "line": 166,
@@ -9433,6 +9423,16 @@
         "qualified_name": "looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.store.init_db",
         "source": "python_ast",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/store.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.store.init_db"
+      },
+      {
+        "end_line": 190,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 163,
+        "name": "test_draw_editor_exposes_global_questions_inventory_for_all_nodes",
+        "qualified_name": "tests.test_draw_editor.test_draw_editor_exposes_global_questions_inventory_for_all_nodes",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_draw_editor_exposes_global_questions_inventory_for_all_nodes"
       },
       {
         "end_line": 191,
@@ -9941,16 +9941,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/hatch-pet/scripts/inspect_frames.py:looper.templates.agents.system-design.open-design.skills.hatch-pet.scripts.inspect_frames.inspect_state"
       },
       {
-        "end_line": 200,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 192,
-        "name": "test_draw_editor_removes_floating_canvas_hint",
-        "qualified_name": "tests.test_draw_editor.test_draw_editor_removes_floating_canvas_hint",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_draw_editor_removes_floating_canvas_hint"
-      },
-      {
         "end_line": 201,
         "file": ".agents/skills/system-design/open-design/design-templates/hyperframes/scripts/animation-map.mjs",
         "kind": "function",
@@ -10023,6 +10013,16 @@
         "qualified_name": "looper.traceability.refresh_traceability",
         "source": "python_ast",
         "symbol_id": "src/looper/traceability.py:looper.traceability.refresh_traceability"
+      },
+      {
+        "end_line": 201,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 193,
+        "name": "test_draw_editor_removes_floating_canvas_hint",
+        "qualified_name": "tests.test_draw_editor.test_draw_editor_removes_floating_canvas_hint",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_draw_editor_removes_floating_canvas_hint"
       },
       {
         "end_line": 2015,
@@ -10711,16 +10711,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/normalize.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.normalize._normalize_reddit"
       },
       {
-        "end_line": 213,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 203,
-        "name": "test_flow_inputs_never_use_the_right_side_of_a_block",
-        "qualified_name": "tests.test_draw_editor.test_flow_inputs_never_use_the_right_side_of_a_block",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_flow_inputs_never_use_the_right_side_of_a_block"
-      },
-      {
         "end_line": 2138,
         "file": "src/looper/backlog.py",
         "kind": "function",
@@ -10819,6 +10809,16 @@
         "qualified_name": "tests.test_cli.test_init_rejects_removed_frontend_analysis_option",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_init_rejects_removed_frontend_analysis_option"
+      },
+      {
+        "end_line": 214,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 204,
+        "name": "test_flow_inputs_never_use_the_right_side_of_a_block",
+        "qualified_name": "tests.test_draw_editor.test_flow_inputs_never_use_the_right_side_of_a_block",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_flow_inputs_never_use_the_right_side_of_a_block"
       },
       {
         "end_line": 215,
@@ -11679,16 +11679,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/lib/system-browser.mjs:method:CdpPage.#onResponse"
       },
       {
-        "end_line": 227,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 216,
-        "name": "test_orthogonal_edges_route_around_obstacles_using_semantic_ports",
-        "qualified_name": "tests.test_draw_editor.test_orthogonal_edges_route_around_obstacles_using_semantic_ports",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_orthogonal_edges_route_around_obstacles_using_semantic_ports"
-      },
-      {
         "end_line": 2275,
         "file": "src/looper/backlog.py",
         "kind": "function",
@@ -11737,6 +11727,16 @@
         "qualified_name": "tests.test_draw.improvement_payload",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.improvement_payload"
+      },
+      {
+        "end_line": 228,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 217,
+        "name": "test_orthogonal_edges_route_around_obstacles_using_semantic_ports",
+        "qualified_name": "tests.test_draw_editor.test_orthogonal_edges_route_around_obstacles_using_semantic_ports",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_orthogonal_edges_route_around_obstacles_using_semantic_ports"
       },
       {
         "end_line": 228,
@@ -12486,16 +12486,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/lib/system-browser.mjs:method:CdpPage.#finishRequest"
       },
       {
-        "end_line": 240,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 230,
-        "name": "test_loop_edges_choose_a_clear_lane_and_keep_the_arrow_visible",
-        "qualified_name": "tests.test_draw_editor.test_loop_edges_choose_a_clear_lane_and_keep_the_arrow_visible",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_loop_edges_choose_a_clear_lane_and_keep_the_arrow_visible"
-      },
-      {
         "end_line": 241,
         "file": "src/looper/setup.py",
         "kind": "function",
@@ -12504,6 +12494,16 @@
         "qualified_name": "looper.setup._read_json",
         "source": "python_ast",
         "symbol_id": "src/looper/setup.py:looper.setup._read_json"
+      },
+      {
+        "end_line": 241,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 231,
+        "name": "test_loop_edges_choose_a_clear_lane_and_keep_the_arrow_visible",
+        "qualified_name": "tests.test_draw_editor.test_loop_edges_choose_a_clear_lane_and_keep_the_arrow_visible",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_loop_edges_choose_a_clear_lane_and_keep_the_arrow_visible"
       },
       {
         "end_line": 241,
@@ -13337,16 +13337,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/lib/system-browser.mjs:method:CdpPage.on"
       },
       {
-        "end_line": 258,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 243,
-        "name": "test_loop_edges_use_distinct_lanes_when_returning_to_the_same_node",
-        "qualified_name": "tests.test_draw_editor.test_loop_edges_use_distinct_lanes_when_returning_to_the_same_node",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_loop_edges_use_distinct_lanes_when_returning_to_the_same_node"
-      },
-      {
         "end_line": 259,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/grounding.py",
         "kind": "function",
@@ -13365,6 +13355,16 @@
         "qualified_name": "looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.grounding._domain",
         "source": "python_ast",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/grounding.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.grounding._domain"
+      },
+      {
+        "end_line": 259,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 244,
+        "name": "test_loop_edges_use_distinct_lanes_when_returning_to_the_same_node",
+        "qualified_name": "tests.test_draw_editor.test_loop_edges_use_distinct_lanes_when_returning_to_the_same_node",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_loop_edges_use_distinct_lanes_when_returning_to_the_same_node"
       },
       {
         "end_line": 26,
@@ -13850,10 +13850,10 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/instagram.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.instagram._user_reels"
       },
       {
-        "end_line": 267,
+        "end_line": 268,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 261,
+        "line": 262,
         "name": "test_same_level_back_edges_enter_from_the_bottom_when_the_lane_is_below",
         "qualified_name": "tests.test_draw_editor.test_same_level_back_edges_enter_from_the_bottom_when_the_lane_is_below",
         "source": "python_ast",
@@ -14475,16 +14475,6 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_improvement_accepts_custom_answers_for_choice_and_boolean"
       },
       {
-        "end_line": 279,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 270,
-        "name": "test_longest_return_from_terminal_node_can_use_the_upper_lane",
-        "qualified_name": "tests.test_draw_editor.test_longest_return_from_terminal_node_can_use_the_upper_lane",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_longest_return_from_terminal_node_can_use_the_upper_lane"
-      },
-      {
         "end_line": 28,
         "file": ".agents/skills/system-design/open-design/design-templates/html-ppt/assets/animations/fx/particle-burst.js",
         "kind": "function",
@@ -14689,6 +14679,16 @@
         "qualified_name": "tests.test_static_analysis.test_convention_header_scanner_warns_without_blocking_for_invalid_headers",
         "source": "python_ast",
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_convention_header_scanner_warns_without_blocking_for_invalid_headers"
+      },
+      {
+        "end_line": 280,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 271,
+        "name": "test_longest_return_from_terminal_node_can_use_the_upper_lane",
+        "qualified_name": "tests.test_draw_editor.test_longest_return_from_terminal_node_can_use_the_upper_lane",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_longest_return_from_terminal_node_can_use_the_upper_lane"
       },
       {
         "end_line": 281,
@@ -15585,16 +15585,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/ui.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.ui._show_banner"
       },
       {
-        "end_line": 296,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 282,
-        "name": "test_return_edges_choose_the_clearest_upper_or_lower_corridor",
-        "qualified_name": "tests.test_draw_editor.test_return_edges_choose_the_clearest_upper_or_lower_corridor",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_return_edges_choose_the_clearest_upper_or_lower_corridor"
-      },
-      {
         "end_line": 297,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -15603,6 +15593,16 @@
         "qualified_name": "tests.test_draw.test_follow_up_improvement_session_can_use_only_needed_questions",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_follow_up_improvement_session_can_use_only_needed_questions"
+      },
+      {
+        "end_line": 297,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 283,
+        "name": "test_return_edges_choose_the_clearest_upper_or_lower_corridor",
+        "qualified_name": "tests.test_draw_editor.test_return_edges_choose_the_clearest_upper_or_lower_corridor",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_return_edges_choose_the_clearest_upper_or_lower_corridor"
       },
       {
         "end_line": 298,
@@ -16377,16 +16377,6 @@
       },
       {
         "end_line": 307,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 299,
-        "name": "test_alt_click_opens_the_same_detail_view_as_the_eye_action",
-        "qualified_name": "tests.test_draw_editor.test_alt_click_opens_the_same_detail_view_as_the_eye_action",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_alt_click_opens_the_same_detail_view_as_the_eye_action"
-      },
-      {
-        "end_line": 307,
         "file": "tests/test_static_analysis.py",
         "kind": "function",
         "line": 273,
@@ -16438,6 +16428,16 @@
         "signature": "async waitForNetworkIdle(timeoutMs)",
         "source": "typescript_compiler_api",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/lib/system-browser.mjs:method:CdpPage.waitForNetworkIdle"
+      },
+      {
+        "end_line": 308,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 300,
+        "name": "test_alt_click_opens_the_same_detail_view_as_the_eye_action",
+        "qualified_name": "tests.test_draw_editor.test_alt_click_opens_the_same_detail_view_as_the_eye_action",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_alt_click_opens_the_same_detail_view_as_the_eye_action"
       },
       {
         "end_line": 309,
@@ -17234,16 +17234,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/hatch-pet/scripts/extract_strip_frames.py:looper.templates.agents.system-design.open-design.skills.hatch-pet.scripts.extract_strip_frames.main"
       },
       {
-        "end_line": 319,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 310,
-        "name": "test_alt_click_also_changes_focus_inside_the_focus_canvas",
-        "qualified_name": "tests.test_draw_editor.test_alt_click_also_changes_focus_inside_the_focus_canvas",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_alt_click_also_changes_focus_inside_the_focus_canvas"
-      },
-      {
         "end_line": 32,
         "file": ".agents/skills/system-design/open-design/design-templates/html-ppt/assets/animations/fx/confetti-cannon.js",
         "kind": "function",
@@ -17574,6 +17564,16 @@
         "qualified_name": "tests.test_cli.test_php_adapter_reports_quality_metrics",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_php_adapter_reports_quality_metrics"
+      },
+      {
+        "end_line": 320,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 311,
+        "name": "test_alt_click_also_changes_focus_inside_the_focus_canvas",
+        "qualified_name": "tests.test_draw_editor.test_alt_click_also_changes_focus_inside_the_focus_canvas",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_alt_click_also_changes_focus_inside_the_focus_canvas"
       },
       {
         "end_line": 321,
@@ -18196,16 +18196,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/recon-site.mjs:function:scrollThroughPage"
       },
       {
-        "end_line": 334,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 322,
-        "name": "test_backlog_checklists_are_editable_on_the_node_toolbar",
-        "qualified_name": "tests.test_draw_editor.test_backlog_checklists_are_editable_on_the_node_toolbar",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_backlog_checklists_are_editable_on_the_node_toolbar"
-      },
-      {
         "end_line": 335,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/ui.py",
         "kind": "function",
@@ -18234,6 +18224,16 @@
         "qualified_name": "looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.ui.start_youtube",
         "source": "python_ast",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/ui.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.ui.start_youtube"
+      },
+      {
+        "end_line": 335,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 323,
+        "name": "test_backlog_checklists_are_editable_on_the_node_toolbar",
+        "qualified_name": "tests.test_draw_editor.test_backlog_checklists_are_editable_on_the_node_toolbar",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_backlog_checklists_are_editable_on_the_node_toolbar"
       },
       {
         "end_line": 336,
@@ -18852,10 +18852,10 @@
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_disabled_test_loop_delivers_only_implementation_tasks"
       },
       {
-        "end_line": 350,
+        "end_line": 351,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 337,
+        "line": 338,
         "name": "test_keyboard_shortcuts_connect_and_duplicate_selected_blocks",
         "qualified_name": "tests.test_draw_editor.test_keyboard_shortcuts_connect_and_duplicate_selected_blocks",
         "source": "python_ast",
@@ -19434,10 +19434,10 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/ui.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.ui.end_hackernews"
       },
       {
-        "end_line": 367,
+        "end_line": 368,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 353,
+        "line": 354,
         "name": "test_keyboard_shortcuts_copy_and_paste_nodes_as_json",
         "qualified_name": "tests.test_draw_editor.test_keyboard_shortcuts_copy_and_paste_nodes_as_json",
         "source": "python_ast",
@@ -20437,16 +20437,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/open-design-landing/scripts/compose.ts:function:renderLabs"
       },
       {
-        "end_line": 382,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 370,
-        "name": "test_editor_persists_pending_layout_and_deletions_until_save",
-        "qualified_name": "tests.test_draw_editor.test_editor_persists_pending_layout_and_deletions_until_save",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_persists_pending_layout_and_deletions_until_save"
-      },
-      {
         "end_line": 383,
         "file": ".agents/skills/system-design/open-design/skills/web-clone/scripts/lib/system-browser.mjs",
         "kind": "method",
@@ -20477,6 +20467,16 @@
         "qualified_name": "tests.test_draw.test_draw_questions_finds_only_open_looper_questions",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_questions_finds_only_open_looper_questions"
+      },
+      {
+        "end_line": 383,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 371,
+        "name": "test_editor_persists_pending_layout_and_deletions_until_save",
+        "qualified_name": "tests.test_draw_editor.test_editor_persists_pending_layout_and_deletions_until_save",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_persists_pending_layout_and_deletions_until_save"
       },
       {
         "end_line": 384,
@@ -21018,16 +21018,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-systems/_schema/manifest.schema.ts:function:expectNonEmptyString"
       },
       {
-        "end_line": 397,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 385,
-        "name": "test_editor_saves_structural_drafts_without_weakening_cli_validation",
-        "qualified_name": "tests.test_draw_editor.test_editor_saves_structural_drafts_without_weakening_cli_validation",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_saves_structural_drafts_without_weakening_cli_validation"
-      },
-      {
         "end_line": 398,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/html_render.py",
         "kind": "function",
@@ -21046,6 +21036,16 @@
         "qualified_name": "looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.html_render._strip_canonical_boundary",
         "source": "python_ast",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/html_render.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.html_render._strip_canonical_boundary"
+      },
+      {
+        "end_line": 398,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 386,
+        "name": "test_editor_saves_structural_drafts_without_weakening_cli_validation",
+        "qualified_name": "tests.test_draw_editor.test_editor_saves_structural_drafts_without_weakening_cli_validation",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_saves_structural_drafts_without_weakening_cli_validation"
       },
       {
         "end_line": 399,
@@ -21602,16 +21602,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/setup_wizard.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.setup_wizard.fetch_api_key"
       },
       {
-        "end_line": 409,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 400,
-        "name": "test_editor_discovers_draw_server_when_running_on_another_local_origin",
-        "qualified_name": "tests.test_draw_editor.test_editor_discovers_draw_server_when_running_on_another_local_origin",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_discovers_draw_server_when_running_on_another_local_origin"
-      },
-      {
         "end_line": 41,
         "file": ".agents/skills/system-design/open-design/design-templates/html-ppt/assets/animations/fx/constellation.js",
         "kind": "function",
@@ -21990,6 +21980,16 @@
         "signature": "_onSlotChange()",
         "source": "typescript_compiler_api",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/html-ppt-zhangzara-stencil-tablet/assets/deck-stage.js:method:DeckStage._onSlotChange"
+      },
+      {
+        "end_line": 410,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 401,
+        "name": "test_editor_discovers_draw_server_when_running_on_another_local_origin",
+        "qualified_name": "tests.test_draw_editor.test_editor_discovers_draw_server_when_running_on_another_local_origin",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_discovers_draw_server_when_running_on_another_local_origin"
       },
       {
         "end_line": 411,
@@ -22423,16 +22423,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/instagram.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.instagram.fetch_captions"
       },
       {
-        "end_line": 420,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 412,
-        "name": "test_editor_does_not_update_local_index_for_an_unchanged_drawing",
-        "qualified_name": "tests.test_draw_editor.test_editor_does_not_update_local_index_for_an_unchanged_drawing",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_does_not_update_local_index_for_an_unchanged_drawing"
-      },
-      {
         "end_line": 421,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/providers.py",
         "kind": "function",
@@ -22451,6 +22441,16 @@
         "qualified_name": "looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.providers._parse_sse_chunk",
         "source": "python_ast",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/providers.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.providers._parse_sse_chunk"
+      },
+      {
+        "end_line": 421,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 413,
+        "name": "test_editor_does_not_update_local_index_for_an_unchanged_drawing",
+        "qualified_name": "tests.test_draw_editor.test_editor_does_not_update_local_index_for_an_unchanged_drawing",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_does_not_update_local_index_for_an_unchanged_drawing"
       },
       {
         "end_line": 422,
@@ -23195,16 +23195,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/ui.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.ui.show_error"
       },
       {
-        "end_line": 439,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 423,
-        "name": "test_global_search_lists_draw_associations_without_diming_the_canvas",
-        "qualified_name": "tests.test_draw_editor.test_global_search_lists_draw_associations_without_diming_the_canvas",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_global_search_lists_draw_associations_without_diming_the_canvas"
-      },
-      {
         "end_line": 44,
         "file": ".agents/skills/system-design/open-design/design-templates/html-ppt/assets/animations/fx/sparkle-trail.js",
         "kind": "function",
@@ -23312,6 +23302,16 @@
         "signature": "function renderWorkCard(c: WorkCard, idx: number, assets: string, href: string): string",
         "source": "typescript_compiler_api",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/open-design-landing/scripts/compose.ts:function:renderWorkCard"
+      },
+      {
+        "end_line": 440,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 424,
+        "name": "test_global_search_lists_draw_associations_without_diming_the_canvas",
+        "qualified_name": "tests.test_draw_editor.test_global_search_lists_draw_associations_without_diming_the_canvas",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_global_search_lists_draw_associations_without_diming_the_canvas"
       },
       {
         "end_line": 441,
@@ -23836,16 +23836,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/lib/system-browser.mjs:function:BrowserRequestContext.<anonymous>"
       },
       {
-        "end_line": 452,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 442,
-        "name": "test_editor_retries_subdraw_in_backend_before_showing_local_storage_error",
-        "qualified_name": "tests.test_draw_editor.test_editor_retries_subdraw_in_backend_before_showing_local_storage_error",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_retries_subdraw_in_backend_before_showing_local_storage_error"
-      },
-      {
         "end_line": 453,
         "file": ".agents/skills/system-design/open-design/skills/web-clone/scripts/lib/system-browser.mjs",
         "kind": "method",
@@ -23866,6 +23856,16 @@
         "signature": "async get(url,",
         "source": "typescript_compiler_api",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/lib/system-browser.mjs:method:BrowserRequestContext.get"
+      },
+      {
+        "end_line": 453,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 443,
+        "name": "test_editor_retries_subdraw_in_backend_before_showing_local_storage_error",
+        "qualified_name": "tests.test_draw_editor.test_editor_retries_subdraw_in_backend_before_showing_local_storage_error",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_retries_subdraw_in_backend_before_showing_local_storage_error"
       },
       {
         "end_line": 454,
@@ -25061,10 +25061,10 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/open-design-landing/scripts/compose.ts:function:renderWork"
       },
       {
-        "end_line": 476,
+        "end_line": 477,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 455,
+        "line": 456,
         "name": "test_organize_button_clears_local_positions_without_changing_the_flow",
         "qualified_name": "tests.test_draw_editor.test_organize_button_clears_local_positions_without_changing_the_flow",
         "source": "python_ast",
@@ -25904,16 +25904,6 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_global_alias_can_explicitly_run_approved_suite"
       },
       {
-        "end_line": 498,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 479,
-        "name": "test_edge_conditions_keep_labels_separate_from_connection_colors",
-        "qualified_name": "tests.test_draw_editor.test_edge_conditions_keep_labels_separate_from_connection_colors",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_edge_conditions_keep_labels_separate_from_connection_colors"
-      },
-      {
         "end_line": 499,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/normalize.py",
         "kind": "function",
@@ -25952,6 +25942,16 @@
         "qualified_name": "tests.test_draw.test_draw_answer_reports_when_node_symbol_is_not_proven",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_answer_reports_when_node_symbol_is_not_proven"
+      },
+      {
+        "end_line": 499,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 480,
+        "name": "test_edge_conditions_keep_labels_separate_from_connection_colors",
+        "qualified_name": "tests.test_draw_editor.test_edge_conditions_keep_labels_separate_from_connection_colors",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_edge_conditions_keep_labels_separate_from_connection_colors"
       },
       {
         "end_line": 50,
@@ -26458,10 +26458,10 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/lib/system-browser.mjs:class:SystemBrowser"
       },
       {
-        "end_line": 512,
+        "end_line": 513,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 501,
+        "line": 502,
         "name": "test_runs_sidebar_uses_the_main_sidebar_scroll_only",
         "qualified_name": "tests.test_draw_editor.test_runs_sidebar_uses_the_main_sidebar_scroll_only",
         "source": "python_ast",
@@ -27354,16 +27354,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/polymarket.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.polymarket._compute_text_similarity"
       },
       {
-        "end_line": 526,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 515,
-        "name": "test_drawings_sidebar_uses_the_main_sidebar_scroll_only",
-        "qualified_name": "tests.test_draw_editor.test_drawings_sidebar_uses_the_main_sidebar_scroll_only",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_drawings_sidebar_uses_the_main_sidebar_scroll_only"
-      },
-      {
         "end_line": 527,
         "file": ".agents/skills/system-design/open-design/skills/web-clone/scripts/lib/system-browser.mjs",
         "kind": "function",
@@ -27384,6 +27374,16 @@
         "signature": "async function connectOverDaemon(",
         "source": "typescript_compiler_api",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/lib/system-browser.mjs:function:connectOverDaemon"
+      },
+      {
+        "end_line": 527,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 516,
+        "name": "test_drawings_sidebar_uses_the_main_sidebar_scroll_only",
+        "qualified_name": "tests.test_draw_editor.test_drawings_sidebar_uses_the_main_sidebar_scroll_only",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_drawings_sidebar_uses_the_main_sidebar_scroll_only"
       },
       {
         "end_line": 528,
@@ -28140,16 +28140,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/html-ppt-zhangzara-stencil-tablet/assets/deck-stage.js:method:DeckStage._onResize"
       },
       {
-        "end_line": 540,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 529,
-        "name": "test_shift_selection_keeps_neighbors_visible_while_ctrl_focuses_one_block",
-        "qualified_name": "tests.test_draw_editor.test_shift_selection_keeps_neighbors_visible_while_ctrl_focuses_one_block",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_shift_selection_keeps_neighbors_visible_while_ctrl_focuses_one_block"
-      },
-      {
         "end_line": 541,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/tiktok.py",
         "kind": "function",
@@ -28178,6 +28168,16 @@
         "qualified_name": "tests.test_cli.test_test_reports_static_analysis_unavailable_without_adapter",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_test_reports_static_analysis_unavailable_without_adapter"
+      },
+      {
+        "end_line": 541,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 530,
+        "name": "test_shift_selection_keeps_neighbors_visible_while_ctrl_focuses_one_block",
+        "qualified_name": "tests.test_draw_editor.test_shift_selection_keeps_neighbors_visible_while_ctrl_focuses_one_block",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_shift_selection_keeps_neighbors_visible_while_ctrl_focuses_one_block"
       },
       {
         "end_line": 542,
@@ -28878,16 +28878,6 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_replaces_current_json_without_history"
       },
       {
-        "end_line": 552,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 543,
-        "name": "test_shift_click_appends_to_a_normal_first_selection",
-        "qualified_name": "tests.test_draw_editor.test_shift_click_appends_to_a_normal_first_selection",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_shift_click_appends_to_a_normal_first_selection"
-      },
-      {
         "end_line": 553,
         "file": ".agents/skills/system-design/open-design/design-templates/hyperframes/scripts/animation-map.mjs",
         "kind": "function",
@@ -28938,6 +28928,16 @@
         "qualified_name": "looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.html_render._protect_engine_footers",
         "source": "python_ast",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/html_render.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.html_render._protect_engine_footers"
+      },
+      {
+        "end_line": 553,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 544,
+        "name": "test_shift_click_appends_to_a_normal_first_selection",
+        "qualified_name": "tests.test_draw_editor.test_shift_click_appends_to_a_normal_first_selection",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_shift_click_appends_to_a_normal_first_selection"
       },
       {
         "end_line": 554,
@@ -29556,16 +29556,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/lib/system-browser.mjs:function:launchSystemBrowser"
       },
       {
-        "end_line": 565,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 555,
-        "name": "test_selected_blocks_have_an_explicit_visual_state",
-        "qualified_name": "tests.test_draw_editor.test_selected_blocks_have_an_explicit_visual_state",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_selected_blocks_have_an_explicit_visual_state"
-      },
-      {
         "end_line": 566,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/pipeline.py",
         "kind": "function",
@@ -29584,6 +29574,16 @@
         "qualified_name": "looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.pipeline._is_rate_limit_error",
         "source": "python_ast",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/pipeline.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.pipeline._is_rate_limit_error"
+      },
+      {
+        "end_line": 566,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 556,
+        "name": "test_selected_blocks_have_an_explicit_visual_state",
+        "qualified_name": "tests.test_draw_editor.test_selected_blocks_have_an_explicit_visual_state",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_selected_blocks_have_an_explicit_visual_state"
       },
       {
         "end_line": 569,
@@ -29860,16 +29860,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/planner.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.planner._should_force_deterministic_plan"
       },
       {
-        "end_line": 577,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 568,
-        "name": "test_space_creates_an_instant_block_without_interrupting_text_fields",
-        "qualified_name": "tests.test_draw_editor.test_space_creates_an_instant_block_without_interrupting_text_fields",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_space_creates_an_instant_block_without_interrupting_text_fields"
-      },
-      {
         "end_line": 578,
         "file": "tests/test_cli.py",
         "kind": "function",
@@ -29878,6 +29868,16 @@
         "qualified_name": "tests.test_cli.test_test_cli_blocks_draw_node_without_associated_symbol",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_test_cli_blocks_draw_node_without_associated_symbol"
+      },
+      {
+        "end_line": 578,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 569,
+        "name": "test_space_creates_an_instant_block_without_interrupting_text_fields",
+        "qualified_name": "tests.test_draw_editor.test_space_creates_an_instant_block_without_interrupting_text_fields",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_space_creates_an_instant_block_without_interrupting_text_fields"
       },
       {
         "end_line": 579,
@@ -31040,10 +31040,10 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/html_render.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.html_render.code_replace"
       },
       {
-        "end_line": 606,
+        "end_line": 607,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 580,
+        "line": 581,
         "name": "test_v_opens_question_editor_from_the_block_and_footer_documents_it",
         "qualified_name": "tests.test_draw_editor.test_v_opens_question_editor_from_the_block_and_footer_documents_it",
         "source": "python_ast",
@@ -32367,10 +32367,10 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/open-design-landing/scripts/compose.ts:function:renderFooter"
       },
       {
-        "end_line": 621,
+        "end_line": 622,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 609,
+        "line": 610,
         "name": "test_question_textareas_keep_normal_text_visible_and_highlight_mentions_only_when_needed",
         "qualified_name": "tests.test_draw_editor.test_question_textareas_keep_normal_text_visible_and_highlight_mentions_only_when_needed",
         "source": "python_ast",
@@ -32631,10 +32631,10 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/youtube_yt.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.youtube_yt._total_engagement"
       },
       {
-        "end_line": 633,
+        "end_line": 634,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 624,
+        "line": 625,
         "name": "test_black_theme_is_default_and_test_checklist_uses_red_orange_accent",
         "qualified_name": "tests.test_draw_editor.test_black_theme_is_default_and_test_checklist_uses_red_orange_accent",
         "source": "python_ast",
@@ -32842,10 +32842,10 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_test_compacts_static_analysis_output_but_preserves_structured_report"
       },
       {
-        "end_line": 646,
+        "end_line": 647,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 636,
+        "line": 637,
         "name": "test_node_question_counts_use_answer_state_colors",
         "qualified_name": "tests.test_draw_editor.test_node_question_counts_use_answer_state_colors",
         "source": "python_ast",
@@ -33067,16 +33067,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/planner.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.planner._max_subqueries"
       },
       {
-        "end_line": 657,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 649,
-        "name": "test_dialog_content_inherits_theme_text_color_on_dark_backgrounds",
-        "qualified_name": "tests.test_draw_editor.test_dialog_content_inherits_theme_text_color_on_dark_backgrounds",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_dialog_content_inherits_theme_text_color_on_dark_backgrounds"
-      },
-      {
         "end_line": 658,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/html_render.py",
         "kind": "function",
@@ -33117,6 +33107,16 @@
         "signature": "function footStrip(idx: number, total: number, brand: OpenDesignLandingDeckInputs['brand']): string",
         "source": "typescript_compiler_api",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/open-design-landing-deck/scripts/compose.ts:function:footStrip"
+      },
+      {
+        "end_line": 658,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 650,
+        "name": "test_dialog_content_inherits_theme_text_color_on_dark_backgrounds",
+        "qualified_name": "tests.test_draw_editor.test_dialog_content_inherits_theme_text_color_on_dark_backgrounds",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_dialog_content_inherits_theme_text_color_on_dark_backgrounds"
       },
       {
         "end_line": 659,
@@ -33813,16 +33813,6 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_rejects_dangling_edges_without_writing"
       },
       {
-        "end_line": 680,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 660,
-        "name": "test_static_analysis_sidebar_uses_clear_labels_and_one_theme_scroll",
-        "qualified_name": "tests.test_draw_editor.test_static_analysis_sidebar_uses_clear_labels_and_one_theme_scroll",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_static_analysis_sidebar_uses_clear_labels_and_one_theme_scroll"
-      },
-      {
         "end_line": 681,
         "file": "src/looper/backlog.py",
         "kind": "function",
@@ -33841,6 +33831,16 @@
         "qualified_name": "tests.test_cli.test_test_executes_fake_static_analysis_adapter",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_test_executes_fake_static_analysis_adapter"
+      },
+      {
+        "end_line": 681,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 661,
+        "name": "test_static_analysis_sidebar_uses_clear_labels_and_one_theme_scroll",
+        "qualified_name": "tests.test_draw_editor.test_static_analysis_sidebar_uses_clear_labels_and_one_theme_scroll",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_static_analysis_sidebar_uses_clear_labels_and_one_theme_scroll"
       },
       {
         "end_line": 685,
@@ -34385,10 +34385,10 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/reddit.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.reddit.parse_reddit_response"
       },
       {
-        "end_line": 704,
+        "end_line": 705,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 683,
+        "line": 684,
         "name": "test_static_analysis_indicators_support_dragging_and_occurrence_evidence",
         "qualified_name": "tests.test_draw_editor.test_static_analysis_indicators_support_dragging_and_occurrence_evidence",
         "source": "python_ast",
@@ -34615,10 +34615,10 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/dedupe.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.dedupe.token_jaccard"
       },
       {
-        "end_line": 720,
+        "end_line": 721,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 707,
+        "line": 708,
         "name": "test_static_analysis_classifies_files_by_selected_indicator",
         "qualified_name": "tests.test_draw_editor.test_static_analysis_classifies_files_by_selected_indicator",
         "source": "python_ast",
@@ -34871,16 +34871,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/render.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.render._render_entity_evidence_block"
       },
       {
-        "end_line": 735,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 723,
-        "name": "test_static_analysis_breakdown_findings_are_the_file_drilldown_items",
-        "qualified_name": "tests.test_draw_editor.test_static_analysis_breakdown_findings_are_the_file_drilldown_items",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_static_analysis_breakdown_findings_are_the_file_drilldown_items"
-      },
-      {
         "end_line": 736,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/store.py",
         "kind": "function",
@@ -34921,6 +34911,16 @@
         "signature": "function renderQuote(s: QuoteSlide, assets: string): string",
         "source": "typescript_compiler_api",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/open-design-landing-deck/scripts/compose.ts:function:renderQuote"
+      },
+      {
+        "end_line": 736,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 724,
+        "name": "test_static_analysis_breakdown_findings_are_the_file_drilldown_items",
+        "qualified_name": "tests.test_draw_editor.test_static_analysis_breakdown_findings_are_the_file_drilldown_items",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_static_analysis_breakdown_findings_are_the_file_drilldown_items"
       },
       {
         "end_line": 74,
@@ -35073,10 +35073,10 @@
         "symbol_id": "src/looper/cli.py:looper.cli.backlog_generate"
       },
       {
-        "end_line": 750,
+        "end_line": 751,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 738,
+        "line": 739,
         "name": "test_editor_uses_only_curved_edges_and_shows_shortcut_footer",
         "qualified_name": "tests.test_draw_editor.test_editor_uses_only_curved_edges_and_shows_shortcut_footer",
         "source": "python_ast",
@@ -35319,16 +35319,6 @@
         "symbol_id": "src/looper/static_analysis.py:looper.static_analysis.write_static_analysis_kpis"
       },
       {
-        "end_line": 761,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 753,
-        "name": "test_focus_view_connects_incoming_arrows_to_the_left_back_of_nodes",
-        "qualified_name": "tests.test_draw_editor.test_focus_view_connects_incoming_arrows_to_the_left_back_of_nodes",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_focus_view_connects_incoming_arrows_to_the_left_back_of_nodes"
-      },
-      {
         "end_line": 762,
         "file": "tests/test_backlog.py",
         "kind": "function",
@@ -35337,6 +35327,16 @@
         "qualified_name": "tests.test_backlog.test_loop_instructions_are_injected_in_natural_language_for_every_task",
         "source": "python_ast",
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_loop_instructions_are_injected_in_natural_language_for_every_task"
+      },
+      {
+        "end_line": 762,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 754,
+        "name": "test_focus_view_connects_incoming_arrows_to_the_left_back_of_nodes",
+        "qualified_name": "tests.test_draw_editor.test_focus_view_connects_incoming_arrows_to_the_left_back_of_nodes",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_focus_view_connects_incoming_arrows_to_the_left_back_of_nodes"
       },
       {
         "end_line": 763,
@@ -35716,16 +35716,6 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_level_two_contract_allows_missing_code_refs_before_implementation"
       },
       {
-        "end_line": 785,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 764,
-        "name": "test_focus_view_keeps_curves_except_for_mutual_orthogonal_loops",
-        "qualified_name": "tests.test_draw_editor.test_focus_view_keeps_curves_except_for_mutual_orthogonal_loops",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_focus_view_keeps_curves_except_for_mutual_orthogonal_loops"
-      },
-      {
         "end_line": 786,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/polymarket.py",
         "kind": "function",
@@ -35744,6 +35734,16 @@
         "qualified_name": "looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.polymarket.parse_polymarket_response",
         "source": "python_ast",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/polymarket.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.polymarket.parse_polymarket_response"
+      },
+      {
+        "end_line": 786,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 765,
+        "name": "test_focus_view_keeps_curves_except_for_mutual_orthogonal_loops",
+        "qualified_name": "tests.test_draw_editor.test_focus_view_keeps_curves_except_for_mutual_orthogonal_loops",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_focus_view_keeps_curves_except_for_mutual_orthogonal_loops"
       },
       {
         "end_line": 787,
@@ -35882,10 +35882,10 @@
         "symbol_id": "src/looper/cli.py:looper.cli.backlog_frontend"
       },
       {
-        "end_line": 796,
+        "end_line": 797,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 788,
+        "line": 789,
         "name": "test_focus_view_canvas_follows_dark_theme_background",
         "qualified_name": "tests.test_draw_editor.test_focus_view_canvas_follows_dark_theme_background",
         "source": "python_ast",
@@ -36297,10 +36297,10 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/github.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.github._enrich_project_repo"
       },
       {
-        "end_line": 817,
+        "end_line": 818,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 799,
+        "line": 800,
         "name": "test_logical_save_is_manual_but_positions_use_presentation_cache",
         "qualified_name": "tests.test_draw_editor.test_logical_save_is_manual_but_positions_use_presentation_cache",
         "source": "python_ast",
@@ -36532,10 +36532,10 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/last30days.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.last30days._competitor_runner"
       },
       {
-        "end_line": 831,
+        "end_line": 832,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 820,
+        "line": 821,
         "name": "test_draw_editor_polls_revision_and_preserves_unsaved_changes",
         "qualified_name": "tests.test_draw_editor.test_draw_editor_polls_revision_and_preserves_unsaved_changes",
         "source": "python_ast",
@@ -36917,10 +36917,10 @@
         "symbol_id": "src/looper/backlog.py:looper.backlog._child_checklist_id"
       },
       {
-        "end_line": 864,
+        "end_line": 865,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 834,
+        "line": 835,
         "name": "test_draw_editor_observer_follows_current_implementation_without_editing",
         "qualified_name": "tests.test_draw_editor.test_draw_editor_observer_follows_current_implementation_without_editing",
         "source": "python_ast",
@@ -37206,10 +37206,10 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/hatch-pet/scripts/inspect_frames.py:looper.templates.agents.system-design.open-design.skills.hatch-pet.scripts.inspect_frames.load_manifest"
       },
       {
-        "end_line": 880,
+        "end_line": 881,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 867,
+        "line": 868,
         "name": "test_draw_editor_exposes_optional_node_negative_spec",
         "qualified_name": "tests.test_draw_editor.test_draw_editor_exposes_optional_node_negative_spec",
         "source": "python_ast",
@@ -37471,10 +37471,10 @@
         "symbol_id": "src/looper/cli.py:looper.cli.backlog_change"
       },
       {
-        "end_line": 901,
+        "end_line": 902,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 883,
+        "line": 884,
         "name": "test_custom_node_exposes_negative_spec_indicator_when_configured",
         "qualified_name": "tests.test_draw_editor.test_custom_node_exposes_negative_spec_indicator_when_configured",
         "source": "python_ast",
@@ -37686,10 +37686,10 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_runs_apply_current_gitignore_to_previous_snapshot_in_real_time"
       },
       {
-        "end_line": 913,
+        "end_line": 914,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
-        "line": 904,
+        "line": 905,
         "name": "test_manual_save_button_persists_the_logical_contract",
         "qualified_name": "tests.test_draw_editor.test_manual_save_button_persists_the_logical_contract",
         "source": "python_ast",
@@ -38585,16 +38585,6 @@
         "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_answer_owns_question_discovery_and_codebase_traceability"
       },
       {
-        "end_line": 966,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 916,
-        "name": "test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal",
-        "qualified_name": "tests.test_draw_editor.test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal"
-      },
-      {
         "end_line": 967,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/youtube_yt.py",
         "kind": "function",
@@ -38613,6 +38603,16 @@
         "qualified_name": "looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.youtube_yt._sc_fetch_transcript",
         "source": "python_ast",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/youtube_yt.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.youtube_yt._sc_fetch_transcript"
+      },
+      {
+        "end_line": 967,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 917,
+        "name": "test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal",
+        "qualified_name": "tests.test_draw_editor.test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_runs_are_available_in_the_sidebar_with_a_brazilian_summary_modal"
       },
       {
         "end_line": 968,
@@ -38837,16 +38837,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/render.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.render._render_candidate"
       },
       {
-        "end_line": 986,
-        "file": "tests/test_draw_editor.py",
-        "kind": "function",
-        "line": 969,
-        "name": "test_blocks_use_groups_instead_of_structural_types",
-        "qualified_name": "tests.test_draw_editor.test_blocks_use_groups_instead_of_structural_types",
-        "source": "python_ast",
-        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_blocks_use_groups_instead_of_structural_types"
-      },
-      {
         "end_line": 987,
         "file": "src/looper/backlog.py",
         "kind": "function",
@@ -38855,6 +38845,16 @@
         "qualified_name": "looper.backlog._branch_occurrence",
         "source": "python_ast",
         "symbol_id": "src/looper/backlog.py:looper.backlog._branch_occurrence"
+      },
+      {
+        "end_line": 987,
+        "file": "tests/test_draw_editor.py",
+        "kind": "function",
+        "line": 970,
+        "name": "test_blocks_use_groups_instead_of_structural_types",
+        "qualified_name": "tests.test_draw_editor.test_blocks_use_groups_instead_of_structural_types",
+        "source": "python_ast",
+        "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_blocks_use_groups_instead_of_structural_types"
       },
       {
         "end_line": 99,

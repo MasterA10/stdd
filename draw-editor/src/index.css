@@ -321,7 +321,7 @@ body:has(.improvement-dialog) { overflow: hidden; }
 
 .global-questions-trigger {
   position: absolute;
-  left: 18px;
+  left: 76px;
   bottom: 18px;
   z-index: 30;
   display: inline-flex;

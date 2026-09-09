@@ -182,6 +182,7 @@ def test_draw_editor_exposes_global_questions_inventory_for_all_nodes():
     for required in ("Perguntas do sistema", "Varrendo todos os Draws", "onOpenNode", "unanswered"):
         assert required in modal
     assert "all-answered" in app
+    assert "globalUnansweredQuestions}</span>" in app
     for required in (".global-questions-trigger", ".global-questions-trigger.all-answered", ".global-question-list"):
         assert required in styles
     assert "<main className=\"workspace\">" in app

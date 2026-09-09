@@ -2705,7 +2705,7 @@ export const App: React.FC = () => {
             aria-label={`Ver perguntas de todos os nós. ${globalUnansweredQuestions} sem resposta.`}
           >
             <CircleHelp size={16} />
-            <span className="global-questions-trigger-count">{globalQuestions.length}</span>
+            <span className="global-questions-trigger-count">{globalUnansweredQuestions}</span>
             <span>Perguntas</span>
           </button>
         </main>
