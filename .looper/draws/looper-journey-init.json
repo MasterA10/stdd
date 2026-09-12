@@ -45,7 +45,7 @@
       "id": 2,
       "label": "Criar configuração e estado",
       "group": 2,
-      "description": "Cria .looper/config.yaml, runs, features, draws e regras de gitignore.",
+      "description": "Cria .looper/config.yaml, runs, features e regras de gitignore. A migração de referências legadas preserva arquivos protegidos ou inacessíveis e ignora dependências externas conhecidas sem interromper a inicialização.",
       "code_refs": [
         {
           "file": "src/looper/setup.py",
@@ -54,6 +54,20 @@
         {
           "file": "src/looper/core.py",
           "symbol": "looper.core.looper_dir"
+        },
+        {
+          "symbol": "looper.core.migrate_legacy_project",
+          "source_dependencies": [
+            "looper.core.init_project"
+          ]
+        }
+      ],
+      "changes": [
+        {
+          "id": 0,
+          "prompt": "Durante a migração de referências legadas no init, percorra somente arquivos do projeto e trate falhas de permissão na escrita sem interromper a inicialização; arquivos protegidos ou inacessíveis devem ser preservados.",
+          "status": "pending",
+          "source": "review"
         }
       ]
     },
@@ -61,7 +75,7 @@
       "id": 3,
       "label": "Instalar skills e instruções",
       "group": 2,
-      "description": "Copia templates atuais e recursos auxiliares, mantendo a skill mock-server com pesquisa oficial obrigatória, convenção específica por provedor, ordem explícita das chamadas, pré-condições entre recursos, ativação de webhooks e recebimento validado; arquivos SKILL.md internos do Open Design são copiados como SKILL-secondary.md para busca explícita sem registro automático. Cria .agents/conventions/README.md sem sobrescrever convenções do projeto e atualiza AGENTS.md. Arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O contrato de instruções mantém o AGENTS.md curto, orienta a leitura da convenção relevante e exige Draws vivos e atualizados.",
+      "description": "Copia e sincroniza sempre os templates atuais e os recursos auxiliares, mantendo a skill mock-server com pesquisa oficial obrigatória, convenção específica por provedor, ordem explícita das chamadas, pré-condições entre recursos, ativação de webhooks e recebimento validado; arquivos SKILL.md internos do Open Design são distribuídos como SKILL-secondary.md para busca explícita sem registro automático, inclusive em projetos já inicializados. Cria .agents/conventions/README.md sem sobrescrever convenções do projeto e atualiza AGENTS.md. Arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O contrato de instruções mantém o AGENTS.md curto, orienta a leitura da convenção relevante e exige Draws vivos e atualizados.",
       "code_refs": [
         {
           "file": "src/looper/core.py",
@@ -70,6 +84,14 @@
             "looper.core.agent_templates",
             "looper.core.ensure_agent_conventions"
           ]
+        }
+      ],
+      "changes": [
+        {
+          "id": 0,
+          "prompt": "A instalação deve sincronizar sempre toda a biblioteca Open Design, mesmo quando o destino já possui craft; recursos SKILL-secondary.md novos ou atualizados devem ser copiados em execuções posteriores, mantendo SKILL.md internos fora do registro de skills.",
+          "status": "pending",
+          "source": "review"
         }
       ]
     },

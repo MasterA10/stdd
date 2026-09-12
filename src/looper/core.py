@@ -67,6 +67,8 @@ LEGACY_MIGRATION_IGNORED_PARTS = {
     "tests",
     "src",
     ".agents",
+    "Pods",
+    "DerivedData",
 }
 LEGACY_MIGRATION_IGNORED_FILES = {".env", ".env.local", ".env.production", ".env.development"}
 
@@ -195,7 +197,13 @@ def migrate_legacy_project(root: Path) -> list[Path]:
             continue
         updated = LEGACY_REFERENCE_PATTERN.sub(_replace_legacy_reference, text)
         if updated != text:
-            path.write_text(updated, encoding="utf-8")
+            try:
+                path.write_text(updated, encoding="utf-8")
+            except OSError:
+                # A project can contain dependencies or artifacts that are
+                # readable but intentionally not writable. Legacy migration
+                # must preserve those files and let init continue.
+                continue
             _append_unique(changed, path)
     return changed
 
@@ -609,10 +617,12 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
             open_design_source = source.parent / "open-design"
             if open_design_source.is_dir():
                 open_design_target = skill_dir / name / "open-design"
-                if not (open_design_target / "craft").is_dir():
-                    shutil.copytree(open_design_source, open_design_target, dirs_exist_ok=True)
-                    if open_design_target not in created:
-                        created.append(open_design_target)
+                # The resource library is versioned independently from the
+                # primary skill. Always sync it so a later package release
+                # can add or update SKILL-secondary.md in an existing project.
+                shutil.copytree(open_design_source, open_design_target, dirs_exist_ok=True)
+                if open_design_target not in created:
+                    created.append(open_design_target)
                 for legacy_skill in open_design_target.rglob("SKILL.md"):
                     secondary_resource = legacy_skill.with_name("SKILL-secondary.md")
                     if secondary_resource.exists():

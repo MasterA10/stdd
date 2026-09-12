@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "date": "2026-09-12",
+  "runs": [
+    {
+      "run_id": "97f21acabe03442db79391ea5b33455f",
+      "timestamp": "2026-09-12T17:30:48.046503+00:00",
+      "description": "Corrige sincronização de skills secundárias no init e migração segura de arquivos protegidos",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 68,
+        "lines_deleted": 8,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 24,
+        "lines_deleted": 2,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "ee44815261394af7bc4cd426fb88fd34",
+      "timestamp": "2026-09-12T17:30:54.037403+00:00",
+      "description": "Valida skills secundárias em instalações existentes e migração sem PermissionError",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    }
+  ],
+  "run_count": 2,
+  "last_run_id": "ee44815261394af7bc4cd426fb88fd34"
+}

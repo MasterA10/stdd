@@ -8,7 +8,7 @@ import pytest
 from typer.testing import CliRunner
 
 from looper.cli import app
-from looper.core import agent_templates, init_project
+from looper.core import agent_templates, init_project, migrate_legacy_project
 
 
 runner = CliRunner()
@@ -117,6 +117,36 @@ def test_init_migrates_legacy_looper_state_and_text_references(tmp_path: Path):
     assert "STDD managed rules" not in (tmp_path / ".gitignore").read_text(encoding="utf-8")
 
 
+def test_legacy_migration_skips_unwritable_and_dependency_files(tmp_path: Path, monkeypatch):
+    """Não interrompe o init ao encontrar arquivos legíveis, mas protegidos.
+    Dependências nativas como Pods também ficam fora da migração textual.
+    """
+    protected = tmp_path / "docs/protected.md"
+    protected.parent.mkdir()
+    protected.write_text("Use stdd aqui.\n", encoding="utf-8")
+    dependency = tmp_path / "ios/Pods/ReactNativeDependencies/Headers/boost/static_assert.hpp"
+    dependency.parent.mkdir(parents=True)
+    dependency.write_text("stdd dependency\n", encoding="utf-8")
+
+    original_write_text = Path.write_text
+
+    def refuse_protected(path: Path, *args, **kwargs):
+        """Simula a recusa de escrita em um arquivo do projeto.
+        Permite que os demais arquivos sigam o fluxo original.
+        """
+        if path == protected:
+            raise PermissionError("arquivo protegido")
+        return original_write_text(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "write_text", refuse_protected)
+
+    changed = migrate_legacy_project(tmp_path)
+
+    assert protected not in changed
+    assert protected.read_text(encoding="utf-8") == "Use stdd aqui.\n"
+    assert dependency.read_text(encoding="utf-8") == "stdd dependency\n"
+
+
 def test_init_always_synchronizes_existing_agent_skills(tmp_path: Path):
     """Atualiza skills já instaladas sempre que o init é executado.
     Confirma que uma versão antiga recebe o template atual sem opção adicional.
@@ -131,7 +161,9 @@ def test_init_always_synchronizes_existing_agent_skills(tmp_path: Path):
 
 
 def test_open_design_internal_skills_are_searchable_resources_only(tmp_path: Path):
-    """Mantém recursos internos do Open Design fora do registro automático de skills."""
+    """Mantém recursos internos do Open Design fora do registro automático.
+    Confere a origem e o destino depois da inicialização.
+    """
     source_root = Path("src/looper/templates/agents/system-design/open-design")
     source_skills = sorted(source_root.rglob("SKILL-secondary.md"))
 
@@ -146,8 +178,26 @@ def test_open_design_internal_skills_are_searchable_resources_only(tmp_path: Pat
     assert not list(installed_root.rglob("SKILL.md"))
 
 
+def test_init_syncs_new_open_design_secondary_resources_on_existing_install(tmp_path: Path):
+    """Atualiza a biblioteca secundária em instalações existentes.
+    Remove um recurso e confirma que o init o restaura com craft presente.
+    """
+    init_project(tmp_path)
+    installed_root = tmp_path / ".agents/skills/system-design/open-design"
+    existing_secondary = next(installed_root.rglob("SKILL-secondary.md"))
+    existing_secondary.unlink()
+    assert (installed_root / "craft").is_dir()
+
+    init_project(tmp_path)
+
+    assert existing_secondary.exists()
+    assert not list(installed_root.rglob("SKILL.md"))
+
+
 def test_init_migrates_identifiable_open_design_resources(tmp_path: Path):
-    """Remove nomes antigos de recursos internos ao sincronizar um projeto existente."""
+    """Remove nomes antigos de recursos internos durante a sincronização.
+    Confirma que SKILL.md legado não permanece registrado no destino.
+    """
     legacy = tmp_path / ".agents/skills/system-design/open-design/example/SKILL.md"
     resource = legacy.with_name("SKILL-secondary.md")
     resource.parent.mkdir(parents=True)

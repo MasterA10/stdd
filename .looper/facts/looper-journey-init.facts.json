@@ -43,9 +43,19 @@
           "file": "src/looper/core.py",
           "kind": "function",
           "source": "python_ast"
+        },
+        {
+          "symbol": "looper.core.migrate_legacy_project",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/core.py",
+          "kind": "function",
+          "source": "python_ast"
         }
       ],
-      "source_dependencies": [],
+      "source_dependencies": [
+        "looper.core.init_project"
+      ],
       "files": [
         "src/looper/core.py",
         "src/looper/setup.py"
