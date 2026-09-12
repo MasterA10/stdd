@@ -169,8 +169,50 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "692bf3bb34364535bccb92eda0284ff2",
+      "timestamp": "2026-09-12T19:39:03.394616+00:00",
+      "description": "Altera a orquestração para TUI nativa do Herdr com entrega final em artefato",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 8,
+        "lines_deleted": 6,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 7,
+        "lines_deleted": 1,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "fcac606ce9f24ed9af16ff4c66e16fd9",
+      "timestamp": "2026-09-12T19:39:09.448223+00:00",
+      "description": "Valida fronteira de contexto sem leitura incremental de panes",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 8,
-  "last_run_id": "d57dcdcebe8f4138a45ebfd9fe3a2a8e"
+  "run_count": 10,
+  "last_run_id": "fcac606ce9f24ed9af16ff4c66e16fd9"
 }

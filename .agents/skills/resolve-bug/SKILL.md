@@ -21,9 +21,9 @@ O usuário autoriza o uso de subagente ao solicitar esta skill. Execute todo sub
 via `herdr` (modo nativo de agentes); não use outro mecanismo de delegação. Preserve o workspace e
 não faça commit ou push como parte desta skill.
 
-> **Padrão de modo**: Execute por padrão no modo direto/headless dentro de uma pane visível do Herdr, para que o usuário acompanhe a execução sem a sobrecarga da TUI. Só use o modo interativo quando o usuário pedir explicitamente navegação visual ou intervenção manual. Se houver dúvida real sobre a necessidade de interação, confirme antes de disparar:
-> 1. **Modo Interativo (Janela interativa / TUI completa)**: Inicia o agente no pane com a TUI viva (`herdr agent start ... -- <flags-yolo>`), permitindo ver atalhos, barra de status e intervir/navegar como um humano.
-> 2. **Modo Direto / Resposta Limpa (Headless no Pane)**: Abre o pane para visibilidade, mas executa o agente no modo direto headless (`agy -p ... --dangerously-skip-permissions` ou `codex exec --yolo ...`), sem o peso visual da TUI, focando na entrega direta e limpa do diagnóstico/plano.
+> **Padrão de modo**: Execute por padrão com a TUI nativa do Herdr dentro de uma pane visível, usando os próprios agentes, hooks e ciclo de vida. O agente principal não deve ler `herdr agent read`, `pane read`, scrollback ou output intermediário. Instrua o subagente a gravar o diagnóstico/plano final em um arquivo Markdown e leia somente esse artefato após o estado final.
+> 1. **Modo Interativo (Janela interativa / TUI completa, padrão)**: Inicia o agente no pane com a TUI viva (`herdr agent start ... -- <flags-yolo>`), permitindo acompanhar o processo e usar os hooks nativos sem importar o contexto interno para a sessão principal.
+> 2. **Modo Direto / Resposta Limpa (Headless no Pane, exceção)**: Só use quando o usuário ou o contrato pedir headless; execute `agy -p ... --dangerously-skip-permissions` ou `codex exec ...` na pane e grave a resposta final em arquivo.
 >
 > Em ambos os modos, nunca esqueça de rodar em modo YOLO (`--yolo` no Codex, `--dangerously-skip-permissions` no Agy).
 
@@ -31,6 +31,9 @@ não faça commit ou push como parte desta skill.
    relacionado (`looper draw context`) e localize arquivos e símbolos reais. Se o
    pedido for vago, registre o que foi observado e a pré-condição ausente.
 2. Delegue ao subagente a investigação inicial e a avaliação da observabilidade.
+   Instrua-o a manter leituras e pesquisas dentro da própria sessão e a não
+   despejar resumos na conversa; o resultado dessa etapa deve ser salvo em um
+   Markdown final para leitura única do agente principal.
    Se o bug não for
    rastreável, identifique as funções envolvidas e a stack trace percorrida e confira
    se os eventos, entradas, saídas, falhas e correlação necessários estão sendo
@@ -46,8 +49,8 @@ não faça commit ou push como parte desta skill.
    aprovada, delegue ao subagente sua execução, reproduza o bug, examine os eventos
    gerados e peça a atualização da análise. Só mantenha logs novos que sejam claros,
    úteis e relacionados ao caminho do bug.
-4. Delegue ao subagente a análise consolidada e a criação do plano de correção. O
-   relatório deve conter sintoma, passos de reprodução, evidência da causa-raiz,
+4. Delegue ao subagente a análise consolidada e a criação do plano de correção,
+   exigindo um arquivo Markdown final. O relatório deve conter sintoma, passos de reprodução, evidência da causa-raiz,
    arquivos e `qualified_name` afetados, logs relevantes, correção mínima, testes,
    impactos nos Draws e uma avaliação de possível convenção reutilizável. O
    subagente não deve implementar a correção nesta fase.
@@ -61,10 +64,12 @@ não faça commit ou push como parte desta skill.
    critérios de aceite. A execução deve alterar código e testes reais quando
    aplicável, atualizar o Draw antes de uma mudança de comportamento conforme as
    regras do projeto e associar os símbolos reais aos nós afetados.
-6. Revise o diff produzido, confira se não há mudanças fora do escopo, confirme a
-   correção no caminho real e execute a suíte mais específica, análise estática
-   aplicável e `looper test`. Falhas são bloqueios; não force resultados nem edite
-   testes aprovados apenas para obter verde.
+6. Aguarde somente o estado de ciclo de vida do Herdr, sem ler output incremental.
+   Leia o arquivo Markdown final uma única vez, revise o diff produzido, confira
+   se não há mudanças fora do escopo, confirme a correção no caminho real e
+   execute a suíte mais específica, análise estática aplicável e `looper test`.
+   Falhas são bloqueios; não force resultados nem edite testes aprovados apenas
+   para obter verde.
 
 ## Draws e convenções
 

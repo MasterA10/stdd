@@ -103,10 +103,40 @@
       "timestamp": "2026-09-12T18:47:13.343854+00:00",
       "files": [],
       "draws": []
+    },
+    {
+      "run_id": "692bf3bb34364535bccb92eda0284ff2",
+      "timestamp": "2026-09-12T19:39:03.394616+00:00",
+      "files": [
+        {
+          "path": "src/looper/core.py",
+          "lines_added": 1,
+          "lines_deleted": 1
+        },
+        {
+          "path": "tests/test_looper.py",
+          "lines_added": 7,
+          "lines_deleted": 5
+        }
+      ],
+      "draws": [
+        {
+          "path": ".looper/draws/looper-journey-init.json",
+          "status": "modified",
+          "lines_added": 7,
+          "lines_deleted": 1
+        }
+      ]
+    },
+    {
+      "run_id": "fcac606ce9f24ed9af16ff4c66e16fd9",
+      "timestamp": "2026-09-12T19:39:09.448223+00:00",
+      "files": [],
+      "draws": []
     }
   ],
-  "run_count": 8,
-  "last_run_id": "d57dcdcebe8f4138a45ebfd9fe3a2a8e",
+  "run_count": 10,
+  "last_run_id": "fcac606ce9f24ed9af16ff4c66e16fd9",
   "workspace_snapshot": {
     "build/lib/looper/__init__.py": [
       "\"\"\"Looper: desenvolvimento orientado por testes.\"\"\"",
@@ -19789,7 +19819,7 @@
       "- Para navegar pelos nós e ver detalhes específicos via CLI, use `looper draw context --draw <draw-id> --level <1-3>` para entrar no desenho e no nível desejado, depois `looper draw context --node <node-id>` para localizar um nó; a saída mostra descrição, conexões, perguntas, respostas, critérios de aceitação/rejeição, símbolos e dependências. Use `looper draw serve` quando precisar abrir o viewer visual e inspecionar o nó graficamente.",
       "- Injeção de contexto e especificação de endpoints: elimina-se qualquer abstração genérica nas instruções do agente. Ações como \"envia mensagem\" são proibidas; exija a menção explícita da plataforma e do canal (ex.: \"envia mensagem via WhatsApp Cloud API\"). O nó do Draw Nível 3 é redigido em nível médio (sem poluição de código ou JSONs brutos na descrição), e todas as tarefas técnicas de código e rotas de backend, webhooks e APIs externas (com URI, método HTTP, parâmetros e payloads) devem constar em `code_tasks`, visíveis pelo botão 'Tasks de Código' no viewer e extraídas via `looper draw context --code`. O gerador do Draw Nível 3 deve obrigatoriamente referenciar o contexto completo da aplicação (loop context e metadados gerais do Draw) para manter coerência com a arquitetura existente.",
       "- Antes de montar o Draw Nível 3, execute a skill `$documentation-conventions` para validar contratos técnicos, consultar documentações oficiais de APIs/SDKs integradas e compilar convenções com frontmatter YAML em `.agents/conventions/`. Diante de múltiplos caminhos arquiteturais não definidos pela UI, pause e solicite definição humana explícita.",
-      "- Quando for necessário usar subagentes, use o Herdr (modo nativo de agentes) em uma pane visível e mantenha o modo direto headless como padrão operacional; o modo interativo/TUI só deve ser usado quando o usuário pedir acompanhamento visual interativo ou intervenção manual. Pergunte ao usuário antes de iniciar, salvo quando ele já tiver solicitado subagentes claramente; não ofereça `terminal` como alternativa para subagentes.",
+      "- Quando for necessário usar subagentes, use sempre o Herdr com a TUI e os agentes/hooks nativos em uma pane visível. O agente principal deve acompanhar somente estados de ciclo de vida, nunca ler scrollback, `herdr agent read`, `pane read` ou output intermediário; instrua o subagente a gravar apenas o resultado final em Markdown/artefato e leia somente esse arquivo. Headless fica como exceção explícita solicitada pelo usuário ou pelo contrato. Pergunte ao usuário antes de iniciar, salvo quando ele já tiver solicitado subagentes claramente; não ofereça `terminal` como alternativa para subagentes.",
       "- A análise de código deve permanecer separada da análise dos Draws/JSONs; preserve símbolos, referências e métricas gerais quando a stack oferecer essa capacidade.",
       "- A análise estática é agnóstica ao framework e tem o Python como núcleo e orquestrador: scanner de arquivos de texto, normalização dos resultados, associação de funções/símbolos e aplicação dos quality gates devem passar pelo núcleo Python. Quando a linguagem ou o framework oferecer compilador, type-checker, linter ou analisador estático próprio, ele pode ser executado por um adaptador/subprocesso Python; seus resultados devem ser convertidos para o contrato comum e consolidados pelo núcleo Python, sem deixar a execução ou os gates dependerem diretamente do framework.",
       "- Antes de qualquer commit ou push na branch `main`, confirme que o diff inclui as fontes, templates, skills, assets empacotados, README e testes necessários para o comando de instalação do README reproduzir a versão publicada.",
@@ -32654,8 +32684,8 @@
       "    assert not ignored(convention)",
       "",
       "",
-      "def test_init_documents_headless_as_default_with_visible_herdr_pane(tmp_path: Path):",
-      "    \"\"\"Publica headless como padrão e preserva pane visível no contrato.",
+      "def test_init_documents_tui_as_default_with_final_artifact_boundary(tmp_path: Path):",
+      "    \"\"\"Publica TUI como padrão e separa o contexto por artefato final.",
       "    Inicializa o projeto e verifica AGENTS.md e as skills de delegação instaladas.",
       "    \"\"\"",
       "    init_project(tmp_path)",
@@ -32664,9 +32694,11 @@
       "    subagents = (tmp_path / \".agents/skills/subagents/SKILL.md\").read_text(encoding=\"utf-8\")",
       "    resolve_bug = (tmp_path / \".agents/skills/resolve-bug/SKILL.md\").read_text(encoding=\"utf-8\")",
       "",
-      "    assert \"modo direto headless como padrão operacional\" in agents",
-      "    assert \"pane visível\" in subagents",
-      "    assert \"modo direto/headless\" in resolve_bug",
+      "    assert \"use sempre o Herdr com a TUI\" in agents",
+      "    assert \"não lê o scrollback\" in subagents",
+      "    assert \"leia apenas esse arquivo final\" in subagents",
+      "    assert \"TUI nativa do Herdr\" in resolve_bug",
+      "    assert \"não deve ler\" in resolve_bug",
       "",
       "",
       "def test_agents_are_loaded_from_markdown_templates():",
@@ -35767,7 +35799,7 @@
       "      \"id\": 3,",
       "      \"label\": \"Instalar skills e instruções\",",
       "      \"group\": 2,",
-      "      \"description\": \"Copia e sincroniza sempre os templates atuais e os recursos auxiliares, mantendo a skill mock-server com pesquisa oficial obrigatória, convenção específica por provedor, ordem explícita das chamadas, pré-condições entre recursos, ativação de webhooks e recebimento validado; arquivos SKILL.md internos do Open Design são distribuídos como SKILL-secondary.md para busca explícita sem registro automático, inclusive em projetos já inicializados. Cria .agents/conventions/README.md sem sobrescrever convenções do projeto e atualiza AGENTS.md. Arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O contrato de instruções mantém o AGENTS.md curto, orienta a leitura da convenção relevante e exige Draws vivos e atualizados.\",",
+      "      \"description\": \"Copia e sincroniza sempre os templates atuais e os recursos auxiliares, mantendo a skill mock-server com pesquisa oficial obrigatória, convenção específica por provedor, ordem explícita das chamadas, pré-condições entre recursos, ativação de webhooks e recebimento validado; arquivos SKILL.md internos do Open Design são distribuídos como SKILL-secondary.md para busca explícita sem registro automático, inclusive em projetos já inicializados. Cria .agents/conventions/README.md sem sobrescrever convenções do projeto e atualiza AGENTS.md. O contrato de subagentes usa Herdr com TUI e agentes/hooks nativos em pane visível, evita leitura incremental do output e consome somente um artefato final Markdown. Arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O contrato de instruções mantém o AGENTS.md curto, orienta a leitura da convenção relevante e exige Draws vivos e atualizados.\",",
       "      \"code_refs\": [",
       "        {",
       "          \"file\": \"src/looper/core.py\",",
@@ -35788,6 +35820,12 @@
       "        {",
       "          \"id\": 1,",
       "          \"prompt\": \"As instruções de subagentes devem deixar o modo direto headless como padrão operacional, executado em pane Herdr visível para acompanhamento; o modo interativo/TUI só deve ser usado quando o usuário solicitar intervenção visual ou navegação manual.\",",
+      "          \"status\": \"pending\",",
+      "          \"source\": \"review\"",
+      "        },",
+      "        {",
+      "          \"id\": 2,",
+      "          \"prompt\": \"O padrão passa a ser Herdr com TUI e agentes nativos: o agente principal não lê output incremental da pane nem usa esse conteúdo como contexto. Após aguardar o ciclo de vida, deve solicitar ao subagente um relatório final em arquivo Markdown/artefato e ler somente esse arquivo; comandos diretos/headless ficam documentados como exceção explícita.\",",
       "          \"status\": \"pending\",",
       "          \"source\": \"review\"",
       "        }",

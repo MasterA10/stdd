@@ -455,8 +455,8 @@ def test_init_ignores_packaged_skills_but_versions_extra_skills_and_conventions(
     assert not ignored(convention)
 
 
-def test_init_documents_headless_as_default_with_visible_herdr_pane(tmp_path: Path):
-    """Publica headless como padrão e preserva pane visível no contrato.
+def test_init_documents_tui_as_default_with_final_artifact_boundary(tmp_path: Path):
+    """Publica TUI como padrão e separa o contexto por artefato final.
     Inicializa o projeto e verifica AGENTS.md e as skills de delegação instaladas.
     """
     init_project(tmp_path)
@@ -465,9 +465,11 @@ def test_init_documents_headless_as_default_with_visible_herdr_pane(tmp_path: Pa
     subagents = (tmp_path / ".agents/skills/subagents/SKILL.md").read_text(encoding="utf-8")
     resolve_bug = (tmp_path / ".agents/skills/resolve-bug/SKILL.md").read_text(encoding="utf-8")
 
-    assert "modo direto headless como padrão operacional" in agents
-    assert "pane visível" in subagents
-    assert "modo direto/headless" in resolve_bug
+    assert "use sempre o Herdr com a TUI" in agents
+    assert "não lê o scrollback" in subagents
+    assert "leia apenas esse arquivo final" in subagents
+    assert "TUI nativa do Herdr" in resolve_bug
+    assert "não deve ler" in resolve_bug
 
 
 def test_agents_are_loaded_from_markdown_templates():
