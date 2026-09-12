@@ -426,6 +426,35 @@ def test_init_preserves_existing_gitignore_and_does_not_duplicate_rules(tmp_path
     assert content.count("*.pyc\n") == 1
 
 
+def test_init_ignores_packaged_skills_but_versions_extra_skills_and_conventions(tmp_path: Path):
+    """Ignora skills empacotadas sem bloquear skills novas do projeto.
+    Confirma também que convenções locais continuam versionáveis no Git.
+    """
+    init_project(tmp_path)
+    official = tmp_path / ".agents/skills/system-design/SKILL.md"
+    extra = tmp_path / ".agents/skills/projeto-local/SKILL.md"
+    convention = tmp_path / ".agents/conventions/projeto.md"
+    extra.parent.mkdir(parents=True)
+    convention.write_text("regra local\n", encoding="utf-8")
+
+    subprocess.run(["git", "init"], cwd=tmp_path, capture_output=True, check=True)
+
+    def ignored(path: Path) -> bool:
+        """Consulta o estado de ignorância de um caminho no repositório.
+        Usa o Git sem adicionar ou alterar arquivos versionados.
+        """
+        result = subprocess.run(
+            ["git", "check-ignore", "--no-index", str(path.relative_to(tmp_path))],
+            cwd=tmp_path,
+            capture_output=True,
+        )
+        return result.returncode == 0
+
+    assert ignored(official)
+    assert not ignored(extra)
+    assert not ignored(convention)
+
+
 def test_agents_are_loaded_from_markdown_templates():
     """Carrega as skills dos agentes a partir dos templates de arquivos SKILL.md.
     Chama agent_templates e valida a presença dos títulos dos agentes create-tests, implement e setup.

@@ -52,6 +52,12 @@ GITIGNORE_RULES = (
 )
 INTERNAL_STATE_DIRECTORIES = {".looper"}
 LEGACY_REFERENCE_PATTERN = re.compile(r"stdd", re.IGNORECASE)
+MANAGED_SKILLS_BLOCK_START = "# Looper managed skills"
+MANAGED_SKILLS_BLOCK_END = "# End Looper managed skills"
+MANAGED_SKILLS_BLOCK_PATTERN = re.compile(
+    rf"^{re.escape(MANAGED_SKILLS_BLOCK_START)}\n.*?^{re.escape(MANAGED_SKILLS_BLOCK_END)}\n?",
+    re.MULTILINE | re.DOTALL,
+)
 LEGACY_MIGRATION_IGNORED_PARTS = {
     ".git",
     ".venv",
@@ -579,7 +585,7 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
     design_path = ensure_design_document(root)
     if design_path not in created:
         created.append(design_path)
-    created.extend(ensure_gitignore(root))
+    created.extend(ensure_gitignore(root, integrations))
 
     for integration in integrations:
         skill_dir = root / AGENT_SKILL_DIRECTORIES[integration]
@@ -669,22 +675,65 @@ def ensure_static_analysis_defaults(config_path: Path) -> list[Path]:
     return []
 
 
-def ensure_gitignore(root: Path) -> list[Path]:
+def _installed_integrations(root: Path) -> tuple[str, ...]:
+    """Retorna integrações que já têm um diretório de skills no projeto."""
+    return tuple(
+        integration
+        for integration, relative in AGENT_SKILL_DIRECTORIES.items()
+        if (root / relative).is_dir()
+    )
+
+
+def _managed_skills_block(integrations: tuple[str, ...]) -> str:
+    """Monta regras explícitas para skills empacotadas, preservando extras locais."""
+    lines = [MANAGED_SKILLS_BLOCK_START]
+    roots: list[str] = []
+    for integration in integrations:
+        relative = AGENT_SKILL_DIRECTORIES.get(integration)
+        if relative is None or relative in roots:
+            continue
+        roots.append(relative)
+        lines.append(f"!{relative}/")
+        for source in agent_templates():
+            lines.append(f"{relative}/{source.parent.name}/")
+    # Conventions are project documentation and must remain versionable even
+    # when a project previously ignored the whole .agents directory.
+    lines.extend(("!.agents/", "!.agents/conventions/", "!.agents/conventions/**"))
+    lines.append(MANAGED_SKILLS_BLOCK_END)
+    return "\n".join(lines)
+
+
+def ensure_gitignore(root: Path, integrations: tuple[str, ...] | None = None) -> list[Path]:
     """Adiciona regras seguras e idempotentes ao gitignore do projeto.
-    Preserva regras existentes e evita versionar ambientes, caches Python e arquivos de ambiente.
+    Preserva regras existentes, ignora somente skills empacotadas e mantém
+    skills extras e convenções locais disponíveis para versionamento.
     """
     path = root / ".gitignore"
     existing = path.read_text(encoding="utf-8") if path.exists() else ""
     lines = existing.splitlines()
     missing = [rule for rule in GITIGNORE_RULES if rule not in lines]
-    if not missing:
-        return []
     updated = existing
-    if updated and not updated.endswith("\n"):
-        updated += "\n"
-    if updated and not updated.endswith("\n\n"):
-        updated += "\n"
-    updated += "\n".join(missing) + "\n"
+    if missing:
+        if updated and not updated.endswith("\n"):
+            updated += "\n"
+        if updated and not updated.endswith("\n\n"):
+            updated += "\n"
+        updated += "\n".join(missing) + "\n"
+
+    selected_integrations = integrations if integrations is not None else _installed_integrations(root)
+    managed_block = _managed_skills_block(selected_integrations)
+    block_match = MANAGED_SKILLS_BLOCK_PATTERN.search(updated)
+    if block_match:
+        updated = updated[:block_match.start()] + managed_block + "\n" + updated[block_match.end():]
+    else:
+        if updated and not updated.endswith("\n"):
+            updated += "\n"
+        if updated and not updated.endswith("\n\n"):
+            updated += "\n"
+        updated += managed_block + "\n"
+
+    if updated == existing:
+        return []
     path.write_text(updated, encoding="utf-8")
     return [path]
 

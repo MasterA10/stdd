@@ -51,6 +51,14 @@
           "file": "src/looper/core.py",
           "kind": "function",
           "source": "python_ast"
+        },
+        {
+          "symbol": "looper.core.ensure_gitignore",
+          "identity": null,
+          "status": "resolved",
+          "file": "src/looper/core.py",
+          "kind": "function",
+          "source": "python_ast"
         }
       ],
       "source_dependencies": [

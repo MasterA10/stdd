@@ -45,7 +45,7 @@
       "id": 2,
       "label": "Criar configuração e estado",
       "group": 2,
-      "description": "Cria .looper/config.yaml, runs, features e regras de gitignore. A migração de referências legadas preserva arquivos protegidos ou inacessíveis e ignora dependências externas conhecidas sem interromper a inicialização.",
+      "description": "Cria .looper/config.yaml, runs, features e regras de gitignore. A migração de referências legadas preserva arquivos protegidos ou inacessíveis e ignora dependências externas conhecidas sem interromper a inicialização. O .gitignore lista explicitamente as skills oficiais instaladas, mantém skills extras versionáveis e preserva .agents/conventions no histórico.",
       "code_refs": [
         {
           "file": "src/looper/setup.py",
@@ -60,12 +60,24 @@
           "source_dependencies": [
             "looper.core.init_project"
           ]
+        },
+        {
+          "symbol": "looper.core.ensure_gitignore",
+          "source_dependencies": [
+            "looper.core.init_project"
+          ]
         }
       ],
       "changes": [
         {
           "id": 0,
           "prompt": "Durante a migração de referências legadas no init, percorra somente arquivos do projeto e trate falhas de permissão na escrita sem interromper a inicialização; arquivos protegidos ou inacessíveis devem ser preservados.",
+          "status": "pending",
+          "source": "review"
+        },
+        {
+          "id": 1,
+          "prompt": "O init deve acrescentar ao .gitignore entradas explícitas para as skills oficiais instaladas, sem ignorar a pasta inteira: skills adicionais com outro nome permanecem versionáveis. A pasta .agents/conventions e seus arquivos devem permanecer explicitamente fora do ignore e no histórico de versão.",
           "status": "pending",
           "source": "review"
         }

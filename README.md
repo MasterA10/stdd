@@ -171,7 +171,7 @@ O comando identifica manifests e runners sem presumir Python. Exemplos de runner
 - Java: `mvn test` ou `./mvnw test`
 - .NET: `dotnet test`
 
-A configuração fica em `.looper/config.yaml`. O setup também adiciona padrões de ambiente, dependências, builds e caches ao `.gitignore`, preservando regras existentes.
+A configuração fica em `.looper/config.yaml`. O setup também adiciona padrões de ambiente, dependências, builds e caches ao `.gitignore`, preservando regras existentes. O `looper init` ignora apenas as skills oficiais instaladas, por entradas explícitas; skills adicionais criadas em `.agents/skills/` continuam versionáveis. `.agents/conventions/` permanece explicitamente fora do ignore para continuar no histórico do projeto.
 
 ### Adapter de análise estática
 

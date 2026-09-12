@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-09-12T17:27:56.619091+00:00",
+  "generated_at": "2026-09-12T18:03:12.264292+00:00",
   "status": "blocked",
   "reason": "quality_gate_blocked",
   "adapter_command": [
@@ -28,7 +28,7 @@
     {
       "id": "symbols",
       "label": "Símbolos",
-      "value": 3782,
+      "value": 3786,
       "unit": "símbolos"
     },
     {
@@ -46,7 +46,7 @@
     {
       "id": "quality_findings",
       "label": "Achados de qualidade",
-      "value": 829,
+      "value": 830,
       "unit": "achados",
       "status": "blocked"
     },
@@ -73,9 +73,9 @@
     }
   ],
   "summary": {
-    "symbols": 3782,
+    "symbols": 3786,
     "dependencies": 6879,
-    "complexity": 3698,
+    "complexity": 3702,
     "structural_metrics": 343,
     "files": [
       ".agents/skills/system-design/open-design/design-systems/_schema/manifest.schema.ts",
@@ -422,15 +422,15 @@
       "update_backlog.py",
       "update_cli.py"
     ],
-    "quality_findings": 829,
+    "quality_findings": 830,
     "severity": {
       "blocking": 116,
-      "warning": 713
+      "warning": 714
     },
     "findings_by_kind": {
       "deep_nesting": 19,
       "hardcoded_secret": 5,
-      "high_complexity": 355,
+      "high_complexity": 356,
       "long_function": 385,
       "too_many_parameters": 65
     },
@@ -2248,6 +2248,16 @@
         "severity": "warning",
         "source": "python_ast",
         "symbol_id": "src/looper/contract.py:looper.contract.check_python_function_descriptions",
+        "value": 11
+      },
+      {
+        "evidence": "high_complexity:11",
+        "file": "src/looper/core.py",
+        "kind": "high_complexity",
+        "limit": 10,
+        "severity": "warning",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.ensure_gitignore",
         "value": 11
       },
       {
@@ -14262,7 +14272,18 @@
       {
         "cyclomatic": 1,
         "file": "src/looper/core.py",
-        "line": 103,
+        "line": 102,
+        "lines": 5,
+        "max_depth": 0,
+        "parameters": 1,
+        "qualified_name": "looper.core.project_root",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.project_root"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "src/looper/core.py",
+        "line": 109,
         "lines": 5,
         "max_depth": 0,
         "parameters": 1,
@@ -14273,7 +14294,7 @@
       {
         "cyclomatic": 1,
         "file": "src/looper/core.py",
-        "line": 1064,
+        "line": 1113,
         "lines": 13,
         "max_depth": 0,
         "parameters": 3,
@@ -14284,7 +14305,7 @@
       {
         "cyclomatic": 1,
         "file": "src/looper/core.py",
-        "line": 1178,
+        "line": 1227,
         "lines": 7,
         "max_depth": 0,
         "parameters": 1,
@@ -14295,24 +14316,13 @@
       {
         "cyclomatic": 1,
         "file": "src/looper/core.py",
-        "line": 770,
+        "line": 819,
         "lines": 12,
         "max_depth": 0,
         "parameters": 2,
         "qualified_name": "looper.core.build_not_executed_suite_report",
         "source": "python_ast",
         "symbol_id": "src/looper/core.py:looper.core.build_not_executed_suite_report"
-      },
-      {
-        "cyclomatic": 1,
-        "file": "src/looper/core.py",
-        "line": 96,
-        "lines": 5,
-        "max_depth": 0,
-        "parameters": 1,
-        "qualified_name": "looper.core.project_root",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.project_root"
       },
       {
         "cyclomatic": 1,
@@ -21687,7 +21697,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 1018,
+        "line": 1047,
         "lines": 9,
         "max_depth": 0,
         "parameters": 0,
@@ -21698,7 +21708,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 1110,
+        "line": 1139,
         "lines": 14,
         "max_depth": 0,
         "parameters": 0,
@@ -21709,7 +21719,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 1137,
+        "line": 1166,
         "lines": 9,
         "max_depth": 0,
         "parameters": 0,
@@ -21720,7 +21730,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 1182,
+        "line": 1211,
         "lines": 12,
         "max_depth": 0,
         "parameters": 1,
@@ -21731,7 +21741,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 1261,
+        "line": 1290,
         "lines": 10,
         "max_depth": 0,
         "parameters": 0,
@@ -21742,7 +21752,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 1273,
+        "line": 1302,
         "lines": 14,
         "max_depth": 0,
         "parameters": 0,
@@ -21753,7 +21763,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 1289,
+        "line": 1318,
         "lines": 23,
         "max_depth": 0,
         "parameters": 1,
@@ -21764,7 +21774,7 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 1314,
+        "line": 1343,
         "lines": 13,
         "max_depth": 0,
         "parameters": 1,
@@ -21918,13 +21928,24 @@
       {
         "cyclomatic": 1,
         "file": "tests/test_looper.py",
-        "line": 896,
-        "lines": 11,
+        "line": 429,
+        "lines": 27,
         "max_depth": 0,
         "parameters": 1,
-        "qualified_name": "tests.test_looper.test_system_design_skill_open_design_artifacts_installed_on_init",
+        "qualified_name": "tests.test_looper.test_init_ignores_packaged_skills_but_versions_extra_skills_and_conventions",
         "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_system_design_skill_open_design_artifacts_installed_on_init"
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_ignores_packaged_skills_but_versions_extra_skills_and_conventions"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "tests/test_looper.py",
+        "line": 442,
+        "lines": 10,
+        "max_depth": 0,
+        "parameters": 1,
+        "qualified_name": "tests.test_looper.ignored",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.ignored"
       },
       {
         "cyclomatic": 1,
@@ -21936,6 +21957,17 @@
         "qualified_name": "tests.test_looper.test_init_migrates_legacy_looper_state_and_text_references",
         "source": "python_ast",
         "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_migrates_legacy_looper_state_and_text_references"
+      },
+      {
+        "cyclomatic": 1,
+        "file": "tests/test_looper.py",
+        "line": 925,
+        "lines": 11,
+        "max_depth": 0,
+        "parameters": 1,
+        "qualified_name": "tests.test_looper.test_system_design_skill_open_design_artifacts_installed_on_init",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_system_design_skill_open_design_artifacts_installed_on_init"
       },
       {
         "cyclomatic": 1,
@@ -22600,7 +22632,7 @@
       {
         "cyclomatic": 10,
         "file": "src/looper/core.py",
-        "line": 125,
+        "line": 131,
         "lines": 33,
         "max_depth": 1,
         "parameters": 3,
@@ -23226,6 +23258,17 @@
       },
       {
         "cyclomatic": 11,
+        "file": "src/looper/core.py",
+        "line": 706,
+        "lines": 33,
+        "max_depth": 1,
+        "parameters": 2,
+        "qualified_name": "looper.core.ensure_gitignore",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.ensure_gitignore"
+      },
+      {
+        "cyclomatic": 11,
         "file": "src/looper/draw.py",
         "line": 925,
         "lines": 33,
@@ -23810,24 +23853,24 @@
       {
         "cyclomatic": 12,
         "file": "src/looper/core.py",
-        "line": 359,
-        "lines": 34,
-        "max_depth": 1,
-        "parameters": 1,
-        "qualified_name": "looper.core._agent_convention_catalog",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core._agent_convention_catalog"
-      },
-      {
-        "cyclomatic": 12,
-        "file": "src/looper/core.py",
-        "line": 956,
+        "line": 1005,
         "lines": 49,
         "max_depth": 1,
         "parameters": 2,
         "qualified_name": "looper.core._gitignored_paths",
         "source": "python_ast",
         "symbol_id": "src/looper/core.py:looper.core._gitignored_paths"
+      },
+      {
+        "cyclomatic": 12,
+        "file": "src/looper/core.py",
+        "line": 365,
+        "lines": 34,
+        "max_depth": 1,
+        "parameters": 1,
+        "qualified_name": "looper.core._agent_convention_catalog",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core._agent_convention_catalog"
       },
       {
         "cyclomatic": 12,
@@ -28936,7 +28979,7 @@
       {
         "cyclomatic": 2,
         "file": "src/looper/core.py",
-        "line": 1007,
+        "line": 1056,
         "lines": 4,
         "max_depth": 0,
         "parameters": 2,
@@ -28947,7 +28990,7 @@
       {
         "cyclomatic": 2,
         "file": "src/looper/core.py",
-        "line": 120,
+        "line": 126,
         "lines": 3,
         "max_depth": 1,
         "parameters": 2,
@@ -28958,7 +29001,7 @@
       {
         "cyclomatic": 2,
         "file": "src/looper/core.py",
-        "line": 341,
+        "line": 347,
         "lines": 16,
         "max_depth": 1,
         "parameters": 1,
@@ -28969,7 +29012,7 @@
       {
         "cyclomatic": 2,
         "file": "src/looper/core.py",
-        "line": 445,
+        "line": 451,
         "lines": 13,
         "max_depth": 1,
         "parameters": 1,
@@ -28980,7 +29023,18 @@
       {
         "cyclomatic": 2,
         "file": "src/looper/core.py",
-        "line": 692,
+        "line": 678,
+        "lines": 7,
+        "max_depth": 0,
+        "parameters": 1,
+        "qualified_name": "looper.core._installed_integrations",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core._installed_integrations"
+      },
+      {
+        "cyclomatic": 2,
+        "file": "src/looper/core.py",
+        "line": 741,
         "lines": 10,
         "max_depth": 0,
         "parameters": 0,
@@ -32423,7 +32477,29 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 1074,
+        "line": 1004,
+        "lines": 17,
+        "max_depth": 1,
+        "parameters": 0,
+        "qualified_name": "tests.test_looper.test_draw_improve_skill_requires_global_consistency_groups_and_questions",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_improve_skill_requires_global_consistency_groups_and_questions"
+      },
+      {
+        "cyclomatic": 2,
+        "file": "tests/test_looper.py",
+        "line": 1023,
+        "lines": 22,
+        "max_depth": 1,
+        "parameters": 0,
+        "qualified_name": "tests.test_looper.test_draw_answer_owns_question_discovery_and_codebase_traceability",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_answer_owns_question_discovery_and_codebase_traceability"
+      },
+      {
+        "cyclomatic": 2,
+        "file": "tests/test_looper.py",
+        "line": 1103,
         "lines": 7,
         "max_depth": 1,
         "parameters": 0,
@@ -32434,7 +32510,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 1083,
+        "line": 1112,
         "lines": 11,
         "max_depth": 1,
         "parameters": 0,
@@ -32445,7 +32521,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 1126,
+        "line": 1155,
         "lines": 9,
         "max_depth": 1,
         "parameters": 0,
@@ -32456,7 +32532,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 1148,
+        "line": 1177,
         "lines": 8,
         "max_depth": 1,
         "parameters": 0,
@@ -32467,7 +32543,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 1158,
+        "line": 1187,
         "lines": 22,
         "max_depth": 1,
         "parameters": 0,
@@ -32533,7 +32609,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 543,
+        "line": 572,
         "lines": 14,
         "max_depth": 1,
         "parameters": 0,
@@ -32544,7 +32620,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 559,
+        "line": 588,
         "lines": 12,
         "max_depth": 1,
         "parameters": 0,
@@ -32555,7 +32631,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 573,
+        "line": 602,
         "lines": 24,
         "max_depth": 1,
         "parameters": 0,
@@ -32566,7 +32642,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 599,
+        "line": 628,
         "lines": 21,
         "max_depth": 1,
         "parameters": 0,
@@ -32577,7 +32653,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 622,
+        "line": 651,
         "lines": 19,
         "max_depth": 1,
         "parameters": 0,
@@ -32588,7 +32664,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 643,
+        "line": 672,
         "lines": 19,
         "max_depth": 1,
         "parameters": 0,
@@ -32599,7 +32675,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 695,
+        "line": 724,
         "lines": 10,
         "max_depth": 1,
         "parameters": 0,
@@ -32610,7 +32686,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 707,
+        "line": 736,
         "lines": 16,
         "max_depth": 1,
         "parameters": 0,
@@ -32621,7 +32697,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 725,
+        "line": 754,
         "lines": 23,
         "max_depth": 1,
         "parameters": 2,
@@ -32632,7 +32708,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 750,
+        "line": 779,
         "lines": 16,
         "max_depth": 1,
         "parameters": 0,
@@ -32643,7 +32719,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 768,
+        "line": 797,
         "lines": 10,
         "max_depth": 1,
         "parameters": 0,
@@ -32654,7 +32730,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 780,
+        "line": 809,
         "lines": 15,
         "max_depth": 1,
         "parameters": 0,
@@ -32665,7 +32741,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 797,
+        "line": 826,
         "lines": 22,
         "max_depth": 1,
         "parameters": 0,
@@ -32676,7 +32752,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 821,
+        "line": 850,
         "lines": 17,
         "max_depth": 1,
         "parameters": 0,
@@ -32687,7 +32763,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 840,
+        "line": 869,
         "lines": 23,
         "max_depth": 1,
         "parameters": 0,
@@ -32698,7 +32774,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 865,
+        "line": 894,
         "lines": 29,
         "max_depth": 1,
         "parameters": 0,
@@ -32709,7 +32785,7 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 927,
+        "line": 956,
         "lines": 16,
         "max_depth": 1,
         "parameters": 0,
@@ -32720,35 +32796,13 @@
       {
         "cyclomatic": 2,
         "file": "tests/test_looper.py",
-        "line": 945,
+        "line": 974,
         "lines": 28,
         "max_depth": 1,
         "parameters": 0,
         "qualified_name": "tests.test_looper.test_draw_improve_skill_is_incremental_and_hands_off_through_feature",
         "source": "python_ast",
         "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_improve_skill_is_incremental_and_hands_off_through_feature"
-      },
-      {
-        "cyclomatic": 2,
-        "file": "tests/test_looper.py",
-        "line": 975,
-        "lines": 17,
-        "max_depth": 1,
-        "parameters": 0,
-        "qualified_name": "tests.test_looper.test_draw_improve_skill_requires_global_consistency_groups_and_questions",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_improve_skill_requires_global_consistency_groups_and_questions"
-      },
-      {
-        "cyclomatic": 2,
-        "file": "tests/test_looper.py",
-        "line": 994,
-        "lines": 22,
-        "max_depth": 1,
-        "parameters": 0,
-        "qualified_name": "tests.test_looper.test_draw_answer_owns_question_discovery_and_codebase_traceability",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_answer_owns_question_discovery_and_codebase_traceability"
       },
       {
         "cyclomatic": 2,
@@ -32929,7 +32983,7 @@
       {
         "cyclomatic": 21,
         "file": "src/looper/core.py",
-        "line": 1229,
+        "line": 1278,
         "lines": 55,
         "max_depth": 1,
         "parameters": 2,
@@ -33127,7 +33181,7 @@
       {
         "cyclomatic": 23,
         "file": "src/looper/core.py",
-        "line": 481,
+        "line": 487,
         "lines": 154,
         "max_depth": 1,
         "parameters": 3,
@@ -33138,7 +33192,7 @@
       {
         "cyclomatic": 23,
         "file": "src/looper/core.py",
-        "line": 819,
+        "line": 868,
         "lines": 119,
         "max_depth": 1,
         "parameters": 6,
@@ -35668,7 +35722,7 @@
       {
         "cyclomatic": 3,
         "file": "src/looper/core.py",
-        "line": 110,
+        "line": 116,
         "lines": 8,
         "max_depth": 1,
         "parameters": 1,
@@ -35679,7 +35733,7 @@
       {
         "cyclomatic": 3,
         "file": "src/looper/core.py",
-        "line": 395,
+        "line": 401,
         "lines": 9,
         "max_depth": 0,
         "parameters": 2,
@@ -35690,7 +35744,7 @@
       {
         "cyclomatic": 3,
         "file": "src/looper/core.py",
-        "line": 430,
+        "line": 436,
         "lines": 13,
         "max_depth": 1,
         "parameters": 1,
@@ -35701,7 +35755,7 @@
       {
         "cyclomatic": 3,
         "file": "src/looper/core.py",
-        "line": 784,
+        "line": 833,
         "lines": 8,
         "max_depth": 1,
         "parameters": 2,
@@ -38385,7 +38439,7 @@
       {
         "cyclomatic": 3,
         "file": "tests/test_looper.py",
-        "line": 1044,
+        "line": 1073,
         "lines": 8,
         "max_depth": 1,
         "parameters": 0,
@@ -38396,7 +38450,7 @@
       {
         "cyclomatic": 3,
         "file": "tests/test_looper.py",
-        "line": 1054,
+        "line": 1083,
         "lines": 8,
         "max_depth": 1,
         "parameters": 0,
@@ -38407,7 +38461,7 @@
       {
         "cyclomatic": 3,
         "file": "tests/test_looper.py",
-        "line": 1064,
+        "line": 1093,
         "lines": 8,
         "max_depth": 1,
         "parameters": 0,
@@ -38418,7 +38472,7 @@
       {
         "cyclomatic": 3,
         "file": "tests/test_looper.py",
-        "line": 1196,
+        "line": 1225,
         "lines": 8,
         "max_depth": 1,
         "parameters": 0,
@@ -38429,7 +38483,7 @@
       {
         "cyclomatic": 3,
         "file": "tests/test_looper.py",
-        "line": 1206,
+        "line": 1235,
         "lines": 53,
         "max_depth": 1,
         "parameters": 1,
@@ -38451,7 +38505,7 @@
       {
         "cyclomatic": 3,
         "file": "tests/test_looper.py",
-        "line": 909,
+        "line": 938,
         "lines": 16,
         "max_depth": 1,
         "parameters": 0,
@@ -40199,6 +40253,17 @@
       },
       {
         "cyclomatic": 4,
+        "file": "src/looper/core.py",
+        "line": 687,
+        "lines": 17,
+        "max_depth": 1,
+        "parameters": 1,
+        "qualified_name": "looper.core._managed_skills_block",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core._managed_skills_block"
+      },
+      {
+        "cyclomatic": 4,
         "file": "src/looper/draw.py",
         "line": 1091,
         "lines": 14,
@@ -41872,7 +41937,7 @@
       {
         "cyclomatic": 4,
         "file": "tests/test_looper.py",
-        "line": 664,
+        "line": 693,
         "lines": 29,
         "max_depth": 1,
         "parameters": 0,
@@ -43093,7 +43158,7 @@
       {
         "cyclomatic": 5,
         "file": "src/looper/core.py",
-        "line": 1045,
+        "line": 1094,
         "lines": 17,
         "max_depth": 1,
         "parameters": 1,
@@ -43104,7 +43169,7 @@
       {
         "cyclomatic": 5,
         "file": "src/looper/core.py",
-        "line": 160,
+        "line": 166,
         "lines": 10,
         "max_depth": 1,
         "parameters": 1,
@@ -43115,7 +43180,7 @@
       {
         "cyclomatic": 5,
         "file": "src/looper/core.py",
-        "line": 219,
+        "line": 225,
         "lines": 6,
         "max_depth": 1,
         "parameters": 1,
@@ -43126,7 +43191,7 @@
       {
         "cyclomatic": 5,
         "file": "src/looper/core.py",
-        "line": 940,
+        "line": 989,
         "lines": 14,
         "max_depth": 1,
         "parameters": 1,
@@ -44358,7 +44423,7 @@
       {
         "cyclomatic": 5,
         "file": "tests/test_looper.py",
-        "line": 1029,
+        "line": 1058,
         "lines": 13,
         "max_depth": 1,
         "parameters": 0,
@@ -44369,7 +44434,7 @@
       {
         "cyclomatic": 5,
         "file": "tests/test_looper.py",
-        "line": 1096,
+        "line": 1125,
         "lines": 12,
         "max_depth": 1,
         "parameters": 0,
@@ -45348,7 +45413,7 @@
       {
         "cyclomatic": 6,
         "file": "src/looper/core.py",
-        "line": 1286,
+        "line": 1335,
         "lines": 39,
         "max_depth": 1,
         "parameters": 3,
@@ -45359,7 +45424,7 @@
       {
         "cyclomatic": 6,
         "file": "src/looper/core.py",
-        "line": 409,
+        "line": 415,
         "lines": 19,
         "max_depth": 1,
         "parameters": 3,
@@ -45370,7 +45435,7 @@
       {
         "cyclomatic": 6,
         "file": "src/looper/core.py",
-        "line": 460,
+        "line": 466,
         "lines": 19,
         "max_depth": 1,
         "parameters": 2,
@@ -45381,18 +45446,7 @@
       {
         "cyclomatic": 6,
         "file": "src/looper/core.py",
-        "line": 672,
-        "lines": 18,
-        "max_depth": 1,
-        "parameters": 1,
-        "qualified_name": "looper.core.ensure_gitignore",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.ensure_gitignore"
-      },
-      {
-        "cyclomatic": 6,
-        "file": "src/looper/core.py",
-        "line": 76,
+        "line": 82,
         "lines": 18,
         "max_depth": 1,
         "parameters": 1,
@@ -47020,7 +47074,7 @@
       {
         "cyclomatic": 7,
         "file": "src/looper/core.py",
-        "line": 1079,
+        "line": 1128,
         "lines": 42,
         "max_depth": 1,
         "parameters": 1,
@@ -47031,7 +47085,7 @@
       {
         "cyclomatic": 7,
         "file": "src/looper/core.py",
-        "line": 1187,
+        "line": 1236,
         "lines": 19,
         "max_depth": 1,
         "parameters": 1,
@@ -47042,7 +47096,7 @@
       {
         "cyclomatic": 7,
         "file": "src/looper/core.py",
-        "line": 1208,
+        "line": 1257,
         "lines": 19,
         "max_depth": 1,
         "parameters": 1,
@@ -47053,7 +47107,7 @@
       {
         "cyclomatic": 7,
         "file": "src/looper/core.py",
-        "line": 794,
+        "line": 843,
         "lines": 23,
         "max_depth": 0,
         "parameters": 1,
@@ -48076,7 +48130,7 @@
       {
         "cyclomatic": 8,
         "file": "src/looper/core.py",
-        "line": 1013,
+        "line": 1062,
         "lines": 30,
         "max_depth": 1,
         "parameters": 1,
@@ -48087,7 +48141,7 @@
       {
         "cyclomatic": 8,
         "file": "src/looper/core.py",
-        "line": 704,
+        "line": 753,
         "lines": 33,
         "max_depth": 1,
         "parameters": 2,
@@ -48098,7 +48152,7 @@
       {
         "cyclomatic": 8,
         "file": "src/looper/core.py",
-        "line": 739,
+        "line": 788,
         "lines": 29,
         "max_depth": 1,
         "parameters": 6,
@@ -48582,7 +48636,7 @@
       {
         "cyclomatic": 8,
         "file": "tests/test_looper.py",
-        "line": 429,
+        "line": 458,
         "lines": 112,
         "max_depth": 1,
         "parameters": 0,
@@ -49055,7 +49109,7 @@
       {
         "cyclomatic": 9,
         "file": "src/looper/core.py",
-        "line": 1124,
+        "line": 1173,
         "lines": 52,
         "max_depth": 1,
         "parameters": 1,
@@ -49066,7 +49120,7 @@
       {
         "cyclomatic": 9,
         "file": "src/looper/core.py",
-        "line": 172,
+        "line": 178,
         "lines": 37,
         "max_depth": 1,
         "parameters": 1,
@@ -49077,7 +49131,7 @@
       {
         "cyclomatic": 9,
         "file": "src/looper/core.py",
-        "line": 211,
+        "line": 217,
         "lines": 30,
         "max_depth": 1,
         "parameters": 1,
@@ -49088,7 +49142,7 @@
       {
         "cyclomatic": 9,
         "file": "src/looper/core.py",
-        "line": 637,
+        "line": 643,
         "lines": 33,
         "max_depth": 1,
         "parameters": 1,
@@ -50781,9 +50835,9 @@
       {
         "classes": 0,
         "file": "src/looper/core.py",
-        "functions": 40,
+        "functions": 42,
         "imports": 23,
-        "lines": 1324,
+        "lines": 1373,
         "source": "python_ast"
       },
       {
@@ -51877,9 +51931,9 @@
       {
         "classes": 0,
         "file": "tests/test_looper.py",
-        "functions": 65,
+        "functions": 67,
         "imports": 9,
-        "lines": 1326,
+        "lines": 1355,
         "source": "python_ast"
       },
       {
@@ -52307,16 +52361,6 @@
       },
       {
         "end_line": 100,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 96,
-        "name": "project_root",
-        "qualified_name": "looper.core.project_root",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.project_root"
-      },
-      {
-        "end_line": 100,
         "file": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/youtube_yt.py",
         "kind": "function",
         "line": 98,
@@ -52367,14 +52411,24 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_cli_can_choose_another_port_when_port_is_occupied"
       },
       {
-        "end_line": 1004,
+        "end_line": 1001,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 974,
+        "name": "test_draw_improve_skill_is_incremental_and_hands_off_through_feature",
+        "qualified_name": "tests.test_looper.test_draw_improve_skill_is_incremental_and_hands_off_through_feature",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_improve_skill_is_incremental_and_hands_off_through_feature"
+      },
+      {
+        "end_line": 1002,
         "file": "src/looper/core.py",
         "kind": "function",
-        "line": 956,
-        "name": "_gitignored_paths",
-        "qualified_name": "looper.core._gitignored_paths",
+        "line": 989,
+        "name": "_parse_gitignore_dirs",
+        "qualified_name": "looper.core._parse_gitignore_dirs",
         "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core._gitignored_paths"
+        "symbol_id": "src/looper/core.py:looper.core._parse_gitignore_dirs"
       },
       {
         "end_line": 1007,
@@ -52491,16 +52545,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/lib/system-browser.mjs:function:requestView"
       },
       {
-        "end_line": 1010,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 1007,
-        "name": "_filter_snapshot_by_gitignore",
-        "qualified_name": "looper.core._filter_snapshot_by_gitignore",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core._filter_snapshot_by_gitignore"
-      },
-      {
         "end_line": 1012,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/pipeline.py",
         "kind": "function",
@@ -52529,16 +52573,6 @@
         "qualified_name": "looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.pipeline._retrieve_stream",
         "source": "python_ast",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/pipeline.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.pipeline._retrieve_stream"
-      },
-      {
-        "end_line": 1015,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 994,
-        "name": "test_draw_answer_owns_question_discovery_and_codebase_traceability",
-        "qualified_name": "tests.test_looper.test_draw_answer_owns_question_discovery_and_codebase_traceability",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_answer_owns_question_discovery_and_codebase_traceability"
       },
       {
         "end_line": 1016,
@@ -52643,6 +52677,16 @@
         "symbol_id": "src/looper/cli.py:looper.cli.app_create"
       },
       {
+        "end_line": 1020,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 1004,
+        "name": "test_draw_improve_skill_requires_global_consistency_groups_and_questions",
+        "qualified_name": "tests.test_looper.test_draw_improve_skill_requires_global_consistency_groups_and_questions",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_improve_skill_requires_global_consistency_groups_and_questions"
+      },
+      {
         "end_line": 1024,
         "file": ".agents/skills/system-design/open-design/design-templates/open-design-landing-deck/scripts/compose.ts",
         "kind": "function",
@@ -52683,16 +52727,6 @@
         "qualified_name": "looper.backlog._task_for_node",
         "source": "python_ast",
         "symbol_id": "src/looper/backlog.py:looper.backlog._task_for_node"
-      },
-      {
-        "end_line": 1026,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 1018,
-        "name": "test_draw_feature_matches_always_interactive_viewer",
-        "qualified_name": "tests.test_looper.test_draw_feature_matches_always_interactive_viewer",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_feature_matches_always_interactive_viewer"
       },
       {
         "end_line": 103,
@@ -52960,26 +52994,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/hatch-pet/scripts/record_imagegen_result.py:looper.templates.agents.system-design.open-design.skills.hatch-pet.scripts.record_imagegen_result.validate_source_path"
       },
       {
-        "end_line": 1041,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 1029,
-        "name": "test_draw_skills_document_questions_and_answer_history",
-        "qualified_name": "tests.test_looper.test_draw_skills_document_questions_and_answer_history",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_skills_document_questions_and_answer_history"
-      },
-      {
-        "end_line": 1042,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 1013,
-        "name": "get_workspace_snapshot",
-        "qualified_name": "looper.core.get_workspace_snapshot",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.get_workspace_snapshot"
-      },
-      {
         "end_line": 1044,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
@@ -52988,6 +53002,16 @@
         "qualified_name": "tests.test_draw_editor.test_backlog_task_states_style_in_progress_and_done_nodes",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_backlog_task_states_style_in_progress_and_done_nodes"
+      },
+      {
+        "end_line": 1044,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 1023,
+        "name": "test_draw_answer_owns_question_discovery_and_codebase_traceability",
+        "qualified_name": "tests.test_looper.test_draw_answer_owns_question_discovery_and_codebase_traceability",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_answer_owns_question_discovery_and_codebase_traceability"
       },
       {
         "end_line": 1045,
@@ -53167,14 +53191,14 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/od-preview-rewrite.mjs:function:rootAssetPath"
       },
       {
-        "end_line": 1051,
-        "file": "tests/test_looper.py",
+        "end_line": 1053,
+        "file": "src/looper/core.py",
         "kind": "function",
-        "line": 1044,
-        "name": "test_draw_skills_preserve_system_hierarchy_and_terminal_unimplemented_paths",
-        "qualified_name": "tests.test_looper.test_draw_skills_preserve_system_hierarchy_and_terminal_unimplemented_paths",
+        "line": 1005,
+        "name": "_gitignored_paths",
+        "qualified_name": "looper.core._gitignored_paths",
         "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_skills_preserve_system_hierarchy_and_terminal_unimplemented_paths"
+        "symbol_id": "src/looper/core.py:looper.core._gitignored_paths"
       },
       {
         "end_line": 1055,
@@ -53199,6 +53223,16 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/open-design-landing-deck/scripts/compose.ts:function:<anonymous>"
       },
       {
+        "end_line": 1055,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 1047,
+        "name": "test_draw_feature_matches_always_interactive_viewer",
+        "qualified_name": "tests.test_looper.test_draw_feature_matches_always_interactive_viewer",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_feature_matches_always_interactive_viewer"
+      },
+      {
         "end_line": 1056,
         "file": "tests/test_backlog.py",
         "kind": "function",
@@ -53217,6 +53251,16 @@
         "qualified_name": "tests.test_draw_editor.test_double_click_changes_group_and_canvas_click_exits_editing",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_double_click_changes_group_and_canvas_click_exits_editing"
+      },
+      {
+        "end_line": 1059,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 1056,
+        "name": "_filter_snapshot_by_gitignore",
+        "qualified_name": "looper.core._filter_snapshot_by_gitignore",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core._filter_snapshot_by_gitignore"
       },
       {
         "end_line": 106,
@@ -53269,6 +53313,16 @@
         "qualified_name": "looper.config._read_mapping",
         "source": "python_ast",
         "symbol_id": "src/looper/config.py:looper.config._read_mapping"
+      },
+      {
+        "end_line": 106,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 102,
+        "name": "project_root",
+        "qualified_name": "looper.core.project_root",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.project_root"
       },
       {
         "end_line": 106,
@@ -53331,26 +53385,6 @@
         "qualified_name": "tests.test_draw.test_create_draw_rejects_unsafe_subdraw_reference",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_rejects_unsafe_subdraw_reference"
-      },
-      {
-        "end_line": 1061,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 1045,
-        "name": "get_draw_snapshot",
-        "qualified_name": "looper.core.get_draw_snapshot",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.get_draw_snapshot"
-      },
-      {
-        "end_line": 1061,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 1054,
-        "name": "test_feature_and_implement_skills_honor_draw_system_boundaries",
-        "qualified_name": "tests.test_looper.test_feature_and_implement_skills_honor_draw_system_boundaries",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_feature_and_implement_skills_honor_draw_system_boundaries"
       },
       {
         "end_line": 1063,
@@ -53456,16 +53490,6 @@
       },
       {
         "end_line": 107,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 103,
-        "name": "looper_dir",
-        "qualified_name": "looper.core.looper_dir",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.looper_dir"
-      },
-      {
-        "end_line": 107,
         "file": "src/looper/templates/adapters/js_ts_static_adapter.js",
         "kind": "function",
         "line": 96,
@@ -53548,6 +53572,16 @@
         "symbol_id": "src/looper/draw.py:looper.draw.ensure_draw_workspace"
       },
       {
+        "end_line": 1070,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 1058,
+        "name": "test_draw_skills_document_questions_and_answer_history",
+        "qualified_name": "tests.test_looper.test_draw_skills_document_questions_and_answer_history",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_skills_document_questions_and_answer_history"
+      },
+      {
         "end_line": 1071,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
@@ -53558,16 +53592,6 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_new_drawing_button_persists_a_new_json_document"
       },
       {
-        "end_line": 1071,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 1064,
-        "name": "test_traceability_skills_cover_rpc_and_sql_implementations",
-        "qualified_name": "tests.test_looper.test_traceability_skills_cover_rpc_and_sql_implementations",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_traceability_skills_cover_rpc_and_sql_implementations"
-      },
-      {
         "end_line": 1072,
         "file": "src/looper/cli.py",
         "kind": "function",
@@ -53576,16 +53600,6 @@
         "qualified_name": "looper.cli.draw_symbols",
         "source": "python_ast",
         "symbol_id": "src/looper/cli.py:looper.cli.draw_symbols"
-      },
-      {
-        "end_line": 1076,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 1064,
-        "name": "build_unified_diff",
-        "qualified_name": "looper.core.build_unified_diff",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.build_unified_diff"
       },
       {
         "end_line": 1077,
@@ -53692,11 +53706,11 @@
         "end_line": 1080,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 1074,
-        "name": "test_setup_reports_missing_system_draw_without_creating_it",
-        "qualified_name": "tests.test_looper.test_setup_reports_missing_system_draw_without_creating_it",
+        "line": 1073,
+        "name": "test_draw_skills_preserve_system_hierarchy_and_terminal_unimplemented_paths",
+        "qualified_name": "tests.test_looper.test_draw_skills_preserve_system_hierarchy_and_terminal_unimplemented_paths",
         "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_setup_reports_missing_system_draw_without_creating_it"
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_skills_preserve_system_hierarchy_and_terminal_unimplemented_paths"
       },
       {
         "end_line": 1082,
@@ -53832,6 +53846,26 @@
         "symbol_id": "tests/test_backlog.py:tests.test_backlog._remove_test_refs"
       },
       {
+        "end_line": 1090,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 1083,
+        "name": "test_feature_and_implement_skills_honor_draw_system_boundaries",
+        "qualified_name": "tests.test_looper.test_feature_and_implement_skills_honor_draw_system_boundaries",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_feature_and_implement_skills_honor_draw_system_boundaries"
+      },
+      {
+        "end_line": 1091,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 1062,
+        "name": "get_workspace_snapshot",
+        "qualified_name": "looper.core.get_workspace_snapshot",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.get_workspace_snapshot"
+      },
+      {
         "end_line": 1093,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/render.py",
         "kind": "function",
@@ -53860,16 +53894,6 @@
         "qualified_name": "tests.test_cli.test_log_snapshot_keeps_counts_for_created_and_deleted_files",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_snapshot_keeps_counts_for_created_and_deleted_files"
-      },
-      {
-        "end_line": 1093,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 1083,
-        "name": "test_agent_skills_are_self_contained_and_do_not_reference_internal_plan",
-        "qualified_name": "tests.test_looper.test_agent_skills_are_self_contained_and_do_not_reference_internal_plan",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_agent_skills_are_self_contained_and_do_not_reference_internal_plan"
       },
       {
         "end_line": 1094,
@@ -54026,6 +54050,16 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/dna-scaffold.mjs:function:uniq"
       },
       {
+        "end_line": 1100,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 1093,
+        "name": "test_traceability_skills_cover_rpc_and_sql_implementations",
+        "qualified_name": "tests.test_looper.test_traceability_skills_cover_rpc_and_sql_implementations",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_traceability_skills_cover_rpc_and_sql_implementations"
+      },
+      {
         "end_line": 1103,
         "file": "src/looper/cli.py",
         "kind": "function",
@@ -54056,16 +54090,6 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_command_requires_at_least_one_work_type"
       },
       {
-        "end_line": 1107,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 1096,
-        "name": "test_delivery_agents_define_complete_production_test_contract",
-        "qualified_name": "tests.test_looper.test_delivery_agents_define_complete_production_test_contract",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_delivery_agents_define_complete_production_test_contract"
-      },
-      {
         "end_line": 1109,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
@@ -54074,6 +54098,16 @@
         "qualified_name": "tests.test_draw_editor.test_code_references_modal_displays_declared_draw_test_references",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_code_references_modal_displays_declared_draw_test_references"
+      },
+      {
+        "end_line": 1109,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 1103,
+        "name": "test_setup_reports_missing_system_draw_without_creating_it",
+        "qualified_name": "tests.test_looper.test_setup_reports_missing_system_draw_without_creating_it",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_setup_reports_missing_system_draw_without_creating_it"
       },
       {
         "end_line": 111,
@@ -54118,6 +54152,16 @@
         "signature": "async function navigateForRecon(page, url, timeout)",
         "source": "typescript_compiler_api",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/recon-site.mjs:function:navigateForRecon"
+      },
+      {
+        "end_line": 1110,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 1094,
+        "name": "get_draw_snapshot",
+        "qualified_name": "looper.core.get_draw_snapshot",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.get_draw_snapshot"
       },
       {
         "end_line": 1111,
@@ -54202,16 +54246,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/lib/system-browser.mjs:function:responseView"
       },
       {
-        "end_line": 1120,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 1079,
-        "name": "get_incremental_draw_diff",
-        "qualified_name": "looper.core.get_incremental_draw_diff",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.get_incremental_draw_diff"
-      },
-      {
         "end_line": 1122,
         "file": "src/looper/backlog.py",
         "kind": "function",
@@ -54222,14 +54256,24 @@
         "symbol_id": "src/looper/backlog.py:looper.backlog._append_single_child_backlog"
       },
       {
-        "end_line": 1123,
+        "end_line": 1122,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 1110,
-        "name": "test_readme_documents_remote_install_and_interactive_integrations",
-        "qualified_name": "tests.test_looper.test_readme_documents_remote_install_and_interactive_integrations",
+        "line": 1112,
+        "name": "test_agent_skills_are_self_contained_and_do_not_reference_internal_plan",
+        "qualified_name": "tests.test_looper.test_agent_skills_are_self_contained_and_do_not_reference_internal_plan",
         "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_readme_documents_remote_install_and_interactive_integrations"
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_agent_skills_are_self_contained_and_do_not_reference_internal_plan"
+      },
+      {
+        "end_line": 1125,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 1113,
+        "name": "build_unified_diff",
+        "qualified_name": "looper.core.build_unified_diff",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.build_unified_diff"
       },
       {
         "end_line": 113,
@@ -54312,6 +54356,16 @@
         "signature": "(r) => urlToLocalPath(r.url, origin)",
         "source": "typescript_compiler_api",
         "symbol_id": ".agents/skills/system-design/open-design/skills/web-clone/scripts/mirror-site.mjs:function:<anonymous>"
+      },
+      {
+        "end_line": 113,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 109,
+        "name": "looper_dir",
+        "qualified_name": "looper.core.looper_dir",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.looper_dir"
       },
       {
         "end_line": 113,
@@ -54426,14 +54480,14 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_draw_diff_command_reads_only_logged_draw_json_changes"
       },
       {
-        "end_line": 1134,
+        "end_line": 1136,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 1126,
-        "name": "test_readme_documents_codex_skill_invocation",
-        "qualified_name": "tests.test_looper.test_readme_documents_codex_skill_invocation",
+        "line": 1125,
+        "name": "test_delivery_agents_define_complete_production_test_contract",
+        "qualified_name": "tests.test_looper.test_delivery_agents_define_complete_production_test_contract",
         "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_readme_documents_codex_skill_invocation"
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_delivery_agents_define_complete_production_test_contract"
       },
       {
         "end_line": 114,
@@ -54474,16 +54528,6 @@
         "qualified_name": "tests.test_draw.test_draw_html_uses_react_flow_at_the_renderer_boundary",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_uses_react_flow_at_the_renderer_boundary"
-      },
-      {
-        "end_line": 1145,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 1137,
-        "name": "test_feature_skill_uses_tests_and_draw_json_without_markdown_copies",
-        "qualified_name": "tests.test_looper.test_feature_skill_uses_tests_and_draw_json_without_markdown_copies",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_feature_skill_uses_tests_and_draw_json_without_markdown_copies"
       },
       {
         "end_line": 115,
@@ -54546,6 +54590,16 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_backlog_panel_exposes_both_execution_phase_statuses_and_delivery_scope"
       },
       {
+        "end_line": 1152,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 1139,
+        "name": "test_readme_documents_remote_install_and_interactive_integrations",
+        "qualified_name": "tests.test_looper.test_readme_documents_remote_install_and_interactive_integrations",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_readme_documents_remote_install_and_interactive_integrations"
+      },
+      {
         "end_line": 1154,
         "file": "src/looper/cli.py",
         "kind": "function",
@@ -54554,16 +54608,6 @@
         "qualified_name": "looper.cli.draw_diff",
         "source": "python_ast",
         "symbol_id": "src/looper/cli.py:looper.cli.draw_diff"
-      },
-      {
-        "end_line": 1155,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 1148,
-        "name": "test_setup_skill_defines_global_alias_and_database_lifecycle",
-        "qualified_name": "tests.test_looper.test_setup_skill_defines_global_alias_and_database_lifecycle",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_setup_skill_defines_global_alias_and_database_lifecycle"
       },
       {
         "end_line": 1156,
@@ -54690,6 +54734,26 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_loads_the_persisted_backlog_from_the_draw_server"
       },
       {
+        "end_line": 1163,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 1155,
+        "name": "test_readme_documents_codex_skill_invocation",
+        "qualified_name": "tests.test_looper.test_readme_documents_codex_skill_invocation",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_readme_documents_codex_skill_invocation"
+      },
+      {
+        "end_line": 1169,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 1128,
+        "name": "get_incremental_draw_diff",
+        "qualified_name": "looper.core.get_incremental_draw_diff",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.get_incremental_draw_diff"
+      },
+      {
         "end_line": 117,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/hackernews.py",
         "kind": "function",
@@ -54740,16 +54804,6 @@
         "signature": "(task) => (",
         "source": "typescript_compiler_api",
         "symbol_id": "draw-editor/src/components/BacklogPanel.tsx:function:<anonymous>"
-      },
-      {
-        "end_line": 117,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 110,
-        "name": "_replace_legacy_reference",
-        "qualified_name": "looper.core._replace_legacy_reference",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core._replace_legacy_reference"
       },
       {
         "end_line": 117,
@@ -54823,14 +54877,14 @@
         "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_migrates_legacy_looper_state_and_text_references"
       },
       {
-        "end_line": 1175,
-        "file": "src/looper/core.py",
+        "end_line": 1174,
+        "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 1124,
-        "name": "get_incremental_diff_stats",
-        "qualified_name": "looper.core.get_incremental_diff_stats",
+        "line": 1166,
+        "name": "test_feature_skill_uses_tests_and_draw_json_without_markdown_copies",
+        "qualified_name": "tests.test_looper.test_feature_skill_uses_tests_and_draw_json_without_markdown_copies",
         "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.get_incremental_diff_stats"
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_feature_skill_uses_tests_and_draw_json_without_markdown_copies"
       },
       {
         "end_line": 1175,
@@ -54851,16 +54905,6 @@
         "qualified_name": "tests.test_draw_editor.test_editor_allows_node_checklists_and_persists_them_through_backlog_api",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_allows_node_checklists_and_persists_them_through_backlog_api"
-      },
-      {
-        "end_line": 1179,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 1158,
-        "name": "test_mock_server_skill_requires_strict_outbound_and_webhook_contracts",
-        "qualified_name": "tests.test_looper.test_mock_server_skill_requires_strict_outbound_and_webhook_contracts",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_mock_server_skill_requires_strict_outbound_and_webhook_contracts"
       },
       {
         "end_line": 118,
@@ -55014,13 +55058,13 @@
       },
       {
         "end_line": 1184,
-        "file": "src/looper/core.py",
+        "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 1178,
-        "name": "is_rework_diff",
-        "qualified_name": "looper.core.is_rework_diff",
+        "line": 1177,
+        "name": "test_setup_skill_defines_global_alias_and_database_lifecycle",
+        "qualified_name": "tests.test_looper.test_setup_skill_defines_global_alias_and_database_lifecycle",
         "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.is_rework_diff"
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_setup_skill_defines_global_alias_and_database_lifecycle"
       },
       {
         "end_line": 1187,
@@ -55113,16 +55157,6 @@
         "qualified_name": "tests.test_draw_editor.test_editor_reconciles_selection_and_protects_async_draw_loads",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_reconciles_selection_and_protects_async_draw_loads"
-      },
-      {
-        "end_line": 1193,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 1182,
-        "name": "test_init_injects_strict_mock_server_contract_instruction",
-        "qualified_name": "tests.test_looper.test_init_injects_strict_mock_server_contract_instruction",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_injects_strict_mock_server_contract_instruction"
       },
       {
         "end_line": 1196,
@@ -55384,16 +55418,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/hatch-pet/scripts/generate_pet_images.py:looper.templates.agents.system-design.open-design.skills.hatch-pet.scripts.generate_pet_images.run_image_edit"
       },
       {
-        "end_line": 1203,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 1196,
-        "name": "test_agent_skills_require_approval_for_expensive_or_mutating_setup",
-        "qualified_name": "tests.test_looper.test_agent_skills_require_approval_for_expensive_or_mutating_setup",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_agent_skills_require_approval_for_expensive_or_mutating_setup"
-      },
-      {
         "end_line": 1204,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -55402,16 +55426,6 @@
         "qualified_name": "tests.test_draw.test_demo_draw_contains_answered_questions_and_all_conditions",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_demo_draw_contains_answered_questions_and_all_conditions"
-      },
-      {
-        "end_line": 1205,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 1187,
-        "name": "get_previous_workspace_snapshot",
-        "qualified_name": "looper.core.get_previous_workspace_snapshot",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.get_previous_workspace_snapshot"
       },
       {
         "end_line": 1206,
@@ -55432,6 +55446,16 @@
         "qualified_name": "looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.render._format_web_line_sources",
         "source": "python_ast",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/render.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.render._format_web_line_sources"
+      },
+      {
+        "end_line": 1208,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 1187,
+        "name": "test_mock_server_skill_requires_strict_outbound_and_webhook_contracts",
+        "qualified_name": "tests.test_looper.test_mock_server_skill_requires_strict_outbound_and_webhook_contracts",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_mock_server_skill_requires_strict_outbound_and_webhook_contracts"
       },
       {
         "end_line": 121,
@@ -55515,16 +55539,6 @@
       },
       {
         "end_line": 122,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 120,
-        "name": "_append_unique",
-        "qualified_name": "looper.core._append_unique",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core._append_unique"
-      },
-      {
-        "end_line": 122,
         "file": "src/looper/draw.py",
         "kind": "function",
         "line": 104,
@@ -55564,14 +55578,24 @@
         "symbol_id": "src/looper/cli.py:looper.cli.draw_associate_reference"
       },
       {
-        "end_line": 1226,
+        "end_line": 1222,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 1211,
+        "name": "test_init_injects_strict_mock_server_contract_instruction",
+        "qualified_name": "tests.test_looper.test_init_injects_strict_mock_server_contract_instruction",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_injects_strict_mock_server_contract_instruction"
+      },
+      {
+        "end_line": 1224,
         "file": "src/looper/core.py",
         "kind": "function",
-        "line": 1208,
-        "name": "get_previous_draw_snapshot",
-        "qualified_name": "looper.core.get_previous_draw_snapshot",
+        "line": 1173,
+        "name": "get_incremental_diff_stats",
+        "qualified_name": "looper.core.get_incremental_diff_stats",
         "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.get_previous_draw_snapshot"
+        "symbol_id": "src/looper/core.py:looper.core.get_incremental_diff_stats"
       },
       {
         "end_line": 123,
@@ -55593,6 +55617,16 @@
         "signature": "function rewriteRootRef(projectRoot, ownerFile, value)",
         "source": "typescript_compiler_api",
         "symbol_id": ".agents/skills/system-design/open-design/skills/web-clone/scripts/od-preview-rewrite.mjs:function:rewriteRootRef"
+      },
+      {
+        "end_line": 123,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 116,
+        "name": "_replace_legacy_reference",
+        "qualified_name": "looper.core._replace_legacy_reference",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core._replace_legacy_reference"
       },
       {
         "end_line": 123,
@@ -55624,6 +55658,26 @@
         "signature": "function rewriteRootRef(projectRoot, ownerFile, value)",
         "source": "typescript_compiler_api",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/od-preview-rewrite.mjs:function:rewriteRootRef"
+      },
+      {
+        "end_line": 1232,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 1225,
+        "name": "test_agent_skills_require_approval_for_expensive_or_mutating_setup",
+        "qualified_name": "tests.test_looper.test_agent_skills_require_approval_for_expensive_or_mutating_setup",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_agent_skills_require_approval_for_expensive_or_mutating_setup"
+      },
+      {
+        "end_line": 1233,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 1227,
+        "name": "is_rework_diff",
+        "qualified_name": "looper.core.is_rework_diff",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.is_rework_diff"
       },
       {
         "end_line": 1233,
@@ -55854,6 +55908,16 @@
         "symbol_id": "src/looper/cli.py:looper.cli.draw_serve"
       },
       {
+        "end_line": 1254,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 1236,
+        "name": "get_previous_workspace_snapshot",
+        "qualified_name": "looper.core.get_previous_workspace_snapshot",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.get_previous_workspace_snapshot"
+      },
+      {
         "end_line": 1255,
         "file": "tests/test_backlog.py",
         "kind": "function",
@@ -55862,16 +55926,6 @@
         "qualified_name": "tests.test_backlog.test_backlog_complete_rejects_a_task_that_is_not_current",
         "source": "python_ast",
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_complete_rejects_a_task_that_is_not_current"
-      },
-      {
-        "end_line": 1258,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 1206,
-        "name": "test_init_removes_retired_skills_automatically",
-        "qualified_name": "tests.test_looper.test_init_removes_retired_skills_automatically",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_removes_retired_skills_automatically"
       },
       {
         "end_line": 126,
@@ -56089,14 +56143,14 @@
         "symbol_id": "src/looper/cli.py:looper.cli.listening_process_ids"
       },
       {
-        "end_line": 1270,
-        "file": "tests/test_looper.py",
+        "end_line": 1275,
+        "file": "src/looper/core.py",
         "kind": "function",
-        "line": 1261,
-        "name": "test_init_does_not_create_feature_or_implementation_commands",
-        "qualified_name": "tests.test_looper.test_init_does_not_create_feature_or_implementation_commands",
+        "line": 1257,
+        "name": "get_previous_draw_snapshot",
+        "qualified_name": "looper.core.get_previous_draw_snapshot",
         "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_does_not_create_feature_or_implementation_commands"
+        "symbol_id": "src/looper/core.py:looper.core.get_previous_draw_snapshot"
       },
       {
         "end_line": 1278,
@@ -56120,6 +56174,16 @@
       },
       {
         "end_line": 128,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 126,
+        "name": "_append_unique",
+        "qualified_name": "looper.core._append_unique",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core._append_unique"
+      },
+      {
+        "end_line": 128,
         "file": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/signals.py",
         "kind": "function",
         "line": 118,
@@ -56137,16 +56201,6 @@
         "qualified_name": "looper.cli.terminate_processes",
         "source": "python_ast",
         "symbol_id": "src/looper/cli.py:looper.cli.terminate_processes"
-      },
-      {
-        "end_line": 1283,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 1229,
-        "name": "get_logged_draw_diff",
-        "qualified_name": "looper.core.get_logged_draw_diff",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.get_logged_draw_diff"
       },
       {
         "end_line": 1283,
@@ -56169,14 +56223,14 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_cli_backlog_frontend_and_backend_subcommands"
       },
       {
-        "end_line": 1286,
+        "end_line": 1287,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 1273,
-        "name": "test_runs_viewer_is_read_only_and_uses_incremental_json_documents",
-        "qualified_name": "tests.test_looper.test_runs_viewer_is_read_only_and_uses_incremental_json_documents",
+        "line": 1235,
+        "name": "test_init_removes_retired_skills_automatically",
+        "qualified_name": "tests.test_looper.test_init_removes_retired_skills_automatically",
         "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_runs_viewer_is_read_only_and_uses_incremental_json_documents"
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_removes_retired_skills_automatically"
       },
       {
         "end_line": 129,
@@ -56287,6 +56341,16 @@
         "qualified_name": "looper.draw._context_reference_lines",
         "source": "python_ast",
         "symbol_id": "src/looper/draw.py:looper.draw._context_reference_lines"
+      },
+      {
+        "end_line": 1299,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 1290,
+        "name": "test_init_does_not_create_feature_or_implementation_commands",
+        "qualified_name": "tests.test_looper.test_init_does_not_create_feature_or_implementation_commands",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_does_not_create_feature_or_implementation_commands"
       },
       {
         "end_line": 13,
@@ -56626,16 +56690,6 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_init_interactive_does_not_ask_frontend_analysis_policy"
       },
       {
-        "end_line": 1311,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 1289,
-        "name": "test_playwright_testing_strict_validator_rules",
-        "qualified_name": "tests.test_looper.test_playwright_testing_strict_validator_rules",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_playwright_testing_strict_validator_rules"
-      },
-      {
         "end_line": 1313,
         "file": "tests/test_draw.py",
         "kind": "function",
@@ -56644,6 +56698,16 @@
         "qualified_name": "tests.test_draw.test_draw_html_connects_blocks_by_dragging_visible_ports",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_html_connects_blocks_by_dragging_visible_ports"
+      },
+      {
+        "end_line": 1315,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 1302,
+        "name": "test_runs_viewer_is_read_only_and_uses_incremental_json_documents",
+        "qualified_name": "tests.test_looper.test_runs_viewer_is_read_only_and_uses_incremental_json_documents",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_runs_viewer_is_read_only_and_uses_incremental_json_documents"
       },
       {
         "end_line": 132,
@@ -56726,16 +56790,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/hatch-pet/scripts/test_generate_pet_images.py:looper.templates.agents.system-design.open-design.skills.hatch-pet.scripts.test_generate_pet_images.test_rejects_traversal_in_input_images_via_main"
       },
       {
-        "end_line": 1324,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 1286,
-        "name": "record_run_entry",
-        "qualified_name": "looper.core.record_run_entry",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.record_run_entry"
-      },
-      {
         "end_line": 1326,
         "file": "draw-editor/src/components/Sidebar.tsx",
         "kind": "function",
@@ -56745,16 +56799,6 @@
         "signature": "(e) => setNewFlowSummary(e.target.value)",
         "source": "typescript_compiler_api",
         "symbol_id": "draw-editor/src/components/Sidebar.tsx:function:<anonymous>"
-      },
-      {
-        "end_line": 1326,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 1314,
-        "name": "test_draw_feature_disallows_implicit_invocation",
-        "qualified_name": "tests.test_looper.test_draw_feature_disallows_implicit_invocation",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_feature_disallows_implicit_invocation"
       },
       {
         "end_line": 1327,
@@ -56827,6 +56871,16 @@
         "qualified_name": "tests.test_backlog.test_backlog_cli_task_has_a_concise_human_output",
         "source": "python_ast",
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_backlog_cli_task_has_a_concise_human_output"
+      },
+      {
+        "end_line": 1332,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 1278,
+        "name": "get_logged_draw_diff",
+        "qualified_name": "looper.core.get_logged_draw_diff",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.get_logged_draw_diff"
       },
       {
         "end_line": 1332,
@@ -56923,6 +56977,16 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/interaction-probe.mjs:function:selectorFor"
       },
       {
+        "end_line": 1340,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 1318,
+        "name": "test_playwright_testing_strict_validator_rules",
+        "qualified_name": "tests.test_looper.test_playwright_testing_strict_validator_rules",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_playwright_testing_strict_validator_rules"
+      },
+      {
         "end_line": 1344,
         "file": "src/looper/backlog.py",
         "kind": "function",
@@ -56951,6 +57015,16 @@
         "qualified_name": "looper.templates.agents.system-design.open-design.skills.hatch-pet.scripts.validate_atlas.main",
         "source": "python_ast",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/hatch-pet/scripts/validate_atlas.py:looper.templates.agents.system-design.open-design.skills.hatch-pet.scripts.validate_atlas.main"
+      },
+      {
+        "end_line": 1355,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 1343,
+        "name": "test_draw_feature_disallows_implicit_invocation",
+        "qualified_name": "tests.test_looper.test_draw_feature_disallows_implicit_invocation",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_feature_disallows_implicit_invocation"
       },
       {
         "end_line": 1359,
@@ -57145,6 +57219,16 @@
         "qualified_name": "tests.test_draw.http_error_302",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.http_error_302"
+      },
+      {
+        "end_line": 1373,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 1335,
+        "name": "record_run_entry",
+        "qualified_name": "looper.core.record_run_entry",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.record_run_entry"
       },
       {
         "end_line": 1373,
@@ -58800,16 +58884,6 @@
       },
       {
         "end_line": 157,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 125,
-        "name": "_merge_legacy_state",
-        "qualified_name": "looper.core._merge_legacy_state",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core._merge_legacy_state"
-      },
-      {
-        "end_line": 157,
         "file": "src/looper/draw.py",
         "kind": "function",
         "line": 155,
@@ -59397,6 +59471,16 @@
       },
       {
         "end_line": 163,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 131,
+        "name": "_merge_legacy_state",
+        "qualified_name": "looper.core._merge_legacy_state",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core._merge_legacy_state"
+      },
+      {
+        "end_line": 163,
         "file": "tests/test_traceability.py",
         "kind": "function",
         "line": 142,
@@ -59964,16 +60048,6 @@
       },
       {
         "end_line": 169,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 160,
-        "name": "_legacy_text_files",
-        "qualified_name": "looper.core._legacy_text_files",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core._legacy_text_files"
-      },
-      {
-        "end_line": 169,
         "file": "src/looper/models.py",
         "kind": "class",
         "line": 59,
@@ -60537,6 +60611,16 @@
         "qualified_name": "looper.draw.read_draw",
         "source": "python_ast",
         "symbol_id": "src/looper/draw.py:looper.draw.read_draw"
+      },
+      {
+        "end_line": 175,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 166,
+        "name": "_legacy_text_files",
+        "qualified_name": "looper.core._legacy_text_files",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core._legacy_text_files"
       },
       {
         "end_line": 1756,
@@ -62703,16 +62787,6 @@
       },
       {
         "end_line": 208,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 172,
-        "name": "migrate_legacy_project",
-        "qualified_name": "looper.core.migrate_legacy_project",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.migrate_legacy_project"
-      },
-      {
-        "end_line": 208,
         "file": "src/looper/templates/agents/system-design/open-design/design-templates/hyperframes/scripts/contrast-report.mjs",
         "kind": "function",
         "line": 205,
@@ -63069,6 +63143,16 @@
         "qualified_name": "looper.config.review_config",
         "source": "python_ast",
         "symbol_id": "src/looper/config.py:looper.config.review_config"
+      },
+      {
+        "end_line": 214,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 178,
+        "name": "migrate_legacy_project",
+        "qualified_name": "looper.core.migrate_legacy_project",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.migrate_legacy_project"
       },
       {
         "end_line": 214,
@@ -63709,16 +63793,6 @@
       },
       {
         "end_line": 224,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 219,
-        "name": "strip_diff",
-        "qualified_name": "looper.core.strip_diff",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.strip_diff"
-      },
-      {
-        "end_line": 224,
         "file": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/reddit.py",
         "kind": "function",
         "line": 219,
@@ -64212,6 +64286,16 @@
         "signature": "(capture) => capture.screenshot",
         "source": "typescript_compiler_api",
         "symbol_id": ".agents/skills/system-design/open-design/skills/web-clone/scripts/compare-recon.mjs:function:<anonymous>"
+      },
+      {
+        "end_line": 230,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 225,
+        "name": "strip_diff",
+        "qualified_name": "looper.core.strip_diff",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.strip_diff"
       },
       {
         "end_line": 230,
@@ -64716,16 +64800,6 @@
       },
       {
         "end_line": 240,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 211,
-        "name": "remove_persisted_run_diffs",
-        "qualified_name": "looper.core.remove_persisted_run_diffs",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.remove_persisted_run_diffs"
-      },
-      {
-        "end_line": 240,
         "file": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/github.py",
         "kind": "function",
         "line": 139,
@@ -64966,6 +65040,16 @@
         "qualified_name": "looper.backlog._level_guidance",
         "source": "python_ast",
         "symbol_id": "src/looper/backlog.py:looper.backlog._level_guidance"
+      },
+      {
+        "end_line": 246,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 217,
+        "name": "remove_persisted_run_diffs",
+        "qualified_name": "looper.core.remove_persisted_run_diffs",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.remove_persisted_run_diffs"
       },
       {
         "end_line": 246,
@@ -71302,16 +71386,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/planner.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.planner._trim_subqueries_for_depth"
       },
       {
-        "end_line": 356,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 341,
-        "name": "_agent_mode_instruction",
-        "qualified_name": "looper.core._agent_mode_instruction",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core._agent_mode_instruction"
-      },
-      {
         "end_line": 357,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/ui.py",
         "kind": "function",
@@ -71612,6 +71686,16 @@
         "qualified_name": ".agents.skills.system-design.open-design.design-templates.last30days.scripts.lib.ui.start_hackernews",
         "source": "python_ast",
         "symbol_id": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/ui.py:.agents.skills.system-design.open-design.design-templates.last30days.scripts.lib.ui.start_hackernews"
+      },
+      {
+        "end_line": 362,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 347,
+        "name": "_agent_mode_instruction",
+        "qualified_name": "looper.core._agent_mode_instruction",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core._agent_mode_instruction"
       },
       {
         "end_line": 362,
@@ -73237,16 +73321,6 @@
       },
       {
         "end_line": 392,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 359,
-        "name": "_agent_convention_catalog",
-        "qualified_name": "looper.core._agent_convention_catalog",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core._agent_convention_catalog"
-      },
-      {
-        "end_line": 392,
         "file": "src/looper/reviews.py",
         "kind": "function",
         "line": 368,
@@ -73326,6 +73400,16 @@
         "qualified_name": ".agents.skills.system-design.open-design.design-templates.last30days.scripts.lib.html_render._strip_canonical_boundary",
         "source": "python_ast",
         "symbol_id": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/html_render.py:.agents.skills.system-design.open-design.design-templates.last30days.scripts.lib.html_render._strip_canonical_boundary"
+      },
+      {
+        "end_line": 398,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 365,
+        "name": "_agent_convention_catalog",
+        "qualified_name": "looper.core._agent_convention_catalog",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core._agent_convention_catalog"
       },
       {
         "end_line": 398,
@@ -73674,16 +73758,6 @@
       },
       {
         "end_line": 403,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 395,
-        "name": "_agent_block",
-        "qualified_name": "looper.core._agent_block",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core._agent_block"
-      },
-      {
-        "end_line": 403,
         "file": "src/looper/templates/agents/system-design/open-design/design-templates/html-ppt-zhangzara-creative-mode/assets/deck-stage.js",
         "kind": "method",
         "line": 391,
@@ -73890,6 +73964,16 @@
         "qualified_name": ".agents.skills.system-design.open-design.design-templates.last30days.scripts.lib.setup_wizard.fetch_api_key",
         "source": "python_ast",
         "symbol_id": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/setup_wizard.py:.agents.skills.system-design.open-design.design-templates.last30days.scripts.lib.setup_wizard.fetch_api_key"
+      },
+      {
+        "end_line": 409,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 401,
+        "name": "_agent_block",
+        "qualified_name": "looper.core._agent_block",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core._agent_block"
       },
       {
         "end_line": 409,
@@ -74941,16 +75025,6 @@
       },
       {
         "end_line": 427,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 409,
-        "name": "ensure_agent_instructions",
-        "qualified_name": "looper.core.ensure_agent_instructions",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.ensure_agent_instructions"
-      },
-      {
-        "end_line": 427,
         "file": "src/looper/templates/agents/system-design/open-design/design-systems/_schema/manifest.schema.ts",
         "kind": "function",
         "line": 412,
@@ -75258,6 +75332,16 @@
         "qualified_name": ".agents.skills.system-design.open-design.design-templates.last30days.scripts.lib.planner._fallback_plan",
         "source": "python_ast",
         "symbol_id": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/planner.py:.agents.skills.system-design.open-design.design-templates.last30days.scripts.lib.planner._fallback_plan"
+      },
+      {
+        "end_line": 433,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 415,
+        "name": "ensure_agent_instructions",
+        "qualified_name": "looper.core.ensure_agent_instructions",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.ensure_agent_instructions"
       },
       {
         "end_line": 433,
@@ -75654,16 +75738,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/github.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.github._fetch_repo_info"
       },
       {
-        "end_line": 442,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 430,
-        "name": "refresh_agent_convention_catalog",
-        "qualified_name": "looper.core.refresh_agent_convention_catalog",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.refresh_agent_convention_catalog"
-      },
-      {
         "end_line": 443,
         "file": ".agents/skills/system-design/open-design/design-systems/_schema/manifest.schema.ts",
         "kind": "function",
@@ -75774,6 +75848,16 @@
         "qualified_name": ".agents.skills.system-design.open-design.design-templates.last30days.scripts.lib.tiktok.fetch_captions",
         "source": "python_ast",
         "symbol_id": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/tiktok.py:.agents.skills.system-design.open-design.design-templates.last30days.scripts.lib.tiktok.fetch_captions"
+      },
+      {
+        "end_line": 448,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 436,
+        "name": "refresh_agent_convention_catalog",
+        "qualified_name": "looper.core.refresh_agent_convention_catalog",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.refresh_agent_convention_catalog"
       },
       {
         "end_line": 448,
@@ -76156,6 +76240,16 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/lib/system-browser.mjs:function:BrowserRequestContext.<anonymous>"
       },
       {
+        "end_line": 451,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 442,
+        "name": "ignored",
+        "qualified_name": "tests.test_looper.ignored",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.ignored"
+      },
+      {
         "end_line": 453,
         "file": ".agents/skills/system-design/open-design/skills/web-clone/scripts/lib/system-browser.mjs",
         "kind": "method",
@@ -76238,6 +76332,16 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_tags_are_case_insensitive_and_obs_requires_explicit_consumption"
       },
       {
+        "end_line": 455,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 429,
+        "name": "test_init_ignores_packaged_skills_but_versions_extra_skills_and_conventions",
+        "qualified_name": "tests.test_looper.test_init_ignores_packaged_skills_but_versions_extra_skills_and_conventions",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_ignores_packaged_skills_but_versions_extra_skills_and_conventions"
+      },
+      {
         "end_line": 457,
         "file": ".agents/skills/system-design/open-design/skills/hatch-pet/scripts/prepare_pet_run.py",
         "kind": "function",
@@ -76246,16 +76350,6 @@
         "qualified_name": ".agents.skills.system-design.open-design.skills.hatch-pet.scripts.prepare_pet_run.row_prompt",
         "source": "python_ast",
         "symbol_id": ".agents/skills/system-design/open-design/skills/hatch-pet/scripts/prepare_pet_run.py:.agents.skills.system-design.open-design.skills.hatch-pet.scripts.prepare_pet_run.row_prompt"
-      },
-      {
-        "end_line": 457,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 445,
-        "name": "ensure_agent_conventions",
-        "qualified_name": "looper.core.ensure_agent_conventions",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.ensure_agent_conventions"
       },
       {
         "end_line": 457,
@@ -76680,6 +76774,16 @@
         "qualified_name": ".agents.skills.system-design.open-design.design-templates.last30days.scripts.lib.env.is_youtube_sc_available",
         "source": "python_ast",
         "symbol_id": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/env.py:.agents.skills.system-design.open-design.design-templates.last30days.scripts.lib.env.is_youtube_sc_available"
+      },
+      {
+        "end_line": 463,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 451,
+        "name": "ensure_agent_conventions",
+        "qualified_name": "looper.core.ensure_agent_conventions",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.ensure_agent_conventions"
       },
       {
         "end_line": 463,
@@ -77411,16 +77515,6 @@
         "symbol_id": "src/looper/cli.py:looper.cli._format_backlog_response"
       },
       {
-        "end_line": 478,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 460,
-        "name": "_resolve_init_development_mode",
-        "qualified_name": "looper.core._resolve_init_development_mode",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core._resolve_init_development_mode"
-      },
-      {
         "end_line": 479,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/env.py",
         "kind": "function",
@@ -77768,6 +77862,16 @@
         "qualified_name": "looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.setup_wizard.run_full_device_auth",
         "source": "python_ast",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/setup_wizard.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.setup_wizard.run_full_device_auth"
+      },
+      {
+        "end_line": 484,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 466,
+        "name": "_resolve_init_development_mode",
+        "qualified_name": "looper.core._resolve_init_development_mode",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core._resolve_init_development_mode"
       },
       {
         "end_line": 484,
@@ -80440,16 +80544,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/html-ppt-zhangzara-stencil-tablet/assets/deck-stage.js:method:DeckStage._onResize"
       },
       {
-        "end_line": 540,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 429,
-        "name": "test_agents_are_loaded_from_markdown_templates",
-        "qualified_name": "tests.test_looper.test_agents_are_loaded_from_markdown_templates",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_agents_are_loaded_from_markdown_templates"
-      },
-      {
         "end_line": 541,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/tiktok.py",
         "kind": "function",
@@ -81466,16 +81560,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/render.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.render._render_comparison_scaffold"
       },
       {
-        "end_line": 556,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 543,
-        "name": "test_resolve_bug_skill_requires_observability_before_fix",
-        "qualified_name": "tests.test_looper.test_resolve_bug_skill_requires_observability_before_fix",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_resolve_bug_skill_requires_observability_before_fix"
-      },
-      {
         "end_line": 558,
         "file": "draw-editor/src/layout.ts",
         "kind": "function",
@@ -81896,6 +81980,16 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_selected_blocks_have_an_explicit_visual_state"
       },
       {
+        "end_line": 569,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 458,
+        "name": "test_agents_are_loaded_from_markdown_templates",
+        "qualified_name": "tests.test_looper.test_agents_are_loaded_from_markdown_templates",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_agents_are_loaded_from_markdown_templates"
+      },
+      {
         "end_line": 57,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/last30days.py",
         "kind": "function",
@@ -82034,16 +82128,6 @@
         "qualified_name": "tests.test_draw_editor.test_drawings_index_enriches_entries_with_hierarchy_metadata",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_drawings_index_enriches_entries_with_hierarchy_metadata"
-      },
-      {
-        "end_line": 570,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 559,
-        "name": "test_test_and_implement_skills_require_symbols_and_static_analysis_gate",
-        "qualified_name": "tests.test_looper.test_test_and_implement_skills_require_symbols_and_static_analysis_gate",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_test_and_implement_skills_require_symbols_and_static_analysis_gate"
       },
       {
         "end_line": 573,
@@ -82522,6 +82606,16 @@
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_separate_delivery_does_not_inherit_l2_test_status_to_l3"
       },
       {
+        "end_line": 585,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 572,
+        "name": "test_resolve_bug_skill_requires_observability_before_fix",
+        "qualified_name": "tests.test_looper.test_resolve_bug_skill_requires_observability_before_fix",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_resolve_bug_skill_requires_observability_before_fix"
+      },
+      {
         "end_line": 588,
         "file": ".agents/skills/system-design/open-design/design-templates/html-ppt-zhangzara-creative-mode/assets/deck-stage.js",
         "kind": "method",
@@ -82959,16 +83053,6 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_create_draw_accepts_descriptive_draw_id_and_numeric_internal_ids"
       },
       {
-        "end_line": 596,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 573,
-        "name": "test_test_and_implement_skills_require_explicit_draw_association_each_loop",
-        "qualified_name": "tests.test_looper.test_test_and_implement_skills_require_explicit_draw_association_each_loop",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_test_and_implement_skills_require_explicit_draw_association_each_loop"
-      },
-      {
         "end_line": 598,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/planner.py",
         "kind": "function",
@@ -83163,6 +83247,16 @@
         "signature": "_go(i, reason = 'api')",
         "source": "typescript_compiler_api",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/html-ppt-zhangzara-stencil-tablet/assets/deck-stage.js:method:DeckStage._go"
+      },
+      {
+        "end_line": 599,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 588,
+        "name": "test_test_and_implement_skills_require_symbols_and_static_analysis_gate",
+        "qualified_name": "tests.test_looper.test_test_and_implement_skills_require_symbols_and_static_analysis_gate",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_test_and_implement_skills_require_symbols_and_static_analysis_gate"
       },
       {
         "end_line": 60,
@@ -84438,16 +84532,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/polymarket.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.polymarket.market_volume"
       },
       {
-        "end_line": 619,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 599,
-        "name": "test_implement_skill_requires_real_post_implementation_audit",
-        "qualified_name": "tests.test_looper.test_implement_skill_requires_real_post_implementation_audit",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_implement_skill_requires_real_post_implementation_audit"
-      },
-      {
         "end_line": 62,
         "file": ".agents/skills/system-design/open-design/design-templates/html-ppt/assets/animations/fx/_util.js",
         "kind": "function",
@@ -84685,6 +84769,16 @@
         "qualified_name": "tests.test_draw_editor.test_question_textareas_keep_normal_text_visible_and_highlight_mentions_only_when_needed",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_question_textareas_keep_normal_text_visible_and_highlight_mentions_only_when_needed"
+      },
+      {
+        "end_line": 625,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 602,
+        "name": "test_test_and_implement_skills_require_explicit_draw_association_each_loop",
+        "qualified_name": "tests.test_looper.test_test_and_implement_skills_require_explicit_draw_association_each_loop",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_test_and_implement_skills_require_explicit_draw_association_each_loop"
       },
       {
         "end_line": 626,
@@ -84932,16 +85026,6 @@
       },
       {
         "end_line": 634,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 481,
-        "name": "init_project",
-        "qualified_name": "looper.core.init_project",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.init_project"
-      },
-      {
-        "end_line": 634,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
         "line": 625,
@@ -85053,13 +85137,13 @@
       },
       {
         "end_line": 640,
-        "file": "tests/test_looper.py",
+        "file": "src/looper/core.py",
         "kind": "function",
-        "line": 622,
-        "name": "test_test_application_is_for_common_interactions_and_implement_skills_remain_backlog_scoped",
-        "qualified_name": "tests.test_looper.test_test_application_is_for_common_interactions_and_implement_skills_remain_backlog_scoped",
+        "line": 487,
+        "name": "init_project",
+        "qualified_name": "looper.core.init_project",
         "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_test_application_is_for_common_interactions_and_implement_skills_remain_backlog_scoped"
+        "symbol_id": "src/looper/core.py:looper.core.init_project"
       },
       {
         "end_line": 641,
@@ -85160,6 +85244,16 @@
         "qualified_name": "tests.test_draw_editor.test_node_question_counts_use_answer_state_colors",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_node_question_counts_use_answer_state_colors"
+      },
+      {
+        "end_line": 648,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 628,
+        "name": "test_implement_skill_requires_real_post_implementation_audit",
+        "qualified_name": "tests.test_looper.test_implement_skill_requires_real_post_implementation_audit",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_implement_skill_requires_real_post_implementation_audit"
       },
       {
         "end_line": 65,
@@ -85543,16 +85637,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/route-crawl.mjs:function:routeFileName"
       },
       {
-        "end_line": 661,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 643,
-        "name": "test_contextual_memory_routes_durable_rules_to_the_right_document",
-        "qualified_name": "tests.test_looper.test_contextual_memory_routes_durable_rules_to_the_right_document",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_contextual_memory_routes_durable_rules_to_the_right_document"
-      },
-      {
         "end_line": 662,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/reddit.py",
         "kind": "function",
@@ -85646,13 +85730,13 @@
       },
       {
         "end_line": 669,
-        "file": "src/looper/core.py",
+        "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 637,
-        "name": "ensure_static_analysis_defaults",
-        "qualified_name": "looper.core.ensure_static_analysis_defaults",
+        "line": 651,
+        "name": "test_test_application_is_for_common_interactions_and_implement_skills_remain_backlog_scoped",
+        "qualified_name": "tests.test_looper.test_test_application_is_for_common_interactions_and_implement_skills_remain_backlog_scoped",
         "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.ensure_static_analysis_defaults"
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_test_application_is_for_common_interactions_and_implement_skills_remain_backlog_scoped"
       },
       {
         "end_line": 67,
@@ -85898,6 +85982,16 @@
       },
       {
         "end_line": 675,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 643,
+        "name": "ensure_static_analysis_defaults",
+        "qualified_name": "looper.core.ensure_static_analysis_defaults",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.ensure_static_analysis_defaults"
+      },
+      {
+        "end_line": 675,
         "file": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/youtube_yt.py",
         "kind": "function",
         "line": 664,
@@ -86133,6 +86227,16 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_static_analysis_sidebar_uses_clear_labels_and_one_theme_scroll"
       },
       {
+        "end_line": 684,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 678,
+        "name": "_installed_integrations",
+        "qualified_name": "looper.core._installed_integrations",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core._installed_integrations"
+      },
+      {
         "end_line": 685,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/youtube_yt.py",
         "kind": "function",
@@ -86234,16 +86338,6 @@
         "qualified_name": "looper.backlog._atomic_write",
         "source": "python_ast",
         "symbol_id": "src/looper/backlog.py:looper.backlog._atomic_write"
-      },
-      {
-        "end_line": 689,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 672,
-        "name": "ensure_gitignore",
-        "qualified_name": "looper.core.ensure_gitignore",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.ensure_gitignore"
       },
       {
         "end_line": 689,
@@ -86399,14 +86493,14 @@
         "symbol_id": "draw-editor/src/layout.ts:function:layoutCurvedGraph"
       },
       {
-        "end_line": 692,
+        "end_line": 690,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 664,
-        "name": "test_skills_route_specific_technical_memory_to_conventions",
-        "qualified_name": "tests.test_looper.test_skills_route_specific_technical_memory_to_conventions",
+        "line": 672,
+        "name": "test_contextual_memory_routes_durable_rules_to_the_right_document",
+        "qualified_name": "tests.test_looper.test_contextual_memory_routes_durable_rules_to_the_right_document",
         "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_skills_route_specific_technical_memory_to_conventions"
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_contextual_memory_routes_durable_rules_to_the_right_document"
       },
       {
         "end_line": 695,
@@ -86615,16 +86709,6 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_test_blocks_invalid_static_analysis_output"
       },
       {
-        "end_line": 701,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 692,
-        "name": "agent_templates",
-        "qualified_name": "looper.core.agent_templates",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.agent_templates"
-      },
-      {
         "end_line": 702,
         "file": "src/looper/cli.py",
         "kind": "function",
@@ -86666,6 +86750,16 @@
       },
       {
         "end_line": 703,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 687,
+        "name": "_managed_skills_block",
+        "qualified_name": "looper.core._managed_skills_block",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core._managed_skills_block"
+      },
+      {
+        "end_line": 703,
         "file": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/github.py",
         "kind": "function",
         "line": 698,
@@ -86683,16 +86777,6 @@
         "qualified_name": "looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.reddit.parse_reddit_response",
         "source": "python_ast",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/reddit.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.reddit.parse_reddit_response"
-      },
-      {
-        "end_line": 704,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 695,
-        "name": "test_subagents_skill_contract",
-        "qualified_name": "tests.test_looper.test_subagents_skill_contract",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_subagents_skill_contract"
       },
       {
         "end_line": 705,
@@ -86925,6 +87009,16 @@
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_static_analysis_classifies_files_by_selected_indicator"
       },
       {
+        "end_line": 721,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 693,
+        "name": "test_skills_route_specific_technical_memory_to_conventions",
+        "qualified_name": "tests.test_looper.test_skills_route_specific_technical_memory_to_conventions",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_skills_route_specific_technical_memory_to_conventions"
+      },
+      {
         "end_line": 722,
         "file": ".agents/skills/system-design/open-design/design-templates/open-design-landing-deck/scripts/compose.ts",
         "kind": "function",
@@ -86945,16 +87039,6 @@
         "signature": "function renderStats(s: StatsSlide): string",
         "source": "typescript_compiler_api",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/open-design-landing-deck/scripts/compose.ts:function:renderStats"
-      },
-      {
-        "end_line": 722,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 707,
-        "name": "test_subagents_skill_covers_native_herdr_commands",
-        "qualified_name": "tests.test_looper.test_subagents_skill_covers_native_herdr_commands",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_subagents_skill_covers_native_herdr_commands"
       },
       {
         "end_line": 723,
@@ -87131,6 +87215,16 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/store.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.store._cli_query"
       },
       {
+        "end_line": 733,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 724,
+        "name": "test_subagents_skill_contract",
+        "qualified_name": "tests.test_looper.test_subagents_skill_contract",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_subagents_skill_contract"
+      },
+      {
         "end_line": 735,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/render.py",
         "kind": "function",
@@ -87183,16 +87277,6 @@
       },
       {
         "end_line": 736,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 704,
-        "name": "execute_test_suite",
-        "qualified_name": "looper.core.execute_test_suite",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.execute_test_suite"
-      },
-      {
-        "end_line": 736,
         "file": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/store.py",
         "kind": "function",
         "line": 733,
@@ -87221,6 +87305,16 @@
         "qualified_name": "tests.test_draw_editor.test_static_analysis_breakdown_findings_are_the_file_drilldown_items",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_static_analysis_breakdown_findings_are_the_file_drilldown_items"
+      },
+      {
+        "end_line": 738,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 706,
+        "name": "ensure_gitignore",
+        "qualified_name": "looper.core.ensure_gitignore",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.ensure_gitignore"
       },
       {
         "end_line": 74,
@@ -87313,16 +87407,6 @@
         "symbol_id": "tests/test_backlog.py:tests.test_backlog.test_frontend_and_backend_lanes_reserve_and_complete_independently"
       },
       {
-        "end_line": 747,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 725,
-        "name": "test_frontend_dynamic_data_contract_is_published_and_injected",
-        "qualified_name": "tests.test_looper.test_frontend_dynamic_data_contract_is_published_and_injected",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_frontend_dynamic_data_contract_is_published_and_injected"
-      },
-      {
         "end_line": 748,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/store.py",
         "kind": "function",
@@ -87373,6 +87457,16 @@
         "symbol_id": "src/looper/cli.py:looper.cli.backlog_generate"
       },
       {
+        "end_line": 750,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 741,
+        "name": "agent_templates",
+        "qualified_name": "looper.core.agent_templates",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.agent_templates"
+      },
+      {
         "end_line": 751,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
@@ -87381,6 +87475,16 @@
         "qualified_name": "tests.test_draw_editor.test_editor_uses_only_curved_edges_and_shows_shortcut_footer",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_editor_uses_only_curved_edges_and_shows_shortcut_footer"
+      },
+      {
+        "end_line": 751,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 736,
+        "name": "test_subagents_skill_covers_native_herdr_commands",
+        "qualified_name": "tests.test_looper.test_subagents_skill_covers_native_herdr_commands",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_subagents_skill_covers_native_herdr_commands"
       },
       {
         "end_line": 754,
@@ -87671,16 +87775,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/open-design-landing-deck/scripts/compose.ts:function:renderEnd"
       },
       {
-        "end_line": 765,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 750,
-        "name": "test_node_delivery_contract_covers_tests_and_full_implementation",
-        "qualified_name": "tests.test_looper.test_node_delivery_contract_covers_tests_and_full_implementation",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_node_delivery_contract_covers_tests_and_full_implementation"
-      },
-      {
         "end_line": 766,
         "file": "tests/test_cli.py",
         "kind": "function",
@@ -87689,16 +87783,6 @@
         "qualified_name": "tests.test_cli.test_contract_rejects_function_with_single_line_docstring",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_contract_rejects_function_with_single_line_docstring"
-      },
-      {
-        "end_line": 767,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 739,
-        "name": "get_suite_skip_reason",
-        "qualified_name": "looper.core.get_suite_skip_reason",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.get_suite_skip_reason"
       },
       {
         "end_line": 769,
@@ -87791,6 +87875,16 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_contract_allows_production_function_without_docstring"
       },
       {
+        "end_line": 776,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 754,
+        "name": "test_frontend_dynamic_data_contract_is_published_and_injected",
+        "qualified_name": "tests.test_looper.test_frontend_dynamic_data_contract_is_published_and_injected",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_frontend_dynamic_data_contract_is_published_and_injected"
+      },
+      {
         "end_line": 777,
         "file": ".agents/skills/system-design/open-design/design-templates/open-design-landing-deck/scripts/compose.ts",
         "kind": "function",
@@ -87811,16 +87905,6 @@
         "signature": "function renderSlideBody(s: Slide, assets: string): string",
         "source": "typescript_compiler_api",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/open-design-landing-deck/scripts/compose.ts:function:renderSlideBody"
-      },
-      {
-        "end_line": 777,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 768,
-        "name": "test_loop_skills_honor_disabled_test_phase",
-        "qualified_name": "tests.test_looper.test_loop_skills_honor_disabled_test_phase",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_loop_skills_honor_disabled_test_phase"
       },
       {
         "end_line": 78,
@@ -87956,16 +88040,6 @@
         "symbol_id": "src/looper/cli.py:looper.cli.backlog_task"
       },
       {
-        "end_line": 781,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 770,
-        "name": "build_not_executed_suite_report",
-        "qualified_name": "looper.core.build_not_executed_suite_report",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.build_not_executed_suite_report"
-      },
-      {
         "end_line": 782,
         "file": "tests/test_backlog.py",
         "kind": "function",
@@ -88004,6 +88078,16 @@
         "qualified_name": "looper.backlog._static_test_symbols",
         "source": "python_ast",
         "symbol_id": "src/looper/backlog.py:looper.backlog._static_test_symbols"
+      },
+      {
+        "end_line": 785,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 753,
+        "name": "execute_test_suite",
+        "qualified_name": "looper.core.execute_test_suite",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.execute_test_suite"
       },
       {
         "end_line": 785,
@@ -88140,16 +88224,6 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/open-design-landing/scripts/compose.ts:function:renderPage"
       },
       {
-        "end_line": 791,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 784,
-        "name": "_compact_output",
-        "qualified_name": "looper.core._compact_output",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core._compact_output"
-      },
-      {
         "end_line": 793,
         "file": ".agents/skills/system-design/open-design/design-templates/open-design-landing-deck/scripts/compose.ts",
         "kind": "function",
@@ -88185,11 +88259,11 @@
         "end_line": 794,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 780,
-        "name": "test_draw_system_level_three_medium_level_and_code_tasks",
-        "qualified_name": "tests.test_looper.test_draw_system_level_three_medium_level_and_code_tasks",
+        "line": 779,
+        "name": "test_node_delivery_contract_covers_tests_and_full_implementation",
+        "qualified_name": "tests.test_looper.test_node_delivery_contract_covers_tests_and_full_implementation",
         "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_system_level_three_medium_level_and_code_tasks"
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_node_delivery_contract_covers_tests_and_full_implementation"
       },
       {
         "end_line": 797,
@@ -88367,6 +88441,16 @@
         "qualified_name": "tests.test_cli.test_log_command_creates_incremental_summary_and_snapshot_in_date_subfolder",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_command_creates_incremental_summary_and_snapshot_in_date_subfolder"
+      },
+      {
+        "end_line": 806,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 797,
+        "name": "test_loop_skills_honor_disabled_test_phase",
+        "qualified_name": "tests.test_looper.test_loop_skills_honor_disabled_test_phase",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_loop_skills_honor_disabled_test_phase"
       },
       {
         "end_line": 807,
@@ -88570,11 +88654,11 @@
         "end_line": 816,
         "file": "src/looper/core.py",
         "kind": "function",
-        "line": 794,
-        "name": "_static_analysis_summary",
-        "qualified_name": "looper.core._static_analysis_summary",
+        "line": 788,
+        "name": "get_suite_skip_reason",
+        "qualified_name": "looper.core.get_suite_skip_reason",
         "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core._static_analysis_summary"
+        "symbol_id": "src/looper/core.py:looper.core.get_suite_skip_reason"
       },
       {
         "end_line": 817,
@@ -88605,16 +88689,6 @@
         "qualified_name": "tests.test_draw_editor.test_logical_save_is_manual_but_positions_use_presentation_cache",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_logical_save_is_manual_but_positions_use_presentation_cache"
-      },
-      {
-        "end_line": 818,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 797,
-        "name": "test_draw_system_level_three_surgical_execution_plan",
-        "qualified_name": "tests.test_looper.test_draw_system_level_three_surgical_execution_plan",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_system_level_three_surgical_execution_plan"
       },
       {
         "end_line": 819,
@@ -88731,6 +88805,16 @@
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_contract_warns_for_duplicate_node_symbols"
       },
       {
+        "end_line": 823,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 809,
+        "name": "test_draw_system_level_three_medium_level_and_code_tasks",
+        "qualified_name": "tests.test_looper.test_draw_system_level_three_medium_level_and_code_tasks",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_system_level_three_medium_level_and_code_tasks"
+      },
+      {
         "end_line": 824,
         "file": ".agents/skills/system-design/open-design/design-templates/last30days/scripts/lib/pipeline.py",
         "kind": "function",
@@ -88833,6 +88917,16 @@
       },
       {
         "end_line": 830,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 819,
+        "name": "build_not_executed_suite_report",
+        "qualified_name": "looper.core.build_not_executed_suite_report",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.build_not_executed_suite_report"
+      },
+      {
+        "end_line": 830,
         "file": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/last30days.py",
         "kind": "function",
         "line": 756,
@@ -88880,16 +88974,6 @@
         "qualified_name": "tests.test_draw.test_draw_contract_warns_for_level3_and_level4_missing_code_refs",
         "source": "python_ast",
         "symbol_id": "tests/test_draw.py:tests.test_draw.test_draw_contract_warns_for_level3_and_level4_missing_code_refs"
-      },
-      {
-        "end_line": 837,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 821,
-        "name": "test_draw_system_level_three_endpoint_specification_and_context_injection",
-        "qualified_name": "tests.test_looper.test_draw_system_level_three_endpoint_specification_and_context_injection",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_system_level_three_endpoint_specification_and_context_injection"
       },
       {
         "end_line": 838,
@@ -88964,6 +89048,16 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/skills/web-clone/scripts/recon-site.mjs:function:writeSummary"
       },
       {
+        "end_line": 840,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 833,
+        "name": "_compact_output",
+        "qualified_name": "looper.core._compact_output",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core._compact_output"
+      },
+      {
         "end_line": 841,
         "file": "tests/test_cli.py",
         "kind": "function",
@@ -88972,6 +89066,16 @@
         "qualified_name": "tests.test_cli.test_log_ignores_invalid_utf8_appledouble_snapshot",
         "source": "python_ast",
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_ignores_invalid_utf8_appledouble_snapshot"
+      },
+      {
+        "end_line": 847,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 826,
+        "name": "test_draw_system_level_three_surgical_execution_plan",
+        "qualified_name": "tests.test_looper.test_draw_system_level_three_surgical_execution_plan",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_system_level_three_surgical_execution_plan"
       },
       {
         "end_line": 85,
@@ -89207,16 +89311,6 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_draw_answer_skill_requires_structured_human_output_with_node_symbol"
       },
       {
-        "end_line": 862,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 840,
-        "name": "test_documentation_conventions_skill_contract",
-        "qualified_name": "tests.test_looper.test_documentation_conventions_skill_contract",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_documentation_conventions_skill_contract"
-      },
-      {
         "end_line": 863,
         "file": "src/looper/backlog.py",
         "kind": "function",
@@ -89228,6 +89322,16 @@
       },
       {
         "end_line": 865,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 843,
+        "name": "_static_analysis_summary",
+        "qualified_name": "looper.core._static_analysis_summary",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core._static_analysis_summary"
+      },
+      {
+        "end_line": 865,
         "file": "tests/test_draw_editor.py",
         "kind": "function",
         "line": 835,
@@ -89235,6 +89339,16 @@
         "qualified_name": "tests.test_draw_editor.test_draw_editor_observer_follows_current_implementation_without_editing",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_draw_editor_observer_follows_current_implementation_without_editing"
+      },
+      {
+        "end_line": 866,
+        "file": "tests/test_looper.py",
+        "kind": "function",
+        "line": 850,
+        "name": "test_draw_system_level_three_endpoint_specification_and_context_injection",
+        "qualified_name": "tests.test_looper.test_draw_system_level_three_endpoint_specification_and_context_injection",
+        "source": "python_ast",
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_system_level_three_endpoint_specification_and_context_injection"
       },
       {
         "end_line": 867,
@@ -89648,14 +89762,14 @@
         "symbol_id": "tests/test_looper.py:tests.test_looper.test_init_is_idempotent_and_installs_codex_agents"
       },
       {
-        "end_line": 893,
+        "end_line": 891,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 865,
-        "name": "test_system_design_skill_uses_open_design_structure_and_local_library",
-        "qualified_name": "tests.test_looper.test_system_design_skill_uses_open_design_structure_and_local_library",
+        "line": 869,
+        "name": "test_documentation_conventions_skill_contract",
+        "qualified_name": "tests.test_looper.test_documentation_conventions_skill_contract",
         "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_system_design_skill_uses_open_design_structure_and_local_library"
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_documentation_conventions_skill_contract"
       },
       {
         "end_line": 896,
@@ -89779,16 +89893,6 @@
         "qualified_name": "tests.test_draw_editor.test_custom_node_exposes_negative_spec_indicator_when_configured",
         "source": "python_ast",
         "symbol_id": "tests/test_draw_editor.py:tests.test_draw_editor.test_custom_node_exposes_negative_spec_indicator_when_configured"
-      },
-      {
-        "end_line": 906,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 896,
-        "name": "test_system_design_skill_open_design_artifacts_installed_on_init",
-        "qualified_name": "tests.test_looper.test_system_design_skill_open_design_artifacts_installed_on_init",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_system_design_skill_open_design_artifacts_installed_on_init"
       },
       {
         "end_line": 908,
@@ -90202,14 +90306,14 @@
         "symbol_id": "src/looper/draw.py:looper.draw.collect_draw_symbols"
       },
       {
-        "end_line": 924,
+        "end_line": 922,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 909,
-        "name": "test_draw_system_levels_keep_then_compatible_with_one_branch_family",
-        "qualified_name": "tests.test_looper.test_draw_system_levels_keep_then_compatible_with_one_branch_family",
+        "line": 894,
+        "name": "test_system_design_skill_uses_open_design_structure_and_local_library",
+        "qualified_name": "tests.test_looper.test_system_design_skill_uses_open_design_structure_and_local_library",
         "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_system_levels_keep_then_compatible_with_one_branch_family"
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_system_design_skill_uses_open_design_structure_and_local_library"
       },
       {
         "end_line": 926,
@@ -90270,16 +90374,6 @@
         "qualified_name": ".agents.skills.system-design.open-design.skills.hatch-pet.scripts.compose_atlas.compose_from_source_atlas",
         "source": "python_ast",
         "symbol_id": ".agents/skills/system-design/open-design/skills/hatch-pet/scripts/compose_atlas.py:.agents.skills.system-design.open-design.skills.hatch-pet.scripts.compose_atlas.compose_from_source_atlas"
-      },
-      {
-        "end_line": 93,
-        "file": "src/looper/core.py",
-        "kind": "function",
-        "line": 76,
-        "name": "get_tracked_extensions",
-        "qualified_name": "looper.core.get_tracked_extensions",
-        "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.get_tracked_extensions"
       },
       {
         "end_line": 93,
@@ -90384,14 +90478,14 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/last30days.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.last30days.main"
       },
       {
-        "end_line": 937,
-        "file": "src/looper/core.py",
+        "end_line": 935,
+        "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 819,
-        "name": "run_tests",
-        "qualified_name": "looper.core.run_tests",
+        "line": 925,
+        "name": "test_system_design_skill_open_design_artifacts_installed_on_init",
+        "qualified_name": "tests.test_looper.test_system_design_skill_open_design_artifacts_installed_on_init",
         "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core.run_tests"
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_system_design_skill_open_design_artifacts_installed_on_init"
       },
       {
         "end_line": 94,
@@ -90544,16 +90638,6 @@
         "qualified_name": "looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.render.render_context",
         "source": "python_ast",
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/render.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.render.render_context"
-      },
-      {
-        "end_line": 942,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 927,
-        "name": "test_implement_skill_triages_draw_diffs_before_declaring_no_change",
-        "qualified_name": "tests.test_looper.test_implement_skill_triages_draw_diffs_before_declaring_no_change",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_implement_skill_triages_draw_diffs_before_declaring_no_change"
       },
       {
         "end_line": 943,
@@ -90763,13 +90847,13 @@
       },
       {
         "end_line": 953,
-        "file": "src/looper/core.py",
+        "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 940,
-        "name": "_parse_gitignore_dirs",
-        "qualified_name": "looper.core._parse_gitignore_dirs",
+        "line": 938,
+        "name": "test_draw_system_levels_keep_then_compatible_with_one_branch_family",
+        "qualified_name": "tests.test_looper.test_draw_system_levels_keep_then_compatible_with_one_branch_family",
         "source": "python_ast",
-        "symbol_id": "src/looper/core.py:looper.core._parse_gitignore_dirs"
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_system_levels_keep_then_compatible_with_one_branch_family"
       },
       {
         "end_line": 955,
@@ -91005,14 +91089,14 @@
         "symbol_id": "tests/test_cli.py:tests.test_cli.test_log_migrates_legacy_daily_documents_before_appending"
       },
       {
-        "end_line": 972,
+        "end_line": 971,
         "file": "tests/test_looper.py",
         "kind": "function",
-        "line": 945,
-        "name": "test_draw_improve_skill_is_incremental_and_hands_off_through_feature",
-        "qualified_name": "tests.test_looper.test_draw_improve_skill_is_incremental_and_hands_off_through_feature",
+        "line": 956,
+        "name": "test_implement_skill_triages_draw_diffs_before_declaring_no_change",
+        "qualified_name": "tests.test_looper.test_implement_skill_triages_draw_diffs_before_declaring_no_change",
         "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_improve_skill_is_incremental_and_hands_off_through_feature"
+        "symbol_id": "tests/test_looper.py:tests.test_looper.test_implement_skill_triages_draw_diffs_before_declaring_no_change"
       },
       {
         "end_line": 976,
@@ -91127,6 +91211,16 @@
         "symbol_id": "src/looper/templates/agents/system-design/open-design/design-templates/last30days/scripts/lib/render.py:looper.templates.agents.system-design.open-design.design-templates.last30days.scripts.lib.render._render_candidate"
       },
       {
+        "end_line": 986,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 868,
+        "name": "run_tests",
+        "qualified_name": "looper.core.run_tests",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.run_tests"
+      },
+      {
         "end_line": 987,
         "file": "src/looper/backlog.py",
         "kind": "function",
@@ -91189,6 +91283,16 @@
       },
       {
         "end_line": 99,
+        "file": "src/looper/core.py",
+        "kind": "function",
+        "line": 82,
+        "name": "get_tracked_extensions",
+        "qualified_name": "looper.core.get_tracked_extensions",
+        "source": "python_ast",
+        "symbol_id": "src/looper/core.py:looper.core.get_tracked_extensions"
+      },
+      {
+        "end_line": 99,
         "file": "src/looper/improvements.py",
         "kind": "function",
         "line": 76,
@@ -91236,16 +91340,6 @@
         "qualified_name": "tests.test_static_analysis.test_secret_scanner_ignores_local_secret_fixture_in_test_file",
         "source": "python_ast",
         "symbol_id": "tests/test_static_analysis.py:tests.test_static_analysis.test_secret_scanner_ignores_local_secret_fixture_in_test_file"
-      },
-      {
-        "end_line": 991,
-        "file": "tests/test_looper.py",
-        "kind": "function",
-        "line": 975,
-        "name": "test_draw_improve_skill_requires_global_consistency_groups_and_questions",
-        "qualified_name": "tests.test_looper.test_draw_improve_skill_requires_global_consistency_groups_and_questions",
-        "source": "python_ast",
-        "symbol_id": "tests/test_looper.py:tests.test_looper.test_draw_improve_skill_requires_global_consistency_groups_and_questions"
       },
       {
         "end_line": 992,
