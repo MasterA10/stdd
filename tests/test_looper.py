@@ -469,7 +469,10 @@ def test_init_documents_tui_as_default_with_final_artifact_boundary(tmp_path: Pa
     assert "não lê o scrollback" in subagents
     assert "leia apenas esse arquivo final" in subagents
     assert "TUI nativa do Herdr" in resolve_bug
-    assert "não deve ler" in resolve_bug
+    assert "relatório Markdown temporário" in resolve_bug
+    assert "resolve-bug-report.md" in resolve_bug
+    assert 'rm -f -- "$report_file"' in resolve_bug
+    assert "Nunca leia `herdr agent read`" in resolve_bug
 
 
 def test_agents_are_loaded_from_markdown_templates():
@@ -586,9 +589,9 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "não" in backend_developer_content and "validação estática" in backend_developer_content
 
 
-def test_resolve_bug_skill_requires_observability_before_fix():
-    """Exige diagnóstico observável antes da correção delegada do bug.
-    Confirma subagente no Herdr, validação do plano, stack trace e níveis de log.
+def test_resolve_bug_skill_requires_end_to_end_report_contract():
+    """Exige investigação observável e relatório temporário após a correção.
+    Confirma subagente no Herdr, stack trace, níveis de log e limpeza do relatório.
     """
     content = Path("src/looper/templates/agents/resolve-bug/SKILL.md").read_text(encoding="utf-8")
     for required in (
@@ -596,7 +599,11 @@ def test_resolve_bug_skill_requires_observability_before_fix():
         "stack trace",
         "instrumentação diagnóstica",
         "`error`, `warn`, `info` e",
-        "não os altere apenas por formalidade",
+        "pesquisa, investiga, reproduz, corrige e testa",
+        "relatório Markdown temporário",
+        "resolve-bug-report.md",
+        "rm -f -- \"$report_file\"",
+        "Nunca leia `herdr agent read`",
         "--type bug",
     ):
         assert required in content

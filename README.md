@@ -53,7 +53,7 @@ O init instala a skill `$playwright-testing` em `.agents/skills/playwright-testi
 
 O init também instala a skill `$subagents` em `.agents/skills/subagents/`. Ela documenta os comandos headless de Codex, Claude e Agy, a retomada por ID de sessão e a orquestração paralela no `herdr` com modo nativo de agentes, sem polling.
 
-O init também instala a skill `$resolve-bug` em `.agents/skills/resolve-bug/`. Ela delega a investigação e a execução a um subagente no `herdr`, exige validação do plano, atualiza os Draws e registra padrões técnicos reutilizáveis em `.agents/conventions/`.
+O init também instala a skill `$resolve-bug` em `.agents/skills/resolve-bug/`. Ela delega a pesquisa, investigação, correção e testes a um subagente no `herdr`, que entrega um relatório Markdown temporário; o orquestrador lê somente esse relatório, valida o resultado, atualiza os Draws quando necessário e remove o arquivo ao final. Padrões técnicos reutilizáveis continuam sendo registrados em `.agents/conventions/`.
 
 O init também instala a skill-guia `$system-design` em `.agents/skills/system-design/`. Ela mantém o design system do projeto no `.looper/design.html` como uma landing page demonstrativa: as decisões de cor, tipografia, espaçamento, bordas, componentes, estados e acessibilidade aparecem aplicadas em exemplos reais, acompanhadas de explicações.
 

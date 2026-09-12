@@ -87,7 +87,7 @@
       "id": 3,
       "label": "Instalar skills e instruções",
       "group": 2,
-      "description": "Copia e sincroniza sempre os templates atuais e os recursos auxiliares, mantendo a skill mock-server com pesquisa oficial obrigatória, convenção específica por provedor, ordem explícita das chamadas, pré-condições entre recursos, ativação de webhooks e recebimento validado; arquivos SKILL.md internos do Open Design são distribuídos como SKILL-secondary.md para busca explícita sem registro automático, inclusive em projetos já inicializados. Cria .agents/conventions/README.md sem sobrescrever convenções do projeto e atualiza AGENTS.md. O contrato de subagentes usa Herdr com TUI e agentes/hooks nativos em pane visível, evita leitura incremental do output e consome somente um artefato final Markdown. Arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O contrato de instruções mantém o AGENTS.md curto, orienta a leitura da convenção relevante e exige Draws vivos e atualizados.",
+      "description": "Copia e sincroniza sempre os templates atuais e os recursos auxiliares, mantendo a skill mock-server com pesquisa oficial obrigatória, convenção específica por provedor, ordem explícita das chamadas, pré-condições entre recursos, ativação de webhooks e recebimento validado; arquivos SKILL.md internos do Open Design são distribuídos como SKILL-secondary.md para busca explícita sem registro automático, inclusive em projetos já inicializados. Cria .agents/conventions/README.md sem sobrescrever convenções do projeto e atualiza AGENTS.md. O contrato de subagentes usa Herdr com TUI e agentes/hooks nativos em pane visível, evita leitura incremental do output e consome somente um artefato final Markdown. Na skill resolve-bug, o subagente pesquisa, investiga, corrige e testa ponta a ponta, grava um relatório Markdown temporário em .looper/runs/<run-id>/ e o orquestrador lê esse relatório uma vez e o remove. Arquivos específicos de outros agentes só são instalados quando a integração é solicitada explicitamente. O contrato de instruções mantém o AGENTS.md curto, orienta a leitura da convenção relevante e exige Draws vivos e atualizados.",
       "code_refs": [
         {
           "file": "src/looper/core.py",
@@ -114,6 +114,12 @@
         {
           "id": 2,
           "prompt": "O padrão passa a ser Herdr com TUI e agentes nativos: o agente principal não lê output incremental da pane nem usa esse conteúdo como contexto. Após aguardar o ciclo de vida, deve solicitar ao subagente um relatório final em arquivo Markdown/artefato e ler somente esse arquivo; comandos diretos/headless ficam documentados como exceção explícita.",
+          "status": "pending",
+          "source": "review"
+        },
+        {
+          "id": 3,
+          "prompt": "A skill resolve-bug deve delegar a pesquisa, investigação, reprodução, correção e testes ponta a ponta ao subagente. Ele grava um relatório temporário em .looper/runs/<run-id>/resolve-bug-report.md, mesmo se ficar bloqueado; o orquestrador lê somente o arquivo final uma vez e o remove pelo caminho exato, sem ler pane, scrollback ou output intermediário.",
           "status": "pending",
           "source": "review"
         }
