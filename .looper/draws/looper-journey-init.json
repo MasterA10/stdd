@@ -104,6 +104,12 @@
           "prompt": "A instalação deve sincronizar sempre toda a biblioteca Open Design, mesmo quando o destino já possui craft; recursos SKILL-secondary.md novos ou atualizados devem ser copiados em execuções posteriores, mantendo SKILL.md internos fora do registro de skills.",
           "status": "pending",
           "source": "review"
+        },
+        {
+          "id": 1,
+          "prompt": "As instruções de subagentes devem deixar o modo direto headless como padrão operacional, executado em pane Herdr visível para acompanhamento; o modo interativo/TUI só deve ser usado quando o usuário solicitar intervenção visual ou navegação manual.",
+          "status": "pending",
+          "source": "review"
         }
       ]
     },

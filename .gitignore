@@ -26,6 +26,32 @@ htmlcov/
 .AppleDouble
 .LSOverride
 Icon
+# Looper managed skills
+!.agents/skills/
+.agents/skills/backend-developer/
+.agents/skills/documentation-conventions/
+.agents/skills/draw-feature/
+.agents/skills/draw-improve/
+.agents/skills/draw-interaction/
+.agents/skills/draw-system-level-1/
+.agents/skills/draw-system-level-2/
+.agents/skills/draw-system-level-3/
+.agents/skills/implement-backend/
+.agents/skills/implement-change/
+.agents/skills/implement-frontend/
+.agents/skills/mock-server/
+.agents/skills/negative-spec/
+.agents/skills/playwright-testing/
+.agents/skills/resolve-bug/
+.agents/skills/setup/
+.agents/skills/static-analysis/
+.agents/skills/subagents/
+.agents/skills/system-design/
+.agents/skills/test-application/
+!.agents/
+!.agents/conventions/
+!.agents/conventions/**
+# End Looper managed skills
 
 Icon
 

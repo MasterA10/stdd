@@ -7,25 +7,35 @@ description: Orquestra subagentes locais no Herdr, com escolha de agente e model
 
 Use esta skill quando o agente principal precisar dividir uma tarefa em investigações ou execuções independentes. O agente principal define o contexto, dispara os subagentes, aguarda a barreira e só então avalia os resultados.
 
-## Modos de Execução: Interativo vs Direto (Headless)
+## Modos de Execução: Headless no Pane vs Interativo
 
-Ao disparar subagentes no Herdr, confirme ou selecione o modo conforme o objetivo da tarefa:
+O modo padrão é headless em uma pane visível. Crie a pane com
+`herdr pane split` e execute nela o comando direto do agente (`codex exec`,
+`agy -p` ou equivalente), sem iniciar a TUI. Quando a resposta final precisar
+ser consumida pelo agente principal, prefira `--output-last-message FILE` no
+Codex ou um arquivo equivalente e leia somente esse artefato; a saída completa
+do processo pode continuar visível na pane para acompanhamento.
 
-1. **Modo Interativo (Janela interativa / TUI completa)**:
+Use o modo interativo/TUI somente quando o usuário pedir explicitamente a
+interface visual, navegação manual, intervenção por teclado ou uma sessão
+interativa persistente. A pane continua obrigatória nos dois modos.
+
+1. **Modo Interativo (Janela interativa / TUI completa, somente se solicitado)**:
    - O subagente roda com a interface visual de terminal que o humano usaria (atalhos, status bar, menu, sessão interativa).
    - Ideal quando o usuário quer acompanhar a TUI completa, navegar visualmente ou intervir/assumir o controle pelo teclado.
    - Fluxo: `herdr pane split` -> `herdr agent start <nome> --kind <kind> --pane <id> -- <flags-yolo>` -> `herdr agent prompt <nome> "<prompt>" --wait`.
 
-2. **Modo Direto / Resposta Limpa (Headless no Pane)**:
-   - Abre um painel dedicado para dar visibilidade ao processo, mas executa o comando em modo headless direto (`agy -p ...` ou `codex exec ...`).
-   - Não renderiza a TUI interativa pesada: apenas imprime o progresso e entrega a resposta final de forma direta e limpa no terminal/arquivo.
-   - Ideal para automações, tarefas focadas ou quando o usuário quer apenas a resposta final sem a sobrecarga visual da TUI.
-   - Fluxo: `herdr pane split` -> executar comando headless no pane via `herdr agent prompt` / shell -> ler saída com `herdr agent read` ou direcionar para arquivo.
+2. **Modo Direto / Resposta Limpa (Headless no Pane, padrão)**:
+   - Abre uma pane dedicada e executa o comando headless diretamente nela; não use `herdr agent start`, pois esse comando inicia um agente interativo.
+   - No Codex, use `codex exec` com a flag autônoma suportada pela versão local e, quando necessário, `--output-last-message FILE` para obter somente a resposta final.
+   - No Agy, use `agy -p ... --dangerously-skip-permissions`; preserve o `conversation_id` retornado quando for necessário continuar a sessão.
+   - Para prompts longos ou com espaços, prefira alimentar `codex exec -` por stdin com `herdr pane send-text` e finalizar com `herdr pane send-keys <pane-id> ctrl+d`, evitando que o shell divida o prompt em argumentos.
+   - Fluxo: `herdr pane split` -> `herdr pane run <pane-id> <comando-headless>` -> enviar o prompt quando necessário -> aguardar a conclusão -> ler o arquivo de resposta final ou `herdr pane read`.
 
 ## Comandos oficiais
 
 > **Regra Obrigatória (Modo YOLO)**: Sempre execute os subagentes no modo totalmente autônomo e sem bloqueio de permissão ("modo yolo"):
-> - No **Codex**, nunca esqueça de incluir a flag `--yolo` (ou `--dangerously-bypass-approvals-and-sandbox` no `codex exec`).
+> - No **Codex**, use `--yolo` quando essa flag existir no contrato local; em `codex exec`, use `--dangerously-bypass-approvals-and-sandbox` quando for a flag equivalente suportada pela versão instalada.
 > - No **Agy**, nunca esqueça da flag `--dangerously-skip-permissions`.
 > - No **Claude**, use `--dangerously-skip-permissions`.
 
@@ -34,11 +44,11 @@ Escolha o agente e o modelo antes de iniciar. Quando o usuário não informar ou
 Codex, em modo não interativo:
 
 ```bash
-codex exec --yolo --model {model} -C {workdir} --json "{prompt}"
-codex exec resume {session_id} --yolo --model {model} -C {workdir} --json "{prompt}"
+codex exec --dangerously-bypass-approvals-and-sandbox --model {model} -C {workdir} --output-last-message {file} "{prompt}"
+codex exec resume {session_id} --dangerously-bypass-approvals-and-sandbox --model {model} -C {workdir} --output-last-message {file} "{prompt}"
 ```
 
-Use `--yolo` (ou `--dangerously-bypass-approvals-and-sandbox`) para auto-aprovação de comandos/escrita, `--json` para eventos JSONL, `--output-last-message FILE` para a resposta final. Reasoning é configurado pelo perfil/opções aceitos pela versão local do Codex; valide com `codex exec --help` antes de adicionar uma flag específica.
+Use a flag autônoma equivalente suportada pela versão local para autoaprovação de comandos/escrita, `--output-last-message FILE` para a resposta final e `--json` somente quando outro programa precisar processar eventos JSONL. Para executar em uma pane sem abrir a TUI, use `herdr pane run <pane-id> codex exec ...`; para prompts longos, use `codex exec -` e forneça o texto por stdin. Reasoning é configurado pelo perfil/opções aceitos pela versão local do Codex; valide com `codex exec --help` antes de adicionar uma flag específica.
 
 Claude Code, em modo print:
 
@@ -80,34 +90,53 @@ herdr pane split --current --direction right --cwd "$PWD" --no-focus
 ```
 > O comando retorna um JSON contendo `.result.pane.pane_id` (por exemplo, `"w1:p2"`).
 
-### 3. Iniciar o subagente no modo nativo
-Inicie o agente suportado (`agy`, `codex`, `claude` ou `gemini`) no painel criado com um nome único. **Sempre passe as flags do modo YOLO após `--`**:
+### 3. Executar o subagente headless na pane (padrão)
+
+Execute o processo diretamente na pane criada. Exemplo Codex:
+
+```bash
+herdr pane run <pane-id> codex exec --dangerously-bypass-approvals-and-sandbox --model gpt-5.6-luna -C "$PWD" --color never --output-last-message /tmp/<nome>.txt -
+herdr pane send-text <pane-id> "<prompt>"
+herdr pane send-keys <pane-id> ctrl+d
+```
+
+Leia `/tmp/<nome>.txt` para obter somente a resposta final. Não use
+`herdr agent start` nem `herdr agent prompt` neste caminho, pois eles operam
+uma sessão interativa e podem abrir a TUI.
+
+Para Agy, execute `agy -p "<prompt>" --model <model> --effort <reasoning>
+--dangerously-skip-permissions` diretamente com `herdr pane run`, preservando
+o `conversation_id` quando a sessão precisar continuar.
+
+### 4. Iniciar o subagente no modo interativo (somente se solicitado)
+
+Inicie o agente suportado (`agy`, `codex`, `claude` ou `gemini`) no painel criado com um nome único somente após pedido explícito de TUI ou intervenção manual. **Sempre passe as flags do modo YOLO após `--`**:
 - Para **Agy**: inclua `--dangerously-skip-permissions`
-- Para **Codex**: inclua `--yolo`
+- Para **Codex**: inclua a flag autônoma suportada pela versão instalada, normalmente `--yolo` ou `--dangerously-bypass-approvals-and-sandbox`.
 
 ```bash
 # Exemplo Agy com modo YOLO e modelo:
 herdr agent start worker1 --kind agy --pane <pane-id> -- --dangerously-skip-permissions --model gemini-3.8-flash --effort low
 
 # Exemplo Codex com modo YOLO:
-herdr agent start worker1 --kind codex --pane <pane-id> -- --yolo --model gpt-5.6-luna
+herdr agent start worker1 --kind codex --pane <pane-id> -- --dangerously-bypass-approvals-and-sandbox --model gpt-5.6-luna
 ```
 O comando aguarda o subagente estar interativo e pronto para receber entrada (`interactive_ready`).
 
-### 4. Submeter a tarefa com espera bloqueante (sem polling)
+### 5. Submeter a tarefa interativa com espera bloqueante (sem polling)
 Envie o prompt com a flag `--wait`:
 ```bash
 herdr agent prompt worker1 "Investigue a falha X e reporte as causas e os arquivos afetados." --wait --timeout 120000
 ```
 O Herdr aguarda nativamente até que o agente atinja o estado `idle`, `done` ou `blocked`, sem necessidade de loops de consulta ou polling.
 
-### 5. Ler o resultado limpo
+### 6. Ler o resultado limpo
 Obtenha a resposta limpa e formatada do agente:
 ```bash
 herdr agent read worker1 --source recent-unwrapped --lines 150
 ```
 
-### 6. Continuar a sessão
+### 7. Continuar a sessão
 Para continuar a conversa ou enviar novas instruções no mesmo contexto:
 ```bash
 herdr agent prompt worker1 "Com base nessa análise, elabore o plano de ação." --wait --timeout 120000
@@ -117,7 +146,7 @@ Para controle de teclas no terminal:
 herdr agent send-keys worker1 ctrl+c
 ```
 
-### 7. Encerrar e limpar o painel
+### 8. Encerrar e limpar o painel
 Ao término da tarefa, encerre o painel descartável:
 ```bash
 herdr pane close <pane-id>

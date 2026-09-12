@@ -234,7 +234,7 @@ Inspecionar, com evidência:
 
 Registrar capacidade como `available` somente após localizar e validar o comando. Usar `unavailable` ou `detected` quando a execução ainda não foi comprovada. Nunca ler ou persistir valores de credenciais; registrar apenas nomes de variáveis.
 
-O setup também constrói e revisa o `.gitignore` da raiz. Deve preservar regras existentes e manter `.env`, `.env.*`, `*.pyc`, `__pycache__/`, `.cache/`, `**/.cache/`, `*.cache`, `.coverage`, `coverage/`, ambientes virtuais e caches de ferramentas. A exceção `!.env.example` é permitida. Não criar arquivos de credencial nem copiar valores de `.env` para relatórios.
+O setup também constrói e revisa o `.gitignore` da raiz. Deve preservar regras existentes e manter `.env`, `.env.*`, `*.pyc`, `__pycache__/`, `.cache/`, `**/.cache/`, `*.cache`, `.coverage`, `coverage/`, ambientes virtuais e caches de ferramentas. O `looper init` ignora as skills oficiais por entradas explícitas, sem ignorar a pasta inteira: skills extras em `.agents/skills/` continuam versionáveis, e `.agents/conventions/` deve permanecer no histórico. A exceção `!.env.example` é permitida. Não criar arquivos de credencial nem copiar valores de `.env` para relatórios.
 
 ## Configuração dos runners
 

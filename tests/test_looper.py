@@ -455,6 +455,21 @@ def test_init_ignores_packaged_skills_but_versions_extra_skills_and_conventions(
     assert not ignored(convention)
 
 
+def test_init_documents_headless_as_default_with_visible_herdr_pane(tmp_path: Path):
+    """Publica headless como padrão e preserva pane visível no contrato.
+    Inicializa o projeto e verifica AGENTS.md e as skills de delegação instaladas.
+    """
+    init_project(tmp_path)
+
+    agents = (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    subagents = (tmp_path / ".agents/skills/subagents/SKILL.md").read_text(encoding="utf-8")
+    resolve_bug = (tmp_path / ".agents/skills/resolve-bug/SKILL.md").read_text(encoding="utf-8")
+
+    assert "modo direto headless como padrão operacional" in agents
+    assert "pane visível" in subagents
+    assert "modo direto/headless" in resolve_bug
+
+
 def test_agents_are_loaded_from_markdown_templates():
     """Carrega as skills dos agentes a partir dos templates de arquivos SKILL.md.
     Chama agent_templates e valida a presença dos títulos dos agentes create-tests, implement e setup.

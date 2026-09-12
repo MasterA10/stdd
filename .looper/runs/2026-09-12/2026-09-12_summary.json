@@ -85,8 +85,92 @@
         "lines_deleted": 0,
         "files_changed": 0
       }
+    },
+    {
+      "run_id": "93482f15eeb04f5897519b43aa92d4ba",
+      "timestamp": "2026-09-12T18:30:37.004311+00:00",
+      "description": "Define headless como padrão em panes Herdr visíveis e restringe TUI a pedido explícito",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 16,
+        "lines_deleted": 1,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 6,
+        "lines_deleted": 0,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "2012b58b58114f119518580abd41c3bd",
+      "timestamp": "2026-09-12T18:30:42.412915+00:00",
+      "description": "Valida documentação headless, pane visível e instruções instaladas pelo init",
+      "work_types": [
+        "teste"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "ef78e4d246b642a68d841fa4def025a0",
+      "timestamp": "2026-09-12T18:42:55.519954+00:00",
+      "description": "Atualizada skill subagents para headless em panes por padrao",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "d57dcdcebe8f4138a45ebfd9fe3a2a8e",
+      "timestamp": "2026-09-12T18:47:13.343854+00:00",
+      "description": "Sincronizado template da skill subagents com execucao headless em panes",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
     }
   ],
-  "run_count": 4,
-  "last_run_id": "a3a18452bf2142b99544ca7d7ba65301"
+  "run_count": 8,
+  "last_run_id": "d57dcdcebe8f4138a45ebfd9fe3a2a8e"
 }

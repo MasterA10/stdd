@@ -21,7 +21,7 @@ O usuário autoriza o uso de subagente ao solicitar esta skill. Execute todo sub
 via `herdr` (modo nativo de agentes); não use outro mecanismo de delegação. Preserve o workspace e
 não faça commit ou push como parte desta skill.
 
-> **Definição de Modo com o Usuário**: Antes de disparar o subagente, verifique ou pergunte ao usuário qual modo de execução ele prefere:
+> **Padrão de modo**: Execute por padrão no modo direto/headless dentro de uma pane visível do Herdr, para que o usuário acompanhe a execução sem a sobrecarga da TUI. Só use o modo interativo quando o usuário pedir explicitamente navegação visual ou intervenção manual. Se houver dúvida real sobre a necessidade de interação, confirme antes de disparar:
 > 1. **Modo Interativo (Janela interativa / TUI completa)**: Inicia o agente no pane com a TUI viva (`herdr agent start ... -- <flags-yolo>`), permitindo ver atalhos, barra de status e intervir/navegar como um humano.
 > 2. **Modo Direto / Resposta Limpa (Headless no Pane)**: Abre o pane para visibilidade, mas executa o agente no modo direto headless (`agy -p ... --dangerously-skip-permissions` ou `codex exec --yolo ...`), sem o peso visual da TUI, focando na entrega direta e limpa do diagnóstico/plano.
 >
