@@ -186,6 +186,8 @@ def test_init_backports_subagent_observation_policy_to_legacy_install(tmp_path: 
     assert "--lines 20" in agents
     assert "não faça novas leituras automáticas" in agents
     assert "um único prompt inicial completo" in agents
+    assert "não edite a descrição" in agents
+    assert "nova pergunta e uma resposta" in agents
     assert "nunca leia scrollback ou output intermediário" not in agents
     assert skill == template
 
