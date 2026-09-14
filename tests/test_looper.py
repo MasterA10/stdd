@@ -160,6 +160,36 @@ def test_init_always_synchronizes_existing_agent_skills(tmp_path: Path):
     assert skill.read_text(encoding="utf-8") == Path("src/looper/templates/agents/draw-system-level-3/SKILL.md").read_text(encoding="utf-8")
 
 
+def test_init_backports_subagent_observation_policy_to_legacy_install(tmp_path: Path):
+    """Atualiza AGENTS.md e a skill de subagentes em instalações antigas.
+    Permite uma leitura curta sob demanda, mas mantém execução autônoma e sem polling.
+    """
+    init_project(tmp_path)
+
+    legacy_agents = (
+        "Projeto legado.\n\n"
+        "<!-- Looper:BEGIN AGENT INSTRUCTIONS -->\n"
+        "## Looper — Harness Control Layer\n\n"
+        "- Use subagentes no Herdr, mas nunca leia scrollback ou output intermediário.\n"
+        "<!-- Looper:END AGENT INSTRUCTIONS -->\n"
+    )
+    (tmp_path / "AGENTS.md").write_text(legacy_agents, encoding="utf-8")
+    (tmp_path / ".agents/skills/subagents/SKILL.md").write_text("versao antiga", encoding="utf-8")
+
+    init_project(tmp_path)
+
+    agents = (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    skill = (tmp_path / ".agents/skills/subagents/SKILL.md").read_text(encoding="utf-8")
+    template = Path("src/looper/templates/agents/subagents/SKILL.md").read_text(encoding="utf-8")
+    assert "Projeto legado." in agents
+    assert "somente sob demanda" in agents
+    assert "--lines 20" in agents
+    assert "não faça novas leituras automáticas" in agents
+    assert "um único prompt inicial completo" in agents
+    assert "nunca leia scrollback ou output intermediário" not in agents
+    assert skill == template
+
+
 def test_open_design_internal_skills_are_searchable_resources_only(tmp_path: Path):
     """Mantém recursos internos do Open Design fora do registro automático.
     Confere a origem e o destino depois da inicialização.
@@ -755,6 +785,16 @@ def test_subagents_skill_contract():
     for required in ("codex exec", "claude -p", "agy -p", "--model", "--effort", "--resume", "--conversation", "herdr agent", "sem polling", "session_id"):
         assert required in content
     assert "herdr pane" in content
+    normalized = " ".join(content.split())
+    for required in (
+        "leitura curta de até 20 linhas",
+        "não faça novas leituras automáticas",
+        "prompt inicial completo",
+        "timeout proporcional",
+        "à complexidade",
+        "Não continue a sessão por rotina",
+    ):
+        assert required in normalized
 
 
 def test_subagents_skill_covers_native_herdr_commands():

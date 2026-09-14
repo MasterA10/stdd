@@ -11,24 +11,33 @@ Use esta skill quando o agente principal precisar dividir uma tarefa em investig
 
 O modo padrão é TUI interativa no Herdr, usando os próprios agentes nativos,
 hooks e ciclo de vida do Herdr dentro de uma pane visível. O agente principal
-acompanha somente o estado da execução; não lê o scrollback, o output da pane,
-`herdr agent read` ou transcrições intermediárias.
+acompanha primeiro os estados de ciclo de vida. Somente sob demanda, após
+esperar um período proporcional à complexidade da tarefa, pode fazer uma única
+leitura curta de até 20 linhas para confirmar progresso. Se essa leitura
+mostrar que o subagente está trabalhando e avançando, não faça novas leituras
+automáticas: deixe-o trabalhar até `idle`, `done` ou `blocked`.
 
-Ao iniciar, instrua o subagente a trabalhar autonomamente e gravar a resposta
-final em um arquivo Markdown ou outro artefato definido no prompt. Depois de a
-execução terminar, leia apenas esse arquivo final. Não peça resumos no chat e
-não incorpore pesquisas, leituras de arquivos ou scripts internos do subagente
-ao contexto do agente principal.
+Só repita a leitura diante de bloqueio, suspeita concreta de travamento,
+mudança relevante de estado ou pedido do usuário. Não use polling, timeouts
+curtos, `pane read`, `terminal session observe` ou scrollback para transportar
+o contexto do subagente ao agente principal.
+
+Ao iniciar, instrua o subagente a trabalhar autonomamente a partir de um único
+prompt inicial completo, com escopo, critérios, testes e caminho do artefato
+final. Depois da execução, leia somente esse artefato. Não peça comandos de
+continuação ou finalização de rotina, não peça resumos no chat e não incorpore
+pesquisas, leituras de arquivos ou scripts internos do subagente ao contexto do
+agente principal.
 
 1. **Modo Interativo (Janela interativa / TUI completa, padrão)**:
    - O subagente roda com a interface visual que o humano usaria (atalhos, status bar, menu, sessão interativa).
    - Ideal para acompanhar o processo na pane, mantendo o contexto produzido dentro da sessão do próprio agente.
-   - Fluxo: `herdr pane split` -> `herdr agent start <nome> --kind <kind> --pane <id> -- <flags-yolo>` -> `herdr agent prompt <nome> "<prompt com caminho do relatório final>" --wait`.
+   - Fluxo: `herdr pane split` -> `herdr agent start <nome> --kind <kind> --pane <id> -- <flags-yolo>` -> `herdr agent prompt <nome> "<prompt inicial completo com caminho do relatório final>" --wait`.
 
 2. **Modo Direto / Resposta Limpa (Headless, exceção explícita)**:
    - Só use quando o usuário ou o contrato da tarefa pedir headless diretamente.
    - Nesse caso, execute o comando headless na pane e use `--output-last-message FILE` ou arquivo equivalente; ainda assim, leia somente o artefato final.
-   - Para prompts longos, prefira stdin e `herdr pane send-text`; nunca leia a pane para alimentar o contexto do agente principal.
+   - Para prompts longos, prefira stdin e `herdr pane send-text`; a leitura curta de progresso continua sujeita aos limites definidos acima.
 
 ## Comandos oficiais
 
@@ -92,7 +101,8 @@ herdr pane split --current --direction right --cwd "$PWD" --no-focus
 
 Inicie o agente suportado (`agy`, `codex`, `claude` ou `gemini`) no painel
 criado com um nome único e use a TUI nativa. **Sempre passe as flags do modo
-YOLO após `--`**:
+YOLO após `--`**. Prepare um único prompt inicial autocontido, incluindo o
+objetivo, os critérios de aceite, os testes e o caminho do artefato final:
 - Para **Agy**: inclua `--dangerously-skip-permissions`
 - Para **Codex**: inclua a flag autônoma suportada pela versão instalada, normalmente `--yolo` ou `--dangerously-bypass-approvals-and-sandbox`.
 
@@ -111,17 +121,26 @@ Só use o modo headless quando o usuário ou o contrato da tarefa pedir essa
 forma diretamente. Nesse caso, execute `codex exec`, `agy -p` ou equivalente na
 pane e grave a resposta final em arquivo; não leia o scrollback.
 
-### 5. Submeter a tarefa interativa com espera bloqueante (sem polling)
-Envie o prompt com a flag `--wait`:
+### 5. Submeter o prompt inicial e aguardar (sem polling)
+Envie o prompt completo uma única vez com `--wait`. Use um timeout proporcional
+à complexidade; para tarefas longas, prefira um timeout amplo ou omita-o para
+que o Herdr aguarde sem limite curto:
 ```bash
-herdr agent prompt worker1 "Investigue a falha X e reporte as causas e os arquivos afetados." --wait --timeout 120000
+herdr agent prompt worker1 "Execute integralmente a tarefa X, valide os critérios e grave o relatório final em .looper/runs/<run-id>/subagent-result.md." --wait
 ```
-O Herdr aguarda nativamente até que o agente atinja o estado `idle`, `done` ou `blocked`, sem necessidade de loops de consulta ou polling.
+O Herdr aguarda nativamente até `idle`, `done` ou `blocked`, sem loops de
+consulta. Não envie novos prompts para mandar o agente continuar ou finalizar
+enquanto ele estiver trabalhando.
 
-### 6. Ler o resultado limpo
-Não leia a pane nem use `herdr agent read` para transportar o contexto produzido
-pelo subagente. Confirme apenas o estado final e leia o artefato solicitado no
-prompt:
+### 6. Acompanhar progresso e ler o resultado final
+Para uma observação pontual, somente se necessário e depois de aguardar tempo
+proporcional à tarefa, leia no máximo 20 linhas:
+```bash
+herdr agent read worker1 --source visible --lines 20
+```
+Se a leitura confirmar que o agente está trabalhando e avançando, pare de ler
+e aguarde o estado final. Para coletar o resultado completo, leia apenas o
+artefato solicitado no prompt:
 ```bash
 test -s .looper/runs/<run-id>/subagent-result.md
 sed -n '1,240p' .looper/runs/<run-id>/subagent-result.md
@@ -130,10 +149,11 @@ O arquivo deve conter o relatório final, decisões, arquivos/símbolos afetados
 testes e limitações. Se o arquivo não existir, trate a entrega como bloqueada;
 não substitua o artefato por uma leitura do output intermediário.
 
-### 7. Continuar a sessão
-Para continuar a conversa ou enviar novas instruções no mesmo contexto:
+### 7. Intervenção excepcional
+Não continue a sessão por rotina. Só envie novas instruções se o agente ficar
+`blocked`, houver erro real ou o usuário pedir uma alteração:
 ```bash
-herdr agent prompt worker1 "Com base nessa análise, elabore o plano de ação." --wait --timeout 120000
+herdr agent prompt worker1 "Resolva o bloqueio identificado e retome a tarefa original." --wait
 ```
 Para controle de teclas no terminal:
 ```bash

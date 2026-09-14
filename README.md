@@ -51,7 +51,7 @@ Os recursos internos da biblioteca Open Design são instalados como `SKILL-secon
 
 O init instala a skill `$playwright-testing` em `.agents/skills/playwright-testing/`. Ela documenta como criar testes E2E com Playwright, explorar e diagnosticar a aplicação com `npx playwright-cli`, confirmar a estrutura antes de automatizar e executar a regressão com `looper test --playwright`.
 
-O init também instala a skill `$subagents` em `.agents/skills/subagents/`. Ela documenta os comandos headless de Codex, Claude e Agy, a retomada por ID de sessão e a orquestração paralela no `herdr` com modo nativo de agentes, sem polling.
+O init também instala a skill `$subagents` em `.agents/skills/subagents/`. Ela documenta a execução padrão na TUI nativa do Herdr, o envio de um único prompt inicial autônomo, a leitura curta de progresso somente sob demanda e a orquestração paralela por estados de ciclo de vida; o modo headless continua disponível quando solicitado explicitamente.
 
 O init também instala a skill `$resolve-bug` em `.agents/skills/resolve-bug/`. Ela delega a pesquisa, investigação, correção e testes a um subagente no `herdr`, que entrega um relatório Markdown temporário; o orquestrador lê somente esse relatório, valida o resultado, atualiza os Draws quando necessário e remove o arquivo ao final. Padrões técnicos reutilizáveis continuam sendo registrados em `.agents/conventions/`.
 
