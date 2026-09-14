@@ -18,6 +18,16 @@ relatório Markdown temporário; o agente orquestrador lê somente esse relatór
 final e o apaga imediatamente. Não considere uma alteração concluída apenas
 porque o subagente editou arquivos.
 
+## Princípio de modularização, centralização e reutilização
+
+Durante a investigação e a correção, se uma regra, validação, transformação, consulta,
+instrumentação ou outro trecho puder ser reaproveitado, extraia-o para um módulo, serviço ou
+adaptador com interface clara, centralize sua implementação e reutilize-o em todos os
+consumidores. Antes de criar um helper ou workaround, procure uma implementação compartilhada
+existente; não duplique lógica para resolver apenas um caminho do bug. Mantenha a correção
+focada no defeito e faça a modularização somente no escopo necessário para eliminar a
+duplicação.
+
 ## Fluxo obrigatório com subagente
 
 O usuário autoriza o uso de subagente ao solicitar esta skill. Execute todo subagente

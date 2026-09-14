@@ -186,6 +186,7 @@ def test_init_backports_subagent_observation_policy_to_legacy_install(tmp_path: 
     assert "--lines 20" in agents
     assert "não faça novas leituras automáticas" in agents
     assert "um único prompt inicial completo" in agents
+    assert "modularize, centralize e reutilize" in agents
     assert "não edite a descrição" in agents
     assert "nova pergunta e uma resposta" in agents
     assert "nunca leia scrollback ou output intermediário" not in agents
@@ -550,11 +551,16 @@ def test_agents_are_loaded_from_markdown_templates():
     assert "$backend-database-persistence" in backend_skill
     assert "$backend-auth-security" in backend_skill
     assert "skills independentes" in backend_skill
+    assert "princípio de modularização, centralização e reutilização" in backend_skill
+    assert "não duplique código" in backend_skill
+    assert "uma única fonte de verdade" in backend_skill
     logging_skill = (Path("src/looper/templates/agents/backend-developer/backend-logging/SKILL.md")).read_text().lower()
     assert "exatamente quatro níveis" in logging_skill
     assert "`warn`" in logging_skill and "`info`" in logging_skill
     assert "redaction" in logging_skill
     assert "destinos" in logging_skill
+    assert "princípio de modularização, centralização e reutilização" in logging_skill
+    assert "não duplique" in logging_skill
     assert "credenciais inválidas" in backend_skill
     assert "console" in logging_skill
     persistence_skill = Path("src/looper/templates/agents/backend-developer/backend-database-persistence/SKILL.md").read_text().lower()
@@ -787,16 +793,34 @@ def test_subagents_skill_contract():
     for required in ("codex exec", "claude -p", "agy -p", "--model", "--effort", "--resume", "--conversation", "herdr agent", "sem polling", "session_id"):
         assert required in content
     assert "herdr pane" in content
-    normalized = " ".join(content.split())
+    normalized = " ".join(content.split()).lower()
     for required in (
+        "princípio de modularização, centralização e reutilização",
+        "não deve duplicar código",
+        "artefato final registre os pontos reutilizados",
         "leitura curta de até 20 linhas",
         "não faça novas leituras automáticas",
         "prompt inicial completo",
         "timeout proporcional",
         "à complexidade",
-        "Não continue a sessão por rotina",
+        "não continue a sessão por rotina",
     ):
         assert required in normalized
+
+
+def test_resolve_bug_skill_requires_reuse_over_duplication():
+    """Publica modularização e reutilização na skill de correção de bugs.
+    Garante critérios textuais de centralização e não duplicação.
+    """
+    # O que: garante que a skill de bugs prioriza módulos compartilhados.
+    # Como: procura no texto os critérios de centralização e não duplicação.
+    content = " ".join(Path("src/looper/templates/agents/resolve-bug/SKILL.md").read_text(encoding="utf-8").lower().split())
+    for required in (
+        "princípio de modularização, centralização e reutilização",
+        "procure uma implementação compartilhada existente",
+        "não duplique lógica",
+    ):
+        assert required in content
 
 
 def test_subagents_skill_covers_native_herdr_commands():

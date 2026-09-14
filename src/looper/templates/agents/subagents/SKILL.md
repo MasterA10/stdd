@@ -7,6 +7,17 @@ description: Orquestra subagentes locais no Herdr, com escolha de agente e model
 
 Use esta skill quando o agente principal precisar dividir uma tarefa em investigações ou execuções independentes. O agente principal define o contexto, dispara os subagentes, aguarda a barreira e só então avalia os resultados.
 
+## Princípio de modularização, centralização e reutilização
+
+Quando a tarefa do subagente tocar backend, se uma regra, validação, transformação, consulta,
+integração, instrumentação ou fluxo puder ser reaproveitado, instrua o subagente a extraí-lo
+para um módulo, serviço ou adaptador com interface clara, centralizar sua implementação e
+reutilizá-lo em todos os consumidores. Antes de criar lógica nova, ele deve procurar uma
+implementação compartilhada existente; não deve duplicar código em controllers, jobs,
+endpoints, modelos ou integrações. Inclua esse princípio no prompt inicial e peça que o
+artefato final registre os pontos reutilizados ou a justificativa objetiva quando não houver
+reuso aplicável.
+
 ## Modos de Execução: TUI no Herdr vs Headless
 
 O modo padrão é TUI interativa no Herdr, usando os próprios agentes nativos,

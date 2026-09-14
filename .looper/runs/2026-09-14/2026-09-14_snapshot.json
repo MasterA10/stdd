@@ -35,10 +35,39 @@
         }
       ],
       "draws": []
+    },
+    {
+      "run_id": "6ee2275d35b8433890812ee99a84dcde",
+      "timestamp": "2026-09-14T16:42:58.324148+00:00",
+      "files": [
+        {
+          "path": "tests/test_looper.py",
+          "lines_added": 25,
+          "lines_deleted": 2
+        }
+      ],
+      "draws": []
+    },
+    {
+      "run_id": "d991a3cd7dea445c96afe5476970d223",
+      "timestamp": "2026-09-14T17:13:28.723766+00:00",
+      "files": [
+        {
+          "path": "src/looper/core.py",
+          "lines_added": 1,
+          "lines_deleted": 0
+        },
+        {
+          "path": "tests/test_looper.py",
+          "lines_added": 1,
+          "lines_deleted": 0
+        }
+      ],
+      "draws": []
     }
   ],
-  "run_count": 2,
-  "last_run_id": "8dfcfc51a24740bd810bc80dfa86a0d2",
+  "run_count": 4,
+  "last_run_id": "d991a3cd7dea445c96afe5476970d223",
   "workspace_snapshot": {
     "build/lib/looper/__init__.py": [
       "\"\"\"Looper: desenvolvimento orientado por testes.\"\"\"",
@@ -19736,6 +19765,7 @@
       "- Playwright como validador rigoroso (\"carrasco\"): a suíte de testes de interface opera sob regras estritas de fidelidade à experiência do usuário final. Proibição de bypass de dados: fica terminantemente vetado ao teste Playwright injetar dados diretamente no banco de dados ou acionar requisições HTTP artificiais para simular ações de tela. Exceção única para seeds de acesso: permite-se apenas a injeção inicial de um registro de usuário (seed) para autenticação caso o sistema não contemple um fluxo de auto-cadastro na interface. Regra de cobertura orgânica: se o teste não consegue avançar porque falta uma funcionalidade de CRUD ou um botão na interface, o agente deve implementar o recurso na UI, em vez de burlar o teste via script interno; toda e qualquer interação deve acontecer via cliques, digitação e navegação real.",
       "- Mantenha memória contextual seletiva: use o `AGENTS.md` somente para visão geral, operação, escopo e rastreabilidade; registre detalhes técnicos reutilizáveis em `.agents/conventions/` e decisões visuais no `.looper/design.html`. Consolide duplicatas e não registre hipóteses, detalhes temporários, IDs de execução ou segredos.",
       "- Mantenha o `AGENTS.md` curto: uma convenção é uma orientação técnica específica, confirmada e reutilizável para implementar ou manter código e infraestrutura — geralmente uma solução aprendida com um bug difícil ou uma implementação incomum. Não registre linguagem geral do sistema, regra de negócio, histórico de tarefa ou workaround temporário; coloque convenções em `.agents/conventions/`, com o índice apontando para o assunto correto, e leia somente a convenção relevante.",
+      "- Quando qualquer trabalho tocar backend, logging, correção de bugs ou subagentes, se algo for reaproveitável, modularize, centralize e reutilize. Procure uma implementação compartilhada antes de criar lógica nova e evite duplicação.",
       "- Trate os Draws como documentação viva oficial: mudanças de comportamento, fluxo ou decisão devem atualizar o Draw correspondente, suas conexões e símbolos antes da implementação. Quando a descrição do nó continuar correta e a mudança apenas acrescentar contexto, detalhe ou explicação, não edite a descrição: registre uma nova pergunta e uma resposta no nó mais relacionado. Edite a descrição somente quando ela estiver incorreta ou quando o comportamento, fluxo ou decisão documentada mudar.",
       "---",
       "{{convention_catalog}}",
@@ -32317,6 +32347,7 @@
       "    assert \"--lines 20\" in agents",
       "    assert \"não faça novas leituras automáticas\" in agents",
       "    assert \"um único prompt inicial completo\" in agents",
+      "    assert \"modularize, centralize e reutilize\" in agents",
       "    assert \"não edite a descrição\" in agents",
       "    assert \"nova pergunta e uma resposta\" in agents",
       "    assert \"nunca leia scrollback ou output intermediário\" not in agents",
@@ -32681,11 +32712,16 @@
       "    assert \"$backend-database-persistence\" in backend_skill",
       "    assert \"$backend-auth-security\" in backend_skill",
       "    assert \"skills independentes\" in backend_skill",
+      "    assert \"princípio de modularização, centralização e reutilização\" in backend_skill",
+      "    assert \"não duplique código\" in backend_skill",
+      "    assert \"uma única fonte de verdade\" in backend_skill",
       "    logging_skill = (Path(\"src/looper/templates/agents/backend-developer/backend-logging/SKILL.md\")).read_text().lower()",
       "    assert \"exatamente quatro níveis\" in logging_skill",
       "    assert \"`warn`\" in logging_skill and \"`info`\" in logging_skill",
       "    assert \"redaction\" in logging_skill",
       "    assert \"destinos\" in logging_skill",
+      "    assert \"princípio de modularização, centralização e reutilização\" in logging_skill",
+      "    assert \"não duplique\" in logging_skill",
       "    assert \"credenciais inválidas\" in backend_skill",
       "    assert \"console\" in logging_skill",
       "    persistence_skill = Path(\"src/looper/templates/agents/backend-developer/backend-database-persistence/SKILL.md\").read_text().lower()",
@@ -32918,16 +32954,34 @@
       "    for required in (\"codex exec\", \"claude -p\", \"agy -p\", \"--model\", \"--effort\", \"--resume\", \"--conversation\", \"herdr agent\", \"sem polling\", \"session_id\"):",
       "        assert required in content",
       "    assert \"herdr pane\" in content",
-      "    normalized = \" \".join(content.split())",
+      "    normalized = \" \".join(content.split()).lower()",
       "    for required in (",
+      "        \"princípio de modularização, centralização e reutilização\",",
+      "        \"não deve duplicar código\",",
+      "        \"artefato final registre os pontos reutilizados\",",
       "        \"leitura curta de até 20 linhas\",",
       "        \"não faça novas leituras automáticas\",",
       "        \"prompt inicial completo\",",
       "        \"timeout proporcional\",",
       "        \"à complexidade\",",
-      "        \"Não continue a sessão por rotina\",",
+      "        \"não continue a sessão por rotina\",",
       "    ):",
       "        assert required in normalized",
+      "",
+      "",
+      "def test_resolve_bug_skill_requires_reuse_over_duplication():",
+      "    \"\"\"Publica modularização e reutilização na skill de correção de bugs.",
+      "    Garante critérios textuais de centralização e não duplicação.",
+      "    \"\"\"",
+      "    # O que: garante que a skill de bugs prioriza módulos compartilhados.",
+      "    # Como: procura no texto os critérios de centralização e não duplicação.",
+      "    content = \" \".join(Path(\"src/looper/templates/agents/resolve-bug/SKILL.md\").read_text(encoding=\"utf-8\").lower().split())",
+      "    for required in (",
+      "        \"princípio de modularização, centralização e reutilização\",",
+      "        \"procure uma implementação compartilhada existente\",",
+      "        \"não duplique lógica\",",
+      "    ):",
+      "        assert required in content",
       "",
       "",
       "def test_subagents_skill_covers_native_herdr_commands():",

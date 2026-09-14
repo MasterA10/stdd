@@ -28,6 +28,14 @@ Entregue backend observável, modular, testável e seguro. Separe entrada/contro
 uso, domínio, persistência, integrações externas e infraestrutura. Evite funções ou módulos
 monolíticos; prefira composição explícita e dependências injetáveis.
 
+## Princípio de modularização, centralização e reutilização
+
+Se uma regra, transformação, validação, integração, consulta ou fluxo puder ser reaproveitado,
+extraia-o para um módulo, serviço ou adaptador com interface clara, centralize sua implementação
+e reutilize-o em todos os consumidores. Antes de criar lógica nova, procure uma implementação
+compartilhada existente; não duplique código em controllers, jobs, endpoints, modelos ou
+integrações. Mantenha uma única fonte de verdade para cada comportamento compartilhado.
+
 Evite criar ou ampliar arquivos de backend acima de 300 linhas. Isso é uma orientação de
 modularidade, não um limite absoluto de qualidade nem uma validação estática aplicada pelo
 `looper test`.

@@ -27,6 +27,15 @@ transversal: deve tornar o comportamento explicável e não pode ser tratado com
 - Separe mensagem sanitizada para o cliente do diagnóstico técnico interno. Nunca engula,
   resuma ou substitua a causa original no log técnico.
 
+## Princípio de modularização, centralização e reutilização
+
+Se uma regra de logging, formatação de evento, correlação, redaction, captura de erro,
+destino ou fallback puder ser reaproveitada, extraia-a para um módulo ou adaptador com
+interface clara, centralize sua implementação e reutilize-a em todos os consumidores. Antes
+de criar lógica nova, procure uma implementação compartilhada existente; não duplique
+formatação, redaction ou tratamento de falhas em cada controller, job ou integração. Mantenha
+uma única fonte de verdade para cada comportamento transversal de observabilidade.
+
 ## Segurança e operação
 
 Redija apenas segredos e credenciais reais (`password`, tokens, chaves, cookies,
@@ -46,6 +55,3 @@ disponíveis.
 Teste os quatro níveis, logs de erro com debug desligado, correlation ID, captura global,
 payloads de integração, redaction pontual, destinos independentes, fallback e ausência de
 recursão. Verifique também que logs não alteram a resposta ou a transação principal.
-
-
-
