@@ -785,6 +785,27 @@ def test_level_two_contract_allows_missing_code_refs_before_implementation():
     assert analyze_draw_contract(payload, ".looper/draws/journey-specification.json") == []
 
 
+def test_draw_contract_warns_when_node_description_is_outside_100_to_250_chars():
+    """Avisa quando a descrição do nó fica fora da faixa documental recomendada.
+    Aceita os limites inclusivos e identifica o nó, o valor observado e os dois limites.
+    """
+    payload = draw_payload("description-length")
+    payload["nodes"] = [
+        {"id": 1, "label": "Limite inferior", "description": "a" * 99},
+        {"id": 2, "label": "Limite válido", "description": "b" * 100},
+        {"id": 3, "label": "Limite superior", "description": "c" * 250},
+        {"id": 4, "label": "Acima do limite", "description": "d" * 251},
+    ]
+
+    findings = analyze_draw_contract(payload, ".looper/draws/description-length.json")
+    length_findings = [finding for finding in findings if finding["kind"] == "draw.description_length"]
+
+    assert [finding["node_id"] for finding in length_findings] == [1, 4]
+    assert [finding["value"] for finding in length_findings] == [99, 251]
+    assert all(finding["limit"] == {"min": 100, "max": 250} for finding in length_findings)
+    assert all(finding["severity"] == "warning" for finding in length_findings)
+
+
 def test_draw_contract_warns_for_empty_or_unnamed_node_symbols():
     """Gera achado bloqueante quando nós contêm símbolos vazios ou genéricos.
     Inspeciona os achados de analyze_draw_contract e confirma o tipo e a evidência.

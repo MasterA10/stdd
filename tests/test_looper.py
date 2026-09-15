@@ -62,12 +62,16 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert (tmp_path / "AGENTS.md").exists()
     assert "looper test" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert "$system-design" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "escala tipográfica centralizada" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "tokens globais semânticos" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert "$modern-web-guidance" not in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert "subagentes" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert "herdr" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     system_design = (tmp_path / ".agents/skills/system-design/SKILL.md").read_text(encoding="utf-8")
     assert "design system" in system_design
     assert "`.looper/design.html`" in system_design
+    assert "desktop e mobile" in system_design
+    assert "não crie valores ad hoc" in system_design
     assert "playwright-cli" in (tmp_path / ".agents/skills/test-application/SKILL.md").read_text().lower()
     assert not (tmp_path / ".agents/skills/create-tests/SKILL.md").exists()
     assert not (tmp_path / ".agents/skills/implement/SKILL.md").exists()
@@ -597,10 +601,10 @@ def test_agents_are_loaded_from_markdown_templates():
     for required in ("nível 2", "jornadas", "administrador", "permissões", "frontend/interface", "não implementado", "draw_ref", "draw.level2_missing_code_ref", "não deve bloquear"):
         assert required in level_two
     level_three = templates["draw-system-level-3"].read_text().lower()
-    for required in ("nível 3", "dois lotes", "ponta a ponta", "tudo o que é possível fazer", "chat", "marketplace", "code_refs", "source_dependencies", "no mínimo quatro nós", "no mínimo 80 caracteres", "warning", "draw.level3_min_nodes", "draw.level3_short_description", "description", "label", "edge.description", "obrigatoriedade de leitura do símbolo", "leitura prévia", "pode ser criado antes da implementação", "modo de especificação", "símbolo placeholder", "negative spec"):
+    for required in ("nível 3", "dois lotes", "ponta a ponta", "tudo o que é possível fazer", "chat", "marketplace", "code_refs", "source_dependencies", "no mínimo quatro nós", "100 e 250 caracteres", "warning", "draw.level3_min_nodes", "draw.description_length", "description", "label", "edge.description", "obrigatoriedade de leitura do símbolo", "leitura prévia", "pode ser criado antes da implementação", "modo de especificação", "símbolo placeholder", "negative spec"):
         assert required in level_three
 
-    for required in ("supabase", "rpc", "back-end", "external_logic", "technologies", "sql_procedure", "sql_function", "localização da regra", "todos os níveis", "frontend/interface", "static_analysis.exceptions", "looper:ignore", "draw.level2_missing_code_ref", "draw.level3_min_nodes", "draw.level3_short_description", "menos de quatro nós", "menos de 80 caracteres", "somente `looper test` aplica o bloqueio"):
+    for required in ("supabase", "rpc", "back-end", "external_logic", "technologies", "sql_procedure", "sql_function", "localização da regra", "todos os níveis", "frontend/interface", "static_analysis.exceptions", "looper:ignore", "draw.level2_missing_code_ref", "draw.level3_min_nodes", "draw.description_length", "menos de quatro nós", "menos de 100", "mais de 250", "somente `looper test` aplica o bloqueio"):
         assert required in templates["static-analysis"].read_text().lower()
 
     setup_content = templates["setup"].read_text()

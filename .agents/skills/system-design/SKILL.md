@@ -67,10 +67,12 @@ O agente deve seguir o seguinte fluxo de trabalho metódico:
    - Para produtos premium e refinados: examine `apple`, `resend` ou `editorial`.
 3. Abra e leia primeiro o `USAGE.md` e o `DESIGN.md` do pacote escolhido para absorver os princípios, hierarquia e restrições.
 
-### Passo 2: Extração de Tokens e Paleta
+### Passo 2: Extração de Tokens, Tipografia Global e Paleta
 1. Abra `tokens.css` (e `tailwind-v4.css` ou `design-tokens.json` se aplicável).
-2. Extraia os tokens fundamentais de cores, superfícies, bordas, sombras e raios.
-3. Garanta que a paleta siga a regra das 4 camadas de `craft/color.md`:
+2. Extraia e normalize primeiro os tokens globais: família tipográfica principal e alternativa, pesos disponíveis, escala de tamanhos, line-heights, tracking, cores semânticas, superfícies, bordas, sombras, raios e espaçamentos.
+3. Defina uma escala tipográfica semântica única e reutilizável, no mínimo com `display`, `h1`, `h2`, `h3`, `h4`, `body`, `body-sm`, `label` e `code`. Cada papel deve ter tamanho, peso, line-height e tracking explícitos para desktop e mobile, preferencialmente em `rem`, com breakpoint documentado.
+4. Aplique os tokens na raiz (`:root`) e faça textos, controles e componentes herdarem `font-family`, `color` e demais propriedades globais. É proibido replicar valores literais de fonte ou cor em cada parte da tela; use classes/variáveis semânticas dos papéis tipográficos e cromáticos.
+5. Garanta que a paleta siga a regra das 4 camadas de `craft/color.md`:
    - **Neutros (70-90%)**: Superfícies de fundo, painéis e tipografia principal e secundária.
    - **Accent (5-10%)**: Apenas UMA cor de destaque (`--accent`), limitada a no máximo 2 utilizações visíveis no viewport (ex.: um botão primário e um active badge).
    - **Semânticos (0-5%)**: Feedback de status (`--success`, `--warning`, `--danger`).
@@ -91,8 +93,11 @@ Crie ou atualize `.looper/design.html` estruturado como uma **landing page demon
    - Identidade visual, clima emocional, tom e sensação da interface.
 2. **Color (Paleta e Papéis Semânticos)**:
    - Variáveis CSS no `:root` (`--bg`, `--surface`, `--surface-raised`, `--border`, `--text-primary`, `--accent`, etc.) com garantia de contraste mínimo WCAG AA (4.5:1 texto, 3:1 controles).
+   - Separe tokens de papel semântico dos valores de cor, aplique-os na raiz e documente herança, temas e exceções. Componentes não devem conter hex/rgb ad hoc.
 3. **Typography (Tipografia e Hierarquia)**:
-   - Display, H1-H4, Body, Small e Code com escalas em `rem` e line-heights confortáveis.
+   - Declare família principal, fallback, pesos e carregamento; não invente uma fonte por componente.
+   - Display, H1-H4, Body, Small, Label e Code devem usar uma escala semântica global com tamanho, peso, line-height e tracking em `rem`.
+   - Para cada papel, registre valores de desktop e mobile e o breakpoint da mudança. Telas devem consumir os papéis, nunca definir tamanhos isolados.
 4. **Spacing & Rhythm (Espaçamento, Ritmo e Geometria)**:
    - Escala modular baseada em múltiplos de 4px (`4px`, `8px`, `12px`, `16px`, `24px`, `32px`, `48px`), raios de borda e sombras de elevação.
 5. **Layout & Composition (Layout, Grid e Composição)**:
@@ -108,7 +113,7 @@ Crie ou atualize `.looper/design.html` estruturado como uma **landing page demon
 
 ### Passo 5: Criação das Telas da Aplicação
 Ao implementar as telas reais da aplicação (frontend/views L2 do backlog):
-1. **Consistência Total**: Utilize estritamente os tokens CSS declarados no `.looper/design.html`.
+1. **Consistência Total**: Utilize estritamente os tokens CSS declarados no `.looper/design.html`; herde os tokens globais de tipografia e cor e não crie valores ad hoc dentro da tela.
 2. **Reaproveitamento de Templates**: Inspecione `.agents/skills/system-design/open-design/design-templates/` para reaproveitar estruturas de layout, cabeçalhos, barras de ação e painéis comprovados.
 3. **Contrato de Telas Dinâmicas**: Conecte informações dinâmicas exclusivamente via função `get_mock_fake` (ou similar) consumindo o JSON central do projeto.
 4. **Cobertura de Estados**: Toda tela deve contemplar estado de carregamento, estado vazio (empty state explicativo e amigável), estado preenchido e feedback de erro.

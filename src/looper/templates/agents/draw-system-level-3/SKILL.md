@@ -127,11 +127,11 @@ Se a evidência não for suficiente para decidir um passo, registrar a pendênci
 
 ## Critérios de análise estática do nível 3
 
-Todo desenho filho com `hierarchy.level: 3` deve possuir **no mínimo quatro nós**. Cada nó desse subfluxo deve possuir `description` com **no mínimo 80 caracteres**, contando a string efetivamente gravada no JSON depois de remover espaços no início e no fim. A regra vale para entradas, ações, decisões, validações, estados de erro, sucesso, retry e recuperação quando existirem nesse nível. `label`, `title`, `questions`, `code_refs` e `edge.description` não contam para atingir o mínimo.
+Todo desenho filho com `hierarchy.level: 3` deve possuir **no mínimo quatro nós**. Cada nó de qualquer nível deve possuir `description` entre **100 e 250 caracteres**, contando a string efetivamente gravada no JSON depois de remover espaços no início e no fim. A faixa vale para entradas, ações, decisões, validações, estados de erro, sucesso, retry e recuperação quando existirem. `label`, `title`, `questions`, `code_refs` e `edge.description` não contam para atingir os limites. Se a descrição ultrapassar 250 caracteres, extraia o detalhe para um subfluxo relacionado ou registre-o como pergunta no nó correspondente.
 
-A análise estática deve emitir warnings, sem bloquear a criação ou o `looper test`, quando o subfluxo tiver menos de quatro nós (`draw.level3_min_nodes`) ou quando qualquer `description` estiver ausente, não for string ou tiver menos de 80 caracteres (`draw.level3_short_description`). O finding deve identificar o arquivo do desenho, o ID do nó quando aplicável, o valor observado, o limite e a evidência; não transformar uma lacuna desconhecida em aprovação.
+A análise estática deve emitir warnings, sem bloquear a criação ou o `looper test`, quando o subfluxo tiver menos de quatro nós (`draw.level3_min_nodes`) ou quando qualquer `description` estiver ausente, não for string, tiver menos de 100 ou mais de 250 caracteres (`draw.description_length`). O finding deve identificar o arquivo do desenho, o ID do nó, o valor observado, os limites e a evidência; não transformar uma lacuna desconhecida em aprovação.
 
-A descrição não pode ser preenchida com repetição, adjetivos vazios ou texto decorativo. Os 80 caracteres devem explicar a responsabilidade daquele nó e, conforme o caso, sua intenção, papel autorizado, entrada, regra, condição, estado observável, efeito, resultado, falha ou dependência. Em uma tela dinâmica, escrever o contexto do ciclo específico — por exemplo atualização, paginação, concorrência, evento, reconexão ou indisponibilidade — no nó correspondente. Quando a evidência não sustentar esse nível de detalhe, registrar a lacuna em `questions` e manter a descrição factual; nunca inventar comportamento só para alcançar a contagem.
+A descrição não pode ser preenchida com repetição, adjetivos vazios ou texto decorativo. Os 100–250 caracteres devem explicar a responsabilidade daquele nó e, conforme o caso, sua intenção, papel autorizado, entrada, regra, condição, estado observável, efeito, resultado, falha ou dependência. Em uma tela dinâmica, escrever o contexto do ciclo específico — por exemplo atualização, paginação, concorrência, evento, reconexão ou indisponibilidade — no nó correspondente. Quando a evidência não sustentar esse nível de detalhe, registrar a lacuna em `questions` e manter a descrição factual; nunca inventar comportamento só para alcançar a contagem.
 
 ## Granularidade sem molde fixo
 
@@ -199,7 +199,7 @@ Para cada lote:
 
 1. Ler pai, jornada, raiz e divisão de lotes. Para telas implementadas, realizar a leitura prévia e obrigatória do símbolo associado; para telas planejadas, ler os requisitos, decisões e perguntas do Draw e registrar `code_refs` como pendentes ou ausentes.
 2. Criar cada JSON separadamente com IDs estáveis usando `looper draw create --data-json '<JSON>'`.
-3. Validar nós, arestas, fluxos, condições, grupos, `draw_ref`, pais, raiz, terminais e os critérios estáticos de quatro nós e 80 caracteres.
+3. Validar nós, arestas, fluxos, condições, grupos, `draw_ref`, pais, raiz, terminais e os critérios estáticos de quatro nós e descrições entre 100 e 250 caracteres.
 4. Revisar no viewer com `looper draw serve`.
 5. Conferir que cada ação de usuário comprovada possui um nó-gatilho conectado e que nenhum caminho foi reduzido a um fluxo genérico.
 6. Entregar IDs, telas concluídas, regras cobertas, `code_refs` resolvidos/pendentes, folhas não implementadas, perguntas, limitações e próximo lote.

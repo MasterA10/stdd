@@ -38,6 +38,9 @@ DRAW_LEVEL3_CODE_REF_RULE = "draw.level3_missing_code_ref"
 DRAW_LEVEL4_CODE_REF_RULE = "draw.level4_missing_code_ref"
 DRAW_EMPTY_NODE_SYMBOL_RULE = "draw.empty_node_symbol"
 DRAW_DUPLICATE_NODE_SYMBOL_RULE = "draw.duplicate_node_symbol"
+DRAW_DESCRIPTION_LENGTH_RULE = "draw.description_length"
+DRAW_DESCRIPTION_MIN_CHARS = 100
+DRAW_DESCRIPTION_MAX_CHARS = 250
 UNNAMED_SYMBOL_PATTERNS = {
     "",
     "unnamed",
@@ -771,6 +774,25 @@ def analyze_draw_contract(
         if not isinstance(node, dict):
             continue
         node_id = node.get("id")
+        description = node.get("description")
+        description_length = len(description.strip()) if isinstance(description, str) else 0
+        if description_length < DRAW_DESCRIPTION_MIN_CHARS or description_length > DRAW_DESCRIPTION_MAX_CHARS:
+            direction = "ausente ou abaixo do mínimo" if description_length < DRAW_DESCRIPTION_MIN_CHARS else "acima do máximo"
+            findings.append({
+                "kind": DRAW_DESCRIPTION_LENGTH_RULE,
+                "rule": DRAW_DESCRIPTION_LENGTH_RULE,
+                "severity": "warning",
+                "file": source,
+                "draw_id": draw_id,
+                "node_id": node_id,
+                "value": description_length,
+                "limit": {
+                    "min": DRAW_DESCRIPTION_MIN_CHARS,
+                    "max": DRAW_DESCRIPTION_MAX_CHARS,
+                },
+                "evidence": f"descrição do nó {node_id!r} possui {description_length} caracteres ({direction}); esperado entre {DRAW_DESCRIPTION_MIN_CHARS} e {DRAW_DESCRIPTION_MAX_CHARS}",
+                "source": "builtin_draw_contract",
+            })
         references = node.get("code_refs")
         if isinstance(references, list):
             for ref in references:
