@@ -164,6 +164,33 @@ def test_init_always_synchronizes_existing_agent_skills(tmp_path: Path):
     assert skill.read_text(encoding="utf-8") == Path("src/looper/templates/agents/draw-system-level-3/SKILL.md").read_text(encoding="utf-8")
 
 
+def test_init_installs_and_updates_all_backend_skill_subdirectories(tmp_path: Path):
+    """Distribui a skill backend completa e atualiza instalações antigas.
+    Preserva skills locais não relacionadas durante a sincronização.
+    """
+    init_project(tmp_path)
+    installed = tmp_path / ".agents/skills/backend-developer"
+    source = Path("src/looper/templates/agents/backend-developer")
+    expected = sorted(path.relative_to(source) for path in source.rglob("*") if path.is_file())
+
+    assert sorted(path.relative_to(installed) for path in installed.rglob("*") if path.is_file()) == expected
+
+    local_skill = tmp_path / ".agents/skills/local-team/SKILL.md"
+    local_backend_file = installed / "local-team-notes.md"
+    local_skill.parent.mkdir(parents=True)
+    local_skill.write_text("skill local", encoding="utf-8")
+    local_backend_file.write_text("arquivo local", encoding="utf-8")
+    for relative in expected:
+        (installed / relative).write_text("versao antiga", encoding="utf-8")
+
+    init_project(tmp_path)
+
+    for relative in expected:
+        assert (installed / relative).read_text(encoding="utf-8") == (source / relative).read_text(encoding="utf-8")
+    assert local_skill.read_text(encoding="utf-8") == "skill local"
+    assert local_backend_file.read_text(encoding="utf-8") == "arquivo local"
+
+
 def test_init_backports_subagent_observation_policy_to_legacy_install(tmp_path: Path):
     """Atualiza AGENTS.md e a skill de subagentes em instalações antigas.
     Permite uma leitura curta sob demanda, mas mantém execução autônoma e sem polling.
@@ -471,8 +498,13 @@ def test_init_ignores_packaged_skills_but_versions_extra_skills_and_conventions(
     official = tmp_path / ".agents/skills/system-design/SKILL.md"
     extra = tmp_path / ".agents/skills/projeto-local/SKILL.md"
     convention = tmp_path / ".agents/conventions/projeto.md"
+    private_agent_file = tmp_path / ".agents/private.txt"
+    run_file = tmp_path / ".looper/runs/2026-09-16/2026-09-16_summary.json"
     extra.parent.mkdir(parents=True)
     convention.write_text("regra local\n", encoding="utf-8")
+    private_agent_file.write_text("estado local\n", encoding="utf-8")
+    run_file.parent.mkdir(parents=True)
+    run_file.write_text("{}\n", encoding="utf-8")
 
     subprocess.run(["git", "init"], cwd=tmp_path, capture_output=True, check=True)
 
@@ -490,6 +522,50 @@ def test_init_ignores_packaged_skills_but_versions_extra_skills_and_conventions(
     assert ignored(official)
     assert not ignored(extra)
     assert not ignored(convention)
+    assert ignored(private_agent_file)
+    assert not ignored(run_file)
+
+
+def test_init_restores_versionable_exceptions_after_broad_gitignore_rules(tmp_path: Path):
+    """Preserva skills locais, convenções e runs mesmo após ignores amplos existentes.
+    Inicializa um projeto com .agents e .looper já ignorados e verifica as exceções gerenciadas.
+    """
+    gitignore = tmp_path / ".gitignore"
+    gitignore.write_text(".agents/\n.looper/\n")
+
+    init_project(tmp_path)
+    managed_gitignore = gitignore.read_text()
+    local_skill = tmp_path / ".agents/skills/projeto-local/SKILL.md"
+    local_skill.parent.mkdir(parents=True)
+    local_skill.write_text("# Skill local\n", encoding="utf-8")
+    local_convention = tmp_path / ".agents/conventions/projeto.md"
+    local_convention.write_text("# Convenção local\n", encoding="utf-8")
+    run_file = tmp_path / ".looper/runs/2026-09-16/summary.json"
+    run_file.parent.mkdir(parents=True)
+    run_file.write_text("{}\n", encoding="utf-8")
+    ignored_agent_file = tmp_path / ".agents/private.txt"
+    ignored_agent_file.write_text("privado\n", encoding="utf-8")
+
+    subprocess.run(["git", "init"], cwd=tmp_path, capture_output=True, check=True)
+
+    def ignored(path: Path) -> bool:
+        """Consulta se um caminho está ignorado pelas regras do projeto.
+        Usa o Git sem adicionar ou alterar arquivos versionados.
+        """
+        result = subprocess.run(
+            ["git", "check-ignore", "--no-index", str(path.relative_to(tmp_path))],
+            cwd=tmp_path,
+            capture_output=True,
+        )
+        return result.returncode == 0
+
+    assert not ignored(local_skill)
+    assert not ignored(local_convention)
+    assert not ignored(run_file)
+    assert ignored(ignored_agent_file)
+
+    init_project(tmp_path)
+    assert gitignore.read_text() == managed_gitignore
 
 
 def test_init_documents_tui_as_default_with_final_artifact_boundary(tmp_path: Path):
@@ -649,6 +725,27 @@ def test_resolve_bug_skill_requires_end_to_end_report_contract():
         "--type bug",
     ):
         assert required in content
+
+
+def test_resolve_bug_skill_forbids_nested_subagents_and_keeps_installed_copy_in_sync():
+    """Mantém o subagente de resolve-bug como folha terminal da delegação.
+    A fonte e a cópia instalada devem publicar o mesmo contrato anti-recursão.
+    """
+    source = Path("src/looper/templates/agents/resolve-bug/SKILL.md").read_text(encoding="utf-8")
+    installed = Path(".agents/skills/resolve-bug/SKILL.md").read_text(encoding="utf-8")
+    assert installed == source
+    normalized = " ".join(source.lower().split())
+    for required in (
+        "um único subagente",
+        "folha terminal",
+        "ponta a ponta sozinho",
+        "não pode criar, invocar, delegar ou solicitar outro subagente",
+        "worker do herdr",
+        "proibido iniciar nesting ou recursão de subagentes",
+        "prompt único",
+        "não deve iniciar ou pedir qualquer subdelegação",
+    ):
+        assert required in normalized
 
 
 def test_test_and_implement_skills_require_symbols_and_static_analysis_gate():
@@ -1447,3 +1544,14 @@ def test_draw_feature_disallows_implicit_invocation(tmp_path: Path):
 
     skill = (tmp_path / ".agents/skills/draw-feature/SKILL.md").read_text(encoding="utf-8")
     assert "Não invoque esta skill automaticamente" in skill
+
+
+def test_resolve_bug_disallows_implicit_invocation(tmp_path: Path):
+    """Desativa a invocação automática da skill resolve-bug.
+    Confirma a policy nos metadados instalados e no template.
+    """
+    init_project(tmp_path)
+    metadata = (tmp_path / ".agents/skills/resolve-bug/agents/openai.yaml").read_text(encoding="utf-8")
+    template_metadata = Path("src/looper/templates/agents/resolve-bug/agents/openai.yaml").read_text(encoding="utf-8")
+    assert "allow_implicit_invocation: false" in metadata
+    assert "allow_implicit_invocation: false" in template_metadata

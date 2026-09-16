@@ -91,9 +91,10 @@
       "code_refs": [
         {
           "file": "src/looper/core.py",
-          "symbol": "looper.core.ensure_agent_instructions",
+          "symbol": "looper.core.init_project",
           "source_dependencies": [
             "looper.core.agent_templates",
+            "looper.core.ensure_agent_instructions",
             "looper.core.ensure_agent_conventions"
           ]
         }
@@ -122,6 +123,27 @@
           "prompt": "A skill resolve-bug deve delegar a pesquisa, investigação, reprodução, correção e testes ponta a ponta ao subagente. Ele grava um relatório temporário em .looper/runs/<run-id>/resolve-bug-report.md, mesmo se ficar bloqueado; o orquestrador lê somente o arquivo final uma vez e o remove pelo caminho exato, sem ler pane, scrollback ou output intermediário.",
           "status": "pending",
           "source": "review"
+        },
+        {
+          "id": 4,
+          "prompt": "A sincronização deve distribuir e atualizar o SKILL.md principal e todos os arquivos dos subdiretórios de backend, inclusive metadados recursivos, em projetos novos e existentes; skills locais não relacionadas devem permanecer intactas.",
+          "answer": "O init percorre recursivamente a árvore empacotada de backend-developer e compara cada arquivo antes de atualizar, sem remover arquivos locais fora do conjunto distribuído.",
+          "status": "done",
+          "source": "bugfix"
+        },
+        {
+          "id": 5,
+          "prompt": "A skill resolve-bug pode iniciar recursão ou nesting de subagentes durante a investigação?",
+          "answer": "Não. O orquestrador pode iniciar um único subagente via Herdr/TUI, mas o subagente recebido é terminal, resolve o bug ponta a ponta sozinho e não cria, invoca, delega ou solicita outro subagente, worker do Herdr ou mecanismo equivalente.",
+          "status": "done",
+          "source": "bugfix"
+        },
+        {
+          "id": 6,
+          "prompt": "Como o init deve tratar arquivos auxiliares em .agents e o histórico em .looper/runs no .gitignore?",
+          "answer": "O bloco gerenciado ignora o conteúdo de .agents por padrão, reabre somente .agents/skills para preservar skills locais, mantém .agents/conventions versionável e reabre .looper/runs para preservar evidências; a sincronização é idempotente.",
+          "status": "done",
+          "source": "feature"
         }
       ]
     },

@@ -76,7 +76,7 @@
       "node_id": 3,
       "references": [
         {
-          "symbol": "looper.core.ensure_agent_instructions",
+          "symbol": "looper.core.init_project",
           "identity": null,
           "status": "resolved",
           "file": "src/looper/core.py",
@@ -86,7 +86,8 @@
       ],
       "source_dependencies": [
         "looper.core.agent_templates",
-        "looper.core.ensure_agent_conventions"
+        "looper.core.ensure_agent_conventions",
+        "looper.core.ensure_agent_instructions"
       ],
       "files": [
         "src/looper/core.py"

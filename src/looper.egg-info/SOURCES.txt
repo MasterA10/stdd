@@ -23,8 +23,15 @@ src/looper.egg-info/top_level.txt
 src/looper/draw_assets/favicon.svg
 src/looper/draw_assets/icons.svg
 src/looper/draw_assets/index.html
+src/looper/draw_assets/assets/index-91HypswS.js
 src/looper/draw_assets/assets/index-BV3sfqKN.js
+src/looper/draw_assets/assets/index-C2-Wwu97.css
+src/looper/draw_assets/assets/index-CGxefH9Y.css
+src/looper/draw_assets/assets/index-CQxUuL7v.js
+src/looper/draw_assets/assets/index-CgpcqTFE.css
 src/looper/draw_assets/assets/index-Cl9369LW.css
+src/looper/draw_assets/assets/index-Ddq83d0P.js
+src/looper/draw_assets/assets/index-eEyN_tUl.js
 src/looper/templates/adapters/js_ts_static_adapter.js
 src/looper/templates/adapters/php_static_adapter.php
 src/looper/templates/adapters/static_adapter.py
@@ -58,6 +65,8 @@ src/looper/templates/agents/implement-frontend/SKILL.md
 src/looper/templates/agents/implement-frontend/agents/openai.yaml
 src/looper/templates/agents/mock-server/SKILL.md
 src/looper/templates/agents/mock-server/agents/openai.yaml
+src/looper/templates/agents/negative-spec/SKILL.md
+src/looper/templates/agents/negative-spec/agents/openai.yaml
 src/looper/templates/agents/playwright-testing/SKILL.md
 src/looper/templates/agents/playwright-testing/agents/openai.yaml
 src/looper/templates/agents/resolve-bug/SKILL.md

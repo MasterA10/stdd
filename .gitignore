@@ -27,7 +27,10 @@ htmlcov/
 .LSOverride
 Icon
 # Looper managed skills
+.agents/*
+!.agents/
 !.agents/skills/
+!.agents/skills/*/
 .agents/skills/backend-developer/
 .agents/skills/documentation-conventions/
 .agents/skills/draw-feature/
@@ -48,9 +51,11 @@ Icon
 .agents/skills/subagents/
 .agents/skills/system-design/
 .agents/skills/test-application/
-!.agents/
 !.agents/conventions/
 !.agents/conventions/**
+!.looper/
+!.looper/runs/
+!.looper/runs/**
 # End Looper managed skills
 
 Icon

@@ -18,6 +18,14 @@ relatório Markdown temporário; o agente orquestrador lê somente esse relatór
 final e o apaga imediatamente. Não considere uma alteração concluída apenas
 porque o subagente editou arquivos.
 
+O orquestrador pode usar um único subagente para executar a correção, mas o
+subagente recebido é a folha terminal desta execução: ele deve resolver o bug
+ponta a ponta sozinho e não pode criar, invocar, delegar ou solicitar outro
+subagente, worker do Herdr ou mecanismo equivalente. É proibido iniciar nesting
+ou recursão de subagentes, mesmo quando a investigação parecer paralelizável;
+se precisar de uma etapa adicional, execute-a na própria sessão e registre o
+resultado no relatório final.
+
 ## Princípio de modularização, centralização e reutilização
 
 Durante a investigação e a correção, se uma regra, validação, transformação, consulta,
@@ -34,6 +42,9 @@ O usuário autoriza o uso de subagente ao solicitar esta skill. Execute todo sub
 via `herdr` (modo nativo de agentes); não use outro mecanismo de delegação. Preserve o workspace e
 não faça commit ou push como parte desta skill. O subagente é responsável pela
 investigação e pela correção, não apenas por sugerir um plano.
+Essa é a única delegação permitida: depois de iniciado, o subagente não deve
+iniciar ou pedir qualquer subdelegação, outro worker do Herdr ou outro mecanismo
+de agentes.
 
 > **Padrão de modo**: Execute por padrão com a TUI nativa do Herdr dentro de uma pane visível, usando os próprios agentes, hooks e ciclo de vida. O agente principal não deve ler `herdr agent read`, `pane read`, scrollback ou output intermediário. Instrua o subagente a gravar o diagnóstico/plano final em um arquivo Markdown e leia somente esse artefato após o estado final.
 > 1. **Modo Interativo (Janela interativa / TUI completa, padrão)**: Inicia o agente no pane com a TUI viva (`herdr agent start ... -- <flags-yolo>`), permitindo acompanhar o processo e usar os hooks nativos sem importar o contexto interno para a sessão principal.
@@ -46,7 +57,8 @@ investigação e pela correção, não apenas por sugerir um plano.
    pedido for vago, registre o que foi observado e a pré-condição ausente.
 2. Crie um caminho único e exclusivo para o relatório temporário, por exemplo
    `.looper/runs/<run-id>/resolve-bug-report.md`, e passe esse caminho no prompt.
-   O subagente deve pesquisar a documentação necessária, ler arquivos, reproduzir
+   O prompt único deve declarar expressamente que o subagente é terminal e não
+   pode criar, invocar, delegar ou solicitar subagentes. O subagente deve pesquisar a documentação necessária, ler arquivos, reproduzir
    o sintoma, investigar a stack trace e a observabilidade, corrigir o bug, atualizar
    os Draws antes de mudanças de comportamento, associar os símbolos reais e
    executar os testes aplicáveis. Toda pesquisa, leitura de arquivos, scripts

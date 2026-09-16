@@ -48,7 +48,7 @@ GITIGNORE_RULES = (
     ".DS_Store",
     ".AppleDouble",
     ".LSOverride",
-    "Icon\r",
+    "Icon",
 )
 INTERNAL_STATE_DIRECTORIES = {".looper"}
 LEGACY_REFERENCE_PATTERN = re.compile(r"stdd", re.IGNORECASE)
@@ -610,7 +610,6 @@ def init_project(root: Path, integrations: tuple[str, ...] = ("codex",), develop
                 and (
                     path.parent.name == "scripts"
                     or source.parent.name == "backend-developer"
-                    and "backend-" in path.relative_to(source.parent).parts
                 )
                 and "open-design" not in path.relative_to(source.parent).parts
                 and path != source
@@ -691,27 +690,43 @@ def _installed_integrations(root: Path) -> tuple[str, ...]:
 
 def _managed_skills_block(integrations: tuple[str, ...]) -> str:
     """Monta regras explícitas para skills empacotadas, preservando extras locais."""
-    lines = [MANAGED_SKILLS_BLOCK_START]
+    lines = [
+        MANAGED_SKILLS_BLOCK_START,
+        ".agents/*",
+        "!.agents/",
+        "!.agents/skills/",
+        "!.agents/skills/*/",
+    ]
     roots: list[str] = []
     for integration in integrations:
         relative = AGENT_SKILL_DIRECTORIES.get(integration)
         if relative is None or relative in roots:
             continue
         roots.append(relative)
-        lines.append(f"!{relative}/")
         for source in agent_templates():
             lines.append(f"{relative}/{source.parent.name}/")
     # Conventions are project documentation and must remain versionable even
     # when a project previously ignored the whole .agents directory.
-    lines.extend(("!.agents/", "!.agents/conventions/", "!.agents/conventions/**"))
+    lines.extend(
+        (
+            "!.agents/conventions/",
+            "!.agents/conventions/**",
+            # Run history is evidence and must remain versionable even when a
+            # project previously ignored the whole .looper directory.
+            "!.looper/",
+            "!.looper/runs/",
+            "!.looper/runs/**",
+        )
+    )
     lines.append(MANAGED_SKILLS_BLOCK_END)
     return "\n".join(lines)
 
 
 def ensure_gitignore(root: Path, integrations: tuple[str, ...] | None = None) -> list[Path]:
     """Adiciona regras seguras e idempotentes ao gitignore do projeto.
-    Preserva regras existentes, ignora somente skills empacotadas e mantém
-    skills extras e convenções locais disponíveis para versionamento.
+    Preserva regras existentes, ignora auxiliares de .agents e skills
+    empacotadas, mantendo skills extras, convenções e runs disponíveis para
+    versionamento.
     """
     path = root / ".gitignore"
     existing = path.read_text(encoding="utf-8") if path.exists() else ""

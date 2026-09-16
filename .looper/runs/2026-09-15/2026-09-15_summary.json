@@ -1,0 +1,134 @@
+{
+  "version": 1,
+  "date": "2026-09-15",
+  "runs": [
+    {
+      "run_id": "cca3e344260c4625be6ce64620b3505a",
+      "timestamp": "2026-09-15T14:27:48.173668+00:00",
+      "description": "Corrige sincronização recursiva das skills backend no init",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 50,
+        "lines_deleted": 1,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 16,
+        "lines_deleted": 1,
+        "files_changed": 1
+      }
+    },
+    {
+      "run_id": "6cce12216f914b7a9341eb75f428e8b5",
+      "timestamp": "2026-09-15T14:30:19.560524+00:00",
+      "description": "Impede nesting de subagentes na skill resolve-bug",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      },
+      "checkpoint": true,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "85feae1ba0384235826c62f43685f027",
+      "timestamp": "2026-09-15T14:41:20.266812+00:00",
+      "description": "Corrige sincronização recursiva das skills backend no init",
+      "work_types": [
+        "bug"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 17,
+        "lines_deleted": 19,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "8724e5a2fd0447b2b5893a69e228d492",
+      "timestamp": "2026-09-15T15:56:20.077490+00:00",
+      "description": "desativa invocação automática da skill resolve-bug",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 11,
+        "lines_deleted": 0,
+        "files_changed": 1
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "e128a99be4d84e58a5c44100abc492dd",
+      "timestamp": "2026-09-15T19:18:30.692861+00:00",
+      "description": "Atualiza o contrato global de tipografia e cores do System Design",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 7,
+        "lines_deleted": 0,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    },
+    {
+      "run_id": "278dcd4d7cb44ed2a5d6f77af6f39d76",
+      "timestamp": "2026-09-15T22:01:38.010498+00:00",
+      "description": "Adiciona faixa de 100 a 250 caracteres para descrições de Draws",
+      "work_types": [
+        "implementacao"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 46,
+        "lines_deleted": 2,
+        "files_changed": 4
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 0,
+        "lines_deleted": 0,
+        "files_changed": 0
+      }
+    }
+  ],
+  "run_count": 6,
+  "last_run_id": "278dcd4d7cb44ed2a5d6f77af6f39d76"
+}

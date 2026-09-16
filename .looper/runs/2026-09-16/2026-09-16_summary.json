@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "date": "2026-09-16",
+  "runs": [
+    {
+      "run_id": "970807872f8a4fd98339b287ea9562c4",
+      "timestamp": "2026-09-16T18:05:24.456538+00:00",
+      "description": "Torna o gitignore do init idempotente e preserva skills locais, convenções e runs",
+      "work_types": [
+        "refactor"
+      ],
+      "diff_stats": {
+        "incremental": true,
+        "lines_added": 71,
+        "lines_deleted": 6,
+        "files_changed": 2
+      },
+      "checkpoint": false,
+      "draw_diff_stats": {
+        "incremental": true,
+        "lines_added": 7,
+        "lines_deleted": 0,
+        "files_changed": 1
+      }
+    }
+  ],
+  "run_count": 1,
+  "last_run_id": "970807872f8a4fd98339b287ea9562c4"
+}
