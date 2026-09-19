@@ -64,6 +64,8 @@ def test_init_is_idempotent_and_installs_codex_agents(tmp_path: Path, monkeypatc
     assert "$system-design" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert "escala tipográfica centralizada" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert "tokens globais semânticos" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "Modularidade de frontend" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "não concentre toda a página em uma folha grande" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert "$modern-web-guidance" not in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert "subagentes" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert "herdr" in (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
@@ -965,6 +967,26 @@ def test_frontend_dynamic_data_contract_is_published_and_injected(tmp_path: Path
     assert "sem salvar o símbolo da função de mock" in agent_instructions
     assert ".agents/conventions/dynamic-screen-data.md" not in agent_instructions
     assert "Contrato de telas dinâmicas" in agent_instructions
+
+
+def test_frontend_modularity_policy_is_published_in_skills_and_init(tmp_path: Path):
+    """Mantém a política de modularidade nas skills de frontend.
+    Confirma que o init também a publica no AGENTS.md gerado.
+    """
+    source_root = Path("src/looper/templates/agents")
+    for name in ("implement-frontend", "system-design"):
+        content = (source_root / name / "SKILL.md").read_text(encoding="utf-8").lower()
+        assert "modularidade" in content
+        assert "css externo" in content
+        assert "tailwind" in content
+        assert "javascript e html" in content
+        assert "divisão artificial" in content
+
+    init_project(tmp_path)
+    agents = (tmp_path / "AGENTS.md").read_text(encoding="utf-8").lower()
+    assert "modularidade de frontend" in agents
+    assert "não concentre toda a página em uma folha grande" in agents
+    assert "adapte a estrutura sem forçar uma divisão artificial" in agents
 
 
 def test_node_delivery_contract_covers_tests_and_full_implementation():

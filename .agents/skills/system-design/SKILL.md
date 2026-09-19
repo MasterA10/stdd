@@ -117,3 +117,19 @@ Ao implementar as telas reais da aplicação (frontend/views L2 do backlog):
 2. **Reaproveitamento de Templates**: Inspecione `.agents/skills/system-design/open-design/design-templates/` para reaproveitar estruturas de layout, cabeçalhos, barras de ação e painéis comprovados.
 3. **Contrato de Telas Dinâmicas**: Conecte informações dinâmicas exclusivamente via função `get_mock_fake` (ou similar) consumindo o JSON central do projeto.
 4. **Cobertura de Estados**: Toda tela deve contemplar estado de carregamento, estado vazio (empty state explicativo e amigável), estado preenchido e feedback de erro.
+
+### Modularidade de Estilos, Scripts e Marcação
+
+Ao criar a interface, use módulos reutilizáveis quando a stack permitir:
+
+- Para CSS externo, distribua os estilos por tokens, base, componentes e telas ou
+  responsabilidades relacionadas. Evite uma única folha grande com toda a página.
+- Para Tailwind e stacks equivalentes, siga o modelo idiomático da ferramenta; não crie
+  arquivos CSS artificiais quando utilities, configuração ou componentes já resolvem a
+  composição.
+- Para JavaScript e HTML, prefira módulos, componentes e templates reutilizáveis quando
+  houver suporte nativo. HTML estático pode permanecer junto quando a stack não oferecer
+  composição; não divida arquivos apenas para cumprir uma regra superficial ou impor uma
+  divisão artificial.
+- A organização deve refletir a realidade da stack, reduzir duplicação e manter cada
+  módulo com uma responsabilidade clara.

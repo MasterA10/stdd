@@ -35,6 +35,24 @@ looper backlog frontend
   - Não implementar controllers de backend, models, ORMs, regras de negócio complexas de servidor, persistência em banco de dados ou integrações com APIs externas.
   - Essas responsabilidades pertencem exclusivamente à fase de backend (Nível 3).
 
+## Modularidade da Implementação Frontend
+
+Organize a implementação em módulos reutilizáveis sempre que a stack oferecer esse
+suporte:
+
+- Em CSS externo, separe estilos por responsabilidade, componente ou tela relacionada
+  e evite concentrar toda a página em uma folha grande. Preserve tokens globais em um
+  ponto compartilhado e importe os módulos por uma entrada clara.
+- Em Tailwind ou outra stack utility-first, siga a organização idiomática da stack;
+  poucos arquivos CSS externos são aceitáveis quando os estilos vivem nas utilities,
+  configurações ou componentes.
+- Em JavaScript e HTML, extraia componentes, módulos e templates reutilizáveis quando
+  houver suporte nativo. Não fragmente HTML estático sem benefício; quando a stack não
+  permitir módulos de marcação, adapte a estrutura à realidade do projeto.
+- Mantenha cada módulo com uma responsabilidade compreensível e reutilizável, evitando
+  duplicação e arquivos monolíticos. A modularidade deve reduzir acoplamento sem impor
+  uma divisão artificial à stack.
+
 ## Contrato de dados dinâmicos e mock fake
 
 Antes de implementar a tela, classifique cada informação exibida como fixa ou
